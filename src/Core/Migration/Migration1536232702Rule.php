@@ -21,7 +21,7 @@ class Migration1536232702Rule extends MigrationStep
               `priority` int(11) NOT NULL,
               `payload` JSON NULL,
               `created_at` datetime(3) NOT NULL,
-              `updated_at` datetime(3) NULL DEFAULT NULL,
+              `updated_at` datetime(3) NULL,
               PRIMARY KEY (`id`),
               CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

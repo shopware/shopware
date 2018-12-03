@@ -18,7 +18,7 @@ class Migration1536237809Media extends MigrationStep
             CREATE TABLE `media` (
               `id` binary(16) NOT NULL,
               `catalog_id` binary(16) NOT NULL,
-              `user_id` binary(16) DEFAULT NULL,
+              `user_id` binary(16) NULL,
               `mime_type` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `file_extension` varchar(50) COLLATE utf8mb4_unicode_ci NULL,
               `file_size` int(10) unsigned NULL,

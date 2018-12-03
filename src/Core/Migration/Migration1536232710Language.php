@@ -18,7 +18,7 @@ class Migration1536232710Language extends MigrationStep
             CREATE TABLE `language` (
               `id` binary(16) NOT NULL,
               `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-              `parent_id` binary(16) NULL DEFAULT NULL,
+              `parent_id` binary(16) NULL,
               `locale_id` binary(16) NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),

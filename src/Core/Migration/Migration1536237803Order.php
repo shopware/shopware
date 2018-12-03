@@ -36,7 +36,7 @@ class Migration1536237803Order extends MigrationStep
               `shipping_total` double NOT NULL,
               `is_net` tinyint(1) NOT NULL,
               `is_tax_free` tinyint(1) NOT NULL,
-              `deep_link_code` varchar(32) DEFAULT NULL,
+              `deep_link_code` varchar(32) NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
                PRIMARY KEY (`id`, `version_id`),

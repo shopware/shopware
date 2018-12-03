@@ -18,8 +18,8 @@ class Migration1536239235ConfigurationGroupOption extends MigrationStep
             CREATE TABLE `configuration_group_option` (
               `id` binary(16) NOT NULL,
               `configuration_group_id` binary(16) NOT NULL,
-              `color_hex_code` VARCHAR(20) NULL DEFAULT NULL,
-              `media_id` binary(16) NULL DEFAULT NULL,
+              `color_hex_code` VARCHAR(20) NULL,
+              `media_id` binary(16) NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
               PRIMARY KEY (`id`),

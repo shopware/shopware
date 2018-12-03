@@ -22,7 +22,7 @@ class Migration1536234583DiscountSurcharge extends MigrationStep
               `type` VARCHAR(255),
               `amount` FLOAT,
               `created_at` datetime(3) NOT NULL,
-              `updated_at` datetime(3) NULL DEFAULT NULL,
+              `updated_at` datetime(3) NULL,
                PRIMARY KEY (`id`),
                CONSTRAINT `json.filter_rule` CHECK (JSON_VALID(`filter_rule`)),
                CONSTRAINT `fk.discount_surcharge.rule_id` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE

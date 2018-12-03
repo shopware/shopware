@@ -25,7 +25,7 @@ class Migration1536237798Cart extends MigrationStep
               `shipping_method_id` binary(16) NOT NULL,
               `payment_method_id` binary(16) NOT NULL,
               `country_id` binary(16) NOT NULL,
-              `customer_id` binary(16) DEFAULT NULL,
+              `customer_id` binary(16) NULL,
               `sales_channel_id` binary(16) NOT NULL,
               `created_at` datetime(3) NOT NULL,
               PRIMARY KEY (`token`),

@@ -20,7 +20,7 @@ class Migration1536239240ProductManufacturer extends MigrationStep
               `catalog_id` binary(16) NOT NULL,
               `version_id` binary(16) NOT NULL,
               `link` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
-              `media_id` binary(16) DEFAULT NULL,
+              `media_id` binary(16) NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
                PRIMARY KEY (`id`, `version_id`),

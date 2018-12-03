@@ -19,9 +19,9 @@ class Migration1536232704VersionCommit extends MigrationStep
               `id` binary(16) NOT NULL,
               `auto_increment` bigint NOT NULL AUTO_INCREMENT UNIQUE,
               `is_merge` TINYINT(1) NOT NULL DEFAULT 0,
-              `message` varchar(5000) NULL DEFAULT NULL,
-              `user_id` binary(16) DEFAULT NULL,
-              `integration_id` binary(16) DEFAULT NULL,
+              `message` varchar(5000) NULL,
+              `user_id` binary(16) NULL,
+              `integration_id` binary(16) NULL,
               `version_id` binary(16) NOT NULL,
               `created_at` datetime(3) NOT NULL,
               PRIMARY KEY (`id`)

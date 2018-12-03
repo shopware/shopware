@@ -19,7 +19,7 @@ class Migration1536232703Version extends MigrationStep
               `id` binary(16) NOT NULL,
               `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `created_at` datetime(3) NOT NULL,
-              `updated_at` datetime(3) DEFAULT NULL,
+              `updated_at` datetime(3) NULL,
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');

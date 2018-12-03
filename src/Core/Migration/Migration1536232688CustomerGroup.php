@@ -20,9 +20,9 @@ class Migration1536232688CustomerGroup extends MigrationStep
               `display_gross` tinyint(1) NOT NULL DEFAULT \'1\',
               `input_gross` tinyint(1) NOT NULL DEFAULT \'1\',
               `has_global_discount` tinyint(1) NOT NULL DEFAULT \'0\',
-              `percentage_global_discount` double DEFAULT NULL,
-              `minimum_order_amount` double DEFAULT NULL,
-              `minimum_order_amount_surcharge` double DEFAULT NULL,
+              `percentage_global_discount` double NULL,
+              `minimum_order_amount` double NULL,
+              `minimum_order_amount_surcharge` double NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
               PRIMARY KEY (`id`)

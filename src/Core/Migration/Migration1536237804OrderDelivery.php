@@ -25,7 +25,7 @@ class Migration1536237804OrderDelivery extends MigrationStep
               `shipping_method_id` binary(16) NOT NULL,
               `order_state_id` binary(16) NOT NULL,
               `order_state_version_id` binary(16) NOT NULL,
-              `tracking_code` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+              `tracking_code` varchar(200) COLLATE utf8mb4_unicode_ci NULL,
               `shipping_date_earliest` date NOT NULL,
               `shipping_date_latest` date NOT NULL,
               `created_at` datetime(3) NOT NULL,

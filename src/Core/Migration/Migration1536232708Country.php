@@ -17,14 +17,14 @@ class Migration1536232708Country extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `country` (
               `id` binary(16) NOT NULL,
-              `iso` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+              `iso` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `position` int(11) NOT NULL DEFAULT \'1\',
               `shipping_free` tinyint(1) NOT NULL DEFAULT \'0\',
               `tax_free` tinyint(1) NOT NULL DEFAULT \'0\',
               `taxfree_for_vat_id` tinyint(1) NOT NULL DEFAULT \'0\',
               `taxfree_vatid_checked` tinyint(1) NOT NULL DEFAULT \'0\',
               `active` tinyint(1) NOT NULL DEFAULT \'1\',
-              `iso3` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+              `iso3` varchar(45) COLLATE utf8mb4_unicode_ci NULL,
               `display_state_in_registration` tinyint(1) NOT NULL DEFAULT \'0\',
               `force_state_in_registration` tinyint(1) NOT NULL DEFAULT \'0\',
               `created_at` datetime(3) NOT NULL,

@@ -33,9 +33,6 @@ module.exports = {
             filter: '**/*.spec.js',
             selenium_port: 4444,
             selenium_host: 'localhost',
-            globals: {
-                waitForConditionTimeout: 5000
-            },
             screenshots: {
                 enabled: true,
                 on_failure: true,
@@ -60,9 +57,6 @@ module.exports = {
             selenium_port: 4444,
             selenium: {
                 start_process: false
-            },
-            globals: {
-                waitForConditionTimeout: 5000
             },
             screenshots: {
                 enabled: true,

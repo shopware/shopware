@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['country-create', 'country', 'create'],
+    '@tags': ['setting','country-create', 'country', 'create'],
     'open country module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries');
@@ -29,10 +29,9 @@ module.exports = {
     },
     'delete country': (browser) => {
         browser
+            .waitForElementVisible('.sw-country-list__column-name:first-child')
             .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the country "1.Niemandsland"?')
             .click('.sw-modal__footer button.sw-button--primary')

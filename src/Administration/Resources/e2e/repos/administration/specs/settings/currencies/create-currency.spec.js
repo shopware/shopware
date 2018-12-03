@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['currency-create', 'currency','create'],
+    '@tags': ['setting','currency-create', 'currency','create'],
     'open currency module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies');
@@ -31,10 +31,9 @@ module.exports = {
     },
     'delete currency': (browser) => {
         browser
+            .waitForElementVisible('.sw-grid-row:last-child .sw-currency-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-currency-list__column-name', 'Yen')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the currency "Yen"?')
             .click('.sw-modal__footer button.sw-button--primary')

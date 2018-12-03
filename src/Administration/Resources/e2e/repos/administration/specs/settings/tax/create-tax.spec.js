@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['tax-create', 'tax', 'create'],
+    '@tags': ['setting','tax-create', 'tax', 'create'],
     'open tax module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
@@ -26,10 +26,9 @@ module.exports = {
     },
     'delete tax': (browser) => {
         browser
+            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'High tax')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the tax "High tax"?')
             .click('.sw-modal__footer button.sw-button--primary')

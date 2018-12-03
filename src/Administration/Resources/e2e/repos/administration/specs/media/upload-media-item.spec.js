@@ -16,23 +16,18 @@ module.exports = {
     },
     'upload and create first media item': (browser) => {
         browser
-            .click('.sw-media-upload-button__context-button')
-            .waitForElementVisible('.sw-context-menu')
-            .waitForElementVisible('.sw-media-upload-button__button-url')
-            .click('.sw-media-upload-button__button-url')
+            .clickContextMenuItem('.sw-media-upload-button__button-url','.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]',`${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
+            .fillField('input[name=sw-field--url]',`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close');
     },
     'upload and create second media item': (browser) => {
         browser
-            .click('.sw-media-upload-button__context-button')
-            .waitForElementVisible('.sw-context-menu')
-            .click('.sw-media-upload-button__button-url')
+            .clickContextMenuItem('.sw-media-upload-button__button-url','.sw-media-upload-button__context-button')
             .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/img/sw-login-background.png`)
+            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close');
@@ -79,9 +74,7 @@ module.exports = {
     },
     'delete second item and verify deletion': (browser) => {
         browser
-            .click('.sw-context-button__button')
-            .waitForElementVisible('.sw-context-menu__content')
-            .click('.sw-context-menu__group .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger','.sw-context-button__button')
             .waitForElementVisible('.sw-media-modal-delete')
             .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background" ?')
             .click('.sw-media-modal-delete__confirm')

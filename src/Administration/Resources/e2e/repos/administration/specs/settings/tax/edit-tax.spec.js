@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['tax-edit', 'tax', 'edit'],
+    '@tags': ['setting','tax-edit', 'tax', 'edit'],
     'open tax module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
@@ -27,9 +27,7 @@ module.exports = {
     'edit tax': (browser) => {
         browser
             .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'High tax')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-tax-list__edit-action')
+            .clickContextMenuItem('.sw-tax-list__edit-action', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate')
             .waitForElementPresent('.sw-settings-tax-detail__save-action')
@@ -49,10 +47,9 @@ module.exports = {
     },
     'delete tax': (browser) => {
         browser
+            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate')
-            .click('.sw-grid-row:last-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the tax "Even higher tax rate"?')
             .click('.sw-modal__footer button.sw-button--primary')

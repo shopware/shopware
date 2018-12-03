@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['product-inline-edit'],
+    '@tags': ['product', 'product-inline-edit', 'inline-edit'],
     'open product listing': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Products')
@@ -40,15 +40,14 @@ module.exports = {
             .fillField('input[name=sw-field--item-name]', 'Second one')
             .waitForElementVisible('.is--inline-editing .sw-button--primary')
             .click('.is--inline-editing .sw-button--primary')
+            .waitForElementNotPresent('.is--inline-editing ')
+            .refresh()
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', 'Second one');
     },
     'delete created product': (browser) => {
         browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementPresent('body > .sw-context-menu')
-            .click('body > .sw-context-menu .sw-context-menu-item--danger')
+            .clickContextMenuItem('.sw-context-menu-item--danger','.sw-context-button__button','.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product "Second one"?')
             .click('.sw-modal__footer button.sw-button--primary')

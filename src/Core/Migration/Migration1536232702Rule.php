@@ -18,6 +18,8 @@ class Migration1536232702Rule extends MigrationStep
             CREATE TABLE `rule` (
               `id` binary(16) NOT NULL,
               `name` varchar(500) NOT NULL,
+              `type` VARCHAR(256) NULL,
+              `description` LONGTEXT NULL,
               `priority` int(11) NOT NULL,
               `payload` JSON NULL,
               `created_at` datetime(3) NOT NULL,

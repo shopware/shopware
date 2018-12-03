@@ -30,8 +30,8 @@
     }
 
     .sw-media-preview__item {
-        max-width: 80%;
-        max-height: 75%;
+        max-width: calc(100% - 32px);
+        max-height: calc(100% - 32px);
         position: absolute;
         left: 50%;
         top: 50%;
@@ -46,6 +46,11 @@
             transform: translate(-50%, -100%);
             padding-bottom: 5px;
         }
+    }
+    svg.sw-media-preview__item {
+        height: calc(100% - 32px);
+        width: calc(100% - 32px);
+        max-height: 100px;
     }
 
     .sw-media-preview__play-button {
@@ -66,6 +71,5 @@
 
     .sw-media-preview__placeholder {
         padding: 0;
-        max-height: 100px;
     }
 }

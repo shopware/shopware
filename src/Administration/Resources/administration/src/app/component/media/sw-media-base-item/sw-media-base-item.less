@@ -9,7 +9,7 @@
 @sw-media-base-item-color-loading-indicator: @color-gutenberg;
 @sw-media-base-item-color-hover:             @color-cadet-blue;
 @sw-media-base-item-color-metadata:          lighten(@color-gutenberg, 30);
-@sw-media-base-pseudo-padding:               25px;
+@sw-media-base-pseudo-padding:               33px;
 @sw-media-base-color-input-background:       @color-white;
 @sw-media-base-color-input-border:           @color-steam-cloud;
 @sw-media-base-border-radius-input:          @border-radius-default;
@@ -18,13 +18,17 @@
 
 .sw-media-base-item {
     position: relative;
-    padding: 15px 17.5px;
+    padding: 16px;
     color: @sw-media-base-item-color;
 
     &:hover {
         background-color: @sw-media-base-item-color-hover;
 
         .sw-media-item__selected-indicator {
+            visibility: visible;
+        }
+
+        .sw-context-button {
             visibility: visible;
         }
     }
@@ -61,13 +65,14 @@
 
     .sw-context-button {
         position: absolute;
-        top: 20px;
-        right: 25px;
+        top: calc(@sw-media-base-pseudo-padding - 4px);
+        right: @sw-media-base-pseudo-padding;
+        visibility: hidden;
 
         .sw-context-button__button {
-            height: 18px;
-            padding: 0 4px;
-            line-height: 16px;
+            height: 16px;
+            padding: 0 2px;
+            line-height: 13px;
             background: @sw-media-base-item-color-context-button;
             border: 1px solid @sw-media-base-item-color-border;
             border-radius: @sw-media-base-item-border-radius;
@@ -108,7 +113,7 @@
         grid-column-gap: 10px;
         grid-auto-flow: column;
         align-items: center;
-        padding: 5px 8px;
+        padding: 8px;
         margin: 0 0 8px;
         border: 1px solid @sw-media-base-item-color-border;
         border-radius: @sw-media-base-item-border-radius;
@@ -120,9 +125,13 @@
             font-size: @font-size-small;
         }
 
+        .sw-media-media-item__name {
+            line-height: 18px;
+        }
+
         .sw-media-base-item__metadata-container {
             display: block;
-            margin: 0;
+            margin: -5px 0 0 0;
             text-align: left;
             font-weight: normal;
             color: @sw-media-base-item-color-metadata;
@@ -133,9 +142,19 @@
             width: 40px;
             height: 40px;
             grid-row: 1 / span 2;
+            overflow: hidden;
 
             .sw-media-preview__item {
                 padding: 0;
+                height: 100%;
+                width: 100%;
+                max-height: none;
+                max-width: none;
+
+                &.sw-icon {
+                    height: 80%;
+                    width: 80%;
+                }
             }
         }
 
@@ -146,6 +165,7 @@
         .sw-context-button {
             position: static;
             grid-row: 1 / span 2;
+            visibility: visible;
         }
 
         .sw-context-button__button {

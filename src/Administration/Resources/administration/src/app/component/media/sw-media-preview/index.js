@@ -72,7 +72,6 @@ Component.register('sw-media-preview', {
 
         checkForFileTypeSvg() {
             const regEx = /.*svg.*/;
-
             return regEx.test(this.item.mimeType);
         },
 

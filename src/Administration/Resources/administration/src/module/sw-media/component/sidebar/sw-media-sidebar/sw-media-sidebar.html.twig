@@ -20,6 +20,12 @@
                                     @sw-media-quickinfo-open-modal-delete="openModalDelete">
                                 </sw-media-quickinfo>
 
+                                <div v-else-if="isSingleFile && items[0].entityName === 'media_folder'">
+                                    <sw-alert variant="info" style="margin: 25px">
+                                        {{ $tc('sw-media.sidebar.quickinfo.infoFolder') }}
+                                    </sw-alert>
+                                </div>
+
                                 <sw-media-quickinfo-multiple
                                     v-else-if="isMultipleFile"
                                     :items="items"

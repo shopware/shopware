@@ -39,7 +39,7 @@
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_delete %}
-                            <sw-context-menu-item variant="danger">
+                            <sw-context-menu-item disabled svariant="danger" @click="openModalDelete">
                                 {{ $tc('global.sw-media-folder-item.labelContextMenuDelete') }}
                             </sw-context-menu-item>
                         {% endblock %}

@@ -1,6 +1,6 @@
 {% block sw_tabs_item %}
     {% block sw_tabs_item_router_link %}
-        <router-link v-if="route" class="sw-tabs-item" :to="route">
+        <router-link v-if="route" class="sw-tabs-item" :class="tabsItemClasses" :to="route">
             {% block sw_tabs_item_router_link_label %}
                 <slot>{% block sw_tabs_item_router_link_slot_default %}{% endblock %}</slot>
             {% endblock %}
@@ -8,7 +8,7 @@
     {% endblock %}
 
     {% block sw_tabs_item_button %}
-        <button v-else class="sw-tabs-item">
+        <button v-else class="sw-tabs-item" :class="tabsItemClasses" v-on="$listeners" @click="activate">
             {% block sw_tabs_item_button_label %}
                 <slot>{% block sw_tabs_item_button_slot_default %}{% endblock %}</slot>
             {% endblock %}

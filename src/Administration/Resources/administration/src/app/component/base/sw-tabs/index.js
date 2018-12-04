@@ -43,10 +43,31 @@ import './sw-tabs.less';
 Component.register('sw-tabs', {
     template,
 
+    props: {
+        variant: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['default', 'minimal'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['default', 'minimal'].includes(value);
+            }
+        },
+        defaultItem: {
+            type: String,
+            required: false,
+            default: ''
+        }
+    },
+
     data() {
         return {
             showArrowControls: false,
-            scrollbarOffset: ''
+            scrollbarOffset: '',
+            active: this.defaultItem
         };
     },
 
@@ -55,6 +76,12 @@ Component.register('sw-tabs', {
             return {
                 bottom: this.scrollbarOffset,
                 'margin-top': this.scrollbarOffset
+            };
+        },
+
+        tabBarClass() {
+            return {
+                [`sw-tabs__bar-${this.variant}`]: this.variant
             };
         }
     },

@@ -1,6 +1,7 @@
 @import "~less/variables";
 @import "~less/mixins";
 
+@sw-media-quickinfo-color-divider:      @color-steam-cloud;
 @sw-media-quickinfo-icon-color:         @color-shopware-blue;
 @sw-media-quickinfo-icon-color-danger:  @color-crimson;
 @sw-media-quickinfo-hover-background:   @color-cadet-blue;
@@ -55,5 +56,9 @@
         &.is--danger {
             color: @sw-media-quickinfo-icon-color-danger;
         }
+    }
+
+    >:last-child {
+        border-bottom: 1px solid @sw-media-quickinfo-color-divider;
     }
 }

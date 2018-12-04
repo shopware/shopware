@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet;
+namespace Shopware\Core\Framework\Snippet;
 
 class SnippetEvents
 {

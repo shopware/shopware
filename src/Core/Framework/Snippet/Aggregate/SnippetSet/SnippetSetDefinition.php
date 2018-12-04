@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet\Aggregate\SnippetSet;
+namespace Shopware\Core\Framework\Snippet\Aggregate\SnippetSet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
-use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\Framework\Snippet\SnippetDefinition;
 
 class SnippetSetDefinition extends EntityDefinition
 {
@@ -30,7 +30,7 @@ class SnippetSetDefinition extends EntityDefinition
             (new StringField('iso', 'iso'))->setFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false))->setFlags(new CascadeDelete()),
         ]);
     }
 
@@ -41,6 +41,6 @@ class SnippetSetDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return SnippetSetStruct::class;
+        return SnippetSetEntity::class;
     }
 }

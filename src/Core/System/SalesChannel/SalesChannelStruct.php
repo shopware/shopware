@@ -328,9 +328,6 @@ class SalesChannelStruct extends Entity
         return $this->language;
     }
 
-    /**
-     * @param LanguageStruct $language
-     */
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;

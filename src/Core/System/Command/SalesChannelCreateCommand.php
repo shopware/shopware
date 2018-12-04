@@ -36,6 +36,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::uuid4()->getHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'Storefront API endpoint')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_EN)
+            ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set', Defaults::SNIPPET_BASE_SET_EN)
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method', Defaults::PAYMENT_METHOD_DEBIT)
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method', Defaults::SHIPPING_METHOD)
@@ -57,6 +58,7 @@ class SalesChannelCreateCommand extends Command
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'configuration' => $this->getSalesChannelConfiguration($input, $output),
             'languageId' => $input->getOption('languageId'),
+            'snippetSetId' => $input->getOption('snippetSetId'),
             'currencyId' => $input->getOption('currencyId'),
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $input->getOption('paymentMethodId'),

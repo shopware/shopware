@@ -118,6 +118,7 @@ trait StorefrontApiTestBehaviour
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,
             'languageId' => Defaults::LANGUAGE_EN,
+            'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,

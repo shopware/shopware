@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet;
+namespace Shopware\Core\Framework\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Language\LanguageStruct;
-use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetStruct;
 
-class SnippetStruct extends Entity
+class SnippetEntity extends Entity
 {
     use EntityIdTrait;
     /**
@@ -46,7 +46,7 @@ class SnippetStruct extends Entity
     protected $language;
 
     /**
-     * @var SnippetSetStruct
+     * @var SnippetSetEntity
      */
     protected $set;
 
@@ -127,17 +127,17 @@ class SnippetStruct extends Entity
     }
 
     /**
-     * @return SnippetSetStruct
+     * @return SnippetSetEntity
      */
-    public function getSet(): SnippetSetStruct
+    public function getSet(): SnippetSetEntity
     {
         return $this->set;
     }
 
     /**
-     * @param SnippetSetStruct $set
+     * @param SnippetSetEntity $set
      */
-    public function setSet(SnippetSetStruct $set): void
+    public function setSet(SnippetSetEntity $set): void
     {
         $this->set = $set;
     }

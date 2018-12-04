@@ -3,13 +3,19 @@
 namespace Shopware\Core\Framework\Translation;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
+use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Framework\Snippet\Services\SnippetFlattenerInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Translation\Exception\LogicException;
+use Symfony\Component\Translation\Formatter\ChoiceMessageFormatterInterface;
+use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -41,12 +47,37 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
      */
     private $isCustomized = [];
 
-    public function __construct(TranslatorInterface $translator, RequestStack $requestStack, Connection $connection, CacheItemPoolInterface $cache)
-    {
+    /**
+     * @var LanguageFileCollection
+     */
+    private $languageFileCollection;
+
+    /**
+     * @var MessageFormatterInterface
+     */
+    private $formatter;
+
+    /**
+     * @var SnippetFlattenerInterface
+     */
+    private $snippetFlattener;
+
+    public function __construct(
+        TranslatorInterface $translator,
+        RequestStack $requestStack,
+        Connection $connection,
+        CacheItemPoolInterface $cache,
+        LanguageFileCollection $languageFileCollection,
+        MessageFormatterInterface $formatter,
+        SnippetFlattenerInterface $snippetFlattener
+    ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;
         $this->connection = $connection;
         $this->cache = $cache;
+        $this->languageFileCollection = $languageFileCollection;
+        $this->formatter = $formatter;
+        $this->snippetFlattener = $snippetFlattener;
     }
 
     /**
@@ -64,7 +95,11 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
      */
     public function trans($id, array $parameters = [], $domain = null, $locale = null)
     {
-        return $this->translator->trans($id, $parameters, $domain, $locale);
+        if ($domain === null) {
+            $domain = 'messages';
+        }
+
+        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale, $parameters);
     }
 
     /**
@@ -72,7 +107,26 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
      */
     public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
     {
-        return $this->translator->transChoice($id, $number, $parameters, $domain, $locale);
+        if (!$this->formatter instanceof ChoiceMessageFormatterInterface) {
+            throw new LogicException(sprintf('The formatter "%s" does not support plural translations.', \get_class($this->formatter)));
+        }
+
+        if ($domain === null) {
+            $domain = 'messages';
+        }
+
+        $catalogue = $this->getCatalogue($locale);
+        $locale = $catalogue->getLocale();
+        while (!$catalogue->defines($id, $domain)) {
+            if ($cat = $catalogue->getFallbackCatalogue()) {
+                $catalogue = $cat;
+                $locale = $catalogue->getLocale();
+            } else {
+                break;
+            }
+        }
+
+        return $this->formatter->choiceFormat($catalogue->get($id, $domain), $number, $locale, $parameters);
     }
 
     /**
@@ -112,18 +166,17 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
 
         /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        $contextHash = md5($context->getLanguageId() . $context->getFallbackLanguageId());
 
-        if (array_key_exists($contextHash, $this->isCustomized)) {
-            return $this->isCustomized[$contextHash];
+        if (array_key_exists($context->getSnippetSetId(), $this->isCustomized)) {
+            return $this->isCustomized[$context->getSnippetSetId()];
         }
 
-        $cacheItem = $this->cache->getItem('translation.catalog.' . $contextHash);
-
+        $cacheItem = $this->cache->getItem('translation.catalog.' . $context->getSnippetSetId());
         if ($cacheItem->isHit()) {
             $snippets = $cacheItem->get();
         } else {
-            $snippets = $this->fetchSnippetsFromDatabase($context);
+            $snippets = $this->getSnippets($catalog, $context);
+
             $cacheItem->set($snippets);
             $this->cache->save($cacheItem);
         }
@@ -131,31 +184,78 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
         $newCatalog = clone $catalog;
         $newCatalog->add($snippets);
 
-        return $this->isCustomized[$contextHash] = $newCatalog;
-    }
-
-    private function getSnippetQuery(string $languageId): QueryBuilder
-    {
-        return $this->connection->createQueryBuilder()
-            ->select(['snippet.translation_key', 'snippet.value'])
-            ->from('snippet')
-            ->where('snippet.language_id = :languageId')
-            ->setParameter('languageId', Uuid::fromHexToBytes($languageId))
-            ->addGroupBy('snippet.translation_key')
-        ;
+        return $this->isCustomized[$context->getSnippetSetId()] = $newCatalog;
     }
 
     private function fetchSnippetsFromDatabase(Context $context): array
     {
-        $snippets = $this->getSnippetQuery($context->getLanguageId())->execute()->fetchAll();
-        $snippets = FetchModeHelper::keyPair($snippets);
+        $query = $this->connection->createQueryBuilder()
+            ->select(['snippet.translation_key', 'snippet.value'])
+            ->from('snippet')
+            ->where('snippet.snippet_set_id = :snippetSetId')
+            ->setParameter('snippetSetId', Uuid::fromHexToBytes($context->getSnippetSetId()))
+            ->addGroupBy('snippet.translation_key')
+            ->addGroupBy('snippet.id');
 
-        $fallbackSnippets = [];
-        if ($context->hasFallback()) {
-            $fallbackSnippets = $this->getSnippetQuery($context->getFallbackLanguageId())->execute()->fetchAll();
-            $fallbackSnippets = FetchModeHelper::keyPair($fallbackSnippets);
+        $snippets = $query->execute()->fetchAll();
+
+        return FetchModeHelper::keyPair($snippets);
+    }
+
+    private function getLocaleBySnippetSetId(string $snippetSetId): string
+    {
+        $locale = $this->connection->createQueryBuilder()
+            ->select(['iso'])
+            ->from('snippet_set')
+            ->where('id = :snippetSetId')
+            ->setParameter('snippetSetId', Uuid::fromHexToBytes($snippetSetId))
+            ->execute()
+            ->fetchColumn();
+
+        if ($locale === false) {
+            $locale = $this->getDefaultLocale();
         }
 
-        return array_merge($fallbackSnippets, $snippets);
+        return $locale;
+    }
+
+    private function getDefaultLocale(): string
+    {
+        $locale = $this->connection->createQueryBuilder()
+            ->select(['code'])
+            ->from('locale')
+            ->where('id = :localeId')
+            ->setParameter('localeId', Uuid::fromHexToBytes(Defaults::LOCALE_EN_GB))
+            ->execute()
+            ->fetchColumn();
+
+        return $locale ?: Defaults::LOCALE_EN_GB_ISO;
+    }
+
+    private function getSnippets(MessageCatalogueInterface $catalog, Context $context): array
+    {
+        $locale = $this->getLocaleBySnippetSetId($context->getSnippetSetId());
+
+        $languageFiles = $this->languageFileCollection->getLanguageFilesByIso($locale);
+        $fileSnippets = $catalog->all('messages');
+
+        /** @var LanguageFileInterface $languageFile */
+        foreach ($languageFiles as $key => $languageFile) {
+            $fattenLanguageFileSnippets = $this->snippetFlattener->flatten(
+                json_decode(file_get_contents($languageFile->getPath()), true) ?: []
+            );
+
+            $fileSnippets = array_replace_recursive(
+                $fileSnippets,
+                $fattenLanguageFileSnippets
+            );
+        }
+
+        $snippets = array_replace_recursive(
+            $fileSnippets,
+            $this->fetchSnippetsFromDatabase($context)
+        );
+
+        return $snippets;
     }
 }

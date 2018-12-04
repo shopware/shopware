@@ -30,7 +30,8 @@ class StorefrontSalesChannelControllerTest extends TestCase
 
     public function setUp()
     {
-        $this->getStorefrontClient()->setServerParameter('CONTENT_TYPE', 'application/json');
+        $client = $this->getStorefrontClient();
+        $client->setServerParameter('CONTENT_TYPE', 'application/json');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->context = Context::createDefaultContext();

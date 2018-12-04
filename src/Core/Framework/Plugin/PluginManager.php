@@ -408,7 +408,6 @@ class PluginManager
             null,
             [],
             Defaults::CURRENCY,
-            Defaults::LANGUAGE_EN,
             Defaults::LANGUAGE_EN
         );
     }

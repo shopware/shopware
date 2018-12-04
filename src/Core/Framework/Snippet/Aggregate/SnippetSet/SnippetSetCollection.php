@@ -1,28 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet\Aggregate\SnippetSet;
+namespace Shopware\Core\Framework\Snippet\Aggregate\SnippetSet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SnippetSetCollection extends EntityCollection
 {
     /**
-     * @var SnippetSetStruct[]
+     * @var SnippetSetEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? SnippetSetStruct
+    public function get(string $id): ? SnippetSetEntity
     {
         return parent::get($id);
     }
 
-    public function current(): SnippetSetStruct
+    public function current(): SnippetSetEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return SnippetSetStruct::class;
+        return SnippetSetEntity::class;
     }
 }

@@ -500,13 +500,23 @@
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="snippet.repository" public="true">
-            <argument>Shopware\Core\System\Snippet\SnippetDefinition</argument>
+            <argument>Shopware\Core\Framework\Snippet\SnippetDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="snippet_set.repository" public="true">
+            <argument>Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="tax.repository" public="true">
             <argument>Shopware\Core\System\Tax\TaxDefinition</argument>
@@ -1028,15 +1038,6 @@
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="discount_surcharge_translation.repository" public="true">
             <argument>Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="snippet_set.repository" public="true">
-            <argument>Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>

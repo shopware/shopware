@@ -15,14 +15,23 @@ use Shopware\Core\Framework\Struct\Struct;
 class CheckoutContextService implements CheckoutContextServiceInterface
 {
     public const CURRENCY_ID = 'currencyId';
+
     public const LANGUAGE_ID = 'languageId';
+
     public const CUSTOMER_ID = 'customerId';
+
     public const CUSTOMER_GROUP_ID = 'customerGroupId';
+
     public const BILLING_ADDRESS_ID = 'billingAddressId';
+
     public const SHIPPING_ADDRESS_ID = 'shippingAddressId';
+
     public const PAYMENT_METHOD_ID = 'paymentMethodId';
+
     public const SHIPPING_METHOD_ID = 'shippingMethodId';
+
     public const COUNTRY_ID = 'countryId';
+
     public const STATE_ID = 'stateId';
 
     /**

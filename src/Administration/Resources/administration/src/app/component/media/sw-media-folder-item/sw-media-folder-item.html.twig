@@ -14,9 +14,7 @@
                 @sw-media-item-clicked="handleGridItemClick">
 
             {% block sw_media_folder_item_preview %}
-                <div slot="media-item-preview" class="sw-media-folder-item__preview" :class="mediaFolderPreviewClasses">
-                    <sw-icon name="folder-thumbnail" size="90%" class="sw-media-folder-item__folder-thumbnails"  multicolor></sw-icon>
-                </div>
+                <sw-icon slot="media-item-preview" name="folder-thumbnail" size="90%" class="sw-media-folder-item__folder-thumbnails"  multicolor></sw-icon>
             {% endblock %}
 
             {% block sw_media_folder_meta_data %}
@@ -39,7 +37,7 @@
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_delete %}
-                            <sw-context-menu-item disabled svariant="danger" @click="openModalDelete">
+                            <sw-context-menu-item disabled variant="danger">
                                 {{ $tc('global.sw-media-folder-item.labelContextMenuDelete') }}
                             </sw-context-menu-item>
                         {% endblock %}

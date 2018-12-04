@@ -17,9 +17,11 @@
         {% endblock %}
 
         {% block sw_media_base_item_preview %}
-            <slot name="media-item-preview">
-                {% block sw_media_base_item_slot_media_preview %}{% endblock %}
-            </slot>
+            <div class="sw-media-base-item-preview-container">
+                <slot name="media-item-preview">
+                    {% block sw_media_base_item_slot_media_preview %}{% endblock %}
+                </slot>
+            </div>
         {% endblock %}
 
         {% block sw_media_base_item_name_container %}

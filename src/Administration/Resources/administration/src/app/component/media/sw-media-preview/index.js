@@ -55,9 +55,7 @@ Component.register('sw-media-preview', {
 
         transparencyClass() {
             return {
-                'shows--transparency':
-                this.checkForFileTypeImage
-                && this.transparency
+                'shows--transparency': this.checkForFileTypeImage && this.transparency
             };
         },
 

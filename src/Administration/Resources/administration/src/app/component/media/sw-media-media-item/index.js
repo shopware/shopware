@@ -63,7 +63,6 @@ Component.register('sw-media-media-item', {
 
         mediaPreviewClasses() {
             return {
-                'is--highlighted': this.selected,
                 'sw-media-preview--list': this.isList
             };
         },

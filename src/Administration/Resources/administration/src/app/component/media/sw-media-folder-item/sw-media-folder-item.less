@@ -8,30 +8,6 @@
 .sw-media-folder-item{
     position: relative;
 
-    .sw-media-folder-item__preview {
-        background-color: @sw-media-folder-item-background-color-preview;
-        position: relative;
-        width: 100%;
-        border: 1px solid @sw-media-folder-item-border-color-preview;
-        border-radius: @sw-media-folder-item-border-radius-preview;
-
-        &.is--selected {
-            border: 1px solid @sw-media-folder-item-border-color-highlighted-preview;
-        }
-
-        &.is--list {
-            width: 40px;
-            height: 40px;
-            grid-row: 1 / span 2;
-        }
-
-        &:after {
-            content: "";
-            display: block;
-            padding-bottom: 75%;
-        }
-    }
-
     .sw-media-folder-item__folder-thumbnails {
         position: absolute;
         left: 50%;

@@ -74,7 +74,8 @@ Component.register('sw-media-base-item', {
     computed: {
         mediaItemClasses() {
             return {
-                'is--list': this.isList
+                'is--list': this.isList,
+                'is--selected': this.selected || this.isInlineEdit
             };
         },
 

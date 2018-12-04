@@ -81,7 +81,7 @@
                     {% block sw_media_quickinfo_preview_content %}
                         <div class="sw-media-quickinfo__collapse-content">
                             {% block sw_media_quickinfo_preview_item %}
-                                <sw-media-preview :item="item" :showControls="true" :autoplay="autoplay" :useThumbnails="false">
+                                <sw-media-preview class="sw-media-quickinfo__media-preview" :item="item" :showControls="true" :autoplay="autoplay" :useThumbnails="false">
                                 </sw-media-preview>
                             {% endblock %}
                         </div>

@@ -27,13 +27,6 @@ Component.register('sw-media-folder-item', {
     },
 
     computed: {
-        mediaFolderPreviewClasses() {
-            return {
-                'is--selected': this.selected,
-                'is--list': this.isList
-            };
-        },
-
         defaultContextMenuClass() {
             return {
                 'sw-context-menu__group': this.$slots['additional-context-menu-items']

@@ -27,16 +27,14 @@ module.exports = {
             )
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Language "Philippine English english" has been saved successfully.')
+            .checkNotification('Language "Philippine English english" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'go back to listing and verify creation': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.sw-settings-language-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English english');
     },
@@ -48,16 +46,13 @@ module.exports = {
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English english')
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Language "Very Philippine English english" has been saved successfully.')
+            .checkNotification('Language "Very Philippine English english" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'verify edited language': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-language-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Philippine English english');
     },
@@ -69,8 +64,7 @@ module.exports = {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the language "Very Philippine English english"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-notifications .sw-alert', 'Language "Very Philippine English english" has been deleted successfully.');
+            .checkNotification('Language "Very Philippine English english" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

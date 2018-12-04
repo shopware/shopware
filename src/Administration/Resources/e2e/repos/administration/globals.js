@@ -1,4 +1,4 @@
-const loginPage = require('./specs/login.js');
+const loginPage = require('./specs/before-scenario.js');
 
 module.exports = {
     waitForConditionTimeout: 30000,
@@ -7,7 +7,7 @@ module.exports = {
     beforeEach: (browser, done) => {
         browser.url(browser.launch_url);
 
-        browser.execute(function() {
+        browser.execute(function () {
             // Disable the auto closing of notifications globally.
             Shopware.State.getStore('notification')._defaults.autoClose = false;
 
@@ -15,7 +15,7 @@ module.exports = {
             return localStorage.getItem('bearerAuth');
         }, [], (data) => {
             if (!data.value) {
-                loginPage.login(browser);
+                loginPage.login(browser, 'admin', 'shopware', done);
             }
 
             done();

@@ -1,6 +1,5 @@
 class IntegrationPageObject {
     constructor(browser) {
-        // constructor
         this.browser = browser;
         this.elements = {};
         this.elements.integrationName = 'input[name=sw-field--currentIntegration-label]';
@@ -19,10 +18,7 @@ class IntegrationPageObject {
             me.browser
                 .waitForElementVisible('.sw-field__copy-button')
                 .click('.sw-field__copy-button')
-                .waitForElementVisible('.sw-notifications .sw-alert')
-                .assert.containsText('.sw-alert .sw-alert__message', 'Text has been copied to clipboard')
-                .click('.sw-alert .sw-alert__close')
-                .waitForElementNotPresent('.sw-notifications .sw-alert')
+                .checkNotification('Text has been copied to clipboard')
                 .clearValue(me.elements.integrationName)
                 .setValue(me.elements.integrationName, ['', me.browser.Keys.CONTROL, 'v'])
                 .expect.element(me.elements.integrationName).value.to.equal(me.accessKeyId);
@@ -49,8 +45,7 @@ class IntegrationPageObject {
                 })
                 .waitForElementVisible('.sw-integration-detail-modal__save-action')
                 .click('.sw-integration-detail-modal__save-action')
-                .waitForElementVisible('.sw-notification__alert')
-                .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully');
+                .checkNotification('Integration has been saved successfully');
         });
     }
 
@@ -80,8 +75,8 @@ class IntegrationPageObject {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal__body', `Are you sure you want to delete this integration? ${integrationName}`)
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-integration-list__column-integration-name')
             .waitForElementNotPresent('.sw-modal')
+            .waitForElementNotPresent('.sw-integration-list__column-integration-name')
             .waitForElementPresent('.sw-empty-state__title')
             .assert.containsText('.sw-empty-state__title', 'No integrations yet');
     }

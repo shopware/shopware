@@ -1,4 +1,5 @@
 const manufacturerPage = require('administration/page-objects/sw-manufacturer.page-object.js');
+const mediaPageObject = require('administration/page-objects/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['product', 'manufacturer-create', 'manufacturer', 'create'],
@@ -44,11 +45,12 @@ module.exports = {
             .waitForElementVisible('.sw-product-detail-base')
             .fillSelectField('select[name=sw-field--product-manufacturerId]', 'MAN-U-FACTURE');
     },
-    'delete manufacturer': (browser) => {
+    'delete manufacturer, including its logo': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer');
 
         const page = manufacturerPage(browser);
+        const mediaPage = mediaPageObject(browser);
         page.deleteManufacturer('MAN-U-FACTURE');
 
         browser
@@ -57,6 +59,10 @@ module.exports = {
             .waitForElementVisible('.sw-grid-row:first-child')
             .assert.containsText('.sw-grid-row:first-child', 'shopware AG')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+
+        mediaPage.openMediaFolder();
+        mediaPage.deleteImage();
+        browser.waitForElementNotPresent('.sw-media-index__catalog-grid .sw-media-grid__content-cell');
     },
     after: (browser) => {
         browser.end();

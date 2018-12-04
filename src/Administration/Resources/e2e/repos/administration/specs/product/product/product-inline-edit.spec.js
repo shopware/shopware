@@ -22,14 +22,12 @@ module.exports = {
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
             .click('.smart-bar__actions button.sw-button--primary')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'successfully.')
+            .checkNotification('successfully')
             .assert.urlContains('#/sw/product/detail');
     },
     'go back to listing': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
-            .click('.sw-alert button.sw-alert__close')
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
             .assert.containsText('.sw-product-list__column-product-name', 'First one');

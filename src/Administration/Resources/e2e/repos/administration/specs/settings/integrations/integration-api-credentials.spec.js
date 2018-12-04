@@ -21,14 +21,11 @@ module.exports = {
             .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]','on')
             .waitForElementPresent('.sw-integration-detail-modal__save-action')
             .click('.sw-integration-detail-modal__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully')
+            .checkNotification('Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify newly created integration': (browser) => {
         browser
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-notifications .sw-alert')
             .waitForElementPresent('.sw-integration-list__column-integration-name')
             .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Wonderful API integration example');
     },
@@ -56,8 +53,6 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-notification__alert')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementPresent('.sw-integration-list__column-integration-name')
             .clickContextMenuItem('.sw_integration_list__edit-action', '.sw-context-button__button')

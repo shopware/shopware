@@ -21,14 +21,12 @@ module.exports = {
             .click('input[name=sw-field--currentIntegration-writeAccess]')
             .waitForElementPresent('.sw-integration-detail-modal__save-action')
             .click('.sw-integration-detail-modal__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully')
+            .checkNotification('Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify newly created integration': (browser) => {
         browser
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-notifications .sw-alert')
+            .refresh()
             .waitForElementPresent('.sw-integration-list__column-integration-name')
             .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Edits integration');
     },
@@ -42,14 +40,12 @@ module.exports = {
             .assert.containsText('.sw-modal__title', 'Integration')
             .fillField('input[name=sw-field--currentIntegration-label]', 'Once again: Edits integration')
             .click('.sw-integration-detail-modal__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully')
+            .checkNotification('Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify saving of edited integration': (browser) => {
         browser
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-notifications .sw-alert')
+            .refresh()
             .waitForElementPresent('.sw-integration-list__column-integration-name')
             .click('.sw-context-button__button')
             .waitForElementVisible('body > .sw-context-menu')

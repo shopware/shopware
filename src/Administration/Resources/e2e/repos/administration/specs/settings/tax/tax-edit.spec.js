@@ -13,16 +13,14 @@ module.exports = {
             .fillField('input[name=sw-field--tax-name]', 'High tax')
             .fillField('input[name=sw-field--tax-taxRate]', '99')
             .click('.sw-settings-tax-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Tax "High tax" has been saved successfully.')
+            .checkNotification('Tax "High tax" has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'go back to listing': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
-            .waitForElementVisible('.sw-settings-tax-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message');
+            .waitForElementNotPresent('.sw-loader')
+            .waitForElementVisible('.sw-settings-tax-list-grid');
     },
     'edit tax': (browser) => {
         browser
@@ -32,16 +30,13 @@ module.exports = {
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate')
             .waitForElementPresent('.sw-settings-tax-detail__save-action')
             .click('.sw-settings-tax-detail__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert__message', 'Tax "Even higher tax rate" has been saved successfully.')
+            .checkNotification('Tax "Even higher tax rate" has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'verify edited tax': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-tax-list-grid')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate');
     },
@@ -53,8 +48,7 @@ module.exports = {
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the tax "Even higher tax rate"?')
             .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-notifications .sw-alert', 'Tax "Even higher tax rate" has been deleted successfully.');
+            .checkNotification('Tax "Even higher tax rate" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

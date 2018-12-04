@@ -28,6 +28,7 @@ module.exports = {
     },
     'verify creation of new sales channel': (browser) => {
         browser
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
             .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', '2nd Epic Sales Channel');
     },
@@ -47,6 +48,8 @@ module.exports = {
         const page = salesChannelPage(browser);
         page.openSalesChannel('2nd Epic Sales Channel at all');
         browser
+            .waitForElementNotPresent('.sw-loader')
+            .waitForElementVisible('input[name=sw-field--salesChannel-name]')
             .expect.element('input[name=sw-field--salesChannel-name]').to.have.value.that.equals('2nd Epic Sales Channel at all');
     },
     'delete sales channel': (browser) => {

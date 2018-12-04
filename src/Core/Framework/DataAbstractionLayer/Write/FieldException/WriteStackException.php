@@ -60,6 +60,8 @@ class WriteStackException extends ShopwareHttpException
                         'status' => (string) $this->getStatusCode(),
                         'title' => $innerException->getConcern(),
                         'detail' => $violation->getMessage(),
+                        'template' => $violation->getMessageTemplate(),
+                        'parameters' => $violation->getParameters(),
                         'source' => [
                             'pointer' => $path,
                         ],

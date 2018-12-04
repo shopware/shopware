@@ -3,7 +3,12 @@ import template from './sw-media-modal-delete.html.twig';
 import './sw-media-modal-delete.less';
 
 /**
- * @private
+ * @status ready
+ * @description The <u>sw-media-modal-delete</u> component is used to validate the delete action.
+ * @example-type code-only
+ * @component-example
+ * <sw-media-modal-delete itemsToDelete="[items]">
+ * </sw-media-modal-delete>
  */
 Component.register('sw-media-modal-delete', {
     template,

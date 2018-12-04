@@ -1,16 +1,26 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-media-url-form.html.twig';
 
+/**
+ * @status ready
+ * @description The <u>sw-media-url-form</u> component is used to validate urls from the user.
+ * @example-type dynamic
+ * @component-example
+ * <sw-media-url-form variant="inline">
+ * </sw-media-url-form>
+ */
 Component.register('sw-media-url-form', {
     template,
 
     props: {
         variant: {
-            Type: String,
+            type: String,
             required: true,
+            validValues: ['modal', 'inline'],
             validator(value) {
                 return ['modal', 'inline'].includes(value);
-            }
+            },
+            default: 'inline'
         }
     },
 

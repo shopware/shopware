@@ -3,7 +3,12 @@ import template from './sw-media-preview.html.twig';
 import './sw-media-preview.less';
 
 /**
- * @private
+ * @status ready
+ * @description The <u>sw-media-preview</u> component is used to show a preview of media objects.
+ * @example-type code-only
+ * @component-example
+ * <sw-media-preview :item="item" :showControls="true" :autoplay="false" :useThumbnails="false">
+ * </sw-media-preview>
  */
 Component.register('sw-media-preview', {
     template,

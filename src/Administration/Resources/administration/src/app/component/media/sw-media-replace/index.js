@@ -1,5 +1,14 @@
 import { Component } from 'src/core/shopware';
 
+/**
+ * @status ready
+ * @description The <u>sw-media-replace</u> component extends the <u>sw-media-upload</u> component. It is
+ * used in cases of replacing items rather than uploading them.
+ * @example-type static
+ * @component-example
+ * <sw-media-replace itemToReplace="mediaItem" variant="regular">
+ * </sw-media-replace>
+ */
 Component.extend('sw-media-replace', 'sw-media-upload', {
     props: {
         itemToReplace: {

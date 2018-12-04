@@ -3,7 +3,14 @@ import template from './sw-media-base-item.html.twig';
 import './sw-media-base-item.less';
 
 /**
- * @private
+ * @status ready
+ * @description The <u>sw-media-base-item</u> component is the base for items in the media manager.
+ * @example-type code-only
+ * @component-example
+ * <sw-media-base-item
+ *     isList="true"
+ *     :isLoading="item.isLoading">
+ * </sw-media-base-item>
  */
 Component.register('sw-media-base-item', {
     template,

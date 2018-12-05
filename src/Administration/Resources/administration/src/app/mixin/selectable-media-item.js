@@ -9,12 +9,14 @@ Mixin.register('selectable-media-item', {
 
         showSelectionIndicator: {
             type: Boolean,
-            required: true
+            required: false,
+            default: false
         },
 
         selected: {
             type: Boolean,
-            required: true
+            required: false,
+            default: false
         },
 
         isList: {

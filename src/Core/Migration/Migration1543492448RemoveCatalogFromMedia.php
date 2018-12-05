@@ -63,13 +63,13 @@ class Migration1543492448RemoveCatalogFromMedia extends MigrationStep
         $this->removeTrigger($connection, self::BACKWARD_TRIGGER_PATCH_MEDIA_TRANSLATION_CATALOG);
         $connection->executeQuery('
             ALTER TABLE `media`
-            DROP FOREIGN KEY `fk_media.catalog_id`,
+            DROP FOREIGN KEY `fk.media.catalog_id`,
             DROP COLUMN `catalog_id`
         ');
 
         $connection->executeQuery('
             ALTER TABLE `media_translation`
-            DROP FOREIGN KEY `media_translation_ibfk_3`,
+            DROP FOREIGN KEY `fk.media_translation.catalog_id`,
             DROP COLUMN `catalog_id`
         ');
     }

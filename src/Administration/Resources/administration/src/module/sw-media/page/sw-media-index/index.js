@@ -130,6 +130,12 @@ Component.register('sw-media-index', {
         },
 
         getListingParams() {
+            if (this.$route.query.mediaId) {
+                return {
+                    criteria: CriteriaFactory.equals('id', this.$route.query.mediaId)
+                };
+            }
+
             return {
                 limit: this.limit,
                 page: this.page,

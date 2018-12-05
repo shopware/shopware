@@ -70,7 +70,7 @@
         {% block sw_search_bar_item_media %}
         <router-link v-else-if="item.type === 'media'"
                      class="sw-search-bar-item__link"
-                     :to="{ name: 'sw.media.index' }">
+                     :to="{ name: 'sw.media.index', query: { mediaId: item.entity.id } }">
             {% block sw_search_bar_item_media_icon %}
             <sw-icon name="default-object-image" size="20px" color="#FFD700"></sw-icon>
             {% endblock %}

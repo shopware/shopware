@@ -7,10 +7,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 class OrderDeliveryStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

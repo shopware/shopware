@@ -5,9 +5,11 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class OrderTransactionStateStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var int
      */

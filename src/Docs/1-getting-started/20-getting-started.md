@@ -956,6 +956,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class LocaleStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */

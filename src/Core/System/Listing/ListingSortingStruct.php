@@ -3,11 +3,14 @@
 namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 
 class ListingSortingStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var FieldSorting[]
      */

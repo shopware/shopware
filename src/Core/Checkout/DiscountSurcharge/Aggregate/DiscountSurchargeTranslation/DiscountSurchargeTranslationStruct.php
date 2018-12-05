@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTr
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class DiscountSurchargeTranslationStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

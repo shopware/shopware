@@ -4,10 +4,13 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class CustomerGroupTranslationStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */

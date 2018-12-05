@@ -6,10 +6,12 @@ use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Rule\Rule;
 
 class RuleStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

@@ -3,11 +3,12 @@
 namespace Shopware\Storefront\Api\Seo;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class SeoUrlStruct extends Entity
 {
-
+    use EntityIdTrait;
     /**
      * @var string
      */

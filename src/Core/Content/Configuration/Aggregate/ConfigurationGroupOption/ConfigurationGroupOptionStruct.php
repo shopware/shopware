@@ -8,9 +8,11 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfigura
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ConfigurationGroupOptionStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

@@ -4,9 +4,12 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class PluginStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */

@@ -15,7 +15,7 @@ class EntityCollection extends Collection
             );
         }
 
-        $this->elements[$entity->getId()] = $entity;
+        $this->elements[$entity->getUniqueIdentifier()] = $entity;
     }
 
     /**
@@ -33,7 +33,7 @@ class EntityCollection extends Collection
     public function getIds(): array
     {
         return $this->fmap(function (Entity $entity) {
-            return $entity->getId();
+            return $entity->getUniqueIdentifier();
         });
     }
 
@@ -50,7 +50,7 @@ class EntityCollection extends Collection
     {
         /** @var Entity $entity */
         foreach ($collection as $entity) {
-            if ($this->has($entity->getId())) {
+            if ($this->has($entity->getUniqueIdentifier())) {
                 continue;
             }
             $this->add($entity);

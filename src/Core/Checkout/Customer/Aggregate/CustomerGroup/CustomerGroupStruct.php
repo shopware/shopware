@@ -6,9 +6,11 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGrou
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CustomerGroupStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */

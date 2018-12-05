@@ -5,9 +5,12 @@ namespace Shopware\Core\Content\Configuration;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ConfigurationGroupStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string|null
      */

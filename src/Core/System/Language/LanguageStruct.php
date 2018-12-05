@@ -17,6 +17,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationColle
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
@@ -33,6 +34,7 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollectio
 
 class LanguageStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */

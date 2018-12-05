@@ -9,12 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Allows to hydrate database values into struct objects.
@@ -22,20 +24,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 class EntityHydrator
 {
     /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    /**
      * @var FieldSerializerRegistry
      */
     private $fieldHandler;
 
     private $objects = [];
 
-    public function __construct(SerializerInterface $serializer, FieldSerializerRegistry $fieldHandler)
+    public function __construct(FieldSerializerRegistry $fieldHandler)
     {
-        $this->serializer = $serializer;
         $this->fieldHandler = $fieldHandler;
     }
 
@@ -56,6 +52,11 @@ class EntityHydrator
     {
         /** @var EntityDefinition $definition */
         $fields = $definition::getFields()->getElements();
+
+        $identifier = $this->buildPrimaryKey($definition, $row, $root);
+        $identifier = implode('-', $identifier);
+
+        $entity->setUniqueIdentifier($identifier);
 
         $idProperty = $root . '.id';
 
@@ -218,5 +219,23 @@ class EntityHydrator
         $joinValue = $row[$joinField];
 
         return $idValue !== $joinValue;
+    }
+
+    private function buildPrimaryKey($definition, array $row, string $root): array
+    {
+        /** @var string|EntityDefinition $definition */
+        $primaryKeyFields = $definition::getFields()->filterByFlag(PrimaryKey::class);
+        $primaryKey = [];
+
+        foreach ($primaryKeyFields as $field) {
+            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+                continue;
+            }
+            $accessor = $root . '.' . $field->getPropertyName();
+
+            $primaryKey[$field->getPropertyName()] = $this->fieldHandler->decode($field, $row[$accessor]);
+        }
+
+        return $primaryKey;
     }
 }

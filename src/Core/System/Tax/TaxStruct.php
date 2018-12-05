@@ -5,9 +5,12 @@ namespace Shopware\Core\System\Tax;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class TaxStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var float
      */

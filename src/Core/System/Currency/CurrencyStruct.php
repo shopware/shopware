@@ -5,11 +5,13 @@ namespace Shopware\Core\System\Currency;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CurrencyStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var float
      */

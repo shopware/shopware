@@ -3,11 +3,13 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class SalesChannelTypeStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */

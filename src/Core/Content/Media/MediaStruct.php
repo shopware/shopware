@@ -12,10 +12,12 @@ use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */

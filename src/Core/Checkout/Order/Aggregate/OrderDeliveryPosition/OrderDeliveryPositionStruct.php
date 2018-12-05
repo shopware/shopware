@@ -5,9 +5,11 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class OrderDeliveryPositionStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

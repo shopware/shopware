@@ -4,9 +4,11 @@ namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
 use Shopware\Core\Content\Rule\RuleStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class RuleConditionStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

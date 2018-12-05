@@ -7,9 +7,11 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CategoryStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */

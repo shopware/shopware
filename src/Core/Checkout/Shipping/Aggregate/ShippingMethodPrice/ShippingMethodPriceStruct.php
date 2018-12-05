@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ShippingMethodPriceStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

@@ -9,20 +9,26 @@ use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Tax\TaxStruct;
 
 class EntityReaderTest extends TestCase
 {
@@ -36,12 +42,272 @@ class EntityReaderTest extends TestCase
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $productRepository;
+
+    /**
+     * @var EntityRepository
+     */
+    private $languageRepository;
 
     protected function setUp()
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->languageRepository = $this->getContainer()->get('language.repository');
+        parent::setUp();
+    }
+
+    public function testTransledFieldsContainsNoInheritance()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $subLanguageId = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->languageRepository->create([
+            [
+                'id' => $subLanguageId,
+                'name' => 'en_sub',
+                'parentId' => Defaults::LANGUAGE_EN,
+                'localeId' => Defaults::LOCALE_EN_GB,
+            ],
+        ], $context);
+
+        $product = [
+            'id' => $id,
+            'price' => ['gross' => 10, 'net' => 9],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+            'translations' => [
+                Defaults::LANGUAGE_EN => ['name' => 'EN'],
+                Defaults::LANGUAGE_DE => ['name' => 'DE'],
+                $subLanguageId => ['description' => 'test'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $context = new Context(
+            $context->getSourceContext(),
+            $context->getCatalogIds(),
+            $context->getRules(),
+            $context->getCurrencyId(),
+            $subLanguageId,
+            Defaults::LANGUAGE_EN
+        );
+
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+
+        /** @var ProductStruct $product */
+        static::assertNull($product->getName());
+        static::assertEquals('test', $product->getDescription());
+
+        static::assertInstanceOf(ProductTranslationCollection::class, $product->getTranslations());
+        static::assertCount(2, $product->getTranslations());
+
+        $translation = $product->getTranslations()->get($id . '-' . $subLanguageId);
+        static::assertInstanceOf(ProductTranslationStruct::class, $translation);
+        static::assertEquals('test', $translation->getDescription());
+        static::assertNull($translation->getName());
+
+        $translation = $product->getTranslations()->get($id . '-' . Defaults::LANGUAGE_EN);
+        static::assertInstanceOf(ProductTranslationStruct::class, $translation);
+        static::assertEquals('EN', $translation->getName());
+        static::assertNull($translation->getDescription());
+    }
+
+    public function testInheritedTranslationsInViewData()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $subLanguageId = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->languageRepository->create([
+            [
+                'id' => $subLanguageId,
+                'name' => 'en_sub',
+                'parentId' => Defaults::LANGUAGE_EN,
+                'localeId' => Defaults::LOCALE_EN_GB,
+            ],
+        ], $context);
+
+        $product = [
+            'id' => $id,
+            'price' => ['gross' => 10, 'net' => 9],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+            'translations' => [
+                Defaults::LANGUAGE_EN => ['name' => 'EN'],
+                Defaults::LANGUAGE_DE => ['name' => 'DE'],
+                $subLanguageId => ['description' => 'test'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $context = new Context(
+            $context->getSourceContext(),
+            $context->getCatalogIds(),
+            $context->getRules(),
+            $context->getCurrencyId(),
+            $subLanguageId,
+            Defaults::LANGUAGE_EN
+        );
+
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ArrayStruct::class, $product->getViewData());
+        static::assertEquals('EN', $product->getViewData()->get('name'));
+        static::assertEquals('test', $product->getViewData()->get('description'));
+    }
+
+    public function testParentInheritanceInViewData()
+    {
+        $redId = Uuid::uuid4()->getHex();
+        $greenId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::uuid4()->getHex();
+
+        $parentTax = Uuid::uuid4()->getHex();
+        $greenTax = Uuid::uuid4()->getHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'parent',
+                'price' => ['gross' => 50, 'net' => 50, 'linked' => true],
+                'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'parent tax'],
+            ],
+            [
+                'id' => $redId,
+                'parentId' => $parentId,
+                'name' => 'red',
+            ],
+            [
+                'id' => $greenId,
+                'parentId' => $parentId,
+                'name' => 'green',
+                'price' => ['gross' => 100, 'net' => 100, 'linked' => true],
+                'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green tax'],
+            ],
+        ];
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        $products = $this->productRepository->read(new ReadCriteria([$parentId, $greenId, $redId]), Context::createDefaultContext());
+
+        /** @var ProductStruct $parent */
+        $parent = $products->get($parentId);
+        static::assertInstanceOf(ProductStruct::class, $parent);
+        static::assertInstanceOf(TaxStruct::class, $parent->getTax());
+        static::assertInstanceOf(TaxStruct::class, $parent->getViewData()->get('tax'));
+        static::assertInstanceOf(PriceStruct::class, $parent->getPrice());
+        static::assertEquals(50, $parent->getPrice()->getGross());
+
+        /** @var ProductStruct $red */
+        $red = $products->get($redId);
+        static::assertInstanceOf(ProductStruct::class, $red);
+        static::assertNull($red->getTax());
+        static::assertNull($red->getTaxId());
+        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->get('price'));
+
+        static::assertInstanceOf(TaxStruct::class, $red->getViewData()->get('tax'));
+        static::assertEquals($parentTax, $red->getViewData()->get('taxId'));
+        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->get('price'));
+        static::assertEquals(50, $red->getViewData()->get('price')->getGross());
+
+        /** @var ProductStruct $green */
+        $green = $products->get($greenId);
+        static::assertInstanceOf(ProductStruct::class, $green);
+        static::assertInstanceOf(TaxStruct::class, $green->getTax());
+        static::assertInstanceOf(TaxStruct::class, $green->getViewData()->get('tax'));
+        static::assertInstanceOf(PriceStruct::class, $green->getPrice());
+        static::assertEquals(100, $green->getPrice()->getGross());
+    }
+
+    public function testInheritanceWithOneToMany()
+    {
+        $ruleA = Uuid::uuid4()->getHex();
+        $ruleB = Uuid::uuid4()->getHex();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+        ], Context::createDefaultContext());
+
+        $redId = Uuid::uuid4()->getHex();
+        $greenId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::uuid4()->getHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'name' => 'parent',
+                'priceRules' => [
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'quantityStart' => 1,
+                        'quantityEnd' => 20,
+                        'ruleId' => $ruleA,
+                        'price' => ['gross' => 100, 'net' => 100],
+                    ],
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'quantityStart' => 21,
+                        'ruleId' => $ruleA,
+                        'price' => ['gross' => 10, 'net' => 50],
+                    ],
+                ],
+            ],
+            [
+                'id' => $redId,
+                'parentId' => $parentId,
+                'name' => 'red',
+            ],
+            [
+                'id' => $greenId,
+                'parentId' => $parentId,
+                'name' => 'green',
+                'priceRules' => [
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'quantityStart' => 1,
+                        'ruleId' => $ruleA,
+                        'price' => ['gross' => 10, 'net' => 50],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        error_log(print_r('par: ' . $parentId, true) . "\n", 3, '/var/log/test.log');
+        error_log(print_r('red: ' . $redId, true) . "\n", 3, '/var/log/test.log');
+        error_log(print_r('###########READ###########', true) . "\n", 3, '/var/log/test.log');
+        $products = $this->productRepository->read(new ReadCriteria([$redId]), Context::createDefaultContext());
+
+        /** @var ProductStruct $parent */
+//        $parent = $products->get($parentId);
+//        static::assertInstanceOf(ProductStruct::class, $parent);
+//        static::assertInstanceOf(ProductPriceRuleCollection::class, $parent->getPriceRules());
+
+        /** @var ProductStruct $red */
+        $red = $products->get($redId);
+        static::assertInstanceOf(ProductStruct::class, $red);
+        static::assertNull($red->getPriceRules());
+        static::assertInstanceOf(ProductPriceRuleCollection::class, $red->getViewData()->get('priceRules'));
+
+        /** @var ProductStruct $green */
+        $green = $products->get($greenId);
+        static::assertInstanceOf(ProductStruct::class, $green);
+        static::assertInstanceOf(ProductPriceRuleCollection::class, $green->getPriceRules());
     }
 
     public function testInheritanceExtension(): void
@@ -73,9 +339,9 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $this->productRepository->create($products, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
+        $products = $this->productRepository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
 
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
@@ -149,9 +415,9 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create($data, Context::createDefaultContext());
+        $this->productRepository->create($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
+        $products = $this->productRepository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
 
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
@@ -200,9 +466,9 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $this->productRepository->create($products, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
+        $products = $this->productRepository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
 
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
@@ -1016,12 +1282,12 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->upsert($products, $context);
+        $this->productRepository->upsert($products, $context);
 
         $criteria = new ReadCriteria([$id1, $id2]);
         $criteria->addAssociation('product.categories', new PaginationCriteria(3));
 
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->productRepository->read($criteria, $context);
 
         static::assertCount(2, $products);
 
@@ -1063,15 +1329,15 @@ class EntityReaderTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->repository->upsert($products, $context);
+        $this->productRepository->upsert($products, $context);
 
         $criteria = new ReadCriteria([$id1, $id2]);
 
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->productRepository->read($criteria, $context);
         static::assertCount(2, $products);
 
         $criteria->addFilter(new EqualsFilter('product.active', true));
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->productRepository->read($criteria, $context);
         static::assertCount(1, $products);
     }
 
@@ -1101,16 +1367,16 @@ class EntityReaderTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->repository->upsert($products, $context);
+        $this->productRepository->upsert($products, $context);
 
         $criteria = new ReadCriteria([$id1, $id2]);
 
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->productRepository->read($criteria, $context);
         static::assertCount(2, $products);
 
         $criteria = new ReadCriteria([$id1, $id2]);
         $criteria->addSorting(new FieldSorting('product.name', FieldSorting::ASCENDING));
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->productRepository->read($criteria, $context);
 
         static::assertEquals(
             [$id1, $id2],
@@ -1119,7 +1385,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new ReadCriteria([$id1, $id2]);
         $criteria->addSorting(new FieldSorting('product.name', FieldSorting::DESCENDING));
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->productRepository->read($criteria, $context);
 
         static::assertEquals(
             [$id1, $id2],
@@ -1152,8 +1418,8 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], $context);
-        $results = $this->repository->read(new ReadCriteria([$data['id']]), $context);
+        $this->productRepository->create([$data], $context);
+        $results = $this->productRepository->read(new ReadCriteria([$data['id']]), $context);
 
         /** @var ProductStruct $product */
         $product = $results->first();

@@ -4,10 +4,12 @@ namespace Shopware\Core\System\Unit;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class UnitStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */

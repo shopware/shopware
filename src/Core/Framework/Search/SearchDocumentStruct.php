@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class SearchDocumentStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */

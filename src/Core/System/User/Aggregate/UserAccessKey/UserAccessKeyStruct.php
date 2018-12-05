@@ -3,10 +3,13 @@
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\User\UserStruct;
 
 class UserAccessKeyStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */

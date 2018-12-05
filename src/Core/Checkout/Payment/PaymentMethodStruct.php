@@ -7,11 +7,14 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\PluginStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class PaymentMethodStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string|null
      */

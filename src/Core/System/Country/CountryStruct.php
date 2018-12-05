@@ -5,12 +5,15 @@ namespace Shopware\Core\System\Country;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CountryStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string|null
      */

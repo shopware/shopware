@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\Pricing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class PriceRuleStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

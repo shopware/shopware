@@ -17,21 +17,19 @@ class Migration1536239270ProductConfigurator extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `product_configurator` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
               `version_id` binary(16) NOT NULL,
               `product_id` binary(16) NOT NULL,
-              `product_tenant_id` binary(16) NOT NULL,
               `product_version_id` binary(16) NOT NULL,
               `configuration_group_option_id` binary(16) NOT NULL,
-              `configuration_group_option_tenant_id` binary(16) NOT NULL,
-              `configuration_group_option_version_id` binary(16) NOT NULL,
-              `price` LONGTEXT NULL,
-              `prices` LONGTEXT NULL DEFAULT NULL,
+              `price` JSON NULL,
+              `prices` JSON NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-              CONSTRAINT `fk_product_configurator.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk_product_configurator.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`) REFERENCES `configuration_group_option` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+              PRIMARY KEY (`id`, `version_id`),
+              CONSTRAINT `json.price` CHECK (JSON_VALID(`price`)),
+              CONSTRAINT `json.prices` CHECK (JSON_VALID(`prices`)),
+              CONSTRAINT `fk.product_configurator.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.product_configurator.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`) REFERENCES `configuration_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             );
         ');
     }

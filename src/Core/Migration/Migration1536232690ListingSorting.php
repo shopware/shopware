@@ -17,18 +17,17 @@ class Migration1536232690ListingSorting extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `listing_sorting` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
-              `version_id` binary(16) NOT NULL,
               `active` tinyint(1) unsigned NOT NULL DEFAULT \'1\',
               `unique_key` varchar(30) NOT NULL,
               `display_in_categories` tinyint(1) unsigned NOT NULL DEFAULT \'1\',
               `position` int(11) NOT NULL DEFAULT \'1\',
-              `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+              `payload` JSON NOT NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-              UNIQUE KEY `uniqueKey` (`unique_key`, `tenant_id`),
-              KEY `sorting` (`display_in_categories`,`position`)
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `unique_identifier` (`unique_key`),
+              KEY `sorting` (`display_in_categories`,`position`),
+              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

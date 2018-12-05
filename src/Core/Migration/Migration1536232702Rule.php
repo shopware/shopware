@@ -17,14 +17,15 @@ class Migration1536232702Rule extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `rule` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
               `name` varchar(500) NOT NULL,
+              `type` VARCHAR(256) NULL,
+              `description` LONGTEXT NULL,
               `priority` int(11) NOT NULL,
-              `payload` longtext NOT NULL,
+              `payload` JSON NULL,
               `created_at` datetime(3) NOT NULL,
-              `updated_at` datetime(3) NULL DEFAULT NULL,
-              PRIMARY KEY (`id`, `tenant_id`),
-              CHECK (JSON_VALID (`payload`))
+              `updated_at` datetime(3) NULL,
+              PRIMARY KEY (`id`),
+              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

@@ -16,15 +16,12 @@ class Migration1536239268ProductDatasheet extends MigrationStep
     {
         $connection->executeQuery('
             CREATE TABLE `product_datasheet` (
-              `product_tenant_id` binary(16) NOT NULL,
               `product_id` binary(16) NOT NULL,
               `product_version_id` binary(16) NOT NULL,
               `configuration_group_option_id` binary(16) NOT NULL,
-              `configuration_group_option_version_id` binary(16) NOT NULL,
-              `configuration_group_option_tenant_id` binary(16) NOT NULL,
-              PRIMARY KEY (`product_id`, `product_version_id`, `product_tenant_id`, `configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`),
-              CONSTRAINT `fk_product_datasheet.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk_product_datasheet.configuration_option_id` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`, `configuration_group_option_tenant_id`) REFERENCES `configuration_group_option` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+              PRIMARY KEY (`product_id`, `product_version_id`, `configuration_group_option_id`),
+              CONSTRAINT `fk.product_datasheet.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.product_datasheet.configuration_option_id` FOREIGN KEY (`configuration_group_option_id`) REFERENCES `configuration_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             );
         ');
     }

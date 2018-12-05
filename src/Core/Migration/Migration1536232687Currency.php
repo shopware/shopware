@@ -17,8 +17,6 @@ class Migration1536232687Currency extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `currency` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
-              `version_id` binary(16) NOT NULL,
               `is_default` tinyint(1) NOT NULL DEFAULT \'0\',
               `factor` double NOT NULL,
               `symbol` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -26,7 +24,7 @@ class Migration1536232687Currency extends MigrationStep
               `position` int(11) NOT NULL DEFAULT \'1\',
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-               PRIMARY KEY (`id`, `version_id`, `tenant_id`)
+               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

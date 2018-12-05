@@ -17,14 +17,13 @@ class Migration1536232684SalesChannelType extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `sales_channel_type` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
               `cover_url` varchar(500) COLLATE utf8mb4_unicode_ci NULL,
               `icon_name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
-              `screenshot_urls` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
+              `screenshot_urls` JSON NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `tenant_id`),
-              CHECK (JSON_VALID(`screenshot_urls`))
+              PRIMARY KEY (`id`),
+              CONSTRAINT `json.screenshot_urls` CHECK (JSON_VALID(`screenshot_urls`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
       ');
     }

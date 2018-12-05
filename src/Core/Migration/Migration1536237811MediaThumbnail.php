@@ -17,17 +17,14 @@ class Migration1536237811MediaThumbnail extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `media_thumbnail` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
               `media_id` binary(16) NOT NULL,
-              `media_version_id` binary(16) NOT NULL,
-              `media_tenant_id` binary(16) NOT NULL,
               `width` int(10) unsigned NOT NULL,
               `height` int(10) unsigned NOT NULL,
               `highDpi` tinyint(1) NOT NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-               PRIMARY KEY (`id`, `tenant_id`),
-               CONSTRAINT `fk_media_thumbnail.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+               PRIMARY KEY (`id`),
+               CONSTRAINT `fk.media_thumbnail.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

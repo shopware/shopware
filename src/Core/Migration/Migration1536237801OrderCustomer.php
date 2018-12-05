@@ -17,11 +17,8 @@ class Migration1536237801OrderCustomer extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `order_customer` (
               `id` binary(16) NOT NULL,
-              `tenant_id` binary(16) NOT NULL,
               `version_id` binary(16) NOT NULL,
               `customer_id` binary(16) NULL,
-              `customer_tenant_id` binary(16) NULL,
-              `customer_version_id` binary(16) NULL,
               `email` varchar(254) COLLATE utf8mb4_unicode_ci NOT NULL,
               `first_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `last_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -30,8 +27,8 @@ class Migration1536237801OrderCustomer extends MigrationStep
               `customer_number` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-              CONSTRAINT `fk_order.customer_id` FOREIGN KEY (`customer_id`, `customer_version_id`, `customer_tenant_id`) REFERENCES `customer` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
+              PRIMARY KEY (`id`, `version_id`),
+              CONSTRAINT `fk.order.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
 {
@@ -97,11 +98,15 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
     {
         // not only foreign key provided? data is provided as insert or update command
         if (\count($data) > 1) {
+            $data['id'] = $data['id'] ?? Uuid::uuid4()->getHex();
+
             return [$association->getPropertyName() => $data];
         }
 
         // no id provided? data is provided as insert command (like create category in same request with the product)
         if (!isset($data[$association->getReferenceField()])) {
+            $data['id'] = $data['id'] ?? Uuid::uuid4()->getHex();
+
             return [$association->getPropertyName() => $data];
         }
 

@@ -23,6 +23,19 @@ class FieldCollection extends Collection
         }
     }
 
+    /**
+     * @param string $fieldName
+     *
+     * @internal
+     */
+    public function remove(string $fieldName): void
+    {
+        if (isset($this->mapping[$fieldName])) {
+            unset($this->mapping[$fieldName]);
+        }
+        unset($this->elements[$fieldName]);
+    }
+
     public function get(string $propertyName): ?Field
     {
         return $this->elements[$propertyName] ?? null;

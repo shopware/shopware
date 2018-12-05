@@ -121,12 +121,17 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
+        /* @var string|EntityDefinition $definition */
         foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
-            $fieldName = str_replace($definition::getEntityName() . '.', '', $fieldName);
+            $fieldName = str_replace(
+                [$definition::getEntityName() . '.', 'extensions.'],
+                '',
+                $fieldName
+            );
 
             $field = $definition::getFields()->get($fieldName);
             if ($field) {
-                $fields->add($definition::getFields()->get($fieldName));
+                $fields->add($field);
             }
         }
 
@@ -684,6 +689,7 @@ class EntityReader implements EntityReaderInterface
             if (!$field instanceof ManyToManyAssociationField) {
                 continue;
             }
+
             if ($field->getReferenceClass() !== $association->getReferenceClass()) {
                 continue;
             }
@@ -783,6 +789,11 @@ class EntityReader implements EntityReaderInterface
                 $entities->sortByIdArray($x);
             }
 
+            if ($association->is(Extension::class)) {
+                $entity->addExtension($association->getPropertyName(), $entities);
+                continue;
+            }
+
             $entity->assign([
                 $association->getPropertyName() => $entities,
             ]);
@@ -860,11 +871,6 @@ class EntityReader implements EntityReaderInterface
         $rows = $wrapper->execute()->fetchAll();
 
         return FetchModeHelper::keyPair($rows);
-    }
-
-    private function getDomainName(string $name)
-    {
-        return lcfirst(str_replace('_', '', ucwords($name, '_')));
     }
 
     private function hasCriteriaElements(Criteria $criteria): bool

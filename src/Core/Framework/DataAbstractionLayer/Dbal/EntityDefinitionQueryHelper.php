@@ -124,6 +124,8 @@ class EntityDefinitionQueryHelper
      */
     public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): string
     {
+        $fieldName = str_replace('extensions.', '', $fieldName);
+
         $original = $fieldName;
         $prefix = $root . '.';
 
@@ -139,8 +141,12 @@ class EntityDefinitionQueryHelper
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
 
-        $associationKey = explode('.', $fieldName);
-        $associationKey = array_shift($associationKey);
+        $parts = explode('.', $fieldName);
+        $associationKey = array_shift($parts);
+
+        if ($associationKey === 'extensions') {
+            $associationKey = array_shift($parts);
+        }
 
         if (!$fields->has($associationKey)) {
             throw new UnmappedFieldException($original, $definition);
@@ -255,6 +261,8 @@ class EntityDefinitionQueryHelper
      */
     public function resolveAccessor(string $fieldName, string $definition, string $root, QueryBuilder $query, Context $context): void
     {
+        $fieldName = str_replace('extensions.', '', $fieldName);
+
         //example: `product.manufacturer.media.name`
         $original = $fieldName;
         $prefix = $root . '.';

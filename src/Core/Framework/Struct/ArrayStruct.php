@@ -16,6 +16,15 @@ class ArrayStruct extends Entity implements \ArrayAccess
         $this->data = $data;
     }
 
+    public function getUniqueIdentifier(): string
+    {
+        if (!$this->_uniqueIdentifier) {
+            return $this->data['id'];
+        }
+
+        return parent::getUniqueIdentifier();
+    }
+
     public function getId(): string
     {
         return $this->data['id'];
@@ -56,7 +65,7 @@ class ArrayStruct extends Entity implements \ArrayAccess
         $this->data = array_replace_recursive($this->data, $options);
 
         if (array_key_exists('id', $options)) {
-            $this->id = $options['id'];
+            $this->_uniqueIdentifier = $options['id'];
         }
 
         return $this;

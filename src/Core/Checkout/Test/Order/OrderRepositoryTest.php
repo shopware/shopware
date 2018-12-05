@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -54,6 +55,17 @@ class OrderRepositoryTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+    }
+
+    public function testCreateOrder()
+    {
+        $orderId = Uuid::uuid4()->getHex();
+        $orderData = $this->getOrderData($orderId);
+        $defaultContext = Context::createDefaultContext();
+        $this->orderRepository->create($orderData, $defaultContext);
+
+        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $defaultContext);
+        static::assertEquals($orderId, $order->first()->get('id'));
     }
 
     public function testDeleteOrder()
@@ -98,8 +110,8 @@ class OrderRepositoryTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::uuid4()->getHex();
         $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::uuid4()->getHex();
 
         $customer = [
             'id' => $customerId,
@@ -133,5 +145,81 @@ class OrderRepositoryTest extends TestCase
         $this->customerRepository->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function getOrderData($orderId)
+    {
+        $addressId = Uuid::uuid4()->getHex();
+        $orderLineItemId = Uuid::uuid4()->getHex();
+
+        $order = [
+            [
+            'id' => $orderId,
+            'date' => date(DATE_ISO8601),
+            'amountTotal' => 0,
+            'amountNet' => 0,
+            'positionPrice' => 0,
+            'shippingTotal' => 0,
+            'shippingNet' => 0,
+            'isNet' => true,
+            'isTaxFree' => false,
+            'stateId' => Defaults::ORDER_STATE_OPEN,
+            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+
+            'lineItems' => [
+                [
+                    'id' => $orderLineItemId,
+                    'identifier' => 'test',
+                    'quantity' => 1,
+                    'unitPrice' => 1,
+                    'totalPrice' => 1,
+                    'type' => 'test',
+                    'label' => 'test',
+                    'priority' => 100,
+                    'good' => true,
+                ],
+            ],
+            'deliveries' => [
+                [
+                    'orderStateId' => Defaults::ORDER_STATE_OPEN,
+                    'shippingMethodId' => Defaults::SHIPPING_METHOD,
+                    'shippingDateEarliest' => date(DATE_ISO8601),
+                    'shippingDateLatest' => date(DATE_ISO8601),
+                    'positions' => [
+                        [
+                            'orderLineItemId' => $orderLineItemId,
+                            'unitPrice' => 1,
+                            'totalPrice' => 1,
+                            'quantity' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
+            'orderCustomer' => [
+                'email' => 'test@example.com',
+                'firstName' => 'Noe',
+                'lastName' => 'Hill',
+                'salutation' => 'Mr',
+                'title' => 'Doc',
+                'customerNumber' => 'Test',
+            ],
+            'billingAddress' => [
+                'salutation' => 'mr',
+                'firstName' => 'Floy',
+                'lastName' => 'Glover',
+                'zipcode' => '59438-0403',
+                'city' => 'Stellaberg',
+                'street' => 'street',
+                'countryId' => Defaults::COUNTRY,
+                'id' => $addressId,
+            ],
+         ],
+        ];
+
+        return $order;
     }
 }

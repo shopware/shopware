@@ -140,9 +140,7 @@ abstract class EntityDefinition
 
     public static function getWriteOrder(): array
     {
-        $associations = static::getFields()->filter(function (Field $field) {
-            return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
-        });
+        $associations = static::getAssociations();
 
         $manyToOne = static::filterAssociationReferences(ManyToOneAssociationField::class, $associations);
 
@@ -166,6 +164,8 @@ abstract class EntityDefinition
         foreach ($c as $index => $value) {
             unset($manyToOne[$index]);
         }
+
+        $oneToMany = self::resolveDependencies($oneToMany);
 
         return array_unique(array_values(array_merge($manyToOne, $self, $oneToMany, $manyToMany)));
     }
@@ -223,12 +223,29 @@ abstract class EntityDefinition
         return static::getFields()->has('whitelistIds');
     }
 
+    protected static function getAssociations()
+    {
+        return static::getFields()->filter(function (Field $field) {
+            return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
+        });
+    }
+
     abstract protected static function defineFields(): FieldCollection;
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields): array
     {
         $associations = $fields->filterInstance($type)->getElements();
 
+        return array_values(self::mapAssociations($associations));
+    }
+
+    /**
+     * @param array $associations
+     *
+     * @return array
+     */
+    protected static function mapAssociations(array $associations): array
+    {
         $associations = array_map(function (AssociationInterface $association) {
             if ($association->getReferenceClass() !== static::class) {
                 return $association->getReferenceClass();
@@ -238,5 +255,75 @@ abstract class EntityDefinition
         }, $associations);
 
         return array_filter($associations);
+    }
+
+    /**
+     * @param array $associations
+     *
+     * @return array
+     */
+    protected static function getDependencies(array $associations): array
+    {
+        $nestedAssociations = [];
+        /** @var EntityDefinition $association */
+        foreach ($associations as $key => $association) {
+            $elements = $association::getAssociations()->getElements();
+
+            /** @var Field $nestedAssoc */
+            foreach (static::mapAssociations($elements) as $nestedAssoc) {
+                $nestedAssociations[] = $nestedAssoc;
+            }
+        }
+
+        return array_unique($nestedAssociations);
+    }
+
+    /**
+     * @param array $associations
+     *
+     * @return array
+     */
+    protected static function cleanCircleDependencies(array $associations): array
+    {
+        return array_filter($associations, function ($value) {
+            return $value != static::class;
+        });
+    }
+
+    /**
+     * Resolve and reorder Dependencies
+     *
+     * @param array $references
+     *
+     * @return mixed
+     */
+    protected static function resolveDependencies($references)
+    {
+        $referencesReorder = $references;
+        $referencesTemp = $references;
+
+        /** @var EntityDefinition $referenceDefinition */
+        foreach ($references as $index => $referenceDefinition) {
+            $associations = $referenceDefinition::getAssociations();
+
+            $elements = $associations->filterInstance(OneToManyAssociationField::class)->getElements();
+            $assocs = $referenceDefinition::mapAssociations($elements);
+            $dependencies = $referenceDefinition::cleanCircleDependencies($referenceDefinition::getDependencies($assocs));
+
+            /** @var EntityDefinition $referenceDefinitionInside */
+            foreach ($referencesTemp as $indexInside => $referenceDefinitionInside) {
+                if ($indexInside == $index || $index > $indexInside) {
+                    continue;
+                }
+                if (in_array($referenceDefinitionInside, $dependencies)) {
+                    $unsetIndex = array_search($referenceDefinition, $referencesReorder);
+                    unset($referencesReorder[$unsetIndex]);
+                    array_splice($referencesReorder, $indexInside, 0, $references[$index]);
+                }
+            }
+            $referencesTemp = $referencesReorder;
+        }
+
+        return $referencesReorder;
     }
 }

@@ -93,7 +93,7 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'salesChannelTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class, 'salesChannelTypeTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(SearchDocumentDefinition::class, 'searchDocuments'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(MediaFolderTranslationDefinition::class, 'mediaFolder'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(MediaFolderTranslationDefinition::class, 'mediaFolderTranslations'))->setFlags(new CascadeDelete()),
         ]);
     }
 

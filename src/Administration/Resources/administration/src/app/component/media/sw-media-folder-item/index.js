@@ -39,12 +39,16 @@ Component.register('sw-media-folder-item', {
     },
 
     mounted() {
-        if (this.item.name === '') {
-            this.baseComponent.startInlineEdit();
-        }
+        this.mountedComponent();
     },
 
     methods: {
+        mountedComponent() {
+            if (this.item.name === '') {
+                this.baseComponent.startInlineEdit();
+            }
+        },
+
         onStartRenaming() {
             this.baseComponent.startInlineEdit();
         },

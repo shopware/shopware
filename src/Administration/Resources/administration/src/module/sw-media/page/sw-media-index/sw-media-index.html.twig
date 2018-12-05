@@ -180,6 +180,11 @@
                                                         @sw-media-media-item-delete="onMediaGridItemsDeleted"
                                                         @sw-media-folder-item-delete="onMediaFoldersDeleted"
                                                         v-on="mediaItemSelectionHandler">
+                                                        <template v-if="gridItem.entityName === 'media'">
+                                                            <sw-context-menu-item @click="showDetails(gridItem)">
+                                                                {{ $tc('global.sw-media-media-item.labelContextMenuDetail') }}
+                                                            </sw-context-menu-item>
+                                                        </template>
                                                     </sw-media-entity-mapper>
                                                 {% endblock %}
                                             </sw-media-grid>

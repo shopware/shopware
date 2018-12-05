@@ -1,25 +1,28 @@
 import { Component } from 'src/core/shopware';
 
 Component.register('sw-media-entity-mapper', {
-    $entityMapping: {
-        media: 'sw-media-media-item',
-        media_folder: 'sw-media-folder-item'
-    },
+    functional: true,
 
-    render(h) {
-        return h(
+    render(createElement, context) {
+        function mapEntity() {
+            const entityMapping = {
+                media: 'sw-media-media-item',
+                media_folder: 'sw-media-folder-item'
+            };
+            return entityMapping[context.props.item.entityName];
+        }
+
+        Object.assign(context.data.attrs, context.props);
+        return createElement(
             'div',
             {
                 class: 'sw-media-entity'
             },
             [
-                h(
-                    this.$options.$entityMapping[this.item.entityName],
-                    {
-                        props: Object.assign({}, this.$attrs, { item: this.item }),
-                        on: this.$listeners
-                    },
-                    []
+                createElement(
+                    mapEntity(),
+                    context.data,
+                    context.slots().default
                 )
             ]
         );

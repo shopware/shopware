@@ -6,7 +6,7 @@
                  :class="selectionIndicatorClasses"
                  @click="onClickedItem">
 
-                {% block sw_media_item_selection_indicator_icon %}
+                {% block sw_media_base_item_selection_indicator_icon %}
                     <sw-icon
                         v-if="listSelected"
                         size="16px"
@@ -17,7 +17,7 @@
         {% endblock %}
 
         {% block sw_media_base_item_preview %}
-            <div class="sw-media-base-item-preview-container">
+            <div class="sw-media-base-item__preview-container">
                 <slot name="media-item-preview">
                     {% block sw_media_base_item_slot_media_preview %}{% endblock %}
                 </slot>

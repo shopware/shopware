@@ -648,7 +648,7 @@
         "titleMissingFile": "File not found",
         "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder.",
         "usage": "Used in",
-        "infoFolder": "Media folders do not have displayable quickinfos yet"
+        "infoFolder": "Media folders do not have displayable quickinfos yet."
       },
       "metadata": {
         "name": "Name",

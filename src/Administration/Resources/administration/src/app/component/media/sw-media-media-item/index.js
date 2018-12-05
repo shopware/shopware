@@ -69,7 +69,7 @@ Component.register('sw-media-media-item', {
 
         defaultContextMenuClass() {
             return {
-                'sw-context-menu__group': this.$slots['additional-context-menu-items']
+                'sw-context-menu__group': this.$slots.default
             };
         },
 

@@ -30,6 +30,12 @@
 
                 {% block sw_media_media_item_context_group_quick_actions %}
                     <div class="defaultContextMenuClass">
+                        {% block sw_media_media_item_context_item_show_media %}
+                            <sw-context-menu-item :routerLink="{name: 'sw.media.index', params: {folderId: item.id}}">
+                                {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+
                         {% block sw_media_media_item_context_item_rename_item %}
                             <sw-context-menu-item @click="onStartRenaming">
                                 {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}

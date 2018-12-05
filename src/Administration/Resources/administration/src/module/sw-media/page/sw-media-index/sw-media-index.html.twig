@@ -11,6 +11,37 @@
         {% endblock %}
 
         {% block sw_media_index_smart_bar %}
+            {% block sw_media_index_bread_crumb_navigation %}
+                <div slot="smart-bar-back"
+                     class="sw-media-index__navigation"
+                     v-if="next1207">
+
+                     {% block sw_media_index_bread_crumb_navigation_icon %}
+                        <sw-icon class="sw-media-index__navigation-breadcrumb"
+                                 name="folder-breadcums-dropdown"
+                                 size="32px"
+                                 multicolor>
+                        </sw-icon>
+                    {% endblock %}
+
+                    {% block sw_media_index_bread_crumb_navigation_parent%}
+                        <span v-if="currentFolder" class="sw-media-index__navigation-parent">
+                            <sw-icon name="small-arrow-medium-right" class="sw-media-index__navigation-breadcrumb"></sw-icon>
+                            <router-link :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
+                                {{ this.parentFolderName }}
+                            </router-link>
+                        </span>
+                    {% endblock %}
+
+                    {% block sw_media_index_bread_crumb_navigation_current%}
+                        <span class="sw-media-index__navigation-current">
+                            <sw-icon name="small-arrow-medium-right" class="sw-media-index__navigation-breadcrumb"></sw-icon>
+                            {{ this.currentFolderName }}
+                        </span>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
             {% block sw_media_index_smart_bar_header %}
                 <template slot="smart-bar-header">
                     {% block sw_media_index_smart_bar_header %}

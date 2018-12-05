@@ -42,7 +42,8 @@
     },
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Delete",
-      "labelContextMenuRename": "Rename"
+      "labelContextMenuRename": "Rename",
+      "labelContextMenuShowMedia": "Show media"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
@@ -688,7 +689,8 @@
       "labelSortByCreatedDsc": "Creation date, descending",
       "labelSortByDataTypeAsc": "Data type, ascending",
       "labelSortByDataTypeDsc": "Data type, descending",
-      "labelLoadMore": "load {count} more files"
+      "labelLoadMore": "load {count} more files",
+      "rootFolderName": "Unsorted Media"
     }
   },
   "sw-settings": {

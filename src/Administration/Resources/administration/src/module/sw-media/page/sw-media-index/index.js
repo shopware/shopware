@@ -21,19 +21,19 @@ Component.register('sw-media-index', {
     data() {
         return {
             isLoading: false,
-            previewType: 'media-grid-preview-as-grid',
             subFolders: [],
             mediaItems: [],
             uploadedItems: [],
             sortType: ['createdAt', 'dsc'],
-            catalogIconSize: 200,
             presentation: 'medium-preview',
             isLoadingMore: false,
             itemsLeft: 0,
             page: 1,
             limit: 50,
             term: '',
-            total: 0
+            total: 0,
+            currentFolder: null,
+            parentFolder: null
         };
     },
 
@@ -58,8 +58,12 @@ Component.register('sw-media-index', {
             return this.routeFolderId || null;
         },
 
-        mediaFolder() {
-            return this.mediaFolderStore.getById(this.mediaFolderId);
+        parentFolderName() {
+            return this.parentFolder ? this.parentFolder.name : this.$tc('sw-media.index.rootFolderName');
+        },
+
+        currentFolderName() {
+            return this.currentFolder ? this.currentFolder.name : this.$tc('sw-media.index.rootFolderName');
         }
     },
 
@@ -74,12 +78,17 @@ Component.register('sw-media-index', {
     watch: {
         uploadedItems() {
             this.debounceDisplayItems();
+        },
+
+        routeFolderId() {
+            this.createdComponent();
         }
     },
 
     methods: {
         createdComponent() {
             this.getList();
+            this.getFolderEntities();
         },
 
         destroyedComponent() {
@@ -100,6 +109,21 @@ Component.register('sw-media-index', {
 
         onNewUpload(mediaEntity) {
             this.uploadedItems.unshift(mediaEntity);
+        },
+
+        getFolderEntities() {
+            this.mediaFolderStore.getByIdAsync(this.mediaFolderId).then((folder) => {
+                this.currentFolder = folder;
+
+                this.mediaFolderStore.getByIdAsync(this.currentFolder.parentId).then((parent) => {
+                    this.parentFolder = parent;
+                }).catch(() => {
+                    this.parentFolder = null;
+                });
+            }).catch(() => {
+                this.currentFolder = null;
+                this.parentFolder = null;
+            });
         },
 
         getList() {
@@ -174,8 +198,12 @@ Component.register('sw-media-index', {
                 sortBy: this.sortType[0],
                 sortDirection: this.sortType[1],
                 term: this.term,
-                criteria: CriteriaFactory.multi('and', ...this.getQueries())
+                criteria: CriteriaFactory.multi('and', this.folderQuery(), ...this.getQueries())
             };
+        },
+
+        folderQuery() {
+            return CriteriaFactory.equals('mediaFolderId', this.mediaFolderId);
         },
 
         getQueries() {

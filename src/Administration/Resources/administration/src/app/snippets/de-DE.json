@@ -42,7 +42,8 @@
     },
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Löschen",
-      "labelContextMenuRename": "Umbenennen"
+      "labelContextMenuRename": "Umbenennen",
+      "labelContextMenuShowMedia": "Medien anzeigen"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",
@@ -690,7 +691,8 @@
       "labelSortByCreatedDsc": "Erstelldatum absteigend",
       "labelSortByDataTypeAsc": "Dateityp aufsteigend",
       "labelSortByDataTypeDsc": "Dateityp absteigend",
-      "labelLoadMore": "{count} weitere Dateien laden"
+      "labelLoadMore": "{count} weitere Dateien laden",
+      "rootFolderName": "Unsortierte Medien"
     }
   },
   "sw-settings": {

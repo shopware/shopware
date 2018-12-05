@@ -101,6 +101,14 @@
             </call>
         </service>
 
+        <service class="Shopware\Storefront\Twig\ErrorTemplateResolver" id="Shopware\Storefront\Twig\ErrorTemplateResolver" public="false">
+            <argument type="service" id="twig"/>
+        </service>
+
+        <service class="Shopware\Storefront\Controller\ErrorController" id="Shopware\Storefront\Controller\ErrorController" public="false">
+            <argument type="service" id="Shopware\Storefront\Twig\ErrorTemplateResolver"/>
+        </service>
+
         <service class="Shopware\Storefront\Controller\ListingController" id="Shopware\Storefront\Controller\ListingController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader" />
             <call method="setContainer">
@@ -128,6 +136,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\CheckoutController" id="Shopware\Storefront\Controller\CheckoutController" public="true">

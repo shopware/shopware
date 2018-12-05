@@ -12,6 +12,7 @@ use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslatio
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -92,6 +93,7 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'salesChannelTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class, 'salesChannelTypeTranslations'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(SearchDocumentDefinition::class, 'searchDocuments'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(MediaFolderTranslationDefinition::class, 'mediaFolder'))->setFlags(new CascadeDelete()),
         ]);
     }
 

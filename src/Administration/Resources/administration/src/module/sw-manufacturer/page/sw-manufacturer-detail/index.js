@@ -61,7 +61,7 @@ Component.register('sw-manufacturer-detail', {
             }
         },
 
-        onSuccessfulImageUpload(mediaEntity) {
+        setMediaItem(mediaEntity) {
             this.mediaItem = mediaEntity;
             this.manufacturer.mediaId = mediaEntity.id;
         },

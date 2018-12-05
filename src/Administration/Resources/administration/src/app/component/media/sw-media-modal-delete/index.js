@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, Filter } from 'src/core/shopware';
 import template from './sw-media-modal-delete.html.twig';
 import './sw-media-modal-delete.less';
 
@@ -22,6 +22,12 @@ Component.register('sw-media-modal-delete', {
         }
     },
 
+    computed: {
+        mediaNameFilter() {
+            return Filter.getByName('mediaName');
+        }
+    },
+
     methods: {
         closeDeleteModal(originalDomEvent) {
             this.$emit('sw-media-modal-delete-close', { originalDomEvent });
@@ -42,6 +48,7 @@ Component.register('sw-media-modal-delete', {
                         this.createNotificationSuccess({
                             message: messages.successMessage
                         });
+                        return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
@@ -53,10 +60,11 @@ Component.register('sw-media-modal-delete', {
 
             this.$emit(
                 'sw-media-modal-delete-items-deleted',
-                Promise.all(deletePromises).then(() => {
+                Promise.all(deletePromises).then((ids) => {
                     this.createNotificationSuccess({
                         message: NotificationMessageSuccess
                     });
+                    return ids;
                 }).catch(() => {
                     this.createNotificationError({
                         message: NotificationMessageError
@@ -66,20 +74,17 @@ Component.register('sw-media-modal-delete', {
         },
 
         _getNotificationMessages(item) {
-            const successMessage = this.$tc(
-                'global.sw-media-modal-delete.notificationSuccessSingle',
-                1,
-                { mediaName: item.name }
-            );
-            const errorMessage = this.$tc(
-                'global.sw-media-modal-delete.notificationErrorSingle',
-                1,
-                { mediaName: item.name }
-            );
-
             return {
-                successMessage,
-                errorMessage
+                successMessage: this.$tc(
+                    'global.sw-media-modal-delete.notificationSuccessSingle',
+                    1,
+                    { mediaName: this.mediaNameFilter(item) }
+                ),
+                errorMessage: this.$tc(
+                    'global.sw-media-modal-delete.notificationErrorSingle',
+                    1,
+                    { mediaName: this.mediaNameFilter(item) }
+                )
             };
         }
     }

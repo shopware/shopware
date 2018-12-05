@@ -31,16 +31,28 @@ Component.register('sw-media-preview', {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        useThumbnails: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
     computed: {
         mediaPreviewClasses() {
             return {
-                'shows--transparency':
-                    (this.checkForFileTypeImage || this.checkForInMemoryFile)
-                    && this.transparency,
+                'shows--transparency': this.checkForFileTypeImage && this.transparency,
                 'is--icon': this.checkForFileTypeSvg
+            };
+        },
+
+        transparencyClass() {
+            return {
+                'shows--transparency':
+                this.checkForFileTypeImage
+                && this.transparency
             };
         },
 
@@ -58,12 +70,7 @@ Component.register('sw-media-preview', {
 
         checkForFileTypeSvg() {
             const regEx = /.*svg.*/;
-
             return regEx.test(this.item.mimeType);
-        },
-
-        checkForInMemoryFile() {
-            return this.item.mimeType === 'in-memory-file';
         },
 
         placeholderIcon() {
@@ -100,7 +107,7 @@ Component.register('sw-media-preview', {
                 return this.item.dataUrl;
             }
 
-            if (this.item.thumbnails.length > 0) {
+            if (this.useThumbnails && this.item.thumbnails.length > 0) {
                 const thumbnails = this.item.thumbnails.filter((thumb) => {
                     return thumb.height === 300;
                 });

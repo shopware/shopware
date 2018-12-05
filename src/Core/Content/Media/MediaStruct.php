@@ -3,10 +3,11 @@
 namespace Shopware\Core\Content\Media;
 
 use DateTime;
-use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -15,11 +16,6 @@ use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
 {
-    /**
-     * @var int
-     */
-    protected $catalogId;
-
     /**
      * @var string|null
      */
@@ -43,12 +39,17 @@ class MediaStruct extends Entity
     /**
      * @var string
      */
-    protected $name;
+    protected $title;
 
     /**
      * @var Metadata|null
      */
     protected $metaData;
+
+    /**
+     * @var MediaType|null
+     */
+    protected $mediaType;
 
     /**
      * @var DateTime|null
@@ -61,6 +62,11 @@ class MediaStruct extends Entity
     protected $updatedAt;
 
     /**
+     * @var DateTime|null
+     */
+    protected $uploadedAt;
+
+    /**
      * @var string|null
      */
     protected $description;
@@ -69,6 +75,11 @@ class MediaStruct extends Entity
      * @var string
      */
     protected $url = '';
+
+    /**
+     * @var string|null
+     */
+    protected $fileName;
 
     /**
      * @var UserStruct|null
@@ -96,14 +107,19 @@ class MediaStruct extends Entity
     protected $productMedia;
 
     /**
-     * @var CatalogStruct|null
-     */
-    protected $catalog;
-
-    /**
-     * @var MediaThumbnailCollection|null
+     * @var MediaThumbnailCollection
      */
     protected $thumbnails;
+
+    /**
+     * @var string | null
+     */
+    protected $mediaFolderId;
+
+    /**
+     * @var MediaFolderStruct | null
+     */
+    protected $mediaFolder;
 
     /**
      * @var bool
@@ -159,14 +175,14 @@ class MediaStruct extends Entity
         $this->fileSize = $fileSize;
     }
 
-    public function getName(): string
+    public function getTitle(): string
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName(string $name): void
+    public function setTitle(string $title): void
     {
-        $this->name = $name;
+        $this->title = $title;
     }
 
     public function getMetaData(): ?Metadata
@@ -177,6 +193,16 @@ class MediaStruct extends Entity
     public function setMetaData(Metadata $metaData): void
     {
         $this->metaData = $metaData;
+    }
+
+    public function getMediaType(): ?MediaType
+    {
+        return $this->mediaType;
+    }
+
+    public function setMediaType(?MediaType $mediaType): void
+    {
+        $this->mediaType = $mediaType;
     }
 
     public function getCreatedAt(): ?DateTime
@@ -197,6 +223,16 @@ class MediaStruct extends Entity
     public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getUploadedAt(): ?DateTime
+    {
+        return $this->uploadedAt;
+    }
+
+    public function setUploadedAt(?DateTime $uploadedAt): void
+    {
+        $this->uploadedAt = $uploadedAt;
     }
 
     public function getDescription(): ?string
@@ -259,32 +295,8 @@ class MediaStruct extends Entity
         $this->productMedia = $productMedia;
     }
 
-    public function getCatalogId(): int
-    {
-        return $this->catalogId;
-    }
-
-    public function setCatalogId(int $catalogId): void
-    {
-        $this->catalogId = $catalogId;
-    }
-
-    public function getCatalog(): ?CatalogStruct
-    {
-        return $this->catalog;
-    }
-
-    public function setCatalog(CatalogStruct $catalog): void
-    {
-        $this->catalog = $catalog;
-    }
-
     public function getThumbnails(): MediaThumbnailCollection
     {
-        if ($this->thumbnails === null) {
-            $this->thumbnails = new MediaThumbnailCollection();
-        }
-
         return $this->thumbnails;
     }
 
@@ -305,6 +317,36 @@ class MediaStruct extends Entity
 
     public function hasFile(): bool
     {
-        return $this->hasFile = ($this->mimeType !== null && $this->fileExtension !== null);
+        return $this->hasFile = ($this->mimeType !== null && $this->fileExtension !== null && $this->fileName !== null);
+    }
+
+    public function getFileName(): ?string
+    {
+        return $this->fileName;
+    }
+
+    public function setFileName(string $fileName)
+    {
+        $this->fileName = $fileName;
+    }
+
+    public function getMediaFolderId(): ? string
+    {
+        return $this->mediaFolderId;
+    }
+
+    public function setMediaFolderId(?string $mediaFolderId): void
+    {
+        $this->mediaFolderId = $mediaFolderId;
+    }
+
+    public function getMediaFolder(): ?MediaFolderStruct
+    {
+        return $this->mediaFolder;
+    }
+
+    public function setMediaFolder(?MediaFolderStruct $mediaFolder): void
+    {
+        $this->mediaFolder = $mediaFolder;
     }
 }

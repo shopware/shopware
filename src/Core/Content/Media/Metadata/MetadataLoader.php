@@ -4,9 +4,8 @@ namespace Shopware\Core\Content\Media\Metadata;
 
 use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface;
-use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
-use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
 
 class MetadataLoader
 {
@@ -26,7 +25,7 @@ class MetadataLoader
         $this->metadataTypes = $typeClasses;
     }
 
-    public function loadFromFile(MediaFile $mediaFile): Metadata
+    public function loadFromFile(MediaFile $mediaFile, MediaType $mediaType): Metadata
     {
         $rawMetadata = [];
 
@@ -39,11 +38,9 @@ class MetadataLoader
             }
         }
 
-        $type = $this->determineMetadataType($mediaFile);
-
         $metadata = new Metadata();
         $metadata->setRawMetadata($this->convertBinaryToUtf($rawMetadata));
-        $metadata->setType($type);
+        $metadata->setType($mediaType->getMetadataType());
 
         return $metadata;
     }
@@ -61,17 +58,6 @@ class MetadataLoader
 
             $metadataLoader->enhanceTypeObject($metadata->getType(), $rawData[$loaderClass]);
         }
-    }
-
-    private function determineMetadataType(MediaFile $mediaFile): MetadataType
-    {
-        foreach ($this->metadataTypes as $typeLoaderClassName) {
-            if (\in_array($mediaFile->getFileExtension(), $typeLoaderClassName::getValidFileExtensions(), true)) {
-                return $typeLoaderClassName::create();
-            }
-        }
-
-        return NoMetadata::create();
     }
 
     private function convertBinaryToUtf(array $array): array

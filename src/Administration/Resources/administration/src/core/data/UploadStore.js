@@ -38,6 +38,13 @@ class UploadStore {
         });
     }
 
+    removeByTag(tag) {
+        if (this.isTagMissing(tag)) {
+            return;
+        }
+        this.tags.delete(tag);
+    }
+
     runUploads(tag, callback = noop) {
         if (this.isTagMissing(tag)) {
             return Promise.resolve({});

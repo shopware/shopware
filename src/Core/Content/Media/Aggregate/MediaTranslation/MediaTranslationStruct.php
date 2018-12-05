@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
-use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageStruct;
@@ -20,14 +19,9 @@ class MediaTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var int
+     * @var string|null
      */
-    protected $catalogId;
-
-    /**
-     * @var string
-     */
-    protected $name;
+    protected $title;
 
     /**
      * @var string|null
@@ -43,11 +37,6 @@ class MediaTranslationStruct extends Entity
      * @var LanguageStruct|null
      */
     protected $language;
-
-    /**
-     * @var CatalogStruct|null
-     */
-    protected $catalog;
 
     /**
      * @var \DateTime
@@ -99,14 +88,14 @@ class MediaTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getName(): string
+    public function getTitle(): ?string
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName(string $name): void
+    public function setTitle(?string $title): void
     {
-        $this->name = $name;
+        $this->title = $title;
     }
 
     public function getDescription(): ?string
@@ -137,25 +126,5 @@ class MediaTranslationStruct extends Entity
     public function setLanguage(LanguageStruct $language): void
     {
         $this->language = $language;
-    }
-
-    public function getCatalogId(): int
-    {
-        return $this->catalogId;
-    }
-
-    public function setCatalogId(int $catalogId): void
-    {
-        $this->catalogId = $catalogId;
-    }
-
-    public function getCatalog(): ?CatalogStruct
-    {
-        return $this->catalog;
-    }
-
-    public function setCatalog(CatalogStruct $catalog): void
-    {
-        $this->catalog = $catalog;
     }
 }

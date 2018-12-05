@@ -472,6 +472,7 @@ class WriterTest extends TestCase
                 [
                     'id' => $id,
                     'name' => 'Test media',
+                    'fileName' => 'testFile',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
                     'url' => 'www.example.com',
@@ -484,7 +485,7 @@ class WriterTest extends TestCase
             new ReadCriteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        self::assertStringEndsWith('/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
+        self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresDeferredFields(): void
@@ -499,6 +500,7 @@ class WriterTest extends TestCase
                 [
                     'id' => $id,
                     'name' => 'Test media',
+                    'fileName' => 'testFile',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
                 ],
@@ -518,7 +520,7 @@ class WriterTest extends TestCase
             new ReadCriteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        self::assertStringEndsWith('/media/be/90/42/2b9a945bb62b4122a32a3bbfbe1e6fd3.jpg', $media->getUrl());
+        self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateWritesMultipleTranslations(): void

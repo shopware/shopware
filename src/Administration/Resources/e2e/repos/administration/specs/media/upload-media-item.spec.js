@@ -1,5 +1,6 @@
 module.exports = {
     '@tags': ['media-upload'],
+    '@disabled': true,
     'open media listing': (browser) => {
         browser
             .openMainMenuEntry('#/sw/media/index','Media')
@@ -38,7 +39,7 @@ module.exports = {
             .waitForElementVisible('.sw-media-grid__content-cell:nth-of-type(2)')
             .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell:nth-of-type(1)')
             .waitForElementVisible('.sw-media-catalog')
-            .waitForElementVisible('.sw-media-grid-media-item:nth-of-type(2)');
+            .waitForElementVisible('.sw-media-media-item:nth-of-type(2)');
     },
     'click preview thumbnail to open sidebar': (browser) => {
         browser
@@ -65,7 +66,7 @@ module.exports = {
         browser
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background" ?')
+            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background (1)" ?')
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')

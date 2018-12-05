@@ -1,8 +1,13 @@
 import { Module } from 'src/core/shopware';
-import './mixin/mediagrid-listener.mixin';
+import './mixin/media-grid-listener.mixin';
 import './page/sw-media-index';
-import './page/sw-media-catalog';
+import './component/sw-media-grid';
 import './component/sidebar/sw-media-sidebar';
+import './component/sidebar/sw-media-quickinfo-metadata-item';
+import './component/sidebar/sw-media-quickinfo-usage';
+import './component/sw-media-collapse';
+import './component/sidebar/sw-media-quickinfo';
+import './component/sidebar/sw-media-quickinfo-multiple';
 
 Module.register('sw-media', {
     type: 'core',
@@ -19,12 +24,6 @@ Module.register('sw-media', {
                 default: 'sw-media-index'
             },
             path: 'index'
-        },
-        'catalog-content': {
-            components: {
-                default: 'sw-media-catalog'
-            },
-            path: 'catalog/:id'
         }
     },
 

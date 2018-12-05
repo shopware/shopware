@@ -2,7 +2,7 @@
     <dt>
         {{ getLabel }}:
     </dt>
-    <dd :title="getValue">
+    <dd :title="getValue" ref="value" :data-last-content="lastContent">
         {{ getValue }}
     </dd>
 </div>

@@ -73,10 +73,7 @@ class MediaRepository extends EntityRepository
                 continue;
             }
 
-            $mediaPath = $this->urlGenerator->getRelativeMediaUrl(
-                $mediaStruct->getId(),
-                $mediaStruct->getFileExtension()
-            );
+            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($mediaStruct);
 
             try {
                 $this->filesystem->delete($mediaPath);

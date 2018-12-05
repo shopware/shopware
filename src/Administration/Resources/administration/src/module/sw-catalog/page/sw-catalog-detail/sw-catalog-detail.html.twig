@@ -62,16 +62,6 @@
                                         <div class="info-card__stats is--color-page">0</div>
                                     </div>
                                 {% endblock %}
-
-                                {% block sw_catalog_detail_info_statistic_media %}
-                                    <div class="info-card">
-                                        <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewMedia') }}</h4>
-                                        <div class="info-card__stats is--color-media">
-                                            <span v-if="aggregations.mediaCount">{{ aggregations.mediaCount.count }}</span>
-                                            <sw-loader size="30" v-else></sw-loader>
-                                        </div>
-                                    </div>
-                                {% endblock %}
                             </sw-container>
                         {% endblock %}
                     </div>

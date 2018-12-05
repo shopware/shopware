@@ -13,11 +13,13 @@ exports.command = function clickContextMenuItem(menuButtonSelector, menuOpenSele
     if (scope != null) {
         this
             .waitForElementVisible(scope)
+            .moveToElement(`${scope} ${menuOpenSelector}`, 2, 2)
             .waitForElementVisible(`${scope} ${menuOpenSelector}`)
             .click(`${scope} ${menuOpenSelector}`)
             .waitForElementVisible(`${menuOpenSelector}${activeContextButtonCssSelector}`);
     } else {
         this
+            .moveToElement(menuOpenSelector, 2, 2)
             .waitForElementVisible(menuOpenSelector)
             .click(menuOpenSelector);
     }

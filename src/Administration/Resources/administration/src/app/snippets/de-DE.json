@@ -40,20 +40,16 @@
     "sw-modal": {
       "labelClose": "Schließen"
     },
-    "sw-media-grid-catalog-item": {
-      "labelShowCatalogContent": "Inhalt anzeigen",
-      "labelShowCatalogDetails": "Katalogdetails anzeigen"
-    },
-    "sw-media-grid-media-item": {
+    "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",
       "labelContextMenuCopyLink": "Link kopieren",
       "labelContextMenuReplace": "Ersetzen",
       "labelContextMenuRename": "Umbenennen",
-      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
       "labelContextMenuDetail": "Informationen",
       "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
       "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
-      "notificationRenamingError": "Fehler beim Umbenennen"
+      "notificationRenamingError": "Fehler beim Umbenennen",
+      "labelUploading": "Wird hochgeladen..."
     },
     "sw-media-modal-delete": {
       "titleModal": "Medien löschen",
@@ -78,18 +74,22 @@
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht"
     },
-    "sw-media-upload-button": {
-      "buttonUpload": "Hochladen",
+    "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",
-      "buttonUrlUpload": "Über URL hochladen"
+      "buttonUrlUpload": "Über URL hochladen",
+      "buttonSwitchToFileUpload": "Datei von deinem Computer hochladen",
+      "buttonSwitchToUrlUpload": "Datei von Url hochladen",
+      "buttonOpenMedia": "Medien öffnen",
+      "notificationSuccess": "Datei erfolgreich gespeichert",
+      "notificationFailure": "Fehler beim Hochladen"
     },
-    "sw-media-upload-url-modal": {
+    "sw-media-url-form": {
       "title": "Datei über URL hochladen",
       "upload": "Hochladen",
       "cancel": "Abbrechen",
       "example": "https://www.beispiel.de",
       "labelFileExtension": "Dateiendung",
-      "invalidUrl": "Bite gib eine valide URL ein, um eine Datei herunterzuladen.",
+      "invalidUrl": "Bitte gib eine valide URL ein, um eine Datei herunterzuladen.",
       "missingFileExtension": "Eine Url enthält keine Dateiendung. Bitte gib eine Dateiendung an."
     },
     "sw-sidebar-media-item": {
@@ -420,7 +420,8 @@
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Einstellungen",
       "linkAdvancedPrices": "Erweitere Preisansicht öffnen",
-      "cardTitleMedia": "Medien"
+      "cardTitleMedia": "Medien",
+      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen"
     },
     "priceRules": {
       "cardTitlePriceRule": "Neue Preisregel",
@@ -469,7 +470,7 @@
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
     "mediaForm": {
-      "buttonUpload": "Datei hochladen",
+      "uploadCaption": "Dateien zum Hochladen hierhin ziehen",
       "errorNoImage": "\"{file}\" ist kein Bild",
       "errorMediaItemDuplicated": "Medium bereits verwendet"
     }
@@ -511,7 +512,8 @@
       "placeholderLink": "Gib die Herstellerwebseite ein...",
       "titleSaveSuccess": "Hersteller",
       "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert.",
-      "addLogoCaption": "Logo hinzufügen"
+      "addLogoCaption": "Logo hinzufügen",
+      "labelUseAsLogo": "Als Logo nutzen"
     }
   },
   "sw-order": {
@@ -619,20 +621,11 @@
     "general": {
       "mainMenuItemGeneral": "Medien",
       "descriptionTextModule": "Verwaltung von Mediendateien",
-      "placeholderSearchBar": "Durchsuche alle Medien"
+      "placeholderSearchBar": "Durchsuche alle Medien",
+      "notificationUrlCopied": "URL in Zwischenablage kopiert"
     },
     "smart-bar": {
       "smartBarHeader": "Medien"
-    },
-    "upload": {
-      "notificationSuccess": "Datei erfolgreich gespeichert",
-      "notificationFailure": "Fehler beim Hochladen von {mediaName}",
-      "notificationInfo": "Lade eine Datei hoch | Lade {count} Dateien hoch"
-    },
-    "index": {
-      "headingCatalogs": "Kataloge",
-      "headingLastAdded": "Zuletzt hinzugefügt",
-      "headingSearchResult": "Suchergebnis"
     },
     "sidebar": {
       "actions": {
@@ -650,7 +643,8 @@
         "preview": "Vorschau",
         "metadata": "Metadaten",
         "titleMissingFile": "Datei nicht gefunden",
-        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
+        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen.",
+        "usage": "Wird verwendet in"
       },
       "metadata": {
         "name": "Name",
@@ -666,14 +660,22 @@
         "pages": "Seiten",
         "fileCount": "{count} ausgewählte Dateien",
         "totalSize": "insgesamt"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Gefunden in Produkten",
+        "tooltipFoundInManufacturers": "Gefunden in Herstellern",
+        "titleMediaNotUsed": "Medium wird nicht verwendet",
+        "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
       }
     },
-    "catalog": {
-      "messageEmpty": "Noch keine Medien in diesem Katalog",
+    "index": {
+      "messageEmpty": "Noch keine Medien in diesem Ordner",
       "labelSort": "Sortiere nach:",
-      "labelIconSize": "Vorschaugröße:",
+      "labelPresentation": "Darstellung:",
+      "labelPresentationSmall": "Kleine Vorschau",
+      "labelPresentationMedium": "Normale Vorschau",
+      "labelPresentationLarge": "Große Vorschau",
       "labelCatalog": "Ausgewählter Katalog:",
-      "labelSize": "Größe:",
       "labelSortByNameAsc": "Name aufsteigend",
       "labelSortByNameDsc": "Name absteigend",
       "labelSortBySizeAsc": "Größe aufsteigend",
@@ -681,7 +683,8 @@
       "labelSortByCreatedAsc": "Erstelldatum aufsteigend",
       "labelSortByCreatedDsc": "Erstelldatum absteigend",
       "labelSortByDataTypeAsc": "Dateityp aufsteigend",
-      "labelSortByDataTypeDsc": "Dateityp absteigend"
+      "labelSortByDataTypeDsc": "Dateityp absteigend",
+      "labelLoadMore": "{count} weitere Dateien laden"
     }
   },
   "sw-settings": {

@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin, State, Filter } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
 import find from 'lodash/find';
 import template from './sw-product-media-form.html.twig';
@@ -7,7 +7,7 @@ import './sw-product-media-form.less';
 Component.register('sw-product-media-form', {
     template,
 
-    inject: ['mediaService'],
+    inject: ['mediaService', 'mediaUploadService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -24,9 +24,9 @@ Component.register('sw-product-media-form', {
     data() {
         return {
             columnCount: 7,
-            uploads: [],
             previews: [],
-            columnWidth: 90
+            columnWidth: 90,
+            unsavedEntities: []
         };
     },
 
@@ -53,17 +53,21 @@ Component.register('sw-product-media-form', {
             return State.getStore('media');
         },
 
-        uploadStore() {
-            return State.getStore('upload');
-        },
-
         gridAutoRows() {
             return `grid-auto-rows: ${this.columnWidth}`;
+        },
+
+        mediaNameFilter() {
+            return Filter.getByName('mediaName');
         }
     },
 
     mounted() {
         this.mountedComponent();
+    },
+
+    beforeDestroy() {
+        this.onBeforeDestroy();
     },
 
     methods: {
@@ -84,6 +88,12 @@ Component.register('sw-product-media-form', {
                 .split(' ');
             this.columnCount = cssColumns.length;
             this.columnWidth = cssColumns[0];
+        },
+
+        onBeforeDestroy() {
+            this.unsavedEntities.forEach((entity) => {
+                entity.delete();
+            });
         },
 
         getPlaceholderCount(columnCount) {
@@ -111,55 +121,32 @@ Component.register('sw-product-media-form', {
             };
         },
 
-        handleFileUploads() {
-            const uploadedFiles = Array.from(this.$refs.fileInput.files);
+        onNewUpload({ mediaEntity, src }) {
+            const productMedia = this.buildProductMedia(mediaEntity);
 
-            this.uploads = uploadedFiles.filter((file) => {
-                if (!file.type.startsWith('image/')) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorNoImage', 0, { file: file.name })
-                    });
-                    return false;
+            this.unsavedEntities.push(productMedia);
+            this.unsavedEntities.push(mediaEntity);
+
+            this.product.media.push(productMedia);
+            if (src instanceof File) {
+                if (mediaEntity.isLocal) {
+                    mediaEntity.fileName = src.name;
                 }
 
-                return true;
-            });
-            this.uploads = this.uploads.map((file) => {
-                const productMedia = this.createEntities(file);
-
-                const uploadTask = this.uploadStore.addUpload(this.product.id, () => {
-                    return fileReader.readAsArrayBuffer(file).then((arrayBuffer) => {
-                        return this.mediaService.uploadMediaById(
-                            productMedia.media.id,
-                            file.type,
-                            arrayBuffer,
-                            file.name.split('.').pop()
-                        );
-                    }).then(() => {
-                        this.product.getAssociation('media').getByIdAsync(productMedia.id);
-                    }).catch(() => {
-                        // Delete the corresponding media entities when the upload fails
-                        this.product.getAssociation('media').getByIdAsync(productMedia.id).then((productMediaEntity) => {
-                            if (!productMediaEntity) {
-                                return;
-                            }
-
-                            if (productMediaEntity.media && productMediaEntity.media.id) {
-                                State.getStore('media').getByIdAsync(productMediaEntity.media.id).then((mediaEntity) => {
-                                    mediaEntity.delete(true);
-                                });
-                            }
-
-                            productMediaEntity.delete(true);
-                        });
-                    });
+                fileReader.readAsDataURL(src).then((dataURL) => {
+                    this.addImageToPreview(dataURL, productMedia);
                 });
+            } else if (src instanceof URL) {
+                if (mediaEntity.isLocal) {
+                    mediaEntity.fileName = src.pathname.split('/').pop();
+                }
 
-                return { mediaId: productMedia.mediaId, uploadId: uploadTask.id };
-            });
+                this.previews[productMedia.mediaId] = src.href;
+                productMedia.isLoading = false;
+            }
         },
 
-        createEntities(file) {
+        buildProductMedia(mediaEntity) {
             const productMedia = this.productMediaStore.create();
             productMedia.isLoading = true;
             productMedia.catalogId = this.product.catalogId;
@@ -171,41 +158,42 @@ Component.register('sw-product-media-form', {
                 productMedia.position = this.product.media.length + 1;
             }
 
-            const mediaEntity = this.mediaStore.create();
-
-            delete mediaEntity.catalog;
-            delete mediaEntity.user;
-            mediaEntity.catalogId = this.product.catalogId;
-            mediaEntity.name = file.name;
-
-            fileReader.readAsDataURL(file).then((dataURL) => {
-                const canvas = document.createElement('canvas');
-                const columnWidth = this.columnWidth.split('px')[0];
-                const size = this.isCover(productMedia) ? columnWidth * 2 : columnWidth;
-                const img = new Image();
-                img.onload = (() => {
-                    // resize image with aspect ratio
-                    const dimensions = this.getImageDimensions(img, size);
-                    canvas.setAttribute('width', dimensions.width);
-                    canvas.setAttribute('height', dimensions.height);
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(
-                        img, 0, 0, canvas.width, canvas.height
-                    );
-
-                    this.previews[mediaEntity.id] = canvas.toDataURL();
-                    productMedia.isLoading = false;
-
-                    this.$forceUpdate();
-                });
-                img.src = dataURL;
-            });
-
             productMedia.media = mediaEntity;
             productMedia.mediaId = mediaEntity.id;
-            this.product.media.push(productMedia);
 
+            delete mediaEntity.user;
             return productMedia;
+        },
+
+        addImageToPreview(sourceURL, productMedia) {
+            const canvas = document.createElement('canvas');
+            const columnWidth = this.columnWidth.split('px')[0];
+            const size = this.isCover(productMedia) ? columnWidth * 2 : columnWidth;
+            const img = new Image();
+            img.onload = () => {
+                // resize image with aspect ratio
+                const dimensions = this.getImageDimensions(img, size);
+                canvas.setAttribute('width', dimensions.width);
+                canvas.setAttribute('height', dimensions.height);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(
+                    img, 0, 0, canvas.width, canvas.height
+                );
+
+                this.previews[productMedia.mediaId] = canvas.toDataURL();
+                productMedia.isLoading = false;
+
+                this.$forceUpdate();
+            };
+            img.src = sourceURL;
+        },
+
+        successfulUpload(mediaEntity) {
+            const productMedia = find(this.mediaItems, (e) => e.mediaId === mediaEntity.id);
+            this.productMediaStore.getByIdAsync(productMedia.id).then(() => {
+                // just refresh
+                this.unsavedEntities = [];
+            });
         },
 
         getImageDimensions(img, size) {
@@ -233,17 +221,20 @@ Component.register('sw-product-media-form', {
             return mediaEntity.url;
         },
 
-        addFiles() {
-            this.$refs.fileInput.click();
+        getTooltipForMedia(mediaEntity) {
+            if (mediaEntity.isPlaceholder) {
+                return '';
+            }
+
+            if (mediaEntity.isLocal) {
+                return mediaEntity.fileName;
+            }
+
+            return this.mediaNameFilter(mediaEntity);
         },
 
         removeFile(key) {
             const item = find(this.mediaItems, (e) => e.mediaId === key);
-            const upload = find(this.uploads, (e) => e.mediaId === key);
-
-            if (upload) {
-                this.uploadStore.removeUpload(upload.uploadId);
-            }
 
             this.product.media = this.product.media.filter((e) => e.mediaId !== key);
             if (this.isCover(item)) {

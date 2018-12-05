@@ -55,7 +55,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
     {
         $struct = new MediaStruct();
         $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
-        $struct->setName('Manufacturer');
+        $struct->setTitle('Manufacturer');
         $struct->setMimeType('image/png');
         $struct->setFileExtension('png');
         $struct->setFileSize(310818);
@@ -69,7 +69,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
                 'id' => '1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
                 'type' => 'media',
                 'attributes' => [
-                    'name' => 'Manufacturer',
+                    'title' => 'Manufacturer',
                     'description' => 'A media object description',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
@@ -77,10 +77,13 @@ class JsonStorefrontApiEncoderTest extends TestCase
                     'metaData' => null,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
-                    'catalogId' => null,
                     'userId' => null,
                     'url' => '',
-                    'hasFile' => true,
+                    'hasFile' => false,
+                    'fileName' => null,
+                    'mediaType' => null,
+                    'uploadedAt' => null,
+                    'mediaFolderId' => null,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',

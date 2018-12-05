@@ -27,7 +27,7 @@ $media->setFileExtension('jpg');
 $media->setFileSize(18921);
 $media->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-15T00:00:00+00:00'));
 $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
-$media->setName('Lagerkorn-5,0klein');
+$media->setTitle('Lagerkorn-5,0klein');
 
 $mediaCollection->add($media);
 $user->setMedia($mediaCollection);

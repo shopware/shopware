@@ -40,20 +40,16 @@
     "sw-modal": {
       "labelClose": "Close"
     },
-    "sw-media-grid-catalog-item": {
-      "labelShowCatalogContent": "Show contents",
-      "labelShowCatalogDetails": "Show Catalogue details"
-    },
-    "sw-media-grid-media-item": {
+    "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
       "labelContextMenuCopyLink": "Copy Link",
       "labelContextMenuReplace": "Replace",
       "labelContextMenuRename": "Rename",
-      "labelContextMenuAddToProduct": "Add to product",
       "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Media item successfully renamed.",
-      "notificationRenamingError": "Error renaming file"
+      "notificationRenamingError": "Error renaming file",
+      "labelUploading": "uploading..."
     },
     "sw-media-modal-delete": {
       "titleModal": "Delete media files",
@@ -78,12 +74,16 @@
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
       "fallbackAudioTagSupport": "Your browser does not support the audio tag"
     },
-    "sw-media-upload-button": {
-      "buttonUpload": "Upload",
+    "sw-media-upload": {
       "buttonFileUpload": "Upload file",
-      "buttonUrlUpload": "Upload file from URL"
+      "buttonUrlUpload": "Upload file from URL",
+      "buttonSwitchToFileUpload": "Upload file from your computer",
+      "buttonSwitchToUrlUpload": "Upload file from url",
+      "buttonOpenMedia": "Open media",
+      "notificationSuccess": "File successfully saved",
+      "notificationFailure": "Error uploading"
     },
-    "sw-media-upload-url-modal": {
+    "sw-media-url-form": {
       "title": "Upload file from URL",
       "upload": "Upload",
       "cancel": "Cancel",
@@ -418,7 +418,8 @@
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",
       "linkAdvancedPrices": "Use advanced pricing",
-      "cardTitleMedia": "Media"
+      "cardTitleMedia": "Media",
+      "labelContextMenuAddToProduct": "Add to product"
     },
     "priceRules": {
       "cardTitlePriceRule": "New price rule",
@@ -467,7 +468,7 @@
       "messageUploadSuccess": "{count} of {total} files saved."
     },
     "mediaForm": {
-      "buttonUpload": "Upload files",
+      "uploadCaption": "Drop files here to upload them",
       "errorNoImage": "\"{file}\" is not an image",
       "errorMediaItemDuplicated": "Media item already assigned"
     }
@@ -509,7 +510,8 @@
       "placeholderLink": "Enter manufacturer website.",
       "titleSaveSuccess": "Manufacturer",
       "messageSaveSuccess": "Manufacturer \"{name}\" has been saved successfully.",
-      "addLogoCaption": "Add logo"
+      "addLogoCaption": "Add logo",
+      "labelUseAsLogo": "Use as Logo"
     }
   },
   "sw-order": {
@@ -617,20 +619,11 @@
     "general": {
       "mainMenuItemGeneral": "Media",
       "descriptionTextModule": "Manage media here",
-      "placeholderSearchBar": "Search media"
+      "placeholderSearchBar": "Search media",
+      "notificationUrlCopied": "copied URL to clipboard"
     },
     "smart-bar": {
       "smartBarHeader": "Media"
-    },
-    "upload": {
-      "notificationSuccess": "File saved",
-      "notificationFailure": "Error uploading {mediaName}",
-      "notificationInfo": "Uploading single file | Uploading {count} files"
-    },
-    "index": {
-      "headingCatalogs": "Catalogues",
-      "headingLastAdded": "Last added",
-      "headingSearchResult": "Search result"
     },
     "sidebar": {
       "actions": {
@@ -648,7 +641,8 @@
         "preview": "Preview",
         "metadata": "Meta data",
         "titleMissingFile": "File not found",
-        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder."
+        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder.",
+        "usage": "Used in"
       },
       "metadata": {
         "name": "Name",
@@ -664,14 +658,22 @@
         "pages": "Pages",
         "fileCount": "{count} files selected",
         "totalSize": "a total of"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Found in products",
+        "tooltipFoundInManufacturers": "Found in manufacturers",
+        "titleMediaNotUsed": "Media is not used",
+        "labelMediaNotUsed": "The media item is currently not used."
       }
     },
-    "catalog": {
-      "messageEmpty": "No media in this catalogue yet",
+    "index": {
+      "messageEmpty": "No media in this folder yet",
       "labelSort": "Sort by:",
-      "labelIconSize": "Preview size:",
+      "labelPresentation": "Presentation:",
+      "labelPresentationSmall": "Small preview",
+      "labelPresentationMedium": "Normal preview",
+      "labelPresentationLarge": "Large preview",
       "labelCatalog": "Selected catalog:",
-      "labelSize": "Size:",
       "labelSortByNameAsc": "Name, ascending",
       "labelSortByNameDsc": "Name, descending",
       "labelSortBySizeAsc": "Size, ascending",
@@ -679,7 +681,8 @@
       "labelSortByCreatedAsc": "Creation date, ascending",
       "labelSortByCreatedDsc": "Creation date, descending",
       "labelSortByDataTypeAsc": "Data type, ascending",
-      "labelSortByDataTypeDsc": "Data type, descending"
+      "labelSortByDataTypeDsc": "Data type, descending",
+      "labelLoadMore": "load {count} more files"
     }
   },
   "sw-settings": {

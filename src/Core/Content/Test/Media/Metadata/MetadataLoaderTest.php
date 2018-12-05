@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Test\Media\Metadata;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaType\DocumentType;
+use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Metadata\Type\DocumentMetadata;
@@ -20,7 +23,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'), new ImageType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
@@ -31,7 +34,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'), new ImageType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
@@ -42,7 +45,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'), new ImageType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
@@ -53,18 +56,18 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo-version-professionalplus.svg'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo-version-professionalplus.svg'), new ImageType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
-        $this->assertNoMetadata($result);
+        $this->assertImageMetadata($result);
     }
 
     public function testPdf(): void
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'), new DocumentType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata(), print_r($result, true));
@@ -75,7 +78,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.mp4'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.mp4'), new VideoType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
@@ -88,7 +91,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.webm'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.webm'), new VideoType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
@@ -101,7 +104,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.avi'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.avi'), new VideoType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
@@ -114,7 +117,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/reader.doc'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/reader.doc'), new DocumentType());
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         $this->assertDocumentMetadata($result, null, '', '');
@@ -124,7 +127,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/reader.docx'));
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/reader.docx'), new DocumentType());
 
         self::assertCount(2, $result->getRawMetadata(), print_r($result, true));
         $this->assertDocumentMetadata($result, null, 'PHPWord', 'A Word Document');

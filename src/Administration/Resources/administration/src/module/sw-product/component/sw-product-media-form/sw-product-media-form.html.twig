@@ -1,15 +1,16 @@
 {% block sw_product_media_form %}
     <div class="sw-product-media-form">
-        {% block sw_product_media_form_file_input %}
-            <input class="sw-product-media-form__file-input" type="file" id="files" ref="fileInput" accept="image/*" multiple @change="handleFileUploads"/>
-        {% endblock %}
 
-        {% block sw_product_media_form_upload_button %}
-            <div class="sw-product-media-form__dropzone">
-                <sw-button class="sw-product-media-form__upload-button" @click="addFiles" variant="primary">
-                    {{ $tc('sw-product.mediaForm.buttonUpload') }}
-                </sw-button>
-            </div>
+        {% block sw_product_media_form_upload %}
+            <sw-media-upload
+                    :uploadTag="product.id"
+                    :variant="'regular'"
+                    :autoUpload="false"
+                    :caption="$tc('sw-product.mediaForm.uploadCaption')"
+                    :scrollTarget="$parent.$el"
+                    @media-upload-success="successfulUpload"
+                    @new-upload="onNewUpload">
+            </sw-media-upload>
         {% endblock %}
 
         {% block sw_product_media_form_grid %}
@@ -23,11 +24,10 @@
                                 :key="mediaItem.mediaId"
                                 :isCover="isCover(mediaItem)"
                                 :isPlaceholder="mediaItem.isPlaceholder"
-                                :altText="mediaItem.media.name"
+                                :tooltip="getTooltipForMedia(mediaItem.media)"
                                 :url="getPreviewForMedia(mediaItem.media)"
                                 :downloadable="true"></sw-image>
                     </template>
-
                 {% endblock %}
             </div>
         {% endblock %}

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
@@ -43,9 +44,9 @@ class GenerateThumbnailsCommandTest extends TestCase
     private $thumbnailConfiguration;
 
     /**
-     * @var string
+     * @var Context
      */
-    private $catalogId;
+    private $context;
 
     public function setUp()
     {
@@ -53,13 +54,14 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
+        $this->context = $this->getContextWithWriteAccess();
     }
 
     public function testExecuteHappyPath(): void
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput(sprintf('-c %s', $this->getContextWithCatalogAndWriteAccess()->getCatalogIds()[0]));
+        $input = new StringInput('');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -74,7 +76,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->getContextWithCatalogAndWriteAccess());
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -84,7 +86,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             );
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getFileExtension(), $thumbnail);
+                $this->assertThumbnailExists($updatedMedia, $thumbnail);
             }
         }
     }
@@ -93,7 +95,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createNotSupportedMediaFiles();
 
-        $input = new StringInput(sprintf('-c %s', $this->getContextWithCatalogAndWriteAccess()->getCatalogIds()[0]));
+        $input = new StringInput('');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -108,7 +110,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
 
         $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->getContextWithCatalogAndWriteAccess());
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaStruct $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
@@ -119,17 +121,16 @@ class GenerateThumbnailsCommandTest extends TestCase
                 );
 
                 foreach ($thumbnails as $thumbnail) {
-                    $this->assertThumbnailExists($updatedMedia->getId(), $updatedMedia->getFileExtension(), $thumbnail);
+                    $this->assertThumbnailExists($updatedMedia, $thumbnail);
                 }
             }
         }
     }
 
-    protected function assertThumbnailExists(string $mediaId, string $extension, MediaThumbnailStruct $thumbnail): void
+    protected function assertThumbnailExists(MediaStruct $media, MediaThumbnailStruct $thumbnail): void
     {
         $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-            $mediaId,
-            $extension,
+            $media,
             $thumbnail->getWidth(),
             $thumbnail->getHeight()
         );
@@ -137,8 +138,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         if ($thumbnail->getHighDpi()) {
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $mediaId,
-                $extension,
+                $media,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight(),
                 true
@@ -149,17 +149,17 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function createValidMediaFiles(): void
     {
-        $this->setFixtureContext($this->getContextWithCatalogAndWriteAccess());
-        $mediaPng = $this->getPngInCatalog();
-        $mediaJpg = $this->getJpgInCatalog();
+        $this->setFixtureContext($this->context);
+        $mediaPng = $this->getPng();
+        $mediaJpg = $this->getJpg();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng->getId(), 'png');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg->getId(), 'jpg');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r')
@@ -168,17 +168,17 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     protected function createNotSupportedMediaFiles(): void
     {
-        $this->setFixtureContext($this->getContextWithCatalogAndWriteAccess());
-        $mediaPdf = $this->getPdfInCatalog();
-        $mediaJpg = $this->getJpgInCatalog();
+        $this->setFixtureContext($this->context);
+        $mediaPdf = $this->getPdf();
+        $mediaJpg = $this->getJpg();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf->getId(), 'pdf');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg->getId(), 'jpg');
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 }

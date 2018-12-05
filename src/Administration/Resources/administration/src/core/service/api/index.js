@@ -24,6 +24,7 @@ import SearchApiService from 'src/core/service/api/search.api.service';
 import LanguageApiService from 'src/core/service/api/language.api.service';
 import LocaleApiService from 'src/core/service/api/locale.api.service';
 import UserApiService from 'src/core/service/api/user.api.service';
+import MediaFolderApiService from 'src/core/service/api/media-folder.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -51,5 +52,6 @@ export default {
     searchService: SearchApiService,
     languageService: LanguageApiService,
     localeService: LocaleApiService,
-    userService: UserApiService
+    userService: UserApiService,
+    mediaFolderService: MediaFolderApiService
 };

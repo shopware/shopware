@@ -54,13 +54,12 @@ import './structure/sw-search-bar';
 import './structure/sw-search-bar-item';
 import './structure/sw-error';
 
-import './media/sw-media-grid';
-import './media/sw-media-grid-base-item';
-import './media/sw-media-grid-media-item';
-import './media/sw-media-grid-catalog-item';
+import './media/sw-media-base-item';
+import './media/sw-media-media-item';
 import './media/sw-media-preview';
-import './media/sw-media-upload-button';
-import './media/sw-media-upload-url-modal';
+import './media/sw-media-upload';
+import './media/sw-media-replace';
+import './media/sw-media-url-form';
 import './media/sw-media-modal-replace';
 import './media/sw-media-modal-delete';
 import './media/sw-sidebar-media-item';

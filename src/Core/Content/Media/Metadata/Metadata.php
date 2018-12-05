@@ -13,19 +13,9 @@ class Metadata extends Struct
     protected $rawMetadata = [];
 
     /**
-     * @var string|null
-     */
-    protected $typeName;
-
-    /**
      * @var MetadataType|null
      */
     protected $type;
-
-    public function getTypeName(): ?string
-    {
-        return $this->typeName;
-    }
 
     public function getType(): ?MetadataType
     {
@@ -35,11 +25,6 @@ class Metadata extends Struct
     public function setType(?MetadataType $type): void
     {
         $this->type = $type;
-        $this->typeName = null;
-
-        if ($type) {
-            $this->typeName = $type->getName();
-        }
     }
 
     public function setRawMetadata(array $rawMetadata): void

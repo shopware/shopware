@@ -5,11 +5,9 @@ namespace Shopware\Core\Content\Media\Commands;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,22 +16,34 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class GenerateThumbnailsCommand extends Command
 {
-    /** @var SymfonyStyle */
+    /**
+     * @var SymfonyStyle
+     */
     private $io;
 
-    /** @var ThumbnailService */
+    /**
+     * @var ThumbnailService
+     */
     private $thumbnailService;
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
     private $mediaRepository;
 
-    /** @var int int */
+    /**
+     * @var int int
+     */
     private $generatedCounter;
 
-    /** @var int int */
+    /**
+     * @var int int
+     */
     private $skippedCounter;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $batchSize;
 
     public function __construct(ThumbnailService $thumbnailService, EntityRepository $mediaRepository)
@@ -53,7 +63,6 @@ class GenerateThumbnailsCommand extends Command
             ->setName('media:generate-thumbnails')
             ->setDescription('generates the thumbnails for all media entities')
             ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
-            ->addOption('catalog-id', 'c', InputOption::VALUE_REQUIRED, 'Catalog Id')
         ;
     }
 
@@ -68,7 +77,6 @@ class GenerateThumbnailsCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $context = Context::createDefaultContext();
-        $context = $context->createWithCatalogIds([$this->validateCatalogId($input)]);
         $this->batchSize = $this->validateBatchSize($input);
 
         $this->io->comment('Starting to generate Thumbnails. This may take some time...');
@@ -84,20 +92,6 @@ class GenerateThumbnailsCommand extends Command
                 ['Skipped', $this->skippedCounter],
             ]
         );
-    }
-
-    private function validateCatalogId(InputInterface $input): string
-    {
-        $catalogId = $input->getOption('catalog-id');
-        if (!$catalogId) {
-            return Defaults::CATALOG;
-        }
-
-        if (!Uuid::isValid($catalogId)) {
-            throw new \Exception('Invalid uuid provided for catalogId');
-        }
-
-        return $catalogId;
     }
 
     private function validateBatchSize(InputInterface $input): int

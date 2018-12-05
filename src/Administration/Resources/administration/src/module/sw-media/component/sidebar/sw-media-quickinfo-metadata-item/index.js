@@ -18,7 +18,18 @@ Component.register('sw-media-quickinfo-metadata-item', {
             required: false,
             default: '',
             type: String
+        },
+        truncateMiddle: {
+            required: false,
+            default: false,
+            type: Boolean
         }
+    },
+
+    data() {
+        return {
+            lastContent: ''
+        };
     },
 
     computed: {
@@ -32,6 +43,34 @@ Component.register('sw-media-quickinfo-metadata-item', {
             }
 
             return this.value + this.suffix;
+        }
+    },
+
+    mounted() {
+        this.componentMounted();
+    },
+
+    updated() {
+        this.componentUpdated();
+    },
+
+    methods: {
+        componentMounted() {
+            this.computeLastContent();
+        },
+
+        componentUpdated() {
+            this.computeLastContent();
+        },
+
+        computeLastContent() {
+            const el = this.$refs.value;
+            if (this.truncateMiddle && el.offsetWidth < el.scrollWidth) {
+                this.lastContent = `${this.getValue.slice(-7)}`;
+                return;
+            }
+
+            this.lastContent = '';
         }
     }
 });

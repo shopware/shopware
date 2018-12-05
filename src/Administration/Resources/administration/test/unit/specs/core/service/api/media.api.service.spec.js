@@ -30,7 +30,7 @@ describe('core/service/api/mediaService', () => {
         });
     }, 10000);
 
-    itAsync('should save image from url', (done) => {
+    itAsync('should save file from url', (done) => {
         const mediaItem = mediaStore.create();
         mediaItem.name = 'testItem';
         mediaItem.catalogId = testCatalog.id;

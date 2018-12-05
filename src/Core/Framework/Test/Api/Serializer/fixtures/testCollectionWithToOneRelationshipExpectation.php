@@ -13,11 +13,14 @@ return [
                 'userId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'name' => 'Lagerkorn-5,0klein',
+                'title' => 'Lagerkorn-5,0klein',
                 'description' => null,
-                'catalogId' => null,
                 'url' => '',
-                'hasFile' => true,
+                'hasFile' => false,
+                'fileName' => null,
+                'mediaType' => null,
+                'uploadedAt' => null,
+                'mediaFolderId' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -50,16 +53,16 @@ return [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/product-media',
                     ],
                 ],
-                'catalog' => [
-                    'data' => null,
-                    'links' => [
-                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/catalog',
-                    ],
-                ],
                 'thumbnails' => [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/thumbnails',
+                    ],
+                ],
+                'mediaFolder' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/media-folder',
                     ],
                 ],
             ],
@@ -75,11 +78,14 @@ return [
                 'userId' => '6f51622e-b381-4c75-ae02-63cece27ce72',
                 'createdAt' => '2012-08-17T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'name' => 'Jasmine-Lotus-Cover',
+                'title' => 'Jasmine-Lotus-Cover',
                 'description' => null,
-                'catalogId' => null,
                 'url' => '',
-                'hasFile' => true,
+                'hasFile' => false,
+                'fileName' => null,
+                'mediaType' => null,
+                'uploadedAt' => null,
+                'mediaFolderId' => null,
             ],
             'relationships' => [
                 'user' => [
@@ -109,16 +115,16 @@ return [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/product-media',
                     ],
                 ],
-                'catalog' => [
-                    'data' => null,
-                    'links' => [
-                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/catalog',
-                    ],
-                ],
                 'thumbnails' => [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/thumbnails',
+                    ],
+                ],
+                'mediaFolder' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/media-folder',
                     ],
                 ],
             ],

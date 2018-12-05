@@ -126,6 +126,7 @@ function getPropertyBlacklist() {
     return [
         'createdAt',
         'updatedAt',
+        'uploadedAt',
         'childCount',
         'versionId',
         'links',
@@ -133,7 +134,10 @@ function getPropertyBlacklist() {
         'mimeType',
         'fileExtension',
         'metaData',
-        'fileSize'
+        'fileSize',
+        'fileName',
+        'mediaType',
+        'mediaFolder'
     ];
 }
 

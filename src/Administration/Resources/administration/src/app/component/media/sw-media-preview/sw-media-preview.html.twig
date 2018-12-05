@@ -3,7 +3,7 @@
         {% block sw_media_preview_file_type_check %}
             <template v-if="checkForFileTypeImage">
                 {% block sw_media_preview_file_type_image %}
-                    <img :src="urlFromItem" :alt="item.name" class="sw-media-preview__item">
+                    <img :src="urlFromItem" :alt="item.fileName" class="sw-media-preview__item" :class="transparencyClass">
                 {% endblock %}
             </template>
 
@@ -13,7 +13,7 @@
                            :autoplay="autoplay"
                            controlsList="nodownload"
                            class="sw-media-preview__item">
-                        <source :src="urlFromItem" :type="item.mimeType">
+                        <source :src="item.url" :type="item.mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
                     </video>
                     <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
@@ -44,9 +44,8 @@
 
             <template v-else>
                 {% block sw_media_preview_file_type_else %}
-                    <sw-icon class="sw-media-preview__item"
+                    <sw-icon class="sw-media-preview__item sw-media-preview__placeholder"
                              :name="placeholderIcon"
-                             size="90%"
                              multicolor>
                     </sw-icon>
                 {% endblock %}

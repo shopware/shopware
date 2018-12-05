@@ -11,6 +11,7 @@
         </parameter>
     </parameters>
     <services>
+        <!-- Entity definitions -->
         <service class="Shopware\Core\Content\Media\MediaDefinition" id="Shopware\Core\Content\Media\MediaDefinition">
             <tag name="shopware.entity.definition" entity="media"/>
         </service>
@@ -22,6 +23,32 @@
         <service class="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition" id="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition">
             <tag name="shopware.entity.definition" entity="media_translation"/>
         </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder_translation"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition">
+            <tag name="shopware.entity.definition" entity="media_thumbnail_size"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder_configuration"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationThumbnailSize\MediaFolderConfigurationThumbnailSizeDefinition"
+                 id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationThumbnailSize\MediaFolderConfigurationThumbnailSizeDefinition">
+            <tag name="shopware.entity.definition" entity="media_folder_configuration_thumbnail_size"/>
+        </service>
+        <!-- end of Entity definitions -->
 
         <service class="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber" id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
@@ -53,12 +80,24 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
         </service>
 
         <!-- Commands -->
         <service class="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand" id="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand" id="Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand">
+            <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
+            <argument type="service" id="media.repository"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand" id="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand">
+            <argument type="service" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService"/>
             <tag name="console.command"/>
         </service>
 
@@ -105,6 +144,31 @@
         <service class="Shopware\Core\Content\Media\Metadata\MetadataLoader" id="Shopware\Core\Content\Media\Metadata\MetadataLoader">
             <argument type="tagged" tag="\Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface"/>
             <argument>%shopware.media.metadata.types%</argument>
+        </service>
+
+        <!-- TypeDetector -->
+        <service class="Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector" id="Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector">
+            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+        </service>
+        <service class="Shopware\Core\Content\Media\TypeDetector\DefaultTypeDetector" id="Shopware\Core\Content\Media\TypeDetector\DefaultTypeDetector">
+            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="0"/>
+        </service>
+        <service class="Shopware\Core\Content\Media\TypeDetector\DocumentTypeDetector" id="Shopware\Core\Content\Media\TypeDetector\DocumentTypeDetector">
+            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+        </service>
+        <service class="Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector" id="Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector">
+            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+        </service>
+        <service class="Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector" id="Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector">
+            <tag name="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface" priority="10"/>
+        </service>
+        <service class="Shopware\Core\Content\Media\TypeDetector\TypeDetector" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector">
+            <argument type="tagged" tag="\Shopware\Core\Content\Media\TypeDetector\TypeDetectorInterface"/>
+        </service>
+
+        <!-- Services -->
+        <service class="Shopware\Core\Content\Media\DeleteNotUsedMediaService" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService">
+            <argument type="service" id="media.repository"/>
         </service>
     </services>
 </container>

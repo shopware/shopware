@@ -8,6 +8,8 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaType\DocumentType;
+use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -64,7 +66,7 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
         $this->thumbnailService->generateThumbnails(
@@ -93,8 +95,7 @@ class ThumbnailServiceTest extends TestCase
 
         foreach ($thumbnails as $thumbnail) {
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $media->getId(),
-                $media->getFileExtension(),
+                $media,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight()
             );
@@ -102,8 +103,7 @@ class ThumbnailServiceTest extends TestCase
 
             if ($thumbnail->getHighDpi()) {
                 $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                    $media->getId(),
-                    $media->getFileExtension(),
+                    $media,
                     $thumbnail->getWidth(),
                     $thumbnail->getHeight(),
                     true
@@ -130,7 +130,7 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
         $this->expectException(FileTypeNotSupportedException::class);
@@ -155,6 +155,7 @@ class ThumbnailServiceTest extends TestCase
                 'name' => 'media without thumbnails',
                 'fileExtension' => $mediaExtension,
                 'mimeType' => 'image/png',
+                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
                 'thumbnails' => [
                     [
                         'width' => 100,
@@ -177,7 +178,7 @@ class ThumbnailServiceTest extends TestCase
         $searchResult = $this->mediaRepository->search($mediaCriteria, $this->context);
         /** @var MediaStruct $media */
         $media = $searchResult->getEntities()->get($mediaId);
-        $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media->getId(), $media->getFileExtension());
+        $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media);
 
         self::assertSame(2, $media->getThumbnails()->count());
 
@@ -186,8 +187,7 @@ class ThumbnailServiceTest extends TestCase
         $thumbnailUrls = [];
         foreach ($media->getThumbnails() as $thumbnail) {
             $thumbnailUrl = $this->urlGenerator->getRelativeThumbnailUrl(
-                $mediaId,
-                $mediaExtension,
+                $media,
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight(),
                 $thumbnail->getHighDpi()
@@ -207,5 +207,47 @@ class ThumbnailServiceTest extends TestCase
         foreach ($thumbnailUrls as $thumbnailUrl) {
             self::assertFalse($this->getPublicFilesystem()->has($thumbnailUrl));
         }
+    }
+
+    public function testThumbnailGenerationThrowsExceptionIfFileTypeIsNotImage(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPng();
+        $media->setMediaType(new DocumentType());
+
+        $this->expectException(FileTypeNotSupportedException::class);
+
+        $this->thumbnailService->generateThumbnails(
+            $media,
+            $this->context
+        );
+    }
+
+    public function testThumbnailGenerationThrowsExceptionIfFileIsVectorGraphic(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPng();
+        $media->getMediaType()->addFlag(ImageType::VECTOR_GRAPHIC);
+
+        $this->expectException(FileTypeNotSupportedException::class);
+
+        $this->thumbnailService->generateThumbnails(
+            $media,
+            $this->context
+        );
+    }
+
+    public function testThumbnailGenerationThrowsExceptionIfFileIsAnimated(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPng();
+        $media->getMediaType()->addFlag(ImageType::ANIMATED);
+
+        $this->expectException(FileTypeNotSupportedException::class);
+
+        $this->thumbnailService->generateThumbnails(
+            $media,
+            $this->context
+        );
     }
 }

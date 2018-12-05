@@ -17,6 +17,14 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_product_detail_base_media_card %}
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleMedia')" :isLoading="product.isLoading">
+                {% block sw_product_detail_base_media_form %}
+                    <sw-product-media-form :product="product"></sw-product-media-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_product_detail_base_price_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_price_form %}
@@ -29,14 +37,6 @@
                         {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
                     </router-link>
                 </sw-container>
-                {% endblock %}
-            </sw-card>
-        {% endblock %}
-
-        {% block sw_product_detail_base_media_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleMedia')" :isLoading="product.isLoading">
-                {% block sw_product_detail_base_media_form %}
-                    <sw-product-media-form :product="product"></sw-product-media-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}

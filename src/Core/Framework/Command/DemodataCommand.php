@@ -437,8 +437,6 @@ class DemodataCommand extends Command
 
         $context = Context::createDefaultContext();
 
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-
         $importImages = function () use (&$productImages, $context) {
             foreach ($productImages as $id => $file) {
                 $this->mediaUpdater->persistFileToMedia(
@@ -448,6 +446,7 @@ class DemodataCommand extends Command
                         pathinfo($file, PATHINFO_EXTENSION),
                         filesize($file)
                     ),
+                    pathinfo($file, PATHINFO_FILENAME),
                     $id,
                     $context
                 );
@@ -467,9 +466,6 @@ class DemodataCommand extends Command
                 $product['cover'] = [
                     'media' => [
                         'id' => $mediaId,
-                        'mimeType' => mime_content_type($imagePath),
-                        'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
-                        'fileSize' => filesize($imagePath),
                         'name' => 'Product image of ' . $product['name'],
                     ],
                 ];
@@ -511,9 +507,6 @@ class DemodataCommand extends Command
                         'cover' => [
                             'media' => [
                                 'id' => $mediaId,
-                                'mimeType' => mime_content_type($imagePath),
-                                'fileSize' => filesize($imagePath),
-                                'fileExtension' => pathinfo($imagePath, PATHINFO_EXTENSION),
                                 'name' => 'Product image of ' . $product['name'],
                             ],
                         ],
@@ -1025,6 +1018,7 @@ class DemodataCommand extends Command
                     pathinfo($file, PATHINFO_EXTENSION),
                     filesize($file)
                 ),
+                pathinfo($file, PATHINFO_FILENAME),
                 $mediaId,
                 $context
             );

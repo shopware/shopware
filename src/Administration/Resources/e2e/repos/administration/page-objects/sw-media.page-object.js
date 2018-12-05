@@ -18,10 +18,6 @@ class MediaPageObject {
             .openMainMenuEntry('#/sw/media/index', 'Media')
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-media span.collapsible-text', 'Media')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
-            .waitForElementVisible('div.sw-media-grid.sw-media-index__catalog-grid')
-            .moveToElement('.sw-media-index__catalog-grid .sw-media-grid__content-cell', 15, 15)
-            .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell')
-            .waitForElementVisible('div.sw-page.sw-media-catalog');
     }
 }
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -440,18 +439,7 @@ class TranslationTest extends TestCase
                     'position' => 1,
                     'media' => [
                         'id' => '4b2252d11baa49f3a62e292888f5e439',
-                        'name' => 'Backform-gelb',
-                        'album' => [
-                            'id' => 'a7104eb19fc649fa86cf6fe6c26ad65a',
-                            'name' => 'Artikel',
-                            'position' => 2,
-                            'createThumbnails' => false,
-                            'thumbnailSize' => '200x200;600x600;1280x1280',
-                            'icon' => 'sprite-inbox',
-                            'thumbnailHighDpi' => true,
-                            'thumbnailQuality' => 90,
-                            'thumbnailHighDpiQuality' => 60,
-                        ],
+                        'title' => 'Backform-gelb',
                     ],
                 ],
                 'active' => true,
@@ -478,11 +466,6 @@ class TranslationTest extends TestCase
         $languages = $result->getEventByDefinition(LanguageDefinition::class);
         static::assertCount(1, array_unique($languages->getIds()));
         static::assertContains($germanLanguageId, $languages->getIds());
-
-        $translations = $result->getEventByDefinition(MediaTranslationDefinition::class);
-        static::assertCount(1, $translations->getIds());
-        $languageIds = array_column($translations->getPayload(), 'languageId');
-        static::assertContains($germanLanguageId, $languageIds);
 
         $translations = $result->getEventByDefinition(ProductManufacturerTranslationDefinition::class);
         static::assertCount(1, $translations->getIds());

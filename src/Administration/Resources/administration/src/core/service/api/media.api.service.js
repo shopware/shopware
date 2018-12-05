@@ -10,10 +10,13 @@ class MediaApiService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
     }
 
-    uploadMediaById(id, mimeType, data, fileExtension) {
-        const apiRoute = `/_action/media/${id}/upload?extension=${fileExtension}`;
+    uploadMediaById(id, mimeType, data, extension, fileName = id) {
+        const apiRoute = `/_action/${this.getApiBasePath(id)}/upload`;
         const headers = this.getBasicHeaders({ 'Content-Type': mimeType });
-        const params = {};
+        const params = {
+            extension,
+            fileName
+        };
 
         return this.httpClient.post(
             apiRoute,
@@ -24,10 +27,13 @@ class MediaApiService extends ApiService {
         });
     }
 
-    uploadMediaFromUrl(id, url, fileExtension) {
-        const apiRoute = `/_action/media/${id}/upload?extension=${fileExtension}`;
+    uploadMediaFromUrl(id, url, extension, fileName = id) {
+        const apiRoute = `/_action/${this.getApiBasePath(id)}/upload`;
         const headers = this.getBasicHeaders({ 'Content-Type': 'application/json' });
-        const params = {};
+        const params = {
+            extension,
+            fileName
+        };
 
         const body = JSON.stringify({ url });
 
@@ -35,6 +41,22 @@ class MediaApiService extends ApiService {
             apiRoute,
             body,
             { params, headers }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
+    renameMedia(id, fileName) {
+        const apiRoute = `/_action/${this.getApiBasePath(id)}/rename`;
+        return this.httpClient.post(
+            apiRoute,
+            JSON.stringify({
+                fileName
+            }),
+            {
+                params: {},
+                headers: this.getBasicHeaders()
+            }
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

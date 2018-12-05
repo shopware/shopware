@@ -25,7 +25,7 @@
         {% endblock %}
 
         {% block sw_manufacturer_detail_content %}
-            <sw-card-view slot="content">
+            <sw-card-view slot="content" sidebar>
                 {% block sw_manufacturer_detail_base_basic_info_card %}
                     <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturer.isLoading">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
@@ -48,29 +48,18 @@
                                 </sw-field>
                             {% endblock %}
 
-                            <div v-if="manufacturer.catalogId" class="sw-manufacturer-image-pane" :class="logoFieldClasses">
+                            <template v-if="manufacturer.catalogId">
                                 {% block sw_manufacturer_detail_logo_upload %}
-                                    <div v-if="!manufacturer.mediaId && !manufacturer.isLoading"
-                                         class="sw-manufacturer-detail__logo-upload">
-                                        {% block sw_manufacturer_detail_upload_caption %}
-                                            <span class="sw-manufacturer-detail__upload-caption">
-                                                {{ $tc('sw-manufacturer.detail.addLogoCaption') }}
-                                            </span>
-                                        {% endblock %}
-
-                                        {% block sw_manufacturer_detail_upload_buttons %}
-                                            <sw-media-upload-button
-                                                :catalogId="manufacturer.catalogId"
-                                                :allowMultiSelect="false"
-                                                :compact="false"
-                                                ref="uploadComponent"
-                                                @media-upload-success="onSuccessfulImageUpload">
-                                            </sw-media-upload-button>
-                                        {% endblock %}
-                                    </div>
+                                    <sw-media-upload v-if="!manufacturer.mediaId && !manufacturer.isLoading"
+                                        class="sw-manufacturer-detail__logo-upload"
+                                        :allowMultiSelect="false"
+                                        variant="regular"
+                                        :caption="$tc('sw-manufacturer.detail.addLogoCaption')"
+                                        @media-upload-success="setMediaItem">
+                                    </sw-media-upload>
                                 {% endblock %}
 
-                                <template v-else-if="mediaItem">
+                                <div v-else-if="mediaItem" class="sw-manufacturer-detail__image-pane" :class="logoFieldClasses">
                                     {% block sw_manufacturer_detail_logo %}
                                         <sw-media-preview class="sw-manufacturer-detail__logo"
                                                           :item="mediaItem"
@@ -85,8 +74,8 @@
                                             <sw-icon color="#fff" name="default-action-trash" medium></sw-icon>
                                         </sw-button>
                                     {% endblock %}
-                                </template>
-                            </div>
+                                </div>
+                            </template>
                         </sw-container>
 
                         {% block sw_manufacturer_detail_base_info_field_description %}
@@ -99,6 +88,16 @@
                         {% endblock %}
                     </sw-card>
                 {% endblock %}
+
+                <template slot="card-view-sidebar">
+                    <sw-sidebar-media-item>
+                        <template slot="context-menu-items" slot-scope="media">
+                            <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
+                                {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-sidebar-media-item>
+                </template>
             </sw-card-view>
         {% endblock %}
     </sw-page>

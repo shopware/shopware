@@ -14,18 +14,7 @@ class PlainPathnameStrategy implements PathnameStrategyInterface
      */
     public function encode(string $filename): string
     {
-        $filename = ltrim($filename, '/');
-        $pathInfo = pathinfo($filename);
-
-        if (empty($pathInfo['extension'])) {
-            return '';
-        }
-
-        if (preg_match('/(_[\d]+x[\d]+(@2x)?).(?:.*)$/', $filename)) {
-            $filename = 'thumbnail/' . $filename;
-        }
-
-        return $filename;
+        return ltrim($filename, '/');
     }
 
     /**

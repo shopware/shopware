@@ -1,8 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.less';
-import '../sw-media-quickinfo';
-import '../sw-media-quickinfo-multiple';
 
 Component.register('sw-media-sidebar', {
     template,
@@ -79,8 +77,8 @@ Component.register('sw-media-sidebar', {
 
         deleteSelectedItems(deletePromise) {
             this.closeModalDelete();
-            deletePromise.then(() => {
-                this.$emit('sw-media-sidebar-items-delete');
+            deletePromise.then((ids) => {
+                this.$emit('sw-media-sidebar-items-delete', ids);
             });
         }
     }

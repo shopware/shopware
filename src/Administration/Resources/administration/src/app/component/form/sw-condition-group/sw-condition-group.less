@@ -1,148 +1,140 @@
 @import "~less/variables";
 
-@sw-field-color-border:       @color-steam-cloud;
-@sw-field-color-focus:        @color-shopware-blue;
-@sw-field-color-text:         @color-gutenberg;
-@sw-field-color-background:   @color-white;
-@sw-field-suffix-background:  @color-iron;
-@sw-field-font-size:          14px;
-@sw-field-font-family:        @font-family-default;
-@sw-field-transition:         border-color 0.3s ease-out;
-@sw-field-border-radius:      @border-radius-default;
-@sw-field-color-label:        @color-kashmir;
-@sw-field-color-placeholder:  lighten(@sw-field-color-text, 25%);
-@sw-field-color-error:        @color-crimson;
-
 .sw-condition-group {
-  width: 100%;
-  margin-bottom: 22px;
-
-  .group-container {
-    position: relative;
-    background: #000; /* Define a cool color variable first */
-    line-height: 40px;
-    padding: 0 15px;
-    height: 44px;
-    float: left;
-    width: 33%;
-
-    &.field--condition {
-      background: #748A99;
-      color: #fff;
-      z-index: 10100;
-      width: 25%;
-      border-top-left-radius: 3px;
-      border-bottom-left-radius: 3px;
-      padding-right: 30px;
-
-      &:before {
-        content: '';
-        position: absolute;
-        right: -5px;
-        top: 1px;
-        width: 10px;
-        height: 25px;
-        background: rgba(255, 9, 255, .5);
-        background: #748A99;
-        transform: rotate(-20deg);
-        border-bottom-right-radius: 3px;
-      }
-
-      &:after {
-        content: '';
-        position: absolute;
-        right: -5px;
-        bottom: 1px;
-        width: 10px;
-        height: 25px;
-        background: rgba(255, 9, 255, .5);
-        background: #748A99;
-        border-top-right-radius: 3px;
-        transform: rotate(20deg);
-      }
-    }
-
-    &.field--operator {
-      width: 20%;
-      background: #fff;
-      color: #999;
-      border-top: 1px solid #D6DDE5;
-      border-bottom: 1px solid #D6DDE5;
-      margin-left: -10px;
-      z-index: 10050;
-      padding-left: 30px;
-
-      &:before {
-        content: '';
-        position: absolute;
-        right: -5px;
-        top: -1px;
-        width: 1px;
-        height: 23px;
-        background: rgba(255, 9, 255, .5);
-        background: #D6DDE5;
-        transform: rotate(-20deg);
-      }
-
-      &:after {
-        content: '';
-        position: absolute;
-        right: -5px;
-        bottom: -1px;
-        width: 1px;
-        height: 23px;
-        background: rgba(255, 9, 255, .5);
-        background: #D6DDE5;
-        transform: rotate(20deg);
-      }
-    }
-
-    &.field--value {
-      width: 49%;
-      background: #fff;
-      color: #999;
-      border-top: 1px solid #D6DDE5;
-      border-bottom: 1px solid #D6DDE5;
-      z-index: 10000;
-      padding-left: 20px;
-    }
-
-    &.field--actions {
-      width: 6%;
-      background: #fff;
-      color: #999;
-      border-top: 1px solid #D6DDE5;
-      border-bottom: 1px solid #D6DDE5;
-      border-right: 1px solid #D6DDE5;
-      border-left: 1px solid #D6DDE5;
-      border-top-right-radius: 3px;
-      border-bottom-right-radius: 3px;
-      line-height: 45px;
-      text-align: left;
-    }
-
-  }
-
-  .condition-group--field {
-    border: 0;
-    background: none;
-    color: #fff;
-    font-size: 14px;
-    padding: 0;
-    margin: 0;
     width: 100%;
+    margin-bottom: 20px;
 
-    &.is--light {
-      color: #fff;
+    &:after {
+        content: '';
+        display: block;
+        clear: both;
     }
 
-    &.is--dark {
-      color: #4D6989;
+    .group-container {
+        position: relative;
+        background: #000; /* Define a cool color variable first */
+        line-height: 40px;
+        padding: 0 15px;
+        height: 44px;
+        float: left;
+        width: 33%;
+
+        &.field--condition {
+            background: #748A99;
+            color: #fff;
+            z-index: 10100;
+            width: 25%;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+            padding-right: 30px;
+
+            &:before {
+                content: '';
+                position: absolute;
+                right: -5px;
+                top: 1px;
+                width: 10px;
+                height: 25px;
+                background: rgba(255, 9, 255, .5);
+                background: #748A99;
+                transform: rotate(-20deg);
+                border-bottom-right-radius: 3px;
+            }
+
+            &:after {
+                content: '';
+                position: absolute;
+                right: -5px;
+                bottom: 1px;
+                width: 10px;
+                height: 25px;
+                background: rgba(255, 9, 255, .5);
+                background: #748A99;
+                border-top-right-radius: 3px;
+                transform: rotate(20deg);
+            }
+        }
+
+        &.field--operator {
+            width: 20%;
+            background: #fff;
+            color: #999;
+            border-top: 1px solid #D6DDE5;
+            border-bottom: 1px solid #D6DDE5;
+            margin-left: -10px;
+            z-index: 10050;
+            padding-left: 30px;
+
+            &:before {
+                content: '';
+                position: absolute;
+                right: -5px;
+                top: -1px;
+                width: 1px;
+                height: 23px;
+                background: rgba(255, 9, 255, .5);
+                background: #D6DDE5;
+                transform: rotate(-20deg);
+            }
+
+            &:after {
+                content: '';
+                position: absolute;
+                right: -5px;
+                bottom: -1px;
+                width: 1px;
+                height: 23px;
+                background: rgba(255, 9, 255, .5);
+                background: #D6DDE5;
+                transform: rotate(20deg);
+            }
+        }
+
+        &.field--value {
+            width: 49%;
+            background: #fff;
+            color: #999;
+            border-top: 1px solid #D6DDE5;
+            border-bottom: 1px solid #D6DDE5;
+            z-index: 10000;
+            padding-left: 20px;
+        }
+
+        &.field--actions {
+            width: 6%;
+            background: #fff;
+            color: #999;
+            border-top: 1px solid #D6DDE5;
+            border-bottom: 1px solid #D6DDE5;
+            border-right: 1px solid #D6DDE5;
+            border-left: 1px solid #D6DDE5;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            line-height: 45px;
+            text-align: left;
+        }
     }
 
-    &:active,
-    &:focus {
-      outline: none;
+    .condition-group--field {
+        border: 0;
+        background: none;
+        color: #fff;
+        font-size: 14px;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+
+        &.is--light {
+            color: #fff;
+        }
+
+        &.is--dark {
+            color: #4D6989;
+        }
+
+        &:active,
+        &:focus {
+            outline: none;
+        }
     }
-  }
 }

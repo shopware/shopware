@@ -50,20 +50,17 @@
             </sw-container>
         </sw-card>
 
-
         <sw-card :title="$tc('sw-settings-rule.detail.ruleCard')">
             <sw-container grid="1fr" gap="0px">
                 <sw-field type="hidden"
                           v-model="rule.conditions">
                 </sw-field>
 
-                <sw-condition-group>
-                    Cont 1
-                </sw-condition-group>
+                <div v-for="condition in nestedConditions.children">
 
-                <sw-condition-group>
-                    Cont 1
-                </sw-condition-group>
+                    <sw-condition-group :type="rule.type" :condition="condition"></sw-condition-group>
+
+                </div>
 
             </sw-container>
         </sw-card>

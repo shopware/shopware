@@ -11,8 +11,8 @@ Component.register('sw-settings-rule-detail', {
     data() {
         return {
             rule: {},
-            conditions: [],
-            duplicate: false
+            duplicate: false,
+            nestedConditions: []
         };
     },
 
@@ -41,12 +41,37 @@ Component.register('sw-settings-rule-detail', {
                 this.conditionId = this.$route.params.parentId;
             }
 
-            this.ruleStore.apiService.getRuleConditions(this.conditionId).then(
-                (response) => {
-                    this.conditions = response.data;
-                    console.log(this.conditions);
+            this.rule.id = this.conditionId;
+            this.rule.getAssociation('conditions').getList({
+                page: 1,
+                limit: 500
+            }).then(() => {
+                this.nestedConditions = this.buildNestedConditions(this.rule.conditions, null)[0];
+                if (this.duplicate) {
+                    this.rule.conditions.forEach((condition) => {
+                        condition.id = null;
+                        condition.parentId = null;
+                    });
+
+                    this.rule.id = this.ruleId;
                 }
-            );
+            });
+        },
+
+        buildNestedConditions(conditions, parentId) {
+            const nested = [];
+            conditions.forEach((condition) => {
+                if (condition.parentId === parentId) {
+                    const children = this.buildNestedConditions(conditions, condition.id);
+                    children.forEach((child) => {
+                        condition.children.push(child);
+                    });
+
+                    nested.push(condition);
+                }
+            });
+
+            return nested;
         },
 
         onSave() {
@@ -56,6 +81,8 @@ Component.register('sw-settings-rule-detail', {
                 0,
                 { name: this.rule.name }
             );
+
+            this.rule.conditions = this.nestedConditions;
 
             return this.rule.save().then(() => {
                 this.createNotificationSuccess({

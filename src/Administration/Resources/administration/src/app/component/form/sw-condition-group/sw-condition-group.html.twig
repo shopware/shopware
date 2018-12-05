@@ -1,26 +1,17 @@
 {% block sw_condition_group %}
-    <div class="sw-condition-group"
-         :class="fieldClasses">
-
+    <div class="sw-condition-group">
         <div class="group-container field--condition">
-
-            <select name="name" id="" class="condition-group--field">
-                <option value="">Versandkosten</option>
-                <option value="">Versandart</option>
-                <option value="">Kundengruppe</option>
-                <option value="">Kundennummer</option>
-                <option value="">Shop ID</option>
-                <option value="">Warenkorbwert Netto</option>
-                <option value="">Warenkorbwert Brutto</option>
-                <option value="">Warenkorbwert MwSt.</option>
-                <option value="">Artikel Anzahl</option>
+            <select name="name" id="" class="condition-group--field" ref="conditionTypeSelect">
+                <option v-for="innerCondition in conditionTypes"
+                        :selected="innerCondition.identifier == condition.type"
+                        value="innerCondition.identifier">
+                    {{ innerCondition.label }}
+                </option>
             </select>
-
         </div>
-
         <div class="group-container field--operator">
-
             <select name="name" id="" class="condition-group--field is--dark">
+                <option value="">{{ condition.value.operator }}</option>
                 <option value="">ist gleich</option>
                 <option value="">ist ungleich</option>
                 <option value="">beginnt mit</option>
@@ -28,17 +19,12 @@
                 <option value="">enthält</option>
                 <option value="">Regex</option>
             </select>
-
         </div>
-
         <div class="group-container field--value">
-
-            <input type="text" value="Value.." class="condition-group--field is--dark">
-
+            <input type="text" value="" v-bind:value="condition.value.amount" class="condition-group--field is--dark">
         </div>
-
         <div class="group-container field--actions">
             ...
         </div>
-
+    </div>
 {% endblock %}

@@ -98,8 +98,7 @@ Component.register('sw-settings-rule-list', {
             );
 
             apiService.httpClient
-                .post(apiService.getApiBasePath(''), Object.assign({}, this.payload), { headers }).then(
-                    () => {
+                .post(apiService.getApiBasePath(''), Object.assign({}, this.payload), { headers }).then(() => {
                         apiService.httpClient.defaults.baseURL = oldBaseUrl;
 
                         this.isLoading = false;

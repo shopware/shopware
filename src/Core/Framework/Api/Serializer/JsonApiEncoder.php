@@ -111,6 +111,10 @@ class JsonApiEncoder
 
             $this->addRelationships($serialized, $entities, $baseUrl, $self, $field, $value, $propertyName);
         }
+        if ($entity->getViewData() !== null) {
+            $serialized->addAttribute('viewData', $this->serializeEntity($entities, $definition, $entity->getViewData(), $baseUrl));
+        }
+
 
         return $serialized;
     }

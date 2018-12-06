@@ -310,7 +310,6 @@ class ApiController extends AbstractController
         $repository = $this->getRepository($definition, $request);
 
         $criteria = new Criteria();
-
         if (empty($pathSegments)) {
             $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 

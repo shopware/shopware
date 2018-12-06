@@ -19,7 +19,7 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId);
 
         $this->assertTranslation(
-            ['name' => 'not translated'],
+            ['viewData' => ['name' => 'not translated']],
             [
                 Defaults::LANGUAGE_EN => ['name' => 'not translated'],
                 $langId => ['name' => 'translated'],
@@ -34,7 +34,7 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId, $fallbackId);
 
         $this->assertTranslation(
-            ['name' => 'translated by fallback'],
+            ['name' => null, 'viewData' => ['name' => 'translated by fallback']],
             [
                 $fallbackId => ['name' => 'translated by fallback'],
             ],
@@ -190,7 +190,10 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             [
                 'name' => 'translated',
-                'metaTitle' => 'translated by fallback',
+                'metaTitle' => null,
+                'viewData' => [
+                    'metaTitle' => 'translated by fallback',
+                ],
             ],
             [
                 $langId => [
@@ -225,7 +228,7 @@ class TranslationTest extends TestCase
                     'metaTitle' => 'translated by fallback',
                 ],
             ],
-            ['id' => $langId, 'inherit' => false]
+            ['id' => $langId]
         );
     }
 
@@ -238,7 +241,10 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             [
                 'metaTitle' => 'translated',
-                'name' => 'only translated by fallback',
+                'name' => null,
+                'viewData' => [
+                    'name' => 'only translated by fallback',
+                ],
             ],
             [
                 $langId => [
@@ -261,7 +267,10 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             [
                 'metaDescription' => 'translated',
-                'name' => 'only translated by fallback',
+                'name' => null,
+                'viewData' => [
+                    'name' => 'only translated by fallback',
+                ],
             ],
             [
                 $langId => [
@@ -373,25 +382,17 @@ class TranslationTest extends TestCase
 
         $this->assertEntityExists($this->getClient(), 'category', $id);
 
-        $headers = [];
+        $headers = ['HTTP_ACCEPT' => 'application/json'];
         if ($langOverride) {
-            $headerName = $this->getLangHeaderName();
-
-            if (\is_array($langOverride)) {
-                $params = 'id=' . $langOverride['id'] . ';';
-                $params .= isset($langOverride['inherit']) ? ('inherit=' . (int) $langOverride['inherit']) : '';
-                $langOverride = $params;
-            }
-
-            $headers = [$headerName => $langOverride];
+            $headers[$this->getLangHeaderName()] = $langOverride;
         }
 
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);
 
         $response = $this->getClient()->getResponse();
-        $responseData = json_decode($response->getContent());
+        $responseData = json_decode($response->getContent(), true);
 
-        static::assertArraySubset($expectedTranslations, (array) $responseData->data->attributes);
+        static::assertArraySubset($expectedTranslations, $responseData['data']);
     }
 
     private function createLanguage($langId, $fallbackId = null): void

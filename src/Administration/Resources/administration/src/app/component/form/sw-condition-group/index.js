@@ -19,6 +19,14 @@ Component.register('sw-condition-group', {
         type: {
             type: String,
             required: false,
+            validValues: ['price', 'shipping', 'payment', 'product_stream', 'customer_stream', 'cms'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+
+                return ['price', 'shipping', 'payment', 'product_stream', 'customer_stream', 'cms'].includes(value);
+            },
             default: 'text'
         },
         label: {

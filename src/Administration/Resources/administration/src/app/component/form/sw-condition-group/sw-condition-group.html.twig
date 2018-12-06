@@ -3,10 +3,10 @@
         {% block sw_condition_group_field_condition %}
             <div class="group-container field--condition">
                 {% block sw_condition_group_field_condition_select %}
-                    <select name="name" class="condition-group--field" ref="conditionTypeSelect">
+                    <select name="name" class="condition-group__field" ref="conditionTypeSelect">
                         {% block sw_condition_group_field_condition_select_option %}
                             <option v-for="innerCondition in conditionTypes"
-                                    :selected="innerCondition.identifier == condition.type"
+                                    :selected="innerCondition.identifier === condition.type"
                                     value="innerCondition.identifier">
                                 {{ innerCondition.label }}
                             </option>
@@ -19,14 +19,8 @@
         {% block sw_condition_group_field_operator %}
             <div class="group-container field--operator">
                 {% block sw_condition_group_field_operator_select %}
-                    <select name="name" class="condition-group--field is--dark">
+                    <select name="name" class="condition-group__field is--secondary">
                         <option value="">{{ condition.value.operator }}</option>
-                        <option value="">ist gleich</option>
-                        <option value="">ist ungleich</option>
-                        <option value="">beginnt mit</option>
-                        <option value="">endet mit</option>
-                        <option value="">enthält</option>
-                        <option value="">Regex</option>
                     </select>
                 {% endblock %}
             </div>
@@ -35,7 +29,7 @@
         {% block sw_condition_group_field_value %}
             <div class="group-container field--value">
                 {% block sw_condition_group_field_value_input %}
-                    <input type="text" value="" v-bind:value="condition.value.amount" class="condition-group--field is--dark">
+                    <input type="text" value="" v-bind:value="condition.value.amount" class="condition-group__field is--secondary">
                 {% endblock %}
             </div>
         {% endblock %}

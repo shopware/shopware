@@ -65,11 +65,25 @@
         cursor: default;
     }
 
+    .sw-icon {
+        color: lighten(@sw-button-default-color-text, 30%);
+    }
+
+    &.sw-button--square {
+        .sw-icon {
+            color: @sw-button-default-color-text;
+        }
+    }
+
     &.sw-button--primary {
         background: @sw-button-primary-color-background;
         color: @sw-button-primary-color-text;
         line-height: 36px;
         border: 0 none;
+
+        .sw-icon {
+            color: @sw-button-primary-color-text;
+        }
 
         &.sw-button--small {
             line-height: 28px;
@@ -98,6 +112,10 @@
         color: @sw-button-contrast-color-text;
         line-height: 36px;
         border: 0 none;
+
+        .sw-icon {
+            color: @sw-button-contrast-color-text;
+        }
 
         &.sw-button--small {
             line-height: 28px;
@@ -128,6 +146,10 @@
         line-height: 36px;
         border: 0 none;
 
+        .sw-icon {
+            color: @sw-button-danger-color-text;
+        }
+
         &.sw-button--small {
             line-height: 28px;
         }
@@ -154,6 +176,10 @@
         background-color: transparent;
         border-color: @sw-button-ghost-color-border;
         color: @sw-button-ghost-color-text;
+
+        .sw-icon {
+            color: @sw-button-ghost-color-text;
+        }
 
         &:hover {
             background-color: @sw-button-ghost-color-background;
@@ -183,6 +209,10 @@
         padding-right: 15px;
         font-size: 12px;
         line-height: 26px;
+
+        &.sw-button--square {
+            width: 32px;
+        }
     }
 
     &.sw-button--large {
@@ -190,9 +220,20 @@
         padding-right: 28px;
         line-height: 42px;
         font-size: 15px;
+
+        &.sw-button--square {
+            width: 48px;
+        }
     }
 
-    &:not(.sw-button--primary):not(.sw-button--ghost) .sw-icon {
-        color: lighten(@sw-button-default-color-text, 30%);
+    &.sw-button--square {
+        width: 40px;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+
+        .sw-button__content {
+            display: inline;
+        }
     }
 }

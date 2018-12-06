@@ -260,9 +260,10 @@ class VariantGeneratorTest extends TestCase
         $parent = $this->repository->read(new ReadCriteria([$id]), $context)
             ->get($id);
 
+        /** @var ProductStruct $variant */
         foreach ($variants as $variant) {
             static::assertEquals($id, $variant->getParentId());
-            static::assertEquals($parent->getPrice(), $variant->getPrice());
+            static::assertEquals($parent->getPrice(), $variant->getViewData()->getPrice());
         }
     }
 }

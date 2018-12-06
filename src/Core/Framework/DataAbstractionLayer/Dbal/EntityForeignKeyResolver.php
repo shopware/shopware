@@ -7,6 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
  * Determines all associated data for a definition.
@@ -112,6 +114,11 @@ class EntityForeignKeyResolver
             return [];
         }
 
+        //prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
+        if ($definition === LanguageDefinition::class) {
+            return [];
+        }
+
         $query = new QueryBuilder($this->connection);
 
         $root = $definition::getEntityName();
@@ -146,7 +153,7 @@ class EntityForeignKeyResolver
 
                 $query->addSelect(
                     'GROUP_CONCAT(DISTINCT HEX(' .
-                    EntityDefinitionQueryHelper::escape($alias) . '.id)' .
+                    EntityDefinitionQueryHelper::escape($alias) . '.`id`)' .
                     ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
             }
@@ -260,6 +267,11 @@ class EntityForeignKeyResolver
                     continue;
                 }
 
+                if (!$field instanceof AssociationInterface) {
+                    continue;
+                }
+
+                /** @var AssociationInterface|Field $field */
                 $class = $field->getReferenceClass();
 
                 if (!array_key_exists($class, $restrictions)) {

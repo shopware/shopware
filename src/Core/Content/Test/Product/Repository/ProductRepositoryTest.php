@@ -489,7 +489,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($redName, $red->getName());
 
         static::assertEquals($greenPrice['gross'], $green->getViewData()->getPrice()->getGross());
-        static::assertEquals($parentName, $green->getName());
+        static::assertEquals($parentName, $green->getViewData()->getName());
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         static::assertEquals($parentPrice, json_decode($row['price'], true));
@@ -736,7 +736,8 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenTax, $green->getTax()->getId());
 
         static::assertEquals($parentTax, $parent->getTaxId());
-        static::assertEquals($parentTax, $red->getTaxId());
+        static::assertNull($red->getTaxId());
+        static::assertEquals($parentTax, $red->getViewData()->getTaxId());
         static::assertEquals($greenTax, $green->getTaxId());
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
@@ -844,8 +845,9 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $green->getMedia());
         static::assertTrue($green->getMedia()->has($greenMedia));
 
-        static::assertCount(1, $red->getMedia());
-        static::assertTrue($red->getMedia()->has($parentMedia));
+        static::assertCount(0, $red->getMedia());
+        static::assertCount(1, $red->getViewData()->getMedia());
+        static::assertTrue($red->getViewData()->getMedia()->has($parentMedia));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         static::assertEquals($parentMedia, Uuid::fromBytesToHex($row['media_id']));

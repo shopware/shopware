@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationStruct;
@@ -771,44 +772,50 @@ class EntityReaderTest extends TestCase
 
     public function testLoadNestedAssociation(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::uuid4()->getHex();
+        $productId = Uuid::uuid4()->getHex();
+        $categoryId = Uuid::uuid4()->getHex();
 
-        $product1 = [
-            'id' => $id1,
-            'price' => ['gross' => 10, 'net' => 9],
-            'active' => true,
-            'manufacturer' => ['name' => 'test'],
-            'name' => 'test',
-            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        $manufacturer = [
+            'id' => $manufacturerId,
+            'name' => 'Test manufacturer',
+            'products' => [
+                [
+                    'id' => $productId,
+                    'name' => 'test media',
+                    'price' => ['gross' => 10, 'net' => 9],
+                    'active' => true,
+                    'tax' => ['taxRate' => 13, 'name' => 'green'],
+                    'categories' => [
+                        [
+                            'id' => $categoryId,
+                            'name' => 'foobar',
+                        ],
+                    ],
+                ],
+            ],
         ];
 
-        $categoryRepo = $this->getContainer()->get('category.repository');
+        $manufacturerRepo = $this->getContainer()->get('product_manufacturer.repository');
         $context = Context::createDefaultContext();
+        $manufacturerRepo->upsert([$manufacturer], $context);
 
-        $categoryRepo->upsert(
-            [
-                ['id' => $id1, 'name' => 'test', 'products' => []],
-                ['id' => $id2, 'name' => 'test', 'products' => [$product1], 'parentId' => $id1],
-            ],
-            $context
-        );
+        $productCriteria = new ReadCriteria([$productId]);
+        $productCriteria->addAssociation('product.categories');
 
-        $categoryCriteria = new Criteria();
-        $categoryCriteria->addAssociation('category.parent');
+        $manufacturerCriteria = new ReadCriteria([$manufacturerId]);
+        $manufacturerCriteria->addAssociation('product_manufacturer.products', $productCriteria);
 
-        $criteria = new ReadCriteria([$id1]);
-        $criteria->addAssociation('product.categories', $categoryCriteria);
+        /** @var ProductManufacturerStruct $manufacturer */
+        $manufacturer = $manufacturerRepo->read($manufacturerCriteria, $context)->get($manufacturerId);
+        $products = $manufacturer->getProducts();
 
-        $productRepo = $this->getContainer()->get('product.repository');
-        /** @var ProductStruct $product */
-        $product = $productRepo->read($criteria, $context)->get($id1);
+        static::assertEquals(1, $products->count());
+        static::assertInstanceOf(ProductStruct::class, $products->first());
 
-        static::assertInstanceOf(CategoryCollection::class, $product->getCategories());
-        $categories = $product->getCategories();
+        $categories = $products->first()->getCategories();
         static::assertEquals(1, $categories->count());
-
-        static::assertInstanceOf(CategoryStruct::class, $categories->first()->getParent());
+        static::assertInstanceOf(CategoryStruct::class, $categories->first());
     }
 
     public function testLoadManyToMany(): void

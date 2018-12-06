@@ -190,7 +190,7 @@ class OrderLineItemStruct extends Entity
         $this->description = $description;
     }
 
-    public function isGood(): bool
+    public function getGood(): bool
     {
         return $this->good;
     }
@@ -200,7 +200,7 @@ class OrderLineItemStruct extends Entity
         $this->good = $good;
     }
 
-    public function isRemovable(): bool
+    public function getRemovable(): bool
     {
         return $this->removable;
     }

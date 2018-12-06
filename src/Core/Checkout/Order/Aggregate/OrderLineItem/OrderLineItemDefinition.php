@@ -48,12 +48,12 @@ class OrderLineItemDefinition extends EntityDefinition
             (new IntField('quantity', 'quantity'))->setFlags(new Required()),
             (new StringField('label', 'label'))->setFlags(new Required()),
             (new JsonField('payload', 'payload')),
-            (new BoolField('good', 'good'))->setFlags(new Required()),
-            (new BoolField('removable', 'removable'))->setFlags(new Required()),
-            (new BoolField('stackable', 'stackable'))->setFlags(new Required()),
-            (new IntField('priority', 'priority'))->setFlags(new Required()),
+            new BoolField('good', 'good'),
+            new BoolField('removable', 'removable'),
+            new BoolField('stackable', 'stackable'),
+            new IntField('priority', 'priority'),
 
-            (new ObjectField('price', 'price')),
+            new ObjectField('price', 'price'),
             (new ObjectField('price_definition', 'priceDefinition')),
 
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),

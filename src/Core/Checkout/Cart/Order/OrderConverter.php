@@ -169,14 +169,15 @@ class OrderConverter
             $currentLineItem = $index[$id];
 
             $currentLineItem
-                ->setKey($lineItem->getIdentifier())
+            ->setKey($lineItem->getIdentifier())
                 ->setType($lineItem->getType())
                 ->setStackable(true)
                 ->setQuantity($lineItem->getQuantity())
+                ->setStackable($lineItem->getStackable())
                 ->setLabel($lineItem->getLabel())
-                ->setGood($lineItem->isGood())
+                ->setGood($lineItem->getGood())
                 ->setPriority($lineItem->getPriority())
-                ->setRemovable($lineItem->isRemovable())
+                ->setRemovable($lineItem->getRemovable())
                 ->setStackable($lineItem->getStackable());
 
             if ($lineItem->getPayload() !== null) {
@@ -299,7 +300,8 @@ class OrderConverter
         $converted = [];
         foreach ($lineItems as $lineItem) {
             $id = Uuid::uuid4()->getHex();
-            $converted[$lineItem->getKey()] = array_filter([
+
+            $data = [
                 'id' => $id,
                 'identifier' => $lineItem->getKey(),
                 'quantity' => $lineItem->getQuantity(),
@@ -316,7 +318,11 @@ class OrderConverter
                 'priceDefinition' => $lineItem->getPriceDefinition(),
                 'parentId' => $parentId,
                 'payload' => $lineItem->getPayload(),
-            ]);
+            ];
+
+            $converted[$lineItem->getKey()] = array_filter($data, function ($value) {
+                return $value !== null;
+            });
 
             if ($lineItem->hasChildren()) {
                 $converted = array_merge($this->convertLineItems($lineItem->getChildren(), $id), $converted);

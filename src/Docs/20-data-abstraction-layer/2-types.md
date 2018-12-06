@@ -44,7 +44,7 @@ The field types below are available to build a definition.
 | Type | Description |
 |---|---|
 | `PriceField` | Structured JSON field to enforce the price structure (`gross`, `net`, `linked`) |
-| `ParentField` | Short-hand for foreign key field `parentId` used in the parent/child concept |
+| `ParentFkField` | Short-hand for foreign key field `parentId` used in the parent/child concept |
 | `ChildCountField` | (Read-only) For saving the current count of children used in the parent/child concept |
 | `PasswordField` | For saving a hashed password |
 
@@ -399,13 +399,13 @@ This field is a structured JSON field to enforce the price structure (`gross`, `
 1. `$storageName` is the name in your storage.
 2. `$propertyName` is the name used in your struct and used to search, write and work.
 
-### ParentField
+### ParentFkField
 
 ```php
-new ParentField(self::class)
+new ParentFkField(self::class)
 ```
 
-The ParentField is an extension to the `FkField` with pre-defined parameters.
+The ParentFkField is an extension to the `FkField` with pre-defined parameters.
 
 The first and only parameter is a class reference to the parent definition. In most cases, this will be the
 same definition and can be set to `self::class`.

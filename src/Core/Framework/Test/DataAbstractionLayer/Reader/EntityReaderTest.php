@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxStruct;
@@ -160,9 +159,9 @@ class EntityReaderTest extends TestCase
         $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
 
         /** @var ProductStruct $product */
-        static::assertInstanceOf(ArrayStruct::class, $product->getViewData());
-        static::assertEquals('EN', $product->getViewData()->get('name'));
-        static::assertEquals('test', $product->getViewData()->get('description'));
+        static::assertInstanceOf(ProductStruct::class, $product->getViewData());
+        static::assertEquals('EN', $product->getViewData()->getName());
+        static::assertEquals('test', $product->getViewData()->getDescription());
     }
 
     public function testParentInheritanceInViewData()
@@ -203,30 +202,51 @@ class EntityReaderTest extends TestCase
         /** @var ProductStruct $parent */
         $parent = $products->get($parentId);
         static::assertInstanceOf(ProductStruct::class, $parent);
+        static::assertInstanceOf(ProductStruct::class, $parent->getViewData());
+
         static::assertInstanceOf(TaxStruct::class, $parent->getTax());
-        static::assertInstanceOf(TaxStruct::class, $parent->getViewData()->get('tax'));
+        static::assertInstanceOf(TaxStruct::class, $parent->getViewData()->getTax());
+
         static::assertInstanceOf(PriceStruct::class, $parent->getPrice());
+        static::assertInstanceOf(PriceStruct::class, $parent->getViewData()->getPrice());
+
         static::assertEquals(50, $parent->getPrice()->getGross());
+        static::assertEquals(50, $parent->getViewData()->getPrice()->getGross());
 
         /** @var ProductStruct $red */
         $red = $products->get($redId);
+
+        //check red product contains full inheritance of parent in "viewData"
         static::assertInstanceOf(ProductStruct::class, $red);
+
+        //has no own tax
         static::assertNull($red->getTax());
         static::assertNull($red->getTaxId());
-        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->get('price'));
+        static::assertNull($red->getPrice());
 
-        static::assertInstanceOf(TaxStruct::class, $red->getViewData()->get('tax'));
-        static::assertEquals($parentTax, $red->getViewData()->get('taxId'));
-        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->get('price'));
-        static::assertEquals(50, $red->getViewData()->get('price')->getGross());
+        //price and tax are inherited by parent
+        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->getPrice());
+        static::assertInstanceOf(TaxStruct::class, $red->getViewData()->getTax());
+        static::assertEquals($parentTax, $red->getViewData()->getTaxId());
+        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->getPrice());
+        static::assertEquals(50, $red->getViewData()->getPrice()->getGross());
 
         /** @var ProductStruct $green */
         $green = $products->get($greenId);
         static::assertInstanceOf(ProductStruct::class, $green);
+        static::assertInstanceOf(ProductStruct::class, $green->getViewData());
+
         static::assertInstanceOf(TaxStruct::class, $green->getTax());
-        static::assertInstanceOf(TaxStruct::class, $green->getViewData()->get('tax'));
+        static::assertInstanceOf(TaxStruct::class, $green->getViewData()->getTax());
+
+        static::assertInstanceOf(TaxStruct::class, $green->getTaxId());
+        static::assertInstanceOf(TaxStruct::class, $green->getViewData()->getTaxId());
+
         static::assertInstanceOf(PriceStruct::class, $green->getPrice());
+        static::assertInstanceOf(PriceStruct::class, $green->getViewData()->getPrice());
+
         static::assertEquals(100, $green->getPrice()->getGross());
+        static::assertEquals(100, $green->getViewData()->getPrice()->getGross());
     }
 
     public function testInheritanceWithOneToMany()
@@ -288,9 +308,6 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, Context::createDefaultContext());
 
-        error_log(print_r('par: ' . $parentId, true) . "\n", 3, '/var/log/test.log');
-        error_log(print_r('red: ' . $redId, true) . "\n", 3, '/var/log/test.log');
-        error_log(print_r('###########READ###########', true) . "\n", 3, '/var/log/test.log');
         $products = $this->productRepository->read(new ReadCriteria([$redId]), Context::createDefaultContext());
 
         /** @var ProductStruct $parent */
@@ -308,202 +325,6 @@ class EntityReaderTest extends TestCase
         $green = $products->get($greenId);
         static::assertInstanceOf(ProductStruct::class, $green);
         static::assertInstanceOf(ProductPriceRuleCollection::class, $green->getPriceRules());
-    }
-
-    public function testInheritanceExtension(): void
-    {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
-
-        $parentTax = Uuid::uuid4()->getHex();
-        $greenTax = Uuid::uuid4()->getHex();
-
-        $products = [
-            [
-                'id' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
-                'manufacturer' => ['name' => 'test'],
-                'name' => 'parent',
-                'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'green'],
-            ],
-            [
-                'id' => $redId,
-                'parentId' => $parentId,
-                'name' => 'red',
-            ],
-            [
-                'id' => $greenId,
-                'parentId' => $parentId,
-                'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green'],
-            ],
-        ];
-
-        $this->productRepository->create($products, Context::createDefaultContext());
-
-        $products = $this->productRepository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
-
-        static::assertTrue($products->has($redId));
-        static::assertTrue($products->has($greenId));
-
-        /** @var ProductStruct $red */
-        $red = $products->get($redId);
-
-        static::assertTrue($red->hasExtension('inherited'));
-
-        /** @var ArrayStruct $inheritance */
-        $inheritance = $red->getExtension('inherited');
-
-        static::assertTrue($inheritance->get('manufacturerId'));
-        static::assertTrue($inheritance->get('unitId'));
-        static::assertTrue($inheritance->get('taxId'));
-
-        /** @var ProductStruct $green */
-        $green = $products->get($greenId);
-        $inheritance = $green->getExtension('inherited');
-        static::assertFalse($inheritance->get('taxId'));
-    }
-
-    public function testInheritanceExtensionWithAssociation(): void
-    {
-        $ruleA = Uuid::uuid4()->getHex();
-
-        $this->getContainer()->get('rule.repository')->create([
-            [
-                'id' => $ruleA,
-                'name' => 'test',
-                'payload' => new AndRule(),
-                'priority' => 1,
-            ],
-        ], Context::createDefaultContext());
-
-        $parentId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $redId = Uuid::uuid4()->getHex();
-
-        $data = [
-            [
-                'id' => $parentId,
-                'name' => 'price test',
-                'price' => ['gross' => 15, 'net' => 10],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-                'priceRules' => [
-                    [
-                        'currencyId' => Defaults::CURRENCY,
-                        'quantityStart' => 1,
-                        'ruleId' => $ruleA,
-                        'price' => ['gross' => 15, 'net' => 10],
-                    ],
-                ],
-            ],
-            [
-                'id' => $greenId,
-                'parentId' => $parentId,
-                'priceRules' => [
-                    [
-                        'currencyId' => Defaults::CURRENCY,
-                        'quantityStart' => 1,
-                        'ruleId' => $ruleA,
-                        'price' => ['gross' => 100, 'net' => 90],
-                    ],
-                ],
-            ],
-            [
-                'id' => $redId,
-                'parentId' => $parentId,
-            ],
-        ];
-
-        $this->productRepository->create($data, Context::createDefaultContext());
-
-        $products = $this->productRepository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
-
-        static::assertTrue($products->has($redId));
-        static::assertTrue($products->has($greenId));
-
-        /** @var ProductStruct $red */
-        $red = $products->get($redId);
-
-        static::assertTrue($red->hasExtension('inherited'));
-
-        /** @var ArrayStruct $inheritance */
-        $inheritance = $red->getExtension('inherited');
-
-        static::assertTrue($inheritance->get('manufacturerId'));
-        static::assertTrue($inheritance->get('unitId'));
-        static::assertTrue($inheritance->get('priceRules'));
-
-        /** @var ProductStruct $green */
-        $green = $products->get($greenId);
-        $inheritance = $green->getExtension('inherited');
-        static::assertFalse($inheritance->get('priceRules'));
-    }
-
-    public function testTranslationExtension(): void
-    {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
-        $parentTax = Uuid::uuid4()->getHex();
-
-        $products = [
-            [
-                'id' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
-                'manufacturer' => ['name' => 'test'],
-                'name' => 'parent',
-                'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'green'],
-            ],
-            [
-                'id' => $redId,
-                'parentId' => $parentId,
-                'name' => 'red',
-            ],
-            [
-                'id' => $greenId,
-                'parentId' => $parentId,
-            ],
-        ];
-
-        $this->productRepository->create($products, Context::createDefaultContext());
-
-        $products = $this->productRepository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
-
-        static::assertTrue($products->has($redId));
-        static::assertTrue($products->has($greenId));
-
-        /** @var ProductStruct $red */
-        $red = $products->get($redId);
-
-        /* @var ArrayStruct $translated */
-        /* @var ArrayStruct $inheritance */
-        static::assertTrue($red->hasExtension('translated'));
-        static::assertTrue($red->hasExtension('inherited'));
-
-        $inheritance = $red->getExtension('inherited');
-        $translated = $red->getExtension('translated');
-
-        static::assertTrue($translated->get('name'));
-        static::assertFalse($inheritance->get('name'));
-
-        static::assertFalse($translated->get('description'));
-        static::assertTrue($inheritance->get('description'));
-
-        /** @var ProductStruct $green */
-        $green = $products->get($greenId);
-
-        static::assertTrue($green->hasExtension('translated'));
-        static::assertTrue($green->hasExtension('inherited'));
-
-        $inheritance = $green->getExtension('inherited');
-        $translated = $green->getExtension('translated');
-
-        static::assertTrue($translated->get('name'));
-        static::assertTrue($inheritance->get('name'));
-
-        static::assertFalse($translated->get('description'));
-        static::assertTrue($inheritance->get('description'));
     }
 
     public function testLoadOneToManyNotLoadedAutomatically(): void

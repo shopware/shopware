@@ -25,9 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
@@ -59,7 +58,7 @@ class LanguageDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new ParentField(self::class),
+            new ParentFkField(self::class),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             new FkField('translation_code_id', 'translationCodeId', LocaleDefinition::class),
 
@@ -73,33 +72,34 @@ class LanguageDefinition extends EntityDefinition
             new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, true),
 
             new ChildrenAssociationField(self::class),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, false, 'language_id', 'sales_channel_id'),
             new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'language_id', false, 'id'),
             new OneToManyAssociationField('snippets', SnippetDefinition::class, 'language_id', false, 'id'),
-            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, false, 'language_id', 'sales_channel_id'),
-            (new TranslationsAssociationField(CatalogTranslationDefinition::class, 'catalogTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'categoryTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CountryStateTranslationDefinition::class, 'countryStateTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CountryTranslationDefinition::class, 'countryTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CurrencyTranslationDefinition::class, 'currencyTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customerGroupTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ListingFacetTranslationDefinition::class, 'listingFacetTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ListingSortingTranslationDefinition::class, 'listingSortingTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(LocaleTranslationDefinition::class, 'localeTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(MediaTranslationDefinition::class, 'mediaTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(OrderStateTranslationDefinition::class, 'orderStateTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(OrderTransactionStateTranslationDefinition::class, 'orderTransactionStateTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'paymentMethodTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class, 'productManufacturerTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'productTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shippingMethodTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(UnitTranslationDefinition::class, 'unitTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class, 'configurationGroupTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class, 'configurationGroupOptionTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(DiscountSurchargeTranslationDefinition::class, 'discountsurchargeTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'salesChannelTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class, 'salesChannelTypeTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(SearchDocumentDefinition::class, 'searchDocuments'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(MediaFolderTranslationDefinition::class, 'mediaFolderTranslations'))->setFlags(new CascadeDelete()),
+
+            (new OneToManyAssociationField('catalogTranslations', CatalogTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('countryStateTranslations', CountryStateTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('countryTranslations', CountryTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('currencyTranslations', CurrencyTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('customerGroupTranslations', CustomerGroupTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('listingFacetTranslations', ListingFacetTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('listingSortingTranslations', ListingSortingTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('localeTranslations', LocaleTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('mediaTranslations', MediaTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('orderStateTranslations', OrderStateTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('orderTransactionStateTranslations', OrderTransactionStateTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('paymentMethodTranslations', PaymentMethodTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productTranslations', ProductTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shippingMethodTranslations', ShippingMethodTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('unitTranslations', UnitTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configurationGroupTranslations', ConfigurationGroupTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configurationGroupOptionTranslations', ConfigurationGroupOptionTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('discountsurchargeTranslations', DiscountSurchargeTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannelTranslations', SalesChannelTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannelTypeTranslations', SalesChannelTypeTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('searchDocuments', SearchDocumentDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('mediaFolderTranslations', MediaFolderTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
         ]);
     }
 

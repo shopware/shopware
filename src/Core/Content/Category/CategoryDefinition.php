@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -50,7 +50,7 @@ class CategoryDefinition extends EntityDefinition
             new VersionField(),
             new CatalogField(),
 
-            new ParentField(self::class),
+            new ParentFkField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
             new FkField('media_id', 'mediaId', MediaDefinition::class),

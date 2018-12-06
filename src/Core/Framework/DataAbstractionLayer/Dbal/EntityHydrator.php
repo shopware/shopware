@@ -2,18 +2,20 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -35,20 +37,20 @@ class EntityHydrator
         $this->fieldHandler = $fieldHandler;
     }
 
-    public function hydrate(string $entity, string $definition, array $rows, string $root): array
+    public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context): array
     {
         /** @var EntityDefinition|string $definition */
         $collection = [];
         $this->objects = [];
 
         foreach ($rows as $row) {
-            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root);
+            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root, $context);
         }
 
         return $collection;
     }
 
-    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root): Entity
+    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context): Entity
     {
         /** @var EntityDefinition $definition */
         $fields = $definition::getFields()->getElements();
@@ -58,23 +60,19 @@ class EntityHydrator
 
         $entity->setUniqueIdentifier($identifier);
 
-        $idProperty = $root . '.id';
+        $cacheKey = null;
+        if (isset($row[$identifier])) {
+            $cacheKey = $definition::getEntityName() . '::' . $identifier;
 
-        $objectCacheKey = null;
-
-        if (isset($row[$idProperty])) {
-            $objectCacheKey = $definition::getEntityName() . '::' . bin2hex($row[$idProperty]);
-
-            if (isset($this->objects[$objectCacheKey])) {
-                return $this->objects[$objectCacheKey];
+            if (isset($this->objects[$cacheKey])) {
+                return $this->objects[$cacheKey];
             }
         }
 
-        $data = [];
-        $associations = [];
-        $inheritedFields = [];
-        $inherited = new ArrayStruct();
-        $translated = new ArrayStruct();
+        $entity->setViewData(clone $entity);
+
+        $mappingStorage = new ArrayStruct([]);
+        $entity->addExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE, $mappingStorage);
 
         /** @var Field $field */
         foreach ($fields as $field) {
@@ -82,143 +80,149 @@ class EntityHydrator
 
             $originalKey = $root . '.' . $propertyName;
 
-            $isInherited = $field->is(Inherited::class);
-
-            if ($isInherited && $field instanceof AssociationInterface) {
-                $inheritedFields[] = $field;
+            //skip parent association to prevent endless loop. Additionally the reader do now allow to access parent values
+            if ($field instanceof ParentAssociationField) {
+                continue;
             }
 
-            //collect to one associations, this will be hydrated after loop
-            if ($field instanceof ManyToOneAssociationField) {
-                $accessor = $root . '.' . $propertyName . '.id';
+            if ($field instanceof AssociationInterface && $field->is(Inherited::class)) {
+                $key = $originalKey . '.owner';
 
-                if (isset($row[$accessor])) {
-                    $associations[$propertyName] = $field;
+                if (array_key_exists($key, $row)) {
+                    $mappingStorage->set($key, $row[$key]);
                 }
+            }
+
+            //many to many fields contains a group concat id value in the selection, this will be stored in an internal extension to collect them later
+            if ($field instanceof ManyToManyAssociationField) {
+                $ids = $this->extractManyToManyIds($root, $field, $row);
+
+                if ($ids === null) {
+                    continue;
+                }
+
+                //add many to many mapping to internal storage for further usages in entity reader (see entity reader \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader::loadManyToManyOverExtension)
+                $mappingStorage->set($propertyName, $ids);
 
                 continue;
             }
 
+            if ($field instanceof ManyToOneAssociationField) {
+                //hydrated contains now the associated entity (eg. currently hydrating the product, hydrated contains now the manufacturer or tax or ...)
+                $hydrated = $this->hydrateManyToOne($row, $root, $context, $field);
+
+                //.owner field contains the value of the foreign key of the child row.
+                $key = $originalKey . '.owner';
+                if (isset($row[$key])) {
+                    $entity->assign([$propertyName => $hydrated]);
+                }
+
+                $entity->getViewData()->assign([$propertyName => $hydrated]);
+
+                continue;
+            }
+
+            //other association fields are not handled in entity reader query
+            if ($field instanceof AssociationInterface) {
+                continue;
+            }
+
+            /* @var StorageAware $field */
             if (!array_key_exists($originalKey, $row)) {
                 continue;
             }
 
             $value = $row[$originalKey];
-            //remove internal .inherited key which used to detect if a inherited field is selected by parent or child
-            if ($isInherited) {
-                $inheritedKey = '_' . $originalKey . '.inherited';
 
-                if (isset($row[$inheritedKey])) {
-                    $inherited->set($propertyName, (bool) $row[$inheritedKey]);
-                }
-            }
-
-            //in case of a translated field, remove .translated element which is selected to detect if the value is translated in current language or contains the fallback
+            //handle resolved language inheritance
             if ($field instanceof TranslatedField) {
-                $translationKey = '_' . $originalKey . '.translated';
+                //decode resolved language inheritance (only assigned to `viewData`)
+                $translatedField = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
+                $decoded = $this->fieldHandler->decode($translatedField, $value);
+                $entity->getViewData()->assign([$propertyName => $decoded]);
 
-                if (isset($row[$translationKey])) {
-                    $translated->set($propertyName, (bool) $row[$translationKey]);
-                }
-            }
+                //decode raw language data (only assigned to `child` entity)
+                $key = $root . '.translation.' . $propertyName;
+                $decoded = $this->fieldHandler->decode($translatedField, $row[$key]);
+                $entity->assign([$propertyName => $decoded]);
 
-            //scalar data values can be casted directly
-            if (!$field instanceof AssociationInterface) {
-                //reduce data set for nested calls
-                $data[$propertyName] = $this->fieldHandler->decode($field, $value);
                 continue;
             }
 
-            //many to many fields contains a group concat id value in the selection, this will be stored in an internal extension to collect them later
-            if ($field instanceof ManyToManyAssociationField) {
-                $property = $root . '.' . $propertyName;
+            if ($field->is(Inherited::class)) {
+                //decode resolved inheritance value (only assigned to `viewData`)
+                $decoded = $this->fieldHandler->decode($field, $value);
+                $entity->getViewData()->assign([$propertyName => $decoded]);
 
-                $ids = explode('||', (string) $row[$property]);
-                $ids = array_filter($ids);
-                $ids = array_map('strtolower', $ids);
+                //decode raw child value (only assigned to `child` entity)
+                $key = $root . '.' . $propertyName . '.raw';
+                $decoded = $this->fieldHandler->decode($field, $row[$key]);
+                $entity->assign([$propertyName => $decoded]);
 
-                $extension = $entity->getExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE);
-                if (!$extension) {
-                    $extension = new ArrayStruct([]);
-                    $entity->addExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE, $extension);
-                }
-
-                if ($extension instanceof ArrayStruct) {
-                    $extension->set($propertyName, $ids);
-                }
+                continue;
             }
+
+            $decoded = $this->fieldHandler->decode($field, $value);
+            $entity->assign([$propertyName => $decoded]);
+            $entity->getViewData()->assign([$propertyName => $decoded]);
         }
 
-        /** @var AssociationInterface[] $associations */
-        foreach ($associations as $property => $field) {
-            $reference = $field->getReferenceClass();
+        $translations = $this->hydrateTranslations($definition, $root, $row, $context);
 
-            /** @var EntityDefinition $reference */
-            $structClass = $reference::getStructClass();
-
-            $hydrated = $this->hydrateEntity(
-                new $structClass(),
-                $field->getReferenceClass(),
-                $row,
-                $root . '.' . $property
-            );
-
-            /** @var Field $field */
-            if ($field->is(Extension::class)) {
-                $entity->addExtension($property, $hydrated);
-            } else {
-                $data[$property] = $hydrated;
-            }
+        if ($translations !== null) {
+            $entity->assign(['translations' => $translations]);
         }
-
-        $entity->assign($data);
 
         //write object cache key to prevent multiple hydration for the same entity
-        if ($objectCacheKey !== null) {
-            $this->objects[$objectCacheKey] = $entity;
-        }
-
-        if ($definition::isInheritanceAware()) {
-            /** @var Field $association */
-            foreach ($inheritedFields as $association) {
-                if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
-                    continue;
-                }
-
-                $inherited->set($association->getPropertyName(), $this->isInherited($definition, $row, $association));
-            }
-
-            $entity->addExtension('inherited', $inherited);
-        }
-
-        if ($definition::getTranslationDefinitionClass()) {
-            $entity->addExtension('translated', $translated);
+        if ($cacheKey) {
+            $this->objects[$cacheKey] = $entity;
         }
 
         return $entity;
     }
 
-    private function isInherited(string $definition, array $row, AssociationInterface $association): bool
+    private function extractManyToManyIds(string $root, ManyToManyAssociationField $field, array $row): ?array
     {
-        /* @var string|EntityDefinition $definition */
-        $idField = 'id';
-        if ($association instanceof ManyToOneAssociationField) {
-            $idField = $association->getStorageName();
+        $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
+
+        //many to many isn't loaded in case of limited association criterias
+        if (!array_key_exists($accessor, $row)) {
+            return null;
         }
 
-        $idField = $definition::getFields()->getByStorageName($idField);
+        //explode hexed ids
+        $ids = explode('||', (string) $row[$accessor]);
 
-        $joinField = '_' . $definition::getEntityName() . '.' . $association->getPropertyName() . '.inherited';
-        $idField = $definition::getEntityName() . '.' . $idField->getPropertyName();
+        //sql do not cast to lower
+        return array_map('strtolower', array_filter($ids));
+    }
 
-        if (!isset($row[$joinField])) {
-            return false;
+    private function hydrateTranslations(string $definition, string $root, array $row, Context $context): ?EntityCollection
+    {
+        /** @var string|EntityDefinition $definition */
+        $translationDefinition = $definition::getTranslationDefinitionClass();
+
+        if ($translationDefinition === null) {
+            return null;
         }
 
-        $idValue = $row[$idField];
-        $joinValue = $row[$joinField];
+        /** @var string|EntityDefinition $translationDefinition */
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $definition, $context, true);
 
-        return $idValue !== $joinValue;
+        $structClass = $translationDefinition::getStructClass();
+
+        $collection = $translationDefinition::getCollectionClass();
+
+        /** @var EntityCollection $collection */
+        $collection = new $collection();
+
+        //builds a complete collection with translation structs of the current entity
+        foreach ($chain as $accessor) {
+            $entity = $this->hydrateEntity(new $structClass(), $translationDefinition, $row, $accessor, $context);
+            $collection->add($entity);
+        }
+
+        return $collection;
     }
 
     private function buildPrimaryKey($definition, array $row, string $root): array
@@ -237,5 +241,20 @@ class EntityHydrator
         }
 
         return $primaryKey;
+    }
+
+    private function hydrateManyToOne(array $row, string $root, Context $context, ManyToOneAssociationField $field): ?Entity
+    {
+        $key = $root . '.' . $field->getPropertyName() . '.id';
+
+        //check if ManyToOne is loaded (`product.manufacturer.id`). Otherwise the association is set to null and continue
+        if (!isset($row[$key])) {
+            return null;
+        }
+
+        /** @var EntityDefinition $reference */
+        $structClass = $field->getReferenceClass()::getStructClass();
+
+        return $this->hydrateEntity(new $structClass(), $field->getReferenceClass(), $row, $root . '.' . $field->getPropertyName(), $context);
     }
 }

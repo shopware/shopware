@@ -135,8 +135,8 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $rows = $this->fetch($criteria, $definition, $context, $fields, $raw);
-        $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName());
+        $rows = $this->fetch($criteria, $definition, $context, $fields);
+        $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName(), $context);
         $collection->fill($entities);
 
         if ($collection->count() <= 0) {
@@ -174,8 +174,14 @@ class EntityReader implements EntityReaderInterface
         return $collection;
     }
 
-    private function joinBasic(string $definition, Context $context, string $root, QueryBuilder $query, FieldCollection $fields, bool $raw = false, Criteria $criteria = null): void
-    {
+    private function joinBasic(
+        string $definition,
+        Context $context,
+        string $root,
+        QueryBuilder $query,
+        FieldCollection $fields,
+        Criteria $criteria = null
+    ): void {
         /** @var EntityDefinition $definition */
         $filtered = $fields->fmap(function (Field $field) {
             if ($field->is(Deferred::class)) {
@@ -185,18 +191,19 @@ class EntityReader implements EntityReaderInterface
             return $field;
         });
 
-        $parent = null;
+        $parentAssociation = null;
 
-        if ($definition::isInheritanceAware() && !$raw) {
+        if ($definition::isInheritanceAware()) {
             /** @var EntityDefinition|string $definition */
-            $parent = $definition::getFields()->get('parent');
-            $this->queryHelper->resolveField($parent, $definition, $root, $query, $context);
+            $parentAssociation = $definition::getFields()->get('parent');
+            $this->queryHelper->resolveField($parentAssociation, $definition, $root, $query, $context);
         }
 
         /** @var Field $field */
         foreach ($filtered as $field) {
             //translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
+                $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
                 continue;
             }
 
@@ -207,11 +214,21 @@ class EntityReader implements EntityReaderInterface
 
             /** @var Field $field */
             if ($field instanceof AssociationInterface && $field->is(Inherited::class)) {
-                $query->addSelect(
-                    EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName())
-                    . ' as ' .
-                    EntityDefinitionQueryHelper::escape('_' . $root . '.' . $field->getPropertyName() . '.inherited')
-                );
+                if ($field instanceof ManyToOneAssociationField) {
+                    //tables with inherited associations containing a column with the association name, this columns contains the uuid of the owner of this association
+                    $query->addSelect(
+                        EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
+                        . ' as ' .
+                        EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.owner')
+                    );
+                } else {
+                    //tables with inherited associations containing a column with the association name, this columns contains the uuid of the owner of this association
+                    $query->addSelect(
+                        EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName())
+                        . ' as ' .
+                        EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.owner')
+                    );
+                }
             }
 
             $accessor = $definition::getEntityName() . '.' . $field->getPropertyName();
@@ -223,7 +240,7 @@ class EntityReader implements EntityReaderInterface
 
                 $basics = $reference::getFields()->filterBasic();
 
-                if ($this->shouldBeLoadedDelayed($field, $reference, $basics->getElements())) {
+                if ($this->shouldBeLoadedDelayed($reference, $basics->getElements())) {
                     continue;
                 }
 
@@ -236,18 +253,15 @@ class EntityReader implements EntityReaderInterface
                     $joinCriteria = $criteria->getAssociation($accessor);
                 }
 
-                $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics, $raw, $joinCriteria);
+                $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics, $joinCriteria);
 
                 continue;
             }
 
             //add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
-                if ($criteria !== null && $criteria->hasAssociation($accessor)) {
-                    $fieldCriteria = $criteria->getAssociation($accessor);
-                    if ($this->hasCriteriaElements($fieldCriteria)) {
-                        continue;
-                    }
+                if ($this->isAssociationRestricted($criteria, $accessor)) {
+                    continue;
                 }
 
                 //requested a paginated, filtered or sorted list
@@ -262,29 +276,31 @@ class EntityReader implements EntityReaderInterface
             }
 
             /** @var Field $field */
-            if ($field instanceof StorageAware && $field->is(Inherited::class) && $parent !== null && !$raw) {
-                $parentAlias = $root . '.' . $parent->getPropertyName();
-                $child = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
-                $parentField = EntityDefinitionQueryHelper::escape($parentAlias) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+            if ($field instanceof StorageAware && $field->is(Inherited::class) && $parentAssociation !== null) {
+                $parentAlias = $root . '.' . $parentAssociation->getPropertyName();
+
+                //contains the field accessor for the child value (eg. `product.name`.`name`)
+                $childAccessor = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+
+                //contains the field accessor for the parent value (eg. `product.parent`.`name`)
+                $parentAccessor = EntityDefinitionQueryHelper::escape($parentAlias) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+
+                //contains the alias for the resolved field (eg. `product.name`)
                 $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName());
 
-                $query->addSelect(
-                    sprintf('COALESCE(%s, %s) as %s', $child, $parentField, $fieldAlias)
-                );
+                //add selection for resolved parent-child inheritance field
+                $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
 
-                $fieldAlias = EntityDefinitionQueryHelper::escape(
-                    '_' . $root . '.' . $field->getPropertyName() . '.' . 'inherited'
-                );
+                //add selection for raw child value
+                $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.raw');
+                $query->addSelect(sprintf('%s as %s', $childAccessor, $fieldAlias));
 
-                $query->addSelect(
-                    sprintf('%s IS NULL as %s', $child, $fieldAlias)
-                );
                 continue;
             }
 
             //all other StorageAware fields are stored inside the main entity
             if ($field instanceof StorageAware) {
-                /* @var Field $field */
+                /* @var StorageAware|Field $field */
                 $query->addSelect(
                     EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
                     . ' as ' .
@@ -293,29 +309,23 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $translatedFields = $fields->fmap(function (Field $field) {
-            if ($field instanceof TranslatedField) {
-                return $field;
-            }
+        $translationDefinition = $definition::getTranslationDefinitionClass();
 
-            return null;
-        });
-
-        if (\count($translatedFields) <= 0) {
+        if ($translationDefinition === null) {
             return;
         }
 
-        $this->queryHelper->addTranslationSelect($root, $definition, $query, $context, $translatedFields, $raw);
+        $this->queryHelper->addTranslationSelect($root, $definition, $query, $context);
     }
 
-    private function fetch(ReadCriteria $criteria, string $definition, Context $context, FieldCollection $fields, bool $raw): array
+    private function fetch(ReadCriteria $criteria, string $definition, Context $context, FieldCollection $fields): array
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
         $query = $this->buildQueryByCriteria(new QueryBuilder($this->connection), $this->queryHelper, $this->parser, $definition, $criteria, $context);
 
-        $this->joinBasic($definition, $context, $table, $query, $fields, $raw, $criteria);
+        $this->joinBasic($definition, $context, $table, $query, $fields, $criteria);
 
         if (!empty($criteria->getIds())) {
             $bytes = array_map(function (string $id) {
@@ -334,7 +344,7 @@ class EntityReader implements EntityReaderInterface
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->filterBasic();
-        if (!$this->shouldBeLoadedDelayed($association, $reference, $fields->getElements())) {
+        if (!$this->shouldBeLoadedDelayed($reference, $fields->getElements())) {
             return;
         }
 
@@ -377,15 +387,21 @@ class EntityReader implements EntityReaderInterface
         /** @var string|EntityDefinition $definition */
         $accessor = $definition::getEntityName() . '.' . $association->getPropertyName();
 
-        if ($criteria->hasAssociation($accessor)) {
-            $fieldCriteria = $criteria->getAssociation($accessor);
-            if ($this->hasCriteriaElements($fieldCriteria)) {
-                $this->loadManyToManyWithCriteria($fieldCriteria, $association, $context, $collection);
+        //check if the requested criteria is restricted (limit, offset, sorting, filtering)
+        if ($this->isAssociationRestricted($criteria, $accessor)) {
+            //if restricted load paginated list of many to many
+            $this->loadManyToManyWithCriteria(
+                $criteria->getAssociation($accessor),
+                $association,
+                $context,
+                $collection
+            );
 
-                return;
-            }
+            return;
         }
 
+        //otherwise the association is loaded in the root query of the entity as sub select which contains all ids
+        //the ids are extracted in the entity hydrator (see: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::extractManyToManyIds)
         $this->loadManyToManyOverExtension($association, $context, $collection);
     }
 
@@ -418,7 +434,7 @@ class EntityReader implements EntityReaderInterface
             '#mapping_local_column#' => EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#source#' => $source,
-            '#property#' => EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName()),
+            '#property#' => EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.id_mapping'),
         ];
 
         $query->addSelect(
@@ -450,7 +466,7 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    private function shouldBeLoadedDelayed(Field $association, string $definition, array $fields): bool
+    private function shouldBeLoadedDelayed(string $definition, array $fields): bool
     {
         /** @var Field $field */
         foreach ($fields as $field) {
@@ -474,7 +490,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             $nested = $reference::getFields()->filterBasic()->getElements();
-            if ($this->shouldBeLoadedDelayed($field, $reference, $nested)) {
+            if ($this->shouldBeLoadedDelayed($reference, $nested)) {
                 return true;
             }
         }
@@ -664,7 +680,7 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $struct */
         foreach ($collection as $struct) {
             /** @var ArrayStruct $extension */
-            $extension = $struct->getExtension('many_to_many_storage');
+            $extension = $struct->getExtension(self::MANY_TO_MANY_EXTENSION_STORAGE);
 
             //use assign function to avoid setter name building
             $structData = $data->getList($extension->get($association->getPropertyName()));
@@ -783,8 +799,8 @@ class EntityReader implements EntityReaderInterface
         foreach ($collection as $entity) {
             $entities = new $collectionClass([]);
 
-            if (array_key_exists($entity->getId(), $mapping)) {
-                $x = $mapping[$entity->getId()];
+            if (array_key_exists($entity->getUniqueIdentifier(), $mapping)) {
+                $x = $mapping[$entity->getUniqueIdentifier()];
                 $entities = $data->getList($x);
                 $entities->sortByIdArray($x);
             }
@@ -854,7 +870,7 @@ class EntityReader implements EntityReaderInterface
 
         $bytes = $collection->map(
             function (Entity $entity) {
-                return Uuid::fromHexToBytes($entity->getId());
+                return Uuid::fromHexToBytes($entity->getUniqueIdentifier());
             }
         );
 
@@ -951,5 +967,32 @@ class EntityReader implements EntityReaderInterface
                 $association->getReferenceClass()::getEntityName()
             )
         );
+    }
+
+    private function isAssociationRestricted(?Criteria $criteria, $accessor): bool
+    {
+        if ($criteria === null) {
+            return false;
+        }
+
+        if (!$criteria->hasAssociation($accessor)) {
+            return false;
+        }
+
+        $fieldCriteria = $criteria->getAssociation($accessor);
+
+        return
+            $fieldCriteria->getOffset() !== null
+            ||
+            $fieldCriteria->getLimit() !== null
+            ||
+            !empty($fieldCriteria->getSorting())
+            ||
+            !empty($fieldCriteria->getFilters())
+            ||
+            !empty($fieldCriteria->getPostFilters())
+            ||
+            !empty($fieldCriteria->getAssociations())
+        ;
     }
 }

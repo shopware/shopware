@@ -322,43 +322,47 @@ class EntityDefinitionQueryHelper
      * Considers the parent-child inheritance and provided context language inheritance.
      * The raw parameter allows to skip the parent-child inheritance.
      */
-    public function addTranslationSelect(string $root, string $definition, QueryBuilder $query, Context $context, array $fields, bool $raw = false): void
+    public function addTranslationSelect(string $root, string $definition, QueryBuilder $query, Context $context): void
     {
-        $fields = array_values($fields);
-        $this->resolveField($fields[0], $definition, $root, $query, $context, $raw);
+        /** @var string|EntityDefinition $definition */
+        /** @var string|EntityDefinition $translationDefinition */
+        $translationDefinition = $definition::getTranslationDefinitionClass();
 
-        $chain = $this->buildTranslationChain($root, $definition, $context, $raw);
+        $fields = $translationDefinition::getFields();
+
+        $chain = self::buildTranslationChain($root, $definition, $context, true);
 
         /** @var TranslatedField $field */
-        foreach ($fields as $property => $field) {
-            /** @var Field|StorageAware $translatedField */
-            $translatedField = $this->getTranslatedField($definition, $field);
-            $query->addSelect(
-                $this->getTranslationFieldAccessor($root, $translatedField->getStorageName(), $chain)
-                . ' as ' .
-                self::escape($root . '.' . $field->getPropertyName())
-            );
-
-            $select = self::escape($chain[0]) . '.' . self::escape($translatedField->getStorageName());
-
-            /** @var string|EntityDefinition $definition */
-            if ($definition::isInheritanceAware() && $field->is(Inherited::class) && !$raw) {
-                $select = sprintf(
-                    'COALESCE(%s)',
-                    $select . ',' . self::escape($chain[1]) . '.' . self::escape($translatedField->getStorageName())
-                );
+        foreach ($fields as $field) {
+            if (!$field instanceof StorageAware) {
+                continue;
             }
 
-            $query->addSelect(
-                $select . ' IS NOT NULL'
-                . ' as ' .
-                self::escape('_' . $root . '.' . $field->getPropertyName() . '.translated')
-            );
+            foreach ($chain as $tableAccessor) {
+                $query->addSelect(
+                    self::escape($tableAccessor) . '.' . self::escape($field->getStorageName())
+                    . ' as ' .
+                    self::escape($tableAccessor . '.' . $field->getPropertyName())
+                );
+            }
+        }
 
+        //rebuild translation chain with parent inheritance
+        $chain = self::buildTranslationChain($root, $definition, $context);
+
+        /** @var StorageAware|Field $field */
+        foreach ($fields as $field) {
+            //check if current field is a translated field of the origin definition
+            $origin = $definition::getFields()->get($field->getPropertyName());
+            if (!$origin instanceof TranslatedField) {
+                continue;
+            }
+
+            //add selection for resolved parent-child and language inheritance
             $query->addSelect(
-                self::escape($chain[0]) . '.' . self::escape($translatedField->getStorageName()) . ' IS NULL'
+                $this->getTranslationFieldAccessor($root, $field->getStorageName(), $chain)
                 . ' as ' .
-                self::escape('_' . $root . '.' . $field->getPropertyName() . '.inherited')
+                self::escape($root . '.' . $field->getPropertyName())
             );
         }
     }
@@ -393,6 +397,41 @@ class EntityDefinitionQueryHelper
                 '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id`'
             )
         );
+    }
+
+    public static function getTranslatedField(string $definition, TranslatedField $translatedField): Field
+    {
+        /** @var EntityDefinition|string $definition */
+        $translationDefinition = $definition::getTranslationDefinitionClass();
+        /** @var EntityDefinition|string $translationDefinition */
+        $field = $translationDefinition::getFields()->get($translatedField->getPropertyName());
+        if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
+            throw new \RuntimeException(\sprintf('Missing translated storage aware property %s in %s', $translatedField->getPropertyName(), $translationDefinition));
+        }
+
+        return $field;
+    }
+
+    public static function buildTranslationChain(string $root, string $definition, Context $context, bool $considerParent = false): array
+    {
+        $chain = [$root . '.translation'];
+
+        /** @var string|EntityDefinition $definition */
+        if (!$considerParent && $definition::isInheritanceAware()) {
+            /* @var EntityDefinition|string $definition */
+            $chain[] = $root . '.parent.translation';
+        }
+
+        if ($context->hasFallback()) {
+            $chain[] = $root . '.translation.fallback';
+        }
+
+        if (!$considerParent && $definition::isInheritanceAware() && $context->hasFallback()) {
+            /* @var EntityDefinition|string $definition */
+            $chain[] = $root . '.parent.translation.fallback';
+        }
+
+        return $chain;
     }
 
     /**
@@ -445,19 +484,6 @@ class EntityDefinitionQueryHelper
         $query->andWhere('(' . implode(' OR ', $conditions) . ')');
     }
 
-    private function getTranslatedField(string $definition, TranslatedField $translatedField): Field
-    {
-        /** @var EntityDefinition|string $definition */
-        $translationDefinition = $definition::getTranslationDefinitionClass();
-        /** @var EntityDefinition|string $translationDefinition */
-        $field = $translationDefinition::getFields()->get($translatedField->getPropertyName());
-        if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
-            throw new \RuntimeException(\sprintf('Missing translated storage aware property %s in %s', $translatedField->getPropertyName(), $translationDefinition));
-        }
-
-        return $field;
-    }
-
     private function getTranslationFieldAccessor(string $root, string $storageName, array $chain): string
     {
         $alias = $root . '.translation';
@@ -471,28 +497,6 @@ class EntityDefinitionQueryHelper
         }
 
         return sprintf('COALESCE(%s)', implode(',', $chainSelect));
-    }
-
-    private function buildTranslationChain(string $root, string $definition, Context $context, bool $raw = false): array
-    {
-        $chain = [$root . '.translation'];
-
-        /** @var string|EntityDefinition $definition */
-        if ($definition::isInheritanceAware() && !$raw) {
-            /* @var EntityDefinition|string $definition */
-            $chain[] = $root . '.parent.translation';
-        }
-
-        if ($context->hasFallback()) {
-            $chain[] = $root . '.translation.fallback';
-        }
-
-        if ($definition::isInheritanceAware() && $context->hasFallback() && !$raw) {
-            /* @var EntityDefinition|string $definition */
-            $chain[] = $root . '.parent.translation.fallback';
-        }
-
-        return $chain;
     }
 
     private function buildInheritedAccessor(Field $field, string $root, string $definition, Context $context, string $original): string

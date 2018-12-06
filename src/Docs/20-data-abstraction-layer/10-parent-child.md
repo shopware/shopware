@@ -11,7 +11,7 @@ child can now optionally overwrite fields which are different to the parent.
 To start using inheritance, you have to update your definition and database.
 
 1. Make inheritable fields nullable in the database
-2. Add the `ParentField` in your definition
+2. Add the `ParentFkField` in your definition
 3. Add the `ChildrenAssociationField` in your definition
 4. Allow inheritance by overwriting `allowInheritance()`
 5. Flag fields as inheritable
@@ -22,10 +22,10 @@ To start using inheritance, you have to update your definition and database.
 ALTER TABLE `employee` MODIFY `supervisor` VARHCAR(255) NULL;
 ```
 
-### 2. Add the ParentField
+### 2. Add the ParentFkField
 
 ```php
-new ParentField(self::class)
+new ParentFkField(self::class)
 ```
 
 ### 3. Add the ChildrenAssociationField

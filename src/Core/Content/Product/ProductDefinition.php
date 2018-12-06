@@ -31,7 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -77,8 +77,9 @@ class ProductDefinition extends EntityDefinition
             new VersionField(),
             new CatalogField(),
 
-            new ParentField(self::class),
+            new ParentFkField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
+
             (new BlacklistRuleField())->setFlags(new Inherited()),
             (new WhitelistRuleField())->setFlags(new Inherited()),
 
@@ -95,7 +96,6 @@ class ProductDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductManufacturerDefinition::class))->setFlags(new Inherited(), new Required()),
 
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new Inherited()),
-
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited(), new Required()),
 
             (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->setFlags(new Inherited()),
@@ -127,11 +127,11 @@ class ProductDefinition extends EntityDefinition
             (new ListField('category_tree', 'categoryTree', IdField::class))->setFlags(new Inherited()),
             (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->setFlags(new Inherited()),
             new ListField('variation_ids', 'variationIds', IdField::class),
-
             (new IntField('min_delivery_time', 'minDeliveryTime'))->setFlags(new Inherited()),
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->setFlags(new Inherited()),
             (new IntField('restock_time', 'restockTime'))->setFlags(new Inherited()),
 
+            //translatable fields
             (new TranslatedField('additionalText'))->setFlags(new Inherited()),
             (new TranslatedField('name'))->setFlags(new Inherited(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new TranslatedField('keywords'))->setFlags(new Inherited(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
@@ -144,20 +144,26 @@ class ProductDefinition extends EntityDefinition
             new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),
 
-            //inherited associations
+            //inherited associations and associations which loaded immediatly
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->setFlags(new Inherited()),
-            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),
+
+            //inherited associations which not loaded immediatly
+            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new Inherited()),
+
+            //associations which not loaded immediatly
             (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new Inherited()),
 
+            //association for special keyword mapping for search algorithm
+            new SearchKeywordAssociationField(),
+
             //not inherited associations
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
-            new SearchKeywordAssociationField(),
             (new TranslationsAssociationField(ProductTranslationDefinition::class))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),

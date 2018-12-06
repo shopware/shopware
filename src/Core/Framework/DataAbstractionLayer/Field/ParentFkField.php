@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-class ParentField extends FkField
+class ParentFkField extends FkField
 {
     public function __construct(string $referenceClass)
     {

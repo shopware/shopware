@@ -17,7 +17,7 @@
                 {% endblock %}
 
                 {% block sw_settings_rule_detail_actions_save %}
-                    <sw-button class="sw-settings-rule-detail__save-action" variant="primary" :disabled="rule.isLoading" @click.prevent="onSave">
+                    <sw-button class="sw-settings-rule-detail__save-action" variant="primary" :disabled="rule.isLoading" @click="onSave">
                         {{ $tc('sw-settings-rule.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -81,7 +81,9 @@
                             <sw-field type="hidden" v-model="rule.conditions"></sw-field>
 
                             <div v-for="condition in nestedConditions.children">
-                                <sw-condition-group :type="rule.type" :condition="condition"></sw-condition-group>
+                                <sw-condition-group :type="rule.type"
+                                                    :condition="condition">
+                                </sw-condition-group>
                             </div>
 
                         </sw-container>

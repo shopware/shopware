@@ -32,16 +32,16 @@ Component.register('sw-settings-rule-detail', {
                 return;
             }
 
-            this.ruleId = this.$route.params.id;
-            this.rule = this.ruleStore.getById(this.ruleId);
-            this.conditionId = this.ruleId;
+            const ruleId = this.$route.params.id;
+            this.rule = this.ruleStore.getById(ruleId);
+            let conditionId = ruleId;
 
             if (this.$route.params.parentId) {
                 this.duplicate = true;
-                this.conditionId = this.$route.params.parentId;
+                conditionId = this.$route.params.parentId;
             }
 
-            this.rule.id = this.conditionId;
+            this.rule.id = conditionId;
             this.rule.getAssociation('conditions').getList({
                 page: 1,
                 limit: 500
@@ -53,7 +53,7 @@ Component.register('sw-settings-rule-detail', {
                         condition.parentId = null;
                     });
 
-                    this.rule.id = this.ruleId;
+                    this.rule.id = ruleId;
                 }
             });
         },
@@ -81,6 +81,10 @@ Component.register('sw-settings-rule-detail', {
                 0,
                 { name: this.rule.name }
             );
+
+            if (this.duplicate) {
+                // todo change conditions for duplicate
+            }
 
             this.rule.conditions = this.nestedConditions;
 

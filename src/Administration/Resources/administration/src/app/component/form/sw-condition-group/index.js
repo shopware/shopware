@@ -101,11 +101,11 @@ Component.register('sw-condition-group', {
             return {
                 'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule': {
                     label: this.$tc('global.sw-condition-group.condition.cartAmountRule'),
-                    operatorSet: this.operatorSets.all
+                    operatorSet: this.operatorSets.defaultSet
                 },
                 'Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsPriceRule': {
                     label: this.$tc('global.sw-condition-group.condition.goodsPriceRule'),
-                    operatorSet: this.operatorSets.all
+                    operatorSet: this.operatorSets.defaultSet
                 },
                 'Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemOfTypeRule': {
                     label: this.$tc('global.sw-condition-group.condition.lineItemOfTypeRule'),
@@ -127,6 +127,7 @@ Component.register('sw-condition-group', {
                     this.operators.greaterThanEquals
                 ],
                 all: [
+                    // todo get dynmaic all operators
                     Object.values(this.operators)
                 ],
                 test: [
@@ -144,19 +145,19 @@ Component.register('sw-condition-group', {
     },
 
     created() {
-        this.handleConditionInit();
+        this.createdComponent();
     },
 
     mounted() {
-        this.componentMounted();
+        this.mountedComponent();
     },
 
     methods: {
-        componentMounted() {
+        mountedComponent() {
             this.conditionTypeSelect = this.$refs.conditionTypeSelect;
         },
 
-        handleConditionInit() {
+        createdComponent() {
             const conditionType = this.condition.type;
             const conditionTypes = this.conditionTypes;
 
@@ -164,16 +165,12 @@ Component.register('sw-condition-group', {
             this.conditionOperators = condition2.operatorSet;
         },
 
-        handleConditionChange(e) {
-            if (e.target.options.selectedIndex > -1) {
-                console.log('change event triggered');
-                console.log(e.target.options[e.target.options.selectedIndex].dataset);
-            }
+        handleConditionChange(event) {
+            this.conditionOperators = this.conditionTypes[event.target.value].operatorSet;
         },
 
-        handleOperatorChange(e) {
-            console.log('handle operator change');
-            console.log('e', e);
+        handleOperatorChange() {
+            // todo
         }
     }
 });

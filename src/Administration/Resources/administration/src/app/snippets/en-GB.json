@@ -116,6 +116,26 @@
       "typeLabelProduct": "Product",
       "typeLabelOrder": "Order",
       "typeLabelMedia": "Media"
+    },
+    "sw-condition-group": {
+      "operator": {
+        "lowerThanEquals": "Lower than",
+        "equals": "Equals",
+        "greaterThanEquals": "Greater equals",
+        "lower": "Lower",
+        "greater": "Greater",
+        "startsWidth": "Begins with",
+        "endsWidth": "Ends with",
+        "contains": "Contains",
+        "regex": "Regex"
+      },
+      "condition": {
+        "cartAmountRule": "Cart Amount Rule",
+        "goodsCountRule": "Goods Count Rule",
+        "goodsPriceRule": "Goods Price Rule",
+        "lineItemOfTypeRule": "Line Item of Type Rule",
+        "dateRangeRule": "Date Range Rule"
+      }
     }
   },
   "sw-login": {

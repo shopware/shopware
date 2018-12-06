@@ -130,11 +130,11 @@
         "regex": "Regex"
       },
       "condition": {
-        "cartAmountRule": "Cart Amount Rule",
-        "goodsCountRule": "Goods Count Rule",
-        "goodsPriceRule": "Goods Price Rule",
+        "cartAmountRule": "Warenkorbwert",
+        "goodsCountRule": "Anzahl Warenkorb Artikel",
+        "goodsPriceRule": "Gesamtpreis Warenkorb Artikel",
         "lineItemOfTypeRule": "Line Item of Type Rule",
-        "dateRangeRule": "Date Range Rule"
+        "dateRangeRule": "Datumsbereich"
       }
     }
   },
@@ -810,6 +810,8 @@
       "modalTitleDelete": "Regel löschen",
       "modalTitleBulkDelete": "Regeln löschen",
       "textBulkDeleteConfirm": "Möchtest Du die ausgewählten Regeln wirklich löschen?",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "titleSidebarBulkTrash": "Regeln löschen",
       "type" : {
         "price": "Preis"
       }

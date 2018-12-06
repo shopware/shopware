@@ -1,5 +1,4 @@
-import { Application, Component, Mixin, State } from 'src/core/shopware';
-import ApiService from 'src/core/service/api/api.service';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-settings-rule-list.html.twig';
 
 Component.register('sw-settings-rule-list', {
@@ -13,8 +12,7 @@ Component.register('sw-settings-rule-list', {
         return {
             rules: [],
             showDeleteModal: false,
-            isLoading: false,
-            payload: []
+            isLoading: false
         };
     },
 
@@ -73,40 +71,14 @@ Component.register('sw-settings-rule-list', {
 
             this.isLoading = true;
 
-            const apiService = new ApiService(
-                Application.getContainer('init').httpClient,
-                Application.getContainer('service').loginService,
-                'sync'
-            );
-
-            this.payload = [];
-
-            Object.keys(selectedRules).forEach((ruleId) => {
-                this.payload[ruleId] = {
-                    entity: 'rule',
-                    action: 'delete',
-                    payload: { id: ruleId }
-                };
+            Object.values(selectedRules).forEach((rule) => {
+                rule.delete();
             });
 
-            const headers = apiService.getBasicHeaders();
-            const oldBaseUrl = apiService.httpClient.defaults.baseURL;
-
-            apiService.httpClient.defaults.baseURL = apiService.httpClient.defaults.baseURL.slice(
-                0,
-                apiService.httpClient.defaults.baseURL.lastIndexOf('/')
-            );
-
-            apiService.httpClient.post(
-                apiService.getApiBasePath(''),
-                Object.assign({}, this.payload), { headers }
-            ).then(() => {
-                apiService.httpClient.defaults.baseURL = oldBaseUrl;
+            this.ruleStore.sync(true).then(() => {
                 this.isLoading = false;
                 return this.getList();
             });
-
-            this.payload = [];
         },
 
         onCloseDeleteModal() {

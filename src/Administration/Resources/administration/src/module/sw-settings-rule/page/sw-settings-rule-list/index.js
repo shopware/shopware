@@ -97,14 +97,14 @@ Component.register('sw-settings-rule-list', {
                 apiService.httpClient.defaults.baseURL.lastIndexOf('/')
             );
 
-            apiService.httpClient
-                .post(apiService.getApiBasePath(''), Object.assign({}, this.payload), { headers }).then(() => {
-                        apiService.httpClient.defaults.baseURL = oldBaseUrl;
-
-                        this.isLoading = false;
-                        return this.getList();
-                    }
-                );
+            apiService.httpClient.post(
+                apiService.getApiBasePath(''),
+                Object.assign({}, this.payload), { headers }
+            ).then(() => {
+                apiService.httpClient.defaults.baseURL = oldBaseUrl;
+                this.isLoading = false;
+                return this.getList();
+            });
 
             this.payload = [];
         },

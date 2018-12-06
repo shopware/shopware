@@ -1,186 +1,295 @@
-<sw-page class="sw-settings-rule-list">
-    <template slot="search-bar">
-        <sw-search-bar :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
-                       :searchType="$tc('sw-settings-rule.general.mainMenuItemGeneral')"
-                       @search="this.onSearch">
-        </sw-search-bar>
-    </template>
-    <template slot="smart-bar-header">
-        <h2>
-            {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-rule.list.textHeadline') }}
+{% block sw_settings_list %}
+    {% block sw_settings_rule_index %}
+        <sw-page class="sw-settings-rule-list">
 
-            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                    ({{ total }})
-                </span>
-        </h2>
-    </template>
-    <template slot="smart-bar-actions">
-        <sw-button :routerLink="{ name: 'sw.settings.rule.create' }" variant="primary">
-            {{ $tc('sw-settings-rule.list.buttonAddRule') }}
-        </sw-button>
-    </template>
-    <template slot="content">
-
-        <div class="sw-settings-rule-list__content">
-
-            <sw-grid v-if="total"
-                     :items="rules"
-                     :sortBy="sortBy"
-                     :sortDirection="sortDirection"
-                     :sidebar="true"
-                     :isFullpage="true"
-                     :selectable="true"
-                     @sort-column="onSortColumn"
-                     @inline-edit-cancel="onInlineEditCancel"
-                     @inline-edit-finish="onInlineEditSave"
-                     ref="ruleGrid">
-
-                <template slot="columns" slot-scope="{ item }">
-
-                    <sw-grid-column flex="minmax(200px, 2fr)"
-                                    class="sw-settings-rule-list__column-name"
-                                    :label="$tc('sw-settings-rule.list.columnName')"
-                                    dataIndex="name"
-                                    sortable
-                                    editable>
-                        <router-link :to="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
-                            {{ item.name }}
-                        </router-link>
-
-                        <sw-field type="text" v-model="item.name" slot="inline-edit"></sw-field>
-                    </sw-grid-column>
-
-                    <sw-grid-column flex="minmax(300px, 3fr)"
-                                    class="sw-settings-rule-list__column-description"
-                                    :label="$tc('sw-settings-rule.list.columnDescription')"
-                                    dataIndex="description"
-                                    sortable
-                                    editable>
-                        {{ item.description }}
-                        <sw-field type="text" v-model="item.description" slot="inline-edit"></sw-field>
-                    </sw-grid-column>
-
-                    <sw-grid-column flex="minmax(100px, 1fr)"
-                                    class="sw-settings-rule-list__column-type"
-                                    :label="$tc('sw-settings-rule.list.columnType')"
-                                    dataIndex="type"
-                                    sortable>
-                        {{ $tc(`sw-settings-rule.list.type.${item.type}`) }}
-                    </sw-grid-column>
-
-                    <sw-grid-column flex="minmax(100px, 1fr)"
-                                    class="sw-settings-rule-list__column-priority"
-                                    :label="$tc('sw-settings-rule.list.columnPriority')"
-                                    dataIndex="priority"
-                                    sortable
-                                    editable>
-                        {{ item.priority }}
-                        <sw-field type="number" v-model="item.priority" slot="inline-edit"></sw-field>
-                    </sw-grid-column>
-
-                    <sw-grid-column flex="minmax(150px, 200px)"
-                                    class="sw-settings-rule-list__column-date-created"
-                                    :label="$tc('sw-settings-rule.list.columnDateCreated')"
-                                    dataIndex="createdAt"
-                                    sortable>
-
-                        <span v-if="item.updatedAt">{{ item.updatedAt|date }}</span>
-                        <span v-if="!item.updatedAt">{{ item.createdAt|date }}</span>
-
-                    </sw-grid-column>
-
-                    <sw-grid-column flex="minmax(100px, 100px)"
-                                    align="center">
-                        <sw-context-button>
-                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
-                                {{ $tc('sw-settings-rule.list.contextMenuEdit') }}
-                            </sw-context-menu-item>
-                            <sw-context-menu-item @click="onDuplicate(item.id)">
-                                {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
-                            </sw-context-menu-item>
-                            <sw-context-menu-item @click="onDelete(item.id)" variant="danger">
-                                {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
-                            </sw-context-menu-item>
-                        </sw-context-button>
-                    </sw-grid-column>
-
-                    <sw-modal v-if="showDeleteModal === item.id"
-                              @closeModal="onCloseDeleteModal"
-                              :title="$tc('sw-settings-rule.list.modalTitleDelete')"
-                              variant="small">
-
-                        <p class="sw-settings-rule-list__confirm-delete-text">
-                            {{ $tc('sw-settings-rule.list.textDeleteConfirm', 0, { name: item.name }) }}
-                        </p>
-
-                        <template slot="modal-footer">
-
-                            <sw-button @click="onCloseDeleteModal"
-                                       size="small">
-                                {{ $tc('sw-settings-rule.list.buttonCancel') }}
-                            </sw-button>
-                            <sw-button @click="onConfirmDelete(item.id)"
-                                       variant="primary"
-                                       size="small">
-                                {{ $tc('sw-settings-rule.list.buttonDelete') }}
-                            </sw-button>
-                        </template>
-                    </sw-modal>
+            {% block sw_settings_rule_list_search_bar %}
+                <template slot="search-bar">
+                    <sw-search-bar :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
+                                   :searchType="$tc('sw-settings-rule.general.mainMenuItemGeneral')"
+                                   @search="this.onSearch">
+                    </sw-search-bar>
                 </template>
+            {% endblock %}
 
-                <template slot="pagination">
+            {% block sw_settings_rule_list_smart_bar_header %}
+                <template slot="smart-bar-header">
+                    {% block sw_settings_rule_list_smart_bar_header_title %}
+                        <h2>
+                            {% block sw_settings_rule_list_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-rule.list.textHeadline') }}
+                            {% endblock %}
 
-                    <sw-pagination :page="page"
-                                   :limit="limit"
-                                   :total="total"
-                                   :total-visible="7"
-                                   @page-change="onPageChange">
-                    </sw-pagination>
+                            {% block sw_settings_rule_list_smart_bar_header_title_amount %}
+                                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                    ({{ total }})
+                                </span>
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
                 </template>
-                <sw-sidebar slot="sidebar">
+            {% endblock %}
 
-                    <sw-sidebar-item
-                            icon="default-arrow-360-left"
-                            :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
-                            @click="onRefresh">
-                    </sw-sidebar-item>
+            {% block sw_settings_rule_list_smart_bar_actions %}
+                <template slot="smart-bar-actions">
+                    {% block sw_settings_rule_list_smart_bar_actions_add %}
+                        <sw-button :routerLink="{ name: 'sw.settings.rule.create' }"
+                                   variant="primary">
+                            {{ $tc('sw-settings-rule.list.buttonAddRule') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
 
-                    <sw-sidebar-item
-                            icon="default-action-trash"
-                            :title="$tc('sw-settings-rule.list.bulkTrash')"
-                            position="bottom"
-                            @click="onBulkDelete">
-                    </sw-sidebar-item>
+            {% block sw_settings_rule_list_content %}
+                <template slot="content">
+                    {% block sw_settings_rule_list_content_card %}
+                        <div class="sw-settings-rule-list__content">
+                            {% block sw_settings_rule_list_grid %}
+                                <sw-grid v-if="total"
+                                         :items="rules"
+                                         :sortBy="sortBy"
+                                         :sortDirection="sortDirection"
+                                         :sidebar="true"
+                                         :isFullpage="true"
+                                         :selectable="true"
+                                         @sort-column="onSortColumn"
+                                         @inline-edit-cancel="onInlineEditCancel"
+                                         @inline-edit-finish="onInlineEditSave"
+                                         ref="ruleGrid">
+                                    <template slot="columns" slot-scope="{ item }">
+                                        {% block sw_settings_rule_list_grid_columns %}
 
-                    <sw-modal v-if="showDeleteModal === true"
-                              @closeModal="onCloseDeleteModal"
-                              :title="$tc('sw-settings-rule.list.modalTitleBulkDelete')"
-                              variant="small">
+                                            {% block sw_settings_rule_list_columns_name %}
+                                                <sw-grid-column flex="minmax(200px, 2fr)"
+                                                                class="sw-settings-rule-list__column-name"
+                                                                :label="$tc('sw-settings-rule.list.columnName')"
+                                                                dataIndex="name"
+                                                                sortable
+                                                                editable>
+                                                    {% block sw_settings_rule_list_columns_name_link %}
+                                                        <router-link :to="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
+                                                            {% block sw_settings_rule_list_columns_name_link_label %}
+                                                                {{ item.name }}
+                                                            {% endblock %}
+                                                        </router-link>
+                                                    {% endblock %}
 
-                        <p class="sw-settings-rule-list__confirm-bulk-delete-text">
-                            {{ $tc('sw-settings-rule.list.textBulkDeleteConfirm') }}
-                        </p>
+                                                    {% block sw_settings_rule_list_columns_name_editor %}
+                                                        <sw-field type="text"
+                                                                  v-model="item.name"
+                                                                  slot="inline-edit">
+                                                        </sw-field>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
 
-                        <template slot="modal-footer">
+                                            {% block sw_settings_rule_list_columns_description %}
+                                                <sw-grid-column flex="minmax(300px, 3fr)"
+                                                                class="sw-settings-rule-list__column-description"
+                                                                :label="$tc('sw-settings-rule.list.columnDescription')"
+                                                                dataIndex="description"
+                                                                sortable
+                                                                editable
+                                                                truncate>
+                                                    {% block sw_settings_rule_list_columns_description_label %}
+                                                        {{ item.description }}
+                                                    {% endblock %}
 
-                            <sw-button @click="onCloseDeleteModal"
-                                       size="small">
-                                {{ $tc('sw-settings-rule.list.buttonCancel') }}
-                            </sw-button>
-                            <sw-button @click="onConfirmBulkDelete"
-                                       variant="primary"
-                                       size="small">
-                                {{ $tc('sw-settings-rule.list.buttonDelete') }}
-                            </sw-button>
-                        </template>
-                    </sw-modal>
-                </sw-sidebar>
-            </sw-grid>
-            <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-product.list.messageEmpty')"></sw-empty-state>
+                                                    {% block sw_settings_rule_list_columns_description_editor %}
+                                                        <sw-field type="text"
+                                                                  v-model="item.description"
+                                                                  slot="inline-edit">
+                                                        </sw-field>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
 
-            <sw-loader v-if="isLoading"></sw-loader>
+                                            {% block sw_settings_rule_list_columns_type %}
+                                                <sw-grid-column flex="minmax(100px, 1fr)"
+                                                                class="sw-settings-rule-list__column-type"
+                                                                :label="$tc('sw-settings-rule.list.columnType')"
+                                                                dataIndex="type"
+                                                                sortable>
+                                                    {% block sw_settings_rule_list_columns_type_label %}
+                                                        {{ $tc(`sw-settings-rule.list.type.${item.type}`) }}
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
 
-        </div>
+                                            {% block sw_settings_rule_list_columns_priority %}
+                                                <sw-grid-column flex="minmax(100px, 1fr)"
+                                                                class="sw-settings-rule-list__column-priority"
+                                                                :label="$tc('sw-settings-rule.list.columnPriority')"
+                                                                dataIndex="priority"
+                                                                sortable
+                                                                editable>
+                                                    {% block sw_settings_rule_list_columns_priority_label %}
+                                                        {{ item.priority }}
+                                                    {% endblock %}
 
-    </template>
-</sw-page>
+                                                    {% block sw_settings_rule_list_columns_priority_editor %}
+                                                        <sw-field type="number"
+                                                                  v-model="item.priority"
+                                                                  slot="inline-edit">
+                                                        </sw-field>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_rule_list_columns_created %}
+                                                <sw-grid-column flex="minmax(150px, 200px)"
+                                                                class="sw-settings-rule-list__column-date-created"
+                                                                :label="$tc('sw-settings-rule.list.columnDateCreated')"
+                                                                dataIndex="createdAt"
+                                                                sortable>
+                                                    {% block sw_settings_rule_list_columns_created_label %}
+                                                        <span v-if="item.updatedAt">{{ item.updatedAt|date }}</span>
+                                                        <span v-if="!item.updatedAt">{{ item.createdAt|date }}</span>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_rule_list_columns_actions %}
+                                                <sw-grid-column flex="minmax(100px, 100px)"
+                                                                align="center">
+                                                    <sw-context-button>
+
+                                                        {% block sw_settings_rule_list_columns_actions_edit %}
+                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
+                                                                {{ $tc('sw-settings-rule.list.contextMenuEdit') }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_rule_list_columns_actions_duplicate %}
+                                                            <sw-context-menu-item @click="onDuplicate(item.id)">
+                                                                {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_rule_list_columns_actions_delete %}
+                                                            <sw-context-menu-item @click="onDelete(item.id)" variant="danger">
+                                                                {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+                                                    </sw-context-button>
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_rule_list_delete_modal %}
+                                                <sw-modal v-if="showDeleteModal === item.id"
+                                                          @closeModal="onCloseDeleteModal"
+                                                          :title="$tc('sw-settings-rule.list.modalTitleDelete')"
+                                                          variant="small">
+                                                    {% block sw_settings_rule_list_delete_modal_confirm_text %}
+                                                        <p class="sw-settings-rule-list__confirm-delete-text">
+                                                            {{ $tc('sw-settings-rule.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                        </p>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_rule_list_delete_modal_footer %}
+                                                        <template slot="modal-footer">
+
+                                                            {% block sw_settings_rule_list_delete_modal_actions_cancel %}
+                                                                <sw-button @click="onCloseDeleteModal"
+                                                                           size="small">
+                                                                    {{ $tc('sw-settings-rule.list.buttonCancel') }}
+                                                                </sw-button>
+                                                            {% endblock %}
+
+                                                            {% block sw_settings_rule_list_delete_modal_actions_delete %}
+                                                                <sw-button @click="onConfirmDelete(item.id)"
+                                                                           variant="primary"
+                                                                           size="small">
+                                                                    {{ $tc('sw-settings-rule.list.buttonDelete') }}
+                                                                </sw-button>
+                                                            {% endblock %}
+                                                        </template>
+                                                    {% endblock %}
+                                                </sw-modal>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </template>
+
+                                    {% block sw_settings_rule_list_pagination %}
+                                        <sw-pagination slot="pagination"
+                                                       :page="page"
+                                                       :limit="limit"
+                                                       :total="total"
+                                                       :total-visible="7"
+                                                       @page-change="onPageChange">
+                                        </sw-pagination>
+                                    {% endblock %}
+
+                                    {% block sw_settings_rule_list_sidebar %}
+                                        <sw-sidebar slot="sidebar">
+                                            {% block sw_settings_rule_list_sidebar_refresh %}
+                                                <sw-sidebar-item
+                                                    icon="default-arrow-360-left"
+                                                    :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
+                                                    @click="onRefresh">
+                                                </sw-sidebar-item>
+                                            {% endblock %}
+
+                                            {% block sw_settings_rule_list_sidebar_delete %}
+                                                <sw-sidebar-item
+                                                        icon="default-action-trash"
+                                                        :title="$tc('sw-settings-rule.list.bulkTrash')"
+                                                        position="bottom"
+                                                        @click="onBulkDelete">
+                                                </sw-sidebar-item>
+                                            {% endblock %}
+
+                                            {% block sw_settings_rule_list_sidebar_delete_modal %}
+                                                <sw-modal v-if="showDeleteModal === true"
+                                                      @closeModal="onCloseDeleteModal"
+                                                      :title="$tc('sw-settings-rule.list.modalTitleBulkDelete')"
+                                                      variant="small">
+
+                                                    {% block sw_settings_rule_list_sidebar_delete_modal_confirm_text %}
+                                                        <p class="sw-settings-rule-list__confirm-bulk-delete-text">
+                                                            {{ $tc('sw-settings-rule.list.textBulkDeleteConfirm') }}
+                                                        </p>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_rule_list_sidebar_delete_modal_footer %}
+                                                        <template slot="modal-footer">
+
+                                                            {% block sw_settings_rule_list_sidebar_delete_modal_actions_cancel %}
+                                                                <sw-button @click="onCloseDeleteModal"
+                                                                           size="small">
+                                                                    {{ $tc('sw-settings-rule.list.buttonCancel') }}
+                                                                </sw-button>
+                                                            {% endblock %}
+
+                                                            {% block sw_settings_rule_list_sidebar_delete_modal_actions_delete %}
+                                                                <sw-button @click="onConfirmBulkDelete"
+                                                                           variant="primary"
+                                                                           size="small">
+                                                                    {{ $tc('sw-settings-rule.list.buttonDelete') }}
+                                                                </sw-button>
+                                                            {% endblock %}
+                                                        </template>
+                                                    {% endblock %}
+                                                </sw-modal>
+                                            {% endblock %}
+                                        </sw-sidebar>
+                                    {% endblock %}
+                                </sw-grid>
+                            {% endblock %}
+
+                            {% block sw_settings_rule_list_empty_message %}
+                                <sw-empty-state v-else-if="!isLoading && !total"
+                                                :title="$tc('sw-settings.rule.list.messageEmpty')">
+                                </sw-empty-state>
+                            {% endblock %}
+
+                            {% block sw_settings_rule_list_loader %}
+                                <sw-loader v-if="isLoading"></sw-loader>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        </sw-page>
+    {% endblock %}
+{% endblock %}

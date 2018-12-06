@@ -49,35 +49,35 @@ Component.register('sw-condition-group', {
             operators: {
                 lowerThanEquals: {
                     identifier: '<=',
-                    label: 'Kleiner Gleich'
+                    label: this.$tc('global.sw-condition-group.operator.lowerThanEquals')
                 },
                 equals: {
                     identifier: '==',
-                    label: 'Gleich'
+                    label: this.$tc('global.sw-condition-group.operator.equals')
                 },
                 greaterThanEquals: {
                     identifier: '>=',
-                    label: 'Größer Gleich'
+                    label: this.$tc('global.sw-condition-group.operator.greaterThanEquals')
                 },
                 lowerThan: {
                     identifier: '<',
-                    label: 'Kleiner'
+                    label: this.$tc('global.sw-condition-group.operator.lower')
                 },
                 greaterThan: {
                     identifier: '>',
-                    label: 'Größer'
+                    label: this.$tc('global.sw-condition-group.operator.greater')
                 },
                 startsWith: {
                     identifier: '%*',
-                    label: 'Beginnt mit'
+                    label: this.$tc('global.sw-condition-group.operator.startsWidth')
                 },
                 endsWith: {
                     identifier: '*%',
-                    label: 'Endet mit'
+                    label: this.$tc('global.sw-condition-group.operator.endsWidth')
                 },
                 contains: {
                     identifier: '*',
-                    label: 'enthält'
+                    label: this.$tc('global.sw-condition-group.operator.contains')
                 }
             }
         };
@@ -88,27 +88,27 @@ Component.register('sw-condition-group', {
             return [
                 {
                     identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule',
-                    label: 'Cart Amount Rule',
+                    label: this.$tc('global.sw-condition-group.coniditon.cartAmountRule'),
                     operatorSet: this.operatorSets
                 },
                 {
                     identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule',
-                    label: 'Goods Count Rule',
+                    label: this.$tc('global.sw-condition-group.coniditon.goodsCountRule'),
                     operatorSet: this.operatorSets
                 },
                 {
                     identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsPriceRule',
-                    label: 'Goods Price Rule',
+                    label: this.$tc('global.sw-condition-group.coniditon.goodsPriceRule'),
                     operatorSet: this.operatorSets
                 },
                 {
                     identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule',
-                    label: 'Line Item of Type Rule',
+                    label: this.$tc('global.sw-condition-group.coniditon.lineItemOfTypeRule'),
                     operatorSet: this.operatorSets
                 },
                 {
                     identifier: 'Shopware\\Core\\Framework\\Rule\\DateRangeRule',
-                    label: 'Date Range Rule',
+                    label: this.$tc('global.sw-condition-group.coniditon.dateRangeRule'),
                     operatorSet: this.operatorSets
                 }
             ];

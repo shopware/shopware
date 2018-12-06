@@ -116,6 +116,25 @@
       "typeLabelProduct": "Produkt",
       "typeLabelOrder": "Bestellung",
       "typeLabelMedia": "Medium"
+    },
+    "sw-condition-group": {
+      "operator": {
+        "lowerThanEquals": "Kleiner gleich",
+        "equals": "Gleich",
+        "greaterThanEquals": "Größer gleich",
+        "lower": "Kleiner",
+        "greater": "Größer",
+        "startsWidth": "Beginnt mit",
+        "endsWidth": "Endet mit",
+        "contains": "Enthält"
+      },
+      "condition": {
+        "cartAmountRule": "Cart Amount Rule",
+        "goodsCountRule": "Goods Count Rule",
+        "goodsPriceRule": "Goods Price Rule",
+        "lineItemOfTypeRule": "Line Item of Type Rule",
+        "dateRangeRule": "Date Range Rule"
+      }
     }
   },
   "sw-login": {

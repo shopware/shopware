@@ -1,5 +1,14 @@
 @import "~less/variables";
 
+@sw-condition-group-color-primary: #6E8A97;
+@sw-condition-group-color-primary-text: #fff;
+
+@sw-condition-group-color-secondary: #fff;
+@sw-condition-group-color-secondary-text: #4D6989;
+
+@sw-condition-group-color-border: #D6DDE5;
+@sw-condition-group-font-size: 14px;
+
 .sw-condition-group {
     width: 100%;
     margin-bottom: 20px;
@@ -12,7 +21,6 @@
 
     .group-container {
         position: relative;
-        background: #000; /* Define a cool color variable first */
         line-height: 40px;
         padding: 0 15px;
         height: 44px;
@@ -20,8 +28,8 @@
         width: 33%;
 
         &.field--condition {
-            background: #748A99;
-            color: #fff;
+            background: @sw-condition-group-color-primary;
+            color: @sw-condition-group-color-primary-text;
             z-index: 10100;
             width: 25%;
             border-top-left-radius: 3px;
@@ -35,8 +43,7 @@
                 top: 1px;
                 width: 10px;
                 height: 25px;
-                background: rgba(255, 9, 255, .5);
-                background: #748A99;
+                background: @sw-condition-group-color-primary;
                 transform: rotate(-20deg);
                 border-bottom-right-radius: 3px;
             }
@@ -48,8 +55,7 @@
                 bottom: 1px;
                 width: 10px;
                 height: 25px;
-                background: rgba(255, 9, 255, .5);
-                background: #748A99;
+                background: @sw-condition-group-color-primary;
                 border-top-right-radius: 3px;
                 transform: rotate(20deg);
             }
@@ -57,10 +63,8 @@
 
         &.field--operator {
             width: 20%;
-            background: #fff;
-            color: #999;
-            border-top: 1px solid #D6DDE5;
-            border-bottom: 1px solid #D6DDE5;
+            border-top: 1px solid @sw-condition-group-color-border;
+            border-bottom: 1px solid @sw-condition-group-color-border;
             margin-left: -10px;
             z-index: 10050;
             padding-left: 30px;
@@ -72,8 +76,7 @@
                 top: -1px;
                 width: 1px;
                 height: 23px;
-                background: rgba(255, 9, 255, .5);
-                background: #D6DDE5;
+                background: @sw-condition-group-color-border;
                 transform: rotate(-20deg);
             }
 
@@ -84,30 +87,25 @@
                 bottom: -1px;
                 width: 1px;
                 height: 23px;
-                background: rgba(255, 9, 255, .5);
-                background: #D6DDE5;
+                background: @sw-condition-group-color-border;
                 transform: rotate(20deg);
             }
         }
 
         &.field--value {
             width: 49%;
-            background: #fff;
-            color: #999;
-            border-top: 1px solid #D6DDE5;
-            border-bottom: 1px solid #D6DDE5;
+            border-top: 1px solid @sw-condition-group-color-border;
+            border-bottom: 1px solid @sw-condition-group-color-border;
             z-index: 10000;
             padding-left: 20px;
         }
 
         &.field--actions {
             width: 6%;
-            background: #fff;
-            color: #999;
-            border-top: 1px solid #D6DDE5;
-            border-bottom: 1px solid #D6DDE5;
-            border-right: 1px solid #D6DDE5;
-            border-left: 1px solid #D6DDE5;
+            border-top: 1px solid @sw-condition-group-color-border;
+            border-bottom: 1px solid @sw-condition-group-color-border;
+            border-right: 1px solid @sw-condition-group-color-border;
+            border-left: 1px solid @sw-condition-group-color-border;
             border-top-right-radius: 3px;
             border-bottom-right-radius: 3px;
             line-height: 45px;
@@ -118,18 +116,18 @@
     .condition-group--field {
         border: 0;
         background: none;
-        color: #fff;
-        font-size: 14px;
+        color: @sw-condition-group-color-primary-text;
+        font-size: @sw-condition-group-font-size;
         padding: 0;
         margin: 0;
         width: 100%;
 
         &.is--light {
-            color: #fff;
+            color: @sw-condition-group-color-primary-text;
         }
 
         &.is--dark {
-            color: #4D6989;
+            color: @sw-condition-group-color-secondary-text;
         }
 
         &:active,

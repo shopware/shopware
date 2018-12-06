@@ -1,70 +1,93 @@
-<sw-page class="sw-settings-rule-detail">
-    <template slot="smart-bar-header">
-        <h2 v-if="rule.name">{{ rule.name }}</h2>
-        <h2 v-else>{{ $tc('sw-settings-rule.detail.textHeadline') }}</h2>
-    </template>
-    <template slot="smart-bar-actions">
+{% block sw_settings_rule_detail %}
+    <sw-page class="sw-settings-rule-detail">
+        {% block sw_settings_rule_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="rule.name">{{ rule.name }}</h2>
+                <h2 v-else>{{ $tc('sw-settings-rule.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
 
-        <sw-button :disabled="rule.isLoading" :routerLink="{ name: 'sw.settings.rule.index' }">
-            {{ $tc('sw-settings-rule.detail.buttonCancel') }}
-        </sw-button>
+        {% block sw_settings_rule_detail_actions %}
+            <template slot="smart-bar-actions">
 
+                {% block sw_settings_rule_detail_actions_cancel %}
+                    <sw-button :disabled="rule.isLoading" :routerLink="{ name: 'sw.settings.rule.index' }">
+                        {{ $tc('sw-settings-rule.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
 
+                {% block sw_settings_rule_detail_actions_save %}
+                    <sw-button class="sw-settings-rule-detail__save-action" variant="primary" :disabled="rule.isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-settings-rule.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
 
-        <sw-button class="sw-settings-rule-detail__save-action" variant="primary" :disabled="rule.isLoading" @click.prevent="onSave">
-            {{ $tc('sw-settings-rule.detail.buttonSave') }}
-        </sw-button>
+            </template>
+        {% endblock %}
 
-    </template>
+        {% block sw_settings_rule_detail_content %}
+            <sw-card-view slot="content">
+                {% block sw_settings_rule_detail_content_card %}
+                    <sw-card :title="$tc('sw-settings-rule.detail.titleCard')">
+                        <sw-container grid="1fr 1fr" gap="0px 30px">
+                            {% block sw_settings_rule_detail_content_card_field_label %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-rule.detail.labelName')"
+                                          :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
+                                          validation="required"
+                                          v-model="rule.name">
+                                </sw-field>
+                            {% endblock %}
 
-    <sw-card-view slot="content">
-        <sw-card :title="$tc('sw-settings-rule.detail.titleCard')">
-            <sw-container grid="1fr 1fr" gap="0px 30px">
-                <sw-field type="text"
-                          :label="$tc('sw-settings-rule.detail.labelName')"
-                          :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
-                          validation="required"
-                          v-model="rule.name">
-                </sw-field>
-                <sw-field type="select"
-                          :label="$tc('sw-settings-rule.detail.labelType')"
-                          :placeholder="$tc('sw-settings-rule.detail.placeholderType')"
-                          validation="required"
-                          v-model="rule.type">
-                    <option slot="options"
-                            value="price">
-                        {{ $tc('sw-settings-rule.detail.type.price') }}
-                    </option>
-                </sw-field>
-                <sw-field type="textarea"
-                          :label="$tc('sw-settings-rule.detail.labelDescription')"
-                          :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
-                          v-model="rule.description">
-                </sw-field>
-                <sw-field type="number"
-                          :label="$tc('sw-settings-rule.detail.labelPriority')"
-                          :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
-                          validation="required"
-                          v-model="rule.priority">
-                </sw-field>
-            </sw-container>
-        </sw-card>
+                            {% block sw_settings_rule_detail_content_card_field_labeltype %}
+                                <sw-field type="select"
+                                          :label="$tc('sw-settings-rule.detail.labelType')"
+                                          :placeholder="$tc('sw-settings-rule.detail.placeholderType')"
+                                          validation="required"
+                                          v-model="rule.type">
+                                    <option slot="options"
+                                            value="price">
+                                        {{ $tc('sw-settings-rule.detail.type.price') }}
+                                    </option>
+                                </sw-field>
+                            {% endblock %}
 
-        <sw-card :title="$tc('sw-settings-rule.detail.ruleCard')">
-            <sw-container grid="1fr" gap="0px">
-                <sw-field type="hidden"
-                          v-model="rule.conditions">
-                </sw-field>
+                            {% block sw_settings_rule_detail_content_card_field_description %}
+                                <sw-field type="textarea"
+                                          :label="$tc('sw-settings-rule.detail.labelDescription')"
+                                          :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
+                                          v-model="rule.description">
+                                </sw-field>
+                            {% endblock %}
 
-                <div v-for="condition in nestedConditions.children">
+                            {% block sw_settings_rule_detail_content_card_field_priority %}
+                                <sw-field type="number"
+                                          :label="$tc('sw-settings-rule.detail.labelPriority')"
+                                          :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
+                                          validation="required"
+                                          v-model="rule.priority">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
 
-                    <sw-condition-group :type="rule.type" :condition="condition"></sw-condition-group>
+                {% block sw_settings_rule_detail_conditions_card %}
+                    <sw-card :title="$tc('sw-settings-rule.detail.ruleCard')">
+                        <sw-container grid="1fr" gap="0px">
 
-                </div>
+                            {# @todo add nested conditions with twig blocks #}
 
-            </sw-container>
-        </sw-card>
+                            <sw-field type="hidden" v-model="rule.conditions"></sw-field>
 
+                            <div v-for="condition in nestedConditions.children">
+                                <sw-condition-group :type="rule.type" :condition="condition"></sw-condition-group>
+                            </div>
 
-    </sw-card-view>
-</sw-page>
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

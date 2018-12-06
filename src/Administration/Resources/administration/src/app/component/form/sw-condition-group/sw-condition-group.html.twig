@@ -1,30 +1,49 @@
 {% block sw_condition_group %}
     <div class="sw-condition-group">
-        <div class="group-container field--condition">
-            <select name="name" id="" class="condition-group--field" ref="conditionTypeSelect">
-                <option v-for="innerCondition in conditionTypes"
-                        :selected="innerCondition.identifier == condition.type"
-                        value="innerCondition.identifier">
-                    {{ innerCondition.label }}
-                </option>
-            </select>
-        </div>
-        <div class="group-container field--operator">
-            <select name="name" id="" class="condition-group--field is--dark">
-                <option value="">{{ condition.value.operator }}</option>
-                <option value="">ist gleich</option>
-                <option value="">ist ungleich</option>
-                <option value="">beginnt mit</option>
-                <option value="">endet mit</option>
-                <option value="">enthält</option>
-                <option value="">Regex</option>
-            </select>
-        </div>
-        <div class="group-container field--value">
-            <input type="text" value="" v-bind:value="condition.value.amount" class="condition-group--field is--dark">
-        </div>
-        <div class="group-container field--actions">
-            ...
-        </div>
+        {% block sw_condition_group_field_condition %}
+            <div class="group-container field--condition">
+                {% block sw_condition_group_field_condition_select %}
+                    <select name="name" class="condition-group--field" ref="conditionTypeSelect">
+                        {% block sw_condition_group_field_condition_select_option %}
+                            <option v-for="innerCondition in conditionTypes"
+                                    :selected="innerCondition.identifier == condition.type"
+                                    value="innerCondition.identifier">
+                                {{ innerCondition.label }}
+                            </option>
+                        {% endblock %}
+                    </select>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_condition_group_field_operator %}
+            <div class="group-container field--operator">
+                {% block sw_condition_group_field_operator_select %}
+                    <select name="name" class="condition-group--field is--dark">
+                        <option value="">{{ condition.value.operator }}</option>
+                        <option value="">ist gleich</option>
+                        <option value="">ist ungleich</option>
+                        <option value="">beginnt mit</option>
+                        <option value="">endet mit</option>
+                        <option value="">enthält</option>
+                        <option value="">Regex</option>
+                    </select>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_condition_group_field_value %}
+            <div class="group-container field--value">
+                {% block sw_condition_group_field_value_input %}
+                    <input type="text" value="" v-bind:value="condition.value.amount" class="condition-group--field is--dark">
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_condition_group_field_actions %}
+            <div class="group-container field--actions">
+                ...
+            </div>
+        {% endblock %}
     </div>
 {% endblock %}

@@ -126,7 +126,8 @@
         "greater": "Größer",
         "startsWidth": "Beginnt mit",
         "endsWidth": "Endet mit",
-        "contains": "Enthält"
+        "contains": "Enthält",
+        "regex": "Regex"
       },
       "condition": {
         "cartAmountRule": "Cart Amount Rule",

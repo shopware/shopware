@@ -86,40 +86,36 @@ Component.register('sw-condition-group', {
                 contains: {
                     identifier: '*',
                     label: this.$tc('global.sw-condition-group.operator.contains')
+                },
+                regex: {
+                    identifier: 'preg_match',
+                    label: this.$tc('global.sw-condition-group.operator.regex')
                 }
-            }
+            },
+            conditionOperators: {}
         };
     },
 
     computed: {
         conditionTypes() {
-            return [
-                {
-                    identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule',
-                    label: this.$tc('global.sw-condition-group.coniditon.cartAmountRule'),
-                    operatorSet: this.operatorSets
+            return {
+                'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule': {
+                    label: this.$tc('global.sw-condition-group.condition.cartAmountRule'),
+                    operatorSet: this.operatorSets.all
                 },
-                {
-                    identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule',
-                    label: this.$tc('global.sw-condition-group.coniditon.goodsCountRule'),
-                    operatorSet: this.operatorSets
+                'Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsPriceRule': {
+                    label: this.$tc('global.sw-condition-group.condition.goodsPriceRule'),
+                    operatorSet: this.operatorSets.all
                 },
-                {
-                    identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsPriceRule',
-                    label: this.$tc('global.sw-condition-group.coniditon.goodsPriceRule'),
-                    operatorSet: this.operatorSets
+                'Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemOfTypeRule': {
+                    label: this.$tc('global.sw-condition-group.condition.lineItemOfTypeRule'),
+                    operatorSet: this.operatorSets.all
                 },
-                {
-                    identifier: 'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule',
-                    label: this.$tc('global.sw-condition-group.coniditon.lineItemOfTypeRule'),
-                    operatorSet: this.operatorSets
-                },
-                {
-                    identifier: 'Shopware\\Core\\Framework\\Rule\\DateRangeRule',
-                    label: this.$tc('global.sw-condition-group.coniditon.dateRangeRule'),
-                    operatorSet: this.operatorSets
+                'Shopware\\Core\\Framework\\Rule\\DateRangeRule': {
+                    label: this.$tc('global.sw-condition-group.condition.dateRangeRule'),
+                    operatorSet: this.operatorSets.test
                 }
-            ];
+            };
         },
         operatorSets() {
             return {
@@ -131,7 +127,11 @@ Component.register('sw-condition-group', {
                     this.operators.greaterThanEquals
                 ],
                 all: [
-                    this.operators
+                    Object.values(this.operators)
+                ],
+                test: [
+                    this.operators.equals,
+                    this.operators.lowerThan
                 ]
             };
         }
@@ -143,7 +143,9 @@ Component.register('sw-condition-group', {
         }
     },
 
-    created() {},
+    created() {
+        this.handleConditionInit();
+    },
 
     mounted() {
         this.componentMounted();
@@ -152,6 +154,26 @@ Component.register('sw-condition-group', {
     methods: {
         componentMounted() {
             this.conditionTypeSelect = this.$refs.conditionTypeSelect;
+        },
+
+        handleConditionInit() {
+            const conditionType = this.condition.type;
+            const conditionTypes = this.conditionTypes;
+
+            const condition2 = conditionTypes[conditionType];
+            this.conditionOperators = condition2.operatorSet;
+        },
+
+        handleConditionChange(e) {
+            if (e.target.options.selectedIndex > -1) {
+                console.log('change event triggered');
+                console.log(e.target.options[e.target.options.selectedIndex].dataset);
+            }
+        },
+
+        handleOperatorChange(e) {
+            console.log('handle operator change');
+            console.log('e', e);
         }
     }
 });

@@ -8,7 +8,7 @@
             {#{% endif %}#}
             {{ product.calculatedListingPrice.totalPrice|localizedcurrency(context.currency.shortName) }}
 
-            {% trans %}frontend.listing.box_article.Star{% endtrans %}
+            {% trans %}general.priceStar{% endtrans %}
         </span>
      {% endblock %}
 
@@ -22,7 +22,7 @@
 
                 <span class="price--discount is--nowrap">
                     {{ product.pseudoprice|localizedcurrency(context.currency.shortName) }}
-                    {% trans %}frontend.listing.box_article.Star{% endtrans %}
+                    {% trans %}general.priceStar{% endtrans %}
                 </span>
 
                 {% block frontend_listing_box_article_price_discount_after %}

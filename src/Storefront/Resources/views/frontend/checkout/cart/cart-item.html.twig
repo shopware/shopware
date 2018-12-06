@@ -103,7 +103,7 @@
                 {# Label #}
                 {% block frontend_checkout_cart_item_quantity_label %}
                     <div class="column--label quantity--label">
-                        {% trans %}frontend.checkout.cart_header.CartColumnQuantity{% endtrans %}
+                        {% trans %}offCanvasCart.columnQuantity{% endtrans %}
                     </div>
                 {% endblock %}
 
@@ -151,12 +151,12 @@
                 {# TODO: Which conditions have to be met to have the unit price label displayed or hidden? #}
                 {% block frontend_checkout_cart_item_unit_price_label %}
                     <div class="column--label unit-price--label">
-                        {% trans %}frontend.checkout.cart_header.CartColumnPrice{% endtrans %}
+                        {% trans %}offCanvasCart.columnPrice{% endtrans %}
                     </div>
                 {% endblock %}
                 {{ lineItem.price.unitPrice|localizedcurrency(context.currency.shortName) }}
                 {% block frontend_checkout_cart_tax_symbol %}
-                    {% trans %}frontend.listing.box_article.Star{% endtrans %}
+                    {% trans %}general.priceStar{% endtrans %}
                 {% endblock %}
             </div>
         {% endblock %}
@@ -169,7 +169,7 @@
             <div class="panel--td column--total-price is--align-right">
                 {% block frontend_checkout_cart_item_total_price_label %}
                     <div class="column--label total-price--label">
-                        {% trans %}frontend.checkout.cart_header.CartColumnTotal{% endtrans %}
+                        {% trans %}offCanvasCart.columnTotal{% endtrans %}
                     </div>
                 {% endblock %}
 

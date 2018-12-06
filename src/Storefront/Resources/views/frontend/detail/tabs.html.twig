@@ -9,7 +9,7 @@
                     {% block frontend_detail_tabs_navigation_inner %}
                         {# Description tab #}
                         {% block frontend_detail_tabs_description %}
-                            <a href="#" class="tab--link" title="{% trans %}frontend.detail.tabs.DetailTabsDescription{% endtrans %}" data-tabName="description">{% trans %}frontend.detail.tabs.DetailTabsDescription{% endtrans %}</a>
+                            <a href="#" class="tab--link" title="{% trans %}detail.tabsDescription{% endtrans %}" data-tabName="description">{% trans %}detail.tabsDescription{% endtrans %}</a>
                         {% endblock %}
                     {% endblock %}
                 </div>
@@ -29,7 +29,7 @@
                                     {% block frontend_detail_tabs_content_description_title %}
                                         <div class="tab--header">
                                             {% block frontend_detail_tabs_content_description_title_inner %}
-                                                <a href="#" class="tab--title" title="{% trans %}frontend.detail.tabs.DetailTabsDescription{% endtrans %}">{% trans %}frontend.detail.tabs.DetailTabsDescription{% endtrans %}</a>
+                                                <a href="#" class="tab--title" title="{% trans %}detail.tabsDescription{% endtrans %}">{% trans %}detail.tabsDescription{% endtrans %}</a>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}
@@ -38,7 +38,7 @@
                                     {% block frontend_detail_tabs_description_preview %}
                                         <div class="tab--preview">
                                             {% block frontend_detail_tabs_content_description_preview_inner %}
-                                                {{ product.descriptionLong|striptags|slice(0, 100) }}...<a href="#" class="tab--link" title="{% trans %}frontend.detail.tabs.PreviewTextMore{% endtrans %}">{% trans %}frontend.detail.tabs.PreviewTextMore{% endtrans %}</a>
+                                                {{ product.descriptionLong|striptags|slice(0, 100) }}...<a href="#" class="tab--link" title="{% trans %}detail.descriptionMorePreview{% endtrans %}">{% trans %}detail.descriptionMorePreview{% endtrans %}</a>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}

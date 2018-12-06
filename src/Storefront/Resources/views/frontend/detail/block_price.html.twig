@@ -66,14 +66,14 @@
                                                 {% endblock %}
                                                 {% block frontend_detail_data_block_prices_table_body_cell_price %}
                                                     <td class="block-prices--cell">
-                                                        {{ price.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans %}frontend.listing.box_article.Star{% endtrans %}
+                                                        {{ price.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans %}general.priceStar{% endtrans %}
                                                     </td>
                                                 {% endblock %}
                                                 {% if hasReferencePrice %}
                                                     {% block frontend_detail_data_block_prices_table_body_cell_reference_price %}
                                                         <td class="block-prices--cell">
                                                             {{ price.referencePrice|localizedcurrency(context.currency.shortName) }}
-                                                            {% trans %}frontend.listing.box_article.Star{% endtrans %} /
+                                                            {% trans %}general.priceStar{% endtrans %} /
                                                             {{ product.referenceUnit }} {{ product.unit.name }}
                                                         </td>
                                                     {% endblock %}

@@ -58,7 +58,7 @@ class TranslatorTest extends TestCase
     {
         static::assertEquals(
             'Realized with Shopware',
-            $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
+            $this->translator->getCatalogue('en_GB')->get('footer.copyright')
         );
     }
 
@@ -76,7 +76,7 @@ class TranslatorTest extends TestCase
         $this->snippetSetRepository->create([$snippetSet], $context);
 
         $snippet = [
-            'translationKey' => 'frontend.index.footer.IndexCopyright',
+            'translationKey' => 'footer.copyright',
             'value' => 'Realisiert mit Unit test',
             'languageId' => Defaults::LANGUAGE_EN,
             'setId' => $snippetSetId->getHex(),
@@ -91,7 +91,7 @@ class TranslatorTest extends TestCase
         // get overwritten string
         static::assertEquals(
             $snippet['value'],
-            $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
+            $this->translator->getCatalogue('en_GB')->get('footer.copyright')
         );
         static::assertSame(
             $request,
@@ -122,13 +122,13 @@ class TranslatorTest extends TestCase
 
         $snippets = [
             [
-                'translationKey' => 'frontend.index.footer.IndexCopyright',
+                'translationKey' => 'footer.copyright',
                 'value' => 'Realisiert mit Unit test',
                 'languageId' => $id->getHex(),
                 'setId' => $snippetSetId->getHex(),
             ],
             [
-                'translationKey' => 'frontend.index.footer.IndexCopyright',
+                'translationKey' => 'footer.copyright',
                 'value' => 'Realisiert with default language',
                 'languageId' => Defaults::LANGUAGE_EN,
                 'setId' => $snippetSetId->getHex(),
@@ -148,7 +148,7 @@ class TranslatorTest extends TestCase
         // get default snippet because of default context
         static::assertEquals(
             'Realisiert with default language',
-            $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
+            $this->translator->getCatalogue('en_GB')->get('footer.copyright')
         );
 
         // remove old faked request
@@ -177,7 +177,7 @@ class TranslatorTest extends TestCase
         // get overwritten string because changed languages
         static::assertEquals(
             'Realisiert mit Unit test',
-            $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
+            $this->translator->getCatalogue('en_GB')->get('footer.copyright')
         );
 
         // remove old faked request
@@ -204,7 +204,7 @@ class TranslatorTest extends TestCase
         // get overwritten string because changed languages
         static::assertEquals(
             'Realized with Shopware',
-            $this->translator->getCatalogue('en_GB')->get('frontend.index.footer.IndexCopyright')
+            $this->translator->getCatalogue('en_GB')->get('footer.copyright')
         );
 
         $this->getContainer()->get(RequestStack::class)->pop();

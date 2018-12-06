@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block frontend_index_html %}
-<html class="no-js" lang="{% trans %}frontend.index.index.IndexXmlLang{% endtrans %}" itemscope="itemscope" itemtype="http://schema.org/WebPage">
+<html class="no-js" lang="{% trans %}meta.xmlLang{% endtrans %}" itemscope="itemscope" itemtype="http://schema.org/WebPage">
 {% endblock %}
 
 {% block frontend_index_header %}
@@ -27,7 +27,7 @@
             {# Message if javascript is disabled #}
             {% block frontend_index_no_script_message %}
                 <noscript class="noscript-main">
-                    {% sw_include "@Storefront/frontend/_includes/messages.html.twig" with {"type": "warning", "content": 'frontend.index.index.IndexNoscriptNotice'|trans, "borderRadius": false} %}
+                    {% sw_include "@Storefront/frontend/_includes/messages.html.twig" with {"type": "warning", "content": 'general.disabledJavascriptNotice'|trans, "borderRadius": false} %}
                 </noscript>
             {% endblock %}
 
@@ -184,7 +184,7 @@
             };
 
             var snippets = snippets || {
-                'noCookiesNotice': '{% trans %}frontend.index.index.IndexNoCookiesNotice{% endtrans %}'
+                'noCookiesNotice': '{% trans %}general.disabledCookiesNotice{% endtrans %}'
             };
 
             var themeConfig = themeConfig || {

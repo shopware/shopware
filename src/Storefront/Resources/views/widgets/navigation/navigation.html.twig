@@ -5,8 +5,8 @@
             {% block frontend_index_navigation_categories_top_home %}
                 <li class="navigation--entry{% if activeRoute == 'homepage' %} is--active{% endif %} is--home" role="menuitem">
                     {% block frontend_index_navigation_categories_top_link_home %}
-                        <a class="navigation--link is--first{% if Controller == 'index' %} active{% endif %}" href="{{ url('frontend.home.page') }}" title="{{ 'frontend.index.categories_top.IndexLinkHome'|trans|escape }}" itemprop="url">
-                            <span itemprop="name">{% trans %}frontend.index.categories_top.IndexLinkHome{% endtrans %}</span>
+                        <a class="navigation--link is--first{% if Controller == 'index' %} active{% endif %}" href="{{ url('frontend.home.page') }}" title="{{ 'general.homeLink'|trans|escape }}" itemprop="url">
+                            <span itemprop="name">{% trans %}general.homeLink{% endtrans %}</span>
                         </a>
                     {% endblock %}
                 </li>

@@ -81,7 +81,7 @@
             {% block frontend_checkout_cart_footer_field_labels_sum_value %}
             <div class="entry--value block">
                 {#{$cart.price.positionPrice|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
-                {{ cart.price.positionPrice|localizedcurrency(context.currency.shortName) }}{% trans %}frontend.listing.box_article.Star{% endtrans %}
+                {{ cart.price.positionPrice|localizedcurrency(context.currency.shortName) }}{% trans %}general.priceStar{% endtrans %}
             </div>
             {% endblock %}
         </li>
@@ -100,7 +100,7 @@
 
             {% block frontend_checkout_cart_footer_field_labels_shipping_value %}
             <div class="entry--value block">
-                {{ cart.shippingCosts.totalPrice|localizedcurrency(context.currency.shortName) }}{% trans %}frontend.listing.box_article.Star{% endtrans %}
+                {{ cart.shippingCosts.totalPrice|localizedcurrency(context.currency.shortName) }}{% trans %}general.priceStar{% endtrans %}
             </div>
             {% endblock %}
         </li>

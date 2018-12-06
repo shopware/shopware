@@ -1,0 +1,152 @@
+{% block sw_settings_snippet_set_list %}
+    <sw-page class="sw-settings-snippet-set-list">
+        {% block sw_settings_snippet_set_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_snippet_set_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_snippet_set_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-settings.index.title') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                            {{ $tc('sw-settings-snippet-sets.general.mainMenuItemGeneral') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_snippet_set_list_card %}
+            <sw-card-view slot="content">
+                {% block sw_settings_snippet_set_list_card_title %}
+                    <sw-card>
+                        <h3>{{ $tc('sw-settings-snippet-sets.list.title') }}</h3>
+                        <p>{{ $tc('sw-settings-snippet-sets.list.description') }}</p>
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_snippet_set_list_card_list %}
+                    <sw-card :isLoading="isLoading">
+                        {% block sw_settings_snippet_set_list_card_list_container %}
+                            <sw-container columns="1fr">
+                                <sw-card-section divider="bottom">
+                                    {% block sw_settings_snippet_set_list_card_list_container_header %}
+                                        <div class="sw-settings-snippet-set-list__actions">
+                                            {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}
+                                                <sw-button size="small" variant="ghost" disabled>
+                                                    {{ $tc('sw-settings-snippet-sets.list.buttonExport') }}
+                                                </sw-button>
+                                            {% endblock %}
+
+                                            {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
+                                                <sw-button size="small" variant="primary" disabled>
+                                                    {{ $tc('sw-settings-snippet-sets.list.buttonEditSet') }}
+                                                </sw-button>
+                                            {% endblock %}
+
+                                            {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
+                                                <sw-button class="sw-settings-snippet-set-list__action-add" size="small" @click="onAddSnippetSet" variant="ghost">
+                                                    {{ $tc('sw-settings-snippet-sets.list.buttonAddSet') }}
+                                                </sw-button>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </sw-card-section>
+                            </sw-container>
+                        {% endblock %}
+
+                        {% block sw_settings_snippet_set_list_card_list_grid %}
+                            <sw-grid ref="snippetSetList"
+                                     slot="grid"
+                                     :items="snippetSets"
+                                     @inline-edit-finish="onInlineEditSave"
+                                     @inline-edit-cancel="onInlineEditCancel"
+                                     table>
+                                {% block sw_settings_snippet_set_list_card_list_grid_template %}
+                                    <template slot="columns" slot-scope="{ item }">
+                                        {% block sw_settings_snippet_set_list_card_list_grid_column_name %}
+                                            <sw-grid-column flex="1fr"
+                                                            class="sw-settings-snippet-set__column-name"
+                                                            :label="$tc('sw-settings-snippet-sets.list.columnName')"
+                                                            dataIndex="name"
+                                                            editable>
+                                                {{ item.name }}
+                                                {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
+                                                    <sw-field type="text"
+                                                              v-model="item.name"
+                                                              slot="inline-edit"
+                                                              ref="nameEditor">
+                                                    </sw-field>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_snippet_set_list_card_list_grid_column_changed %}
+                                            <sw-grid-column flex="1fr"
+                                                            class="sw-settings-snippet-set-file__column-changed-at"
+                                                            :label="$tc('sw-settings-snippet-sets.list.columnChangedAt')"
+                                                            dataIndex="baseFile">
+                                                {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
+                                                    <div v-if="item.updatedAt">{{ item.updatedAt | date }}</div>
+                                                    <div v-else="item.createdAt">{{ item.createdAt | date }}</div>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_file %}
+                                            <sw-grid-column flex="1fr"
+                                                            class="sw-settings-snippet-set-file__column-base-file"
+                                                            :label="$tc('sw-settings-snippet-sets.list.columnBaseFile')"
+                                                            dataIndex="baseFile">
+                                                {{ item.baseFile }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action %}
+                                            <sw-grid-column flex="100px" align="center">
+                                                {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
+                                                    <sw-context-button>
+                                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
+                                                            <sw-context-menu-item
+                                                                    :routerLink="{ name: 'sw-settings-snippet-set-list', params:{ id:item.id } }">
+                                                                {{ $tc('sw-settings-snippet-sets.list.contextMenuEdit') }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
+                                                            <sw-context-menu-item disabled>
+                                                                {{ $tc('sw-settings-snippet-sets.list.contextMenuClone') }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete %}
+                                                            <sw-context-menu-item variant="danger">
+                                                                {{ $tc('sw-settings-snippet-sets.list.contextMenuDelete') }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+                                                    </sw-context-button>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_snippet_set_list_card_list_grid_pagination %}
+                                    <template slot="pagination">
+                                        {% block sw_settings_snippet_set_list_card_list_grid_pagination_bar %}
+                                            <sw-pagination :offset="offset"
+                                                           :limit="limit"
+                                                           :total="total"
+                                                           :total-visible="7"
+                                                           :page="page"
+                                                           @page-change="onPageChange">
+                                            </sw-pagination>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </sw-grid>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

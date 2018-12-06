@@ -1,3 +1,6 @@
+const productPage = require('administration/page-objects/sw-product.page-object.js');
+const mediaPageObject = require('administration/page-objects/sw-media.page-object.js');
+
 module.exports = {
     '@tags': ['product-create', 'product', 'create'],
     'create simple category to assign the product to it later ': (browser) => {
@@ -26,17 +29,17 @@ module.exports = {
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
     'go to create page, fill and save the new product': (browser) => {
+        const page = productPage(browser);
+
         browser
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
-            .assert.containsText('.sw-card__title', 'Information')
-            .fillField('input[name=sw-field--product-name]', 'Marci Darci')
-            .fillField('.ql-editor', 'My very first description','editor')
-            .waitForElementNotPresent('.sw-field--product-manufacturerId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
-            .waitForElementNotPresent('.sw-field--product-catalogId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
+            .assert.containsText('.sw-card__title', 'Information');
+
+        page.createBasicProduct('Marci Darci');
+
+        browser
             .fillSwSelectComponent(
                 '.sw-product-detail__select-category',
                 {
@@ -45,16 +48,23 @@ module.exports = {
                     searchTerm: 'MainCategory'
                 }
             )
-            .waitForElementNotPresent('.sw-field--product-taxId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
-            .fillField('input[name=sw-field--price-gross]', '99')
             .click('.sw-product-detail__save-action')
             .checkNotification('Product "Marci Darci" has been saved successfully')
             .assert.urlContains('#/sw/product/detail');
     },
+    'upload product image ': (browser) => {
+        const page = productPage(browser);
+        page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
+        browser
+            .getAttribute('.sw-image__image', 'src', function (result) {
+                this.assert.ok(result.value);
+                this.assert.notEqual(result.value, `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
+            });
+    },
     'go back to listing, search and verify creation': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
+            .refresh()
             .waitForElementVisible('.sw-product-list__content')
             .fillGlobalSearchField('Marci Darci')
             .waitForElementVisible('.sw-page__smart-bar-amount')
@@ -67,23 +77,26 @@ module.exports = {
             .assert.containsText('.sw-product-list__column-product-name', 'Marci Darci')
             .waitForElementPresent('.sw-product-list__column-manufacturer-name')
             .assert.containsText('.sw-product-list__column-manufacturer-name', 'shopware AG')
-            .clickContextMenuItem('.sw_product_list__edit-action','.sw-context-button__button','.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-product-detail-base', 10000)
+            .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button', '.sw-grid-row:first-child')
+            .waitForElementVisible('.sw-product-detail-base')
+            .waitForElementVisible('.sw-image__image')
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-text')
             .assert.containsText('.ql-editor', 'My very first description')
             .assert.containsText('.sw-product-category-form .sw-select__selection-text', 'MainCategory')
             .click('a.smart-bar__back-btn');
     },
-    'delete created product and verify deletion': (browser) => {
+    'delete created product and image and verify deletion': (browser) => {
+        const page = productPage(browser);
+        const mediaPage = mediaPageObject(browser);
+        page.deleteProduct('Marci Darci');
+
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product "Marci Darci"?')
-            .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-product-list__column-product-name')
-            .waitForElementNotPresent('.sw-modal')
             .waitForElementPresent('.sw-empty-state__title')
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+
+        mediaPage.openMediaFolder();
+        mediaPage.deleteImage();
     },
     'delete category': (browser) => {
         browser

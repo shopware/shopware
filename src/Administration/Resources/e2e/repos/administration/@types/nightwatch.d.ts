@@ -2302,8 +2302,9 @@ export interface NightwatchCustomCommands {
      *
      * @param {String} message
      * @param {Boolean} [toBeClosed=true]
+     * @param {Boolean} [type=.sw-alert]
      */
-    checkNotification(message: string, toBeClosed?: boolean): this,
+    checkNotification(message: string, toBeClosed?: boolean, type?: string): this,
 
     /**
      * Opens and clicks a context menu item, even if it's in a specific parent

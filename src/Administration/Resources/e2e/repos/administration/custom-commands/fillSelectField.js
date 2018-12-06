@@ -1,3 +1,5 @@
+const loadingIndicator = '.sw-field__select-load-placeholder';
+
 /**
  * Finds a form field in the Administration using the provided label. The method uses a CSS selector to find the element on the page,
  * clears the value (if configured) and sets the provided value in the field.
@@ -8,7 +10,8 @@
  * @returns {exports}
  */
 exports.command = function fillSelectField(selector, value, clearField = true) {
-    this.waitForElementVisible(selector);
+    this.waitForElementVisible(selector)
+        .waitForElementNotPresent(loadingIndicator);
 
     if (clearField) {
         this.clearValue(selector);
@@ -20,3 +23,4 @@ exports.command = function fillSelectField(selector, value, clearField = true) {
 
     return this;
 };
+

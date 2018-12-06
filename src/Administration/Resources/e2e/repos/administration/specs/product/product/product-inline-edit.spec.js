@@ -1,3 +1,5 @@
+const productPage = require('administration/page-objects/sw-product.page-object.js');
+
 module.exports = {
     '@tags': ['product', 'product-inline-edit', 'inline-edit'],
     'open product listing': (browser) => {
@@ -8,21 +10,16 @@ module.exports = {
             .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
     'create the product': (browser) => {
+        const page = productPage(browser);
+
         browser
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
-            .assert.containsText('.sw-card__title', 'Information')
-            .fillField('input[name=sw-field--product-name]', 'First one')
-            .waitForElementNotPresent('.sw-field--product-manufacturerId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
-            .waitForElementNotPresent('.sw-field--product-catalogId] .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
-            .waitForElementNotPresent('.sw-field--product-taxId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
-            .fillField('input[name=sw-field--price-gross]', '99')
-            .click('.smart-bar__actions button.sw-button--primary')
-            .checkNotification('successfully')
+            .assert.containsText('.sw-card__title', 'Information');
+
+        page.createBasicProduct('First one');
+        browser
             .assert.urlContains('#/sw/product/detail');
     },
     'go back to listing': (browser) => {
@@ -45,11 +42,14 @@ module.exports = {
     },
     'delete created product': (browser) => {
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger','.sw-context-button__button','.sw-grid-row:first-child')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product "Second one"?')
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-product-list__column-product-name')
-            .end();
+    },
+    after: (browser) => {
+        browser.end();
     }
+
 };

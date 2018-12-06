@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    src_folders: [ path.resolve(__dirname, 'specs')],
+    src_folders: [path.resolve(__dirname, 'specs')],
     custom_commands_path: path.resolve(__dirname, './custom-commands'),
     globals_path: path.resolve(__dirname, 'globals.js'),
 

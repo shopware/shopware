@@ -35,7 +35,7 @@ class JsonType extends JsonFactoryBase
         $headers = [];
         if ($setLocationHeader) {
             /* @var string|EntityDefinition $definition */
-            $headers['Location'] = $this->getEntityBaseUrl($request, $definition) . '/' . $entity->getId();
+            $headers['Location'] = $this->getEntityBaseUrl($request, $definition) . '/' . $entity->getUniqueIdentifier();
         }
 
         $decoded = $this->serializer->normalize($entity);

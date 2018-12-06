@@ -35,7 +35,7 @@ class JsonApiType extends JsonFactoryBase
 
         $entityBaseUrl = $this->getEntityBaseUrl($request, $definition);
         if ($setLocationHeader) {
-            $headers['Location'] = $entityBaseUrl . '/' . $entity->getId();
+            $headers['Location'] = $entityBaseUrl . '/' . $entity->getUniqueIdentifier();
         }
 
         $rootNode = [

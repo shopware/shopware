@@ -88,10 +88,10 @@ class EntityRepository implements RepositoryInterface
 
         /** @var Entity $element */
         foreach ($entities as $element) {
-            if (!array_key_exists($element->getId(), $search)) {
+            if (!array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;
             }
-            $data = $search[$element->getId()];
+            $data = $search[$element->getUniqueIdentifier()];
 
             $element->addExtension('search', new ArrayStruct($data));
         }

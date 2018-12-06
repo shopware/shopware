@@ -65,18 +65,18 @@ class JsonApiEncoder
     protected function serializeEntity(SerializedCollection $entities, string $definition, Entity $entity, string $baseUrl): SerializedEntity
     {
         /** @var string|EntityDefinition $definition */
-        $included = $entities->contains($entity->getId(), $definition::getEntityName());
+        $included = $entities->contains($entity->getUniqueIdentifier(), $definition::getEntityName());
 
         if ($included) {
-            return $entities->get($entity->getId(), $definition::getEntityName());
+            return $entities->get($entity->getUniqueIdentifier(), $definition::getEntityName());
         }
 
         /** @var Field[] $fields */
         $fields = $definition::getFields()->getElements();
 
-        $serialized = new SerializedEntity($entity->getId(), $definition::getEntityName());
+        $serialized = new SerializedEntity($entity->getUniqueIdentifier(), $definition::getEntityName());
 
-        $self = $baseUrl . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
+        $self = $baseUrl . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getUniqueIdentifier();
         $serialized->addLink('self', $self);
 
         /** @var string|int $propertyName */
@@ -114,7 +114,6 @@ class JsonApiEncoder
         if ($entity->getViewData() !== null) {
             $serialized->addAttribute('viewData', $this->serializeEntity($entities, $definition, $entity->getViewData(), $baseUrl));
         }
-
 
         return $serialized;
     }

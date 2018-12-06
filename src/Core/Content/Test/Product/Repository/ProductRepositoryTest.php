@@ -914,7 +914,7 @@ class ProductRepositoryTest extends TestCase
         $red = $products->get($redId);
 
         static::assertEquals([$parentCategory], array_values($parent->getCategories()->getIds()));
-        static::assertEquals([$parentCategory], array_values($red->getCategories()->getIds()));
+        static::assertEquals([$parentCategory], array_values($red->getViewData()->getCategories()->getIds()));
         static::assertEquals([$greenCategory], array_values($green->getCategories()->getIds()));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);

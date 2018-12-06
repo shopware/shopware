@@ -89,7 +89,7 @@ class EntityHydrator
                 $key = $originalKey . '.owner';
 
                 if (array_key_exists($key, $row)) {
-                    $mappingStorage->set($key, $row[$key]);
+                    $mappingStorage->set($propertyName . '.owner', $row[$key]);
                 }
             }
 

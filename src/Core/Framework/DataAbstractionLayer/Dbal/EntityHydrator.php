@@ -113,7 +113,7 @@ class EntityHydrator
 
                 //.owner field contains the value of the foreign key of the child row.
                 $key = $originalKey . '.owner';
-                if (isset($row[$key])) {
+                if (isset($row[$key]) || !$field->is(Inherited::class)) {
                     $entity->assign([$propertyName => $hydrated]);
                 }
 

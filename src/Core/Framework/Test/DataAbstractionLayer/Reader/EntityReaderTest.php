@@ -239,8 +239,8 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(TaxStruct::class, $green->getTax());
         static::assertInstanceOf(TaxStruct::class, $green->getViewData()->getTax());
 
-        static::assertInstanceOf(TaxStruct::class, $green->getTaxId());
-        static::assertInstanceOf(TaxStruct::class, $green->getViewData()->getTaxId());
+        static::assertEquals($greenTax, $green->getTaxId());
+        static::assertEquals($greenTax, $green->getViewData()->getTaxId());
 
         static::assertInstanceOf(PriceStruct::class, $green->getPrice());
         static::assertInstanceOf(PriceStruct::class, $green->getViewData()->getPrice());
@@ -306,20 +306,23 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        $this->productRepository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
 
-        $products = $this->productRepository->read(new ReadCriteria([$redId]), Context::createDefaultContext());
+        $this->productRepository->create($products, $context);
+
+        $products = $this->productRepository->read(new ReadCriteria([$greenId, $parentId, $redId]), $context);
 
         /** @var ProductStruct $parent */
-//        $parent = $products->get($parentId);
-//        static::assertInstanceOf(ProductStruct::class, $parent);
-//        static::assertInstanceOf(ProductPriceRuleCollection::class, $parent->getPriceRules());
+        $parent = $products->get($parentId);
+        static::assertInstanceOf(ProductStruct::class, $parent);
+        static::assertInstanceOf(ProductPriceRuleCollection::class, $parent->getPriceRules());
 
         /** @var ProductStruct $red */
         $red = $products->get($redId);
         static::assertInstanceOf(ProductStruct::class, $red);
-        static::assertNull($red->getPriceRules());
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $red->getViewData()->get('priceRules'));
+        static::assertCount(0, $red->getPriceRules());
+        static::assertInstanceOf(ProductPriceRuleCollection::class, $red->getViewData()->getPriceRules());
+        static::assertCount(2, $red->getViewData()->getPriceRules());
 
         /** @var ProductStruct $green */
         $green = $products->get($greenId);

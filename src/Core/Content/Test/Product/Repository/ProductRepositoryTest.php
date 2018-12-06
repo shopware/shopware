@@ -485,10 +485,10 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($parentPrice['gross'], $parent->getPrice()->getGross());
         static::assertEquals($parentName, $parent->getName());
 
-        static::assertEquals($parentPrice['gross'], $red->getPrice()->getGross());
+        static::assertEquals($parentPrice['gross'], $red->getViewData()->getPrice()->getGross());
         static::assertEquals($redName, $red->getName());
 
-        static::assertEquals($greenPrice['gross'], $green->getPrice()->getGross());
+        static::assertEquals($greenPrice['gross'], $green->getViewData()->getPrice()->getGross());
         static::assertEquals($parentName, $green->getName());
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
@@ -732,7 +732,7 @@ class ProductRepositoryTest extends TestCase
         $green = $products->get($greenId);
 
         static::assertEquals($parentTax, $parent->getTax()->getId());
-        static::assertEquals($parentTax, $red->getTax()->getId());
+        static::assertEquals($parentTax, $red->getViewData()->getTax()->getId());
         static::assertEquals($greenTax, $green->getTax()->getId());
 
         static::assertEquals($parentTax, $parent->getTaxId());

@@ -598,20 +598,32 @@ class EntityReader implements EntityReaderInterface
 
         //assign loaded data to root entities
         foreach ($collection as $entity) {
-            $structData = $data->filterByProperty($propertyName, $entity->getId());
+            /** @var Entity $entity */
+            $structData = $data->filterByProperty($propertyName, $entity->getUniqueIdentifier());
 
-            if ($structData->count() === 0 && $isInheritanceAware) {
-                $structData = $data->filterByProperty($propertyName, $entity->get('parentId'));
+            //assign data of child immediatly
+            if ($association->is(Extension::class)) {
+                //definition extensions should be added to viewData and entity as extension property
+                $entity->addExtension($association->getPropertyName(), $structData);
+                $entity->getViewData()->addExtension($association->getPropertyName(), $structData);
+            } else {
+                //otherwise the data will be assigned directly as properties
+                $entity->assign([$association->getPropertyName() => $structData]);
+                $entity->getViewData()->assign([$association->getPropertyName() => $structData]);
             }
 
-            if ($association->is(Extension::class)) {
-                $entity->addExtension($association->getPropertyName(), $structData);
+            if (!$association->is(Inherited::class) || $structData->count() > 0) {
                 continue;
             }
 
-            $entity->assign([
-                $association->getPropertyName() => $structData,
-            ]);
+            //if association can be inherited by the parent and the struct data is empty, filter again for the parent id
+            $structData = $data->filterByProperty($propertyName, $entity->get('parentId'));
+
+            if ($association->is(Extension::class)) {
+                $entity->getViewData()->addExtension($association->getPropertyName(), $structData);
+                continue;
+            }
+            $entity->getViewData()->assign([$association->getPropertyName() => $structData]);
         }
     }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
@@ -173,6 +174,8 @@ class VariantGeneratorTest extends TestCase
         $parent = $this->repository->read(new ReadCriteria([$id]), $context)
             ->get($id);
 
+        /** @var ProductCollection $variants */
+        /** @var ProductCollection $filtered */
         $filtered = $variants->filterByVariationIds([$redId, $bigId]);
         static::assertCount(1, $filtered);
         static::assertEquals('test red big', $filtered->first()->getName());
@@ -191,7 +194,7 @@ class VariantGeneratorTest extends TestCase
 
         foreach ($variants as $variant) {
             static::assertEquals($id, $variant->getParentId());
-            static::assertEquals($parent->getPrice(), $variant->getPrice());
+            static::assertEquals($parent->getPrice(), $variant->getViewData()->getPrice());
         }
     }
 

@@ -4,7 +4,19 @@ import template from './sw-media-upload.html.twig';
 import './sw-media-upload.less';
 
 /**
- * @private
+ * @status ready
+ * @description The <u>sw-media-upload</u> component is used wherever an upload is needed. It supports drag & drop-,
+ * file- and url-upload and comes in various forms.
+ * @example-type dynamic
+ * @component-example
+ * <sw-media-upload
+ *     uploadTag="Lorem ipsum dolor sit amet"
+ *     variant="regular"
+ *     allowMultiSelect="false"
+ *     variant="regular"
+ *     autoUpload="true"
+ *     caption="Lorem ipsum dolor sit amet">
+ * </sw-media-upload>
  */
 Component.register('sw-media-upload', {
     template,
@@ -31,9 +43,11 @@ Component.register('sw-media-upload', {
         variant: {
             type: String,
             required: true,
+            validValues: ['compact', 'regular'],
             validator(value) {
                 return ['compact', 'regular'].includes(value);
-            }
+            },
+            default: 'regular'
         },
 
         autoUpload: {

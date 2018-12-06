@@ -4,7 +4,18 @@ import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.less';
 
 /**
- * @private
+ * @status ready
+ * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside of the media
+ * manager.
+ * @example-type code-only
+ * @component-example
+ * <sw-sidebar-media-item>
+ *    <template slot="context-menu-items" slot-scope="media">
+ *       <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
+ *          Lorem ipsum dolor sit amet
+ *       </sw-context-menu-item>
+ *    </template>
+ * </sw-sidebar-media-item>
  */
 Component.register('sw-sidebar-media-item', {
     template,

@@ -4,7 +4,23 @@ import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.less';
 
 /**
- * @private
+ * @status ready
+ * @description The <u>sw-media-media-item</u> component is used to store the media item and manage it through the
+ * <u>sw-media-base-item</u> component. Use the default slot to add additional context menu items.
+ * @example-type code-only
+ * @component-example
+ * <sw-media-media-item
+ *     :key="mediaItem.id"
+ *     :item="mediaItem"
+ *     :selected="false"
+ *     :showSelectionIndicator="false"
+ *     isList="false">
+ *
+ *       <sw-context-menu-item @click="showDetails(mediaItem)"
+ *             slot="additional-context-menu-items">
+ *          Lorem ipsum dolor sit amet
+ *       </sw-context-menu-item>
+ * </sw-media-media-item>
  */
 Component.register('sw-media-media-item', {
     template,

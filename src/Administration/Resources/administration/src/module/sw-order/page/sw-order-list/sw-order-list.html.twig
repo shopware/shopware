@@ -64,7 +64,7 @@
                                         {% block sw_order_list_grid_columns_customer_name %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-order.list.columnCustomerName')"
-                                                            dataIndex="customer.firstName,customer.lastName"
+                                                            dataIndex="orderCustomer.firstName,orderCustomer.lastName"
                                                             truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_customer_name_label %}

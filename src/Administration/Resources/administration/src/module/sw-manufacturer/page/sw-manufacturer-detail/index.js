@@ -71,6 +71,10 @@ Component.register('sw-manufacturer-detail', {
             this.manufacturer.mediaId = null;
         },
 
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
+        },
+
         onSave() {
             const manufacturerName = this.manufacturer.name;
             const titleSaveSuccess = this.$tc('sw-manufacturer.detail.titleSaveSuccess');
@@ -81,7 +85,7 @@ Component.register('sw-manufacturer-detail', {
             );
 
             this.manufacturer.save().then(() => {
-                this.$refs.sidebarMediaItem.getList();
+                this.$refs.mediaSidebarItem.getList();
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

@@ -55,7 +55,8 @@
                                         :allowMultiSelect="false"
                                         variant="regular"
                                         :caption="$tc('sw-manufacturer.detail.addLogoCaption')"
-                                        @media-upload-success="setMediaItem">
+                                        @media-upload-success="setMediaItem"
+                                        @sw-media-upload-open-sidebar="openMediaSidebar">
                                     </sw-media-upload>
                                 {% endblock %}
 
@@ -90,7 +91,7 @@
                 {% endblock %}
 
                 <template slot="card-view-sidebar">
-                    <sw-sidebar-media-item ref="sidebarMediaItem">
+                    <sw-sidebar-media-item ref="mediaSidebarItem">
                         <template slot="context-menu-items" slot-scope="media">
                             <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
                                 {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}

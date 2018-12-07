@@ -86,6 +86,12 @@ Component.register('sw-product-detail', {
                     this.taxes = response.items;
                 });
             }
+
+            this.$root.$on('sw-product-media-form-open-sidebar', this.openMediaSidebar);
+        },
+
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
         },
 
         onRemoveImageToUpload(item) {
@@ -113,7 +119,7 @@ Component.register('sw-product-detail', {
                     });
                 });
             }).then(() => {
-                this.$refs.sidebarMediaItem.getList();
+                this.$refs.mediaSidebarItem.getList();
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

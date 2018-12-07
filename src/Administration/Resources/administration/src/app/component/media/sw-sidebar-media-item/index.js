@@ -134,6 +134,10 @@ Component.register('sw-sidebar-media-item', {
             }
 
             return params;
+        },
+
+        openContent() {
+            this.$refs.sidebarItem.openContent();
         }
     }
 });

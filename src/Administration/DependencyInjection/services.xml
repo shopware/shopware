@@ -14,7 +14,7 @@
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
     </services>

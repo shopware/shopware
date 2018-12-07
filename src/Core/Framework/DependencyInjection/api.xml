@@ -12,7 +12,7 @@
 
         <service id="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener">
             <tag name="kernel.event_subscriber"/>
-            <argument />
+            <argument/>
             <argument type="service" id="logger"/>
             <argument>%kernel.debug%</argument>
         </service>
@@ -23,7 +23,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\AccessKeyController" public="true">
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -33,7 +33,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
             <argument type="service" id="Shopware\Core\Framework\Search\CompositeEntitySearcher"/>
         </service>
@@ -51,7 +51,7 @@
             <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -104,14 +104,14 @@
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\AuthController" public="true">
             <argument type="service" id="shopware.api.authorization_server"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -186,7 +186,7 @@
         <service id="Shopware\Core\Framework\Api\Controller\UserController" public="true">
             <argument type="service" id="user.repository"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 

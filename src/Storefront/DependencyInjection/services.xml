@@ -5,11 +5,11 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <defaults autowire="true" />
+        <defaults autowire="true"/>
         <service id="Shopware\Storefront\Twig\TemplateDataExtension">
-            <tag name="twig.extension" />
+            <tag name="twig.extension"/>
 
-            <argument type="service" id="request_stack" />
+            <argument type="service" id="request_stack"/>
         </service>
 
         <!-- Twig / Theme -->
@@ -58,7 +58,7 @@
 
         <service id="Shopware\Storefront\Page\Listing\ListingPageLoader">
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
-            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader">
@@ -82,7 +82,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -90,14 +90,14 @@
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -110,16 +110,16 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\ListingController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader" />
+            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\DetailController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Detail\DetailPageLoader" />
+            <argument type="service" id="Shopware\Storefront\Page\Detail\DetailPageLoader"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -128,7 +128,7 @@
         <service id="Shopware\Storefront\Controller\CartController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -147,14 +147,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="router"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\SearchController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -188,7 +188,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -293,8 +293,8 @@
             <tag name="shopware.entity.extension"/>
         </service>
 
-        <service id="Shopware\Storefront\Api\Seo\SeoUrlDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url" />
+        <service id="Shopware\Storefront\Api\Seo\SeoUrlDefinition">
+            <tag name="shopware.entity.definition" entity="seo_url"/>
         </service>
 
         <service id="Shopware\Storefront\Command\SalesChannelCreateStorefrontCommand">
@@ -307,7 +307,7 @@
         </service>
 
         <service id="Shopware\Storefront\Api\Entity\FieldHandler\CanonicalUrlFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <tag name="shopware.write_read_field_handler"/>
         </service>
 

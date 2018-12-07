@@ -170,7 +170,7 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -231,7 +231,7 @@
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver" >
+        <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -243,7 +243,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Validation\CommandQueueValidator">
-            <argument type="tagged" tag="shopware.validator" />
+            <argument type="tagged" tag="shopware.validator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" public="true">
@@ -253,7 +253,7 @@
         </service>
 
         <!-- Feature Flags -->
-       <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator" />
+       <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
 
     </services>
 </container>

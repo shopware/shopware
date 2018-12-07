@@ -15,7 +15,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -23,7 +23,7 @@
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -112,7 +112,7 @@
         <service id="Shopware\Core\Content\Product\ProductActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 

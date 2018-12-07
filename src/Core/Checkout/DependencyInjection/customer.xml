@@ -31,7 +31,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="order.repository"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 
@@ -78,7 +78,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="serializer"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
     </services>

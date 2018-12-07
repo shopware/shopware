@@ -23,7 +23,7 @@
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
 

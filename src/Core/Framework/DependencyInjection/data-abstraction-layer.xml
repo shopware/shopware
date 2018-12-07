@@ -1050,92 +1050,92 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer">
             <argument type="service"  id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CatalogFieldSerializer">
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ChildCountFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ChildrenAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer">
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FloatFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IdFieldSerializer">
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextWithHtmlFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToOneAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ObjectFieldSerializer">
@@ -1143,81 +1143,81 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
             <argument type="service" id="serializer"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToManyAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentFieldSerializer">
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceRulesJsonFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
             <argument type="service" id="serializer"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer">
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\SearchKeywordAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer">
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <argument type="service" id="Shopware\Core\System\Locale\LocaleLanguageResolver"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionDataPayloadFieldSerializer">
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer">
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer" />
+            <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlacklistRuleFieldSerializer">

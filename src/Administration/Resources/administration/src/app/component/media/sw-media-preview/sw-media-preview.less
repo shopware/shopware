@@ -8,25 +8,10 @@
 @sw-media-preview-background:               @color-white;
 
 .sw-media-preview {
-    position: relative;
-    background-color: @sw-media-preview-background;
-    border: 1px solid @sw-media-preview-border-color;
-    border-radius: @sw-media-preview-border-radius;
-
-    &.is--highlighted {
-        border: 1px solid @sw-media-preview-border-color-highlighted;
-    }
-    
     &.is--icon {
         .sw-media-preview__item {
             transform: translate(-50%, -50%) scale(0.7);
         }
-    }
-
-    &:after {
-        content: "";
-        display: block;
-        padding-bottom: 75%;
     }
 
     .sw-media-preview__item {

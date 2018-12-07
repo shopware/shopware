@@ -58,6 +58,18 @@
         }
     }
 
+    .sw-media-quickinfo__media-preview {
+        position: relative;
+        border: 1px solid @sw-media-quickinfo-border-color;
+        border-radius: @sw-media-quickinfo-border-radius;
+
+        &:after {
+            content: "";
+            display: block;
+            padding-bottom: 75%;
+        }
+    }
+
     >:last-child {
         border-bottom: 1px solid @sw-media-quickinfo-color-divider;
     }

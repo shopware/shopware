@@ -55,7 +55,9 @@ import './structure/sw-search-bar';
 import './structure/sw-search-bar-item';
 import './structure/sw-error';
 
+import './media/sw-media-entity-mapper';
 import './media/sw-media-base-item';
+import './media/sw-media-folder-item';
 import './media/sw-media-media-item';
 import './media/sw-media-preview';
 import './media/sw-media-upload';

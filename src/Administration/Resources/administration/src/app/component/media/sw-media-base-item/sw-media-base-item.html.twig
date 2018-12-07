@@ -6,26 +6,45 @@
                  :class="selectionIndicatorClasses"
                  @click="onClickedItem">
 
-                <sw-icon
-                    v-if="listSelected"
-                    size="16px"
-                    name="small-default-checkmark-line-small">
-                </sw-icon>
+                {% block sw_media_base_item_selection_indicator_icon %}
+                    <sw-icon
+                        v-if="listSelected"
+                        size="16px"
+                        name="small-default-checkmark-line-small">
+                    </sw-icon>
+                {% endblock %}
             </div>
         {% endblock %}
 
         {% block sw_media_base_item_preview %}
-            <slot name="media-item-preview">
-                {% block sw_media_base_item_slot_media_preview %}{% endblock %}
-            </slot>
+            <div class="sw-media-base-item__preview-container">
+                <slot name="media-item-preview">
+                    {% block sw_media_base_item_slot_media_preview %}{% endblock %}
+                </slot>
+            </div>
         {% endblock %}
 
         {% block sw_media_base_item_name_container %}
             <div class="sw-media-base-item__name-container">
                 {% block sw_media_base_item_name %}
-                    <slot name="media-item-name">
-                        {% block sw_media_base_item_slot_media_item_name %}{% endblock %}
-                    </slot>
+                    <sw-field v-if="isInlineEdit"
+                              ref="inputItemName"
+                              class="sw-media-base-item__name-field"
+                              :value="editValue"
+                              v-autofocus
+                              @click.stop
+                              @blur="onBlurInlineEdit"
+                              @keyup.enter="onDoRenaming"
+                              @keyup.esc="onCancelRenaming">
+                    </sw-field>
+                    <div v-else
+                         class="sw-media-base-item__name"
+                         ref="itemName"
+                         :title="displayName"
+                         :data-last-content="lastContent"
+                         @dblclick="startInlineEdit">
+                        {{ displayName }}
+                    </div>
                 {% endblock %}
             </div>
         {% endblock %}

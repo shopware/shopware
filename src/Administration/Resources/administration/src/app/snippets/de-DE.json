@@ -40,6 +40,11 @@
     "sw-modal": {
       "labelClose": "Schließen"
     },
+    "sw-media-folder-item": {
+      "labelContextMenuDelete": "Löschen",
+      "labelContextMenuRename": "Umbenennen",
+      "labelContextMenuShowMedia": "Medien anzeigen"
+    },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",
       "labelContextMenuCopyLink": "Link kopieren",
@@ -644,7 +649,8 @@
         "metadata": "Metadaten",
         "titleMissingFile": "Datei nicht gefunden",
         "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen.",
-        "usage": "Wird verwendet in"
+        "usage": "Wird verwendet in",
+        "infoFolder": "Ordner haben bisher noch keine darstellbaren Informationen."
       },
       "metadata": {
         "name": "Name",
@@ -669,6 +675,7 @@
       }
     },
     "index": {
+      "buttonCreateFolder": "Neuen Ordner hinzufügen",
       "messageEmpty": "Noch keine Medien in diesem Ordner",
       "labelSort": "Sortiere nach:",
       "labelPresentation": "Darstellung:",
@@ -684,7 +691,8 @@
       "labelSortByCreatedDsc": "Erstelldatum absteigend",
       "labelSortByDataTypeAsc": "Dateityp aufsteigend",
       "labelSortByDataTypeDsc": "Dateityp absteigend",
-      "labelLoadMore": "{count} weitere Dateien laden"
+      "labelLoadMore": "{count} weitere Dateien laden",
+      "rootFolderName": "Unsortierte Medien"
     }
   },
   "sw-settings": {

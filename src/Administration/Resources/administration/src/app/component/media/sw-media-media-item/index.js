@@ -27,7 +27,15 @@ Component.register('sw-media-media-item', {
 
     inject: ['mediaService'],
 
+    provide() {
+        return {
+            renameEntity: this.renameEntity,
+            rejectRenaming: this.rejectRenaming
+        };
+    },
+
     mixins: [
+        Mixin.getByName('selectable-media-item'),
         Mixin.getByName('notification')
     ],
 
@@ -36,42 +44,15 @@ Component.register('sw-media-media-item', {
             type: Object,
             required: true,
             validator(value) {
-                return value.type === 'media';
+                return value.entityName === 'media';
             }
-        },
-
-        /*
-         * propagated props
-         */
-        showSelectionIndicator: {
-            type: Boolean,
-            required: true
-        },
-
-        selected: {
-            type: Boolean,
-            required: true
-        },
-
-        isList: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-
-        showContextMenuButton: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
     data() {
         return {
             showModalReplace: false,
-            showModalDelete: false,
-            isInlineEdit: false,
-            lastContent: ''
+            showModalDelete: false
         };
     },
 
@@ -82,13 +63,13 @@ Component.register('sw-media-media-item', {
 
         mediaPreviewClasses() {
             return {
-                'is--highlighted': this.selected
+                'sw-media-preview--list': this.isList
             };
         },
 
         defaultContextMenuClass() {
             return {
-                'sw-context-menu__group': this.$slots['additional-context-menu-items']
+                'sw-context-menu__group': this.$slots.default
             };
         },
 
@@ -96,62 +77,24 @@ Component.register('sw-media-media-item', {
             return State.getStore('media');
         },
 
-        fallbackName() {
+        displayName() {
+            if (this.item.hasFile) {
+                return `${this.item.fileName}.${this.item.fileExtension}`;
+            }
+
             return this.item.isLoading ? this.$tc('global.sw-media-media-item.labelUploading') : '';
+        },
+
+        editFileName() {
+            return this.item.fileName || '';
+        },
+
+        baseComponent() {
+            return this.$refs.innerComponent;
         }
     },
 
-    mounted() {
-        this.componentMounted();
-    },
-
-    updated() {
-        this.componentUpdated();
-    },
-
     methods: {
-        componentMounted() {
-            this.computeLastContent();
-        },
-
-        componentUpdated() {
-            this.computeLastContent();
-        },
-
-        computeLastContent() {
-            if (this.isInlineEdit) {
-                return;
-            }
-            const el = this.$refs.itemName;
-            if (el.offsetWidth < el.scrollWidth) {
-                this.lastContent = `${this.item.fileName.slice(-3)}.${this.item.fileExtension}`;
-                return;
-            }
-
-            this.lastContent = '';
-        },
-
-        handleGridItemClick(originalDomEvent) {
-            this.$emit('sw-media-item-clicked', {
-                originalDomEvent,
-                item: this.item
-            });
-        },
-
-        selectItem(originalDomEvent) {
-            this.$emit('sw-media-item-selection-add', {
-                originalDomEvent,
-                item: this.item
-            });
-        },
-
-        removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-item-selection-remove', {
-                originalDomEvent,
-                item: this.item
-            });
-        },
-
         emitPlayEvent(originalDomEvent) {
             if (!this.selected) {
                 this.$emit('sw-media-media-item-play', {
@@ -192,40 +135,36 @@ Component.register('sw-media-media-item', {
             this.showModalReplace = false;
         },
 
-        startInlineEdit() {
-            this.isInlineEdit = true;
+        onStartRenaming() {
+            this.baseComponent.startInlineEdit();
         },
 
-        endInlineEdit() {
-            this.isInlineEdit = false;
-        },
-
-        updateName() {
-            const inputField = this.$refs.inputItemName;
-
-            if (!inputField.currentValue || !inputField.currentValue.trim()) {
-                this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notificationErrorBlankItemName')
-                });
-                return;
+        renameEntity(updatedName) {
+            if (this.item.fileName === updatedName) {
+                return Promise.resolve();
             }
 
             this.item.isLoading = true;
-            this.mediaService.renameMedia(this.item.id, inputField.currentValue).then(() => {
+            return this.mediaService.renameMedia(this.item.id, updatedName).then(() => {
                 this.mediaStore.getByIdAsync(this.item.id).then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('global.sw-media-media-item.notificationRenamingSuccess')
                     });
-                    this.item.isLoading = false;
-                    this.endInlineEdit();
                 });
             }).catch(() => {
                 this.item.isLoading = false;
                 this.createNotificationError({
                     message: this.$tc('global.sw-media-media-item.notificationRenamingError')
                 });
-                this.endInlineEdit();
             });
+        },
+
+        rejectRenaming(cause) {
+            if (cause === 'empty-name') {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-media-item.notificationErrorBlankItemName')
+                });
+            }
         }
     }
 });

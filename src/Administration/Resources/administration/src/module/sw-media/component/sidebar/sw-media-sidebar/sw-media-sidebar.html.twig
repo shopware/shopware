@@ -12,13 +12,19 @@
                         {% block sw_media_sidebar_item_quickinfo_content %}
                             <div class="sw-media-sidebar__quickinfo-wrapper">
                                 <sw-media-quickinfo
-                                    v-if="isSingleFile"
+                                    v-if="isSingleFile && items[0].entityName === 'media'"
                                     :key="getKey"
                                     :item="items[0]"
                                     :autoplay="autoplay"
                                     @sw-media-quickinfo-open-modal-replace="openModalReplace"
                                     @sw-media-quickinfo-open-modal-delete="openModalDelete">
                                 </sw-media-quickinfo>
+
+                                <div v-else-if="isSingleFile && items[0].entityName === 'media_folder'">
+                                    <sw-alert variant="info" style="margin: 25px">
+                                        {{ $tc('sw-media.sidebar.quickinfo.infoFolder') }}
+                                    </sw-alert>
+                                </div>
 
                                 <sw-media-quickinfo-multiple
                                     v-else-if="isMultipleFile"

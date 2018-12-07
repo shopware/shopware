@@ -40,6 +40,11 @@
     "sw-modal": {
       "labelClose": "Close"
     },
+    "sw-media-folder-item": {
+      "labelContextMenuDelete": "Delete",
+      "labelContextMenuRename": "Rename",
+      "labelContextMenuShowMedia": "Show media"
+    },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
       "labelContextMenuCopyLink": "Copy Link",
@@ -642,7 +647,8 @@
         "metadata": "Meta data",
         "titleMissingFile": "File not found",
         "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder.",
-        "usage": "Used in"
+        "usage": "Used in",
+        "infoFolder": "Media folders do not have displayable quickinfos yet."
       },
       "metadata": {
         "name": "Name",
@@ -667,6 +673,7 @@
       }
     },
     "index": {
+      "buttonCreateFolder": "Add new Folder",
       "messageEmpty": "No media in this folder yet",
       "labelSort": "Sort by:",
       "labelPresentation": "Presentation:",
@@ -682,7 +689,8 @@
       "labelSortByCreatedDsc": "Creation date, descending",
       "labelSortByDataTypeAsc": "Data type, ascending",
       "labelSortByDataTypeDsc": "Data type, descending",
-      "labelLoadMore": "load {count} more files"
+      "labelLoadMore": "load {count} more files",
+      "rootFolderName": "Unsorted Media"
     }
   },
   "sw-settings": {

@@ -83,7 +83,8 @@ Component.register('sw-context-button', {
 
         contextClass() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
+                'is--active': this.showMenu
             };
         },
 

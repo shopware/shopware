@@ -1,0 +1,56 @@
+{% block sw_media_folder_item %}
+    <div class="sw-media-folder-item">
+        <sw-media-base-item
+                ref="innerComponent"
+                :isList="isList"
+                :isLoading="item.isLoading"
+                :selected="selected"
+                :showContextMenuButton="showContextMenuButton"
+                :showSelectionIndicator="showSelectionIndicator"
+                :displayName="item.name"
+                :editValue="item.name"
+                @sw-media-item-selection-add="selectItem"
+                @sw-media-item-selection-remove="removeFromSelection"
+                @sw-media-item-clicked="handleGridItemClick">
+
+            {% block sw_media_folder_item_preview %}
+                <sw-icon slot="media-item-preview" name="folder-thumbnail" size="90%" class="sw-media-folder-item__folder-thumbnails"  multicolor></sw-icon>
+            {% endblock %}
+
+            {% block sw_media_folder_meta_data %}
+                <div slot="media-item-metadata" class="sw-media-folder-item__metadata">
+                </div>
+            {% endblock %}
+
+            {% block sw_media_folder_item_context_menu %}
+            <template slot="media-item-context-menu">
+                <slot name="additional-context-menu-items">
+                    {% block sw_media_folder_item_additional_context_menu_slot %}{% endblock %}
+                </slot>
+
+                {% block sw_media_media_item_context_group_quick_actions %}
+                    <div class="defaultContextMenuClass">
+                        {% block sw_media_media_item_context_item_show_media %}
+                            <sw-context-menu-item :routerLink="{name: 'sw.media.index', params: {folderId: item.id}}">
+                                {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_media_media_item_context_item_rename_item %}
+                            <sw-context-menu-item @click="onStartRenaming">
+                                {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_media_media_item_context_item_delete %}
+                            <sw-context-menu-item disabled variant="danger">
+                                {{ $tc('global.sw-media-folder-item.labelContextMenuDelete') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-media-base-item>
+    </div>
+{% endblock %}

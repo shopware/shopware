@@ -1,6 +1,10 @@
 @import "~less/variables";
 @import "~less/mixins";
 
+@sw-media-index-font-size-navigation:              @font-size-large;
+@sw-media-index-color-breadcrumb-icon:             @color-gutenberg;
+@sw-media-index-color-navigation-parent:           @color-steam-cloud;
+@sw-media-index-color-navigation-current:          @color-black;
 @sw-media-index-color-text-button:                 @color-kashmir;
 @sw-media-index-font-size-change-icon-size-label:  @font-size-small;
 @sw-media-index-color-change-icon-size-label:      @color-kashmir;
@@ -18,6 +22,35 @@
 @sw-media-index-default-font-size:                 @font-size-default;
 
 .sw-media-index {
+    .sw-media-index__navigation {
+        display: grid;
+        align-items: center;
+        grid-auto-flow: column;
+        grid-column-gap: 8px;
+        position: absolute;
+        top: 16px;
+        left: 20px;
+        font-size:@sw-media-index-font-size-navigation;
+    }
+
+    .sw-media-index__navigation-breadcrumb {
+        color: @sw-media-index-color-breadcrumb-icon;
+        width: 16px;
+        height: 16px;
+    }
+
+    .sw-media-index__navigation-parent {
+        color: @sw-media-index-color-navigation-parent;
+        a:any-link {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
+
+    .sw-media-index__navigation-current {
+        color: @sw-media-index-color-navigation-current;
+    }
+
     .sw-media-index__page-content {
         background: @sw-media-index-page-background-color;
         display: grid;

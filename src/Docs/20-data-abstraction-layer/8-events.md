@@ -108,7 +108,7 @@ After creating the event subscriber, you have to register it in the service cont
 tag it as `kernel.event_subscriber`.
 
 ```xml
-<service class="Shopware\Core\Content\Product\ProductSubscriber" id="Shopware\Core\Content\Product\ProductSubscriber">
+<service id="Shopware\Core\Content\Product\ProductSubscriber">
     <tag name="kernel.event_subscriber"/>
 </service>
 ```

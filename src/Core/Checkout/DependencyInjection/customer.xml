@@ -5,27 +5,27 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\Checkout\Customer\CustomerDefinition" id="Shopware\Core\Checkout\Customer\CustomerDefinition">
+        <service id="Shopware\Core\Checkout\Customer\CustomerDefinition">
             <tag name="shopware.entity.definition" entity="customer"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition" id="shopware.core.checkout.customer.aggregate.customer_group_translation.customer_group_translation_definition">
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition">
             <tag name="shopware.entity.definition" entity="customer_group_translation"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition">
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition">
             <tag name="shopware.entity.definition" entity="customer_address"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition">
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition">
             <tag name="shopware.entity.definition" entity="customer_group"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition">
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition">
             <tag name="shopware.entity.definition" entity="customer_group_discount"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
+        <service id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
@@ -35,11 +35,11 @@
             </call>
         </service>
 
-        <service class="Shopware\Core\Checkout\Context\CheckoutContextPersister" id="Shopware\Core\Checkout\Context\CheckoutContextPersister">
+        <service id="Shopware\Core\Checkout\Context\CheckoutContextPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Context\CheckoutContextFactory" id="Shopware\Core\Checkout\Context\CheckoutContextFactory">
+        <service id="Shopware\Core\Checkout\Context\CheckoutContextFactory">
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="customer.repository"/>
@@ -55,7 +55,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Context\CheckoutRuleLoader" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader">
+        <service id="Shopware\Core\Checkout\Context\CheckoutRuleLoader">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="shopware.cache"/>
@@ -63,7 +63,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Context\CheckoutContextService" id="Shopware\Core\Checkout\Context\CheckoutContextService">
+        <service id="Shopware\Core\Checkout\Context\CheckoutContextService">
             <argument type="service" id="shopware.cache"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader"/>
@@ -71,7 +71,7 @@
             <tag name="shopware.traceable"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" id="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" public="true">
+        <service id="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" public="true">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="customer_address.repository"/>

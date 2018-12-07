@@ -36,7 +36,7 @@ Given this example extends the `ProductDefinition`, the hydrator would run into 
 ### Register extension in service container
 
 ```xml
-<service class="SwagPromotion\Extension\ProductExtension" id="SwagPromotion\Extension\ProductExtension">
+<service id="SwagPromotion\Extension\ProductExtension">
     <tag name="shopware.entity.extension"/>
 </service>
 ```

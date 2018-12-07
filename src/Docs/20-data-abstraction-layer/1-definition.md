@@ -60,7 +60,7 @@ A full list of available fields can be found in the [Types guide](./2-types.md).
 After implementing the methods above, you have to introduce your definition to the container to make it system-wide available.
 
 ```xml
-<service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition">
+<service id="Shopware\Core\Content\Product\ProductDefinition">
     <tag name="shopware.entity.definition" entity="product"/>
 </service>
 ```

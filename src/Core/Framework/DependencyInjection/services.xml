@@ -27,7 +27,7 @@
         </service>
 
         <!-- Plugins -->
-        <service class="Shopware\Core\Framework\Plugin\BundleCollection" id="Shopware\Core\Framework\Plugin\BundleCollection" public="true">
+        <service id="Shopware\Core\Framework\Plugin\BundleCollection" public="true">
             <factory service="kernel" method="getPlugins"/>
         </service>
 
@@ -39,12 +39,12 @@
         </service>
 
         <!--Event Listener -->
-        <service class="Shopware\Core\Framework\Event\NestedEventDispatcher" id="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher">
+        <service id="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher">
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
 
         <!-- Pluginsystem -->
-        <service class="Shopware\Core\Framework\Plugin\PluginManager" id="Shopware\Core\Framework\Plugin\PluginManager">
+        <service id="Shopware\Core\Framework\Plugin\PluginManager">
             <argument>%kernel.plugin_dir%</argument>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -55,54 +55,54 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Plugin\XmlPluginInfoReader" id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
+        <service id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
 
-        <service class="Shopware\Core\Framework\Plugin\RequirementValidator" id="Shopware\Core\Framework\Plugin\RequirementValidator">
+        <service id="Shopware\Core\Framework\Plugin\RequirementValidator">
             <argument type="service" id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\PluginUpdateCommand" id="Shopware\Core\Framework\Command\PluginUpdateCommand">
+        <service id="Shopware\Core\Framework\Command\PluginUpdateCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\PluginInstallCommand" id="Shopware\Core\Framework\Command\PluginInstallCommand">
+        <service id="Shopware\Core\Framework\Command\PluginInstallCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\PluginActivateCommand" id="Shopware\Core\Framework\Command\PluginActivateCommand">
+        <service id="Shopware\Core\Framework\Command\PluginActivateCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand" id="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand">
+        <service id="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
             <argument type="service" id="service_container"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\PluginDeactivateCommand" id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
+        <service id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\PluginUninstallCommand" id="Shopware\Core\Framework\Command\PluginUninstallCommand">
+        <service id="Shopware\Core\Framework\Command\PluginUninstallCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\PluginUpgradeCommand" id="Shopware\Core\Framework\Command\PluginUpgradeCommand">
+        <service id="Shopware\Core\Framework\Command\PluginUpgradeCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\PluginListCommand" id="Shopware\Core\Framework\Command\PluginListCommand">
+        <service id="Shopware\Core\Framework\Command\PluginListCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\DemodataCommand" id="Shopware\Core\Framework\Command\DemodataCommand">
+        <service id="Shopware\Core\Framework\Command\DemodataCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
@@ -119,54 +119,54 @@
             <argument>%kernel.project_dir%</argument>
         </service>
 
-        <service class="Shopware\Core\Framework\Provisioning\UserProvisioner" id="Shopware\Core\Framework\Provisioning\UserProvisioner">
+        <service id="Shopware\Core\Framework\Provisioning\UserProvisioner">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\FeatureFlagCreateCommand" id="Shopware\Core\Framework\Command\FeatureFlagCreateCommand">
+        <service id="Shopware\Core\Framework\Command\FeatureFlagCreateCommand">
             <tag name="console.command" command="feature:add"/>
             <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
         </service>
 
         <!-- Migration -->
-        <service class="Shopware\Core\Framework\Migration\MigrationRuntime" id="Shopware\Core\Framework\Migration\MigrationRuntime" public="true">
+        <service id="Shopware\Core\Framework\Migration\MigrationRuntime" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Migration\MigrationCollection" id="Shopware\Core\Framework\Migration\MigrationCollection" public="true">
+        <service id="Shopware\Core\Framework\Migration\MigrationCollection" public="true">
             <argument>%migration.directories%</argument>
         </service>
 
-        <service class="Shopware\Core\Framework\Migration\MigrationCollectionLoader" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
+        <service id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\CreateMigrationCommand" id="Shopware\Core\Framework\Command\CreateMigrationCommand">
+        <service id="Shopware\Core\Framework\Command\CreateMigrationCommand">
             <tag name="console.command"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%kernel.plugin_dir%</argument>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\MigrationCommand" id="Shopware\Core\Framework\Command\MigrationCommand">
+        <service id="Shopware\Core\Framework\Command\MigrationCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\MigrationDestructiveCommand" id="shopware.core.framework.command.migration_destructive_command">
+        <service id="Shopware\Core\Framework\Command\MigrationDestructiveCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Command\DumpSchemaCommand" id="Shopware\Core\Framework\Command\DumpSchemaCommand">
+        <service id="Shopware\Core\Framework\Command\DumpSchemaCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Controller\MigrationController" id="Shopware\Core\Framework\Api\Controller\MigrationController" public="true">
+        <service id="Shopware\Core\Framework\Api\Controller\MigrationController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <call method="setContainer">
@@ -175,23 +175,23 @@
         </service>
 
         <!-- Serializer -->
-        <service class="Shopware\Core\Framework\Struct\Serializer\StructNormalizer" id="Shopware\Core\Framework\Struct\Serializer\StructNormalizer">
+        <service id="Shopware\Core\Framework\Struct\Serializer\StructNormalizer">
             <tag name="serializer.normalizer"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Struct\Serializer\StructDecoder" id="Shopware\Core\Framework\Struct\Serializer\StructDecoder">
+        <service id="Shopware\Core\Framework\Struct\Serializer\StructDecoder">
             <tag name="serializer.encoder"/>
         </service>
 
         <!-- Routing -->
-        <service class="Shopware\Core\Framework\Routing\SalesChannelSubscriber" id="Shopware\Core\Framework\Routing\SalesChannelSubscriber">
+        <service id="Shopware\Core\Framework\Routing\SalesChannelSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Translation -->
-        <service class="Shopware\Core\Framework\Translation\Translator" id="Shopware\Core\Framework\Translation\Translator" decorates="translator">
+        <service id="Shopware\Core\Framework\Translation\Translator" decorates="translator">
             <argument type="service" id="Shopware\Core\Framework\Translation\Translator.inner"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -199,23 +199,23 @@
             <tag name="monolog.logger"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate" id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
+        <service id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
             <argument type="service" id="shopware.cache"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Twig -->
-        <service class="Shopware\Core\Framework\Twig\TemplateFinder" id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
+        <service id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
             <argument type="service" id="twig.loader"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Twig\InheritanceExtension" id="Shopware\Core\Framework\Twig\InheritanceExtension">
+        <service id="Shopware\Core\Framework\Twig\InheritanceExtension">
             <tag name="twig.extension"/>
 
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Twig\FeatureFlagExtension" id="Shopware\Core\Framework\Twig\FeatureFlagExtension">
+        <service id="Shopware\Core\Framework\Twig\FeatureFlagExtension">
             <tag name="twig.extension"/>
         </service>
 
@@ -227,34 +227,33 @@
             <tag name="twig.extension"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Twig\InstanceOfExtension" id="Shopware\Core\Framework\Twig\InstanceOfExtension">
+        <service id="Shopware\Core\Framework\Twig\InstanceOfExtension">
             <tag name="twig.extension"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Routing\ApiRequestContextResolver" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver" >
+        <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver" >
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
-                 id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
+        <service id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
                  decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
 
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Validation\CommandQueueValidator" id="Shopware\Core\Framework\Validation\CommandQueueValidator">
+        <service id="Shopware\Core\Framework\Validation\CommandQueueValidator">
             <argument type="tagged" tag="shopware.validator" />
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" id="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" public="true">
+        <service id="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
         </service>
 
         <!-- Feature Flags -->
-       <service class="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator" />
+       <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator" />
 
     </services>
 </container>

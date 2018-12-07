@@ -6,7 +6,7 @@
 
     <services>
         <!-- Filesystem -->
-        <service class="Shopware\Core\Framework\Filesystem\FilesystemFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory">
+        <service id="Shopware\Core\Framework\Filesystem\FilesystemFactory">
             <argument type="tagged" tag="Shopware\Core\Framework\Filesystem\FilesystemFactory"/>
         </service>
 
@@ -32,7 +32,7 @@
             <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Filesystem\PrefixFilesystem" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem">
+        <service id="Shopware\Core\Framework\Filesystem\PrefixFilesystem">
             <argument type="service" id="shopware.filesystem.public"/>
             <argument>media</argument>
         </service>

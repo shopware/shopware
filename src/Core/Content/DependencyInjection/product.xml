@@ -5,13 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository">
+        <service id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <tag name="shopware.traceable" label="product.storefront-repository"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductController" id="Shopware\Core\Content\Product\Storefront\StorefrontProductController" public="true">
+        <service id="Shopware\Core\Content\Product\Storefront\StorefrontProductController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <call method="setContainer">
@@ -19,7 +19,7 @@
             </call>
         </service>
 
-        <service class="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" public="true">
+        <service id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryController" public="true">
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <call method="setContainer">
@@ -27,98 +27,98 @@
             </call>
         </service>
 
-        <service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition">
+        <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition" entity="product"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition">
             <tag name="shopware.entity.definition" entity="product_category"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition">
             <tag name="shopware.entity.definition" entity="product_configurator"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition">
             <tag name="shopware.entity.definition" entity="product_price_rule"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition">
             <tag name="shopware.entity.definition" entity="product_datasheet"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
             <tag name="shopware.entity.definition" entity="product_manufacturer"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition">
             <tag name="shopware.entity.definition" entity="product_manufacturer_translation"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition">
             <tag name="shopware.entity.definition" entity="product_media"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Search\SearchDocumentDefinition" id="Shopware\Core\Framework\Search\SearchDocumentDefinition">
+        <service id="Shopware\Core\Framework\Search\SearchDocumentDefinition">
             <tag name="shopware.entity.definition" entity="search_document"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition">
             <tag name="shopware.entity.definition" entity="product_service"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition">
             <tag name="shopware.entity.definition" entity="product_translation"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition">
             <tag name="shopware.entity.definition" entity="product_variation"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition">
             <tag name="shopware.entity.definition" entity="product_category_tree"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Util\VariantGenerator" id="Shopware\Core\Content\Product\Util\VariantGenerator" public="true">
+        <service id="Shopware\Core\Content\Product\Util\VariantGenerator" public="true">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="product_configurator.repository"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Cart\ProductGateway" id="Shopware\Core\Content\Product\Cart\ProductGateway">
+        <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer" priority="400"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="300"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\ProductActionController" id="Shopware\Core\Content\Product\ProductActionController" public="true">
+        <service id="Shopware\Core\Content\Product\ProductActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Util\EventIdExtractor" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
+        <service id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
 
-        <service class="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>

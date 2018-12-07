@@ -5,52 +5,52 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\SalesChannel\SalesChannelDefinition" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition">
+        <service id="Shopware\Core\System\SalesChannel\SalesChannelDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_translation"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_catalog"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_country"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_currency"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_language"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_payment_method"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_shipping_method"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_type"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition">
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_type_translation"/>
         </service>
 
-        <service class="Shopware\Core\System\Command\SalesChannelCreateCommand" id="Shopware\Core\System\Command\SalesChannelCreateCommand">
+        <service id="Shopware\Core\System\Command\SalesChannelCreateCommand">
             <argument type="service" id="sales_channel.repository"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" id="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" public="true">
+        <service id="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" public="true">
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="country.repository"/>

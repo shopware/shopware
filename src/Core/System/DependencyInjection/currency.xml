@@ -5,11 +5,11 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\Currency\CurrencyDefinition" id="Shopware\Core\System\Currency\CurrencyDefinition">
+        <service id="Shopware\Core\System\Currency\CurrencyDefinition">
             <tag name="shopware.entity.definition" entity="currency"/>
         </service>
 
-        <service class="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition" id="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition">
+        <service id="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition">
             <tag name="shopware.entity.definition" entity="currency_translation"/>
         </service>
     </services>

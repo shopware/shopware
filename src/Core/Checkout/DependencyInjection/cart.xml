@@ -11,18 +11,18 @@
     <services>
 
         <!-- price calculation -->
-        <service class="Shopware\Core\Checkout\Cart\Price\AmountCalculator" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Cart\CartPersister" id="Shopware\Core\Checkout\Cart\Cart\CartPersister">
+        <service id="Shopware\Core\Checkout\Cart\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="serializer"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Storefront\CartService" id="Shopware\Core\Checkout\Cart\Storefront\CartService">
+        <service id="Shopware\Core\Checkout\Cart\Storefront\CartService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
@@ -30,74 +30,74 @@
             <argument type="service" id="order.repository"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Price\PriceRounding" id="Shopware\Core\Checkout\Cart\Price\PriceRounding">
+        <service id="Shopware\Core\Checkout\Cart\Price\PriceRounding">
             <argument>%price.rounding.precision%</argument>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
         <!-- tax calculation -->
-        <service class="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
+        <service id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
 
-        <service class="Shopware\Core\Checkout\Cart\Tax\TaxDetector" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
+        <service id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
 
-        <service class="Shopware\Core\Checkout\Cart\Tax\TaxCalculator" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
             <argument type="tagged" tag="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator" id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
             <tag name="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator"/>
             <tag name="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator" id="Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder">
+        <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator">
+        <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCartController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="serializer"/>
@@ -106,7 +106,7 @@
             </call>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Storefront\StorefrontCheckoutController" id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCheckoutController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Storefront\StorefrontCheckoutController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
@@ -120,7 +120,7 @@
         </service>
 
 
-        <service class="Shopware\Core\Checkout\Cart\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
@@ -129,29 +129,29 @@
             </call>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Calculator" id="Shopware\Core\Checkout\Cart\Calculator" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Calculator" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Enrichment" id="Shopware\Core\Checkout\Cart\Enrichment" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Enrichment" public="true">
             <argument type="tagged" tag="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
         </service>
 
-        <service class="Shopware\Core\Content\Product\Cart\ProductCollector" id="Shopware\Core\Content\Product\Cart\ProductCollector">
+        <service id="Shopware\Core\Content\Product\Cart\ProductCollector">
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
             <tag name="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor">
+        <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Validator" id="Shopware\Core\Checkout\Cart\Validator"/>
+        <service id="Shopware\Core\Checkout\Cart\Validator"/>
 
-        <service class="Shopware\Core\Checkout\Cart\Processor" id="Shopware\Core\Checkout\Cart\Processor" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Processor" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Validator"/>
@@ -159,9 +159,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
+        <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
 
-        <service class="Shopware\Core\Checkout\Cart\OrderConverterController" id="Shopware\Core\Checkout\Cart\OrderConverterController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\OrderConverterController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
             <argument type="service" id="order.repository"/>

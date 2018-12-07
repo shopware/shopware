@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\Integration\IntegrationDefinition" id="Shopware\Core\System\Integration\IntegrationDefinition">
+        <service id="Shopware\Core\System\Integration\IntegrationDefinition">
             <tag name="shopware.entity.definition" entity="integration"/>
         </service>
     </services>

@@ -5,15 +5,15 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\Locale\LocaleDefinition" id="Shopware\Core\System\Locale\LocaleDefinition">
+        <service id="Shopware\Core\System\Locale\LocaleDefinition">
             <tag name="shopware.entity.definition" entity="locale"/>
         </service>
 
-        <service class="Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition" id="Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition">
+        <service id="Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition">
             <tag name="shopware.entity.definition" entity="locale_translation"/>
         </service>
 
-        <service class="Shopware\Core\System\Locale\LocaleLanguageResolver" id="Shopware\Core\System\Locale\LocaleLanguageResolver">
+        <service id="Shopware\Core\System\Locale\LocaleLanguageResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>

@@ -5,16 +5,16 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\User\UserDefinition" id="Shopware\Core\System\User\UserDefinition" >
+        <service id="Shopware\Core\System\User\UserDefinition" >
             <tag name="shopware.entity.definition" entity="user"/>
         </service>
 
-        <service class="Shopware\Core\System\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
+        <service id="Shopware\Core\System\Command\UserCreateCommand">
             <argument type="service" id="Shopware\Core\Framework\Provisioning\UserProvisioner"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition" id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition" >
+        <service id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition" >
             <tag name="shopware.entity.definition" entity="user_access_key"/>
         </service>
     </services>

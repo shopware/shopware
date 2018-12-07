@@ -41,16 +41,16 @@ module.exports = {
         browser
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background.png" ?')
+            .assert.containsText('.sw-modal__body', 'Are you sure you want to delete "sw-login-background.png" ?')
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')
-            .checkNotification('File "sw-login-background.png" successfully Deleted',false)
+            .checkNotification('File "sw-login-background.png" has been deleted successfully',false)
             .click('.sw-alert__close')
             .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'File "sw-login-background.png" successfully Deleted')]`)
+            .waitForElementNotPresent(`//*[contains(text(), 'File "sw-login-background.png" has been deleted successfully')]`)
             .useCss()
-            .checkNotification('Media item successfully deleted.');
+            .checkNotification('File "sw-login-background.png" has been deleted successfully');
     },
     after: (browser) => {
         browser.end();

@@ -45,7 +45,7 @@ class ProductPageObject {
             .useXpath()
             .waitForElementNotPresent(`//*[contains(text(), 'Product "${productName}" has been saved successfully')]`)
             .useCss()
-            .checkNotification('File successfully saved');
+            .checkNotification('File has been saved successfully');
     }
 
     deleteProduct(productName) {

@@ -45,7 +45,7 @@ class EntityReader implements EntityReaderInterface
 {
     use CriteriaQueryHelper;
 
-    public const MANY_TO_MANY_EXTENSION_STORAGE = 'many_to_many_storage';
+    public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
 
     /**
      * @var Connection
@@ -164,7 +164,7 @@ class EntityReader implements EntityReaderInterface
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
-            $struct->removeExtension(self::MANY_TO_MANY_EXTENSION_STORAGE);
+            $struct->removeExtension(self::INTERNAL_MAPPING_STORAGE);
         }
 
         if ($hasIds && empty($criteria->getSorting())) {
@@ -351,7 +351,7 @@ class EntityReader implements EntityReaderInterface
         /** @var string|EntityDefinition $definition */
         $field = $definition::getFields()->getByStorageName($association->getStorageName());
         $ids = $collection->map(function (Entity $entity) use ($field) {
-            return $entity->get($field->getPropertyName());
+            return $entity->getViewData()->get($field->getPropertyName());
         });
 
         $ids = array_filter($ids);
@@ -365,20 +365,30 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $struct */
         foreach ($collection as $struct) {
             /** @var string $id */
-            $id = $struct->get($field->getPropertyName());
+            $id = $struct->getViewData()->get($field->getPropertyName());
 
             if (!$id) {
                 continue;
             }
 
+            $owner = $struct->get($field->getPropertyName());
+
+            //if the "association.owner" property is filled, the many to one association owner is the current entity
+            if ($owner !== null || !$association->is(Inherited::class)) {
+                if ($field->is(Extension::class)) {
+                    $struct->addExtension($association->getPropertyName(), $data->get($id));
+                } else {
+                    $struct->assign([$association->getPropertyName() => $data->get($id)]);
+                }
+            }
+
+            //otherwise the many to one association belongs to the parent and we only assign data to the resolve inherited viewData struct
             if ($association->is(Extension::class)) {
-                $struct->addExtension($association->getPropertyName(), $data->get($id));
+                $struct->getViewData()->addExtension($association->getPropertyName(), $data->get($id));
                 continue;
             }
 
-            $struct->assign([
-                $association->getPropertyName() => $data->get($id),
-            ]);
+            $struct->getViewData()->assign([$association->getPropertyName() => $data->get($id)]);
         }
     }
 
@@ -457,7 +467,7 @@ class EntityReader implements EntityReaderInterface
         /** @var Field $association */
         $property = $association->getPropertyName();
         foreach ($collection as $struct) {
-            $tmp = $struct->getExtension(self::MANY_TO_MANY_EXTENSION_STORAGE)->get($property);
+            $tmp = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE)->get($property);
             foreach ($tmp as $id) {
                 $ids[] = $id;
             }
@@ -716,7 +726,7 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $struct */
         foreach ($collection as $struct) {
             /** @var ArrayStruct $extension */
-            $extension = $struct->getExtension(self::MANY_TO_MANY_EXTENSION_STORAGE);
+            $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
 
             //use assign function to avoid setter name building
             $structData = $data->getList(
@@ -874,7 +884,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             /** @var ArrayStruct $extension */
-            $extension = $struct->getExtension(self::MANY_TO_MANY_EXTENSION_STORAGE);
+            $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
 
             //if the association is inheritance aware, we have to check if the parent or the child is the owner of the association foreign key
             //this value is saved in the internal storage extension with propertyName.owner

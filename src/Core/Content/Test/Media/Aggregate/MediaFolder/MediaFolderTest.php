@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Media\Aggregate\MediaFolder;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,7 +43,7 @@ class MediaFolderTest extends TestCase
         $mediaFolder = $collection->get($folderId);
 
         static::assertEquals('default folder', $mediaFolder->getName());
-        static::assertNotNull($mediaFolder->getMediaFolderConfigurationId());
+        static::assertNotNull($mediaFolder->getConfigurationId());
         static::assertNotNull($mediaFolder->getConfiguration());
         static::assertTrue($mediaFolder->getConfiguration()->getCreateThumbnails());
     }
@@ -112,8 +113,16 @@ class MediaFolderTest extends TestCase
         $mediaFolder = $collection->get($childId);
 
         static::assertEquals($parentId, $mediaFolder->getParentId());
-        static::assertNotNull($mediaFolder->getConfiguration());
-        static::assertEquals($configurationId, $mediaFolder->getConfiguration()->getId());
+
+        //child has no own configuration
+        static::assertNull($mediaFolder->getConfiguration());
+        static::assertNull($mediaFolder->getConfigurationId());
+
+        //but the view data of the child contains now the configuration of the parent
+        static::assertNotNull($mediaFolder->getViewData()->getConfiguration());
+        static::assertNotNull($mediaFolder->getViewData()->getConfigurationId());
+
+        static::assertEquals($configurationId, $mediaFolder->getViewData()->getConfiguration()->getId());
     }
 
     public function testFolderDeletesOverriddenConfiguration()
@@ -159,12 +168,18 @@ class MediaFolderTest extends TestCase
         $mediaFolderRepository->upsert([
             [
                 'id' => $childId,
-                'mediaFolderConfigurationId' => null,
+                'configurationId' => null,
             ],
         ], $context);
 
         $child = $mediaFolderRepository->read(new ReadCriteria([$childId]), $context)->get($childId);
 
-        static::assertEquals($parent->getConfiguration()->getId(), $child->getConfiguration()->getId());
+        static::assertNull($child->getConfigurationId());
+        static::assertEquals($parentConfigurationId, $child->getViewData()->getConfigurationId());
+
+        static::assertNull($child->getConfiguration());
+        static::assertInstanceOf(MediaFolderConfigurationStruct::class, $child->getViewData()->getConfiguration());
+
+        static::assertEquals($parent->getConfiguration()->getId(), $child->getViewData()->getConfiguration()->getId());
     }
 }

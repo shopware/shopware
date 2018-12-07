@@ -5,13 +5,11 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaFolderConfigurationStruct extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $id;
+    use EntityIdTrait;
 
     /**
      * @var MediaFolderCollection
@@ -27,16 +25,6 @@ class MediaFolderConfigurationStruct extends Entity
      * @var MediaThumbnailSizeCollection
      */
     protected $mediaThumbnailSizes;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getMediaFolders(): ?MediaFolderCollection
     {

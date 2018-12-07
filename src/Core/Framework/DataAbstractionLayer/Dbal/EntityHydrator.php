@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -72,7 +73,7 @@ class EntityHydrator
         $entity->setViewData(clone $entity);
 
         $mappingStorage = new ArrayStruct([]);
-        $entity->addExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE, $mappingStorage);
+        $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, $mappingStorage);
 
         /** @var Field $field */
         foreach ($fields as $field) {
@@ -114,10 +115,18 @@ class EntityHydrator
                 //.owner field contains the value of the foreign key of the child row.
                 $key = $originalKey . '.owner';
                 if (isset($row[$key]) || !$field->is(Inherited::class)) {
-                    $entity->assign([$propertyName => $hydrated]);
+                    if ($field->is(Extension::class)) {
+                        $entity->addExtension($propertyName, $hydrated);
+                    } else {
+                        $entity->assign([$propertyName => $hydrated]);
+                    }
                 }
 
-                $entity->getViewData()->assign([$propertyName => $hydrated]);
+                if ($field->is(Extension::class)) {
+                    $entity->getViewData()->addExtension($propertyName, $hydrated);
+                } else {
+                    $entity->getViewData()->assign([$propertyName => $hydrated]);
+                }
 
                 continue;
             }

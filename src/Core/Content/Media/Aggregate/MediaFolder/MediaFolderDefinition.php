@@ -69,7 +69,7 @@ class MediaFolderDefinition extends EntityDefinition
 
             new BoolField('use_parent_configuration', 'useParentConfiguration'),
 
-            (new FkField('media_folder_configuration_id', 'mediaFolderConfigurationId', MediaFolderConfigurationDefinition::class))->setFlags(new Inherited()),
+            (new FkField('media_folder_configuration_id', 'configurationId', MediaFolderConfigurationDefinition::class))->setFlags(new Inherited()),
 
             new ParentFkField(self::class),
             new ParentAssociationField(self::class, false),

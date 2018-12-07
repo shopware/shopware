@@ -2,6 +2,7 @@ import './base/sw-card';
 import './base/sw-user-card';
 import './base/sw-card-section';
 import './base/sw-button';
+import './base/sw-button-group';
 import './base/sw-icon';
 import './base/sw-image';
 import './base/sw-alert';

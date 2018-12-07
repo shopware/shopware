@@ -45,6 +45,11 @@ Component.register('sw-button', {
                 return ['small', 'large'].includes(value);
             }
         },
+        square: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         block: {
             type: Boolean,
             required: false,
@@ -66,7 +71,8 @@ Component.register('sw-button', {
                 [`sw-button--${this.variant}`]: this.variant,
                 [`sw-button--${this.size}`]: this.size,
                 'sw-button--block': this.block,
-                'sw-button--disabled': this.disabled
+                'sw-button--disabled': this.disabled,
+                'sw-button--square': this.square
             };
         }
     }

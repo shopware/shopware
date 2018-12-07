@@ -740,6 +740,8 @@
     "list": {
       "title": "Textbausteine verwalten & bearbeiten",
       "description": "Dies ist eine Übersicht Deiner Textbausteinsätze. Wähle Sätze aus, dessen Textbausteine du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst du hier Textbausteinsätze importieren, neue Anlegen und bestehende als CSV-Datei exportieren.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
       "buttonImport": "Import",
       "buttonExport": "Export",
       "buttonEditSet": "Textbausteine bearbeiten",
@@ -749,7 +751,9 @@
       "columnBaseFile": "Basisdatei",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuClone": "Duplizieren",
-      "contextMenuDelete": "Löschen"
+      "contextMenuDelete": "Löschen",
+      "modalTitleDelete": "Textbausteinsätze",
+      "textDeleteConfirm": "Möchtest Du den Textbausteinsatz \"{name}\" wirklich löschen?"
     }
   },
   "sw-settings-rule": {

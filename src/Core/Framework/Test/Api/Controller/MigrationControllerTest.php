@@ -29,7 +29,7 @@ class MigrationControllerTest extends TestCase
 
     public function getController(bool $exceptions = false): MigrationController
     {
-        $container = $this->getKernel()->getContainer();
+        $container = $this->getContainer();
 
         $directories = $container->getParameter('migration.directories');
 
@@ -156,7 +156,7 @@ class MigrationControllerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        return $this->getKernel()->getContainer()->get(Connection::class);
+        return $this->getContainer()->get(Connection::class);
     }
 
     private function getMigrationCount(bool $executed = false, bool $destructive = false): int

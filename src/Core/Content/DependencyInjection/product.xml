@@ -79,7 +79,7 @@
             <tag name="shopware.entity.definition" entity="product_category_tree"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Util\VariantGenerator" public="true">
+        <service id="Shopware\Core\Content\Product\Util\VariantGenerator">
             <argument type="service" id="product.repository"/>
             <argument type="service" id="product_configurator.repository"/>
         </service>

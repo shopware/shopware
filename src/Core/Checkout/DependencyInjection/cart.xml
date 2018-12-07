@@ -129,13 +129,13 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Calculator" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Calculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Enrichment" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Enrichment">
             <argument type="tagged" tag="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
         </service>
 
@@ -151,7 +151,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Validator"/>
 
-        <service id="Shopware\Core\Checkout\Cart\Processor" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Processor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Validator"/>

@@ -38,9 +38,7 @@
             <argument type="service" id="Shopware\Core\Framework\Search\CompositeEntitySearcher"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Search\CompositeEntitySearcher"
-                 public="true">
-
+        <service id="Shopware\Core\Framework\Search\CompositeEntitySearcher">
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
             <argument type="service" id="version_commit_data.repository"/>
@@ -190,9 +188,8 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver" public="true">
+        <service id="Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver">
             <tag name="controller.argument_value_resolver" priority="50"/>
-
             <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry"/>
         </service>
     </services>

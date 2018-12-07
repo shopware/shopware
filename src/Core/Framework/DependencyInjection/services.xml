@@ -27,7 +27,7 @@
         </service>
 
         <!-- Plugins -->
-        <service id="Shopware\Core\Framework\Plugin\BundleCollection" public="true">
+        <service id="Shopware\Core\Framework\Plugin\BundleCollection">
             <factory service="kernel" method="getPlugins"/>
         </service>
 
@@ -129,16 +129,16 @@
         </service>
 
         <!-- Migration -->
-        <service id="Shopware\Core\Framework\Migration\MigrationRuntime" public="true">
+        <service id="Shopware\Core\Framework\Migration\MigrationRuntime">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Migration\MigrationCollection" public="true">
+        <service id="Shopware\Core\Framework\Migration\MigrationCollection">
             <argument>%migration.directories%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Migration\MigrationCollectionLoader" public="true">
+        <service id="Shopware\Core\Framework\Migration\MigrationCollectionLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
         </service>
@@ -205,7 +205,7 @@
         </service>
 
         <!-- Twig -->
-        <service id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
+        <service id="Shopware\Core\Framework\Twig\TemplateFinder">
             <argument type="service" id="twig.loader"/>
         </service>
 

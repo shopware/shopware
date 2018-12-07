@@ -11,7 +11,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator" public="true">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator">
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
         </service>
@@ -25,11 +25,11 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\StopWordFilter"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter" public="true">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder" public="true"/>
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
@@ -37,7 +37,7 @@
             <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface" public="true">
+        <service class="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreter" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
@@ -56,11 +56,11 @@
             <tag name="shopware.search_analyzer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry" public="true">
+        <service id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry">
             <argument type="tagged" tag="shopware.search_analyzer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Search\DataAbstractionLayer\Indexing\SearchKeywordIndexer" public="true">
+        <service id="Shopware\Core\Framework\Search\DataAbstractionLayer\Indexing\SearchKeywordIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
@@ -108,7 +108,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" public="true">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\DefaultExtender"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver"/>

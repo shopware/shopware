@@ -210,10 +210,12 @@ class TranslationTest extends TestCase
                         'id' => $germanLanguageId,
                         'name' => 'de_DE',
                         'locale' => [
-                            'code' => 'x-tst_DE',
+                            'id' => Uuid::uuid4()->getHex(),
+                            'code' => 'x-tst_DE2',
                         ],
                         'translationCode' => [
-                            'code' => 'x-tst_DE',
+                            'id' => Uuid::uuid4()->getHex(),
+                            'code' => 'x-tst_DE3',
                         ],
                     ],
                 ],
@@ -289,7 +291,7 @@ class TranslationTest extends TestCase
                 'code' => 'x-de_DE2',
             ],
             'translationCode' => [
-                'code' => 'x-de_DE2',
+                'code' => 'x-de_DE3',
             ],
         ];
 
@@ -433,10 +435,12 @@ class TranslationTest extends TestCase
                             'id' => $germanLanguageId,
                             'name' => 'de_DE',
                             'locale' => [
+                                'id' => Uuid::uuid4()->getHex(),
                                 'code' => 'x-de_DE',
                             ],
                             'translationCode' => [
-                                'code' => 'x-de_DE',
+                                'id' => Uuid::uuid4()->getHex(),
+                                'code' => 'x-de_DE2',
                             ],
                         ],
                     ],

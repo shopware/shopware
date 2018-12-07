@@ -14,7 +14,8 @@ Component.register('sw-settings-snippet-set-list', {
         return {
             isLoading: false,
             snippetSets: [],
-            offset: 0
+            offset: 0,
+            showDeleteModal: false
         };
     },
 
@@ -52,9 +53,28 @@ Component.register('sw-settings-snippet-set-list', {
             }
 
             foundRow.isEditingActive = true;
-            this.$refs.nameEditor.$el.focus();
 
             return true;
+        },
+
+        onInlineEditCancel() {
+            this.getList();
+        },
+
+        onDeleteSet(id) {
+            this.showDeleteModal = id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete(id) {
+            this.showDeleteModal = false;
+
+            return this.snippetSetStore.getById(id).delete(true).then(() => {
+                this.getList();
+            }).catch(this.onCloseDeleteModal());
         }
     }
 });

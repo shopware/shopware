@@ -746,6 +746,8 @@
     "list": {
       "title": "Manage snippets",
       "description": "This is an overview of your snippet sets. Select the sets whose snippets you want to edit and switch to the editing table via button press. You can also import snippets, create new ones and export existing ones as CSV files.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
       "buttonImport": "Import",
       "buttonExport": "Export",
       "buttonEditSet": "Edit snippets",
@@ -755,7 +757,9 @@
       "columnBaseFile": "Base file",
       "contextMenuEdit": "Edit",
       "contextMenuClone": "Duplicate",
-      "contextMenuDelete": "Delete"
+      "contextMenuDelete": "Delete",
+      "modalTitleDelete": "Snippet Sets",
+      "textDeleteConfirm": "Are you sure you really want to delete the snippet set \"{name}\"?"
     }
   },
   "sw-settings-tax": {

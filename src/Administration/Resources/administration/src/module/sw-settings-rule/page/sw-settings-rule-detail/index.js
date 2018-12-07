@@ -59,19 +59,18 @@ Component.register('sw-settings-rule-detail', {
         },
 
         buildNestedConditions(conditions, parentId) {
-            const nested = [];
-            conditions.forEach((condition) => {
-                if (condition.parentId === parentId) {
-                    const children = this.buildNestedConditions(conditions, condition.id);
+            return conditions.reduce((accumulator, current) => {
+                if (current.parentId === parentId) {
+                    const children = this.buildNestedConditions(conditions, current.id);
                     children.forEach((child) => {
-                        condition.children.push(child);
+                        current.children.push(child);
                     });
 
-                    nested.push(condition);
+                    accumulator.push(current);
                 }
-            });
 
-            return nested;
+                return accumulator;
+            }, []);
         },
 
         onSave() {

@@ -37,7 +37,7 @@ Component.register('sw-condition-group', {
         condition: {
             type: Object,
             required: false,
-            default: () => {
+            default() {
                 return {};
             }
         },
@@ -160,9 +160,7 @@ Component.register('sw-condition-group', {
         createdComponent() {
             const conditionType = this.condition.type;
             const conditionTypes = this.conditionTypes;
-
-            const condition2 = conditionTypes[conditionType];
-            this.conditionOperators = condition2.operatorSet;
+            this.conditionOperators = conditionTypes[conditionType].operatorSet;
         },
 
         handleConditionChange(event) {

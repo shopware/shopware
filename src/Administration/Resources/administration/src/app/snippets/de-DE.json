@@ -134,7 +134,10 @@
         "goodsCountRule": "Anzahl Warenkorb Artikel",
         "goodsPriceRule": "Gesamtpreis Warenkorb Artikel",
         "lineItemOfTypeRule": "Line Item of Type Rule",
-        "dateRangeRule": "Datumsbereich"
+        "dateRangeRule": "Datumsbereich",
+        "field": {
+          "valuePlaceholder": "Wert..."
+        }
       }
     }
   },

@@ -36,15 +36,15 @@
         {% block sw_condition_group_field_value %}
             <div class="sw-condition-group__container field--value">
                 {% block sw_condition_group_field_value_input %}
-                    <input type="text"
-                           value="condition.value.amount"
-                           class="sw-condition-group__field is--secondary">
+                    <sw-field type="text"
+                              :placeholder="$tc('global.sw-condition-group.condition.field.valuePlaceholder')"
+                              v-model="condition.value.amount"></sw-field>
                 {% endblock %}
             </div>
         {% endblock %}
 
         {% block sw_condition_group_field_actions %}
-            <div class="group-container field--actions">
+            <div class="sw-condition-group__container field--actions">
                 ...
             </div>
         {% endblock %}

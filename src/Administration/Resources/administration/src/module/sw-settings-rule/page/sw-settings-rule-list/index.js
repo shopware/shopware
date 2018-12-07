@@ -57,7 +57,7 @@ Component.register('sw-settings-rule-list', {
             return this.ruleStore.getById(id).delete(true).then(() => {
                 this.isLoading = false;
                 return this.getList();
-            }).catch(this.onCloseDeleteModal());
+            });
         },
 
         onConfirmBulkDelete() {

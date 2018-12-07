@@ -161,10 +161,11 @@ Component.register('sw-integration-list', {
                 return false;
             }
 
+            this.onCloseDeleteModal();
+
             return this.integrationStore.store[id].delete(true).then(() => {
                 this.getList();
-                this.onCloseDeleteModal();
-            }).catch(this.onCloseDeleteModal());
+            });
         }
     }
 });

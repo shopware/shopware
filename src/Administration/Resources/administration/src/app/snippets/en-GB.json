@@ -134,7 +134,10 @@
         "goodsCountRule": "Goods Count Rule",
         "goodsPriceRule": "Goods Price Rule",
         "lineItemOfTypeRule": "Line Item of Type Rule",
-        "dateRangeRule": "Date Range Rule"
+        "dateRangeRule": "Date Range Rule",
+        "field": {
+          "valuePlaceholder": "Value..."
+        }
       }
     }
   },

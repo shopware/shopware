@@ -35,22 +35,20 @@ class SyncControllerTest extends TestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $id1->getHex(),
-                    'manufacturer' => ['name' => 'test'],
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'name' => 'CREATE-1',
-                    'price' => ['gross' => 50, 'net' => 25],
-                ],
-            ],
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
-                'payload' => [
-                    'id' => $id2->getHex(),
-                    'manufacturer' => ['name' => 'test'],
-                    'name' => 'CREATE-2',
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'price' => ['gross' => 50, 'net' => 25],
+                    [
+                        'id' => $id1->getHex(),
+                        'manufacturer' => ['name' => 'test'],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-1',
+                        'price' => ['gross' => 50, 'net' => 25],
+                    ],
+                    [
+                        'id' => $id2->getHex(),
+                        'manufacturer' => ['name' => 'test'],
+                        'name' => 'CREATE-2',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => ['gross' => 50, 'net' => 25],
+                    ],
                 ],
             ],
         ];
@@ -82,23 +80,21 @@ class SyncControllerTest extends TestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $id,
-                    'active' => true,
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'name' => 'CREATE-1',
-                    'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 50, 'net' => 25],
-                ],
-            ],
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
-                'payload' => [
-                    'id' => $id,
-                    'manufacturer' => ['name' => 'test'],
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'active' => false,
-                    'price' => ['gross' => 50, 'net' => 25],
+                    [
+                        'id' => $id,
+                        'active' => true,
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-1',
+                        'manufacturer' => ['name' => 'test'],
+                        'price' => ['gross' => 50, 'net' => 25],
+                    ],
+                    [
+                        'id' => $id,
+                        'manufacturer' => ['name' => 'test'],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'active' => false,
+                        'price' => ['gross' => 50, 'net' => 25],
+                    ],
                 ],
             ],
         ];
@@ -126,22 +122,26 @@ class SyncControllerTest extends TestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => CategoryDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $categoryId,
-                    'name' => $productId,
-                    'manufacturer' => ['name' => 'test'],
+                    [
+                        'id' => $categoryId,
+                        'name' => $productId,
+                        'manufacturer' => ['name' => 'test'],
+                    ],
                 ],
             ],
             [
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $productId,
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'name' => 'PROD-1',
-                    'price' => ['gross' => 50, 'net' => 25],
-                    'manufacturer' => ['name' => 'test'],
-                    'categories' => [
-                        ['id' => $categoryId],
+                    [
+                        'id' => $productId,
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'PROD-1',
+                        'price' => ['gross' => 50, 'net' => 25],
+                        'manufacturer' => ['name' => 'test'],
+                        'categories' => [
+                            ['id' => $categoryId],
+                        ],
                     ],
                 ],
             ],
@@ -179,27 +179,25 @@ class SyncControllerTest extends TestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $product,
-                    'name' => 'PROD-1',
-                    'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 50, 'net' => 25],
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'categories' => [
-                        ['id' => $category, 'name' => 'NESTED-CAT-1'],
+                    [
+                        'id' => $product,
+                        'name' => 'PROD-1',
+                        'manufacturer' => ['name' => 'test'],
+                        'price' => ['gross' => 50, 'net' => 25],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'categories' => [
+                            ['id' => $category, 'name' => 'NESTED-CAT-1'],
+                        ],
                     ],
-                ],
-            ],
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
-                'payload' => [
-                    'id' => $product2,
-                    'name' => 'PROD-2',
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'price' => ['gross' => 50, 'net' => 25],
-                    'manufacturer' => ['name' => 'test'],
-                    'categories' => [
-                        ['id' => $category],
+                    [
+                        'id' => $product2,
+                        'name' => 'PROD-2',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => ['gross' => 50, 'net' => 25],
+                        'manufacturer' => ['name' => 'test'],
+                        'categories' => [
+                            ['id' => $category],
+                        ],
                     ],
                 ],
             ],
@@ -238,22 +236,20 @@ class SyncControllerTest extends TestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $product->getHex(),
-                    'name' => 'PROD-1',
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'price' => ['gross' => 50, 'net' => 25],
-                    'manufacturer' => ['name' => 'test'],
-                ],
-            ],
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => ProductDefinition::getEntityName(),
-                'payload' => [
-                    'id' => $product2->getHex(),
-                    'tax' => ['name' => 'test', 'taxRate' => 15],
-                    'name' => 'PROD-2',
-                    'price' => ['gross' => 50, 'net' => 25],
-                    'manufacturer' => ['name' => 'test'],
+                    [
+                        'id' => $product->getHex(),
+                        'name' => 'PROD-1',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => ['gross' => 50, 'net' => 25],
+                        'manufacturer' => ['name' => 'test'],
+                    ],
+                    [
+                        'id' => $product2->getHex(),
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'PROD-2',
+                        'price' => ['gross' => 50, 'net' => 25],
+                        'manufacturer' => ['name' => 'test'],
+                    ],
                 ],
             ],
         ];
@@ -271,12 +267,10 @@ class SyncControllerTest extends TestCase
             [
                 'action' => SyncController::ACTION_DELETE,
                 'entity' => ProductDefinition::getEntityName(),
-                'payload' => ['id' => $product->getHex()],
-            ],
-            [
-                'action' => SyncController::ACTION_DELETE,
-                'entity' => ProductDefinition::getEntityName(),
-                'payload' => ['id' => $product2->getHex()],
+                'payload' => [
+                    ['id' => $product->getHex()],
+                    ['id' => $product2->getHex()],
+                ],
             ],
         ];
 

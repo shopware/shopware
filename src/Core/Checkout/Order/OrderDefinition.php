@@ -101,4 +101,20 @@ class OrderDefinition extends EntityDefinition
     {
         return OrderStruct::class;
     }
+
+    public static function getWriteOrder(): array
+    {
+        $order = parent::getWriteOrder();
+
+        $deliveryIndex = array_search(OrderDeliveryDefinition::class, $order, true);
+        $lineItemIndex = array_search(OrderLineItemDefinition::class, $order, true);
+
+        $max = max($deliveryIndex, $lineItemIndex);
+        $min = min($deliveryIndex, $lineItemIndex);
+
+        $order[$max] = OrderDeliveryDefinition::class;
+        $order[$min] = OrderLineItemDefinition::class;
+
+        return $order;
+    }
 }

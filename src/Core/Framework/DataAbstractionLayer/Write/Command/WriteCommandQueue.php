@@ -3,6 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class WriteCommandQueue
@@ -106,21 +111,74 @@ class WriteCommandQueue
      */
     public function getCommandsInOrder(): array
     {
-        $result = [];
-        foreach ($this->order as $identifier) {
-            $commands = $this->commands[$identifier];
+        $commands = array_filter($this->commands);
 
-            /** @var WriteCommandInterface $command */
-            foreach ($commands as $command) {
-                if (!$command->isValid()) {
+        $order = [];
+
+        while (!empty($commands)) {
+            foreach ($commands as $definition => $defCommands) {
+                $dependencies = $this->hasDependencies($definition, $commands);
+
+                if (!empty($dependencies)) {
                     continue;
                 }
 
-                $result[] = $command;
+                foreach ($defCommands as $command) {
+                    $order[] = $command;
+                }
+
+                unset($commands[$definition]);
             }
         }
 
-        return $result;
+        return $order;
+    }
+
+    public function hasDependencies(string $definition, array $commands): array
+    {
+        /** @var string|EntityDefinition $definition */
+        $fields = $definition::getFields()
+            ->filter(function (Field $field) {
+                return !$field->is(ReadOnly::class) && $field instanceof ManyToOneAssociationField;
+            });
+
+        $toManyDefinitions = $definition::getFields()
+            ->filterInstance(OneToManyAssociationField::class)
+            ->fmap(function (OneToManyAssociationField $field) {
+                return $field->getReferenceClass();
+            });
+
+        $toManyDefinitions = array_flip($toManyDefinitions);
+
+        $dependencies = [];
+
+        /** @var ManyToOneAssociationField $dependency */
+        /** @var FieldCollection $fields */
+        foreach ($fields as $dependency) {
+            $class = $dependency->getReferenceClass();
+
+            //skip self references, this dependencies are resolved by the ChildrenAssociationField
+            if ($class === $definition) {
+                continue;
+            }
+
+            //check if many to one has pending commands
+            if (!array_key_exists($class, $commands)) {
+                continue;
+            }
+
+            //if the current dependency is defined also defined as OneToManyAssociationField, skip
+            if (array_key_exists($class, $toManyDefinitions)) {
+                continue;
+            }
+
+            /** @var string $class */
+            if (!empty($commands[$class])) {
+                $dependencies[] = $class;
+            }
+        }
+
+        return $dependencies;
     }
 
     /**

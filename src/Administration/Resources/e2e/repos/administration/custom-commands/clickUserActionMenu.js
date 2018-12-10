@@ -1,15 +1,15 @@
 /**
  * Opens or collapses the user-related menu section of the admin menu, containing language switch, profile and logout
  *
- * @param {String} username
+ * @param {String} name
  * @param {Boolean} [open=true]
  * @returns {exports}
  */
-exports.command = function useUserActionMenu(username, open = true) {
+exports.command = function clickUserActionMenu(name, open = true) {
     this
         .waitForElementVisible('.sw-admin-menu__user-actions-toggle')
         .waitForElementVisible('.sw-admin-menu__user-name')
-        .assert.containsText('.sw-admin-menu__user-name', username);
+        .assert.containsText('.sw-admin-menu__user-name', name);
 
     if (open) {
         this

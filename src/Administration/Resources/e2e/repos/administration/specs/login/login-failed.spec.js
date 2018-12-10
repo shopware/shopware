@@ -6,7 +6,8 @@ module.exports = {
         const page = loginPage(browser);
 
         browser
-            .waitForElementVisible('.sw-dashboard-index__content');
+            .waitForElementVisible('.sw-dashboard-index__content')
+            .clickUserActionMenu('admin');
         page.logout('admin');
         browser
             .clearValue('input[name=sw-field--authStore-username]');

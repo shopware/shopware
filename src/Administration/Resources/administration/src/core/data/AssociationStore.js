@@ -76,4 +76,34 @@ export default class AssociationStore extends EntityStore {
     getTotal() {
         return this.total;
     }
+
+    /**
+     * Get a payload for the sync api with all associations to be deleted
+     *
+     * @return {Array}
+     */
+    getDeletionPayload() {
+        const deletionPayload = [];
+
+        Object.keys(this.store).forEach((id) => {
+            const entity = this.store[id];
+
+            if (entity.isDeleted) {
+                deletionPayload.push({
+                    [`${this.entityName}Id`]: id,
+                    [`${this.parentEntity.entityName}Id`]: this.parentEntity.id
+                });
+            }
+        });
+
+        if (deletionPayload.length < 1) {
+            return [];
+        }
+
+        return [{
+            action: 'delete',
+            entity: `${this.parentEntity.entityName}_${this.entityName}`,
+            payload: deletionPayload
+        }];
+    }
 }

@@ -522,6 +522,26 @@ export default class EntityProxy {
     }
 
     /**
+     * Returns a payload for the sync api with all deleted OneToMany associations.
+     *
+     * @return {Array}
+     */
+    getDeletedAssociationsPayload() {
+        let deletionPayload = [];
+
+        Object.keys(this.associations).forEach((associationKey) => {
+            const association = this.associations[associationKey];
+            const assocDeletionPayload = association.getDeletionPayload();
+
+            if (assocDeletionPayload.length > 0) {
+                deletionPayload = [...deletionPayload, ...assocDeletionPayload];
+            }
+        });
+
+        return deletionPayload;
+    }
+
+    /**
      * Get all changed OneToMany associations.
      * Includes changes and additions but no deletions, because they are handled separately.
      * Returns an object which fits the structure of the entity so it can be merged into other data or changesets.

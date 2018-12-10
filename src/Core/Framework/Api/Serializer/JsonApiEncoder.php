@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Serializer;
 
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
+use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -15,9 +16,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Serializer\Serializer;
 
 class JsonApiEncoder
 {
+    /**
+     * @var Serializer
+     */
+    private $viewDataSerializer;
+
+    public function __construct(Serializer $viewDataSerializer)
+    {
+        $this->viewDataSerializer = $viewDataSerializer;
+    }
+
     /**
      * @param EntityCollection|Entity|null $data
      *
@@ -113,7 +125,9 @@ class JsonApiEncoder
             $this->addRelationships($serialized, $entities, $baseUrl, $self, $field, $value, $propertyName);
         }
         if ($entity->getViewData() !== null) {
-            $serialized->addAttribute('viewData', $this->serializeEntity($entities, $definition, $entity->getViewData(), $baseUrl));
+            $normalized = $this->viewDataSerializer->normalize($entity->getViewData());
+            $data = JsonType::format($normalized);
+            $serialized->addMeta('viewData', $data);
         }
 
         return $serialized;

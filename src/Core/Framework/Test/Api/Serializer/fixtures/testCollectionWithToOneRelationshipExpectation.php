@@ -26,6 +26,12 @@ return [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
             ],
             'relationships' => [
+                'translations' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/translations',
+                    ],
+                ],
                 'user' => [
                     'data' => [
                         'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
@@ -66,6 +72,7 @@ return [
                     ],
                 ],
             ],
+            'meta' => null,
         ],
         [
             'id' => 'f1ad1d0c-0245-4a40-abf2-50f764d16248',
@@ -88,6 +95,12 @@ return [
                 'mediaFolderId' => null,
             ],
             'relationships' => [
+                'translations' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/translations',
+                    ],
+                ],
                 'user' => [
                     'data' => [
                         'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
@@ -131,6 +144,7 @@ return [
             'links' => [
                 'self' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248',
             ],
+            'meta' => null,
         ],
     ],
     'included' => [
@@ -173,6 +187,7 @@ return [
                     ],
                 ],
             ],
+            'meta' => null,
         ],
     ],
 ];

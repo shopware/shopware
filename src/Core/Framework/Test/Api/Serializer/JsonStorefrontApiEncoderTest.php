@@ -22,7 +22,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
 
     public function setUp()
     {
-        $this->encoder = new JsonStorefrontApiEncoder([]);
+        $this->encoder = new JsonStorefrontApiEncoder($this->getContainer()->get('serializer'));
     }
 
     public function emptyInputProvider(): array
@@ -89,6 +89,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
                 ],
                 'relationships' => [],
+                'meta' => null,
             ],
             'included' => [],
         ];

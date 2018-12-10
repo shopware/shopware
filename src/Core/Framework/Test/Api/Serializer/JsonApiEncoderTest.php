@@ -8,10 +8,13 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
 class JsonApiEncoderTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var JsonApiEncoder
      */
@@ -19,7 +22,7 @@ class JsonApiEncoderTest extends TestCase
 
     public function setUp()
     {
-        $this->encoder = new JsonApiEncoder();
+        $this->encoder = new JsonApiEncoder($this->getContainer()->get('serializer'));
     }
 
     public function emptyInputProvider(): array
@@ -82,10 +85,17 @@ class JsonApiEncoderTest extends TestCase
                     'uploadedAt' => null,
                     'mediaFolderId' => null,
                 ],
+                'meta' => null,
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
                 ],
                 'relationships' => [
+                    'translations' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/translations',
+                        ],
+                    ],
                     'user' => [
                         'data' => null,
                         'links' => [

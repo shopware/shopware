@@ -25,6 +25,12 @@ return [
             'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',
         ],
         'relationships' => [
+            'translations' => [
+                'data' => null,
+                'links' => [
+                    'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/translations',
+                ],
+            ],
             'user' => [
                 'data' => [
                     'id' => '6f51622e-b381-4c75-ae02-63cece27ce72',
@@ -65,6 +71,7 @@ return [
                 ],
             ],
         ],
+        'meta' => null,
     ],
     'included' => [
         [
@@ -106,6 +113,7 @@ return [
                     ],
                 ],
             ],
+            'meta' => null,
         ],
     ],
 ];

@@ -5,7 +5,7 @@ Data is what makes the world go round - even more in web applications like the a
 in-depth look on the data management, the basic concepts behind it and how to use it in components and services.
 
 ## Concept
-The entity proxy representing an entity in the system. Entity proxies are used in combination with an entity store
+The entity proxy is representing an entity in the system. Entity proxies are used in combination with an entity store
  which is basically a collection of items including convenience functions to load a certain set of data as well as 
  saving, updating and deleting entities using the REST API endpoint.
 
@@ -13,23 +13,23 @@ Stores are using custom API services which are available throughout the applicat
 fetch and send data to the REST API using CRUD operations.
 
 ### Scheme definition
-To prevent the tedious process of providing all possible fields to the entity proxy the administration automatically 
-generating entities using an entity enitity scheme from the REST API. The entity scheme is a collection of all entities 
+To prevent the tedious process of providing all possible fields to the entity proxy the administration is automatically 
+generating entities using an entity scheme from the REST API. The entity scheme is a collection of all entities 
 registered in the system and includes information about the field, their data type and associations to one other. The 
-stores in the applications are generated automatically based on the scheme as well.
+stores in the application are generated automatically based on the scheme as well.
 
-The benefits of this approach is that the data management in the application is completely dynamic. New fields and 
-entities will be automatically added to the entity scheme and therefore are available in the administration right away. 
-New fields and entities which are added by a plugin will be added to the entity scheme too.
+The benefit of this approach is that the data management in the application is completely dynamic. New fields and 
+entities will be added to the entity scheme automatically and are therefore available in the administration right away. 
+New fields and entities which are added by a plugin will be added to the entity scheme, too.
 
 ### Changeset generation
-The `EntityProxy` generates a draft and original object out of the intitial data. All further changes to the entity 
+The `EntityProxy` generates a draft and original data object out of the initial data. All further changes to the entity 
 will be applied to the draft. It enables the administration to generate changesets to send only the changed fields, 
 unsaved changes can be rolled back on-the-fly and changes can be queued.
 
 ## Working with data
-The third-party developer interface of the administration provides a module called `State` which represents a entity 
-store manager. Using the method `getStore()` you can easily getting a certain store in your components as well as other 
+The third-party developer interface of the administration provides a module called `State` which represents an entity 
+store manager. Using the method `getStore()` you can easily get a certain store in your components as well as other 
 services. 
 
 ### Using a store in your component
@@ -60,12 +60,12 @@ Component.register('sw-hello-world', {
 *Adding and using a store in a component*
 
 ## Fetching data
-After adding an `computed` property which provides the store to the component, it's possible to request data right 
+After adding a `computed` property which provides the store to the component, it's possible to request data right 
 away. The store provides the following methods to fetch data:
 
 * `getById()`
     * Fetches a certain record using an unique identifier from the REST API. If the store contains a record with the 
-    provided id, we store will return the model right away without requesting it from the REST API.
+    provided id, the store will return the model right away without requesting it from the REST API.
 * `getByIdAsync()`
     * As `getById()` the method fetches a certain record using an unique identifier from the REST API. Unlike 
     `getById()` it always fetches the item from the REST API using the specific API service.
@@ -112,7 +112,7 @@ Component.register('sw-hello-world', {
 *Fetching a paginated list of products*
 
 The `getList()` method of the store can be combined with the `listing` mixin which provides an convenient way to enable 
-pagination in your module / component. The mixin assumes a method called `getList()` in your component. It 
+pagination in your module / component. The mixin assumes that a method called `getList()` exists in your component. It 
 automatically applies the request parameters from the store to the URL e.g. `index?limit=25&page=3`:
 
 ```
@@ -258,7 +258,7 @@ Component.register('sw-hello-world', {
 *Fetching a product from the REST API using `getByIdAsync()`*
 
 Vue.js reuses components when just a part of the URL change occurs. In this case the component will not re-run the 
-`created` method. To solve this issue a watcher can be added to the component which watches for URL changes, so every 
+`created` method. To solve this issue a watcher can be added to the component which detects URL changes, so every 
 time the ID in the URL changes, the new information can be fetched from the API.
 
 ```
@@ -458,7 +458,7 @@ createdComponent() {
 *Using a query for filtering using the `getList()` method of a store*
 
 ### Updating a record
-Vue.js two-way data binding using the `v-model` directive makes it super easy and convenient to update entities. After 
+Vue.js two-way data binding using the `v-model` directivemakes it super easy and convenient to update entities. After 
 fetching the record it is as easy as using the `sw-field` and `sw-text-editor` components to create a form which 
 updates the record:
 
@@ -545,9 +545,9 @@ onSaveProduct() {
 
 ### Creating a new entity
 Creating new entities is as easy as updating an existing one. The store provides a handy method called `create()` which 
-will create new entities on the go. The method will automatically provides an Uuid v4 for the newly created entity. 
-While creating the entity scheme provides information about the relationship and will automatically generates 
-association stores on-the-fly.
+will create new entities on the go. The method will automatically provide an Uuid v4 for the newly created entity. 
+While creating the entities based on the entity scheme, we'll automatically generate association stores provided by the
+information from the entity scheme.
 
 ```
 Component.register('sw-hello-world', {
@@ -634,10 +634,10 @@ Component.register('sw-hello-world', {
 *Deleting an item from the detail page*
 
 The store provides the methods `remove()`, `removeById()` and `removeAll()` which are providing the ability to remove 
-entities from the store. Unlike the `remove()` method of the entity the store just removes the item from the 
-collection but doesn't delete it using an DELETE request.
+entities from the store. Unlike the `remove()` method of the entity the store just removes the item from the 
+collection but does not delete it using an DELETE request.
 
-### The `EntityStore` and `EntityProxy` in detail
+### The `EntityStore` and `EntityProxy` in detail
 The entity store is a collection of entity proxies. The store uses an API service to communicate with the REST API. The 
 API returns responses in the JSON API format. The API service takes care of reformatting the response using a JSON API 
 parser. The store on the other hand provides a bunch of convenient features. Here's an overview of all methods, we 
@@ -675,7 +675,7 @@ the entity scheme.
     * Validates the entity against the entity scheme and checks if all required fields are filled.
 
 ### Associations
-Unline 1-1 associations, 1-n associations are not loaded by default when fetching a list or single item from the API 
+Unlike 1-1 associations, 1-n associations are not loaded by default when fetching a list or single item from the API 
 due to performance reasons. Those associations have to be fetched in a separate call as a paginated list 
 (`limit` and `page` needs to be provided to the call). The entity scheme provides the relationship between entities in 
 the system and automatically creates assocation stores from them. These stores are available on an entity using 
@@ -723,7 +723,18 @@ Component.register('sw-hello-world', {
     }
 });
 ```
-*Fetching an assocation using an entity*
+*Fetching an association using an entity*
 
 The method `getAssociation()` populates the parent entity with the information when the data got fetched successfully. 
 Due to Vue.js' built-in data binding the information will be automatically updated in the component as well.
+
+### Naming of API services and entities
+Due to the fact we are generating the API services, entity stores and association stores based on the entity scheme the
+naming of those components differs from each other. In the following is an overview of the naming scheme:
+
+* API service
+    * API routes are defined with a hyphen. For example the API route for the media folder will be defined as `media-folder`
+* Entity stores
+    * Entity stores are defined with an underscore as a separator. For example `Shopware.State.getStore('media_folder');`
+* Association stores
+    * Associations stores on the other hand are using camel case for the name of the association store. For example `this.media.getAssociation('mediaFolder')`

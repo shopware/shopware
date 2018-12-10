@@ -205,7 +205,7 @@
         </service>
 
         <!-- Twig -->
-        <service id="Shopware\Core\Framework\Twig\TemplateFinder">
+        <service id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
             <argument type="service" id="twig.loader"/>
         </service>
 

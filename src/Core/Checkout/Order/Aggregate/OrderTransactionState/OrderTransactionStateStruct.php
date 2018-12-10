@@ -5,9 +5,11 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class OrderTransactionStateStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var int
      */
@@ -24,7 +26,7 @@ class OrderTransactionStateStruct extends Entity
     protected $createdAt;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
@@ -73,12 +75,12 @@ class OrderTransactionStateStruct extends Entity
         $this->createdAt = $createdAt;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }

@@ -5,18 +5,16 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaFolderStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */
     protected $name;
-
-    /**
-     * @var string
-     */
-    protected $id;
 
     /**
      * @var string|null
@@ -41,7 +39,7 @@ class MediaFolderStruct extends Entity
     /**
      * @var string| null
      */
-    protected $mediaFolderConfigurationId;
+    protected $configurationId;
 
     /**
      * @var MediaFolderConfigurationStruct|null
@@ -71,16 +69,6 @@ class MediaFolderStruct extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
     }
 
     public function getParentId(): ?string
@@ -123,14 +111,14 @@ class MediaFolderStruct extends Entity
         $this->media = $media;
     }
 
-    public function getMediaFolderConfigurationId(): ?string
+    public function getConfigurationId(): ?string
     {
-        return $this->mediaFolderConfigurationId;
+        return $this->configurationId;
     }
 
-    public function setMediaFolderConfigurationId(?string $mediaFolderConfigurationId): void
+    public function setConfigurationId(?string $configurationId): void
     {
-        $this->mediaFolderConfigurationId = $mediaFolderConfigurationId;
+        $this->configurationId = $configurationId;
     }
 
     public function getConfiguration(): ?MediaFolderConfigurationStruct

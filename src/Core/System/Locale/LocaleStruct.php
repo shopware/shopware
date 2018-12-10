@@ -3,24 +3,26 @@
 namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\User\UserCollection;
 
 class LocaleStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */
     protected $code;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $territory;
 
@@ -59,22 +61,22 @@ class LocaleStruct extends Entity
         $this->code = $code;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    public function getTerritory(): string
+    public function getTerritory(): ?string
     {
         return $this->territory;
     }
 
-    public function setTerritory(string $territory): void
+    public function setTerritory(?string $territory): void
     {
         $this->territory = $territory;
     }

@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -58,11 +60,7 @@ class InheritanceIndexer implements IndexerInterface
                 continue;
             }
 
-            if (!$definition::getFields()->has('autoIncrement')) {
-                continue;
-            }
-
-            $iterator = $this->createIterator($definition::getEntityName());
+            $iterator = $this->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -257,20 +255,28 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
-    private function createIterator($entity): LastIdQuery
+    private function createIterator(string $definition): IterableQuery
     {
+        /** @var string|EntityDefinition $definition */
+        $entity = $definition::getEntityName();
+
         $escaped = EntityDefinitionQueryHelper::escape($entity);
-
         $query = $this->connection->createQueryBuilder();
-        $query->select([$escaped . '.auto_increment', $escaped . '.id']);
         $query->from($escaped);
-        $query->andWhere($escaped . '.auto_increment > :lastId');
-        $query->addOrderBy($escaped . '.auto_increment');
-
         $query->setMaxResults(50);
 
-        $query->setParameter('lastId', 0);
+        if ($definition::getFields()->has('autoIncrement')) {
+            $query->select([$escaped . '.auto_increment', $escaped . '.id']);
+            $query->andWhere($escaped . '.auto_increment > :lastId');
+            $query->addOrderBy($escaped . '.auto_increment');
+            $query->setParameter('lastId', 0);
 
-        return new LastIdQuery($query);
+            return new LastIdQuery($query);
+        }
+
+        $query->select([$escaped . '.id', $escaped . '.id']);
+        $query->setFirstResult(0);
+
+        return new OffsetQuery($query);
     }
 }

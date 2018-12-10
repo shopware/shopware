@@ -33,9 +33,15 @@ class WriteContext
      */
     private $inheritance = [];
 
+    private $rootLanguageIds = null;
+
     private function __construct(Context $context)
     {
         $this->context = $context;
+    }
+
+    public function getCurrentLanguageId(): string
+    {
     }
 
     public function addInheritance(string $definition, array $inheritance): void
@@ -144,6 +150,10 @@ class WriteContext
     public function createWithVersionId(string $versionId): self
     {
         return self::createFromContext($this->getContext()->createWithVersionId($versionId));
+    }
+
+    private function getRootLanguages(): array
+    {
     }
 
     /**

@@ -19,7 +19,7 @@ class ListingSortingTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $label;
 
@@ -83,12 +83,12 @@ class ListingSortingTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }

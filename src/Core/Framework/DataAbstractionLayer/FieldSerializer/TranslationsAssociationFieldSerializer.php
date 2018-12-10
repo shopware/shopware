@@ -12,26 +12,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatD
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Locale\LocaleLanguageResolverInterface;
 
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**
      * @var WriteCommandExtractor
      */
-    protected $writeExtrator;
-
-    /**
-     * @var LocaleLanguageResolverInterface
-     */
-    protected $localeLanguageResolver;
+    protected $writeExtractor;
 
     public function __construct(
-        WriteCommandExtractor $writeExtrator,
-        LocaleLanguageResolverInterface $localeLanguageResolver
+        WriteCommandExtractor $writeExtractor
     ) {
-        $this->writeExtrator = $writeExtrator;
-        $this->localeLanguageResolver = $localeLanguageResolver;
+        $this->writeExtractor = $writeExtractor;
     }
 
     public function getFieldClass(): string
@@ -71,7 +63,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 continue;
             }
 
-            $languageId = $this->localeLanguageResolver->getLanguageByLocale($identifier, $parameters->getContext()->getContext());
+            $languageId = $parameters->getLanguageResolver()->getLanguageIdByIdentifier($identifier);
 
             if (!isset($value[$languageId])) {
                 $value[$languageId] = $fields;
@@ -111,7 +103,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 $subresources[$field->getReferenceField()] = $keyValue;
             }
 
-            $this->writeExtrator->extract(
+            $this->writeExtractor->extract(
                 $subresources,
                 $parameters->cloneForSubresource(
                     $field->getReferenceClass(),

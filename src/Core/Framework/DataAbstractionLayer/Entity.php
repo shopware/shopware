@@ -9,21 +9,21 @@ class Entity extends Struct
     /**
      * @var string
      */
-    protected $id;
+    protected $_uniqueIdentifier;
 
-    public function __toString()
+    /**
+     * @var static
+     */
+    protected $viewData;
+
+    public function setUniqueIdentifier(string $identifier): void
     {
-        return $this->getId();
+        $this->_uniqueIdentifier = $identifier;
     }
 
-    public function getId(): string
+    public function getUniqueIdentifier(): string
     {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
+        return $this->_uniqueIdentifier;
     }
 
     public function get(string $property)
@@ -35,5 +35,21 @@ class Entity extends Struct
         }
 
         return $this->$property;
+    }
+
+    /**
+     * @return static
+     */
+    public function getViewData()
+    {
+        return $this->viewData;
+    }
+
+    /**
+     * @param static $viewData
+     */
+    public function setViewData(self $viewData): void
+    {
+        $this->viewData = $viewData;
     }
 }

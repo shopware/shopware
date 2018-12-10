@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -50,7 +50,7 @@ class CategoryDefinition extends EntityDefinition
             new VersionField(),
             new CatalogField(),
 
-            new ParentField(self::class),
+            new ParentFkField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
             new FkField('media_id', 'mediaId', MediaDefinition::class),
@@ -72,6 +72,7 @@ class CategoryDefinition extends EntityDefinition
             new ChildCountField(),
             new CreatedAtField(),
             new UpdatedAtField(),
+
             (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new TranslatedField('pathNames'),
             (new TranslatedField('metaKeywords'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
@@ -79,6 +80,7 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField('metaDescription'),
             new TranslatedField('cmsHeadline'),
             new TranslatedField('cmsDescription'),
+
             new ParentAssociationField(self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),

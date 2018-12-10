@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
+use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -82,7 +83,10 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         $structs = [];
         if (isset($value['raw'])) {
             foreach ($value['raw'] as $record) {
-                $structs[] = $this->serializer->deserialize(json_encode($record), '', 'json');
+                /** @var PriceRuleStruct $struct */
+                $struct = $this->serializer->deserialize(json_encode($record), '', 'json');
+                $struct->setUniqueIdentifier($struct->getId());
+                $structs[] = $struct;
             }
         }
 

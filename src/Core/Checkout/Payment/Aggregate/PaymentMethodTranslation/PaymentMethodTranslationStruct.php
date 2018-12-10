@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageStruct;
 
 class PaymentMethodTranslationStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */
@@ -19,12 +21,12 @@ class PaymentMethodTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $additionalDescription;
 
@@ -88,22 +90,22 @@ class PaymentMethodTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    public function getAdditionalDescription(): string
+    public function getAdditionalDescription(): ?string
     {
         return $this->additionalDescription;
     }
 
-    public function setAdditionalDescription(string $additionalDescription): void
+    public function setAdditionalDescription(?string $additionalDescription): void
     {
         $this->additionalDescription = $additionalDescription;
     }

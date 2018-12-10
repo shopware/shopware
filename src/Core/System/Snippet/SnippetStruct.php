@@ -3,11 +3,13 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetStruct;
 
 class SnippetStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

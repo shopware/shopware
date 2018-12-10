@@ -4,9 +4,12 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaThumbnailStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var int
      */

@@ -19,12 +19,12 @@ class UnitTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $shortCode;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -88,22 +88,22 @@ class UnitTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getShortCode(): string
+    public function getShortCode(): ?string
     {
         return $this->shortCode;
     }
 
-    public function setShortCode(string $shortCode): void
+    public function setShortCode(?string $shortCode): void
     {
         $this->shortCode = $shortCode;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

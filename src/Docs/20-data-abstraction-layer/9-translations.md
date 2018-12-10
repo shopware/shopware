@@ -48,22 +48,33 @@ public static function getTranslationDefinitionClass(): ?string
 ### Make fields translatable
 
 If you already have fields in your entity, you have to copy them into the
-translation definition and wrap them in the base definition a custom
-field called `TranslatedField`.
+translation definition and replace them in the base definition with custom
+field called `TranslatedField`. The only parameter is the `propertyName`,
+that maps it to the field in the translated definition.
 
 **Before**
 
 ```php
-new LongTextField('description', 'description')
+class ProductDefinition
+{
+    new LongTextField('additional_text', 'additionalText')
+}
 ```
 
 **After**
 
 ```php
-new TranslatedField(new LongTextField('description', 'description'))
+class ProductDefinition
+{
+    new TranslatedField('additionalText')
+}
+class ProductTranslationDefinition
+{
+    new LongTextField('additional_text', 'additionalText')
+}
 ```
 
-The `description` field will now be written to the translation definition
+The `additionalText` field will now be written to the translation definition
 instead of the base definition. You don't have to handle this yourself
 as the DataAbstractionLayer knows about translatable fields.
 

@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGrou
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CustomerGroupStruct extends Entity
 {
+    use EntityIdTrait;
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -69,12 +71,12 @@ class CustomerGroupStruct extends Entity
      */
     protected $customers;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

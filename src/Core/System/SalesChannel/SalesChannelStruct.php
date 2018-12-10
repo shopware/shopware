@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Content\Catalog\CatalogCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 
 class SalesChannelStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */
@@ -52,7 +54,7 @@ class SalesChannelStruct extends Entity
     protected $countryId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -211,12 +213,12 @@ class SalesChannelStruct extends Entity
         $this->countryId = $countryId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

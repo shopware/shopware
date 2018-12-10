@@ -206,6 +206,14 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $language = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'German',
+            'locale' => [
+                'id' => Uuid::uuid4()->getHex(),
+                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+            ],
+            'translationCode' => [
+                'id' => Uuid::uuid4()->getHex(),
+                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+            ],
         ];
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
@@ -213,6 +221,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
                 $language,
             ],
         ];
+
         $this->salesChannelRepository->update([$data], $this->context);
 
         return $language;

@@ -744,9 +744,16 @@ EOF;
         $data = [
             'id' => $childId,
             'name' => 'Child Language',
+            'localeId' => Defaults::LOCALE_EN_GB,
             'parent' => [
                 'id' => $parentId,
                 'name' => 'Parent Language',
+                'locale' => [
+                    'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                ],
+                'translationCode' => [
+                    'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                ],
             ],
         ];
 

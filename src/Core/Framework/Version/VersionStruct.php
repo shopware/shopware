@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Version;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
 
 class VersionStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

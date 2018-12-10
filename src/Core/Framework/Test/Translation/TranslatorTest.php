@@ -108,6 +108,7 @@ class TranslatorTest extends TestCase
             'id' => $id->getHex(),
             'parentId' => Defaults::LANGUAGE_EN,
             'name' => 'Unit language',
+            'localeId' => Defaults::LOCALE_EN_GB,
         ];
         $this->languageRepository->create([$language], $context);
 

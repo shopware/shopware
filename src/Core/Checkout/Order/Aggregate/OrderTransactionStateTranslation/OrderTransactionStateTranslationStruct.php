@@ -19,7 +19,7 @@ class OrderTransactionStateTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
@@ -83,12 +83,12 @@ class OrderTransactionStateTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }

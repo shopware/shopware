@@ -9,6 +9,7 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Confi
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Framework\Pricing\PriceStruct;
@@ -16,6 +17,7 @@ use Shopware\Core\System\Tax\TaxStruct;
 
 class ProductServiceStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

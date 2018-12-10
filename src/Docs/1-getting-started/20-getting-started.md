@@ -836,13 +836,13 @@ public static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...
-       new TranslatedField(new StringField('name', 'name'))  
+       new TranslatedField('name')
        // ...
     ]);
 }
 ```
-As you can see, the `TranslatedField` is only a container for all other fields. 
-For example, a `FloatField` can be inserted here if the value should also be translatable.
+The `TranslatedField` automatically maps to the underlying field with the property name `name`
+in the translated definition. The actual `Field` is defined there.
 
 #### Foreign keys
 If you want to link two entities you should use a foreign key. 
@@ -956,6 +956,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class LocaleStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */

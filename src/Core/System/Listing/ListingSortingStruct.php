@@ -3,18 +3,21 @@
 namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 
 class ListingSortingStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var FieldSorting[]
      */
     protected $payload;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $label;
 
@@ -63,12 +66,12 @@ class ListingSortingStruct extends Entity
         $this->payload = $payload;
     }
 
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }

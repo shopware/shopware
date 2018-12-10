@@ -44,7 +44,7 @@ The field types below are available to build a definition.
 | Type | Description |
 |---|---|
 | `PriceField` | Structured JSON field to enforce the price structure (`gross`, `net`, `linked`) |
-| `ParentField` | Short-hand for foreign key field `parentId` used in the parent/child concept |
+| `ParentFkField` | Short-hand for foreign key field `parentId` used in the parent/child concept |
 | `ChildCountField` | (Read-only) For saving the current count of children used in the parent/child concept |
 | `PasswordField` | For saving a hashed password |
 
@@ -165,12 +165,12 @@ It also implies the following flags:
 ### TranslatedField
 
 ```php
-new TranslatedField(new StringField('name', 'name'))
+new TranslatedField('name')
 ```
 
-1. `$field` is the original field to be translated
+1. `$propertyName` points to the field in the translation definition with that `$propertyName`
 
-The `TranslatedField` is a wrapper field to indicate that this field (in this case `name`) is translatable and
+The `TranslatedField` is a mapping field to indicate that this field (in this case `name`) is translatable and
 can be found in the corresponding translation definition for the entity - just like a symlink.
 
 To learn more about translations, please refer to the [Translations Guide](./9-translations.md).
@@ -399,13 +399,13 @@ This field is a structured JSON field to enforce the price structure (`gross`, `
 1. `$storageName` is the name in your storage.
 2. `$propertyName` is the name used in your struct and used to search, write and work.
 
-### ParentField
+### ParentFkField
 
 ```php
-new ParentField(self::class)
+new ParentFkField(self::class)
 ```
 
-The ParentField is an extension to the `FkField` with pre-defined parameters.
+The ParentFkField is an extension to the `FkField` with pre-defined parameters.
 
 The first and only parameter is a class reference to the parent definition. In most cases, this will be the
 same definition and can be set to `self::class`.

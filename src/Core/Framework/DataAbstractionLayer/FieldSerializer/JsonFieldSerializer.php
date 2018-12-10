@@ -141,7 +141,8 @@ class JsonFieldSerializer implements FieldSerializerInterface
                 $parameters->getContext(),
                 $parameters->getPath() . '/' . $field->getPropertyName(),
                 $parameters->getCommandQueue(),
-                $parameters->getExceptionStack()
+                $parameters->getExceptionStack(),
+                $parameters->getLanguageResolver()
             );
 
             try {

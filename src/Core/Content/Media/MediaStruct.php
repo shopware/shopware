@@ -12,10 +12,12 @@ use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\User\UserStruct;
 
 class MediaStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */
@@ -37,7 +39,7 @@ class MediaStruct extends Entity
     protected $fileSize;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $title;
 
@@ -175,12 +177,12 @@ class MediaStruct extends Entity
         $this->fileSize = $fileSize;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
     }

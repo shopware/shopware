@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CustomerGroupDiscountStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

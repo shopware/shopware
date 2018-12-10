@@ -7,9 +7,11 @@ use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ProductManufacturerStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */
@@ -21,7 +23,7 @@ class ProductManufacturerStruct extends Entity
     protected $catalogId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -90,12 +92,12 @@ class ProductManufacturerStruct extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

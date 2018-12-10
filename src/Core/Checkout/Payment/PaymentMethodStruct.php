@@ -7,11 +7,14 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\PluginStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class PaymentMethodStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string|null
      */
@@ -23,12 +26,12 @@ class PaymentMethodStruct extends Entity
     protected $technicalName;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $additionalDescription;
 
@@ -177,22 +180,22 @@ class PaymentMethodStruct extends Entity
         $this->technicalName = $technicalName;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    public function getAdditionalDescription(): string
+    public function getAdditionalDescription(): ?string
     {
         return $this->additionalDescription;
     }
 
-    public function setAdditionalDescription(string $additionalDescription): void
+    public function setAdditionalDescription(?string $additionalDescription): void
     {
         $this->additionalDescription = $additionalDescription;
     }

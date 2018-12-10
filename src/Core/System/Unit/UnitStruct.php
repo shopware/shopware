@@ -4,17 +4,19 @@ namespace Shopware\Core\System\Unit;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class UnitStruct extends Entity
 {
+    use EntityIdTrait;
     /**
-     * @var string
+     * @var string|null
      */
     protected $shortCode;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -38,22 +40,22 @@ class UnitStruct extends Entity
      */
     protected $products;
 
-    public function getShortCode(): string
+    public function getShortCode(): ?string
     {
         return $this->shortCode;
     }
 
-    public function setShortCode(string $shortCode): void
+    public function setShortCode(?string $shortCode): void
     {
         $this->shortCode = $shortCode;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

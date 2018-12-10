@@ -6,10 +6,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class ShippingMethodStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var int
      */
@@ -26,7 +28,7 @@ class ShippingMethodStruct extends Entity
     protected $bindLaststock;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -205,12 +207,12 @@ class ShippingMethodStruct extends Entity
         $this->bindLaststock = $bindLaststock;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

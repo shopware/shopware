@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\Integration;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class IntegrationStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

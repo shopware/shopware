@@ -8,11 +8,14 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelStruct;
 
 class CustomerStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */

@@ -5,11 +5,13 @@ namespace Shopware\Core\System\Country\Aggregate\CountryState;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryStruct;
 
 class CountryStateStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */
@@ -21,7 +23,7 @@ class CountryStateStruct extends Entity
     protected $shortCode;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -85,12 +87,12 @@ class CountryStateStruct extends Entity
         $this->shortCode = $shortCode;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

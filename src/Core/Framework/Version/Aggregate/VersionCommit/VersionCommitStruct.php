@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Shopware\Core\Framework\Version\VersionStruct;
 
 class VersionCommitStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var int
      */

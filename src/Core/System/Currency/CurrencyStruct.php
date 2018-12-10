@@ -5,11 +5,13 @@ namespace Shopware\Core\System\Currency;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CurrencyStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var float
      */
@@ -21,12 +23,12 @@ class CurrencyStruct extends Entity
     protected $symbol;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $shortName;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -100,22 +102,22 @@ class CurrencyStruct extends Entity
         $this->symbol = $symbol;
     }
 
-    public function getShortName(): string
+    public function getShortName(): ?string
     {
         return $this->shortName;
     }
 
-    public function setShortName(string $shortName): void
+    public function setShortName(?string $shortName): void
     {
         $this->shortName = $shortName;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

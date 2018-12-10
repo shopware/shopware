@@ -7,9 +7,11 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CategoryStruct extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string|null
      */
@@ -31,7 +33,7 @@ class CategoryStruct extends Entity
     protected $mediaId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -200,12 +202,12 @@ class CategoryStruct extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

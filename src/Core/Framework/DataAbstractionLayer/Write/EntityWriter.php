@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Locale\LanguageResolverInterface;
 
 /**
  * Handles all write operations in the system.
@@ -58,18 +59,25 @@ class EntityWriter implements EntityWriterInterface
      */
     private $fieldHandler;
 
+    /**
+     * @var LanguageResolverInterface
+     */
+    private $languageResolver;
+
     public function __construct(
         WriteCommandExtractor $writeResource,
         DefaultExtender $defaultExtender,
         EntityForeignKeyResolver $foreignKeyResolver,
         EntityWriteGatewayInterface $gateway,
-        FieldSerializerRegistry $fieldHandler
+        FieldSerializerRegistry $fieldHandler,
+        LanguageResolverInterface $languageResolver
     ) {
         $this->defaultExtender = $defaultExtender;
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->writeResource = $writeResource;
         $this->gateway = $gateway;
         $this->fieldHandler = $fieldHandler;
+        $this->languageResolver = $languageResolver;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -280,7 +288,7 @@ class EntityWriter implements EntityWriterInterface
         $commandQueue = new WriteCommandQueue();
         $exceptionStack = new FieldExceptionStack();
 
-        $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue, $exceptionStack);
+        $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue, $exceptionStack, $this->languageResolver);
 
         foreach ($rawData as $row) {
             $writeContext->resetPaths();

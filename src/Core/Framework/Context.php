@@ -208,4 +208,24 @@ class Context extends Struct
     {
         return $this->deleteProtection;
     }
+
+    /**
+     * @return string[]
+     */
+    public function getLanguageIdChain(): array
+    {
+        if ($this->hasFallback()) {
+            $root = $this->getFallbackLanguageId();
+            $sub = $this->getLanguageId();
+
+            return [Defaults::LANGUAGE_EN, $root, $sub];
+        }
+
+        $root = $this->getLanguageId();
+        if ($root !== Defaults::LANGUAGE_EN) {
+            return [Defaults::LANGUAGE_EN, $root];
+        }
+
+        return [Defaults::LANGUAGE_EN];
+    }
 }

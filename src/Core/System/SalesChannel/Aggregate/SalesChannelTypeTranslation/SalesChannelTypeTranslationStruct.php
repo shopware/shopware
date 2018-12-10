@@ -19,22 +19,22 @@ class SalesChannelTypeTranslationStruct extends Entity
     protected $languageId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $manufacturer;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $descriptionLong;
 
@@ -78,42 +78,42 @@ class SalesChannelTypeTranslationStruct extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    public function getManufacturer(): string
+    public function getManufacturer(): ?string
     {
         return $this->manufacturer;
     }
 
-    public function setManufacturer(string $manufacturer): void
+    public function setManufacturer(?string $manufacturer): void
     {
         $this->manufacturer = $manufacturer;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
 
-    public function getDescriptionLong(): string
+    public function getDescriptionLong(): ?string
     {
         return $this->descriptionLong;
     }
 
-    public function setDescriptionLong(string $descriptionLong): void
+    public function setDescriptionLong(?string $descriptionLong): void
     {
         $this->descriptionLong = $descriptionLong;
     }

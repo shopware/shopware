@@ -80,11 +80,11 @@ const defaultDragConfig = {
 };
 
 /**
- * The default config for the dropable directive.
+ * The default config for the droppable directive.
  *
  * @typedef {object} DropConfig
  * @property {(number|string)} dragGroup
- * @property {string} dropableCls
+ * @property {string} droppableCls
  * @property {string} validDropCls
  * @property {string} invalidDropCls
  * @property {?function} validateDrop
@@ -93,7 +93,7 @@ const defaultDragConfig = {
  */
 const defaultDropConfig = {
     dragGroup: 1,
-    dropableCls: 'is--dropable',
+    droppableCls: 'is--droppable',
     validDropCls: 'is--valid-drop',
     invalidDropCls: 'is--invalid-drop',
     validateDrop: null,
@@ -389,11 +389,11 @@ Directive.register('draggable', {
  * Directive to define an element as a drop zone.
  *
  * Usage:
- * <div v-dropable="{ data: {...}, onDrop() {...} }"></div>
+ * <div v-droppable="{ data: {...}, onDrop() {...} }"></div>
  *
  * See the {dropConfig} for all possible config options.
  */
-Directive.register('dropable', {
+Directive.register('droppable', {
     inserted(el, binding) {
         const dropConfig = Object.assign({}, defaultDropConfig);
 
@@ -405,7 +405,7 @@ Directive.register('dropable', {
 
         dropZones.push({ el, dropConfig });
 
-        el.classList.add(dropConfig.dropableCls);
+        el.classList.add(dropConfig.droppableCls);
         el.addEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
         el.addEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
     },
@@ -421,7 +421,7 @@ Directive.register('dropable', {
 
         dropZones.splice(dropZones.findIndex(zone => zone.el === el), 1);
 
-        el.classList.remove(dropConfig.dropableCls);
+        el.classList.remove(dropConfig.droppableCls);
         el.removeEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
         el.removeEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
     }

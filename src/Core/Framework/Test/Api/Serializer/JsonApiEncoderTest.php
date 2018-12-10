@@ -60,7 +60,7 @@ class JsonApiEncoderTest extends TestCase
         $struct->setFileExtension('png');
         $struct->setFileSize(310818);
 
-        $struct->setDescription('A media object description');
+        $struct->setAlt('A media object description');
 
         $struct->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
 
@@ -70,7 +70,7 @@ class JsonApiEncoderTest extends TestCase
                 'type' => 'media',
                 'attributes' => [
                     'title' => 'Manufacturer',
-                    'description' => 'A media object description',
+                    'alt' => 'A media object description',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
                     'fileSize' => 310818,

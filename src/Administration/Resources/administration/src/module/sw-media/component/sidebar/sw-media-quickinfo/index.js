@@ -72,6 +72,16 @@ Component.register('sw-media-quickinfo', {
 
         emitOpenFolderSettings() {
             this.$emit('sw-media-quickinfo-open-folder-settings');
+        },
+
+        onSubmitTitleValue(value) {
+            this.item.title = value;
+            this.item.save();
+        },
+
+        onSubmitAltValue(value) {
+            this.item.alt = value;
+            this.item.save();
         }
     }
 });

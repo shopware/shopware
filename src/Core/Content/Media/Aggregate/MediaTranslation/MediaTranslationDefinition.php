@@ -34,7 +34,7 @@ class MediaTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             new StringField('title', 'title'),
-            new LongTextField('description', 'description'),
+            new LongTextField('alt', 'alt'),
         ]);
     }
 }

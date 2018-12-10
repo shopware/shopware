@@ -101,92 +101,108 @@
 
                     <template slot="content">
                         {% block sw_media_quickinfo_metadata_content %}
-                        <dl class="sw-media-quickinfo__collapse-content">
-                            {% block sw_media_quickinfo_metadata_content_base %}
-                                <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-name"
-                                    label-name="name"
-                                    :value="item | mediaName"
-                                    :truncateMiddle="true">
-                                </sw-media-quickinfo-metadata-item>
+                            <dl class="sw-media-quickinfo__collapse-content">
+                                <sw-field
+                                        type="inline"
+                                        :label="$tc('sw-media.sidebar.quickinfo.titleField')"
+                                        :placeholder="$tc('sw-media.sidebar.quickinfo.titleField')"
+                                        :value="item.title"
+                                        @sw-field-submit-value="onSubmitTitleValue">
+                                </sw-field>
 
-                                <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-mimeType"
-                                    label-name="mimeType"
-                                    :value="this.item.mimeType">
-                                </sw-media-quickinfo-metadata-item>
+                                <sw-field
+                                        type="inline"
+                                        :label="$tc('sw-media.sidebar.quickinfo.altText')"
+                                        :placeholder="$tc('sw-media.sidebar.quickinfo.altText')"
+                                        :value="item.alt"
+                                        @sw-field-submit-value="onSubmitAltValue">
+                                </sw-field>
 
-                                <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-size"
-                                    label-name="fileSize"
-                                    :value="fileSize">
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-createdAt"
-                                    label-name="createdAt"
-                                    :value="createdAt">
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-url"
-                                    label-name="url"
-                                    :value="this.item.url">
-                                </sw-media-quickinfo-metadata-item>
-                            {% endblock %}
-
-                            <template v-if="this.item.metaData.typeName === 'image'">
-                                {% block sw_media_quickinfo_metadata_content_image %}
-                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-width"
-                                        label-name="width"
-                                        :value="this.item.metaData.type.width"
-                                        suffix="px">
+                                {% block sw_media_quickinfo_metadata_content_base %}
+                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-name"
+                                        label-name="name"
+                                        :value="item | mediaName"
+                                        :truncateMiddle="true">
                                     </sw-media-quickinfo-metadata-item>
 
-                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-height"
-                                        label-name="height"
-                                        :value="this.item.metaData.type.height"
-                                        suffix="px">
-                                    </sw-media-quickinfo-metadata-item>
-                                {% endblock %}
-                            </template>
-
-                            <template v-if="this.item.metaData.typeName === 'video'">
-                                {% block sw_media_quickinfo_metadata_content_video %}
-                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-width"
-                                        label-name="width"
-                                        :value="this.item.metaData.type.width"
-                                        suffix="px">
+                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-mimeType"
+                                        label-name="mimeType"
+                                        :value="this.item.mimeType">
                                     </sw-media-quickinfo-metadata-item>
 
-                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-height"
-                                        label-name="height"
-                                        :value="this.item.metaData.type.height"
-                                        suffix="px">
+                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-size"
+                                        label-name="fileSize"
+                                        :value="fileSize">
                                     </sw-media-quickinfo-metadata-item>
 
-                                    <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-frameRate"
-                                        label-name="frameRate"
-                                        :value="this.item.metaData.type.frameRate"
-                                        suffix="Hz">
+                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-createdAt"
+                                        label-name="createdAt"
+                                        :value="createdAt">
+                                    </sw-media-quickinfo-metadata-item>
+
+                                    <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-url"
+                                        label-name="url"
+                                        :value="this.item.url">
                                     </sw-media-quickinfo-metadata-item>
                                 {% endblock %}
-                            </template>
 
-                            <template v-if="this.item.metaData.typeName === 'document'">
-                                {% block sw_media_quickinfo_metadata_content_document %}
-                                    <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-pages"
-                                        label-name="pages"
-                                        :value="this.item.metaData.type.pages">
-                                    </sw-media-quickinfo-metadata-item>
+                                <template v-if="this.item.metaData.typeName === 'image'">
+                                    {% block sw_media_quickinfo_metadata_content_image %}
+                                        <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-width"
+                                            label-name="width"
+                                            :value="this.item.metaData.type.width"
+                                            suffix="px">
+                                        </sw-media-quickinfo-metadata-item>
 
-                                    <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-title"
-                                        label-name="title"
-                                        :value="this.item.metaData.type.title">
-                                    </sw-media-quickinfo-metadata-item>
+                                        <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-height"
+                                            label-name="height"
+                                            :value="this.item.metaData.type.height"
+                                            suffix="px">
+                                        </sw-media-quickinfo-metadata-item>
+                                    {% endblock %}
+                                </template>
 
-                                    <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-creator"
-                                        label-name="creator"
-                                        :value="this.item.metaData.type.creator">
-                                    </sw-media-quickinfo-metadata-item>
-                                {% endblock %}
-                            </template>
-                        </dl>
+                                <template v-if="this.item.metaData.typeName === 'video'">
+                                    {% block sw_media_quickinfo_metadata_content_video %}
+                                        <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-width"
+                                            label-name="width"
+                                            :value="this.item.metaData.type.width"
+                                            suffix="px">
+                                        </sw-media-quickinfo-metadata-item>
+
+                                        <sw-media-quickinfo-metadata-item class="sw-media-quickinfo-metadata-height"
+                                            label-name="height"
+                                            :value="this.item.metaData.type.height"
+                                            suffix="px">
+                                        </sw-media-quickinfo-metadata-item>
+
+                                        <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-frameRate"
+                                            label-name="frameRate"
+                                            :value="this.item.metaData.type.frameRate"
+                                            suffix="FPS">
+                                        </sw-media-quickinfo-metadata-item>
+                                    {% endblock %}
+                                </template>
+
+                                <template v-if="this.item.metaData.typeName === 'document'">
+                                    {% block sw_media_quickinfo_metadata_content_document %}
+                                        <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-pages"
+                                            label-name="pages"
+                                            :value="this.item.metaData.type.pages">
+                                        </sw-media-quickinfo-metadata-item>
+
+                                        <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-title"
+                                            label-name="title"
+                                            :value="this.item.metaData.type.title">
+                                        </sw-media-quickinfo-metadata-item>
+
+                                        <sw-media-quickinfo-metadata-item  class="sw-media-quickinfo-metadata-creator"
+                                            label-name="creator"
+                                            :value="this.item.metaData.type.creator">
+                                        </sw-media-quickinfo-metadata-item>
+                                    {% endblock %}
+                                </template>
+                            </dl>
                         {% endblock %}
                     </template>
                 </sw-media-collapse>

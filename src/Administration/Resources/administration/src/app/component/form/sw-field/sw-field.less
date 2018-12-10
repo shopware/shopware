@@ -56,6 +56,27 @@
         }
     }
 
+    &.sw-field--inline {
+        position: relative;
+        margin-bottom: 30px;
+
+        .sw-field--inline__button {
+            position: absolute;
+            right: 0;
+            margin-top: 5px;
+            line-height: 20px;
+            width: 25px;
+
+            .sw-icon {
+                color: @sw-field-color-text;
+            }
+        }
+
+        .sw-field--inline__submit {
+            right: 29px;
+        }
+    }
+
     &.sw-field--switch {
         display: grid;
         grid-template-columns: 24px 180px 1fr;

@@ -53,7 +53,7 @@ return [
             'type' => 'media',
             'attributes' => [
                 'title' => 'Lagerkorn-5,0klein',
-                'description' => null,
+                'alt' => null,
                 'userId' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',

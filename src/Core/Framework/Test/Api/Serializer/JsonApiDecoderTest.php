@@ -246,7 +246,7 @@ class JsonApiDecoderTest extends TestCase
                 'createdAt' => '2012-08-31T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => '2',
-                'description' => '',
+                'alt' => '',
             ],
         ];
 
@@ -282,7 +282,7 @@ class JsonApiDecoderTest extends TestCase
                         'createdAt' => '2012-08-31T00:00:00+00:00',
                         'updatedAt' => '2017-11-21T11:25:34+00:00',
                         'name' => '2',
-                        'description' => '',
+                        'alt' => '',
                     ],
                 ],
             ],
@@ -306,7 +306,7 @@ class JsonApiDecoderTest extends TestCase
                     'createdAt' => '2012-08-31T00:00:00+00:00',
                     'updatedAt' => '2017-11-21T11:25:34+00:00',
                     'name' => '2',
-                    'description' => '',
+                    'alt' => '',
                     'album' => [
                         'uuid' => 'ALBUM-50',
                         'parentUuid' => 'ALBUM-2',
@@ -361,7 +361,7 @@ class JsonApiDecoderTest extends TestCase
                         'createdAt' => '2012-08-31T00:00:00+00:00',
                         'updatedAt' => '2017-11-21T11:25:34+00:00',
                         'name' => '2',
-                        'description' => '',
+                        'alt' => '',
                     ],
                     'relationships' => [
                         'album' => [
@@ -411,7 +411,7 @@ class JsonApiDecoderTest extends TestCase
                     'createdAt' => '2012-08-31T00:00:00+00:00',
                     'updatedAt' => '2017-11-21T11:25:34+00:00',
                     'name' => '2',
-                    'description' => '',
+                    'alt' => '',
                     'album' => [
                         [
                             'uuid' => 'ALBUM-50',
@@ -483,7 +483,7 @@ class JsonApiDecoderTest extends TestCase
                         'createdAt' => '2012-08-31T00:00:00+00:00',
                         'updatedAt' => '2017-11-21T11:25:34+00:00',
                         'name' => '2',
-                        'description' => '',
+                        'alt' => '',
                     ],
                     'relationships' => [
                         'album' => [
@@ -552,7 +552,7 @@ class JsonApiDecoderTest extends TestCase
                         'createdAt' => '2012-08-31T00:00:00+00:00',
                         'updatedAt' => '2017-11-21T11:25:34+00:00',
                         'name' => '2',
-                        'description' => '',
+                        'alt' => '',
                         'album' => [
                             'uuid' => 'ALBUM-50',
                             'parentUuid' => 'ALBUM-2',
@@ -588,7 +588,7 @@ class JsonApiDecoderTest extends TestCase
                         'createdAt' => '2012-08-31T00:00:00+00:00',
                         'updatedAt' => '2017-11-21T11:25:34+00:00',
                         'name' => '2',
-                        'description' => '',
+                        'alt' => '',
                         'album' => [
                             'uuid' => 'ALBUM-50',
                             'parentUuid' => 'ALBUM-2',
@@ -662,7 +662,7 @@ class JsonApiDecoderTest extends TestCase
                         'createdAt' => '2012-08-31T00:00:00+00:00',
                         'updatedAt' => '2017-11-21T11:25:34+00:00',
                         'name' => '2',
-                        'description' => '',
+                        'alt' => '',
                     ],
                     'relationships' => [
                         'album' => [

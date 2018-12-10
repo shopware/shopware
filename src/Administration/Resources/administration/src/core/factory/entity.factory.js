@@ -107,8 +107,8 @@ function getRawPropertyValue(propSchema, deep = true) {
     }
 
     // JSON Field
-    if (propSchema.type === 'object' && propSchema.properties) {
-        if (deep === true) {
+    if (propSchema.type === 'object') {
+        if (deep === true && propSchema.properties) {
             return getRawEntityObject(propSchema, false);
         }
 

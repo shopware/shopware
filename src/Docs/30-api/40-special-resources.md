@@ -2,7 +2,7 @@
 [titleEn]: <>(['Special Resources'])
 ## General search
 
-**GET /api/v1/admin/search**
+**GET /api/v1/_search**
 
 Search through products, customers, media and orders.
 
@@ -93,16 +93,14 @@ supported:
 
 ## Simple schema
 
-**GET /api/v1/entity-schema.{format}**
+**GET /api/v1/_info/entity-schema.json**
 
-This endpoints response with simple schema describing the whole API. The
-formats **json** and **yaml** are supported.
+This endpoints response with simple schema describing the whole API.
 
 ## OpenAPI 3 schema
 
-**GET /api/v1/info.{format}**
+**GET /api/v1/_info/openapi3.json**
 
 This endpoints response with an
 [OpenAPI 3](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md)
-schema describing the whole API. The formats **json** and **yaml** are
-supported.
+schema describing the whole API. 

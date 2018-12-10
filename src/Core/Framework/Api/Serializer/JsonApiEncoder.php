@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
@@ -130,6 +131,35 @@ class JsonApiEncoder
         $value,
         string $propertyName
     ): void {
+        if ($field instanceof TranslationsAssociationField) {
+            $foreignKey = null;
+            if ($value instanceof EntityCollection) {
+                $reference = $field->getReferenceClass();
+                foreach ($value as $nestedEntity) {
+                    $nested = $this->serializeEntity($entities, $reference, $nestedEntity, $baseUrl);
+
+                    $entities->addIncluded($nested);
+
+                    $foreignKey[] = [
+                        'id' => $nested->getId(),
+                        'type' => $reference::getEntityName(),
+                    ];
+                }
+            }
+
+            $serialized->addRelationship(
+                $propertyName,
+                [
+                    'data' => $foreignKey,
+                    'links' => [
+                        'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                    ],
+                ]
+            );
+
+            return;
+        }
+
         if ($field instanceof ManyToOneAssociationField) {
             $foreignKey = null;
 

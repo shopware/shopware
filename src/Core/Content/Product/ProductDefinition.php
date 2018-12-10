@@ -103,7 +103,8 @@ class ProductDefinition extends EntityDefinition
 
             //inherited data fields
             (new PriceField('price', 'price'))->setFlags(new Inherited(), new Required()),
-            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited()),
+            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited(), new ReadOnly()),
+
             (new StringField('manufacturer_number', 'manufacturerNumber'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new StringField('ean', 'ean'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
@@ -124,7 +125,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('length', 'length'))->setFlags(new Inherited()),
             (new BoolField('allow_notification', 'allowNotification'))->setFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
-            (new ListField('category_tree', 'categoryTree', IdField::class))->setFlags(new Inherited()),
+            (new ListField('category_tree', 'categoryTree', IdField::class))->setFlags(new Inherited(), new ReadOnly()),
             (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->setFlags(new Inherited()),
             new ListField('variation_ids', 'variationIds', IdField::class),
             (new IntField('min_delivery_time', 'minDeliveryTime'))->setFlags(new Inherited()),
@@ -163,7 +164,7 @@ class ProductDefinition extends EntityDefinition
             new SearchKeywordAssociationField(),
 
             //not inherited associations
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new ReadOnly()),
             (new TranslationsAssociationField(ProductTranslationDefinition::class))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),

@@ -89,18 +89,6 @@ abstract class EntityDefinition
 
         $fields = static::defineFields();
 
-        if (static::getTranslationDefinitionClass() !== null) {
-            $fields->add(
-                (new JsonField('translated', 'translated'))->setFlags(new Extension(), new Deferred(), new ReadOnly())
-            );
-        }
-
-        if (static::isInheritanceAware()) {
-            $fields->add(
-                (new JsonField('inherited', 'inherited'))->setFlags(new Extension(), new Deferred(), new ReadOnly())
-            );
-        }
-
         $extensions = static::$extensions[static::class] ?? [];
         foreach ($extensions as $extension) {
             $extension->extendFields($fields);

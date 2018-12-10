@@ -3,9 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -20,9 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Collection;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
@@ -30,6 +34,7 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDat
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataStruct;
 use Shopware\Core\Framework\Version\VersionDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class VersionManager
 {
@@ -63,13 +68,19 @@ class VersionManager
      */
     private $eventDispatcher;
 
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
         DefinitionRegistry $entityDefinitionRegistry,
         EntityWriteGatewayInterface $entityWriteGateway,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SerializerInterface $serializer
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
@@ -77,6 +88,7 @@ class VersionManager
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
         $this->entityWriteGateway = $entityWriteGateway;
         $this->eventDispatcher = $eventDispatcher;
+        $this->serializer = $serializer;
     }
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
@@ -139,7 +151,7 @@ class VersionManager
 
         $this->writeAuditLog($identifiers, $context, 'clone', $versionId);
 
-        return $versionData['id'];
+        return $versionId;
     }
 
     public function merge(string $versionId, WriteContext $writeContext): void
@@ -294,128 +306,121 @@ class VersionManager
 
     private function clone(string $definition, array $primaryKey, string $versionId, WriteContext $context): array
     {
-        /** @var Entity $detail */
         /** @var string|EntityDefinition $definition */
-        $detail = $this->entityReader->readRaw($definition, new ReadCriteria([$primaryKey['id']]), $context->getContext())->first();
+        $criteria = new ReadCriteria([$primaryKey['id']]);
+
+        //add all cascade delete associations
+        $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
+        foreach ($cascades as $cascade) {
+            $criteria->addAssociation($definition::getEntityName() . '.' . $cascade->getPropertyName());
+        }
+
+        $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
         if ($detail === null) {
             throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), print_r($primaryKey, true)));
         }
 
-        $fields = $definition::getFields()->filter(function (Field $field) {
-            return !($field instanceof AssociationInterface) || $field->is(CascadeDelete::class);
-        });
+        $data = json_decode($this->serializer->serialize($detail, 'json'), true);
+        $data = JsonType::format($data);
 
-        $detailArray = $detail->jsonSerialize();
+        $data = $this->filterPropertiesForClone($definition, $data);
 
-        $payload = [];
+        $versionContext = $context->createWithVersionId($versionId);
 
-        foreach ($detailArray as $key => $value) {
-            if (!\in_array($key, $fields->getKeys(), true) || !$value) {
-                continue;
-            }
-
-            $payload[$key] = $this->convertValue($value);
-        }
-
-        $payload = array_filter($payload);
-        $payload = $this->removeVersion($definition, $payload);
-        $payload['id'] = $detail->getId();
-
-        //do not versioning child elements, child elements can have their own version
-        if (array_key_exists('children', $payload)) {
-            unset($payload['children']);
-        }
-
-        $newContext = $context->createWithVersionId($versionId);
-
-        return $this->entityWriter->insert($definition, [$payload], $newContext);
+        return $this->entityWriter->insert($definition, [$data], $versionContext);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     * @param array                   $payload
-     *
-     * @return array
-     */
-    private function removeVersion(string $definition, array $payload): array
+    private function filterPropertiesForClone(string $definition, array $data): array
     {
-        $fields = $definition::getFields()->filter(function (Field $field) {
-            return $field instanceof VersionField;
-        });
+        $extensions = [];
+        $payload = [];
+
+        /** @var string|EntityDefinition $definition */
+
+        /** @var FieldCollection $fields */
+        $fields = $definition::getFields()->filter(
+            function (Field $field) {
+                return !$field->is(ReadOnly::class);
+            }
+        );
 
         /** @var Field $field */
         foreach ($fields as $field) {
-            $key = $field->getPropertyName();
+            //set data and payload cursor to root or extensions to simplify following if conditions
+            $dataCursor = &$data;
 
-            if (!array_key_exists($key, $payload)) {
+            $payloadCursor = &$payload;
+
+            if ($field->is(Extension::class)) {
+                $dataCursor = $data['extensions'];
+                $payloadCursor = &$extensions;
+            }
+
+            if (!array_key_exists($field->getPropertyName(), $dataCursor)) {
                 continue;
             }
 
-            unset($payload[$key]);
+            $value = $dataCursor[$field->getPropertyName()];
+
+            if ($value === null) {
+                continue;
+            }
+
+            //scalar value? assign directly
+            if (!$field instanceof AssociationInterface) {
+                $payloadCursor[$field->getPropertyName()] = $value;
+
+                continue;
+            }
+
+            //many to one should be skipped because it is no part of the root entity
+            if ($field instanceof ManyToOneAssociationField) {
+                continue;
+            }
+
+            if (!$field->is(CascadeDelete::class)) {
+                continue;
+            }
+            if ($field instanceof OneToManyAssociationField) {
+                $nested = [];
+                foreach ($value as $item) {
+                    $nested[] = $this->filterPropertiesForClone($field->getReferenceClass(), $item);
+                }
+
+                $nested = array_filter($nested);
+                if (empty($nested)) {
+                    continue;
+                }
+
+                $payloadCursor[$field->getPropertyName()] = $nested;
+
+                continue;
+            }
+
+            if ($field instanceof ManyToManyAssociationField) {
+                $nested = [];
+
+                foreach ($value as $item) {
+                    $nested[] = ['id' => $item['id']];
+                }
+                $nested = array_filter($nested);
+
+                if (empty($nested)) {
+                    continue;
+                }
+
+                $payloadCursor[$field->getPropertyName()] = $nested;
+
+                continue;
+            }
         }
 
-        $associationFields = $definition::getFields()->filterByFlag(CascadeDelete::class);
-
-        foreach ($associationFields as $field) {
-            $key = $field->getPropertyName();
-
-            if (!array_key_exists($key, $payload)) {
-                continue;
-            }
-
-            if ($field instanceof AssociationInterface) {
-                foreach ($payload[$key] as $index => $associationItem) {
-                    $payload[$key][$index] = $this->removeVersion($field->getReferenceClass(), $associationItem);
-                }
-            } else {
-                $payload[$key] = $this->removeVersion($field->getReferenceClass(), $payload[$key]);
-            }
+        if (!empty($extensions)) {
+            $payload['extensions'] = $extensions;
         }
 
         return $payload;
-    }
-
-    /**
-     * @return array|string
-     */
-    private function convertValue($value)
-    {
-        if ($value instanceof \DateTime) {
-            return $value->format(\DateTime::ATOM);
-        }
-
-        if ($value instanceof Collection) {
-            $elements = [];
-            if ($value->count() === 0) {
-                return $elements;
-            }
-
-            /** @var Entity $element */
-            foreach ($value->getElements() as $element) {
-                $entity = $element->jsonSerialize();
-
-                foreach ($entity as &$data) {
-                    $data = $this->convertValue($data);
-                }
-
-                $elements[] = array_filter($entity);
-            }
-
-            return $elements;
-        }
-
-        if ($value instanceof Struct) {
-            $entity = $value->jsonSerialize();
-
-            foreach ($entity as &$data) {
-                $data = $this->convertValue($data);
-            }
-
-            return array_filter($entity);
-        }
-
-        return $value;
     }
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
@@ -517,7 +522,7 @@ class VersionManager
             return $field instanceof VersionField || $field instanceof ReferenceVersionField;
         });
 
-        /** @var Field $field */
+        /** @var FieldCollection $fields */
         foreach ($fields as $field) {
             $payload[$field->getPropertyName()] = $versionId;
         }

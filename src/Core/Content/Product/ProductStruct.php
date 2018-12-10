@@ -30,6 +30,7 @@ use Shopware\Core\System\Unit\UnitStruct;
 class ProductStruct extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */

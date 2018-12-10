@@ -2,18 +2,18 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 
-class PriceFieldSerializer extends JsonFieldSerializer
+class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 {
     public function getFieldClass(): string
     {
-        return PriceField::class;
+        return CalculatedPriceField::class;
     }
 
     public function encode(
@@ -36,6 +36,7 @@ class PriceFieldSerializer extends JsonFieldSerializer
         if ($value === null) {
             return null;
         }
+
         $value = json_decode((string) $value, true);
 
         return new PriceStruct($value['net'], $value['gross'], (bool) $value['linked']);

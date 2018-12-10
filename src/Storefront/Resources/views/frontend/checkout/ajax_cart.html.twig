@@ -8,7 +8,7 @@
                 {% block frontend_checkout_ajax_cart_buttons_offcanvas_inner %}
                     <a href="#close-categories-menu" class="close--off-canvas">
                         <i class="icon--arrow-left"></i>
-                        {% trans %}frontend.checkout.ajax_cart.AjaxCartContinueShopping{% endtrans %}
+                        {% trans %}offCanvasCart.continueShopping{% endtrans %}
                     </a>
                 {% endblock %}
             </div>
@@ -29,7 +29,7 @@
                             <div class="icon--element icon--check"></div>
                         </div>
                         <div class="alert--content">
-                            {% trans %}frontend.checkout.ajax_cart.AjaxCartSuccessText{% endtrans %}
+                            {% trans %}offCanvasCart.success{% endtrans %}
                         </div>
                     </div>
                 {% endif %}
@@ -53,7 +53,7 @@
                             <div class="cart--item is--empty">
                                 {% block frontend_checkout_ajax_cart_empty_inner %}
                                     <span class="cart--empty-text">
-                                        {% trans %}frontend.checkout.ajax_cart.AjaxCartInfoEmpty{% endtrans %}
+                                        {% trans %}offCanvasCart.infoEmpty{% endtrans %}
                                     </span>
                                 {% endblock %}
                             </div>
@@ -69,7 +69,7 @@
                     {% block frontend_checkout_ajax_cart_prices_container_inner %}
                         <div class="prices--articles">
                             <span class="prices--articles-text">
-                                {% trans %}frontend.checkout.ajax_cart.AjaxCartTotalAmount{% endtrans %}
+                                {% trans %}offCanvasCart.totalAmount{% endtrans %}
                             </span>
                             <span class="prices--articles-amount">
                                 {{ cart.price.totalPrice|localizedcurrency(context.currency.shortName) }}
@@ -93,24 +93,24 @@
 
                                 <a href="{{ url }}"
                                    class="btn is--primary button--checkout is--icon-right"
-                                   title="{% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}">
+                                   title="{% trans %}offCanvasCart.confirmLink{% endtrans %}">
                                     <i class="icon--arrow-right"></i>
-                                    {% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}
+                                    {% trans %}offCanvasCart.confirmLink{% endtrans %}
                                 </a>
                             {% else %}
                                 <span class="btn is--disabled is--primary button--checkout is--icon-right"
-                                      title="{% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}">
+                                      title="{% trans %}offCanvasCart.confirmLink{% endtrans %}">
                                     <i class="icon--arrow-right"></i>
-                                    {% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}
+                                    {% trans %}offCanvasCart.confirmLink{% endtrans %}
                                 </span>
                             {% endif %}
                         {% endblock %}
                         {% block frontend_checkout_ajax_cart_open_basket %}
                             <a href="{{ path('frontend.checkout.cart.page') }}"
                                class="btn button--open-basket is--icon-right"
-                               title="{% trans %}frontend.checkout.ajax_cart.AjaxCartLinkBasket{% endtrans %}">
+                               title="{% trans %}offCanvasCart.basketLink{% endtrans %}">
                                 <i class="icon--arrow-right"></i>
-                                {% trans %}frontend.checkout.ajax_cart.AjaxCartLinkBasket{% endtrans %}
+                                {% trans %}offCanvasCart.basketLink{% endtrans %}
                             </a>
                         {% endblock %}
                 {% endblock %}

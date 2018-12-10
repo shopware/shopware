@@ -25,7 +25,7 @@
         {% block frontend_listing_box_article_unit_reference_content %}
             <span class="is--nowrap">
                 ({{ product.referenceprice|localizedcurrency(context.currency.shortName) }}
-                {% trans %}frontend.listing.box_article.Star{% endtrans %} / {{ product.referenceunit }} {{ product.sUnit.description }})
+                {% trans %}general.priceStar{% endtrans %} / {{ product.referenceunit }} {{ product.sUnit.description }})
             </span>
         {% endblock %}
     {% endif %}

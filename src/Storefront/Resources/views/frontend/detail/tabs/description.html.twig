@@ -4,9 +4,9 @@
 {% block frontend_detail_description_buttons_offcanvas %}
     <div class="buttons--off-canvas">
         {% block frontend_detail_description_buttons_offcanvas_inner %}
-            <a href="#" title="{% trans %}frontend.detail.description.OffcanvasCloseMenu{% endtrans %}" class="close--off-canvas">
+            <a href="#" title="{% trans %}detail.descriptionMenuClose{% endtrans %}" class="close--off-canvas">
                 <i class="icon--arrow-left"></i>
-                {% trans %}frontend.detail.description.OffcanvasCloseMenu{% endtrans %}
+                {% trans %}detail.descriptionMenuClose{% endtrans %}
             </a>
         {% endblock %}
     </div>
@@ -19,7 +19,7 @@
     {# Headline #}
     {% block frontend_detail_description_title %}
         <div class="content--title">
-            {% trans %}frontend.detail.description.DetailDescriptionHeader{% endtrans %} "{{ product.name }}"
+            {% trans %}detail.descriptionHeader{% endtrans %} "{{ product.name }}"
         </div>
     {% endblock %}
 
@@ -68,7 +68,7 @@
         {# Further links title #}
         {% block frontend_detail_description_links_title %}
             <div class="content--title">
-                {% trans %}frontend.detail.description.ArticleTipMoreInformation{% endtrans %} "{{ product.name }}"
+                {% trans %}detail.descriptionMoreInfo{% endtrans %} "{{ product.name }}"
             </div>
         {% endblock %}
     {% endblock %}

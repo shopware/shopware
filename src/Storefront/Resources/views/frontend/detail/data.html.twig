@@ -12,7 +12,7 @@
                     {% block frontend_detail_data_price_default %}
                         <span class="price--content content--default">
                             <meta itemprop="price" content="{{ price.totalPrice|localizedcurrency(context.currency.shortName) }}">
-                            {{ price.totalPrice|localizedcurrency(context.currency.shortName) }}{% trans %}frontend.listing.box_article.Star{% endtrans %}
+                            {{ price.totalPrice|localizedcurrency(context.currency.shortName) }}{% trans %}general.priceStar{% endtrans %}
                         </span>
                     {% endblock %}
                 {% endif %}
@@ -36,7 +36,7 @@
 
                             <span class="price--line-through">
                                 {{ price.pseudoPrice|localizedcurrency(context.currency.shortName) }}
-                                {% trans %}frontend.listing.box_article.Star{% endtrans %}
+                                {% trans %}general.priceStar{% endtrans %}
                             </span>
 
                             {% block frontend_detail_data_pseudo_price_discount_after %}
@@ -74,7 +74,7 @@
 
                 {% if product.purchaseUnit and product.purchaseUnit != product.referenceUnit %}
                     {% block frontend_detail_data_price_unit_reference_content %}
-                        ({{ price.referencePrice|localizedcurrency(context.currency.shortName) }} {% trans %}frontend.listing.box_article.Star{% endtrans %}
+                        ({{ price.referencePrice|localizedcurrency(context.currency.shortName) }} {% trans %}general.priceStar{% endtrans %}
                         / {{ product.referenceUnit }} {{ product.unit.name }})
                     {% endblock %}
                 {% endif %}
@@ -87,11 +87,11 @@
         <p class="product--tax" data-content="" data-modalbox="true" data-targetSelector="a" data-mode="ajax">
             {# @var context \Shopware\Core\Checkout\CheckoutContext #}
             {% if context.taxState == 'gross' %}
-                {% trans %}frontend.detail.data.TaxInclusive{% endtrans %}
+                {% trans %}detail.taxInclusive{% endtrans %}
             {% else %}
-                {% trans %}frontend.detail.data.TaxExclusive{% endtrans %}
+                {% trans %}detail.taxExclusive{% endtrans %}
             {% endif %}
-            {% trans %}frontend.detail.data.DetailDataPriceInfo{% endtrans %}
+            {% trans %}detail.priceInfo{% endtrans %}
         </p>
     {% endblock %}
 

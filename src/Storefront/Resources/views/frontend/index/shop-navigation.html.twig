@@ -5,7 +5,7 @@
         {% block frontend_index_offcanvas_left_trigger %}
             <li class="navigation--entry entry--menu-left" role="menuitem">
                 <a class="entry--link entry--trigger btn is--icon-left" href="#offcanvas--left" data-offcanvas="true" data-offCanvasSelector=".sidebar-main">
-                    <i class="icon--menu"></i> {% trans %}frontend.index.menu_left.IndexLinkMenu{% endtrans %}
+                    <i class="icon--menu"></i> {% trans %}general.menuLink{% endtrans %}
                 </a>
             </li>
         {% endblock %}
@@ -13,11 +13,11 @@
         {# Search form #}
         {% block frontend_index_search %}
             <li class="navigation--entry entry--search" role="menuitem" data-search="true" aria-haspopup="true"{% if theme.focusSearch and controllerName|lower == 'index' %} data-activeOnStart="true"{% endif %}>
-                <a class="btn entry--link entry--trigger" href="#show-hide--search" title="{{ 'frontend.index.search.IndexTitleSearchToggle'|trans|escape }}">
+                <a class="btn entry--link entry--trigger" href="#show-hide--search" title="{{ 'general.searchTitleToggle'|trans|escape }}">
                     <i class="icon--search"></i>
 
                     {% block frontend_index_search_display %}
-                        <span class="search--display">{% trans %}frontend.index.search.IndexSearchFieldSubmit{% endtrans %}</span>
+                        <span class="search--display">{% trans %}general.searchFieldSubmit{% endtrans %}</span>
                     {% endblock %}
                 </a>
 

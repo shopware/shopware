@@ -9,8 +9,8 @@
                         {# Trigger to close the off canvas menu #}
                         {% block frontend_index_left_categories_close_menu %}
                             <li class="navigation--entry entry--close-off-canvas">
-                                <a href="#close-categories-menu" title="{{ 'frontend.index.menu_left.IndexActionCloseMenu'|trans|escape }}" class="navigation--link">
-                                    {% trans %}frontend.index.menu_left.IndexActionCloseMenu{% endtrans %} <i class="icon--arrow-right"></i>
+                                <a href="#close-categories-menu" title="{{ 'general.menuClose'|trans|escape }}" class="navigation--link">
+                                    {% trans %}general.menuClose{% endtrans %} <i class="icon--arrow-right"></i>
                                 </a>
                             </li>
                         {% endblock %}
@@ -47,7 +47,7 @@
                     {# Categories headline #}
                     {% block frontend_index_left_categories_headline %}
                         <div class="categories--headline navigation--headline">
-                            {% trans %}frontend.index.menu_left.IndexSidebarCategoryHeadline{% endtrans %}
+                            {% trans %}general.menuCategoryHeadline{% endtrans %}
                         </div>
                     {% endblock %}
 

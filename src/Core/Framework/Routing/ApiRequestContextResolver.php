@@ -70,7 +70,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $runtimeParams = $this->getRuntimeParameters($master);
         $params = array_replace_recursive($params, $runtimeParams);
-        if ($params['inherit'] && $params['languageId'] !== Defaults::LANGUAGE_EN) {
+        if ($params['languageId'] !== Defaults::LANGUAGE_EN) {
             $params['fallbackLanguageId'] = $this->getFallbackLanguage($params['languageId']);
         }
 
@@ -130,29 +130,12 @@ SQL;
         }
 
         $langHeader = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
-        if (Uuid::isValid($langHeader)) {
+        if ($langHeader !== null) {
+            if (!Uuid::isValid($langHeader)) {
+                throw new LanguageNotFoundException();
+            }
+
             $parameters['languageId'] = $langHeader;
-
-            return $parameters;
-        }
-
-        /**
-         * examples:
-         * - inherit from root (default) -> x-sw-language-id: id=21342134; inherit
-         * - don't inherit from root -> x-sw-language-id: id=21342134; inherit=0
-         */
-        $langHeaderParams = self::parseParams($langHeader);
-        if (isset($langHeaderParams['id']) && Uuid::isValid($langHeaderParams['id'])) {
-            $parameters['languageId'] = $langHeaderParams['id'];
-        }
-        if (\array_key_exists('inherit', $langHeaderParams)) {
-            $inheritNoValue = $langHeaderParams['inherit'] === null; // key exists, but no value
-            $noInherit = \in_array($langHeaderParams['inherit'], ['no', '0', 'false'], true);
-            $parameters['inherit'] = $inheritNoValue || !$noInherit;
-        }
-
-        if (!isset($parameters['languageId'])) {
-            throw new LanguageNotFoundException();
         }
 
         return $parameters;

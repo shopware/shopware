@@ -418,7 +418,6 @@ class EntityDefinitionQueryHelper
 
         /** @var string|EntityDefinition $definition */
         if (!$considerParent && $definition::isInheritanceAware()) {
-            /* @var EntityDefinition|string $definition */
             $chain[] = $root . '.parent.translation';
         }
 
@@ -427,7 +426,6 @@ class EntityDefinitionQueryHelper
         }
 
         if (!$considerParent && $definition::isInheritanceAware() && $context->hasFallback()) {
-            /* @var EntityDefinition|string $definition */
             $chain[] = $root . '.parent.translation.fallback';
         }
 

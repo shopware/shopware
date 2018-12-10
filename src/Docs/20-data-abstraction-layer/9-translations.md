@@ -146,6 +146,3 @@ $repository->create(
 
 In this case above, the language in the context will be ignored as it is
 already specific enough and does not need any further mapping.
-
-
-TODO: alle Felder müssen nullable in den Structs sein

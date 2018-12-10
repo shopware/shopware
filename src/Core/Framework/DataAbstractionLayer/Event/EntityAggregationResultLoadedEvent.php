@@ -24,6 +24,7 @@ class EntityAggregationResultLoadedEvent extends NestedEvent
      */
     protected $name;
 
+    /** @param string|EntityDefinition $definition */
     public function __construct(string $definition, AggregatorResult $result)
     {
         $this->result = $result;

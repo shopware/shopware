@@ -12,6 +12,7 @@ trait AssignArrayTrait
             } catch (\TypeError $error) {
                 throw $error;
             } catch (\Error | \Exception $error) {
+                // nth
             }
         }
 

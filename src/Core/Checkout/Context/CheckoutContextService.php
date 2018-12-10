@@ -82,6 +82,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
             try {
                 $context = $this->loadFromCache($item, $token);
             } catch (\Exception $e) {
+                // nth
             }
         }
 

@@ -39,7 +39,6 @@ class DumpSchemaCommand extends Command
         $outFile = $input->getArgument('outfile');
         $formatType = $input->getOption('schema-format');
 
-        $definitionContents = '';
         if ($formatType === 'simple') {
             $definitionContents = $this->definitionService->getSchema();
         } elseif ($formatType == 'openapi3') {

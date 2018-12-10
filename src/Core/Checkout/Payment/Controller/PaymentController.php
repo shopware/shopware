@@ -34,12 +34,11 @@ class PaymentController extends AbstractController
     public function finalizeTransaction(Request $request, Context $context): Response
     {
         $paymentToken = $request->get('_sw_payment_token');
-        $finishUrl = $request->get('_sw_finish_url');
 
-        $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
+        $paymentTokenStruct = $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
 
-        if ($finishUrl) {
-            return new RedirectResponse($finishUrl);
+        if ($paymentTokenStruct->getFinishUrl()) {
+            return new RedirectResponse($paymentTokenStruct->getFinishUrl());
         }
 
         // todo for transaction support -> check if order is completed, if not redirect to pay action

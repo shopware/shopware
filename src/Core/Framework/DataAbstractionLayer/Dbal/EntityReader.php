@@ -525,7 +525,7 @@ class EntityReader implements EntityReaderInterface
         }
 
         //association should not be paginated > load data over foreign key condition
-        if (!$fieldCriteria->getLimit()) {
+        if ($fieldCriteria->getLimit() === null) {
             $this->loadOneToManyWithoutPagination($definition, $association, $context, $collection, $fieldCriteria);
 
             return;
@@ -733,7 +733,7 @@ class EntityReader implements EntityReaderInterface
 
         $query->addGroupBy($root . '.' . $localColumn);
 
-        if ($criteria->getLimit()) {
+        if ($criteria->getLimit() !== null) {
             $limitQuery = $this->buildManyToManyLimitQuery($association);
 
             $params = [

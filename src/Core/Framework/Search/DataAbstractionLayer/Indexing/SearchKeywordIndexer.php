@@ -95,11 +95,11 @@ class SearchKeywordIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp): void
     {
-        $this->indexTableOperator->createTable(self::DICTIONARY, $timestamp);
-        $this->indexTableOperator->createTable(self::DOCUMENT_TABLE, $timestamp);
+        $dictionary = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp->getTimestamp());
+        $document = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp->getTimestamp());
 
-        $dictionary = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp);
-        $document = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
+        $this->indexTableOperator->createTable(self::DICTIONARY, $dictionary);
+        $this->indexTableOperator->createTable(self::DOCUMENT_TABLE, $document);
 
         $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`);');
         $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `keyword` (`keyword`, `language_id`);');
@@ -190,8 +190,8 @@ class SearchKeywordIndexer implements IndexerInterface
                 )
             );
 
-            $table = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp);
-            $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
+            $table = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp->getTimestamp());
+            $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp->getTimestamp());
 
             while ($ids = $iterator->fetch()) {
                 $ids = array_map(function ($id) {

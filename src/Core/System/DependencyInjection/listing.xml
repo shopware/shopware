@@ -5,19 +5,19 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\Listing\ListingFacetDefinition" id="Shopware\Core\System\Listing\ListingFacetDefinition">
+        <service id="Shopware\Core\System\Listing\ListingFacetDefinition">
             <tag name="shopware.entity.definition" entity="listing_facet"/>
         </service>
 
-        <service class="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition">
+        <service id="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition">
             <tag name="shopware.entity.definition" entity="listing_facet_translation"/>
         </service>
 
-        <service class="Shopware\Core\System\Listing\ListingSortingDefinition" id="Shopware\Core\System\Listing\ListingSortingDefinition">
+        <service id="Shopware\Core\System\Listing\ListingSortingDefinition">
             <tag name="shopware.entity.definition" entity="listing_sorting"/>
         </service>
 
-        <service class="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition">
+        <service id="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition">
             <tag name="shopware.entity.definition" entity="listing_sorting_translation"/>
         </service>
 

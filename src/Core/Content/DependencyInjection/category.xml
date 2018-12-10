@@ -5,21 +5,21 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\Content\Category\CategoryDefinition" id="Shopware\Core\Content\Category\CategoryDefinition">
+        <service id="Shopware\Core\Content\Category\CategoryDefinition">
             <tag name="shopware.entity.definition" entity="category"/>
         </service>
 
-        <service class="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition" id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition">
+        <service id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition">
             <tag name="shopware.entity.definition" entity="category_translation"/>
         </service>
 
-        <service class="Shopware\Core\Content\Category\Util\CategoryPathBuilder" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder">
+        <service id="Shopware\Core\Content\Category\Util\CategoryPathBuilder">
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand" id="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand">
+        <service id="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand">
             <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>
             <argument type="service" id="category.repository"/>
             <tag name="console.command"/>

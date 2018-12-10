@@ -4,14 +4,14 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service class="Shopware\Core\Content\Rule\RuleDefinition" id="Shopware\Core\Content\Rule\RuleDefinition">
+        <service id="Shopware\Core\Content\Rule\RuleDefinition">
             <tag name="shopware.entity.definition" entity="rule"/>
         </service>
-        <service class="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition" id="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition">
+        <service id="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition">
             <tag name="shopware.entity.definition" entity="rule_condition"/>
         </service>
 
-        <service class="Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer" id="Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer">
+        <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
@@ -21,6 +21,6 @@
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
-        <service class="Shopware\Core\Content\Rule\Util\EventIdExtractor" id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
+        <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
     </services>
 </container>

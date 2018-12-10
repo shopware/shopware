@@ -14,7 +14,7 @@ Please do not change the calculation process itself to implement your changes!
 Cart collectors are registered via the Symfony DI container tag named `cart.processor`.
 To define the order of the calculation queue, the tag supports the `priority` attribute:
 ```xml
-<service class="Shopware\Core\Content\Product\Cart\ProductCollector" id="Shopware\Core\Content\Product\Cart\ProductCollector">
+<service id="Shopware\Core\Content\Product\Cart\ProductCollector">
     <tag name="Shopware\Core\Checkout\Cart\Cart\CollectorInterface" priority="1000" />
 </service>
 ```

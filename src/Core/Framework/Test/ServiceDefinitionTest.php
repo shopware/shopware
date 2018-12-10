@@ -75,7 +75,7 @@ class ServiceDefinitionTest extends TestCase
     {
         $matches = [];
         $result = preg_match_all(
-            '<service\s(?!class="[^"]+"\s+id="[^"]+")(.*id="(?<id>Shopware\\\\[^"]++)").*>',
+            '<service\s+(?=.*class="(?<class>[^"]+)")(?=.*id="\k{class}").*>',
             $content,
             $matches,
             PREG_OFFSET_CAPTURE | PREG_SET_ORDER
@@ -89,10 +89,9 @@ class ServiceDefinitionTest extends TestCase
         $errors = [];
         foreach ($matches as $match) {
             $fullMatch = $match[0];
-
             $errors[] = sprintf(
-                '%s:%s - invalid parameter order or class parameter missing',
-                $match['id'][0] ?? $fullMatch[0],
+                '%s:%s - parameter class and id are identical. class parameter should be removed',
+                $match['class'][0] ?? $fullMatch[0],
                 $this->getLineNumber($content, $fullMatch[1])
             );
         }

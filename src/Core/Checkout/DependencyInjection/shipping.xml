@@ -5,15 +5,15 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\Checkout\Shipping\ShippingMethodDefinition" id="Shopware\Core\Checkout\Shipping\ShippingMethodDefinition">
+        <service id="Shopware\Core\Checkout\Shipping\ShippingMethodDefinition">
             <tag name="shopware.entity.definition" entity="shipping_method"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition" id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition">
+        <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition">
             <tag name="shopware.entity.definition" entity="shipping_method_price"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition" id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition">
+        <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition">
             <tag name="shopware.entity.definition" entity="shipping_method_translation"/>
         </service>
     </services>

@@ -5,18 +5,16 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Administration\Command\AdministrationDumpPluginsCommand"
-                 id="Shopware\Administration\Command\AdministrationDumpPluginsCommand">
+        <service id="Shopware\Administration\Command\AdministrationDumpPluginsCommand">
             <argument type="service" id="kernel"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Administration\Controller\AdministrationController"
-                 id="Shopware\Administration\Controller\AdministrationController"
+        <service id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
             <call method="setContainer">
-                <argument type="service" id="service_container" />
+                <argument type="service" id="service_container"/>
             </call>
         </service>
     </services>

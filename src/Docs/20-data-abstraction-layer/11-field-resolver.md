@@ -56,7 +56,7 @@ class CanonicalUrlFieldResolver implements FieldResolverInterface
 The `resolve()` method should return if it was able to handle the field by returning `true` or `false`.
 
 ```xml
-<service class="SwagCanonicalUrl\DataAbstractionLayer\FieldResolver\CanonicalUrlFieldResolver" id="SwagCanonicalUrl\DataAbstractionLayer\FieldResolver\CanonicalUrlFieldResolver">
+<service id="Shopware\Storefront\Api\Entity\Dbal\CanonicalUrlAssociationFieldResolver">
     <tag name="shopware.entity.field_resolver" />
 </service>
 ```

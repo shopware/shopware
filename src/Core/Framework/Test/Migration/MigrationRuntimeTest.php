@@ -35,7 +35,7 @@ class MigrationRuntimeTest extends TestCase
 
     protected function setUp()
     {
-        $container = $this->getKernel()->getContainer();
+        $container = $this->getContainer();
 
         $this->connection = $container->get(Connection::class);
         $this->runner = $container->get(MigrationRuntime::class);

@@ -38,7 +38,7 @@ field. Using JSON in SQL can be quite complex, so you have to extract, unquote a
 The returned selector will be used in the SQL statement for comparing or selecting the data.
 
 ```xml
-<service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
+<service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
     <tag name="shopware.entity.field_accessor_builder" />
 </service>
 ```

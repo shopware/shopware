@@ -5,19 +5,19 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\Content\Configuration\ConfigurationGroupDefinition" id="Shopware\Core\Content\Configuration\ConfigurationGroupDefinition">
+        <service id="Shopware\Core\Content\Configuration\ConfigurationGroupDefinition">
             <tag name="shopware.entity.definition" entity="configuration_group"/>
         </service>
 
-        <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition">
+        <service id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition">
             <tag name="shopware.entity.definition" entity="configuration_group_option"/>
         </service>
 
-        <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition">
+        <service id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition">
             <tag name="shopware.entity.definition" entity="configuration_group_option_translation"/>
         </service>
 
-        <service class="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition" id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition">
+        <service id="Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition">
             <tag name="shopware.entity.definition" entity="configuration_group_translation"/>
         </service>
 

@@ -458,8 +458,8 @@ createdComponent() {
 *Using a query for filtering using the `getList()` method of a store*
 
 ### Updating a record
-Vue.js two-way data binding using the `v-model` directivemakes it super easy and convenient to update entities. After 
-fetching the record it is as easy as using the `sw-field` and `sw-text-editor` components to create a form which 
+Vue.js two-way data binding using the `v-model` directive makes it super easy and convenient to update entities. After 
+fetching the record it is as easy as using the `sw-field` and `sw-text-editor` components to create a form which 
 updates the record:
 
 ```
@@ -519,7 +519,7 @@ Component.register('sw-hello-world', {
     }
 });
 ```
-*Updating an entity using a form*
+*Updating an entity using a form*
 
 Updating multiple entities is as simple as saving a single entity. The store provides a method called `sync` which will 
 sync all changes (new entities, updated entities and deleted entities) using the API services to the server. New, 

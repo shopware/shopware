@@ -288,7 +288,7 @@ function enterDropZone(el, dropConfig) {
         dragElement.classList.remove(currentDrag.dragConfig.validDragCls);
     }
 
-    if (currentDrag !== null && types.isFunction(currentDrag.dragConfig.onDragEnter)) {
+    if (types.isFunction(currentDrag.dragConfig.onDragEnter)) {
         currentDrag.dragConfig.onDragEnter(currentDrag.dragConfig.data, currentDrop.dropConfig.data, valid);
     }
 }
@@ -304,7 +304,7 @@ function leaveDropZone(el, dropConfig) {
         return;
     }
 
-    if (currentDrag !== null && types.isFunction(currentDrag.dragConfig.onDragLeave)) {
+    if (types.isFunction(currentDrag.dragConfig.onDragLeave)) {
         currentDrag.dragConfig.onDragLeave(currentDrag.dragConfig.data, currentDrop.dropConfig.data);
     }
 

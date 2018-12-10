@@ -21,8 +21,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper,
-        bool $raw
+        EntityDefinitionQueryHelper $queryHelper
     ): bool {
         if (!$field instanceof ManyToManyAssociationField) {
             return false;

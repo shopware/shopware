@@ -312,9 +312,9 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    public function resolveField(Field $field, string $definition, string $root, QueryBuilder $query, Context $context, bool $raw = false): void
+    public function resolveField(Field $field, string $definition, string $root, QueryBuilder $query, Context $context): void
     {
-        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this, $raw);
+        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this);
     }
 
     /**

@@ -18,18 +18,6 @@ class EntityDefinitionTest extends TestCase
         static::assertNull(SimpleDefintion::getFields()->get('inherited'));
     }
 
-    public function testInheritedFieldAddedIfInheritanceAware(): void
-    {
-        static::assertTrue(InheritedDefinition::getFields()->has('inherited'));
-        static::assertInstanceOf(JsonField::class, InheritedDefinition::getFields()->get('inherited'));
-    }
-
-    public function testTranslatedFieldNotAdded(): void
-    {
-        static::assertFalse(SimpleDefintion::getFields()->has('translated'));
-        static::assertNull(SimpleDefintion::getFields()->get('translated'));
-    }
-
     public function testTranslatedFieldAddedIfTranslationAware(): void
     {
         static::assertTrue(TranslatedDefinition::getFields()->has('translated'));

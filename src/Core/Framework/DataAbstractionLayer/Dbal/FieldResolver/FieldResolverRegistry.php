@@ -19,10 +19,10 @@ class FieldResolverRegistry
         $this->resolvers = $resolvers;
     }
 
-    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, $raw = false): void
+    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): void
     {
         foreach ($this->resolvers as $resolver) {
-            $handled = $resolver->resolve($definition, $root, $field, $query, $context, $queryHelper, $raw);
+            $handled = $resolver->resolve($definition, $root, $field, $query, $context, $queryHelper);
 
             if ($handled) {
                 return;

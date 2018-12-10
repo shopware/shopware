@@ -12,7 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 
 class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
 {
-    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, bool $raw): bool
+    public function resolve(
+        string $definition,
+        string $root,
+        Field $field,
+        QueryBuilder $query,
+        Context $context,
+        EntityDefinitionQueryHelper $queryHelper
+    ): bool
     {
         if (!$field instanceof SearchKeywordAssociationField) {
             return false;

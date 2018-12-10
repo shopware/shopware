@@ -184,8 +184,8 @@ class VersionManager
 
                 /** @var AssociationInterface[] $cascadeFields */
                 $cascadeFields = $dataDefinition::getFields()
-                    ->filterInstance(AssociationInterface::class)
                     ->filterByFlag(CascadeDelete::class)
+                    ->filterInstance(AssociationInterface::class)
                     ->getElements();
 
                 foreach ($cascadeFields as $field) {

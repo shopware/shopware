@@ -27,6 +27,7 @@ import UserApiService from 'src/core/service/api/user.api.service';
 import MediaFolderApiService from 'src/core/service/api/media-folder.api.service';
 import SnippetApiService from 'src/core/service/api/snippet.api.service';
 import SnippetSetApiService from 'src/core/service/api/snippet-set.api.service';
+import SyncApiService from 'src/core/service/api/sync.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -57,5 +58,6 @@ export default {
     userService: UserApiService,
     mediaFolderService: MediaFolderApiService,
     snippetService: SnippetApiService,
-    snippetSetService: SnippetSetApiService
+    snippetSetService: SnippetSetApiService,
+    syncService: SyncApiService
 };

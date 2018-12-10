@@ -233,15 +233,17 @@ export default class EntityStore {
      * @return {Promise<any[]>}
      */
     sync(deletionsOnly = false) {
-        let syncQueue = this.getDeletionQueue();
+        const serviceContainer = Application.getContainer('service');
+        const syncService = serviceContainer.syncService;
+        let payload = this.getDeletionPayload();
 
         if (deletionsOnly === false) {
-            syncQueue = [...syncQueue, ...this.getUpdateQueue()];
+            payload = [...payload, ...this.getUpdatePayload()];
         }
 
         this.isLoading = true;
 
-        return Promise.all(syncQueue).then(() => {
+        return syncService.sync(payload).then(() => {
             this.isLoading = false;
         });
     }
@@ -268,6 +270,72 @@ export default class EntityStore {
         });
 
         return deletionQueue;
+    }
+
+    /**
+     * Get a payload for the sync api with all entities to be deleted.
+     *
+     * @return {Array}
+     */
+    getDeletionPayload() {
+        const deletionPayload = [];
+
+        Object.keys(this.store).forEach((id) => {
+            const entity = this.store[id];
+
+            if (entity.isDeleted) {
+                deletionPayload.push({ id: id });
+            }
+        });
+
+        if (deletionPayload.length < 1) {
+            return [];
+        }
+
+        return [{
+            action: 'delete',
+            entity: this.entityName,
+            payload: deletionPayload
+        }];
+    }
+
+    /**
+     * Get a payload for the sync api with all changes of entities.
+     *
+     * @return {Array}
+     */
+    getUpdatePayload() {
+        const payload = [];
+        let upsertPayload = [];
+
+        Object.keys(this.store).forEach((id) => {
+            const entity = this.store[id];
+
+            // Deletions are handled in the getDeletionPayload() function
+            if (entity.isDeleted) {
+                return;
+            }
+
+            const changes = entity.getChanges();
+            const changedAssociations = entity.getChangedAssociations();
+            const deletedAssociationsPayload = entity.getDeletedAssociationsPayload();
+
+            if (Object.keys(deletedAssociationsPayload).length > 0) {
+                payload.push(deletedAssociationsPayload.pop());
+            }
+
+            if (entity.isLocal || Object.keys(changes).length > 0 || Object.keys(changedAssociations).length > 0) {
+                upsertPayload.push(Object.assign({ id: id }, changes, changedAssociations));
+            }
+        });
+
+        upsertPayload = [{
+            action: 'upsert',
+            entity: this.entityName,
+            payload: upsertPayload
+        }];
+
+        return [...payload, ...upsertPayload];
     }
 
     /**

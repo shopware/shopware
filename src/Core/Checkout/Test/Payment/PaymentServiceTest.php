@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -170,7 +170,7 @@ class PaymentServiceTest extends TestCase
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
-            'amount' => new Price(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+            'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
 

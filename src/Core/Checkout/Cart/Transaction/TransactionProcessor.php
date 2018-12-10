@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Transaction;
 
 use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -16,7 +16,7 @@ class TransactionProcessor
 
         return new TransactionCollection([
             new Transaction(
-                new Price(
+                new CalculatedPrice(
                     $price,
                     $price,
                     $cart->getPrice()->getCalculatedTaxes(),

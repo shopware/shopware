@@ -19,7 +19,7 @@ class PriceRuleStruct extends Entity
     protected $ruleId;
 
     /**
-     * @var PriceStruct
+     * @var Price
      */
     protected $price;
 
@@ -53,12 +53,12 @@ class PriceRuleStruct extends Entity
         $this->ruleId = $ruleId;
     }
 
-    public function getPrice(): PriceStruct
+    public function getPrice(): Price
     {
         return $this->price;
     }
 
-    public function setPrice(PriceStruct $price): void
+    public function setPrice(Price $price): void
     {
         $this->price = $price;
     }

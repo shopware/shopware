@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -106,8 +106,8 @@ class VariantGeneratorTest extends TestCase
         static::assertInstanceOf(ProductStruct::class, $red);
         static::assertInstanceOf(ProductStruct::class, $blue);
 
-        static::assertEquals(new PriceStruct(35, 60, false), $red->getPrice());
-        static::assertEquals(new PriceStruct(100, 110, false), $blue->getPrice());
+        static::assertEquals(new Price(35, 60, false), $red->getPrice());
+        static::assertEquals(new Price(100, 110, false), $blue->getPrice());
     }
 
     public function testMultiDimension(): void

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -42,9 +42,9 @@ class PercentagePriceCalculator
      * @param PriceCollection $prices
      * @param CheckoutContext $context
      *
-     * @return Price
+     * @return CalculatedPrice
      */
-    public function calculate($percentage, PriceCollection $prices, CheckoutContext $context): Price
+    public function calculate($percentage, PriceCollection $prices, CheckoutContext $context): CalculatedPrice
     {
         $price = $prices->sum();
 

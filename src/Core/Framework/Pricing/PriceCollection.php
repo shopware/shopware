@@ -7,21 +7,21 @@ use Shopware\Core\Framework\Struct\Collection;
 class PriceCollection extends Collection
 {
     /**
-     * @var PriceStruct[]
+     * @var Price[]
      */
     protected $elements = [];
 
-    public function add(PriceStruct $priceRule): void
+    public function add(Price $priceRule): void
     {
         $this->elements[] = $priceRule;
     }
 
-    public function get(string $key): ? PriceStruct
+    public function get(string $key): ? Price
     {
         return $this->elements[$key];
     }
 
-    public function current(): PriceStruct
+    public function current(): Price
     {
         return parent::current();
     }

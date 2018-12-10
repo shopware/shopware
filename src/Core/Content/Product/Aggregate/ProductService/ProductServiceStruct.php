@@ -10,9 +10,9 @@ use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\TaxStruct;
 
 class ProductServiceStruct extends Entity
@@ -34,7 +34,7 @@ class ProductServiceStruct extends Entity
     protected $taxId;
 
     /**
-     * @var PriceStruct|null
+     * @var Price|null
      */
     protected $price;
 
@@ -118,12 +118,12 @@ class ProductServiceStruct extends Entity
         $this->taxId = $taxId;
     }
 
-    public function getPrice(): ?PriceStruct
+    public function getPrice(): ?Price
     {
         return $this->price;
     }
 
-    public function setPrice(PriceStruct $price): void
+    public function setPrice(Price $price): void
     {
         $this->price = $price;
     }

@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
-class Price extends Struct
+class CalculatedPrice extends Struct
 {
     /**
      * @var float

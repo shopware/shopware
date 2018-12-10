@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -22,7 +22,7 @@ class GoodsPriceRuleTest extends TestCase
         $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
-                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
 
         $context = $this->createMock(CheckoutContext::class);
@@ -87,7 +87,7 @@ class GoodsPriceRuleTest extends TestCase
         $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
-                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
         $context = $this->createMock(CheckoutContext::class);
 
@@ -103,7 +103,7 @@ class GoodsPriceRuleTest extends TestCase
         $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
-                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
 
         $context = $this->createMock(CheckoutContext::class);
@@ -144,7 +144,7 @@ class GoodsPriceRuleTest extends TestCase
         $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
-                ->setPrice(new Price(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
 
         $context = $this->createMock(CheckoutContext::class);

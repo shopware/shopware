@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -25,13 +25,13 @@ class LineItemUnitPriceRuleTest extends TestCase
 
         $this->lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
     }
 
     public function testRuleWithExactAmountMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -42,7 +42,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithExactAmountNotMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 99, 'operator' => Rule::OPERATOR_EQ]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_EQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -53,7 +53,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualExactAmountMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 100, 'operator' => Rule::OPERATOR_LTE]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_LTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -64,7 +64,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 101, 'operator' => Rule::OPERATOR_LTE]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_LTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -75,7 +75,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithLowerThanEqualAmountNotMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 99, 'operator' => Rule::OPERATOR_LTE]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_LTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -86,7 +86,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualExactAmountMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 100, 'operator' => Rule::OPERATOR_GTE]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_GTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -97,7 +97,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 99, 'operator' => Rule::OPERATOR_GTE]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_GTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -108,7 +108,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualNotMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 101, 'operator' => Rule::OPERATOR_GTE]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_GTE]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -119,7 +119,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithNotEqualMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 101, 'operator' => Rule::OPERATOR_NEQ]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_NEQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 
@@ -130,7 +130,7 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testRuleWithNotEqualNotMatch(): void
     {
-        $rule = (new LineItemUnitPriceRule)->assign(['amount' => 100, 'operator' => Rule::OPERATOR_NEQ]);
+        $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_NEQ]);
 
         $context = $this->createMock(CheckoutContext::class);
 

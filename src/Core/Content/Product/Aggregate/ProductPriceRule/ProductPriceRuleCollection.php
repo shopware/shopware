@@ -42,7 +42,7 @@ class ProductPriceRuleCollection extends PriceRuleCollection
             }
         }
 
-        throw new \RuntimeException(sprintf('Price for quantity %s not found', $quantity));
+        throw new \RuntimeException(sprintf('CalculatedPrice for quantity %s not found', $quantity));
     }
 
     protected function getExpectedClass(): string

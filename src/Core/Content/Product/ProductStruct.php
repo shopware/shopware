@@ -21,8 +21,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Tax\TaxStruct;
 use Shopware\Core\System\Unit\UnitStruct;
@@ -67,7 +67,7 @@ class ProductStruct extends Entity
     protected $active;
 
     /**
-     * @var PriceStruct|null
+     * @var Price|null
      */
     protected $price;
 
@@ -411,12 +411,12 @@ class ProductStruct extends Entity
         $this->active = $active;
     }
 
-    public function getPrice(): ?PriceStruct
+    public function getPrice(): ?Price
     {
         return $this->price;
     }
 
-    public function setPrice(PriceStruct $price): void
+    public function setPrice(Price $price): void
     {
         $this->price = $price;
     }

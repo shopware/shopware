@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -214,8 +214,8 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(TaxStruct::class, $parent->getTax());
         static::assertInstanceOf(TaxStruct::class, $parent->getViewData()->getTax());
 
-        static::assertInstanceOf(PriceStruct::class, $parent->getPrice());
-        static::assertInstanceOf(PriceStruct::class, $parent->getViewData()->getPrice());
+        static::assertInstanceOf(Price::class, $parent->getPrice());
+        static::assertInstanceOf(Price::class, $parent->getViewData()->getPrice());
 
         static::assertEquals(50, $parent->getPrice()->getGross());
         static::assertEquals(50, $parent->getViewData()->getPrice()->getGross());
@@ -232,10 +232,10 @@ class EntityReaderTest extends TestCase
         static::assertNull($red->getPrice());
 
         //price and tax are inherited by parent
-        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->getPrice());
+        static::assertInstanceOf(Price::class, $red->getViewData()->getPrice());
         static::assertInstanceOf(TaxStruct::class, $red->getViewData()->getTax());
         static::assertEquals($parentTax, $red->getViewData()->getTaxId());
-        static::assertInstanceOf(PriceStruct::class, $red->getViewData()->getPrice());
+        static::assertInstanceOf(Price::class, $red->getViewData()->getPrice());
         static::assertEquals(50, $red->getViewData()->getPrice()->getGross());
 
         /** @var ProductStruct $green */
@@ -249,8 +249,8 @@ class EntityReaderTest extends TestCase
         static::assertEquals($greenTax, $green->getTaxId());
         static::assertEquals($greenTax, $green->getViewData()->getTaxId());
 
-        static::assertInstanceOf(PriceStruct::class, $green->getPrice());
-        static::assertInstanceOf(PriceStruct::class, $green->getViewData()->getPrice());
+        static::assertInstanceOf(Price::class, $green->getPrice());
+        static::assertInstanceOf(Price::class, $green->getViewData()->getPrice());
 
         static::assertEquals(100, $green->getPrice()->getGross());
         static::assertEquals(100, $green->getViewData()->getPrice()->getGross());

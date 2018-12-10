@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -26,7 +26,7 @@ class AbsolutePriceCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(float $price, PriceCollection $prices, CheckoutContext $context): Price
+    public function calculate(float $price, PriceCollection $prices, CheckoutContext $context): CalculatedPrice
     {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 

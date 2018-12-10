@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ObjectDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -98,7 +98,7 @@ EOF;
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
 
-        $struct = new PriceStruct(10.0, 20.0, false);
+        $struct = new Price(10.0, 20.0, false);
 
         $data = [
             'id' => $id->getHex(),
@@ -111,7 +111,7 @@ EOF;
 
         static::assertCount(1, $data);
         static::assertEquals($id->getBytes(), $data[0]['id']);
-        static::assertEquals('{"_class":"Shopware\\\\Core\\\\Framework\\\\Pricing\\\\PriceStruct","net":10,"gross":20,"linked":false,"extensions":[]}', $data[0]['data']);
+        static::assertEquals('{"_class":"Shopware\\\\Core\\\\Framework\\\\Pricing\\\\Price","net":10,"gross":20,"linked":false,"extensions":[]}', $data[0]['data']);
     }
 
     protected function createWriteContext(): WriteContext

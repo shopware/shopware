@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -24,7 +24,7 @@ class LineItemWithQuantityRuleTest extends TestCase
         parent::setUp();
 
         $this->lineItem = (new LineItem('A', 'product', 2))
-            ->setPrice(new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
+            ->setPrice(new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
     }
 
     public function testRuleWithExactAmountMatch(): void

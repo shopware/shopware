@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -13,11 +13,11 @@ class PriceTest extends TestCase
     /**
      * @dataProvider addCases
      *
-     * @param Price $a
-     * @param Price $b
-     * @param Price $expected
+     * @param CalculatedPrice $a
+     * @param CalculatedPrice $b
+     * @param CalculatedPrice $expected
      */
-    public function testAdd(Price $a, Price $b, Price $expected): void
+    public function testAdd(CalculatedPrice $a, CalculatedPrice $b, CalculatedPrice $expected): void
     {
         $a->add($b);
         static::assertEquals($expected->getQuantity(), $a->getQuantity());
@@ -32,11 +32,11 @@ class PriceTest extends TestCase
     /**
      * @dataProvider subCases
      *
-     * @param Price $a
-     * @param Price $b
-     * @param Price $expected
+     * @param CalculatedPrice $a
+     * @param CalculatedPrice $b
+     * @param CalculatedPrice $expected
      */
-    public function testSub(Price $a, Price $b, Price $expected): void
+    public function testSub(CalculatedPrice $a, CalculatedPrice $b, CalculatedPrice $expected): void
     {
         $a->sub($b);
         static::assertEquals($expected->getQuantity(), $a->getQuantity());
@@ -52,19 +52,19 @@ class PriceTest extends TestCase
     {
         return [
             [
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ],
             [
-                new Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
-                new Price(2, 2, new CalculatedTaxCollection([new CalculatedTax(1.10, 19, 2)]), new TaxRuleCollection()),
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
+                new CalculatedPrice(2, 2, new CalculatedTaxCollection([new CalculatedTax(1.10, 19, 2)]), new TaxRuleCollection()),
             ],
             [
-                new Price(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
-                new Price(-0.5, -0.5, new CalculatedTaxCollection([new CalculatedTax(-0.5, 19, -0.5)]), new TaxRuleCollection()),
-                new Price(0.5, 0.5, new CalculatedTaxCollection([new CalculatedTax(0.05, 19, 0.5)]), new TaxRuleCollection()),
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection([new CalculatedTax(0.55, 19, 1)]), new TaxRuleCollection()),
+                new CalculatedPrice(-0.5, -0.5, new CalculatedTaxCollection([new CalculatedTax(-0.5, 19, -0.5)]), new TaxRuleCollection()),
+                new CalculatedPrice(0.5, 0.5, new CalculatedTaxCollection([new CalculatedTax(0.05, 19, 0.5)]), new TaxRuleCollection()),
             ],
         ];
     }
@@ -73,9 +73,9 @@ class PriceTest extends TestCase
     {
         return [
             [
-                new Price(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ],
         ];
     }

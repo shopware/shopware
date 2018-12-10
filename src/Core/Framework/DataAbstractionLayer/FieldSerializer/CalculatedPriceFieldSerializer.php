@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Pricing\Price;
 
 class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 {
@@ -39,6 +39,6 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 
         $value = json_decode((string) $value, true);
 
-        return new PriceStruct($value['net'], $value['gross'], (bool) $value['linked']);
+        return new Price($value['net'], $value['gross'], (bool) $value['linked']);
     }
 }

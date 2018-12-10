@@ -121,29 +121,31 @@ Component.register('sw-product-media-form', {
             };
         },
 
-        onNewUpload({ mediaEntity, src }) {
-            const productMedia = this.buildProductMedia(mediaEntity);
+        onUploadsAdded({ data }) {
+            data.forEach((upload) => {
+                const productMedia = this.buildProductMedia(upload.entity);
 
-            this.unsavedEntities.push(productMedia);
-            this.unsavedEntities.push(mediaEntity);
+                this.unsavedEntities.push(productMedia);
+                this.unsavedEntities.push(upload.entity);
 
-            this.product.media.push(productMedia);
-            if (src instanceof File) {
-                if (mediaEntity.isLocal) {
-                    mediaEntity.fileName = src.name;
+                this.product.media.push(productMedia);
+                if (upload.src instanceof File) {
+                    if (upload.entity.isLocal) {
+                        upload.entity.fileName = upload.src.name;
+                    }
+
+                    fileReader.readAsDataURL(upload.src).then((dataURL) => {
+                        this.addImageToPreview(dataURL, productMedia);
+                    });
+                } else if (upload.src instanceof URL) {
+                    if (upload.entity.isLocal) {
+                        upload.entity.fileName = upload.src.pathname.split('/').pop();
+                    }
+
+                    this.previews[productMedia.mediaId] = upload.src.href;
+                    productMedia.isLoading = false;
                 }
-
-                fileReader.readAsDataURL(src).then((dataURL) => {
-                    this.addImageToPreview(dataURL, productMedia);
-                });
-            } else if (src instanceof URL) {
-                if (mediaEntity.isLocal) {
-                    mediaEntity.fileName = src.pathname.split('/').pop();
-                }
-
-                this.previews[productMedia.mediaId] = src.href;
-                productMedia.isLoading = false;
-            }
+            });
         },
 
         onMediaUploadButtonOpenSidebar() {

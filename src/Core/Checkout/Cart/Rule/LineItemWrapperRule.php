@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemWrapperRule extends Rule
 {
@@ -37,5 +39,12 @@ class LineItemWrapperRule extends Rule
         }
 
         return new Match(false, ['No line item found']);
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'container' => [new NotBlank(), new Type(Container::class)],
+        ];
     }
 }

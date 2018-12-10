@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemOfTypeRule extends Rule
 {
@@ -24,8 +26,15 @@ class LineItemOfTypeRule extends Rule
         }
 
         return new Match(
-            $scope->getLineItem()->getType() == $this->lineItemType,
+            $scope->getLineItem()->getType() === $this->lineItemType,
             ['LineItem type does not match']
         );
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'lineItemType' => [new NotBlank(), new Type('string')],
+        ];
     }
 }

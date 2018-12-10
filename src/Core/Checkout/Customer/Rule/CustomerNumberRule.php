@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CustomerNumberRule extends Rule
 {
@@ -31,5 +33,12 @@ class CustomerNumberRule extends Rule
             \in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true),
             ['Customer number not match']
         );
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'numbers' => [new NotBlank(), new ArrayOfType('string')],
+        ];
     }
 }

@@ -21,6 +21,16 @@ class RuleConditionDefinition extends EntityDefinition
         return 'rule_condition';
     }
 
+    public static function getStructClass(): string
+    {
+        return RuleConditionStruct::class;
+    }
+
+    public static function getCollectionClass(): string
+    {
+        return RuleConditionCollection::class;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -34,15 +44,5 @@ class RuleConditionDefinition extends EntityDefinition
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ChildrenAssociationField(self::class),
         ]);
-    }
-
-    public static function getStructClass(): string
-    {
-        return RuleConditionStruct::class;
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return RuleConditionCollection::class;
     }
 }

@@ -29,4 +29,9 @@ class IsNewCustomerRule extends Rule
             ['Customer is not new']
         );
     }
+
+    public static function getConstraints(): array
+    {
+        return [];
+    }
 }

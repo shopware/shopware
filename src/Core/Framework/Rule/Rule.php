@@ -28,4 +28,14 @@ abstract class Rule extends Struct
      * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
      */
     abstract public function match(RuleScope $scope): Match;
+
+    /**
+     * Gets the constraints of the rule
+     * Format:
+     *  [
+     *   'propertyName' => [new Constraint(), new OtherConstraint()],
+     *   'propertyName2' => [new Constraint(), new OtherConstraint()],
+     *  ]
+     */
+    abstract public static function getConstraints(): array;
 }

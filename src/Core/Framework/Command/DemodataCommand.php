@@ -576,7 +576,7 @@ class DemodataCommand extends Command
                 'name' => 'New customer',
             ],
             [
-                'rule' => (new DateRangeRule())->assign(['fromDate' => new DateTime(), 'toDate' =>  (new DateTime())->modify('+2 day')]),
+                'rule' => (new DateRangeRule())->assign(['fromDate' => new DateTime(), 'toDate' => (new DateTime())->modify('+2 day')]),
                 'name' => 'Next two days',
             ],
             [
@@ -617,7 +617,8 @@ class DemodataCommand extends Command
         return array_column($payload, 'id');
     }
 
-    private function buildChildRule(?string $parentId, Rule $rule): array {
+    private function buildChildRule(?string $parentId, Rule $rule): array
+    {
         $data = [];
         $data['value'] = $rule->jsonSerialize();
         unset($data['value']['_class'], $data['value']['type'], $data['value']['rules'], $data['value']['extensions']);

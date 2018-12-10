@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemRule extends Rule
 {
@@ -31,5 +33,12 @@ class LineItemRule extends Rule
     public function getIdentifiers(): array
     {
         return $this->identifiers;
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
+        ];
     }
 }

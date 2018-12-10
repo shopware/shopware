@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class ShippingStreetRule extends Rule
 {
@@ -34,5 +36,12 @@ class ShippingStreetRule extends Rule
             (bool) preg_match("/$value/", strtolower($location->getStreet())),
             ['Shipping street not matched']
         );
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'streetName' => [new NotBlank(), new Type('string')],
+        ];
     }
 }

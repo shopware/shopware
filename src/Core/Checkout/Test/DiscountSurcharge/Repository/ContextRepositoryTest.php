@@ -44,8 +44,8 @@ class ContextRepositoryTest extends TestCase
     public function testWriteRuleWithObject(): void
     {
         $id = Uuid::uuid4()->getHex();
-        $andId = Uuid::uuid4()->getHex();
-        $orId = Uuid::uuid4()->getHex();
+        $currencyId = Uuid::uuid4()->getHex();
+        $currencyId2 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -53,26 +53,21 @@ class ContextRepositoryTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'id' => $andId,
                     'type' => AndRule::class,
                     'children' => [
                         [
-                            'id' => $orId,
-                            'parentId' => $andId,
                             'type' => OrRule::class,
                             'children' => [
                                 [
-                                    'id' => Uuid::uuid4()->getHex(),
-                                    'parentId' => $orId,
                                     'type' => CurrencyRule::class,
                                     'value' => [
                                         'currencyIds' => [
-                                            'SWAG-CURRENCY-ID-1',
-                                            'SWAG-CURRENCY-ID-2',
-                                        ]
-                                    ]
-                                ]
-                            ]
+                                            $currencyId,
+                                            $currencyId2,
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -83,7 +78,7 @@ class ContextRepositoryTest extends TestCase
 
         $rules = $this->repository->read(new ReadCriteria([$id]), $this->context);
 
-        $currencyRule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']]);
+        $currencyRule = (new CurrencyRule())->assign(['currencyIds' => [$currencyId, $currencyId2]]);
 
         static::assertEquals(
             new AndRule([new OrRule([$currencyRule])]),

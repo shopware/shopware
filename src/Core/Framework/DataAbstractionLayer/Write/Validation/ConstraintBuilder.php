@@ -64,7 +64,7 @@ class ConstraintBuilder
      */
     public function isFloat(): self
     {
-        $this->addConstraint(new Type('float'));
+        $this->addConstraint(new Type('numeric'));
 
         return $this;
     }

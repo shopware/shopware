@@ -51,8 +51,8 @@ class RulePayloadIndexerTest extends TestCase
     public function testIndex()
     {
         $id = Uuid::uuid4()->getHex();
-        $andId = Uuid::uuid4()->getHex();
-        $orId = Uuid::uuid4()->getHex();
+        $currencyId1 = Uuid::uuid4()->getHex();
+        $currencyId2 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -60,22 +60,17 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'id' => $andId,
                     'type' => AndRule::class,
                     'children' => [
                         [
-                            'id' => $orId,
-                            'parentId' => $andId,
                             'type' => OrRule::class,
                             'children' => [
                                 [
-                                    'id' => Uuid::uuid4()->getHex(),
-                                    'parentId' => $orId,
                                     'type' => CurrencyRule::class,
                                     'value' => [
                                         'currencyIds' => [
-                                            'SWAG-CURRENCY-ID-1',
-                                            'SWAG-CURRENCY-ID-2',
+                                            $currencyId1,
+                                            $currencyId2,
                                         ],
                                     ],
                                 ],
@@ -96,7 +91,7 @@ class RulePayloadIndexerTest extends TestCase
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])])]),
+            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
             $rule->getPayload()
         );
     }
@@ -104,8 +99,8 @@ class RulePayloadIndexerTest extends TestCase
     public function testRefresh()
     {
         $id = Uuid::uuid4()->getHex();
-        $andId = Uuid::uuid4()->getHex();
-        $orId = Uuid::uuid4()->getHex();
+        $currencyId1 = Uuid::uuid4()->getHex();
+        $currencyId2 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -113,22 +108,17 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'id' => $andId,
                     'type' => AndRule::class,
                     'children' => [
                         [
-                            'id' => $orId,
-                            'parentId' => $andId,
                             'type' => OrRule::class,
                             'children' => [
                                 [
-                                    'id' => Uuid::uuid4()->getHex(),
-                                    'parentId' => $orId,
                                     'type' => CurrencyRule::class,
                                     'value' => [
                                         'currencyIds' => [
-                                            'SWAG-CURRENCY-ID-1',
-                                            'SWAG-CURRENCY-ID-2',
+                                            $currencyId1,
+                                            $currencyId2,
                                         ],
                                     ],
                                 ],
@@ -145,7 +135,7 @@ class RulePayloadIndexerTest extends TestCase
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])])]),
+            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
             $rule->getPayload()
         );
     }
@@ -154,9 +144,10 @@ class RulePayloadIndexerTest extends TestCase
     {
         $id = Uuid::uuid4()->getHex();
         $rule2Id = Uuid::uuid4()->getHex();
-        $andId = Uuid::uuid4()->getHex();
-        $orId = Uuid::uuid4()->getHex();
-        $rule2AndId = Uuid::uuid4()->getHex();
+        $currencyId1 = Uuid::uuid4()->getHex();
+        $currencyId2 = Uuid::uuid4()->getHex();
+        $salesChannelId1 = Uuid::uuid4()->getHex();
+        $salesChannelId2 = Uuid::uuid4()->getHex();
 
         $data = [
             [
@@ -165,22 +156,17 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 1,
                 'conditions' => [
                     [
-                        'id' => $andId,
                         'type' => AndRule::class,
                         'children' => [
                             [
-                                'id' => $orId,
-                                'parentId' => $andId,
                                 'type' => OrRule::class,
                                 'children' => [
                                     [
-                                        'id' => Uuid::uuid4()->getHex(),
-                                        'parentId' => $orId,
                                         'type' => CurrencyRule::class,
                                         'value' => [
                                             'currencyIds' => [
-                                                'SWAG-CURRENCY-ID-1',
-                                                'SWAG-CURRENCY-ID-2',
+                                                $currencyId1,
+                                                $currencyId2,
                                             ],
                                         ],
                                     ],
@@ -196,17 +182,15 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 42,
                 'conditions' => [
                     [
-                        'id' => $rule2AndId,
                         'type' => AndRule::class,
                         'children' => [
                             [
-                                'parentId' => $rule2AndId,
                                 'type' => SalesChannelRule::class,
                                 'value' => [
                                     'salesChannelIds' => [
-                                        'SWAG-SALES-CHANNEL-ID-1',
-                                        'SWAG-SALES-CHANNEL-ID-2',
-                                    ]
+                                        $salesChannelId1,
+                                        $salesChannelId2,
+                                    ],
                                 ],
                             ],
                         ],
@@ -226,14 +210,14 @@ class RulePayloadIndexerTest extends TestCase
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])])]),
+            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
             $rule->getPayload()
         );
         $rule = $rules->get($rule2Id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([(new SalesChannelRule())->assign(['salesChannelIds' => ['SWAG-SALES-CHANNEL-ID-1', 'SWAG-SALES-CHANNEL-ID-2']])]),
+            new AndRule([(new SalesChannelRule())->assign(['salesChannelIds' => [$salesChannelId1, $salesChannelId2]])]),
             $rule->getPayload()
         );
     }
@@ -242,9 +226,10 @@ class RulePayloadIndexerTest extends TestCase
     {
         $id = Uuid::uuid4()->getHex();
         $rule2Id = Uuid::uuid4()->getHex();
-        $andId = Uuid::uuid4()->getHex();
-        $orId = Uuid::uuid4()->getHex();
-        $rule2AndId = Uuid::uuid4()->getHex();
+        $currencyId1 = Uuid::uuid4()->getHex();
+        $currencyId2 = Uuid::uuid4()->getHex();
+        $salesChannelId1 = Uuid::uuid4()->getHex();
+        $salesChannelId2 = Uuid::uuid4()->getHex();
 
         $data = [
             [
@@ -253,22 +238,17 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 1,
                 'conditions' => [
                     [
-                        'id' => $andId,
                         'type' => AndRule::class,
                         'children' => [
                             [
-                                'id' => $orId,
-                                'parentId' => $andId,
                                 'type' => OrRule::class,
                                 'children' => [
                                     [
-                                        'id' => Uuid::uuid4()->getHex(),
-                                        'parentId' => $orId,
                                         'type' => CurrencyRule::class,
                                         'value' => [
                                             'currencyIds' => [
-                                                'SWAG-CURRENCY-ID-1',
-                                                'SWAG-CURRENCY-ID-2',
+                                                $currencyId1,
+                                                $currencyId2,
                                             ],
                                         ],
                                     ],
@@ -284,17 +264,15 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 42,
                 'conditions' => [
                     [
-                        'id' => $rule2AndId,
                         'type' => AndRule::class,
                         'children' => [
                             [
-                                'parentId' => $rule2AndId,
                                 'type' => SalesChannelRule::class,
                                 'value' => [
                                     'salesChannelIds' => [
-                                        'SWAG-SALES-CHANNEL-ID-1',
-                                        'SWAG-SALES-CHANNEL-ID-2',
-                                    ]
+                                        $salesChannelId1,
+                                        $salesChannelId2,
+                                    ],
                                 ],
                             ],
                         ],
@@ -310,14 +288,14 @@ class RulePayloadIndexerTest extends TestCase
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])])]),
+            new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
             $rule->getPayload()
         );
         $rule = $rules->get($rule2Id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([(new SalesChannelRule())->assign(['salesChannelIds' => ['SWAG-SALES-CHANNEL-ID-1', 'SWAG-SALES-CHANNEL-ID-2']])]),
+            new AndRule([(new SalesChannelRule())->assign(['salesChannelIds' => [$salesChannelId1, $salesChannelId2]])]),
             $rule->getPayload()
         );
     }
@@ -325,8 +303,6 @@ class RulePayloadIndexerTest extends TestCase
     public function testIndexWithMultipleRootConditions()
     {
         $id = Uuid::uuid4()->getHex();
-        $andId = Uuid::uuid4()->getHex();
-        $orId = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -334,22 +310,17 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'id' => $orId,
                     'type' => OrRule::class,
                     'children' => [
                         [
-                            'id' => $andId,
-                            'parentId' => $orId,
                             'type' => AndRule::class,
                             'children' => [
                                 [
-                                    'id' => Uuid::uuid4()->getHex(),
-                                    'parentId' => $andId,
                                     'type' => CurrencyRule::class,
                                     'value' => [
                                         'currencyIds' => [
-                                            'SWAG-CURRENCY-ID-1',
-                                            'SWAG-CURRENCY-ID-2',
+                                            Uuid::uuid4()->getHex(),
+                                            Uuid::uuid4()->getHex(),
                                         ],
                                     ],
                                 ],
@@ -358,9 +329,8 @@ class RulePayloadIndexerTest extends TestCase
                     ],
                 ],
                 [
-                    'id' => Uuid::uuid4()->getHex(),
                     'type' => OrRule::class,
-                ]
+                ],
             ],
         ];
 
@@ -381,6 +351,8 @@ class RulePayloadIndexerTest extends TestCase
     public function testIndexWithRootRuleNotAndRule()
     {
         $id = Uuid::uuid4()->getHex();
+        $currencyId1 = Uuid::uuid4()->getHex();
+        $currencyId2 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -391,8 +363,8 @@ class RulePayloadIndexerTest extends TestCase
                     'type' => CurrencyRule::class,
                     'value' => [
                         'currencyIds' => [
-                            'SWAG-CURRENCY-ID-1',
-                            'SWAG-CURRENCY-ID-2',
+                            $currencyId1,
+                            $currencyId2,
                         ],
                     ],
                 ],
@@ -409,7 +381,7 @@ class RulePayloadIndexerTest extends TestCase
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])]),
+            new AndRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])]),
             $rule->getPayload()
         );
     }
@@ -417,6 +389,8 @@ class RulePayloadIndexerTest extends TestCase
     public function testRefreshWithRootRuleNotAndRule()
     {
         $id = Uuid::uuid4()->getHex();
+        $currencyId1 = Uuid::uuid4()->getHex();
+        $currencyId2 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -427,8 +401,8 @@ class RulePayloadIndexerTest extends TestCase
                     'type' => CurrencyRule::class,
                     'value' => [
                         'currencyIds' => [
-                            'SWAG-CURRENCY-ID-1',
-                            'SWAG-CURRENCY-ID-2',
+                            $currencyId1,
+                            $currencyId2,
                         ],
                     ],
                 ],
@@ -441,7 +415,7 @@ class RulePayloadIndexerTest extends TestCase
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
-            new AndRule([(new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1', 'SWAG-CURRENCY-ID-2']])]),
+            new AndRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])]),
             $rule->getPayload()
         );
     }

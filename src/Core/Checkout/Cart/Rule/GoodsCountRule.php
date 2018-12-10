@@ -6,6 +6,9 @@ use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class GoodsCountRule extends Rule
 {
@@ -18,6 +21,12 @@ class GoodsCountRule extends Rule
      * @var string
      */
     protected $operator;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->operator = self::OPERATOR_EQ;
+    }
 
     /**
      * @throws UnsupportedOperatorException
@@ -65,5 +74,13 @@ class GoodsCountRule extends Rule
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);
         }
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'count' => [new NotBlank(), new Type('int')],
+            'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_EQ])],
+        ];
     }
 }

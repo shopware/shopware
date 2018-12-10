@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 
 /**
  * AbstractContainer implements setRule and addRule of the container interface
@@ -43,5 +44,12 @@ abstract class Container extends Rule
     public function getRules(): array
     {
         return $this->rules;
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'rules' => [new ArrayOfType(Rule::class)],
+        ];
     }
 }

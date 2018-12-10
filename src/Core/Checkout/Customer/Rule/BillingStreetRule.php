@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class BillingStreetRule extends Rule
 {
@@ -33,5 +35,12 @@ class BillingStreetRule extends Rule
             (bool) preg_match("/$value/", strtolower($street)),
             ["Billing street not match /$value/"]
         );
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'streetName' => [new NotBlank(), new Type('string')],
+        ];
     }
 }

@@ -82,7 +82,7 @@ function getRawEntityObject(schema, deep = true) {
  */
 function getRawPropertyValue(propSchema, deep = true) {
     if (propSchema.type === 'boolean') {
-        return false;
+        return null;
     }
 
     if (propSchema.type === 'string') {

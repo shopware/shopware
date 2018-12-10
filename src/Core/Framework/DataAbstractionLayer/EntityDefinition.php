@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteOrderResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -140,34 +137,7 @@ abstract class EntityDefinition
 
     public static function getWriteOrder(): array
     {
-        $associations = static::getFields()->filter(function (Field $field) {
-            return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
-        });
-
-        $manyToOne = static::filterAssociationReferences(ManyToOneAssociationField::class, $associations);
-
-        $oneToMany = static::filterAssociationReferences(OneToManyAssociationField::class, $associations);
-
-        $manyToMany = static::filterAssociationReferences(ManyToManyAssociationField::class, $associations);
-
-        $self = array_filter([static::class, static::getTranslationDefinitionClass()]);
-
-        /*
-         * If a linked entity exists once as OneToMany but also as ManyToOne (bi-directional foreign keys),
-         * it must be treated as OneToMany. In the MySQL database,
-         * no foreign key may be created for the ManyToOne relation.
-         *
-         * Examples:
-         *      a customer has 1:N addresses
-         *      a customer has 1:1 default_shipping_address
-         *      a customer has 1:1 default_billing_address
-         */
-        $c = array_intersect($manyToOne, $oneToMany);
-        foreach ($c as $index => $value) {
-            unset($manyToOne[$index]);
-        }
-
-        return array_unique(array_values(array_merge($manyToOne, $self, $oneToMany, $manyToMany)));
+        return EntityWriteOrderResolver::resolveDependencies(static::class);
     }
 
     public static function getPrimaryKeys(): FieldCollection
@@ -224,19 +194,4 @@ abstract class EntityDefinition
     }
 
     abstract protected static function defineFields(): FieldCollection;
-
-    protected static function filterAssociationReferences(string $type, FieldCollection $fields): array
-    {
-        $associations = $fields->filterInstance($type)->getElements();
-
-        $associations = array_map(function (AssociationInterface $association) {
-            if ($association->getReferenceClass() !== static::class) {
-                return $association->getReferenceClass();
-            }
-
-            return null;
-        }, $associations);
-
-        return array_filter($associations);
-    }
 }

@@ -351,21 +351,21 @@ class DiscountSurchargeTest extends TestCase
             $ruleId,
             DiscountSurchargeCollector::PERCENTAL_MODIFIER,
             -10,
-            (new LineItemOfTypeRule())->assign(['lineItemType' =>'product'])
+            (new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])
         );
 
         $id2 = $this->createDiscountSurcharge(
             $ruleId,
             DiscountSurchargeCollector::PERCENTAL_MODIFIER,
             10,
-            (new LineItemOfTypeRule())->assign(['lineItemType' =>'product'])
+            (new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])
         );
 
         $id3 = $this->createDiscountSurcharge(
             $ruleId,
             DiscountSurchargeCollector::ABSOLUTE_MODIFIER,
             2,
-            (new LineItemOfTypeRule())->assign(['lineItemType' =>'product'])
+            (new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])
         );
 
         $cart = new Cart('test', 'test');

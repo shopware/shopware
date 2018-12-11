@@ -128,7 +128,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
     public function testRuleWithGreaterThanEqualNotMatch(): void
     {
-        $rule =  (new LineItemTotalPriceRule())->assign(['amount' => 201, 'operator' => Rule::OPERATOR_GTE]);
+        $rule = (new LineItemTotalPriceRule())->assign(['amount' => 201, 'operator' => Rule::OPERATOR_GTE]);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -144,7 +144,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
     public function testRuleWithNotEqualMatch(): void
     {
-        $rule =  (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_NEQ]);
+        $rule = (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_NEQ]);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -160,7 +160,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
     public function testRuleWithNotEqualNotMatch(): void
     {
-        $rule =  (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_NEQ]);
+        $rule = (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_NEQ]);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(

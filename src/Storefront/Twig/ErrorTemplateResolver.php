@@ -7,7 +7,6 @@ use Twig_Environment;
 
 class ErrorTemplateResolver
 {
-
     /** @var Twig_Environment */
     protected $twig;
 
@@ -32,6 +31,5 @@ class ErrorTemplateResolver
         $template .= '.html.twig';
 
         return new ErrorTemplateStruct($template, ['exception' => $exception]);
-
     }
 }

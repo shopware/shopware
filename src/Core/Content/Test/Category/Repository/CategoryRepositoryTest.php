@@ -271,7 +271,5 @@ class CategoryRepositoryTest extends TestCase
         $children->rewind();
         static::assertEquals($recordC, $children->current()->getId());
         static::assertEquals(3, $children->current()->getLevel());
-
     }
-
 }

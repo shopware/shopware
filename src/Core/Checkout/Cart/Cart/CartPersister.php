@@ -62,7 +62,6 @@ class CartPersister implements CartPersisterInterface
 
         $this->delete($cart->getToken(), $context);
 
-
         $customerId = $context->getCustomer() ? Uuid::fromStringToBytes($context->getCustomer()->getId()) : null;
 
         $data = [

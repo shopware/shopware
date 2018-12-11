@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ErrorController extends StorefrontController
 {
-    /** @var ErrorTemplateResolver  */
+    /** @var ErrorTemplateResolver */
     protected $errorTemplateResolver;
 
     public function __construct(ErrorTemplateResolver $errorTemplateResolver)
@@ -20,6 +20,7 @@ class ErrorController extends StorefrontController
     {
         try {
             $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
+
             return $this->renderStorefront($errorTemplate->getTemplateName(), $errorTemplate->getArguments());
         } catch (\Exception $e) { //final Fallback
             return $this->renderStorefront(

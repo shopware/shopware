@@ -30,7 +30,7 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         }
 
         /** @var ReferenceVersionField $field */
-        if ($parameters->getDefinition() === $field->getVersionReference()) {
+        if ($data->getValue() !== null || $parameters->getDefinition() === $field->getVersionReference()) {
             // parent inheritance with versioning
             $value = $data->getValue() ?? Defaults::LIVE_VERSION;
         } elseif ($parameters->getContext()->has($field->getVersionReference(), 'versionId')) {

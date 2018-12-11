@@ -1170,6 +1170,15 @@ class VersioningTest extends TestCase
         static::assertCount(1, $result->getIds());
         static::assertContains($productId, $result->getIds());
 
+        $readCriteria = new ReadCriteria([$productId]);
+        $readCriteria->addAssociation('product.categories');
+
+        $product = $this->productRepository->read($readCriteria, $versionContext)->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(3, $product->getCategories(), print_r($product->getId(), true));
+
         $this->productRepository->merge($versionId, $context);
 
         $result = $this->productRepository->searchIds($criteria, $context);

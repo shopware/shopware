@@ -360,9 +360,13 @@ class VersionManager
 
             $payloadCursor = &$payload;
 
+            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+                continue;
+            }
+
             if ($field->is(Extension::class)) {
                 $dataCursor = $data['extensions'];
-                $payloadCursor = &$extensions;
+                $payloadCursor = $extensions;
             }
 
             if (!array_key_exists($field->getPropertyName(), $dataCursor)) {

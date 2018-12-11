@@ -129,9 +129,10 @@ export default class EntityStore {
      *
      * @memberOf module:core/data/EntityStore
      * @param {String} id
+     * @param {boolean} includeAssociations
      * @return {EntityProxy}
      */
-    duplicate(id) {
+    duplicate(id, includeAssociations = false) {
         const newId = utils.createId();
 
         this.store[newId] = new this.EntityClass(this.entityName, this.apiService, newId, this);
@@ -141,6 +142,22 @@ export default class EntityStore {
             duplicateData.id = newId;
 
             this.store[newId].setLocalData(duplicateData);
+
+            if (includeAssociations) {
+                Object.keys(this.store[id].associations).forEach((key) => {
+                    const associations = [];
+                    Object.keys(this.store[id].associations[key].store).forEach((associationId) => {
+                        const association = this.store[newId].associations[key].create(associationId);
+                        association.setLocalData(
+                            deepCopyObject(this.store[id].associations[key].store[associationId])
+                        );
+                        this.store[id].associations[key].store[associationId].isLocal = true;
+                        associations.push(this.store[id].associations[key].store[associationId]);
+                    });
+
+                    this.store[newId].associations[key].populateParentEntity(associations);
+                });
+            }
         }
 
         return this.store[newId];

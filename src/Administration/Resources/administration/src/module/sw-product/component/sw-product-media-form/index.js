@@ -83,11 +83,13 @@ Component.register('sw-product-media-form', {
         },
 
         updateColumnCount() {
-            const cssColumns = window.getComputedStyle(this.$refs.grid, null)
-                .getPropertyValue('grid-template-columns')
-                .split(' ');
-            this.columnCount = cssColumns.length;
-            this.columnWidth = cssColumns[0];
+            this.$nextTick(() => {
+                const cssColumns = window.getComputedStyle(this.$refs.grid, null)
+                    .getPropertyValue('grid-template-columns')
+                    .split(' ');
+                this.columnCount = cssColumns.length;
+                this.columnWidth = cssColumns[0];
+            });
         },
 
         onBeforeDestroy() {

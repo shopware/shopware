@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
@@ -69,7 +68,7 @@ class MediaFolderDefinition extends EntityDefinition
 
             new BoolField('use_parent_configuration', 'useParentConfiguration'),
 
-            (new FkField('media_folder_configuration_id', 'configurationId', MediaFolderConfigurationDefinition::class))->setFlags(new Inherited()),
+            (new FkField('media_folder_configuration_id', 'configurationId', MediaFolderConfigurationDefinition::class))->setFlags(new Required()),
 
             new ParentFkField(self::class),
             new ParentAssociationField(self::class, false),
@@ -78,7 +77,7 @@ class MediaFolderDefinition extends EntityDefinition
             new ChildCountField(),
 
             new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id', false),
-            (new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, true))->setFlags(new Inherited()),
+            new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, true),
 
             (new TranslatedField('name'))->addFlags(new SearchRanking(self::HIGH_SEARCH_RANKING), new Required()),
             new TranslationsAssociationField(MediaFolderTranslationDefinition::class),

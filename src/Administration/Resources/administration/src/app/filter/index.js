@@ -5,3 +5,4 @@ import 'src/app/filter/fileSize';
 import 'src/app/filter/truncate';
 import 'src/app/filter/striphtml';
 import 'src/app/filter/mediaName';
+import 'src/app/filter/thumbnailSize';

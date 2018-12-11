@@ -43,7 +43,8 @@
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Delete",
       "labelContextMenuRename": "Rename",
-      "labelContextMenuShowMedia": "Show media"
+      "labelContextMenuShowMedia": "Show media",
+      "labelContextMenuShowSettings": "Settings"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
@@ -96,6 +97,26 @@
       "labelFileExtension": "file extension",
       "invalidUrl": "Please enter a valid URL to download a file.",
       "missingFileExtension": "The URL does not contain a file extension. Please add a file extension above."
+    },
+    "sw-media-modal-folder-settings": {
+      "labelSettings": "Settings",
+      "labelThumbnails": "Thumbnails",
+      "labelFolderName": "Name",
+      "labelInheritSettings": "Inherit settings from parent folder",
+      "labelGenerateThumbnails": "Generate thumbnails for this folder",
+      "labelThumbnailQuality": "Thumbnail quality",
+      "labelThumbnailSize": "Thumbnail size",
+      "labelEditList": "Edit list",
+      "labelStopEdit": "Stop editing",
+      "labelSave": "Save",
+      "labelCancel": "Cancel",
+      "titleDeleteThumbnails": "Delete",
+      "notificationSuccess": "Settings successfully saved",
+      "notificationError": "Error saving settings"
+    },
+    "sw-media-add-thumbnail-form": {
+      "labelMaximumSize": "Maximum size",
+      "labelAdd": "Add"
     },
     "sw-sidebar-media-item": {
       "title": "Media",

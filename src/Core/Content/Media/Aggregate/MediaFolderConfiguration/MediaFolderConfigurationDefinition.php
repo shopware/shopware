@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -42,6 +43,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
 
         return [
             'createThumbnails' => true,
+            'thumbnailQuality' => 80,
         ];
     }
 
@@ -51,6 +53,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             new BoolField('create_thumbnails', 'createThumbnails'),
+            new IntField('thumbnail_quality', 'thumbnailQuality'),
 
             new OneToManyAssociationField(
                 'mediaFolders',

@@ -1,0 +1,43 @@
+{% block sw_media_add_thumbnail_form %}
+    <div class="sw-media-add-thumbnail-form">
+
+        {% block sw_media_add_thumbnail_form_form_container %}
+            <div class="sw-media-add-thumbnail-form__form-container">
+                {% block sw_media_add_thumbnail_form_width %}
+                    <sw-field class="sw-media-add-thumbnail-form__input-width"
+                              type="number"
+                              :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
+                              @input="onWidthChange"
+                              @change="onWidthChange"
+                              v-model="width">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_media_add_thumbnail_form_lock_button %}
+                    <button class="sw-media-add-thumbnail-form__lock"
+                            :class="lockedButtonClass"
+                            @click="onLockSwitch">
+                        <sw-icon v-if="isLocked" name="default-lock-closed" size="16"></sw-icon>
+                        <sw-icon v-else name="default-lock-open" size="16"></sw-icon>
+                    </button>
+                {% endblock %}
+
+                {% block sw_media_add_thumbnail_form_height %}
+                    <sw-field class="sw-media-add-thumbnail-form__input-height"
+                              type="number"
+                              v-model="height"
+                              :disabled="isLocked">
+                    </sw-field>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_media_add_thumbnail_add_button %}
+            <sw-button variant="ghost"
+                       @click="onAdd"
+                       :disabled="width === null || height === null">
+                {{ $tc('global.sw-media-add-thumbnail-form.labelAdd') }}
+            </sw-button>
+        {% endblock %}
+    </div>
+{% endblock %}

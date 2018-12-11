@@ -380,6 +380,20 @@ export default class EntityProxy {
     }
 
     /**
+     * Overrides the original entity with the given entity.
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @param {EntityProxy} newEntity
+     * @return {void}
+     */
+    override(newEntity) {
+        Object.keys(newEntity).forEach((key) => {
+            this.draft[key] = newEntity[key];
+        });
+        this.id = newEntity.id;
+    }
+
+    /**
      * Validates the entity.
      *
      * @memberOf module:core/data/EntityProxy
@@ -620,6 +634,11 @@ export default class EntityProxy {
                 if (type.isObject(b[key]) && properties[key].entity) {
                     const addition = EntityProxy.validateSchema(b[key], Entity.getDefinition(properties[key].entity));
 
+                    // invalidate the entity
+                    if (b[key].store) {
+                        b[key].store.remove(b[key]);
+                    }
+
                     if (Object.keys(addition).length <= 0) {
                         return acc;
                     }
@@ -654,6 +673,11 @@ export default class EntityProxy {
             // The property is a OneToOne associated entity
             if (type.isObject(b[key]) && properties[key].entity) {
                 const changes = this.getChanges(a[key], b[key], Entity.getDefinition(properties[key].entity));
+
+                // invalidate the entity
+                if (b[key].store) {
+                    b[key].store.remove(b[key]);
+                }
 
                 if (Object.keys(changes).length <= 0) {
                     return acc;

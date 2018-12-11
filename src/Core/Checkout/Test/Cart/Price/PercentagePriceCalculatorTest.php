@@ -11,10 +11,8 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
@@ -35,18 +33,15 @@ class PercentagePriceCalculatorTest extends TestCase
         $rounding = new PriceRounding(2);
 
         $taxCalculator = new TaxCalculator(
-            new PriceRounding(2),
-            [
-                new TaxRuleCalculator($rounding),
-                new PercentageTaxRuleCalculator(new TaxRuleCalculator($rounding)),
-            ]
+            $rounding,
+            new TaxRuleCalculator(new PriceRounding(2))
         );
 
         $calculator = new PercentagePriceCalculator(
-            new PriceRounding(2),
+            $rounding,
             new QuantityPriceCalculator(
-                new GrossPriceCalculator($taxCalculator, new PriceRounding(2)),
-                new NetPriceCalculator($taxCalculator, new PriceRounding(2)),
+                new GrossPriceCalculator($taxCalculator, $rounding),
+                new NetPriceCalculator($taxCalculator, $rounding),
                 Generator::createGrossPriceDetector()
             ),
             new PercentageTaxRuleBuilder()
@@ -87,8 +82,8 @@ class PercentagePriceCalculatorTest extends TestCase
                         new CalculatedTax(-0.20, 7, -3.0),
                     ]),
                     new TaxRuleCollection([
-                        new PercentageTaxRule(19, 50),
-                        new PercentageTaxRule(7, 50),
+                        new TaxRule(19, 50),
+                        new TaxRule(7, 50),
                     ]),
                     1
                 ),

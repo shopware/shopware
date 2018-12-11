@@ -18,11 +18,11 @@ if the quantity of the line item changes.
 ```php
 <?php
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 $taxRules = new TaxRuleCollection([
-    new TaxRule(19),
+    new PercentageTaxRule(19),
 ]);
 
 $priceDefinition = new QuantityPriceDefinition(12.99, $taxRules);

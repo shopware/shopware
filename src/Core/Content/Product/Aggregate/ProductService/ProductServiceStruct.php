@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductService;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
 use Shopware\Core\Content\Product\ProductStruct;
@@ -172,7 +172,7 @@ class ProductServiceStruct extends Entity
     public function getTaxRuleCollection(): TaxRuleCollection
     {
         return new TaxRuleCollection([
-            new PercentageTaxRule($this->getTax()->getTaxRate(), 100),
+            new TaxRule($this->getTax()->getTaxRate(), 100),
         ]);
     }
 

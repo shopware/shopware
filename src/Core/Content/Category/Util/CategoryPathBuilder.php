@@ -80,6 +80,10 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
         $version = Uuid::fromStringToBytes($context->getVersionId());
 
+        $parents->sort(function (CategoryStruct $a, CategoryStruct $b) {
+            return $a->getLevel() <=> $b->getLevel();
+        });
+
         /** @var CategoryStruct $category */
         foreach ($categories as $category) {
             $idPath = implode('|', $parents->getIds());
@@ -103,7 +107,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
             $pathUpdate->execute([
                 'path' => '|' . $idPath . '|',
                 'id' => $id,
-                'level' => count($parents->getIds())+1,
+                'level' => count($parents->getIds()) + 1,
                 'version' => $version,
             ]);
             $nameUpdate->execute([

@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 class PercentageTaxRuleBuilder
@@ -16,7 +16,7 @@ class PercentageTaxRuleBuilder
         /** @var CalculatedTax $tax */
         foreach ($price->getCalculatedTaxes() as $tax) {
             $rules->add(
-                new PercentageTaxRule(
+                new TaxRule(
                     $tax->getTaxRate(),
                     $tax->getPrice() / $price->getTotalPrice() * 100
                 )

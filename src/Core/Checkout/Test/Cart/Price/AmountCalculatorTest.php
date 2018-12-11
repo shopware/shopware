@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -50,10 +49,7 @@ class AmountCalculatorTest extends TestCase
                 new PercentageTaxRuleBuilder(),
                 new TaxCalculator(
                     new PriceRounding(2),
-                    [
-                        new PercentageTaxRuleCalculator(new TaxRuleCalculator(new PriceRounding(2))),
-                        new TaxRuleCalculator(new PriceRounding(2)),
-                    ]
+                    new TaxRuleCalculator(new PriceRounding(2))
                 ),
                 $detector
             )
@@ -88,10 +84,7 @@ class AmountCalculatorTest extends TestCase
                 new PercentageTaxRuleBuilder(),
                 new TaxCalculator(
                     new PriceRounding(2),
-                    [
-                        new PercentageTaxRuleCalculator(new TaxRuleCalculator(new PriceRounding(2))),
-                        new TaxRuleCalculator(new PriceRounding(2)),
-                    ]
+                    new TaxRuleCalculator(new PriceRounding(2))
                 ),
                 $detector
             )
@@ -126,10 +119,7 @@ class AmountCalculatorTest extends TestCase
                 new PercentageTaxRuleBuilder(),
                 new TaxCalculator(
                     new PriceRounding(2),
-                    [
-                        new PercentageTaxRuleCalculator(new TaxRuleCalculator(new PriceRounding(2))),
-                        new TaxRuleCalculator(new PriceRounding(2)),
-                    ]
+                    new TaxRuleCalculator(new PriceRounding(2))
                 ),
                 $detector
             )

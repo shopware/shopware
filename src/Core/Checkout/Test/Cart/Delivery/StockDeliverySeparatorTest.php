@@ -42,7 +42,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $taxCalculator = new TaxCalculator(
             new PriceRounding(2),
-            [new TaxRuleCalculator(new PriceRounding(2))]
+            new TaxRuleCalculator(new PriceRounding(2))
         );
 
         $this->separator = new DeliveryBuilder(

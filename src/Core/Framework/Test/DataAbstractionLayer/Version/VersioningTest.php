@@ -4,19 +4,36 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Version;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -140,6 +157,91 @@ class VersioningTest extends TestCase
         static::markTestIncomplete('Object fields are not supported currently');
     }
 
+    public function testICanVersionCalculatedPriceField()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $this->connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+
+        $price = new CalculatedPrice(
+            100.20,
+            100.30,
+            new CalculatedTaxCollection([
+                new CalculatedTax(0.19, 10, 10),
+                new CalculatedTax(0.19, 5, 10),
+            ]),
+            new TaxRuleCollection([
+                new TaxRule(10, 50),
+                new TaxRule(5, 50),
+            ])
+        );
+
+        $repository = new EntityRepository(
+            CalculatedPriceFieldTestDefinition::class,
+            $this->getContainer()->get(EntityReaderInterface::class),
+            $this->getContainer()->get(VersionManager::class),
+            $this->getContainer()->get(EntitySearcherInterface::class),
+            $this->getContainer()->get(EntityAggregatorInterface::class),
+            $this->getContainer()->get('event_dispatcher')
+        );
+
+        $context = Context::createDefaultContext();
+
+        $data = ['id' => $id, 'price' => $price];
+
+        $repository->create([$data], $context);
+
+        $versionId = $repository->createVersion($id, $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $newPrice = new CalculatedPrice(
+            500.20,
+            500.30,
+            new CalculatedTaxCollection([
+                new CalculatedTax(3.50, 15, 500.20),
+                new CalculatedTax(3.50, 30, 500.20),
+            ]),
+            new TaxRuleCollection([
+                new TaxRule(15, 30),
+                new TaxRule(30, 70),
+            ])
+        );
+
+        $updated = ['id' => $id, 'price' => $newPrice];
+        $repository->update([$updated], $versionContext);
+
+        $entity = $repository
+                    ->read(new ReadCriteria([$id]), $context)
+                    ->first();
+
+        //check that the live entity contains the original price
+        static::assertInstanceOf(ArrayStruct::class, $entity);
+
+        $livePrice = $entity->get('price');
+        static::assertInstanceOf(CalculatedPrice::class, $livePrice);
+
+        /** @var CalculatedPrice $livePrice */
+        static::assertEquals(100.20, $livePrice->getUnitPrice());
+        static::assertEquals(100.30, $livePrice->getTotalPrice());
+        static::assertEquals(0.38, $livePrice->getCalculatedTaxes()->getAmount());
+
+        //check that the version entity is updated with the new price
+        $entity = $repository
+            ->read(new ReadCriteria([$id]), $versionContext)
+            ->first();
+
+        static::assertInstanceOf(ArrayStruct::class, $entity);
+
+        $versionPrice = $entity->get('price');
+        static::assertInstanceOf(CalculatedPrice::class, $versionPrice);
+
+        /** @var CalculatedPrice $versionPrice */
+        static::assertEquals(500.20, $versionPrice->getUnitPrice());
+        static::assertEquals(500.30, $versionPrice->getTotalPrice());
+        static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
+    }
+
     public function testICanVersionCalculatedFields()
     {
         $id1 = Uuid::uuid4()->getHex();
@@ -173,7 +275,7 @@ class VersioningTest extends TestCase
         /** @var CategoryStruct $category */
         $category = $this->categoryRepository->read(new ReadCriteria([$id3]), $versionContext)->first();
         static::assertInstanceOf(CategoryStruct::class, $category);
-        static::assertEquals('|' . $id2 . '|' . $id1 . '|', $category->getPath());
+        static::assertEquals('|' . $id1 . '|' . $id2 . '|', $category->getPath());
     }
 
     public function testICanVersionTranslatedFields()
@@ -522,18 +624,78 @@ class VersioningTest extends TestCase
 
     public function testICanReadOneToManyInASpecifyVersion()
     {
+        $productId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::uuid4()->getHex();
+        $priceId1 = Uuid::uuid4()->getHex();
+        $priceId2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+        ], $context);
+
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'quantityEnd' => 20,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 15, 'net' => 10],
+                ],
+                [
+                    'id' => $priceId2,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 21,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 10, 'net' => 8],
+                ],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $versionId = $this->productRepository->createVersion($productId, $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $this->getContainer()->get('product_price_rule.repository')->delete([
+            ['id' => $priceId1, 'versionId' => $versionId],
+            ['id' => $priceId2, 'versionId' => $versionId]
+        ], $versionContext);
+
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $context)->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getPriceRules());
+
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext)->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getPriceRules());
     }
 
-    public function testICanReadManyTOManyInASpecifyVersion()
+    public function testICanReadManyToManyInASpecifyVersion()
     {
+
     }
 
     public function testReadConsidersLiveVersionAsFallbackForOneToMany()
     {
+
     }
 
     public function testReadConsidersLiveVersionAsFallbackForManyToMany()
     {
+
     }
 
     public function testICanSearchInASpecifyVersion()
@@ -882,5 +1044,35 @@ class VersioningTest extends TestCase
         }, $data);
 
         return $data;
+    }
+}
+
+class CalculatedPriceFieldTestDefinition extends EntityDefinition
+{
+    public static function getCreateTable()
+    {
+        return '
+DROP TABLE IF EXISTS calculated_price_field_test;  
+CREATE TABLE `calculated_price_field_test` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `calculated_price` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`, `version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ';
+    }
+
+    public static function getEntityName(): string
+    {
+        return 'calculated_price_field_test';
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+            (new CalculatedPriceField('calculated_price', 'price'))->setFlags(new Required()),
+        ]);
     }
 }

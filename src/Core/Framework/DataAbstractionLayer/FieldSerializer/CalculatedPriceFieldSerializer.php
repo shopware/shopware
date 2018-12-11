@@ -2,12 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Pricing\Price;
 
 class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 {
@@ -22,7 +27,9 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = $data->getValue();
+        $value = json_decode(json_encode($data->getValue(), JSON_PRESERVE_ZERO_FRACTION), true);
+
+        $value = JsonType::format($value);
 
         unset($value['extensions']);
 
@@ -39,6 +46,33 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 
         $value = json_decode((string) $value, true);
 
-        return new Price($value['net'], $value['gross'], (bool) $value['linked']);
+        $taxRules = array_map(
+            function (array $tax) {
+                return new TaxRule(
+                    (float) $tax['taxRate'],
+                    (float) $tax['percentage']
+                );
+            },
+            $value['taxRules']
+        );
+
+        $calculatedTaxes = array_map(
+            function (array $tax) {
+                return new CalculatedTax(
+                    (float) $tax['tax'],
+                    (float) $tax['taxRate'],
+                    (float) $tax['price']
+                );
+            },
+            $value['calculatedTaxes']
+        );
+
+        return new CalculatedPrice(
+            (float) $value['unitPrice'],
+            (float) $value['totalPrice'],
+            new CalculatedTaxCollection($calculatedTaxes),
+            new TaxRuleCollection($taxRules),
+            (int) $value['quantity']
+        );
     }
 }

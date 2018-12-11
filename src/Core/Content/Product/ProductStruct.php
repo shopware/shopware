@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -893,7 +893,7 @@ class ProductStruct extends Entity
     public function getTaxRuleCollection(): TaxRuleCollection
     {
         return new TaxRuleCollection([
-            new PercentageTaxRule($this->getTax()->getTaxRate(), 100),
+            new TaxRule($this->getTax()->getTaxRate(), 100),
         ]);
     }
 

@@ -11,7 +11,7 @@ import './sw-description-list.less';
  * <sw-description-list>
  *     <dt>Product name</dt>
  *     <dd>Example product</dd>
- *     <dt>CalculatedPrice</dt>
+ *     <dt>Price</dt>
  *     <dd>$4.99</dd>
  *     <dt>Description</dt>
  *     <dd>Lorem ipsum dolor sit amet, consetetur sadipscing elitr</dd>

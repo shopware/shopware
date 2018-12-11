@@ -7,10 +7,8 @@ use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
@@ -42,10 +40,7 @@ class TaxAmountCalculatorTest extends TestCase
             new PercentageTaxRuleBuilder(),
             new TaxCalculator(
                 new PriceRounding(2),
-                [
-                    new PercentageTaxRuleCalculator(new TaxRuleCalculator(new PriceRounding(2))),
-                    new TaxRuleCalculator(new PriceRounding(2)),
-                ]
+                new TaxRuleCalculator(new PriceRounding(2))
             ),
             $taxDetector
         );
@@ -130,8 +125,8 @@ class TaxAmountCalculatorTest extends TestCase
                             new CalculatedTax(-0.05, 7, -0.74),
                         ]),
                         new TaxRuleCollection([
-                            new PercentageTaxRule(19, 0.677852348993289),
-                            new PercentageTaxRule(7, 0.322147651006711),
+                            new TaxRule(19, 0.677852348993289),
+                            new TaxRule(7, 0.322147651006711),
                         ])
                     ),
                 ]),
@@ -201,8 +196,8 @@ class TaxAmountCalculatorTest extends TestCase
                             new CalculatedTax(-0.05, 7, -0.74),
                         ]),
                         new TaxRuleCollection([
-                            new PercentageTaxRule(19, 0.677852348993289),
-                            new PercentageTaxRule(7, 0.322147651006711),
+                            new TaxRule(19, 0.677852348993289),
+                            new TaxRule(7, 0.322147651006711),
                         ])
                     ),
                 ]),
@@ -296,8 +291,8 @@ class TaxAmountCalculatorTest extends TestCase
                             new CalculatedTax(-0.05, 7, -0.69),
                         ]),
                         new TaxRuleCollection([
-                            new PercentageTaxRule(19, 0.653846153846154),
-                            new PercentageTaxRule(7, 0.346153846153846),
+                            new TaxRule(19, 0.653846153846154),
+                            new TaxRule(7, 0.346153846153846),
                         ])
                     ),
                 ]),
@@ -324,8 +319,8 @@ class TaxAmountCalculatorTest extends TestCase
                             new CalculatedTax(-0.05, 7, -0.69),
                         ]),
                         new TaxRuleCollection([
-                            new PercentageTaxRule(19, 0.653846153846154),
-                            new PercentageTaxRule(7, 0.346153846153846),
+                            new TaxRule(19, 0.653846153846154),
+                            new TaxRule(7, 0.346153846153846),
                         ])
                     ),
                 ]),

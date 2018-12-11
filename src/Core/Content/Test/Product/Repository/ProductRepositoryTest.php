@@ -622,8 +622,18 @@ class ProductRepositoryTest extends TestCase
         $child = Uuid::uuid4()->getHex();
 
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
-            ['id' => $child, 'parentId' => $id, 'price' => ['gross' => 12, 'net' => 11, 'linked' => false]],
+            [
+                'id' => $id,
+                'name' => 'Insert',
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'manufacturer' => ['name' => 'test'],
+            ],
+            [
+                'id' => $child,
+                'parentId' => $id,
+                'price' => ['gross' => 12, 'net' => 11, 'linked' => false],
+            ],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext());

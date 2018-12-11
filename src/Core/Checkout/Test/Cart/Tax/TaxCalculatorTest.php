@@ -3,11 +3,9 @@
 namespace Shopware\Core\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\TaxRuleNotSupportedException;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 
@@ -16,16 +14,16 @@ class TaxCalculatorTest extends TestCase
     /**
      * @dataProvider netPricesToGross
      *
-     * @param float            $expected
-     * @param PriceRounding    $rounding
-     * @param TaxRuleInterface $taxRule
-     * @param float            $net
+     * @param float         $expected
+     * @param PriceRounding $rounding
+     * @param TaxRule       $taxRule
+     * @param float         $net
      */
-    public function testCalculateGrossPriceOfNetPrice($expected, PriceRounding $rounding, TaxRuleInterface $taxRule, $net): void
+    public function testCalculateGrossPriceOfNetPrice($expected, PriceRounding $rounding, TaxRule $taxRule, $net): void
     {
         $calculator = new TaxCalculator(
             $rounding,
-            [new TaxRuleCalculator($rounding)]
+            new TaxRuleCalculator($rounding)
         );
 
         $rules = new TaxRuleCollection([$taxRule]);
@@ -34,26 +32,6 @@ class TaxCalculatorTest extends TestCase
             $expected,
             $calculator->calculateGross($net, $rules)
         );
-    }
-
-    public function testNotSupportedRule(): void
-    {
-        $calculator = new TaxCalculator(
-            new PriceRounding(2),
-            []
-        );
-
-        $rule = new TaxRule(19);
-        $rules = new TaxRuleCollection([$rule]);
-
-        try {
-            $calculator->calculateGross(1, $rules);
-        } catch (\Exception $e) {
-            static::assertInstanceOf(TaxRuleNotSupportedException::class, $e);
-
-            /* @var TaxRuleNotSupportedException $e */
-            static::assertSame($rule, $e->getTaxRule());
-        }
     }
 
     /**

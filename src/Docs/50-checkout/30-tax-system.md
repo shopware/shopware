@@ -9,23 +9,13 @@ the taxes if the price of a line item changes.
 A price definition contains a TaxRuleCollection and a price contains a CalculatedTaxRuleCollection.
 
 ## Tax rule
-`Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule` defines a tax rate as float 
-and will be calculated using the whole price.
-
-```php
-<?php
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-
-$taxRule = new TaxRule(19);
-```
-
-## Percentage tax rule
-`Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule` defines a partial tax rate. 
+`Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule` defines a partial tax rate. 
 It contains the tax rate as float and the percentage which should be used for calculation.
 
 ```php
 <?php
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 $firstTaxRule = new PercentageTaxRule(19, 80);
 $secondTaxRule = new PercentageTaxRule(7, 20);

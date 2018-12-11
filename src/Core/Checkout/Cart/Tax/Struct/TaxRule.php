@@ -4,20 +4,31 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-class TaxRule extends Struct implements TaxRuleInterface
+class TaxRule extends Struct
 {
     /**
      * @var float
      */
     protected $taxRate;
 
-    public function __construct(float $taxRate)
+    /**
+     * @var float
+     */
+    protected $percentage;
+
+    public function __construct(float $taxRate, float $percentage = 100)
     {
         $this->taxRate = $taxRate;
+        $this->percentage = $percentage;
     }
 
     public function getTaxRate(): float
     {
         return $this->taxRate;
+    }
+
+    public function getPercentage(): float
+    {
+        return $this->percentage;
     }
 }

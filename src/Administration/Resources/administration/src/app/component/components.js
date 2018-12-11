@@ -36,6 +36,7 @@ import './form/sw-price-field';
 import './form/sw-select';
 import './form/sw-select-option';
 import './form/sw-text-editor';
+import './form/sw-condition-group';
 
 import './tree/sw-tree';
 import './tree/sw-tree-item';

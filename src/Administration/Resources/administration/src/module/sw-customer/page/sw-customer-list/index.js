@@ -72,7 +72,7 @@ Component.register('sw-customer-list', {
 
             return this.customerStore.getById(id).delete(true).then(() => {
                 this.getList();
-            }).catch(this.onCloseDeleteModal());
+            });
         }
     }
 });

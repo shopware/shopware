@@ -104,7 +104,7 @@ Component.register('sw-sales-channel-detail-base', {
             this.$nextTick(() => {
                 this.salesChannel.delete(true).then(() => {
                     this.$root.$emit('changedSalesChannels');
-                }).catch(this.onCloseDeleteModal());
+                });
 
                 this.$router.push({ name: 'sw.dashboard.index' });
             });

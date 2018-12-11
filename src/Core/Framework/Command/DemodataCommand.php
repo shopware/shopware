@@ -43,6 +43,7 @@ use Shopware\Core\Framework\Faker\Commerce;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\NotRule;
+use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -612,9 +613,45 @@ class DemodataCommand extends Command
             $payload[] = $ruleData;
         }
 
+        // nested condition
+        $nestedRule = new AndRule();
+
+        $nestedRuleData = [
+            'id' => Uuid::uuid4()->getHex(),
+            'priority' => 20,
+            'name' => 'nested rule',
+            'description' => $this->faker->text(),
+        ];
+
+        $this->buildNestedRule($nestedRule, $pool, 0, 6);
+
+        $nestedRuleData['conditions'][] = $this->buildChildRule(null, $nestedRule);
+
+        $payload[] = $nestedRuleData;
+
         $this->writer->insert(RuleDefinition::class, $payload, $this->getContext());
 
         return array_column($payload, 'id');
+    }
+
+    private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule {
+        if($currentDepth === $depth) {
+            return $rule;
+        }
+
+        $rules = \array_slice($pool, random_int(0, \count($pool) - 2), random_int(1, 2));
+
+        $classes = array_column($rules, 'rule');
+
+        if ($currentDepth % 2 === 0) {
+            $classes[] = $this->buildNestedRule(new OrRule(), $pool, $currentDepth+1, $depth);
+        } else {
+            $classes[] = $this->buildNestedRule(new AndRule(), $pool, $currentDepth+1, $depth);
+        }
+
+        $rule->assign(['rules' => $classes]);
+
+        return $rule;
     }
 
     private function buildChildRule(?string $parentId, Rule $rule): array

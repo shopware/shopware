@@ -116,6 +116,29 @@
       "typeLabelProduct": "Product",
       "typeLabelOrder": "Order",
       "typeLabelMedia": "Media"
+    },
+    "sw-condition-group": {
+      "operator": {
+        "lowerThanEquals": "Lower than",
+        "equals": "Equals",
+        "greaterThanEquals": "Greater equals",
+        "lower": "Lower",
+        "greater": "Greater",
+        "startsWidth": "Begins with",
+        "endsWidth": "Ends with",
+        "contains": "Contains",
+        "regex": "Regex"
+      },
+      "condition": {
+        "cartAmountRule": "Cart Amount Rule",
+        "goodsCountRule": "Goods Count Rule",
+        "goodsPriceRule": "Goods Price Rule",
+        "lineItemOfTypeRule": "Line Item of Type Rule",
+        "dateRangeRule": "Date Range Rule",
+        "field": {
+          "valuePlaceholder": "Value..."
+        }
+      }
     }
   },
   "sw-login": {
@@ -760,6 +783,57 @@
       "contextMenuDelete": "Delete",
       "modalTitleDelete": "Snippet Sets",
       "textDeleteConfirm": "Are you sure you really want to delete the snippet set \"{name}\"?"
+    }
+  },
+  "sw-settings-rule": {
+    "general": {
+      "mainMenuItemGeneral": "Rules",
+      "placeholderSearchBar": "Search all rules"
+    },
+    "list": {
+      "textHeadline": "Rules",
+      "buttonAddRule": "Create rule",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnDateCreated": "Creation date",
+      "columnType": "Type",
+      "columnPriority": "Priority",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "textDeleteConfirm": "Do you really want to delete the rule \"{name}\"?",
+      "modalTitleDelete": "Delete rule",
+      "modalTitleBulkDelete": "Delete Rules",
+      "textBulkDeleteConfirm": "Do you really want to delete the selected rules?",
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarBulkTrash": "Delete rules",
+      "type" : {
+        "price": "Price"
+      }
+    },
+    "detail": {
+      "textHeadline": "New rule",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "titleCard": "General",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelPriority": "Priority",
+      "labelType": "type",
+      "placeholderName": "Determine a name for this rule..",
+      "placeholderDescription": "Determine a description for this rule..",
+      "placeholderPriority": "Determine a priority for this rule..",
+      "placeholderType": "Determine a type for this rule..",
+
+      "titleSaveSuccess": "Rule",
+      "messageSaveSuccess": "The rule {name} was saved.",
+
+      "ruleCard": "Condition",
+      "type" : {
+        "price": "Price"
+      }
     }
   },
   "sw-settings-tax": {

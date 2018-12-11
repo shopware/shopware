@@ -63,16 +63,15 @@ Mixin.register('sw-settings-list', {
                 { name: currencyName }
             );
 
+            this.onCloseDeleteModal();
             this.store.store[id].delete(true).then(() => {
-                this.onCloseDeleteModal();
-
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
 
                 this.getList();
-            }).catch(this.onCloseDeleteModal());
+            });
         },
 
         onInlineEditSave(item) {

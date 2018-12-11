@@ -795,15 +795,11 @@
     "list": {
       "textHeadline": "Regeln",
       "buttonAddRule": "Regel erstellen",
-      "columnCheckbox": "",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
-      "columnCount": "Anzahl Regeln",
       "columnDateCreated": "Erstelldatum",
       "columnType": "Typ",
       "columnPriority": "Priorität",
-      "columnActions": "",
-      "contextMenuTry": "Testen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
@@ -829,7 +825,7 @@
       "labelPriority": "Priorität",
       "labelType": "Typ",
       "placeholderName": "Legen Sie einen Namen für diese Regel fest..",
-      "placeholderDescription": "Legen Sie eine BEschreibung für diese Regel fest..",
+      "placeholderDescription": "Legen Sie eine Beschreibung für diese Regel fest..",
       "placeholderPriority": "Legen Sie eine Priorität für diese Regel fest..",
       "placeholderType": "Legen Sie einen Typen für diese Regel fest..",
 
@@ -837,8 +833,6 @@
       "messageSaveSuccess": "Die Regel {name} wurde erfolgreich gespeichert.",
 
       "ruleCard": "Bedingungen",
-      "buttonAddConditionAnd": "Und Bedingung",
-      "buttonAddConditionOr": "Oder Bedingung",
       "type" : {
         "price": "Preis"
       }

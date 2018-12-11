@@ -45,6 +45,11 @@ module.exports = {
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')
+            .checkNotification('File "sw-login-background.png" successfully Deleted',false)
+            .click('.sw-alert__close')
+            .useXpath()
+            .waitForElementNotPresent(`//*[contains(text(), 'File "sw-login-background.png" successfully Deleted')]`)
+            .useCss()
             .checkNotification('Media item successfully deleted.');
     },
     after: (browser) => {

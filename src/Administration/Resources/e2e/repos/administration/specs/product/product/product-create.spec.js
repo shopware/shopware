@@ -54,7 +54,7 @@ module.exports = {
     },
     'upload product image ': (browser) => {
         const page = productPage(browser);
-        page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
+        page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, 'Marci Darci');
         browser
             .getAttribute('.sw-image__image', 'src', function (result) {
                 this.assert.ok(result.value);

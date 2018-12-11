@@ -3,7 +3,7 @@
         {% block sw_media_upload_compact %}
             <div v-if="variant == 'compact'" class="sw-media-upload__content">
                 {% block sw_media_upload_compact_button_url_upload %}
-                <sw-button @click="openUrlModal" class="sw-media-upload__url-upload-action">
+                <sw-button class="sw-media-upload__url-upload-action" @click="openUrlModal">
                     {{ $tc('global.sw-media-upload.buttonUrlUpload') }}
                 </sw-button>
                 {% endblock %}

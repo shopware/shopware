@@ -18,7 +18,7 @@ class ProductPageObject {
             .checkNotification(`Product "${productName}" has been saved successfully`);
     }
 
-    addProductImageViaUrl(imagePath) {
+    addProductImageViaUrl(imagePath, productName) {
         this.browser
             .waitForElementPresent('.sw-product-media-form')
             .getLocationInView('.sw-product-media-form')
@@ -35,7 +35,16 @@ class ProductPageObject {
                 this.assert.equal(result.value, imagePath);
             })
             .click('.sw-product-detail__save-action')
-            .pause(2000)
+            .checkNotification('1 of 1 files saved', false)
+            .click('.sw-alert__close')
+            .useXpath()
+            .waitForElementNotPresent(`//*[contains(text(), '1 of 1 files saved')]`)
+            .useCss()
+            .checkNotification(`Product "${productName}" has been saved successfully`, false)
+            .click('.sw-alert__close')
+            .useXpath()
+            .waitForElementNotPresent(`//*[contains(text(), 'Product "${productName}" has been saved successfully')]`)
+            .useCss()
             .checkNotification('File successfully saved');
     }
 

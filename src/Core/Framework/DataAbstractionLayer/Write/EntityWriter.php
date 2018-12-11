@@ -132,7 +132,7 @@ class EntityWriter implements EntityWriterInterface
         $this->validateWriteInput($ids);
 
         $commandQueue = new WriteCommandQueue();
-        $commandQueue->setOrder($definition, ...$definition::getWriteOrder());
+        $commandQueue->setOrder($definition);
 
         /** @var FieldCollection $fields */
         $fields = $definition::getPrimaryKeys();
@@ -282,7 +282,7 @@ class EntityWriter implements EntityWriterInterface
         $extender->addExtender($this->defaultExtender);
 
         /* @var EntityDefinition|string $definition */
-        $commandQueue->setOrder($definition, ...$definition::getWriteOrder());
+        $commandQueue->setOrder($definition);
 
         $commandQueue = new WriteCommandQueue();
         $exceptionStack = new FieldExceptionStack();

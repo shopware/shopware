@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -37,10 +39,11 @@ class WriteCommandQueue
 
     /**
      * @param string $definition
-     * @param string ...$identifierOrder
      */
-    public function setOrder(string $definition, string ...$identifierOrder): void
+    public function setOrder(string $definition): void
     {
+        $identifierOrder = $this->getWriteOrder($definition);
+
         if (\in_array($definition, $this->registeredResources, true)) {
             return;
         }
@@ -56,8 +59,10 @@ class WriteCommandQueue
         $this->registeredResources[] = $definition;
     }
 
-    public function updateOrder(string $definition, string ...$identifierOrder): void
+    public function updateOrder(string $definition): void
     {
+        $identifierOrder = $this->getWriteOrder($definition);
+
         if (\in_array($definition, $this->registeredResources, true)) {
             return;
         }
@@ -257,5 +262,42 @@ class WriteCommandQueue
         }
 
         return $order;
+    }
+
+    /**
+     * @param string|EntityDefinition $definition
+     *
+     * @return array
+     */
+    private function getWriteOrder(string $definition): array
+    {
+        $associations = $definition::getFields()->filter(function (Field $field) {
+            return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
+        });
+
+        $manyToOne = $definition::filterAssociationReferences(ManyToOneAssociationField::class, $associations);
+
+        $oneToMany = $definition::filterAssociationReferences(OneToManyAssociationField::class, $associations);
+
+        $manyToMany = $definition::filterAssociationReferences(ManyToManyAssociationField::class, $associations);
+
+        $self = array_filter([$definition, $definition::getTranslationDefinitionClass()]);
+
+        /*
+         * If a linked entity exists once as OneToMany but also as ManyToOne (bi-directional foreign keys),
+         * it must be treated as OneToMany. In the MySQL database,
+         * no foreign key may be created for the ManyToOne relation.
+         *
+         * Examples:
+         *      a customer has 1:N addresses
+         *      a customer has 1:1 default_shipping_address
+         *      a customer has 1:1 default_billing_address
+         */
+        $c = array_intersect($manyToOne, $oneToMany);
+        foreach ($c as $index => $value) {
+            unset($manyToOne[$index]);
+        }
+
+        return array_unique(array_values(array_merge($manyToOne, $self, $oneToMany, $manyToMany)));
     }
 }

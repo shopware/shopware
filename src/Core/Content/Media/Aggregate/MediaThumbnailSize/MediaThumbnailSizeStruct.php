@@ -4,9 +4,12 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class MediaThumbnailSizeStruct extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var int
      */

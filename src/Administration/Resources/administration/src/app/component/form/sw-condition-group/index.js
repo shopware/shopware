@@ -2,6 +2,14 @@ import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-condition-group.html.twig';
 import './sw-condition-group.less';
 
+/**
+ * @public
+ * @description Universal condition field group component which supports all basic conditions, operators and field value types.
+ * @status prototype
+ * @example-type code-only
+ * @component-example
+ * <sw-condition-group :type="rule.type" :condition="condition"></sw-condition-group>
+ */
 Component.register('sw-condition-group', {
     template,
 

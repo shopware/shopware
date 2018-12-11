@@ -134,7 +134,6 @@ class ApiController extends AbstractController
 
         /** @var RepositoryInterface $repository */
         $entities = $repository->read(new ReadCriteria([$id]), $context);
-
         $entity = $entities->get($id);
 
         if ($entity === null) {

@@ -22,7 +22,7 @@ class JsonApiEncoderTest extends TestCase
 
     public function setUp()
     {
-        $this->encoder = new JsonApiEncoder($this->getContainer()->get('serializer'));
+        $this->encoder = $this->getContainer()->get(JsonApiEncoder::class);
     }
 
     public function emptyInputProvider(): array

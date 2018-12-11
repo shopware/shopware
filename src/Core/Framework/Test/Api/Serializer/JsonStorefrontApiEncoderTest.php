@@ -22,7 +22,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
 
     public function setUp()
     {
-        $this->encoder = new JsonStorefrontApiEncoder($this->getContainer()->get('serializer'));
+        $this->encoder = $this->getContainer()->get(JsonStorefrontApiEncoder::class);
     }
 
     public function emptyInputProvider(): array

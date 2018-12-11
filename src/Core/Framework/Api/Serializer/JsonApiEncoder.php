@@ -146,116 +146,27 @@ class JsonApiEncoder
         string $propertyName
     ): void {
         if ($field instanceof TranslationsAssociationField) {
-            $foreignKey = null;
-            if ($value instanceof EntityCollection) {
-                $reference = $field->getReferenceClass();
-                foreach ($value as $nestedEntity) {
-                    $nested = $this->serializeEntity($entities, $reference, $nestedEntity, $baseUrl);
-
-                    $entities->addIncluded($nested);
-
-                    $foreignKey[] = [
-                        'id' => $nested->getId(),
-                        'type' => $reference::getEntityName(),
-                    ];
-                }
-            }
-
-            $serialized->addRelationship(
-                $propertyName,
-                [
-                    'data' => $foreignKey,
-                    'links' => [
-                        'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
-                    ],
-                ]
-            );
+            $this->addTranslationRelationship($serialized, $entities, $baseUrl, $self, $field, $value, $propertyName);
 
             return;
         }
 
         if ($field instanceof ManyToOneAssociationField) {
-            $foreignKey = null;
-
-            if ($value instanceof Entity) {
-                $nested = $this->serializeEntity($entities, $field->getReferenceClass(), $value, $baseUrl);
-                $entities->addIncluded($nested);
-
-                $foreignKey = [
-                    'id' => $nested->getId(),
-                    'type' => $field->getReferenceClass()::getEntityName(),
-                ];
-            }
-
-            $serialized->addRelationship(
-                $propertyName,
-                [
-                    'data' => $foreignKey,
-                    'links' => [
-                        'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
-                    ],
-                ]
-            );
+            $this->addManyToOneRelationship($serialized, $entities, $baseUrl, $self, $field, $value, $propertyName);
 
             return;
         }
 
         if ($field instanceof OneToManyAssociationField) {
-            $foreignKey = [];
-
-            if ($value instanceof EntityCollection) {
-                $reference = $field->getReferenceClass();
-                foreach ($value as $nestedEntity) {
-                    $nested = $this->serializeEntity($entities, $reference, $nestedEntity, $baseUrl);
-
-                    $entities->addIncluded($nested);
-
-                    $foreignKey[] = [
-                        'id' => $nested->getId(),
-                        'type' => $reference::getEntityName(),
-                    ];
-                }
-            }
-
-            $serialized->addRelationship(
-                $propertyName,
-                [
-                    'data' => $foreignKey,
-                    'links' => [
-                        'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
-                    ],
-                ]
-            );
+            $this->addOneToManyRelationship($serialized, $entities, $baseUrl, $self, $field, $value, $propertyName);
 
             return;
         }
 
         if ($field instanceof ManyToManyAssociationField) {
-            $foreignKey = [];
+            $this->addManyToManyRelationship($serialized, $entities, $baseUrl, $self, $field, $value, $propertyName);
 
-            if ($value instanceof EntityCollection) {
-                $reference = $field->getReferenceDefinition();
-                foreach ($value as $nestedEntity) {
-                    $nested = $this->serializeEntity($entities, $reference, $nestedEntity, $baseUrl);
-
-                    $entities->addIncluded($nested);
-
-                    $foreignKey[] = [
-                        'id' => $nestedEntity->getId(),
-                        'type' => $reference::getEntityName(),
-                    ];
-                }
-            }
-
-            $serialized->addRelationship(
-                $propertyName,
-                [
-                    'data' => $foreignKey,
-                    'links' => [
-                        'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
-                    ],
-                ]
-            );
+            return;
         }
     }
 
@@ -295,5 +206,117 @@ class JsonApiEncoder
         }
 
         return $value;
+    }
+
+    private function addManyToManyRelationship(SerializedEntity $serialized, SerializedCollection $entities, string $baseUrl, string $self, ManyToManyAssociationField $field, $value, string $propertyName): void
+    {
+        $foreignKey = [];
+
+        if ($value instanceof EntityCollection) {
+            $reference = $field->getReferenceDefinition();
+            foreach ($value as $nestedEntity) {
+                $nested = $this->serializeEntity($entities, $reference, $nestedEntity, $baseUrl);
+
+                $entities->addIncluded($nested);
+
+                $foreignKey[] = [
+                    'id' => $nestedEntity->getId(),
+                    'type' => $reference::getEntityName(),
+                ];
+            }
+        }
+
+        $serialized->addRelationship(
+            $propertyName,
+            [
+                'data' => $foreignKey,
+                'links' => [
+                    'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                ],
+            ]
+        );
+    }
+
+    private function addOneToManyRelationship(SerializedEntity $serialized, SerializedCollection $entities, string $baseUrl, string $self, OneToManyAssociationField $field, $value, string $propertyName): void
+    {
+        $foreignKey = [];
+
+        if ($value instanceof EntityCollection) {
+            $reference = $field->getReferenceClass();
+            foreach ($value as $nestedEntity) {
+                $nested = $this->serializeEntity($entities, $reference, $nestedEntity, $baseUrl);
+
+                $entities->addIncluded($nested);
+
+                $foreignKey[] = [
+                    'id' => $nested->getId(),
+                    'type' => $reference::getEntityName(),
+                ];
+            }
+        }
+
+        $serialized->addRelationship(
+            $propertyName,
+            [
+                'data' => $foreignKey,
+                'links' => [
+                    'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                ],
+            ]
+        );
+    }
+
+    private function addManyToOneRelationship(SerializedEntity $serialized, SerializedCollection $entities, string $baseUrl, string $self, ManyToOneAssociationField $field, $value, string $propertyName): void
+    {
+        $foreignKey = null;
+
+        if ($value instanceof Entity) {
+            $nested = $this->serializeEntity($entities, $field->getReferenceClass(), $value, $baseUrl);
+            $entities->addIncluded($nested);
+
+            $foreignKey = [
+                'id' => $nested->getId(),
+                'type' => $field->getReferenceClass()::getEntityName(),
+            ];
+        }
+
+        $serialized->addRelationship(
+            $propertyName,
+            [
+                'data' => $foreignKey,
+                'links' => [
+                    'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                ],
+            ]
+        );
+    }
+
+    private function addTranslationRelationship(SerializedEntity $serialized, SerializedCollection $entities, string $baseUrl, string $self, TranslationsAssociationField $field, $value, string $propertyName): void
+    {
+        $foreignKey = null;
+        $reference = $field->getReferenceClass();
+
+        if ($value instanceof EntityCollection) {
+            foreach ($value as $nestedEntity) {
+                $nested = $this->serializeEntity($entities, $reference, $nestedEntity, $baseUrl);
+
+                $entities->addIncluded($nested);
+
+                $foreignKey[] = [
+                    'id' => $nested->getId(),
+                    'type' => $reference::getEntityName(),
+                ];
+            }
+        }
+
+        $serialized->addRelationship(
+            $propertyName,
+            [
+                'data' => $foreignKey,
+                'links' => [
+                    'related' => $self . '/' . $this->camelCaseToSnailCase($propertyName),
+                ],
+            ]
+        );
     }
 }

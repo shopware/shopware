@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
@@ -189,6 +190,7 @@ class VersioningTest extends TestCase
         static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
 
         $this->productRepository->merge($versionId, $context);
+
         $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
         static::assertInstanceOf(ProductStruct::class, $product);
         static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
@@ -349,6 +351,10 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(CategoryStruct::class, $category);
         static::assertEquals('|' . $id1 . '|', $category->getPath());
 
+        $category = $this->categoryRepository->read(new ReadCriteria([$id3]), $context)->first();
+        static::assertInstanceOf(CategoryStruct::class, $category);
+        static::assertEquals('|' . $id1 . '|' . $id2 . '|', $category->getPath());
+
         $this->categoryRepository->merge($versionId, $context);
 
         //test after merge the path is updated too
@@ -471,14 +477,6 @@ class VersioningTest extends TestCase
         static::assertEquals($id, $changelog[0]['entity_id']['id']);
         static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product_manufacturer', $changelog[0]['entity_name']);
-        static::assertEquals('insert', $changelog[0]['action']);
-
-        $changelog = $this->getVersionData('tax', $id, $context->getVersionId());
-
-        static::assertCount(1, $changelog);
-        static::assertEquals($id, $changelog[0]['entity_id']['id']);
-        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
-        static::assertEquals('tax', $changelog[0]['entity_name']);
         static::assertEquals('insert', $changelog[0]['action']);
     }
 
@@ -807,7 +805,8 @@ class VersioningTest extends TestCase
         static::assertEquals(10, $product->getPriceRules()->get($priceId2)->getPrice()->getNet());
 
         //now delete the prices in version context
-        $this->getContainer()->get('product_price_rule.repository')->delete([
+        $priceRepository = $this->getContainer()->get('product_price_rule.repository');
+        $priceRepository->delete([
             ['id' => $priceId1, 'versionId' => $versionId],
             ['id' => $priceId2, 'versionId' => $versionId],
         ], $versionContext);
@@ -881,6 +880,37 @@ class VersioningTest extends TestCase
         /** @var ProductStruct $product */
         static::assertInstanceOf(ProductStruct::class, $product);
         static::assertCount(3, $product->getPriceRules());
+
+        $versionId = $this->productRepository->createVersion($productId, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $newPriceId4 = Uuid::uuid4()->getHex();
+
+        //check that we can add entities into a sub version using the sub entity repository
+        $data = [
+            'id' => $newPriceId4,
+            'productId' => $productId,
+            'currencyId' => Defaults::CURRENCY,
+            'quantityStart' => 101,
+            'ruleId' => $ruleId,
+            'price' => ['gross' => 5, 'net' => 3],
+        ];
+
+        $priceRepository->create([$data], $versionContext);
+
+        $price4 = $priceRepository->read(new ReadCriteria([$newPriceId4]), $versionContext)->first();
+        static::assertInstanceOf(ProductPriceRuleStruct::class, $price4);
+
+        /** @var ProductPriceRuleStruct $price4 */
+        static::assertSame(5.0, $price4->getPrice()->getGross());
+        static::assertSame($newPriceId4, $price4->getId());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product_price_rule.productId', $productId));
+
+        $prices = $priceRepository->search($criteria, $versionContext);
+        static::assertCount(4, $prices);
+        static::assertContains($newPriceId4, $prices->getIds());
     }
 
     public function testICanReadManyToManyInASpecifyVersion()
@@ -1141,6 +1171,7 @@ class VersioningTest extends TestCase
         static::assertContains($productId, $result->getIds());
 
         $this->productRepository->merge($versionId, $context);
+
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(1, $result->getIds());
         static::assertContains($productId, $result->getIds());
@@ -1162,6 +1193,7 @@ class VersioningTest extends TestCase
             [
                 'id' => $id2,
                 'name' => 'test',
+                'ean' => null,
                 'price' => ['gross' => 100, 'net' => 10],
                 'manufacturer' => ['name' => 'create'],
                 'tax' => ['name' => 'create', 'taxRate' => 1],
@@ -1439,6 +1471,12 @@ class VersioningTest extends TestCase
 
         /** @var SumAggregationResult $sum */
         $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
+        static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        $sum = $aggregations->getAggregations()->get('sum_price');
+        static::assertEquals(1000, $sum->getSum());
+
+        $this->productRepository->merge($versionId, $context);
+        $aggregations = $this->productRepository->aggregate($criteria, $context);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
         $sum = $aggregations->getAggregations()->get('sum_price');
         static::assertEquals(1000, $sum->getSum());

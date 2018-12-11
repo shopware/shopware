@@ -17,8 +17,8 @@ It contains the tax rate as float and the percentage which should be used for ca
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
-$firstTaxRule = new PercentageTaxRule(19, 80);
-$secondTaxRule = new PercentageTaxRule(7, 20);
+$firstTaxRule = new TaxRule(19, 80);
+$secondTaxRule = new TaxRule(7, 20);
 
 $taxRules = new TaxRuleCollection([$firstTaxRule, $secondTaxRule]);
 ```

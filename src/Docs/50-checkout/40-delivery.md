@@ -82,7 +82,7 @@ class Delivery extends Struct
     protected $shippingMethod;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $shippingCosts;
 

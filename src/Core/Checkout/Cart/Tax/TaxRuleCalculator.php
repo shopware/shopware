@@ -20,10 +20,6 @@ class TaxRuleCalculator
 
     public function calculateTaxFromGrossPrice(float $gross, TaxRule $rule): CalculatedTax
     {
-        if (!($rule instanceof TaxRule)) {
-            throw new \RuntimeException('Percentual taxes can only be calculated with a percentage tax rule.');
-        }
-
         //calculate percentage value of gross price
         $gross = $gross / 100 * $rule->getPercentage();
 
@@ -35,10 +31,6 @@ class TaxRuleCalculator
 
     public function calculateTaxFromNetPrice(float $net, TaxRule $rule): CalculatedTax
     {
-        if (!($rule instanceof TaxRule)) {
-            throw new \RuntimeException('Percentual taxes can only be calculated with a percentage tax rule.');
-        }
-
         //calculate percentage value of net price
         $net = $net / 100 * $rule->getPercentage();
 

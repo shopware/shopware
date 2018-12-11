@@ -26,6 +26,16 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
         return 'product_translation';
     }
 
+    public static function isVersionAware(): bool
+    {
+        return true;
+    }
+
+    public static function getRootEntity(): ?string
+    {
+        return ProductDefinition::class;
+    }
+
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([

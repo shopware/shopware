@@ -95,7 +95,10 @@ class VersionManager
     {
         $writtenEvent = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
-        $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
+        /** @var string|EntityDefinition $definition */
+        if ($definition::isVersionAware()) {
+            $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
+        }
 
         return $writtenEvent;
     }
@@ -328,7 +331,12 @@ class VersionManager
 
         $versionContext = $context->createWithVersionId($versionId);
 
-        return $this->entityWriter->insert($definition, [$data], $versionContext);
+        $affected = $this->entityWriter->insert($definition, [$data], $versionContext);
+
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+
+        return $affected;
     }
 
     private function filterPropertiesForClone(string $definition, array $data): array
@@ -466,6 +474,10 @@ class VersionManager
             $definition = (string) $definition;
             /** @var EntityDefinition|string $definition */
             $entityName = $definition::getEntityName();
+
+            if (!$definition::isVersionAware()) {
+                continue;
+            }
 
             if (strpos('version', $entityName) === 0) {
                 continue;

@@ -14,17 +14,9 @@ Component.register('sw-media-entity-mapper', {
 
         Object.assign(context.data.attrs, context.props);
         return createElement(
-            'div',
-            {
-                class: 'sw-media-entity'
-            },
-            [
-                createElement(
-                    mapEntity(),
-                    context.data,
-                    context.slots().default
-                )
-            ]
+            mapEntity(),
+            context.data,
+            context.slots().default
         );
     },
 
@@ -35,22 +27,6 @@ Component.register('sw-media-entity-mapper', {
             validator(value) {
                 return !!value.entityName;
             }
-        }
-    },
-
-    methods: {
-        selectItem(originalDomEvent) {
-            this.$emit('sw-media-item-selection-add', {
-                originalDomEvent,
-                item: this.item
-            });
-        },
-
-        removeFromSelection(originalDomEvent) {
-            this.$emit('sw-media-item-selection-remove', {
-                originalDomEvent,
-                item: this.item
-            });
         }
     }
 });

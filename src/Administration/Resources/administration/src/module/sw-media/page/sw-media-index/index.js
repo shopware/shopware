@@ -64,6 +64,10 @@ Component.register('sw-media-index', {
 
         currentFolderName() {
             return this.currentFolder ? this.currentFolder.name : this.$tc('sw-media.index.rootFolderName');
+        },
+
+        dragSelectorClass() {
+            return 'sw-media-entity';
         }
     },
 
@@ -238,10 +242,6 @@ Component.register('sw-media-index', {
 
         onDragDeselection({ originalDomEvent, item }) {
             item.removeFromSelection(originalDomEvent);
-        },
-
-        dragSelectorClass() {
-            return 'sw-media-entity';
         },
 
         scrollContainer() {

@@ -173,6 +173,7 @@
                                                     <sw-media-entity-mapper
                                                         v-for="gridItem in selectableItems"
                                                         :key="gridItem.entityName + '_' + gridItem.id"
+                                                        :class="dragSelectorClass"
                                                         :item="gridItem"
                                                         :selected="showItemSelected(gridItem)"
                                                         :showSelectionIndicator="isListSelect"

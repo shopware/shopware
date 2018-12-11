@@ -50,6 +50,12 @@ Mixin.register('drag-selector', {
                 width: ${this._selectionBox.width}px;
                 height: ${this._selectionBox.height}px;
             `;
+        },
+
+        dragSelectorClass() {
+            debug.warn('Drag-Selector Mixin',
+                'You have to specify a DragSelectorClass.');
+            return '';
         }
     },
 
@@ -62,11 +68,6 @@ Mixin.register('drag-selector', {
         onDragDeselection() {
             debug.warn('Drag-Selector Mixin',
                 'You have to override the "onDragDeselection()" method.');
-        },
-
-        dragSelectorClass() {
-            debug.warn('Drag-Selector Mixin',
-                'You have to specify a DragSelectorClass.');
         },
 
         scrollContainer() {
@@ -249,7 +250,7 @@ Mixin.register('drag-selector', {
         },
 
         _isItemInSelectBox(el) {
-            if (el.classList.contains(this.dragSelectorClass())) {
+            if (el.classList.contains(this.dragSelectorClass)) {
                 const scroll = this._getScroll();
                 const element = {
                     top: el.offsetTop,

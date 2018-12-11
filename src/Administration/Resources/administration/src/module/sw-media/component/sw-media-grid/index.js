@@ -27,6 +27,14 @@ Component.register('sw-media-grid', {
         },
         presentationClass() {
             return `sw-media-grid__presentation-${this.presentation}`;
+        },
+        nonDeselectingComponents() {
+            return [
+                'sw-media-sidebar',
+                'sw-context-menu',
+                'sw-media-index__load-more',
+                'sw-media-index__options-container'
+            ];
         }
     },
 
@@ -49,32 +57,31 @@ Component.register('sw-media-grid', {
 
         clearSelectionOnClickOutside(event) {
             if (!this.isDragEvent(event) &&
-              !this.isEmittedFromChildren(event.target) &&
-              !this.isEmittedFromContextMenu(event.composedPath()) &&
-              !this.isEmittedFromSidebar(event.composedPath())) {
+                !this.isEmittedFromChildren(event.target) &&
+                !this.originatesFromExcludedComponent(event)
+            ) {
                 this.emitSelectionCleared(event);
             }
+        },
+
+        originatesFromExcludedComponent(event) {
+            const eventPathClasses = event.composedPath().reduce(
+                (classes, eventParent) => {
+                    return eventParent.classList ? classes.concat(Array.from(eventParent.classList)) : classes;
+                },
+                []
+            );
+
+            return this.nonDeselectingComponents.some((cssClass) => { return eventPathClasses.includes(cssClass); });
         },
 
         isDragEvent(event) {
             return this.$parent.$parent.isDragEvent(event);
         },
 
-        isEmittedFromSidebar(path) {
-            return path.some((parent) => {
-                return parent.classList && parent.classList.contains('sw-media-sidebar');
-            });
-        },
-
         isEmittedFromChildren(target) {
             return this.$children.some((child) => {
                 return child.$el === target || child.$el.contains(target);
-            });
-        },
-
-        isEmittedFromContextMenu(path) {
-            return path.some((parent) => {
-                return parent.classList && parent.classList.contains('sw-context-menu');
             });
         },
 

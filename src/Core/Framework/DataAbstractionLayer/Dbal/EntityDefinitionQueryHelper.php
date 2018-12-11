@@ -184,7 +184,18 @@ class EntityDefinitionQueryHelper
 
         $query->from(self::escape($table), self::escape($table));
 
-        if ($definition::isVersionAware() && $context->getVersionId() !== Defaults::LIVE_VERSION) {
+        $useVersionFallback = (
+            // only applies for versioned entities
+            $definition::isVersionAware()
+            &&
+            // only add live fallback if the current version isn't the live version
+            $context->getVersionId() !== Defaults::LIVE_VERSION
+            &&
+            // sub entities have no live fallback
+            $definition::getRootEntity() === null
+        );
+
+        if ($useVersionFallback) {
             $this->joinVersion($query, $definition, $definition::getEntityName(), $context);
         } elseif ($definition::isVersionAware()) {
             $query->andWhere(self::escape($table) . '.`version_id` = :version');

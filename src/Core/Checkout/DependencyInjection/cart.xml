@@ -105,7 +105,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
+            <argument type="service" id="Shopware\Storefront\Account\Page\AccountService"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="order.repository"/>
             <call method="setContainer">

@@ -8,8 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
-use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
-use Shopware\Storefront\Api\Seo\SeoUrlEntity;
+use Shopware\Storefront\Seo\SeoUrlDefinition;
+use Shopware\Storefront\Seo\SeoUrlStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -52,7 +52,7 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
             return;
         }
 
-        /** @var SeoUrlEntity $seoUrl */
+        /** @var SeoUrlStruct $seoUrl */
         foreach ($event->getEntities() as $seoUrl) {
             $seoUrl->setUrl($request->getSchemeAndHttpHost() . $request->getBaseUrl() . '/' . $seoUrl->getSeoPathInfo());
         }

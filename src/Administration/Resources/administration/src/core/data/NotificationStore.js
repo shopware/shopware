@@ -26,7 +26,7 @@ class NotificationStore {
             return Promise.reject(config);
         }
 
-        config = Object.assign(this.defaults, config, {
+        config = Object.assign({}, this.defaults, config, {
             uuid: utils.createId()
         });
 
@@ -82,6 +82,8 @@ class NotificationStore {
         if (config.timeoutId) {
             clearTimeout(config.timeoutId);
         }
+
+
         this._notifications.splice(this.findIndexOfNotification(config), 1);
 
         return true;

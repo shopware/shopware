@@ -43,4 +43,9 @@ class CustomerGroupTranslationDefinition extends EntityTranslationDefinition
     {
         return CustomerGroupTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return CustomerGroupDefinition::class;
+    }
 }

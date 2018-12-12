@@ -55,4 +55,9 @@ class ProductManufacturerTranslationDefinition extends EntityTranslationDefiniti
     {
         return ProductManufacturerTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return ProductManufacturerDefinition::class;
+    }
 }

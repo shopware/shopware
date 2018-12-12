@@ -67,4 +67,9 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
     {
         return ConfigurationGroupOptionTranslationDefinition::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return ConfigurationGroupDefinition::class;
+    }
 }

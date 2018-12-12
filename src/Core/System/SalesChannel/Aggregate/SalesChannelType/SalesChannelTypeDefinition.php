@@ -54,4 +54,9 @@ class SalesChannelTypeDefinition extends EntityDefinition
     {
         return SalesChannelTypeStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return SalesChannelDefinition::class;
+    }
 }

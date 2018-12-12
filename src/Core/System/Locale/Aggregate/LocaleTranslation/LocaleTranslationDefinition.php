@@ -44,4 +44,9 @@ class LocaleTranslationDefinition extends EntityTranslationDefinition
     {
         return LocaleTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return LocaleDefinition::class;
+    }
 }

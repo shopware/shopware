@@ -48,4 +48,9 @@ class SalesChannelTypeTranslationDefinition extends EntityTranslationDefinition
     {
         return SalesChannelTypeTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return SalesChannelTypeDefinition::class;
+    }
 }

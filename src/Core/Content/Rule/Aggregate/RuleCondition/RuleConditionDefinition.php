@@ -31,6 +31,11 @@ class RuleConditionDefinition extends EntityDefinition
         return RuleConditionCollection::class;
     }
 
+    public static function getRootEntity(): ?string
+    {
+        return RuleDefinition::class;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([

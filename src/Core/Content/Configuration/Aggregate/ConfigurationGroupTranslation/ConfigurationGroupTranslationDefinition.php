@@ -43,4 +43,9 @@ class ConfigurationGroupTranslationDefinition extends EntityTranslationDefinitio
     {
         return ConfigurationGroupTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return ConfigurationGroupDefinition::class;
+    }
 }

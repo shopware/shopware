@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class TranslationTest extends TestCase
 {
@@ -388,8 +389,8 @@ class TranslationTest extends TestCase
         }
 
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);
-
         $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         $responseData = json_decode($response->getContent(), true);
 
         static::assertArraySubset($expectedTranslations, $responseData['data']);

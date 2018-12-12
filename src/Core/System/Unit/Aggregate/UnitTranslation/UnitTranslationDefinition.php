@@ -44,4 +44,9 @@ class UnitTranslationDefinition extends EntityTranslationDefinition
     {
         return UnitTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return UnitDefinition::class;
+    }
 }

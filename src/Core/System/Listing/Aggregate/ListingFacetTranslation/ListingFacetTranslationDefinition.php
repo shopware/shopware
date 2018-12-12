@@ -43,4 +43,9 @@ class ListingFacetTranslationDefinition extends EntityTranslationDefinition
     {
         return ListingFacetTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return ListingFacetDefinition::class;
+    }
 }

@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['setting','tax-create', 'tax', 'create'],
+    '@tags': ['setting','tax-delete', 'tax', 'delete'],
     'open tax module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
@@ -16,12 +16,20 @@ module.exports = {
             .checkNotification('Tax "High tax" has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
-    'go back to listing and verify tax': (browser) => {
+    'go back to listing': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
-            .waitForElementVisible('.sw-settings-tax-list-grid')
+            .waitForElementVisible('.sw-settings-tax-list-grid');
+    },
+    'delete tax': (browser) => {
+        browser
             .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'High tax');
+            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'High tax')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
+            .waitForElementVisible('.sw-modal')
+            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the tax "High tax"?')
+            .click('.sw-modal__footer button.sw-button--primary')
+            .checkNotification('Tax "High tax" has been deleted successfully.');
     },
     after: (browser) => {
         browser.end();

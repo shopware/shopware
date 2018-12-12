@@ -1,5 +1,4 @@
 const manufacturerPage = require('administration/page-objects/sw-manufacturer.page-object.js');
-const mediaPageObject = require('administration/page-objects/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['product', 'manufacturer-edit', 'manufacturer', 'edit'],
@@ -13,7 +12,6 @@ module.exports = {
     'create first manufacturer': (browser) => {
         const page = manufacturerPage(browser);
         page.createBasicManufacturer('MAN-U-FACTURE');
-        page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
     'check if new manufacturer exists in overview': (browser) => {
         browser
@@ -41,25 +39,6 @@ module.exports = {
             .click('.sw-manufacturer-detail__save-action')
             .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
             .click('.sw-button__content');
-    },
-    'delete manufacturer, including its logo': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer');
-
-        const page = manufacturerPage(browser);
-        const mediaPage = mediaPageObject(browser);
-        page.deleteManufacturer('Minnie\'s Haberdashery');
-
-        browser
-            .waitForElementVisible('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible('.sw-grid-row:first-child')
-            .assert.containsText('.sw-grid-row:first-child', 'shopware AG')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
-
-        mediaPage.openMediaFolder();
-        mediaPage.deleteImage();
-        browser.waitForElementNotPresent('.sw-media-index__catalog-grid .sw-media-grid__content-cell');
     },
     after: (browser) => {
         browser.end();

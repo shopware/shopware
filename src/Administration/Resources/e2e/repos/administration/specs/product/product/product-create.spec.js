@@ -2,7 +2,7 @@ const productPage = require('administration/page-objects/sw-product.page-object.
 const mediaPageObject = require('administration/page-objects/sw-media.page-object.js');
 
 module.exports = {
-    '@tags': ['product-create', 'product', 'create'],
+    '@tags': ['product-create', 'product', 'create', 'upload'],
     'create simple category to assign the product to it later ': (browser) => {
         browser
             .openMainMenuEntry('#/sw/catalog/index', 'Catalogues')
@@ -84,32 +84,6 @@ module.exports = {
             .assert.containsText('.ql-editor', 'My very first description')
             .assert.containsText('.sw-product-category-form .sw-select__selection-text', 'MainCategory')
             .click('a.smart-bar__back-btn');
-    },
-    'delete created product and image and verify deletion': (browser) => {
-        const page = productPage(browser);
-        const mediaPage = mediaPageObject(browser);
-        page.deleteProduct('Marci Darci');
-
-        browser
-            .waitForElementNotPresent('.sw-product-list__column-product-name')
-            .waitForElementPresent('.sw-empty-state__title')
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
-
-        mediaPage.openMediaFolder();
-        mediaPage.deleteImage();
-    },
-    'delete category': (browser) => {
-        browser
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/catalog/index"]')
-            .waitForElementPresent('.sw-catalog-list__intro')
-            .waitForElementPresent('.sw-catalog-list__edit-action')
-            .click('.sw-catalog-list__edit-action')
-            .waitForElementPresent('input[name=sw-field--addCategoryName]')
-            .getLocationInView('.sw-catalog-detail__categories')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button')
-            .waitForElementNotPresent('.sw-tree-item__label')
-            .click('.sw-button--primary')
-            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader');
     },
     after: (browser) => {
         browser.end();

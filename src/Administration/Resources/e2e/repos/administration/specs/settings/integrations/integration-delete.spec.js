@@ -1,7 +1,7 @@
 const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
 
 module.exports = {
-    '@tags': ['integration-create','integration', 'create'],
+    '@tags': ['integration-delete','integration', 'delete'],
     'open integration module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
@@ -29,10 +29,9 @@ module.exports = {
             .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
-    'verify newly created integration': (browser) => {
-        browser
-            .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'My very own integration');
+    'delete integration and verify deletion': (browser) => {
+        const page = integrationPage(browser);
+        page.deleteSingleIntegration('My very own integration');
     },
     after: (browser) => {
         browser.end();

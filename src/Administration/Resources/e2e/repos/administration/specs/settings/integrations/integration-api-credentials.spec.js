@@ -60,10 +60,6 @@ module.exports = {
 
         page.verifyChangedApiCredentials();
     },
-    'delete integration and verify deletion': (browser) => {
-        const page = integrationPage(browser);
-        page.deleteSingleIntegration('Wonderful API integration example');
-    },
     after: (browser) => {
         browser.end();
     }

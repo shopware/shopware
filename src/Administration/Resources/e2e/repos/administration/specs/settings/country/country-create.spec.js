@@ -24,16 +24,6 @@ module.exports = {
             .waitForElementVisible('.sw-country-list__column-name:first-child')
             .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland');
     },
-    'delete country': (browser) => {
-        browser
-            .waitForElementVisible('.sw-country-list__column-name:first-child')
-            .assert.containsText('.sw-country-list__column-name:first-child', '1.Niemandsland')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the country "1.Niemandsland"?')
-            .click('.sw-modal__footer button.sw-button--primary')
-            .checkNotification('Country "1.Niemandsland" has been deleted successfully.');
-    },
     after: (browser) => {
         browser.end();
     }

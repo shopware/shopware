@@ -1,11 +1,9 @@
 module.exports = {
-    '@tags': ['customer-edit', 'customer', 'edit'],
+    '@tags': ['customer-delete', 'customer', 'delete'],
     'open customer listing': (browser) => {
         browser
             .openMainMenuEntry('#/sw/customer/index', 'Customers')
-            .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+            .waitForElementVisible('.smart-bar__actions');
     },
     'create a customer, fill basic data': (browser) => {
         browser
@@ -16,11 +14,11 @@ module.exports = {
             .fillField('input[name=sw-field--customer-salutation]', 'Mr')
             .fillField('input[name=sw-field--customer-firstName]', 'Pep')
             .fillField('input[name=sw-field--customer-lastName]', 'Eroni')
-            .fillField('input[name=sw-field--customer-email]', 'test-again@example.com')
+            .fillField('input[name=sw-field--customer-email]', 'test@example.com')
             .fillSelectField('select[name=sw-field--customer-groupId]', 'Standard customer group')
             .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
             .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
-            .fillField('input[name=sw-field--customer-customerNumber]', '1234321-edit');
+            .fillField('input[name=sw-field--customer-customerNumber]', '1234321');
     },
     'add customer address': (browser) => {
         browser
@@ -34,29 +32,30 @@ module.exports = {
             .fillField('input[name=sw-field--address-city]', 'Schöppingen')
             .fillSelectField('select[name="sw-field--address-countryId"]', 'Germany');
     },
-    'save and verify new customer': (browser) => {
+    'save new customer, verify data and go back to listing': (browser) => {
         browser
-            .click('.smart-bar__actions button.sw-button--primary')
-            .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader')
-            .waitForElementNotPresent('.sw-card__content .sw-customer-address-form .sw-loader')
-            .checkNotification('Customer "Mr Pep Eroni" has been saved successfully.')
-            .waitForElementVisible('.sw-user-card__metadata')
-            .assert.containsText('.sw-user-card__metadata-user-name', 'Mr Pep Eroni');
-    },
-    'change customer email': (browser) => {
-        browser
-            .waitForElementPresent('.sw-button--small .sw-button__content .icon--small-pencil')
-            .click('.sw-button--small .sw-button__content .icon--small-pencil')
-            .waitForElementPresent('.sw-customer-base-form')
-            .clearValue('input[name=sw-field--customer-email]')
-            .setValue('input[name=sw-field--customer-email]', 'test-again-and-again@example.com')
             .waitForElementPresent('.smart-bar__actions button.sw-button--primary')
             .click('.smart-bar__actions button.sw-button--primary')
+            .checkNotification('Customer "Mr Pep Eroni" has been saved successfully.')
             .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader')
             .waitForElementNotPresent('.sw-card__content .sw-customer-address-form .sw-loader')
-            .checkNotification('Customer "Mr Pep Eroni" has been saved successfully.')
             .waitForElementVisible('.sw-user-card__metadata')
-            .assert.containsText('.sw-user-card__metadata-item', 'test-again-and-again@example.com');
+            .assert.containsText('.sw-user-card__metadata-user-name', 'Mr Pep Eroni')
+            .click('a.smart-bar__back-btn')
+            .waitForElementVisible('.sw-customer-list__content');
+    },
+    'delete customer and verify deletion': (browser) => {
+        browser
+            .waitForElementPresent('.sw-customer-list__column-customer-name')
+            .assert.containsText('.sw-customer-list__column-customer-name', 'Pep Eroni')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
+            .waitForElementVisible('.sw-modal')
+            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Are you sure you want to delete the customer "Pep Eroni"?')
+            .click('.sw-modal__footer button.sw-button--primary')
+            .waitForElementNotPresent('.sw-customer-list__column-customer-name')
+            .waitForElementNotPresent('.sw-modal')
+            .waitForElementPresent('.sw-empty-state__title')
+            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
     },
     after: (browser) => {
         browser.end();

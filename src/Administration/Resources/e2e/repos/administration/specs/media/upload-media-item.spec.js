@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['media-upload'],
+    '@tags': ['media', 'upload', 'media-upload'],
     'open media listing': (browser) => {
         browser
             .openMainMenuEntry('#/sw/media/index', 'Media')
@@ -36,21 +36,6 @@ module.exports = {
             .assert.containsText('.sw-media-quickinfo-metadata-size', '501.38KB')
             .assert.containsText('.sw-media-quickinfo-metadata-createdAt', 'Uploaded at:')
             .assert.containsText('.sw-media-quickinfo-metadata-url', 'URL:');
-    },
-    'delete item and verify that': (browser) => {
-        browser
-            .click('li.quickaction--delete')
-            .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Are you sure you want to delete "sw-login-background.png" ?')
-            .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
-            .click('.sw-media-modal-delete__confirm')
-            .waitForElementNotPresent('.sw-modal__footer')
-            .checkNotification('File "sw-login-background.png" has been deleted successfully',false)
-            .click('.sw-alert__close')
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'File "sw-login-background.png" has been deleted successfully')]`)
-            .useCss()
-            .checkNotification('File "sw-login-background.png" has been deleted successfully');
     },
     after: (browser) => {
         browser.end();

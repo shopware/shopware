@@ -111,7 +111,7 @@
       "labelSave": "Save",
       "labelCancel": "Cancel",
       "titleDeleteThumbnails": "Delete",
-      "notificationSuccess": "Settings has been saved successfully",
+      "notificationSuccess": "Settings have been saved successfully",
       "notificationError": "Error saving settings",
       "labelDefaultFolder": "Default location for:"
     },

@@ -54,27 +54,16 @@ module.exports = {
             .waitForElementVisible('.sw-card-section--divider-right .sw-address__line span')
             .assert.containsText('.sw-card-section--divider-right .sw-address__line span', '48624');
     },
-    'go back to listing': (browser) => {
+    'go back to listing und verify data there': (browser) => {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-customer-list__content')
             .fillGlobalSearchField('Pep Eroni')
             .refresh()
             .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
-    },
-    'delete customer and verify deletion': (browser) => {
-        browser
+            .assert.containsText('.sw-page__smart-bar-amount', '(1)')
             .waitForElementPresent('.sw-customer-list__column-customer-name')
-            .assert.containsText('.sw-customer-list__column-customer-name', 'Pep Eroni')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Are you sure you want to delete the customer "Pep Eroni"?')
-            .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-customer-list__column-customer-name')
-            .waitForElementNotPresent('.sw-modal')
-            .waitForElementPresent('.sw-empty-state__title')
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+            .assert.containsText('.sw-customer-list__column-customer-name', 'Pep Eroni');
     },
     after: (browser) => {
         browser.end();

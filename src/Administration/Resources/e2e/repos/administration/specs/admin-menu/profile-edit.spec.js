@@ -30,21 +30,13 @@ module.exports = {
         const page = loginPage(browser);
         page.verifyLogin('Super Richie');
     },
-    'change back profile values to default': (browser) => {
+    'verify other changed data': (browser) => {
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .clickUserActionMenu('Super Richie')
             .click('.sw-admin-menu__profile-item')
             .assert.containsText('.smart-bar__header', 'Your profile')
             .expect.element('input[name=sw-field--user-email]').to.have.value.that.equals('mail@shopware.com');
-        browser
-            .fillField('input[name=sw-field--user-name', 'admin')
-            .fillField('input[name=sw-field--user-email]', 'info@shopware.com')
-            .fillField('input[name=sw-field--newPassword]', 'shopware')
-            .fillField('input[name=sw-field--newPasswordConfirm]', 'shopware')
-            .click('.sw-button--primary')
-            .checkNotification('Profile information have been saved successfully.')
-            .assert.containsText('.sw-admin-menu__user-name', 'admin');
     },
     after: (browser) => {
         browser.end();

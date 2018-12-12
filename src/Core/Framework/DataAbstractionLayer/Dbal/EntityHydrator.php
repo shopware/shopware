@@ -218,7 +218,7 @@ class EntityHydrator
         /** @var string|EntityDefinition $translationDefinition */
         $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $definition, $context, true);
 
-        $structClass = $translationDefinition::getStructClass();
+        $structClass = $translationDefinition::getEntityClass();
 
         $collection = $translationDefinition::getCollectionClass();
 
@@ -262,7 +262,7 @@ class EntityHydrator
         }
 
         /** @var EntityDefinition $reference */
-        $structClass = $field->getReferenceClass()::getStructClass();
+        $structClass = $field->getReferenceClass()::getEntityClass();
 
         return $this->hydrateEntity(new $structClass(), $field->getReferenceClass(), $row, $root . '.' . $field->getPropertyName(), $context);
     }

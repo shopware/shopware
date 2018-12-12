@@ -59,7 +59,7 @@ class VersionCommitDefinition extends EntityDefinition
         return VersionCommitCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return VersionCommitEntity::class;
     }

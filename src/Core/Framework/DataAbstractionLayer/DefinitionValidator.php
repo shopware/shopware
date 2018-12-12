@@ -91,7 +91,7 @@ class DefinitionValidator
 
             $struct = ArrayEntity::class;
             if (!$instance instanceof MappingEntityDefinition) {
-                $struct = $definition::getStructClass();
+                $struct = $definition::getEntityClass();
             }
 
             if ($struct !== ArrayEntity::class) {
@@ -127,8 +127,7 @@ class DefinitionValidator
             if ($instance instanceof MappingEntityDefinition) {
                 continue;
             }
-            /** @var string|EntityDefinition $definition */
-            $struct = $definition::getStructClass();
+            $struct = $definition::getEntityClass();
 
             if ($struct !== ArrayEntity::class) {
                 $notices[$definition] = array_merge_recursive(

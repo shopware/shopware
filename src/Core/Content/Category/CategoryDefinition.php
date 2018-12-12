@@ -96,7 +96,7 @@ class CategoryDefinition extends EntityDefinition
         return CategoryCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return CategoryEntity::class;
     }

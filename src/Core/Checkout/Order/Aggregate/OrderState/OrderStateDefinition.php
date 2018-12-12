@@ -50,7 +50,7 @@ class OrderStateDefinition extends EntityDefinition
         return OrderStateCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return OrderStateEntity::class;
     }

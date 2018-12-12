@@ -46,7 +46,7 @@ class OrderTransactionStateDefinition extends EntityDefinition
         return OrderTransactionStateCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return OrderTransactionStateEntity::class;
     }

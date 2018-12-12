@@ -24,7 +24,7 @@ class MediaThumbnailSizeDefinition extends EntityDefinition
         return MediaThumbnailSizeCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return MediaThumbnailSizeEntity::class;
     }

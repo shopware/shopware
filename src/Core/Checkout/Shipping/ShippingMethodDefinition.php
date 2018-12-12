@@ -78,7 +78,7 @@ class ShippingMethodDefinition extends EntityDefinition
         return ShippingMethodCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return ShippingMethodEntity::class;
     }

@@ -39,7 +39,7 @@ class SnippetSetDefinition extends EntityDefinition
         return SnippetSetCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return SnippetSetEntity::class;
     }

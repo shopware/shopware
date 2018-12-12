@@ -91,7 +91,7 @@ class EntityReader implements EntityReaderInterface
             $criteria,
             $definition,
             $context,
-            $definition::getStructClass(),
+            $definition::getEntityClass(),
             new $collectionClass(),
             $definition::getFields()->filterBasic()
         );
@@ -355,7 +355,7 @@ class EntityReader implements EntityReaderInterface
             new ReadCriteria($ids),
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -577,7 +577,7 @@ class EntityReader implements EntityReaderInterface
             $readCriteria,
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -651,7 +651,7 @@ class EntityReader implements EntityReaderInterface
             $readCriteria,
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -708,7 +708,7 @@ class EntityReader implements EntityReaderInterface
             new ReadCriteria($ids),
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -855,7 +855,7 @@ class EntityReader implements EntityReaderInterface
             $read,
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );

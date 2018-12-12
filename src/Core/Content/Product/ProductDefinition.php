@@ -178,7 +178,7 @@ class ProductDefinition extends EntityDefinition
         return ProductCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return ProductEntity::class;
     }

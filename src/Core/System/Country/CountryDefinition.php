@@ -65,7 +65,7 @@ class CountryDefinition extends EntityDefinition
         return CountryCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return CountryEntity::class;
     }

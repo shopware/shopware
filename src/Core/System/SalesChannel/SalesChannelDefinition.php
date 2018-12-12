@@ -84,7 +84,7 @@ class SalesChannelDefinition extends EntityDefinition
         return SalesChannelCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return SalesChannelEntity::class;
     }

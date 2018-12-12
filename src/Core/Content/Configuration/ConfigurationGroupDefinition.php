@@ -45,7 +45,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
         return ConfigurationGroupCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return ConfigurationGroupEntity::class;
     }

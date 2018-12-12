@@ -11,7 +11,7 @@ abstract class MappingEntityDefinition extends EntityDefinition
         throw new MappingEntityStructException();
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         throw new MappingEntityStructException();
     }

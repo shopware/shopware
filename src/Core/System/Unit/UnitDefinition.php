@@ -44,7 +44,7 @@ class UnitDefinition extends EntityDefinition
         return UnitCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return UnitEntity::class;
     }

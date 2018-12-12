@@ -40,7 +40,7 @@ class UnitTranslationDefinition extends EntityTranslationDefinition
         return UnitTranslationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return UnitTranslationEntity::class;
     }

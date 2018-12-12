@@ -47,7 +47,7 @@ class LocaleDefinition extends EntityDefinition
         return LocaleCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return LocaleEntity::class;
     }

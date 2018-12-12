@@ -39,7 +39,7 @@ class CountryTranslationDefinition extends EntityTranslationDefinition
         return CountryTranslationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return CountryTranslationEntity::class;
     }

@@ -48,7 +48,7 @@ class ListingSortingDefinition extends EntityDefinition
         return ListingSortingCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
         return ListingSortingEntity::class;
     }

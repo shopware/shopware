@@ -88,7 +88,7 @@ class LineItem extends Struct
     protected $description;
 
     /**
-     * @var null|MediaStruct
+     * @var null|MediaEntity
      */
     protected $cover;
 

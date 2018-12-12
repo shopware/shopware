@@ -74,7 +74,9 @@ module.exports = {
             .waitForElementNotPresent('.sw-customer-list__column-customer-name')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementPresent('.sw-empty-state__title')
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)')
-            .end();
+            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+    },
+    after: (browser) => {
+        browser.end();
     }
 };

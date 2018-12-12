@@ -44,7 +44,7 @@ class UserAccessKeyDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return UserAccessKeyStruct::class;
+        return UserAccessKeyEntity::class;
     }
 
     public static function getRootEntity(): ?string

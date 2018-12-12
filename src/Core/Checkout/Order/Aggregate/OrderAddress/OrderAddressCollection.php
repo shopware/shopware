@@ -9,58 +9,58 @@ use Shopware\Core\System\Country\CountryCollection;
 class OrderAddressCollection extends EntityCollection
 {
     /**
-     * @var OrderAddressStruct[]
+     * @var OrderAddressEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? OrderAddressStruct
+    public function get(string $id): ? OrderAddressEntity
     {
         return parent::get($id);
     }
 
-    public function current(): OrderAddressStruct
+    public function current(): OrderAddressEntity
     {
         return parent::current();
     }
 
     public function getCountryIds(): array
     {
-        return $this->fmap(function (OrderAddressStruct $orderAddress) {
+        return $this->fmap(function (OrderAddressEntity $orderAddress) {
             return $orderAddress->getCountryId();
         });
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (OrderAddressStruct $orderAddress) use ($id) {
+        return $this->filter(function (OrderAddressEntity $orderAddress) use ($id) {
             return $orderAddress->getCountryId() === $id;
         });
     }
 
     public function getCountryStateIds(): array
     {
-        return $this->fmap(function (OrderAddressStruct $orderAddress) {
+        return $this->fmap(function (OrderAddressEntity $orderAddress) {
             return $orderAddress->getCountryStateId();
         });
     }
 
     public function filterByCountryStateId(string $id): self
     {
-        return $this->filter(function (OrderAddressStruct $orderAddress) use ($id) {
+        return $this->filter(function (OrderAddressEntity $orderAddress) use ($id) {
             return $orderAddress->getCountryStateId() === $id;
         });
     }
 
     public function getVatIds(): array
     {
-        return $this->fmap(function (OrderAddressStruct $orderAddress) {
+        return $this->fmap(function (OrderAddressEntity $orderAddress) {
             return $orderAddress->getVatId();
         });
     }
 
     public function filterByVatId(string $id): self
     {
-        return $this->filter(function (OrderAddressStruct $orderAddress) use ($id) {
+        return $this->filter(function (OrderAddressEntity $orderAddress) use ($id) {
             return $orderAddress->getVatId() === $id;
         });
     }
@@ -68,7 +68,7 @@ class OrderAddressCollection extends EntityCollection
     public function getCountries(): CountryCollection
     {
         return new CountryCollection(
-            $this->fmap(function (OrderAddressStruct $orderAddress) {
+            $this->fmap(function (OrderAddressEntity $orderAddress) {
                 return $orderAddress->getCountry();
             })
         );
@@ -77,7 +77,7 @@ class OrderAddressCollection extends EntityCollection
     public function getCountryStates(): CountryStateCollection
     {
         return new CountryStateCollection(
-            $this->fmap(function (OrderAddressStruct $orderAddress) {
+            $this->fmap(function (OrderAddressEntity $orderAddress) {
                 return $orderAddress->getCountryState();
             })
         );
@@ -85,6 +85,6 @@ class OrderAddressCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return OrderAddressStruct::class;
+        return OrderAddressEntity::class;
     }
 }

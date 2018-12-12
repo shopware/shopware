@@ -54,6 +54,6 @@ class CustomerGroupDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return CustomerGroupStruct::class;
+        return CustomerGroupEntity::class;
     }
 }

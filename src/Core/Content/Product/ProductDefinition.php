@@ -180,7 +180,7 @@ class ProductDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return ProductStruct::class;
+        return ProductEntity::class;
     }
 
     public static function getDefaults(EntityExistence $existence): array

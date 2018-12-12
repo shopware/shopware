@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
-use Shopware\Core\Framework\Plugin\PluginStruct;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -66,7 +66,7 @@ EOF
         $io->text(sprintf('Installing %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
-        /** @var PluginStruct $plugin */
+        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($input->getOption('reinstall') && $plugin->getInstallationDate()) {
                 $this->pluginManager->uninstallPlugin($plugin);

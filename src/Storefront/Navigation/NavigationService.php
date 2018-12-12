@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Navigation;
 
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -47,7 +47,7 @@ class NavigationService
         $rootIds = [];
 
         if ($categoryId) {
-            /** @var CategoryStruct|null $activeCategory */
+            /** @var CategoryEntity|null $activeCategory */
             $activeCategory = $this->repository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {
@@ -61,12 +61,12 @@ class NavigationService
 
         $leafCategories = $this->repository->search($criteria, $context);
 
-        $activeCategory = $rootCategories->filter(function (CategoryStruct $category) use ($categoryId) {
+        $activeCategory = $rootCategories->filter(function (CategoryEntity $category) use ($categoryId) {
             return $category->getId() === $categoryId;
         })->first();
 
         if (!$activeCategory) {
-            $activeCategory = $leafCategories->filter(function (CategoryStruct $category) use ($categoryId) {
+            $activeCategory = $leafCategories->filter(function (CategoryEntity $category) use ($categoryId) {
                 return $category->getId() === $categoryId;
             })->first();
         }

@@ -3,13 +3,13 @@
 namespace Shopware\Core\Content\Test\Media\Aggregate\MediaThumbnail;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 
 class MediaThumbnailStructTest extends TestCase
 {
     public function testGetIdentifierWithoutHighDpi(): void
     {
-        $thumbnail = new MediaThumbnailStruct();
+        $thumbnail = new MediaThumbnailEntity();
         $thumbnail->setWidth(120);
         $thumbnail->setHeight(100);
         $thumbnail->setHighDpi(false);
@@ -19,7 +19,7 @@ class MediaThumbnailStructTest extends TestCase
 
     public function testGetIdentifierWithHighDpi(): void
     {
-        $thumbnail = new MediaThumbnailStruct();
+        $thumbnail = new MediaThumbnailEntity();
         $thumbnail->setWidth(120);
         $thumbnail->setHeight(100);
         $thumbnail->setHighDpi(true);

@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class VersionCommitCollection extends EntityCollection
 {
     /**
-     * @var VersionCommitStruct[]
+     * @var VersionCommitEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? VersionCommitStruct
+    public function get(string $id): ? VersionCommitEntity
     {
         return parent::get($id);
     }
 
-    public function current(): VersionCommitStruct
+    public function current(): VersionCommitEntity
     {
         return parent::current();
     }
 
     public function getUserIds(): array
     {
-        return $this->fmap(function (VersionCommitStruct $versionChange) {
+        return $this->fmap(function (VersionCommitEntity $versionChange) {
             return $versionChange->getUserId();
         });
     }
 
     public function filterByUserId(string $id): self
     {
-        return $this->filter(function (VersionCommitStruct $versionChange) use ($id) {
+        return $this->filter(function (VersionCommitEntity $versionChange) use ($id) {
             return $versionChange->getUserId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return VersionCommitStruct::class;
+        return VersionCommitEntity::class;
     }
 }

@@ -4,50 +4,50 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
-use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
+use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ProductConfiguratorCollection extends EntityCollection
 {
     /**
-     * @var ProductConfiguratorStruct[]
+     * @var ProductConfiguratorEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ProductConfiguratorStruct
+    public function get(string $id): ? ProductConfiguratorEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ProductConfiguratorStruct
+    public function current(): ProductConfiguratorEntity
     {
         return parent::current();
     }
 
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductConfiguratorStruct $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorEntity $productConfigurator) {
             return $productConfigurator->getProductId();
         });
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductConfiguratorStruct $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorEntity $productConfigurator) use ($id) {
             return $productConfigurator->getProductId() === $id;
         });
     }
 
     public function getOptionIds(): array
     {
-        return $this->fmap(function (ProductConfiguratorStruct $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorEntity $productConfigurator) {
             return $productConfigurator->getOptionId();
         });
     }
 
     public function filterByOptionId(string $id): self
     {
-        return $this->filter(function (ProductConfiguratorStruct $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorEntity $productConfigurator) use ($id) {
             return $productConfigurator->getOptionId() === $id;
         });
     }
@@ -55,7 +55,7 @@ class ProductConfiguratorCollection extends EntityCollection
     public function getOptions(): ConfigurationGroupOptionCollection
     {
         return new ConfigurationGroupOptionCollection(
-            $this->fmap(function (ProductConfiguratorStruct $productConfigurator) {
+            $this->fmap(function (ProductConfiguratorEntity $productConfigurator) {
                 return $productConfigurator->getOption();
             })
         );
@@ -68,7 +68,7 @@ class ProductConfiguratorCollection extends EntityCollection
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());
             } else {
-                $group = ConfigurationGroupStruct::createFrom(
+                $group = ConfigurationGroupEntity::createFrom(
                     $element->getOption()->getGroup()
                 );
 
@@ -85,7 +85,7 @@ class ProductConfiguratorCollection extends EntityCollection
         return $groups;
     }
 
-    public function getByOptionId(string $optionId): ?ProductConfiguratorStruct
+    public function getByOptionId(string $optionId): ?ProductConfiguratorEntity
     {
         foreach ($this->elements as $element) {
             if ($element->getOptionId() === $optionId) {
@@ -98,7 +98,7 @@ class ProductConfiguratorCollection extends EntityCollection
 
     public function sortByGroup(): void
     {
-        $this->sort(function (ProductConfiguratorStruct $a, ProductConfiguratorStruct $b) {
+        $this->sort(function (ProductConfiguratorEntity $a, ProductConfiguratorEntity $b) {
             $groupA = $a->getOption()->getGroup();
             $groupB = $b->getOption()->getGroup();
 
@@ -112,6 +112,6 @@ class ProductConfiguratorCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return ProductConfiguratorStruct::class;
+        return ProductConfiguratorEntity::class;
     }
 }

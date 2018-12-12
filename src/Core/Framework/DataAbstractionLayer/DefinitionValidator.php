@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DefinitionValidator
@@ -89,12 +89,12 @@ class DefinitionValidator
         foreach ($this->registry->getElements() as $definition) {
             $instance = new $definition();
 
-            $struct = ArrayStruct::class;
+            $struct = ArrayEntity::class;
             if (!$instance instanceof MappingEntityDefinition) {
                 $struct = $definition::getStructClass();
             }
 
-            if ($struct !== ArrayStruct::class) {
+            if ($struct !== ArrayEntity::class) {
                 $violations[$definition] = array_merge(
                     $violations[$definition],
                     $this->validateStruct($struct, $definition)
@@ -130,7 +130,7 @@ class DefinitionValidator
             /** @var string|EntityDefinition $definition */
             $struct = $definition::getStructClass();
 
-            if ($struct !== ArrayStruct::class) {
+            if ($struct !== ArrayEntity::class) {
                 $notices[$definition] = array_merge_recursive(
                     $notices[$definition],
                     $this->findStructNotices($struct, $definition)

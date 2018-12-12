@@ -52,6 +52,6 @@ class RuleDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return RuleStruct::class;
+        return RuleEntity::class;
     }
 }

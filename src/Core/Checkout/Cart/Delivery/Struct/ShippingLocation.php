@@ -2,36 +2,36 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
-use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
+use Shopware\Core\System\Country\CountryEntity;
 
 class ShippingLocation extends Struct
 {
     /**
-     * @var CountryStruct
+     * @var CountryEntity
      */
     protected $country;
 
     /**
-     * @var null|CountryStateStruct
+     * @var null|CountryStateEntity
      */
     protected $state;
 
     /**
-     * @var null|CustomerAddressStruct
+     * @var null|CustomerAddressEntity
      */
     protected $address;
 
-    public function __construct(CountryStruct $country, ?CountryStateStruct $state, ?CustomerAddressStruct $address)
+    public function __construct(CountryEntity $country, ?CountryStateEntity $state, ?CustomerAddressEntity $address)
     {
         $this->country = $country;
         $this->state = $state;
         $this->address = $address;
     }
 
-    public static function createFromAddress(CustomerAddressStruct $address): self
+    public static function createFromAddress(CustomerAddressEntity $address): self
     {
         return new self(
             $address->getCountry(),
@@ -40,12 +40,12 @@ class ShippingLocation extends Struct
         );
     }
 
-    public static function createFromCountry(CountryStruct $country): self
+    public static function createFromCountry(CountryEntity $country): self
     {
         return new self($country, null, null);
     }
 
-    public function getCountry(): CountryStruct
+    public function getCountry(): CountryEntity
     {
         if ($this->address) {
             return $this->address->getCountry();
@@ -54,7 +54,7 @@ class ShippingLocation extends Struct
         return $this->country;
     }
 
-    public function getState(): ?CountryStateStruct
+    public function getState(): ?CountryStateEntity
     {
         if ($this->address) {
             return $this->address->getCountryState();
@@ -63,7 +63,7 @@ class ShippingLocation extends Struct
         return $this->state;
     }
 
-    public function getAddress(): ?CustomerAddressStruct
+    public function getAddress(): ?CustomerAddressEntity
     {
         return $this->address;
     }

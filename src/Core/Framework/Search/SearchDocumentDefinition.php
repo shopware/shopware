@@ -40,6 +40,6 @@ class SearchDocumentDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return SearchDocumentStruct::class;
+        return SearchDocumentEntity::class;
     }
 }

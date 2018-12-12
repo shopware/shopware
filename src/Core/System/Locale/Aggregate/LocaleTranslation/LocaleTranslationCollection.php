@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class LocaleTranslationCollection extends EntityCollection
 {
     /**
-     * @var LocaleTranslationStruct[]
+     * @var LocaleTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? LocaleTranslationStruct
+    public function get(string $id): ? LocaleTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): LocaleTranslationStruct
+    public function current(): LocaleTranslationEntity
     {
         return parent::current();
     }
 
     public function getLocaleIds(): array
     {
-        return $this->fmap(function (LocaleTranslationStruct $localeTranslation) {
+        return $this->fmap(function (LocaleTranslationEntity $localeTranslation) {
             return $localeTranslation->getLocaleId();
         });
     }
 
     public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationStruct $localeTranslation) use ($id) {
+        return $this->filter(function (LocaleTranslationEntity $localeTranslation) use ($id) {
             return $localeTranslation->getLocaleId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (LocaleTranslationStruct $localeTranslation) {
+        return $this->fmap(function (LocaleTranslationEntity $localeTranslation) {
             return $localeTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (LocaleTranslationStruct $localeTranslation) use ($id) {
+        return $this->filter(function (LocaleTranslationEntity $localeTranslation) use ($id) {
             return $localeTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return LocaleTranslationStruct::class;
+        return LocaleTranslationEntity::class;
     }
 }

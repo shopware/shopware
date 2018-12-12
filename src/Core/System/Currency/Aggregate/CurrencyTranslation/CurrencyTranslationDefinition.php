@@ -42,7 +42,7 @@ class CurrencyTranslationDefinition extends EntityTranslationDefinition
 
     public static function getStructClass(): string
     {
-        return CurrencyTranslationStruct::class;
+        return CurrencyTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Test\Product\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -66,12 +66,12 @@ class ProductApiTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertCount(1, $product->getPriceRules());
 
-        /** @var ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleEntity $price */
         $price = $product->getPriceRules()->first();
         static::assertEquals($ruleA, $price->getRuleId());
 
@@ -101,12 +101,12 @@ class ProductApiTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertCount(2, $product->getPriceRules());
 
-        /** @var ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleEntity $price */
         $price = $product->getPriceRules()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
         static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
@@ -135,12 +135,12 @@ class ProductApiTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertCount(3, $product->getPriceRules());
 
-        /** @var ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleEntity $price */
         $price = $product->getPriceRules()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
         static::assertEquals(new Price(50, 50, false), $price->getPrice());

@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -444,7 +444,7 @@ class AccountController extends StorefrontController
         $addresses = $this->accountService->getAddressesByCustomer($context);
 
         if (!empty($addressId)) {
-            /** @var CustomerAddressStruct $address */
+            /** @var CustomerAddressEntity $address */
             foreach ($addresses as $key => $address) {
                 if ($address->getId() === $addressId) {
                     unset($addresses[$key]);

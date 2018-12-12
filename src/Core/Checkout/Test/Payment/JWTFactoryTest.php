@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\PaymentService;
@@ -81,9 +81,9 @@ class JWTFactoryTest extends TestCase
         self::assertFalse($success);
     }
 
-    public static function createTransaction(): OrderTransactionStruct
+    public static function createTransaction(): OrderTransactionEntity
     {
-        $transactionStruct = new OrderTransactionStruct();
+        $transactionStruct = new OrderTransactionEntity();
         $transactionStruct->setId(Uuid::uuid4()->getHex());
         $transactionStruct->setOrderId(Uuid::uuid4()->getHex());
         $transactionStruct->setPaymentMethodId(Uuid::uuid4()->getHex());

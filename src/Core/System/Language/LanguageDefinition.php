@@ -110,6 +110,6 @@ class LanguageDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return LanguageStruct::class;
+        return LanguageEntity::class;
     }
 }

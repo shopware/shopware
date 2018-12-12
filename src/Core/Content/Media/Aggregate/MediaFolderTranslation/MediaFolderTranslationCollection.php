@@ -6,18 +6,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class MediaFolderTranslationCollection extends EntityCollection
 {
-    public function get(string $id): ? MediaFolderTranslationStruct
+    public function get(string $id): ? MediaFolderTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): MediaFolderTranslationStruct
+    public function current(): MediaFolderTranslationEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return MediaFolderTranslationStruct::class;
+        return MediaFolderTranslationEntity::class;
     }
 }

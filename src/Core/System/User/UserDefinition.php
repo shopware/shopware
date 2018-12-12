@@ -57,6 +57,6 @@ class UserDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return UserStruct::class;
+        return UserEntity::class;
     }
 }

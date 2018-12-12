@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class PaymentMethodTranslationCollection extends EntityCollection
 {
     /**
-     * @var PaymentMethodTranslationStruct[]
+     * @var PaymentMethodTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? PaymentMethodTranslationStruct
+    public function get(string $id): ? PaymentMethodTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): PaymentMethodTranslationStruct
+    public function current(): PaymentMethodTranslationEntity
     {
         return parent::current();
     }
 
     public function getPaymentMethodIds(): array
     {
-        return $this->fmap(function (PaymentMethodTranslationStruct $paymentMethodTranslation) {
+        return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {
             return $paymentMethodTranslation->getPaymentMethodId();
         });
     }
 
     public function filterByPaymentMethodId(string $id): self
     {
-        return $this->filter(function (PaymentMethodTranslationStruct $paymentMethodTranslation) use ($id) {
+        return $this->filter(function (PaymentMethodTranslationEntity $paymentMethodTranslation) use ($id) {
             return $paymentMethodTranslation->getPaymentMethodId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (PaymentMethodTranslationStruct $paymentMethodTranslation) {
+        return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {
             return $paymentMethodTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (PaymentMethodTranslationStruct $paymentMethodTranslation) use ($id) {
+        return $this->filter(function (PaymentMethodTranslationEntity $paymentMethodTranslation) use ($id) {
             return $paymentMethodTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return PaymentMethodTranslationStruct::class;
+        return PaymentMethodTranslationEntity::class;
     }
 }

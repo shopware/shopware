@@ -6,15 +6,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
-use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\System\Country\CountryEntity;
 
 class TaxDetectorTest extends TestCase
 {
     public function testUseGrossPrices(): void
     {
         $context = $this->createMock(CheckoutContext::class);
-        $customerGroup = $this->createMock(CustomerGroupStruct::class);
+        $customerGroup = $this->createMock(CustomerGroupEntity::class);
         $customerGroup->expects(static::once())->method('getDisplayGross')->will(static::returnValue(true));
         $context->expects(static::once())->method('getCurrentCustomerGroup')->will(static::returnValue($customerGroup));
 
@@ -25,7 +25,7 @@ class TaxDetectorTest extends TestCase
     public function testDoNotUseGrossPrices(): void
     {
         $context = $this->createMock(CheckoutContext::class);
-        $customerGroup = $this->createMock(CustomerGroupStruct::class);
+        $customerGroup = $this->createMock(CustomerGroupEntity::class);
         $customerGroup->expects(static::once())->method('getDisplayGross')->will(static::returnValue(false));
         $context->expects(static::once())->method('getCurrentCustomerGroup')->will(static::returnValue($customerGroup));
 
@@ -37,7 +37,7 @@ class TaxDetectorTest extends TestCase
     {
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setTaxFree(true);
 
         $context->expects(static::once())->method('getShippingLocation')->will(
@@ -53,7 +53,7 @@ class TaxDetectorTest extends TestCase
     {
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setTaxFree(false);
 
         $context->expects(static::once())->method('getShippingLocation')->will(

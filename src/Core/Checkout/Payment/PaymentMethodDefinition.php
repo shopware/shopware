@@ -83,6 +83,6 @@ class PaymentMethodDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return PaymentMethodStruct::class;
+        return PaymentMethodEntity::class;
     }
 }

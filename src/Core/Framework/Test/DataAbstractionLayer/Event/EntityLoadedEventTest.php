@@ -14,15 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class EntityLoadedEventTest extends TestCase
 {
     public function testExtractManyToOne(): void
     {
-        $a = new ArrayStruct(['id' => 'many_to_one_A']);
+        $a = new ArrayEntity(['id' => 'many_to_one_A']);
 
-        $root = new ArrayStruct(['id' => 'A', 'many_to_one' => $a]);
+        $root = new ArrayEntity(['id' => 'A', 'many_to_one' => $a]);
 
         $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
@@ -41,11 +41,11 @@ class EntityLoadedEventTest extends TestCase
 
     public function testExtractManyToOneRecursive(): void
     {
-        $a = new ArrayStruct(['id' => 'many_to_one_A']);
-        $b = new ArrayStruct(['id' => 'many_to_one_B', 'many_to_one' => $a]);
-        $c = new ArrayStruct(['id' => 'many_to_one_C', 'many_to_one' => $b]);
+        $a = new ArrayEntity(['id' => 'many_to_one_A']);
+        $b = new ArrayEntity(['id' => 'many_to_one_B', 'many_to_one' => $a]);
+        $c = new ArrayEntity(['id' => 'many_to_one_C', 'many_to_one' => $b]);
 
-        $root = new ArrayStruct(['id' => 'A', 'many_to_one' => $c]);
+        $root = new ArrayEntity(['id' => 'A', 'many_to_one' => $c]);
 
         $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
@@ -77,10 +77,10 @@ class EntityLoadedEventTest extends TestCase
 
     public function testExtractOneToMany(): void
     {
-        $a = new ArrayStruct(['id' => 'one_to_many_A']);
-        $b = new ArrayStruct(['id' => 'one_to_many_B']);
+        $a = new ArrayEntity(['id' => 'one_to_many_A']);
+        $b = new ArrayEntity(['id' => 'one_to_many_B']);
 
-        $entity = new ArrayStruct(['id' => 'A', 'one_to_many' => new EntityCollection([$a, $b])]);
+        $entity = new ArrayEntity(['id' => 'A', 'one_to_many' => new EntityCollection([$a, $b])]);
 
         $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
@@ -99,12 +99,12 @@ class EntityLoadedEventTest extends TestCase
 
     public function testExtractOneToManyRecursive(): void
     {
-        $a = new ArrayStruct(['id' => 'one_to_many_A']);
-        $b = new ArrayStruct(['id' => 'one_to_many_B']);
+        $a = new ArrayEntity(['id' => 'one_to_many_A']);
+        $b = new ArrayEntity(['id' => 'one_to_many_B']);
 
-        $c = new ArrayStruct(['id' => 'one_to_many_C', 'one_to_many' => new EntityCollection([$a, $b])]);
+        $c = new ArrayEntity(['id' => 'one_to_many_C', 'one_to_many' => new EntityCollection([$a, $b])]);
 
-        $entity = new ArrayStruct(['id' => 'A', 'one_to_many' => new EntityCollection([$c])]);
+        $entity = new ArrayEntity(['id' => 'A', 'one_to_many' => new EntityCollection([$c])]);
 
         $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
@@ -123,10 +123,10 @@ class EntityLoadedEventTest extends TestCase
 
     public function testExtractManyToMany(): void
     {
-        $a = new ArrayStruct(['id' => 'many_to_many_A']);
-        $b = new ArrayStruct(['id' => 'many_to_many_B']);
+        $a = new ArrayEntity(['id' => 'many_to_many_A']);
+        $b = new ArrayEntity(['id' => 'many_to_many_B']);
 
-        $entity = new ArrayStruct(['id' => 'A', 'many_to_many' => new EntityCollection([$a, $b])]);
+        $entity = new ArrayEntity(['id' => 'A', 'many_to_many' => new EntityCollection([$a, $b])]);
 
         $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);
@@ -145,12 +145,12 @@ class EntityLoadedEventTest extends TestCase
 
     public function testExtractManyToManyRecursive(): void
     {
-        $a = new ArrayStruct(['id' => 'many_to_many_A']);
-        $b = new ArrayStruct(['id' => 'many_to_many_B']);
+        $a = new ArrayEntity(['id' => 'many_to_many_A']);
+        $b = new ArrayEntity(['id' => 'many_to_many_B']);
 
-        $c = new ArrayStruct(['id' => 'many_to_many_C', 'many_to_many' => new EntityCollection([$a, $b])]);
+        $c = new ArrayEntity(['id' => 'many_to_many_C', 'many_to_many' => new EntityCollection([$a, $b])]);
 
-        $entity = new ArrayStruct(['id' => 'A', 'many_to_many' => new EntityCollection([$c])]);
+        $entity = new ArrayEntity(['id' => 'A', 'many_to_many' => new EntityCollection([$c])]);
 
         $context = Context::createDefaultContext();
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$entity]), $context);

@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingStreetRule;
 
 class BillingStreetRuleTest extends TestCase
@@ -20,10 +20,10 @@ class BillingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressStruct();
+        $billing = new CustomerAddressEntity();
         $billing->setStreet('example street');
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setDefaultBillingAddress($billing);
 
         $context
@@ -43,10 +43,10 @@ class BillingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressStruct();
+        $billing = new CustomerAddressEntity();
         $billing->setStreet('example street');
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setDefaultBillingAddress($billing);
 
         $context
@@ -66,10 +66,10 @@ class BillingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressStruct();
+        $billing = new CustomerAddressEntity();
         $billing->setStreet('test street');
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setDefaultBillingAddress($billing);
 
         $context

@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Page\Detail;
 
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 class DetailPageStruct extends Struct
 {
     /**
-     * @var ProductStruct
+     * @var ProductEntity
      */
     protected $product;
 
@@ -18,7 +18,7 @@ class DetailPageStruct extends Struct
      */
     protected $configurator;
 
-    public function __construct(ProductStruct $product)
+    public function __construct(ProductEntity $product)
     {
         $this->product = $product;
         $this->configurator = new ProductConfiguratorCollection();
@@ -34,12 +34,12 @@ class DetailPageStruct extends Struct
         $this->configurator = $configurator;
     }
 
-    public function getProduct(): ProductStruct
+    public function getProduct(): ProductEntity
     {
         return $this->product;
     }
 
-    public function setProduct(ProductStruct $product): void
+    public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
     }

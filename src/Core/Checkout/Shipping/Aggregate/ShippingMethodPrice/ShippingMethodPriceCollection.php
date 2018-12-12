@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ShippingMethodPriceCollection extends EntityCollection
 {
     /**
-     * @var ShippingMethodPriceStruct[]
+     * @var ShippingMethodPriceEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ShippingMethodPriceStruct
+    public function get(string $id): ? ShippingMethodPriceEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ShippingMethodPriceStruct
+    public function current(): ShippingMethodPriceEntity
     {
         return parent::current();
     }
 
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(function (ShippingMethodPriceStruct $shippingMethodPrice) {
+        return $this->fmap(function (ShippingMethodPriceEntity $shippingMethodPrice) {
             return $shippingMethodPrice->getShippingMethodId();
         });
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (ShippingMethodPriceStruct $shippingMethodPrice) use ($id) {
+        return $this->filter(function (ShippingMethodPriceEntity $shippingMethodPrice) use ($id) {
             return $shippingMethodPrice->getShippingMethodId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return ShippingMethodPriceStruct::class;
+        return ShippingMethodPriceEntity::class;
     }
 }

@@ -51,7 +51,7 @@ class MediaThumbnailDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return MediaThumbnailStruct::class;
+        return MediaThumbnailEntity::class;
     }
 
     public static function getRootEntity(): ?string

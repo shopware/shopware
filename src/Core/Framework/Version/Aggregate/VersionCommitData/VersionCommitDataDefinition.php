@@ -58,7 +58,7 @@ class VersionCommitDataDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return VersionCommitDataStruct::class;
+        return VersionCommitDataEntity::class;
     }
 
     public static function getRootEntity(): ?string

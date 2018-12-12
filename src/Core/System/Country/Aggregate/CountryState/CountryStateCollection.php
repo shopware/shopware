@@ -7,37 +7,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CountryStateCollection extends EntityCollection
 {
     /**
-     * @var CountryStateStruct[]
+     * @var CountryStateEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CountryStateStruct
+    public function get(string $id): ? CountryStateEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CountryStateStruct
+    public function current(): CountryStateEntity
     {
         return parent::current();
     }
 
     public function getCountryIds(): array
     {
-        return $this->fmap(function (CountryStateStruct $countryState) {
+        return $this->fmap(function (CountryStateEntity $countryState) {
             return $countryState->getCountryId();
         });
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (CountryStateStruct $countryState) use ($id) {
+        return $this->filter(function (CountryStateEntity $countryState) use ($id) {
             return $countryState->getCountryId() === $id;
         });
     }
 
     public function sortByPositionAndName(): void
     {
-        uasort($this->elements, function (CountryStateStruct $a, CountryStateStruct $b) {
+        uasort($this->elements, function (CountryStateEntity $a, CountryStateEntity $b) {
             if ($a->getPosition() !== $b->getPosition()) {
                 return $a->getPosition() <=> $b->getPosition();
             }
@@ -52,6 +52,6 @@ class CountryStateCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return CountryStateStruct::class;
+        return CountryStateEntity::class;
     }
 }

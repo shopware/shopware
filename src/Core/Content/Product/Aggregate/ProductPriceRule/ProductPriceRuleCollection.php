@@ -7,32 +7,32 @@ use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 class ProductPriceRuleCollection extends PriceRuleCollection
 {
     /**
-     * @var ProductPriceRuleStruct[]
+     * @var ProductPriceRuleEntity[]
      */
     protected $elements = [];
 
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductPriceRuleStruct $price) {
+        return $this->fmap(function (ProductPriceRuleEntity $price) {
             return $price->getProductId();
         });
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductPriceRuleStruct $price) use ($id) {
+        return $this->filter(function (ProductPriceRuleEntity $price) use ($id) {
             return $price->getProductId() === $id;
         });
     }
 
     public function sortByQuantity(): void
     {
-        $this->sort(function (ProductPriceRuleStruct $a, ProductPriceRuleStruct $b) {
+        $this->sort(function (ProductPriceRuleEntity $a, ProductPriceRuleEntity $b) {
             return $a->getQuantityStart() <=> $b->getQuantityStart();
         });
     }
 
-    public function getQuantityPrice(int $quantity): ProductPriceRuleStruct
+    public function getQuantityPrice(int $quantity): ProductPriceRuleEntity
     {
         foreach ($this->elements as $price) {
             $end = $price->getQuantityEnd() ?? $quantity + 1;
@@ -47,6 +47,6 @@ class ProductPriceRuleCollection extends PriceRuleCollection
 
     protected function getExpectedClass(): string
     {
-        return ProductPriceRuleStruct::class;
+        return ProductPriceRuleEntity::class;
     }
 }

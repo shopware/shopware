@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CategoryTranslationCollection extends EntityCollection
 {
     /**
-     * @var CategoryTranslationStruct[]
+     * @var CategoryTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CategoryTranslationStruct
+    public function get(string $id): ? CategoryTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CategoryTranslationStruct
+    public function current(): CategoryTranslationEntity
     {
         return parent::current();
     }
 
     public function getCategoryIds(): array
     {
-        return $this->fmap(function (CategoryTranslationStruct $categoryTranslation) {
+        return $this->fmap(function (CategoryTranslationEntity $categoryTranslation) {
             return $categoryTranslation->getCategoryId();
         });
     }
 
     public function filterByCategoryId(string $id): self
     {
-        return $this->filter(function (CategoryTranslationStruct $categoryTranslation) use ($id) {
+        return $this->filter(function (CategoryTranslationEntity $categoryTranslation) use ($id) {
             return $categoryTranslation->getCategoryId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (CategoryTranslationStruct $categoryTranslation) {
+        return $this->fmap(function (CategoryTranslationEntity $categoryTranslation) {
             return $categoryTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CategoryTranslationStruct $categoryTranslation) use ($id) {
+        return $this->filter(function (CategoryTranslationEntity $categoryTranslation) use ($id) {
             return $categoryTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return CategoryTranslationStruct::class;
+        return CategoryTranslationEntity::class;
     }
 }

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\SalesChannel\SalesChannelStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class SalesChannelRepositoryTest extends TestCase
 {
@@ -119,7 +119,7 @@ class SalesChannelRepositoryTest extends TestCase
             'countries' => [['id' => Defaults::COUNTRY]],
         ]], $context);
 
-        /** @var SalesChannelStruct $salesChannel */
+        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$salesChannelId]), $context)->get($salesChannelId);
 
         self::assertEquals($name, $salesChannel->getName());

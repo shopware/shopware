@@ -46,6 +46,6 @@ class SeoUrlDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return SeoUrlStruct::class;
+        return SeoUrlEntity::class;
     }
 }

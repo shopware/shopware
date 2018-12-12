@@ -23,7 +23,7 @@ class RuleConditionDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return RuleConditionStruct::class;
+        return RuleConditionEntity::class;
     }
 
     public static function getCollectionClass(): string

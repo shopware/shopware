@@ -53,7 +53,7 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return OrderDeliveryPositionStruct::class;
+        return OrderDeliveryPositionEntity::class;
     }
 
     public static function getRootEntity(): ?string

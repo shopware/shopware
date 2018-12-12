@@ -64,6 +64,6 @@ class PluginDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return PluginStruct::class;
+        return PluginEntity::class;
     }
 }

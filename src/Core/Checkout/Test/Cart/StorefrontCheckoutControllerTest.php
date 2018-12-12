@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -234,7 +234,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
-        /** @var CustomerStruct $customer */
+        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->read(new ReadCriteria([$order['orderCustomer']['customerId']]), $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
@@ -307,7 +307,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
-        /** @var CustomerStruct $customer */
+        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->read(new ReadCriteria([$order['orderCustomer']['customerId']]), $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
@@ -443,7 +443,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
-        /** @var CustomerStruct $customer */
+        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->read(new ReadCriteria([$order['orderCustomer']['customerId']]), $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());

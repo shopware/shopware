@@ -16,8 +16,8 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -82,11 +82,11 @@ class OrderPersisterTest extends TestCase
         $this->orderPersister->persist($processedCart, $this->getCheckoutContext());
     }
 
-    private function getCustomer(): CustomerStruct
+    private function getCustomer(): CustomerEntity
     {
         $faker = Factory::create();
 
-        $billingAddress = new CustomerAddressStruct();
+        $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId('SWAG-ADDRESS-ID-1');
         $billingAddress->setSalutation('mr');
         $billingAddress->setFirstName($faker->firstName);
@@ -95,7 +95,7 @@ class OrderPersisterTest extends TestCase
         $billingAddress->setCity($faker->city);
         $billingAddress->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setId('SWAG-CUSTOMER-ID-1');
         $customer->setDefaultBillingAddress($billingAddress);
         $customer->setEmail('test@example.com');

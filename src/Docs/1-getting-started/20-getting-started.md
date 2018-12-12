@@ -954,7 +954,7 @@ namespace Shopware\Core\System\Locale\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
-class LocaleStruct extends Entity
+class LocaleEntity extends Entity
 {
     use EntityIdTrait;
 

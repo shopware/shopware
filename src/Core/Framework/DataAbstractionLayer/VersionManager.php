@@ -31,7 +31,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataStruct;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\Version\VersionDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -236,7 +236,7 @@ class VersionManager
             $liveContext->getContext()->getDeleteProtection()->disallow(VersionCommitDefinition::getDeleteProtectionKey());
         }
 
-        $newData = array_map(function (VersionCommitDataStruct $data) {
+        $newData = array_map(function (VersionCommitDataEntity $data) {
             $definition = $this->entityDefinitionRegistry->get($data->getEntityName());
 
             $id = $data->getEntityId();

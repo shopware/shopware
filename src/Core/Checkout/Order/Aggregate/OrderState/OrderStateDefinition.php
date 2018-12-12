@@ -52,6 +52,6 @@ class OrderStateDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return OrderStateStruct::class;
+        return OrderStateEntity::class;
     }
 }

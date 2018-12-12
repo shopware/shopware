@@ -7,22 +7,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class TaxCollection extends EntityCollection
 {
     /**
-     * @var TaxStruct[]
+     * @var TaxEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? TaxStruct
+    public function get(string $id): ? TaxEntity
     {
         return parent::get($id);
     }
 
-    public function current(): TaxStruct
+    public function current(): TaxEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return TaxStruct::class;
+        return TaxEntity::class;
     }
 }

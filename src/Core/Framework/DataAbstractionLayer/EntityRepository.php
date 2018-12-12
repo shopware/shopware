@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class EntityRepository implements RepositoryInterface
@@ -93,7 +93,7 @@ class EntityRepository implements RepositoryInterface
             }
             $data = $search[$element->getUniqueIdentifier()];
 
-            $element->addExtension('search', new ArrayStruct($data));
+            $element->addExtension('search', new ArrayEntity($data));
         }
 
         $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context);

@@ -45,7 +45,7 @@ class MediaFolderDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return MediaFolderStruct::class;
+        return MediaFolderEntity::class;
     }
 
     public static function getDefaults(EntityExistence $existence): array

@@ -7,22 +7,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CustomerGroupCollection extends EntityCollection
 {
     /**
-     * @var CustomerGroupStruct[]
+     * @var CustomerGroupEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CustomerGroupStruct
+    public function get(string $id): ? CustomerGroupEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CustomerGroupStruct
+    public function current(): CustomerGroupEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return CustomerGroupStruct::class;
+        return CustomerGroupEntity::class;
     }
 }

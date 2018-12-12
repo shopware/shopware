@@ -61,7 +61,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
 
     public static function getStructClass(): string
     {
-        return ProductTranslationStruct::class;
+        return ProductTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

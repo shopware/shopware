@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class SearchDocumentCollection extends EntityCollection
 {
     /**
-     * @var SearchDocumentStruct[]
+     * @var SearchDocumentEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? SearchDocumentStruct
+    public function get(string $id): ? SearchDocumentEntity
     {
         return parent::get($id);
     }
 
-    public function current(): SearchDocumentStruct
+    public function current(): SearchDocumentEntity
     {
         return parent::current();
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (SearchDocumentStruct $document) {
+        return $this->fmap(function (SearchDocumentEntity $document) {
             return $document->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (SearchDocumentStruct $document) use ($id) {
+        return $this->filter(function (SearchDocumentEntity $document) use ($id) {
             return $document->getLanguageId() === $id;
         });
     }
 
     public function getEntityIds(): array
     {
-        return $this->fmap(function (SearchDocumentStruct $document) {
+        return $this->fmap(function (SearchDocumentEntity $document) {
             return $document->getEntityId();
         });
     }
 
     public function filterByEntityId(string $id): self
     {
-        return $this->filter(function (SearchDocumentStruct $document) use ($id) {
+        return $this->filter(function (SearchDocumentEntity $document) use ($id) {
             return $document->getEntityId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return SearchDocumentStruct::class;
+        return SearchDocumentEntity::class;
     }
 }

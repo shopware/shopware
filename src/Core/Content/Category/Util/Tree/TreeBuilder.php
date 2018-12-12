@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Category\Util\Tree;
 
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Category\CategoryEntity;
 
 class TreeBuilder
 {
@@ -16,7 +16,7 @@ class TreeBuilder
     public static function buildTree(?string $parentId, CategoryCollection $categories): array
     {
         $result = [];
-        /** @var CategoryStruct $category */
+        /** @var CategoryEntity $category */
         foreach ($categories->getElements() as $category) {
             if ($category->getParentId() !== $parentId) {
                 continue;

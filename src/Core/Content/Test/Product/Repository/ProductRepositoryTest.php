@@ -4,10 +4,10 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -18,14 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Shopware\Core\System\Tax\TaxStruct;
+use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepositoryTest extends TestCase
@@ -127,31 +127,31 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($ids[0]);
 
-        /* @var ProductStruct $product */
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(TaxStruct::class, $product->getTax());
+        /* @var ProductEntity $product */
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(TaxEntity::class, $product->getTax());
         static::assertEquals('without id', $product->getTax()->getName());
         static::assertEquals(19, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[1]);
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(TaxStruct::class, $product->getTax());
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(TaxEntity::class, $product->getTax());
         static::assertEquals($tax, $product->getTaxId());
         static::assertEquals($tax, $product->getTax()->getId());
         static::assertEquals('with id', $product->getTax()->getName());
         static::assertEquals(18, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[2]);
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(TaxStruct::class, $product->getTax());
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(TaxEntity::class, $product->getTax());
         static::assertEquals($tax, $product->getTaxId());
         static::assertEquals($tax, $product->getTax()->getId());
         static::assertEquals('with id', $product->getTax()->getName());
         static::assertEquals(18, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[2]);
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(TaxStruct::class, $product->getTax());
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(TaxEntity::class, $product->getTax());
         static::assertEquals($tax, $product->getTaxId());
         static::assertEquals($tax, $product->getTax()->getId());
         static::assertEquals('with id', $product->getTax()->getName());
@@ -199,28 +199,28 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($ids[0]);
 
-        /* @var ProductStruct $product */
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(ProductManufacturerStruct::class, $product->getManufacturer());
+        /* @var ProductEntity $product */
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
         static::assertEquals('without id', $product->getManufacturer()->getName());
 
         $product = $products->get($ids[1]);
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(ProductManufacturerStruct::class, $product->getManufacturer());
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
         static::assertEquals($manufacturerId, $product->getManufacturerId());
         static::assertEquals($manufacturerId, $product->getManufacturer()->getId());
         static::assertEquals('with id', $product->getManufacturer()->getName());
 
         $product = $products->get($ids[2]);
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(ProductManufacturerStruct::class, $product->getManufacturer());
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
         static::assertEquals($manufacturerId, $product->getManufacturerId());
         static::assertEquals($manufacturerId, $product->getManufacturer()->getId());
         static::assertEquals('with id', $product->getManufacturer()->getName());
 
         $product = $products->get($ids[2]);
-        static::assertInstanceOf(ProductStruct::class, $product);
-        static::assertInstanceOf(ProductManufacturerStruct::class, $product->getManufacturer());
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
         static::assertEquals($manufacturerId, $product->getManufacturerId());
         static::assertEquals($manufacturerId, $product->getManufacturer()->getId());
         static::assertEquals('with id', $product->getManufacturer()->getName());
@@ -259,15 +259,15 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $products);
         static::assertTrue($products->has($id->getHex()));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id->getHex());
 
         //check data loading is as expected
-        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals($id->getHex(), $product->getId());
         static::assertEquals('Test', $product->getName());
 
-        static::assertInstanceOf(ProductManufacturerStruct::class, $product->getManufacturer());
+        static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
 
         //check nested element loaded
         $manufacturer = $product->getManufacturer();
@@ -318,13 +318,13 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($id->getHex());
 
-        /* @var ProductStruct $product */
+        /* @var ProductEntity $product */
         static::assertEquals($id->getHex(), $product->getId());
 
         static::assertEquals(new Price(10, 15, false), $product->getPrice());
         static::assertCount(2, $product->getPriceRules());
 
-        /** @var ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleEntity $price */
         $price = $product->getPriceRules()->get($ruleA);
         static::assertEquals(15, $price->getPrice()->getGross());
         static::assertEquals(10, $price->getPrice()->getNet());
@@ -473,13 +473,13 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
 
-        /** @var ProductStruct $parent */
+        /** @var ProductEntity $parent */
         $parent = $parents->get($parentId);
 
-        /** @var ProductStruct $red */
+        /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        /** @var ProductStruct $green */
+        /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
         static::assertEquals($parentPrice['gross'], $parent->getPrice()->getGross());
@@ -534,7 +534,7 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertEquals('Update', $product->getName());
@@ -607,7 +607,7 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext());
         $product = $products->get($child);
 
-        /* @var ProductStruct $product */
+        /* @var ProductEntity $product */
         static::assertEquals('Child transformed to parent', $product->getName());
         static::assertEquals(13, $product->getPrice()->getGross());
         static::assertEquals('test3', $product->getManufacturer()->getName());
@@ -689,7 +689,7 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext());
         $product = $products->get($child);
 
-        /* @var ProductStruct $product */
+        /* @var ProductEntity $product */
         static::assertEquals('Child transformed to parent', $product->getName());
         static::assertEquals(13, $product->getPrice()->getGross());
         static::assertEquals('test3', $product->getManufacturer()->getName());
@@ -732,13 +732,13 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
 
-        /** @var ProductStruct $parent */
+        /** @var ProductEntity $parent */
         $parent = $parents->get($parentId);
 
-        /** @var ProductStruct $red */
+        /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        /** @var ProductStruct $green */
+        /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
         static::assertEquals($parentTax, $parent->getTax()->getId());
@@ -840,13 +840,13 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
 
-        /** @var ProductStruct $parent */
+        /** @var ProductEntity $parent */
         $parent = $parents->get($parentId);
 
-        /** @var ProductStruct $green */
+        /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        /** @var ProductStruct $red */
+        /** @var ProductEntity $red */
         $red = $products->get($redId);
 
         static::assertCount(1, $parent->getMedia());
@@ -914,13 +914,13 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($redId));
         static::assertTrue($products->has($greenId));
 
-        /** @var ProductStruct $parent */
+        /** @var ProductEntity $parent */
         $parent = $parents->get($parentId);
 
-        /** @var ProductStruct $green */
+        /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        /** @var ProductStruct $red */
+        /** @var ProductEntity $red */
         $red = $products->get($redId);
 
         static::assertEquals([$parentCategory], array_values($parent->getCategories()->getIds()));
@@ -1221,10 +1221,10 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $products);
         static::assertTrue($products->has($productId));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($productId);
 
-        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertContains($categoryId, $product->getCategoryTree());
     }
 
@@ -1258,10 +1258,10 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $products);
         static::assertTrue($products->has($productId));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($productId);
 
-        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals($manufacturerId, $product->getManufacturerId());
     }
 
@@ -1298,7 +1298,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addAssociation('datasheet');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $sheet = $product->getDatasheet();
 
         static::assertCount(2, $sheet);
@@ -1349,7 +1349,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addAssociation('variations');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $sheet = $product->getVariations();
 
         static::assertCount(2, $sheet);
@@ -1408,7 +1408,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addAssociation('configurators');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $configurators = $product->getConfigurators();
 
         static::assertCount(2, $configurators);
@@ -1472,7 +1472,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addAssociation('services');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $services = $product->getServices();
 
         static::assertCount(2, $services);
@@ -1541,7 +1541,7 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertCount(2, $product->getListingPrices());
@@ -1550,14 +1550,14 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $price);
         $price = $price->first();
 
-        /* @var PriceRuleStruct $price */
+        /* @var PriceRuleEntity $price */
         static::assertEquals(10, $price->getPrice()->getGross());
 
         $price = $product->getListingPrices()->filterByRuleId($ruleB);
         static::assertCount(1, $price);
         $price = $price->first();
 
-        /* @var PriceRuleStruct $price */
+        /* @var PriceRuleEntity $price */
         static::assertEquals(50, $price->getPrice()->getGross());
     }
 
@@ -1597,12 +1597,12 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertCount(1, $product->getPriceRules());
 
-        /** @var ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleEntity $price */
         $price = $product->getPriceRules()->first();
         static::assertEquals($ruleA, $price->getRuleId());
 
@@ -1631,12 +1631,12 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertCount(2, $product->getPriceRules());
 
-        /** @var ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleEntity $price */
         $price = $product->getPriceRules()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
         static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
@@ -1664,12 +1664,12 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->read(new ReadCriteria([$id]), $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $product = $products->get($id);
 
         static::assertCount(3, $product->getPriceRules());
 
-        /** @var ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleEntity $price */
         $price = $product->getPriceRules()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
         static::assertEquals(new Price(50, 50, false), $price->getPrice());
@@ -1711,9 +1711,9 @@ class ProductRepositoryTest extends TestCase
         $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
 
         //test if all products can be read if context contains no rules
-        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
 
-        /** @var ProductManufacturerStruct $manufacturer */
+        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(4, $manufacturer->getProducts());
 
@@ -1726,8 +1726,8 @@ class ProductRepositoryTest extends TestCase
         $context = $this->createContext();
         $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerStruct $manufacturer */
-        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        /** @var ProductManufacturerEntity $manufacturer */
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
 
@@ -1740,8 +1740,8 @@ class ProductRepositoryTest extends TestCase
         $context = $this->createContext([$ruleId, $ruleId2]);
         $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerStruct $manufacturer */
-        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        /** @var ProductManufacturerEntity $manufacturer */
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
     }

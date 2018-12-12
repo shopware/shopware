@@ -24,10 +24,10 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
-use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
+use Shopware\Core\System\Country\CountryEntity;
 
 class StockDeliverySeparatorTest extends TestCase
 {
@@ -308,10 +308,10 @@ class StockDeliverySeparatorTest extends TestCase
 
     private static function createShippingLocation(): ShippingLocation
     {
-        $address = new CustomerAddressStruct();
-        $address->setCountryState(new CountryStateStruct());
+        $address = new CustomerAddressEntity();
+        $address->setCountryState(new CountryStateEntity());
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('5cff02b1029741a4891c430bcd9e3603');
 
         $address->setCountry($country);

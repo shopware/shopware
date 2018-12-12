@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Product\Storefront;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -75,8 +75,8 @@ class StorefrontProductRepository
         $listingProducts = new ProductCollection();
 
         foreach ($products as $base) {
-            /** @var StorefrontProductStruct $product */
-            $product = StorefrontProductStruct::createFrom($base);
+            /** @var StorefrontProductEntity $product */
+            $product = StorefrontProductEntity::createFrom($base);
             $listingProducts->add($product);
 
             $this->calculatePrices($context, $product);
@@ -90,19 +90,19 @@ class StorefrontProductRepository
         $collection = new ProductCollection();
 
         foreach ($products as $product) {
-            /** @var StorefrontProductStruct $detail */
-            $detail = StorefrontProductStruct::createFrom($product);
+            /** @var StorefrontProductEntity $detail */
+            $detail = StorefrontProductEntity::createFrom($product);
 
             $this->calculatePrices($context, $detail);
 
             if ($detail->getServices()) {
-                $detail->getServices()->sort(function (ProductServiceStruct $a, ProductServiceStruct $b) {
+                $detail->getServices()->sort(function (ProductServiceEntity $a, ProductServiceEntity $b) {
                     return $a->getOption()->getGroupId() <=> $b->getOption()->getGroupId();
                 });
             }
 
             if ($detail->getDatasheet()) {
-                $detail->getDatasheet()->sort(function (ConfigurationGroupOptionStruct $a, ConfigurationGroupOptionStruct $b) {
+                $detail->getDatasheet()->sort(function (ConfigurationGroupOptionEntity $a, ConfigurationGroupOptionEntity $b) {
                     return $a->getGroupId() <=> $b->getGroupId();
                 });
             }
@@ -113,7 +113,7 @@ class StorefrontProductRepository
         return $collection;
     }
 
-    private function calculatePrices(CheckoutContext $context, StorefrontProductStruct $product): void
+    private function calculatePrices(CheckoutContext $context, StorefrontProductEntity $product): void
     {
         //calculate listing price
         $listingPriceDefinition = $product->getListingPriceDefinition($context->getContext());

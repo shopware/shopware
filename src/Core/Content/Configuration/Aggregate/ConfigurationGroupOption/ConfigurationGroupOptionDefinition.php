@@ -60,7 +60,7 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return ConfigurationGroupOptionStruct::class;
+        return ConfigurationGroupOptionEntity::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

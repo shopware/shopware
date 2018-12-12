@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Test;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Tax\TaxStruct;
+use Shopware\Core\System\Tax\TaxEntity;
 
 trait TaxFixtures
 {
@@ -42,17 +42,17 @@ trait TaxFixtures
         ];
     }
 
-    public function getTaxNineteenPercent(): TaxStruct
+    public function getTaxNineteenPercent(): TaxEntity
     {
         return $this->getTaxFixture('NineteenPercentTax');
     }
 
-    public function getTaxNineteenPercentWithAreaRule(): TaxStruct
+    public function getTaxNineteenPercentWithAreaRule(): TaxEntity
     {
         return $this->getTaxFixture('NineteenPercentTaxWithAreaRule');
     }
 
-    private function getTaxFixture(string $fixtureName): TaxStruct
+    private function getTaxFixture(string $fixtureName): TaxEntity
     {
         return $this->createFixture(
             $fixtureName,

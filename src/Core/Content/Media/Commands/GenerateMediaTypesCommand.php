@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -114,7 +114,7 @@ class GenerateMediaTypesCommand extends Command
         } while ($result->getTotal() > $this->batchSize);
     }
 
-    private function detectMediaType(Context $context, MediaStruct $media): void
+    private function detectMediaType(Context $context, MediaEntity $media): void
     {
         if (!$media->hasFile()) {
             return;

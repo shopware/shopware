@@ -7,7 +7,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use League\OAuth2\Server\CryptKey;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -32,7 +32,7 @@ class JWTFactory implements TokenFactoryInterface
     }
 
     public function generateToken(
-        OrderTransactionStruct $transaction,
+        OrderTransactionEntity $transaction,
         Context $context,
         ?string $finishUrl = null,
         int $expiresInSeconds = 1800

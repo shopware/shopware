@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Test\Media\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -30,7 +30,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
         $mimeType = 'image/png';
 
-        $mediaStruct = new MediaStruct();
+        $mediaStruct = new MediaEntity();
         $mediaStruct->setId($mediaId);
         $mediaStruct->setMimeType($mimeType);
         $mediaStruct->setFileExtension('png');
@@ -54,12 +54,12 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
         $mimeType = 'image/png';
 
-        $thumbnailStruct = new MediaThumbnailStruct();
+        $thumbnailStruct = new MediaThumbnailEntity();
         $thumbnailStruct->setId($mediaId);
         $thumbnailStruct->setHeight(100);
         $thumbnailStruct->setWidth(100);
         $thumbnailStruct->setHighDpi(false);
-        $mediaStruct = new MediaStruct();
+        $mediaStruct = new MediaEntity();
         $mediaStruct->setId($mediaId);
         $mediaStruct->setMimeType($mimeType);
         $mediaStruct->setFileExtension('png');

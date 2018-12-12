@@ -11,8 +11,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -109,7 +109,7 @@ class EnrichmentTest extends TestCase
         self::assertCount(1, $price->getTaxRules());
         self::assertTrue($price->getTaxRules()->has(15));
 
-        self::assertInstanceOf(MediaStruct::class, $product->getCover());
+        self::assertInstanceOf(MediaEntity::class, $product->getCover());
         self::assertSame('test', $product->getCover()->getFileName());
     }
 
@@ -151,7 +151,7 @@ class EnrichmentTest extends TestCase
                 ->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection()))
                 ->setDescription('Do not override')
                 ->setCover(
-                    (new MediaStruct())->assign([
+                    (new MediaEntity())->assign([
                         'fileName' => 'Do not override',
                         'fileSize' => 10,
                         'mimeType' => 'B',
@@ -175,7 +175,7 @@ class EnrichmentTest extends TestCase
         self::assertSame(1.0, $price->getPrice());
         self::assertCount(0, $price->getTaxRules());
 
-        self::assertInstanceOf(MediaStruct::class, $product->getCover());
+        self::assertInstanceOf(MediaEntity::class, $product->getCover());
         self::assertSame('Do not override', $product->getCover()->getFileName());
     }
 }

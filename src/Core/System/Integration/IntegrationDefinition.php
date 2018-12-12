@@ -42,6 +42,6 @@ class IntegrationDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return IntegrationStruct::class;
+        return IntegrationEntity::class;
     }
 }

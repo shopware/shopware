@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class OrderTransactionStateTranslationCollection extends EntityCollection
 {
     /**
-     * @var OrderTransactionStateTranslationStruct[]
+     * @var OrderTransactionStateTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? OrderTransactionStateTranslationStruct
+    public function get(string $id): ? OrderTransactionStateTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): OrderTransactionStateTranslationStruct
+    public function current(): OrderTransactionStateTranslationEntity
     {
         return parent::current();
     }
 
     public function getOrderTransactionStateIds(): array
     {
-        return $this->fmap(function (OrderTransactionStateTranslationStruct $orderTransactionStateTranslation) {
+        return $this->fmap(function (OrderTransactionStateTranslationEntity $orderTransactionStateTranslation) {
             return $orderTransactionStateTranslation->getOrderTransactionStateId();
         });
     }
 
     public function filterByOrderTransactionStateId(string $id): self
     {
-        return $this->filter(function (OrderTransactionStateTranslationStruct $orderTransactionStateTranslation) use ($id) {
+        return $this->filter(function (OrderTransactionStateTranslationEntity $orderTransactionStateTranslation) use ($id) {
             return $orderTransactionStateTranslation->getOrderTransactionStateId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (OrderTransactionStateTranslationStruct $orderTransactionStateTranslation) {
+        return $this->fmap(function (OrderTransactionStateTranslationEntity $orderTransactionStateTranslation) {
             return $orderTransactionStateTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (OrderTransactionStateTranslationStruct $orderTransactionStateTranslation) use ($id) {
+        return $this->filter(function (OrderTransactionStateTranslationEntity $orderTransactionStateTranslation) use ($id) {
             return $orderTransactionStateTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return OrderTransactionStateTranslationStruct::class;
+        return OrderTransactionStateTranslationEntity::class;
     }
 }

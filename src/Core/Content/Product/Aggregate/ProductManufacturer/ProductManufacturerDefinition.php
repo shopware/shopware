@@ -64,6 +64,6 @@ class ProductManufacturerDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return ProductManufacturerStruct::class;
+        return ProductManufacturerEntity::class;
     }
 }

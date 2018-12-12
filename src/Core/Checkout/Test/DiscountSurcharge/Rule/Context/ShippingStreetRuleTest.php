@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
-use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
+use Shopware\Core\System\Country\CountryEntity;
 
 class ShippingStreetRuleTest extends TestCase
 {
@@ -93,7 +93,7 @@ class ShippingStreetRuleTest extends TestCase
             ->will(
                 static::returnValue(
                 ShippingLocation::createFromCountry(
-                    new CountryStruct()
+                    new CountryEntity()
                 )
             ));
 
@@ -102,11 +102,11 @@ class ShippingStreetRuleTest extends TestCase
         );
     }
 
-    private function createAddress(string $street): CustomerAddressStruct
+    private function createAddress(string $street): CustomerAddressEntity
     {
-        $address = new CustomerAddressStruct();
-        $state = new CountryStateStruct();
-        $country = new CountryStruct();
+        $address = new CustomerAddressEntity();
+        $state = new CountryStateEntity();
+        $country = new CountryEntity();
         $state->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
         $address->setStreet($street);

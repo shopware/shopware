@@ -7,22 +7,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ListingFacetCollection extends EntityCollection
 {
     /**
-     * @var ListingFacetStruct[]
+     * @var ListingFacetEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ListingFacetStruct
+    public function get(string $id): ? ListingFacetEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ListingFacetStruct
+    public function current(): ListingFacetEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return ListingFacetStruct::class;
+        return ListingFacetEntity::class;
     }
 }

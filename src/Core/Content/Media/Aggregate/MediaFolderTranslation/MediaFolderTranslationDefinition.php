@@ -28,7 +28,7 @@ class MediaFolderTranslationDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return MediaFolderTranslationStruct::class;
+        return MediaFolderTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

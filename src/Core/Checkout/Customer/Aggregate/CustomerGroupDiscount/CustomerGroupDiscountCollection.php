@@ -7,30 +7,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CustomerGroupDiscountCollection extends EntityCollection
 {
     /**
-     * @var CustomerGroupDiscountStruct[]
+     * @var CustomerGroupDiscountEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CustomerGroupDiscountStruct
+    public function get(string $id): ? CustomerGroupDiscountEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CustomerGroupDiscountStruct
+    public function current(): CustomerGroupDiscountEntity
     {
         return parent::current();
     }
 
     public function getCustomerGroupIds(): array
     {
-        return $this->fmap(function (CustomerGroupDiscountStruct $customerGroupDiscount) {
+        return $this->fmap(function (CustomerGroupDiscountEntity $customerGroupDiscount) {
             return $customerGroupDiscount->getCustomerGroupId();
         });
     }
 
     public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(function (CustomerGroupDiscountStruct $customerGroupDiscount) use ($id) {
+        return $this->filter(function (CustomerGroupDiscountEntity $customerGroupDiscount) use ($id) {
             return $customerGroupDiscount->getCustomerGroupId() === $id;
         });
     }
@@ -52,6 +52,6 @@ class CustomerGroupDiscountCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return CustomerGroupDiscountStruct::class;
+        return CustomerGroupDiscountEntity::class;
     }
 }

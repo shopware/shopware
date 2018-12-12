@@ -46,6 +46,6 @@ class TaxDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return TaxStruct::class;
+        return TaxEntity::class;
     }
 }

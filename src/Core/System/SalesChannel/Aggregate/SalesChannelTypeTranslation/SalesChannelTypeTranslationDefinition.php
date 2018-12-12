@@ -46,7 +46,7 @@ class SalesChannelTypeTranslationDefinition extends EntityTranslationDefinition
 
     public static function getStructClass(): string
     {
-        return SalesChannelTypeTranslationStruct::class;
+        return SalesChannelTypeTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

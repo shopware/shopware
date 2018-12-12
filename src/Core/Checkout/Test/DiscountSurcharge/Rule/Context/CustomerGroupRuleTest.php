@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 
 class CustomerGroupRuleTest extends TestCase
@@ -17,7 +17,7 @@ class CustomerGroupRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $group = new CustomerGroupStruct();
+        $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-1');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -37,7 +37,7 @@ class CustomerGroupRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $group = new CustomerGroupStruct();
+        $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-3');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -57,7 +57,7 @@ class CustomerGroupRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $group = new CustomerGroupStruct();
+        $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-5');
 
         $context = $this->createMock(CheckoutContext::class);

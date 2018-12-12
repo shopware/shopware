@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
-use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Country\CountryEntity;
 
 class BillingCountryRuleTest extends TestCase
 {
@@ -21,13 +21,13 @@ class BillingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
-        $billing = new CustomerAddressStruct();
+        $billing = new CustomerAddressEntity();
         $billing->setCountry($country);
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setDefaultBillingAddress($billing);
 
         $context
@@ -47,13 +47,13 @@ class BillingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
-        $billing = new CustomerAddressStruct();
+        $billing = new CustomerAddressEntity();
         $billing->setCountry($country);
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setDefaultBillingAddress($billing);
 
         $context
@@ -73,13 +73,13 @@ class BillingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
-        $billing = new CustomerAddressStruct();
+        $billing = new CustomerAddressEntity();
         $billing->setCountry($country);
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setDefaultBillingAddress($billing);
 
         $context

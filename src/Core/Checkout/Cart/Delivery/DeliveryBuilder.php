@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 
 class DeliveryBuilder
 {
@@ -144,7 +144,7 @@ class DeliveryBuilder
         DeliveryCollection $deliveries,
         DeliveryPosition $position,
         ShippingLocation $location,
-        ShippingMethodStruct $shippingMethod
+        ShippingMethodEntity $shippingMethod
     ): void {
         $delivery = $deliveries->getDelivery(
             $position->getDeliveryDate(),

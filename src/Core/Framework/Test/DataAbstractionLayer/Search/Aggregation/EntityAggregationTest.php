@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Shopware\Core\System\Tax\TaxStruct;
+use Shopware\Core\System\Tax\TaxEntity;
 
 class EntityAggregationTest extends TestCase
 {
@@ -59,7 +59,7 @@ class EntityAggregationTest extends TestCase
         static::assertEquals(TaxDefinition::class, $entityAgg->getDefinition());
         static::assertEquals(4, $entityAgg->getEntities()->count());
 
-        /** @var TaxStruct[] $taxes */
+        /** @var TaxEntity[] $taxes */
         $taxes = $entityAgg->getEntities()->getElements();
 
         static::assertArrayHasKey('061af626d7714bd6ad4cad3598a2c716', $taxes); // tax #1

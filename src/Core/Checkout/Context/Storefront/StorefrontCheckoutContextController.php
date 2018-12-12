@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Context\Storefront;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -139,7 +139,7 @@ class StorefrontCheckoutContextController extends AbstractController
         }
 
         $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
-        /** @var CustomerAddressStruct|null $address */
+        /** @var CustomerAddressEntity|null $address */
         $address = $addresses->get($addressId);
 
         if (!$address) {

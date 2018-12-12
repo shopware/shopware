@@ -42,7 +42,7 @@ class LocaleTranslationDefinition extends EntityTranslationDefinition
 
     public static function getStructClass(): string
     {
-        return LocaleTranslationStruct::class;
+        return LocaleTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

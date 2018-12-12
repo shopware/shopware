@@ -50,6 +50,6 @@ class ListingFacetDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return ListingFacetStruct::class;
+        return ListingFacetEntity::class;
     }
 }

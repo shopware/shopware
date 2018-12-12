@@ -51,7 +51,7 @@ class VersionDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return VersionStruct::class;
+        return VersionEntity::class;
     }
 
     public static function getDefaults(EntityExistence $existence): array

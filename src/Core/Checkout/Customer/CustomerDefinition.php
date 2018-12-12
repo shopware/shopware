@@ -103,6 +103,6 @@ class CustomerDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return CustomerStruct::class;
+        return CustomerEntity::class;
     }
 }

@@ -7,30 +7,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CountryCollection extends EntityCollection
 {
     /**
-     * @var CountryStruct[]
+     * @var CountryEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CountryStruct
+    public function get(string $id): ? CountryEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CountryStruct
+    public function current(): CountryEntity
     {
         return parent::current();
     }
 
     public function getTaxfreeForVatIds(): array
     {
-        return $this->fmap(function (CountryStruct $country) {
+        return $this->fmap(function (CountryEntity $country) {
             return $country->getTaxfreeForVatId();
         });
     }
 
     public function filterByTaxfreeForVatId(bool $vatFree): self
     {
-        return $this->filter(function (CountryStruct $country) use ($vatFree) {
+        return $this->filter(function (CountryEntity $country) use ($vatFree) {
             return $country->getTaxfreeForVatId() === $vatFree;
         });
     }
@@ -47,7 +47,7 @@ class CountryCollection extends EntityCollection
 
     public function sortByPositionAndName(): void
     {
-        uasort($this->elements, function (CountryStruct $a, CountryStruct $b) {
+        uasort($this->elements, function (CountryEntity $a, CountryEntity $b) {
             if ($a->getPosition() !== $b->getPosition()) {
                 return $a->getPosition() <=> $b->getPosition();
             }
@@ -62,6 +62,6 @@ class CountryCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return CountryStruct::class;
+        return CountryEntity::class;
     }
 }

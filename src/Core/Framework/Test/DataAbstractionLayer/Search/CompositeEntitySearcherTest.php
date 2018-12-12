@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -82,13 +82,13 @@ class CompositeEntitySearcherTest extends TestCase
 
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
 
-        /** @var ProductStruct $first */
+        /** @var ProductEntity $first */
         $first = $result['data'][0]['entity'];
-        self::assertInstanceOf(ProductStruct::class, $first);
+        self::assertInstanceOf(ProductEntity::class, $first);
 
-        /** @var ProductStruct $second */
+        /** @var ProductEntity $second */
         $second = $result['data'][1]['entity'];
-        self::assertInstanceOf(ProductStruct::class, $second);
+        self::assertInstanceOf(ProductEntity::class, $second);
 
         $firstScore = $first->getExtension('search')->get('_score');
         $secondScore = $second->getExtension('search')->get('_score');
@@ -109,13 +109,13 @@ class CompositeEntitySearcherTest extends TestCase
 
         self::assertCount(2, $result['data']);
 
-        /** @var ProductStruct $first */
+        /** @var ProductEntity $first */
         $first = $result['data'][0]['entity'];
-        self::assertInstanceOf(ProductStruct::class, $first);
+        self::assertInstanceOf(ProductEntity::class, $first);
 
-        /** @var ProductStruct $second */
+        /** @var ProductEntity $second */
         $second = $result['data'][1]['entity'];
-        self::assertInstanceOf(ProductStruct::class, $second);
+        self::assertInstanceOf(ProductEntity::class, $second);
 
         // `product-2` should now be boosted
         self::assertSame($first->getId(), $productId2);

@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ShippingMethodTranslationCollection extends EntityCollection
 {
     /**
-     * @var ShippingMethodTranslationStruct[]
+     * @var ShippingMethodTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ShippingMethodTranslationStruct
+    public function get(string $id): ? ShippingMethodTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ShippingMethodTranslationStruct
+    public function current(): ShippingMethodTranslationEntity
     {
         return parent::current();
     }
 
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(function (ShippingMethodTranslationStruct $shippingMethodTranslation) {
+        return $this->fmap(function (ShippingMethodTranslationEntity $shippingMethodTranslation) {
             return $shippingMethodTranslation->getShippingMethodId();
         });
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (ShippingMethodTranslationStruct $shippingMethodTranslation) use ($id) {
+        return $this->filter(function (ShippingMethodTranslationEntity $shippingMethodTranslation) use ($id) {
             return $shippingMethodTranslation->getShippingMethodId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ShippingMethodTranslationStruct $shippingMethodTranslation) {
+        return $this->fmap(function (ShippingMethodTranslationEntity $shippingMethodTranslation) {
             return $shippingMethodTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ShippingMethodTranslationStruct $shippingMethodTranslation) use ($id) {
+        return $this->filter(function (ShippingMethodTranslationEntity $shippingMethodTranslation) use ($id) {
             return $shippingMethodTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return ShippingMethodTranslationStruct::class;
+        return ShippingMethodTranslationEntity::class;
     }
 }

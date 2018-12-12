@@ -7,35 +7,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class SeoUrlCollection extends EntityCollection
 {
     /**
-     * @var SeoUrlStruct[]
+     * @var SeoUrlEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? SeoUrlStruct
+    public function get(string $id): ? SeoUrlEntity
     {
         return parent::get($id);
     }
 
-    public function current(): SeoUrlStruct
+    public function current(): SeoUrlEntity
     {
         return parent::current();
     }
 
     public function getApplicationIds(): array
     {
-        return $this->fmap(function (SeoUrlStruct $seoUrl) {
+        return $this->fmap(function (SeoUrlEntity $seoUrl) {
             return $seoUrl->getSalesChannelId();
         });
     }
 
     public function filterByApplicationId(string $id): SeoUrlCollection
     {
-        return $this->filter(function (SeoUrlStruct $seoUrl) use ($id) {
+        return $this->filter(function (SeoUrlEntity $seoUrl) use ($id) {
             return $seoUrl->getSalesChannelId() === $id;
         });
     }
 
-    public function getByPathInfo(string $pathInfo): ?SeoUrlStruct
+    public function getByPathInfo(string $pathInfo): ?SeoUrlEntity
     {
         foreach ($this->elements as $element) {
             if ($element->getPathInfo() === $pathInfo) {
@@ -46,7 +46,7 @@ class SeoUrlCollection extends EntityCollection
         return null;
     }
 
-    public function getBySeoPathInfo(string $seoPathInfo): ?SeoUrlStruct
+    public function getBySeoPathInfo(string $seoPathInfo): ?SeoUrlEntity
     {
         foreach ($this->elements as $element) {
             if ($element->getSeoPathInfo() === $seoPathInfo) {
@@ -59,7 +59,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function getForeignKeys(): array
     {
-        return $this->fmap(function (SeoUrlStruct $seoUrl) {
+        return $this->fmap(function (SeoUrlEntity $seoUrl) {
             return $seoUrl->getForeignKey();
         });
     }
@@ -88,6 +88,6 @@ class SeoUrlCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return SeoUrlStruct::class;
+        return SeoUrlEntity::class;
     }
 }

@@ -41,7 +41,7 @@ class ListingSortingTranslationDefinition extends EntityTranslationDefinition
 
     public static function getStructClass(): string
     {
-        return ListingSortingTranslationStruct::class;
+        return ListingSortingTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

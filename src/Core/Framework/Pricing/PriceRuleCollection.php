@@ -8,44 +8,44 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class PriceRuleCollection extends EntityCollection
 {
     /**
-     * @var PriceRuleStruct[]
+     * @var PriceRuleEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? PriceRuleStruct
+    public function get(string $id): ? PriceRuleEntity
     {
         return parent::get($id);
     }
 
-    public function current(): PriceRuleStruct
+    public function current(): PriceRuleEntity
     {
         return parent::current();
     }
 
     public function getCurrencyIds(): array
     {
-        return $this->fmap(function (PriceRuleStruct $price) {
+        return $this->fmap(function (PriceRuleEntity $price) {
             return $price->getCurrencyId();
         });
     }
 
     public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(function (PriceRuleStruct $price) use ($id) {
+        return $this->filter(function (PriceRuleEntity $price) use ($id) {
             return $price->getCurrencyId() === $id;
         });
     }
 
     public function getRuleIds(): array
     {
-        return $this->fmap(function (PriceRuleStruct $price) {
+        return $this->fmap(function (PriceRuleEntity $price) {
             return $price->getRuleId();
         });
     }
 
     public function filterByRuleId(string $id): self
     {
-        return $this->filter(function (PriceRuleStruct $priceRule) use ($id) {
+        return $this->filter(function (PriceRuleEntity $priceRule) use ($id) {
             return $priceRule->getRuleId() === $id;
         });
     }
@@ -65,13 +65,13 @@ class PriceRuleCollection extends EntityCollection
 
     public function sortByPriceAscending(): void
     {
-        $this->sort(function (PriceRuleStruct $a, PriceRuleStruct $b) {
+        $this->sort(function (PriceRuleEntity $a, PriceRuleEntity $b) {
             return $a->getPrice()->getGross() <=> $b->getPrice()->getGross();
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return PriceRuleStruct::class;
+        return PriceRuleEntity::class;
     }
 }

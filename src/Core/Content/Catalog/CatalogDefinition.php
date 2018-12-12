@@ -58,7 +58,7 @@ class CatalogDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return CatalogStruct::class;
+        return CatalogEntity::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * Allows to hydrate database values into struct objects.
@@ -72,7 +72,7 @@ class EntityHydrator
 
         $entity->setViewData(clone $entity);
 
-        $mappingStorage = new ArrayStruct([]);
+        $mappingStorage = new ArrayEntity([]);
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, $mappingStorage);
 
         /** @var Field $field */

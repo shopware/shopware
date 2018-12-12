@@ -1,5 +1,5 @@
 const fixture = {
-    name: 'First one'
+    name: 'Beautiful Product'
 };
 
 module.exports = {
@@ -18,19 +18,25 @@ module.exports = {
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
             .assert.containsText('.sw-product-list__column-product-name', fixture.name);
     },
-    'edit product name via inline editing and verify change': (browser) => {
+    'edit product name via inline editing and verify edit': (browser) => {
         browser
+            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
             .moveToElement('.sw-grid-row:first-child', 5, 5).doubleClick()
-            .fillField('input[name=sw-field--item-name]', 'Second one', true)
-            .waitForElementVisible('.is--inline-editing .sw-button--primary')
-            .click('.is--inline-editing .sw-button--primary')
+            .fillField('input[name=sw-field--item-name]', 'Cyberdyne Systems T800', true)
+            .waitForElementVisible('.sw-grid-row__inline-edit-action')
+            .click('.sw-grid-row__inline-edit-action')
             .waitForElementNotPresent('.is--inline-editing ')
             .refresh()
             .waitForElementVisible('.sw-product-list__column-product-name')
-            .assert.containsText('.sw-product-list__column-product-name', 'Second one');
+            .assert.containsText('.sw-product-list__column-product-name', 'Cyberdyne Systems T800')
+            .moveToElement('.sw-grid-row:last-child', 5, 5).doubleClick()
+            .fillField('.is--inline-editing .sw-field__input input', 'Skynet Robotics T1000', true)
+            .waitForElementVisible('.sw-grid-row__inline-edit-action')
+            .click('.sw-grid-row__inline-edit-action')
+            .waitForElementNotPresent('.is--inline-editing ')
+            .assert.containsText('.sw-grid-row:last-child .sw-product-list__column-product-name', 'Skynet Robotics T1000');
     },
     after: (browser) => {
         browser.end();
     }
-
 };

@@ -35,6 +35,15 @@ Component.register('sw-media-folder-item', {
 
         baseComponent() {
             return this.$refs.innerComponent;
+        },
+
+        routerLink() {
+            return {
+                name: 'sw.media.index',
+                params: {
+                    folderId: this.item.id
+                }
+            };
         }
     },
 
@@ -68,6 +77,10 @@ Component.register('sw-media-folder-item', {
                     this.$emit('sw-media-folder-item-delete', [this.item.id]);
                 });
             }
+        },
+
+        navigateToFolder() {
+            this.$router.push(this.routerLink);
         }
     }
 });

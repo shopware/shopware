@@ -1,5 +1,6 @@
 {% block sw_media_folder_item %}
-    <div class="sw-media-folder-item">
+    <div class="sw-media-folder-item"
+         @dblclick="navigateToFolder">
         <sw-media-base-item
                 ref="innerComponent"
                 :isList="isList"
@@ -31,7 +32,7 @@
                 {% block sw_media_media_item_context_group_quick_actions %}
                     <div class="defaultContextMenuClass">
                         {% block sw_media_media_item_context_item_show_media %}
-                            <sw-context-menu-item :routerLink="{name: 'sw.media.index', params: {folderId: item.id}}">
+                            <sw-context-menu-item @click="navigateToFolder">
                                 {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
                             </sw-context-menu-item>
                         {% endblock %}

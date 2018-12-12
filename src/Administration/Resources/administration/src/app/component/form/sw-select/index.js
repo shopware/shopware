@@ -12,7 +12,8 @@ import template from './sw-select.html.twig';
  * <sw-select id="language" label="Language" :store="languageStore"></sw-select>
  *
  * // Multi select
- * <sw-select multi id="language" label="Language" :store="languageStore" :serviceProvider="languageService"></sw-select>
+ * <sw-select multi id="language" label="Language" :store="languageStore" :associationStore="languageAssociationStore">
+ * </sw-select>
  */
 Component.register('sw-select', {
     template,
@@ -63,13 +64,12 @@ Component.register('sw-select', {
             required: false,
             default: false
         },
-        // Association store if multi select, else a normal store
         store: {
             type: Object,
             required: true
         },
         // Only required if this is a multi select
-        serviceProvider: {
+        associationStore: {
             type: Object,
             required: false
         },
@@ -113,15 +113,6 @@ Component.register('sw-select', {
                 'is--expanded': this.isExpanded,
                 'sw-select--multi': this.multi
             };
-        },
-
-        // use store to fetch data in case of single selects
-        dataProvider() {
-            if (this.multi) {
-                return this.serviceProvider;
-            }
-
-            return this.store;
         }
     },
 
@@ -181,7 +172,7 @@ Component.register('sw-select', {
             this.isLoading = true;
 
             if (this.multi) {
-                this.store.getList({
+                this.associationStore.getList({
                     page: 1,
                     limit: 500 // ToDo: The concept of assigning a large amount of relations needs a special solution.
                 }).then((response) => {
@@ -199,13 +190,13 @@ Component.register('sw-select', {
         },
 
         loadResults() {
-            this.dataProvider.getList({
+            this.store.getList({
                 page: 1,
                 limit: this.resultsLimit,
                 term: this.searchTerm,
                 criteria: this.criteria
             }).then((response) => {
-                this.results = response.items || response.data;
+                this.results = response.items;
                 this.isLoading = false;
                 // Reset active position index after search
                 this.setActiveResultPosition({ index: 0 });
@@ -215,12 +206,12 @@ Component.register('sw-select', {
         },
 
         loadPreviewResults() {
-            this.dataProvider.getList({
+            this.store.getList({
                 page: 1,
                 limit: this.previewResultsLimit,
                 criteria: this.criteria
             }).then((response) => {
-                this.results = response.items || response.data;
+                this.results = response.items;
                 this.isLoading = false;
             });
         },
@@ -410,7 +401,7 @@ Component.register('sw-select', {
 
         emitChanges(items) {
             const itemIds = items.map((item) => item.id);
-            const associationStore = this.store;
+            const associationStore = this.associationStore;
 
             // Delete existing relations
             Object.keys(associationStore.store).forEach((id) => {

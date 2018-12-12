@@ -20,8 +20,8 @@
                            ref="multiSelectCategories"
                            :label="$tc('sw-product.categoryForm.labelCategory')"
                            :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
-                           :serviceProvider="categoryService"
-                           :store="categoriesStore"
+                           :associationStore="categoryAssociationStore"
+                           :store="categoryStore"
                            :criteria="criteria"
                            :disabled="!hasCriteria"
                            v-model="product.categories">

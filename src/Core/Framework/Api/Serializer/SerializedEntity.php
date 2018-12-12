@@ -29,6 +29,11 @@ class SerializedEntity implements \JsonSerializable
      */
     protected $relationships = [];
 
+    /**
+     * @var array
+     */
+    protected $meta;
+
     public function __construct(string $id, string $type)
     {
         $this->id = $id;
@@ -60,6 +65,11 @@ class SerializedEntity implements \JsonSerializable
         return $this->relationships;
     }
 
+    public function getMeta(): array
+    {
+        return $this->meta;
+    }
+
     public function setId(string $id): void
     {
         $this->id = $id;
@@ -83,6 +93,11 @@ class SerializedEntity implements \JsonSerializable
     public function addRelationship(string $key, array $relationship): void
     {
         $this->relationships[$key] = $relationship;
+    }
+
+    public function addMeta(string $key, $data): void
+    {
+        $this->meta[$key] = $data;
     }
 
     public function jsonSerialize(): array

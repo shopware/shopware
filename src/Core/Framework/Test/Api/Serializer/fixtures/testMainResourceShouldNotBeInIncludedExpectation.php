@@ -45,6 +45,7 @@ return [
                 ],
             ],
         ],
+        'meta' => null,
     ],
     'included' => [
         [
@@ -67,7 +68,14 @@ return [
                 'uploadedAt' => null,
                 'mediaFolderId' => null,
             ],
+            'meta' => null,
             'relationships' => [
+                'translations' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/translations',
+                    ],
+                ],
                 'user' => [
                     'data' => [
                         'id' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',

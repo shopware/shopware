@@ -46,8 +46,8 @@ class LanguageValidator implements WriteCommandValidatorInterface
         }
 
         $violations = new ConstraintViolationList();
-        $violations->addAll($this->getInhiertanceViolations($affectedIds));
-        $violations->addAll($this->getUpdateViolations($affectedIds));
+        $violations->addAll($this->getInheritanceViolations($affectedIds));
+        $violations->addAll($this->getMissingTranslationCodeViolations($affectedIds));
 
         $this->tryToThrow($violations);
     }
@@ -85,7 +85,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
         $this->tryToThrow($violations);
     }
 
-    private function getInhiertanceViolations(array $affectedIds): ConstraintViolationListInterface
+    private function getInheritanceViolations(array $affectedIds): ConstraintViolationListInterface
     {
         $statement = $this->connection->executeQuery('
             SELECT child.id 
@@ -116,7 +116,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
         return $violations;
     }
 
-    private function getUpdateViolations(array $affectedIds): ConstraintViolationListInterface
+    private function getMissingTranslationCodeViolations(array $affectedIds): ConstraintViolationListInterface
     {
         $statement = $this->connection->executeQuery('
             SELECT lang.id

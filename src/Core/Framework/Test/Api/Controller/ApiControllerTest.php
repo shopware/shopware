@@ -763,4 +763,82 @@ EOF;
         static::assertNotEmpty($response->headers->get('Location'));
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/language/' . $childId, $response->headers->get('Location'));
     }
+
+    public function testJsonApiResponseSingle(): void
+    {
+        $id = Uuid::uuid4()->getHex();
+        $insertData = ['id' => $id, 'name' => 'test'];
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], json_encode($insertData));
+        $response = $this->getClient()->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
+
+        $this->getClient()->request('GET', $response->headers->get('Location'));
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $respData = json_decode($response->getContent(), true);
+
+        static::assertArrayHasKey('data', $respData);
+        static::assertArrayHasKey('links', $respData);
+        static::assertArrayHasKey('included', $respData);
+
+        $catData = $respData['data'];
+        static::assertArrayHasKey('type', $catData);
+        static::assertArrayHasKey('id', $catData);
+        static::assertArrayHasKey('attributes', $catData);
+        static::assertArrayHasKey('links', $catData);
+        static::assertArrayHasKey('relationships', $catData);
+        static::assertArrayHasKey('translations', $catData['relationships']);
+        static::assertArrayHasKey('meta', $catData);
+        static::assertArrayHasKey('viewData', $catData['meta']);
+        static::assertArrayHasKey('name', $catData['meta']['viewData']);
+
+        static::assertEquals($id, $catData['id']);
+        static::assertEquals('category', $catData['type']);
+        static::assertEquals($insertData['name'], $catData['attributes']['name']);
+        static::assertEquals($insertData['name'], $catData['meta']['viewData']['name']);
+
+        $translations = $catData['relationships']['translations'];
+        static::assertCount(1, $translations['data']);
+        static::assertEquals($id . '-' . Defaults::LANGUAGE_EN, $translations['data'][0]['id']);
+        static::assertEquals('category_translation', $translations['data'][0]['type']);
+    }
+
+    public function testJsonApiResponseMulti(): void
+    {
+        $insertData = [
+            ['name' => 'test'],
+            ['name' => 'test_2'],
+        ];
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], json_encode($insertData[0]));
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], json_encode($insertData[1]));
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/category?sort=name');
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $respData = json_decode($response->getContent(), true);
+        static::assertArrayHasKey('data', $respData);
+        static::assertArrayHasKey('links', $respData);
+        static::assertArrayHasKey('included', $respData);
+        static::assertCount(2, $respData['data']);
+
+        $data = $respData['data'];
+        static::assertEquals('category', $data[0]['type']);
+        static::assertEquals($insertData[0]['name'], $data[0]['attributes']['name']);
+        static::assertEquals($insertData[0]['name'], $data[0]['meta']['viewData']['name']);
+
+        static::assertEquals('category', $data[1]['type']);
+        static::assertEquals($insertData[1]['name'], $data[1]['attributes']['name']);
+        static::assertEquals($insertData[1]['name'], $data[1]['meta']['viewData']['name']);
+    }
 }

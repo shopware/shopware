@@ -360,6 +360,66 @@ class TranslationTest extends TestCase
         static::assertEquals(null, $responseData['data']['attributes']['name']);
     }
 
+    public function testTranslationAssociation(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $id = Uuid::uuid4()->getHex();
+
+        $categoryData = [
+            'id' => $id,
+            'translations' => [
+                Defaults::LANGUAGE_EN => ['name' => 'test'],
+            ],
+        ];
+
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+
+        $this->getClient()->request('GET', $baseResource . '/' . $id);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+
+        $data = json_decode($response->getContent(), true);
+        $translations = $data['data']['relationships']['translations']['data'];
+
+        $expectedCombinedId = $id . '-' . Defaults::LANGUAGE_EN;
+        static::assertEquals($expectedCombinedId, $translations[0]['id']);
+        static::assertEquals('category_translation', $translations[0]['type']);
+    }
+
+    public function testTranslationAssociationOverride(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $id = Uuid::uuid4()->getHex();
+        $langId = Uuid::uuid4()->getHex();
+
+        $categoryData = [
+            'id' => $id,
+            'translations' => [
+                $langId => ['name' => 'translated'],
+            ],
+        ];
+
+        $this->createLanguage($langId);
+
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+
+        $headers = [$this->getLangHeaderName() => $langId];
+        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+
+        $data = json_decode($response->getContent(), true);
+        $translations = $data['data']['relationships']['translations']['data'];
+
+        $expectedCombinedId = $id . '-' . $langId;
+        static::assertEquals($expectedCombinedId, $translations[0]['id']);
+        static::assertEquals('category_translation', $translations[0]['type']);
+    }
+
     private function getLangHeaderName(): string
     {
         return 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));

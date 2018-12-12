@@ -43,15 +43,11 @@
             {% endblock %}
 
             {% block sw_media_index_smart_bar_header %}
-                <template slot="smart-bar-header">
-                    {% block sw_media_index_smart_bar_header %}
-                        <h2>
-                            {% block sw_media_index_smart_bar_heading %}
-                                {{ $tc('sw-media.smart-bar.smartBarHeader') }}
-                            {% endblock %}
-                        </h2>
+                <h2 slot="smart-bar-header">
+                    {% block sw_media_index_smart_bar_heading %}
+                        {{ $tc('sw-media.smart-bar.smartBarHeader') }}
                     {% endblock %}
-                </template>
+                </h2>
             {% endblock %}
 
             <template slot="smart-bar-actions">

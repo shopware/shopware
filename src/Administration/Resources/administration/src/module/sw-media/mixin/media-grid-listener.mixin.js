@@ -5,8 +5,6 @@ import { Mixin } from 'src/core/shopware';
  *
  * usage:
  *   - override selectableItems computed property and return array of entities that can be selected
- *   - override mediaSidebar computed property and return reference to sw-media-sidebar.
- *     this is only necessary if you want the sidebar to open automatically on click
  */
 
 Mixin.register('media-grid-listener', {
@@ -25,10 +23,6 @@ Mixin.register('media-grid-listener', {
                 'sw-media-item-selection-remove': this.handleMediaGridItemUnselected,
                 'sw-media-media-item-play': this.handleMediaGridItemPlay
             };
-        },
-
-        mediaSidebar() {
-            return null;
         },
 
         isListSelect() {
@@ -165,12 +159,17 @@ Mixin.register('media-grid-listener', {
             };
         },
 
+        _getMediaSidebar() {
+            return this.$refs.mediaSidebar;
+        },
+
         _showDetails(item, autoplay) {
             this._singleSelect(item);
+            const sidebar = this._getMediaSidebar();
 
-            if (this.mediaSidebar !== null) {
-                this.mediaSidebar.autoplay = autoplay;
-                this.mediaSidebar.showQuickInfo();
+            if (sidebar !== null) {
+                sidebar.autoplay = autoplay;
+                sidebar.showQuickInfo();
             }
         }
     }

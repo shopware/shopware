@@ -46,10 +46,6 @@ Component.register('sw-media-index', {
             return State.getStore('media_folder');
         },
 
-        mediaSidebar() {
-            return this.$refs.mediaSidebar;
-        },
-
         selectableItems() {
             return [].concat(this.subFolders, this.uploadedItems, this.mediaItems);
         },

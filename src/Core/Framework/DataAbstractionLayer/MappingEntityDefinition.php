@@ -2,17 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityStructException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
 
 abstract class MappingEntityDefinition extends EntityDefinition
 {
     public static function getCollectionClass(): string
     {
-        throw new MappingEntityStructException();
+        throw new MappingEntityClassesException();
     }
 
     public static function getEntityClass(): string
     {
-        throw new MappingEntityStructException();
+        throw new MappingEntityClassesException();
     }
 }

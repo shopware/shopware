@@ -5,11 +5,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 use Shopware\Core\Framework\ShopwareException;
 use Throwable;
 
-class MappingEntityStructException extends \RuntimeException implements ShopwareException
+class MappingEntityClassesException extends \RuntimeException implements ShopwareException
 {
     public function __construct(int $code = 0, Throwable $previous = null)
     {
-        $message = 'Mapping definition neither have structs nor collection.';
+        $message = 'Mapping definition neither have entities nor collection.';
 
         parent::__construct($message, $code, $previous);
     }

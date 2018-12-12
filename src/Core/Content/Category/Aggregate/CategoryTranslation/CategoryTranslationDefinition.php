@@ -61,6 +61,6 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
 
     public static function getRootEntity(): ?string
     {
-        return CatalogDefinition::class;
+        return CategoryDefinition::class;
     }
 }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation;
 
 use Shopware\Core\Content\Catalog\CatalogDefinition;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -34,7 +33,7 @@ class CatalogTranslationDefinition extends EntityTranslationDefinition
 
     public static function getRootEntity(): ?string
     {
-        return CategoryDefinition::class;
+        return CatalogDefinition::class;
     }
 
     protected static function defineFields(): FieldCollection

@@ -4,7 +4,8 @@ import './sw-condition-group.less';
 
 /**
  * @public
- * @description Universal condition field group component which supports all basic conditions, operators and field value types.
+ * @description Universal condition field group component which supports all basic conditions, operators
+ * and field value types.
  * @status prototype
  * @example-type code-only
  * @component-example

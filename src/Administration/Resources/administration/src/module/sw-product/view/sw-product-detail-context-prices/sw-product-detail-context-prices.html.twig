@@ -22,20 +22,16 @@
                     <div class="context-prices__toolbar">
 
                         {% block sw_product_detail_prices_price_card_rule_selection %}
-                            <sw-field type="select"
-                                      :placeholder="$tc('sw-product.priceRules.placeholderRule')"
-                                      validation="required"
-                                      :value="priceGroup.ruleId"
-                                      @change="onRuleChange($event, priceGroup.ruleId)">
-
-                                {% block sw_product_detail_prices_price_card_rule_selection_options %}
-                                    <option slot="options"
-                                            v-for="rule in rules"
-                                            :key="rule.id"
-                                            :value="rule.id"
-                                            :disabled="!!priceRuleGroups[rule.id]">{{ rule.name }}</option>
-                                {% endblock %}
-                            </sw-field>
+                            <sw-select id="rule" :store="ruleStore" :value="priceGroup.ruleId" validation="required" @input="onRuleChange($event, priceGroup.ruleId)">
+                                <template slot="result_items" slot-scope="{ item, index }">
+                                        <sw-select-option
+                                                :disabled="!!priceRuleGroups[item.id]"
+                                                :index="index"
+                                                :item="item">
+                                            {{ item.name }}
+                                        </sw-select-option>
+                                </template>
+                            </sw-select>
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_card_action_delete %}

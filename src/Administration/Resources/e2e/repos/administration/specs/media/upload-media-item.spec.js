@@ -1,51 +1,30 @@
 module.exports = {
     '@tags': ['media-upload'],
-    '@disabled': true,
     'open media listing': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/media/index','Media')
+            .openMainMenuEntry('#/sw/media/index', 'Media')
             .assert.urlContains('#/sw/media/index');
     },
-    'open media index and change catalog': (browser) => {
+    'upload and create new media item': (browser) => {
         browser
-            .assert.containsText('.sw-admin-menu__navigation-list-item.sw-media span.collapsible-text', 'Media')
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
-            .waitForElementVisible('div.sw-media-grid.sw-media-index__catalog-grid')
-            .moveToElement('.sw-media-index__catalog-grid .sw-media-grid__content-cell', 15, 15)
-            .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell')
-            .waitForElementVisible('div.sw-page.sw-media-catalog');
-    },
-    'upload and create first media item': (browser) => {
-        browser
-            .clickContextMenuItem('.sw-media-upload-button__button-url','.sw-media-upload-button__context-button')
-            .waitForElementVisible('.sw-media-upload-url-modal')
-            .fillField('input[name=sw-field--url]',`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
-            .click('.sw-modal__footer .sw-button--primary')
-            .waitForElementVisible('.sw-alert--success')
-            .click('.sw-alert__close');
-    },
-    'upload and create second media item': (browser) => {
-        browser
-            .clickContextMenuItem('.sw-media-upload-button__button-url','.sw-media-upload-button__context-button')
-            .waitForElementVisible('.sw-media-upload-url-modal')
+            .waitForElementVisible('.sw-media-upload__url-upload-action')
+            .click('.sw-media-upload__url-upload-action')
+            .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
             .click('.sw-alert__close');
     },
-    'look for both items in media index and default catalog': (browser) => {
+    'look and search for the items in media index': (browser) => {
         browser
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
-            .waitForElementVisible('.sw-media-grid__content-cell:nth-of-type(2)')
-            .click('.sw-media-index__catalog-grid .sw-media-grid__content-cell:nth-of-type(1)')
-            .waitForElementVisible('.sw-media-catalog')
-            .waitForElementVisible('.sw-media-media-item:nth-of-type(2)');
+            .fillGlobalSearchField('sw-login-background')
+            .refresh()
+            .waitForElementVisible('.sw-media-media-item:nth-of-type(1)');
     },
     'click preview thumbnail to open sidebar': (browser) => {
         browser
-            .click('.sw-media-preview__item')
+            .click('.sw-media-preview__item:nth-of-type(1)')
             .waitForElementVisible('.sw-sidebar-item__content');
-
     },
     'verify meta data': (browser) => {
         browser
@@ -56,29 +35,24 @@ module.exports = {
             .assert.containsText('.sw-media-quickinfo-metadata-size', 'Size:')
             .assert.containsText('.sw-media-quickinfo-metadata-size', '501.38KB')
             .assert.containsText('.sw-media-quickinfo-metadata-createdAt', 'Uploaded at:')
-            .assert.containsText('.sw-media-quickinfo-metadata-url', 'URL:')
-            .assert.containsText('.sw-media-quickinfo-metadata-width', 'Width:')
-            .assert.containsText('.sw-media-quickinfo-metadata-width', '589px')
-            .assert.containsText('.sw-media-quickinfo-metadata-height', 'Height:')
-            .assert.containsText('.sw-media-quickinfo-metadata-height', '637px');
+            .assert.containsText('.sw-media-quickinfo-metadata-url', 'URL:');
     },
-    'delete first item and check deletion verification': (browser) => {
+    'delete item and verify that': (browser) => {
         browser
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-media-background (1)" ?')
+            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background.png" ?')
             .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent('.sw-modal__footer')
+            .checkNotification('File "sw-login-background.png" successfully Deleted',false)
+            .click('.sw-alert__close')
+            .useXpath()
+            .waitForElementNotPresent(`//*[contains(text(), 'File "sw-login-background.png" successfully Deleted')]`)
+            .useCss()
             .checkNotification('Media item successfully deleted.');
     },
-    'delete second item and verify deletion': (browser) => {
-        browser
-            .clickContextMenuItem('.sw-context-menu-item--danger','.sw-context-button__button')
-            .waitForElementVisible('.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Do you want to delete "sw-login-background" ?')
-            .click('.sw-media-modal-delete__confirm')
-            .waitForElementVisible('.sw-empty-state')
-            .end();
+    after: (browser) => {
+        browser.end();
     }
 };

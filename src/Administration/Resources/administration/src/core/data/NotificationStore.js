@@ -26,7 +26,7 @@ class NotificationStore {
             return Promise.reject(config);
         }
 
-        config = Object.assign(this.defaults, config, {
+        config = Object.assign({}, this.defaults, config, {
             uuid: utils.createId()
         });
 

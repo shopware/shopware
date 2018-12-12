@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.less';
 
@@ -10,13 +10,7 @@ Component.register('sw-sales-channel-detail-base', {
     ],
 
     inject: [
-        'salesChannelService',
-        'currencyService',
-        'languageService',
-        'catalogService',
-        'countryService',
-        'shippingMethodService',
-        'paymentMethodService'
+        'salesChannelService'
     ],
 
     props: {
@@ -39,26 +33,50 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         catalogStore() {
+            return State.getStore('catalog');
+        },
+
+        catalogAssociationStore() {
             return this.salesChannel.getAssociation('catalogs');
         },
 
         countryStore() {
+            return State.getStore('country');
+        },
+
+        countryAssociationStore() {
             return this.salesChannel.getAssociation('countries');
         },
 
         currencyStore() {
+            return State.getStore('currency');
+        },
+
+        currencyAssociationStore() {
             return this.salesChannel.getAssociation('currencies');
         },
 
         languageStore() {
+            return State.getStore('language');
+        },
+
+        languageAssociationStore() {
             return this.salesChannel.getAssociation('languages');
         },
 
         paymentMethodStore() {
+            return State.getStore('payment_method');
+        },
+
+        paymentMethodAssociationStore() {
             return this.salesChannel.getAssociation('paymentMethods');
         },
 
         shippingMethodStore() {
+            return State.getStore('shipping_method');
+        },
+
+        shippingMethodAssociationStore() {
             return this.salesChannel.getAssociation('shippingMethods');
         }
     },

@@ -5,8 +5,6 @@ import template from './sw-product-category-form.html.twig';
 Component.register('sw-product-category-form', {
     template,
 
-    inject: ['categoryService'],
-
     props: {
         product: {
             type: Object,
@@ -22,15 +20,15 @@ Component.register('sw-product-category-form', {
     },
 
     computed: {
-        categoryService() {
-            return this.categoryService;
+        categoryStore() {
+            return State.getStore('category');
         },
 
         catalogStore() {
             return State.getStore('catalog');
         },
 
-        categoriesStore() {
+        categoryAssociationStore() {
             return this.product.getAssociation('categories');
         },
 

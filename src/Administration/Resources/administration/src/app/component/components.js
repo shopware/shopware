@@ -4,7 +4,7 @@ import './base/sw-card-section';
 import './base/sw-button';
 import './base/sw-button-group';
 import './base/sw-icon';
-import './base/sw-image';
+import './base/sw-product-image';
 import './base/sw-alert';
 import './base/sw-avatar';
 import './base/sw-container';

@@ -1,4 +1,4 @@
-import { Component, Mixin, State, Filter } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
 import find from 'lodash/find';
 import template from './sw-product-media-form.html.twig';
@@ -24,7 +24,6 @@ Component.register('sw-product-media-form', {
     data() {
         return {
             columnCount: 7,
-            previews: [],
             columnWidth: 90,
             unsavedEntities: []
         };
@@ -55,10 +54,6 @@ Component.register('sw-product-media-form', {
 
         gridAutoRows() {
             return `grid-auto-rows: ${this.columnWidth}`;
-        },
-
-        mediaNameFilter() {
-            return Filter.getByName('mediaName');
         }
     },
 
@@ -134,6 +129,7 @@ Component.register('sw-product-media-form', {
                 if (upload.src instanceof File) {
                     if (upload.entity.isLocal) {
                         upload.entity.fileName = upload.src.name;
+                        upload.entity.mimeType = upload.src.type;
                     }
 
                     fileReader.readAsDataURL(upload.src).then((dataURL) => {
@@ -142,9 +138,10 @@ Component.register('sw-product-media-form', {
                 } else if (upload.src instanceof URL) {
                     if (upload.entity.isLocal) {
                         upload.entity.fileName = upload.src.pathname.split('/').pop();
+                        upload.entity.mimeType = 'image/*';
                     }
 
-                    this.previews[productMedia.mediaId] = upload.src.href;
+                    upload.entity.url = upload.src.href;
                     productMedia.isLoading = false;
                 }
             });
@@ -188,7 +185,7 @@ Component.register('sw-product-media-form', {
                     img, 0, 0, canvas.width, canvas.height
                 );
 
-                this.previews[productMedia.mediaId] = canvas.toDataURL();
+                productMedia.media.url = canvas.toDataURL();
                 productMedia.isLoading = false;
 
                 this.$forceUpdate();
@@ -216,44 +213,6 @@ Component.register('sw-product-media-form', {
                 width: size,
                 height: size * (img.height / img.width)
             };
-        },
-
-        getPreviewForMedia(mediaEntity) {
-            if (mediaEntity.isPlaceholder) {
-                return '';
-            }
-
-            if (mediaEntity.isLocal) {
-                return mediaEntity.id in this.previews ? this.previews[mediaEntity.id] : '';
-            }
-            return mediaEntity.url;
-        },
-
-        getTooltipForMedia(mediaEntity) {
-            if (mediaEntity.isPlaceholder) {
-                return '';
-            }
-
-            if (mediaEntity.isLocal) {
-                return mediaEntity.fileName;
-            }
-
-            return this.mediaNameFilter(mediaEntity);
-        },
-
-        removeFile(key) {
-            const item = find(this.mediaItems, (e) => e.mediaId === key);
-
-            this.product.media = this.product.media.filter((e) => e.mediaId !== key);
-            if (this.isCover(item)) {
-                if (this.product.media.length === 0) {
-                    this.product.coverId = null;
-                } else {
-                    this.product.coverId = this.product.media[0].id;
-                }
-            }
-
-            item.delete();
         },
 
         isCover(productMedia) {

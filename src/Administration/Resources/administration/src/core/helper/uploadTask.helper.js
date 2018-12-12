@@ -16,7 +16,7 @@ class UploadTask {
 
     start() {
         if (this.running || this.resolved) {
-            return Promise.resolve({});
+            return Promise.resolve();
         }
 
         this.running = true;

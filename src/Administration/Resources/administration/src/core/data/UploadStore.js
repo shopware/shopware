@@ -47,7 +47,7 @@ class UploadStore {
 
     runUploads(tag, callback = noop) {
         if (this.isTagMissing(tag)) {
-            return Promise.resolve({});
+            return Promise.resolve();
         }
 
         return Promise.all(this.tags.get(tag).map((task) => {

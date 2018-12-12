@@ -63,12 +63,14 @@
     }
 
     .sw-media-upload__preview {
+        position: relative;
         width: 100px;
         height: 100px;
+        border: 1px solid @sw-media-upload-border-color;
+        border-radius: @sw-media-upload-border-radius;
 
         &.is--fallback {
             border: 1px dashed @sw-media-upload-border-color;
-            border-radius: @sw-media-upload-border-radius;
         }
     }
 

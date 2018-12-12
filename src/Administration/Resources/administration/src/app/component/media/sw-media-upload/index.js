@@ -50,12 +50,6 @@ Component.register('sw-media-upload', {
             default: 'regular'
         },
 
-        autoUpload: {
-            required: false,
-            type: Boolean,
-            default: true
-        },
-
         caption: {
             required: false,
             type: String
@@ -87,7 +81,7 @@ Component.register('sw-media-upload', {
         },
 
         showPreview() {
-            return !(this.autoUpload || this.multiSelect);
+            return !this.multiSelect;
         },
 
         hasPreviewFile() {
@@ -213,13 +207,8 @@ Component.register('sw-media-upload', {
                     mediaEntity
                 )
             );
-            this.$emit('new-upload', { uploadTag: this.uploadTag, mediaEntity, src: url });
+            this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url }] });
 
-            if (this.autoUpload) {
-                this.uploadStore.runUploads(this.uploadTag).then(() => {
-                    this.$emit('new-media-entity');
-                });
-            }
             this.closeUrlModal();
         },
 
@@ -252,17 +241,16 @@ Component.register('sw-media-upload', {
                 newMediaFiles = [fileToUpload];
             }
 
+            const data = [];
             newMediaFiles.forEach((file) => {
                 const mediaEntity = this.getMediaEntityForUpload();
                 this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
-                this.$emit('new-upload', { uploadTag: this.uploadTag, mediaEntity, src: file });
-            });
-
-            if (this.autoUpload) {
-                this.uploadStore.runUploads(this.uploadTag).then(() => {
-                    this.$emit('new-media-entity');
+                data.push({
+                    entity: mediaEntity,
+                    src: file
                 });
-            }
+            });
+            this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data });
         },
 
         getMediaEntityForUpload() {
@@ -274,10 +262,7 @@ Component.register('sw-media-upload', {
             const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
-                this.synchronizeMediaEntity(mediaEntity).then(() => {
-                    this.$emit('new-upload-started', mediaEntity);
-                    return this.mediaUploadService.uploadFileToMedia(file, mediaEntity);
-                }).then(() => {
+                return this.mediaUploadService.uploadFileToMedia(file, mediaEntity).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
                 }).catch(() => {
                     return this.cleanUpFailure(mediaEntity, failureMessage);
@@ -290,10 +275,7 @@ Component.register('sw-media-upload', {
             const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
-                this.synchronizeMediaEntity(mediaEntity).then(() => {
-                    this.$emit('new-upload-started', mediaEntity);
-                    return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension);
-                }).then(() => {
+                return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
                 }).catch(() => {
                     return this.cleanUpFailure(mediaEntity, failureMessage);
@@ -305,7 +287,8 @@ Component.register('sw-media-upload', {
             fileReader.readAsDataURL(file).then((dataUrl) => {
                 this.previewMediaEntity = {
                     dataUrl,
-                    mimeType: file.type
+                    mimeType: file.type,
+                    hasFile: true
                 };
             });
         },
@@ -313,14 +296,9 @@ Component.register('sw-media-upload', {
         createPreviewFromUrl(url) {
             this.previewMediaEntity = {
                 url: url.href,
-                mimeTyp: 'image/*'
+                mimeTyp: 'image/*',
+                hasFile: true
             };
-        },
-
-        synchronizeMediaEntity(mediaEntity) {
-            return this.mediaItemStore.getByIdAsync(mediaEntity.id).catch(() => {
-                return mediaEntity.save();
-            });
         },
 
         notifyMediaUpload(mediaEntity, message) {

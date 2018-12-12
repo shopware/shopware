@@ -26,6 +26,10 @@ Component.extend('sw-media-replace', 'sw-media-upload', {
     methods: {
         getMediaEntityForUpload() {
             return this.itemToReplace;
+        },
+
+        cleanUpFailure(mediaEntity, message) {
+            this.createNotificationError({ message });
         }
     }
 });

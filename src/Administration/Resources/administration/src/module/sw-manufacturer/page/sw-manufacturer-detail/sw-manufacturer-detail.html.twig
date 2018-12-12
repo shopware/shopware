@@ -50,11 +50,12 @@
 
                             <template v-if="manufacturer.catalogId">
                                 {% block sw_manufacturer_detail_logo_upload %}
-                                    <sw-media-upload v-if="!manufacturer.mediaId && !manufacturer.isLoading"
+                                    <sw-media-upload v-if="!manufacturer.mediaId"
                                         class="sw-manufacturer-detail__logo-upload"
                                         :allowMultiSelect="false"
                                         variant="regular"
                                         :caption="$tc('sw-manufacturer.detail.addLogoCaption')"
+                                        @new-uploads-added="onUploadAdded"
                                         @media-upload-success="setMediaItem"
                                         @sw-media-upload-open-sidebar="openMediaSidebar">
                                     </sw-media-upload>

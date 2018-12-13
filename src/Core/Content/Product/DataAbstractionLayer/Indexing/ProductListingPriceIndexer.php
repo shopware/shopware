@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -144,7 +144,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         $productPrices = array_map(
             function (array $price) {
                 $value = json_decode($price['price'], true);
-                $value['_class'] = PriceStruct::class;
+                $value['_class'] = Price::class;
 
                 return [
                     'id' => Uuid::fromBytesToHex($price['price_id']),

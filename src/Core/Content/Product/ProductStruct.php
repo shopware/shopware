@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Catalog\CatalogStruct;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -21,8 +21,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Tax\TaxStruct;
 use Shopware\Core\System\Unit\UnitStruct;
@@ -30,6 +30,7 @@ use Shopware\Core\System\Unit\UnitStruct;
 class ProductStruct extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */
@@ -66,7 +67,7 @@ class ProductStruct extends Entity
     protected $active;
 
     /**
-     * @var PriceStruct|null
+     * @var Price|null
      */
     protected $price;
 
@@ -410,12 +411,12 @@ class ProductStruct extends Entity
         $this->active = $active;
     }
 
-    public function getPrice(): ?PriceStruct
+    public function getPrice(): ?Price
     {
         return $this->price;
     }
 
-    public function setPrice(PriceStruct $price): void
+    public function setPrice(Price $price): void
     {
         $this->price = $price;
     }
@@ -892,7 +893,7 @@ class ProductStruct extends Entity
     public function getTaxRuleCollection(): TaxRuleCollection
     {
         return new TaxRuleCollection([
-            new PercentageTaxRule($this->getTax()->getTaxRate(), 100),
+            new TaxRule($this->getTax()->getTaxRate(), 100),
         ]);
     }
 

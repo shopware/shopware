@@ -4,26 +4,49 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Version;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\Test\TaxFixtures;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 class VersioningTest extends TestCase
 {
-    use IntegrationTestBehaviour, TaxFixtures;
+    use IntegrationTestBehaviour;
 
     /**
      * @var RepositoryInterface
@@ -31,1279 +54,1531 @@ class VersioningTest extends TestCase
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
-     */
-    private $taxRepository;
-
-    /**
      * @var Connection
      */
     private $connection;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $customerRepository;
-
-    /**
-     * @var RepositoryInterface
-     */
-    private $shippingMethodRepository;
-
-    /**
-     * @var RepositoryInterface
-     */
-    private $mediaRepository;
-
     public function setUp()
     {
-        $this->taxRepository = $this->getContainer()->get('tax.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
     }
 
-    public function testVersionCommitOnInsert(): void
+    public function testChangelogOnlyWrittenForVersionawareEntities()
     {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $uuid = Uuid::uuid4()->getHex();
-        $manufacturerUuid = Uuid::uuid4()->getHex();
-        $taxUuid = Uuid::uuid4()->getHex();
+        $id = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $id,
+            'taxRate' => 16,
+            'name' => 'test',
+        ];
+
         $context = Context::createDefaultContext();
-        $productData = [
-            'id' => $uuid,
-            'ean' => '123',
-            'name' => 'Cat of Doom',
-            'tax' => ['id' => $taxUuid, 'taxRate' => 12, 'name' => 'mwst'],
-            'manufacturer' => ['id' => $manufacturerUuid, 'name' => 'shopware'],
+
+        $this->getContainer()->get('tax.repository')->create([$data], $context);
+
+        $changelog = $this->getVersionData(TaxDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        static::assertCount(0, $changelog);
+
+        $product = [
+            'id' => $id,
+            'name' => 'test',
+            'manufacturer' => ['id' => $id, 'name' => 'test'],
+            'tax' => ['id' => $id, 'name' => 'updated', 'taxRate' => 11000],
         ];
 
-        $this->productRepository->create([$productData], $context);
+        $this->productRepository->upsert([$product], $context);
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $uuid, Defaults::LIVE_VERSION);
-        static::assertCount(1, $changes, sprintf('Change for entity_id "%s" was not created.', $uuid));
+        $changelog = $this->getVersionData(TaxDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        static::assertCount(0, $changelog);
 
-        $change = array_shift($changes);
+        $changelog = $this->getVersionData(ProductDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        static::assertCount(1, $changelog);
 
-        $productData['versionId'] = Defaults::LIVE_VERSION;
-
-        $payload = json_decode($change['payload'], true);
-
-        $compareArray = [
-            'id' => true,
-            'ean' => true,
-            'versionId' => true,
-        ];
-
-        static::assertEquals(array_intersect_key($productData, $compareArray), array_intersect_key($payload, $compareArray));
+        $changelog = $this->getVersionData(ProductManufacturerDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        static::assertCount(1, $changelog);
     }
 
-    public function testCreateNewVersion(): void
+    public function testICanVersionPriceFields()
     {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $uuid = Uuid::uuid4()->getHex();
-        $manufacturerUuid = Uuid::uuid4()->getHex();
-        $taxUuid = Uuid::uuid4()->getHex();
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
         $context = Context::createDefaultContext();
-        $productData = [
-            'id' => $uuid,
-            'ean' => '123',
-            'name' => 'Cat of Doom',
-            'tax' => ['id' => $taxUuid, 'taxRate' => 12, 'name' => 'mwst'],
-            'manufacturer' => ['id' => $manufacturerUuid, 'name' => 'shopware'],
-        ];
+        $this->productRepository->create([$data], $context);
 
-        $this->productRepository->create([$productData], $context);
-
-        $versionId = $this->productRepository->createVersion($uuid, $context, 'testCreateVersionWithoutRelations version');
-
-        static::assertNotEmpty($versionId);
-
-        $product = $this->connection->fetchAssoc(
-            'SELECT * FROM product WHERE id = :id AND version_id = :versionId',
-            [
-                'id' => Uuid::fromStringToBytes($uuid),
-                'versionId' => Uuid::fromHexToBytes($versionId),
-            ]
-        );
-
-        static::assertNotFalse($product, 'Product clone was not created.');
-
-        static::assertEquals(Uuid::fromHexToBytes($uuid), $product['id']);
-        static::assertEquals(Uuid::fromHexToBytes($versionId), $product['version_id']);
-        static::assertEquals('123', $product['ean']);
-
-        $productOrg = $this->connection->fetchAssoc(
-            'SELECT * FROM product WHERE id = :id AND version_id = :versionId',
-            [
-                'id' => Uuid::fromStringToBytes($uuid),
-                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ]
-        );
-
-        static::assertNotFalse($productOrg, 'Product clone was not created.');
-
-        static::assertEquals(Uuid::fromHexToBytes($uuid), $productOrg['id']);
-        static::assertEquals(Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $productOrg['version_id']);
-        static::assertEquals('123', $productOrg['ean']);
-    }
-
-    public function testCreateNewVersionWithSubresources(): void
-    {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $context = Context::createDefaultContext();
-
-        $productId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
-        ];
-
-        $productData = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-        ];
-
-        $liveContext = Context::createDefaultContext();
-        $this->mediaRepository->create($mediaData, $liveContext);
-        $this->productRepository->create($productData, $liveContext);
-
-        $versionId = $this->productRepository->createVersion($productId, $context, 'testCreateVersionWithSubresources version');
-
-        static::assertNotEmpty($versionId);
-
-        $product = $this->connection->fetchAssoc(
-            'SELECT * FROM product WHERE id = :id AND version_id = :versionId',
-            [
-                'id' => Uuid::fromHexToBytes($productId),
-                'versionId' => Uuid::fromHexToBytes($versionId),
-            ]
-        );
-
-        $media = $this->connection->fetchAll(
-            'SELECT * FROM product_media WHERE product_id = :id AND version_id = :versionId',
-            [
-                'id' => Uuid::fromHexToBytes($productId),
-                'versionId' => Uuid::fromHexToBytes($versionId),
-            ]
-        );
-
-        static::assertNotFalse($product, 'Product clone was not created.');
-        static::assertCount(1, $media, 'Product Media clones were not created.');
-
-        static::assertEquals(Uuid::fromHexToBytes($productId), $product['id']);
-        static::assertEquals(Uuid::fromHexToBytes($versionId), $product['version_id']);
-        static::assertEquals($productData[0]['ean'], $product['ean']);
-
-        static::assertEquals(Uuid::fromHexToBytes($productId), $media[0]['product_id']);
-        static::assertEquals(Uuid::fromHexToBytes($versionId), $media[0]['version_id']);
-    }
-
-    public function testMergeVersions(): void
-    {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $context = Context::createDefaultContext();
-
-        $productId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
-        ];
-
-        $productData = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-        ];
-
-        $liveContext = Context::createDefaultContext();
-        $this->mediaRepository->create($mediaData, $liveContext);
-        $this->productRepository->create($productData, $liveContext);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, Defaults::LIVE_VERSION);
-        static::assertCount(1, $changes);
-
-        $versionId = $this->productRepository->createVersion($productId, $context, 'testMerge version');
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
-        static::assertCount(1, $changes);
-        static::assertEquals('clone', $changes[0]['action']);
+        $versionId = $this->productRepository->createVersion($id, $context);
 
         $versionContext = $context->createWithVersionId($versionId);
-        $this->productRepository->update([['id' => $productId, 'ean' => 'new merged ean']], $versionContext);
 
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-        ]);
-        static::assertEquals('4711', $row['ean']);
+        $this->productRepository->update([
+            [
+                'id' => $id,
+                'price' => ['gross' => 1000, 'net' => 1000],
+            ],
+        ], $versionContext);
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
-        static::assertCount(2, $changes);
-        static::assertEquals('clone', $changes[0]['action']);
-        static::assertEquals('update', $changes[1]['action']);
+        /** @var ProductStruct $product */
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertEquals(100, $product->getPrice()->getGross());
+        static::assertEquals(10, $product->getPrice()->getNet());
+
+        /** @var ProductStruct $product */
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $versionContext)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertEquals(1000, $product->getPrice()->getGross());
+        static::assertEquals(1000, $product->getPrice()->getNet());
 
         $this->productRepository->merge($versionId, $context);
 
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-        ]);
-
-        static::assertEquals('new merged ean', $row['ean']);
-
-        $row = $this->connection->fetchAssoc('SELECT * FROM version WHERE id = :id', ['id' => Uuid::fromHexToBytes($versionId)]);
-        static::assertEmpty($row);
-
-        $row = $this->connection->fetchAssoc('SELECT * FROM version_commit WHERE version_id = :id', ['id' => Uuid::fromHexToBytes($versionId)]);
-        static::assertEmpty($row);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
-        static::assertEmpty($changes);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, Defaults::LIVE_VERSION);
-        static::assertCount(2, $changes);
-
-        static::assertEquals('insert', $changes[0]['action']);
-        static::assertEquals('update', $changes[1]['action']);
+        /** @var ProductStruct $product */
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertEquals(1000, $product->getPrice()->getGross());
+        static::assertEquals(1000, $product->getPrice()->getNet());
     }
 
-    public function testReadConsiderVersion(): void
+    public function testICanVersionDateFields()
     {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $liveVersionContext = Context::createDefaultContext();
-
-        $productId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+            'releaseDate' => '2018-01-01',
         ];
 
-        $productData = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-        ];
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
 
-        $liveContext = Context::createDefaultContext();
-        $this->mediaRepository->create($mediaData, $liveContext);
-        $this->productRepository->create($productData, $liveContext);
+        $versionId = $this->productRepository->createVersion($id, $context);
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, Defaults::LIVE_VERSION);
-        static::assertCount(1, $changes);
-
-        $versionId = $this->productRepository->createVersion($productId, $liveVersionContext, 'testMerge version');
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
-        static::assertCount(1, $changes);
-        static::assertEquals('clone', $changes[0]['action']);
-
-        $versionContext = $liveVersionContext->createWithVersionId($versionId);
-        $this->productRepository->update([['id' => $productId, 'ean' => 'new merged ean']], $versionContext);
-
-        $basic = $this->productRepository->read(new ReadCriteria([$productId]), $liveVersionContext);
-        static::assertCount(1, $basic);
-        static::assertTrue($basic->has($productId));
-        $product = $basic->get($productId);
-        static::assertEquals('4711', $product->getEan());
-
-        $basic = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext);
-        static::assertCount(1, $basic);
-        static::assertTrue($basic->has($productId));
-        $product = $basic->get($productId);
-        static::assertEquals('new merged ean', $product->getEan());
-
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-        ]);
-        static::assertEquals('4711', $row['ean']);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
-        static::assertCount(2, $changes);
-        static::assertEquals('clone', $changes[0]['action']);
-        static::assertEquals('update', $changes[1]['action']);
-
-        $this->productRepository->merge($versionId, $liveVersionContext);
-
-        $basic = $this->productRepository->read(new ReadCriteria([$productId]), $liveVersionContext);
-        static::assertCount(1, $basic);
-        static::assertTrue($basic->has($productId));
-        $product = $basic->get($productId);
-        static::assertEquals('new merged ean', $product->getEan());
-
-        $basic = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext);
-        static::assertCount(1, $basic);
-
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'version' => Uuid::fromHexToBytes($versionId),
-        ]);
-        static::assertEmpty($row);
-    }
-
-    public function testSearcherConsidersVersionFallback(): void
-    {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $liveVersionContext = Context::createDefaultContext();
-
-        $productId = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
-        ];
-
-        $productData = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711' . $productId,
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-        ];
-
-        $liveContext = Context::createDefaultContext();
-        $this->mediaRepository->create($mediaData, $liveContext);
-        $this->productRepository->create($productData, $liveContext);
-
-        $versionId = $this->productRepository->createVersion($productId, $liveVersionContext, 'testMerge version');
-
-        $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'version' => Uuid::fromHexToBytes($versionId),
-        ]);
-        static::assertNotEmpty($product);
-        static::assertEquals('4711' . $productId, $product['ean']);
-
-        $versionContext = $liveVersionContext->createWithVersionId($versionId);
-
-        $this->productRepository->update([['id' => $productId, 'ean' => 'new merged ean' . $productId]], $versionContext);
-
-        $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'version' => Uuid::fromHexToBytes($versionId),
-        ]);
-        static::assertNotEmpty($product);
-        static::assertEquals('new merged ean' . $productId, $product['ean']);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('ean', 'new merged ean' . $productId));
-
-        $result = $this->productRepository->searchIds($criteria, $liveVersionContext);
-        static::assertEquals(0, $result->getTotal());
-
-        $result = $this->productRepository->searchIds($criteria, $versionContext);
-        static::assertEquals(1, $result->getTotal());
-
-        $productData = [
-            [
-                'id' => $productId2,
-                'name' => 'parent',
-                'ean' => 'new merged ean' . $productId,
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-        ];
-        $this->productRepository->create($productData, $liveVersionContext);
-
-        $result = $this->productRepository->searchIds($criteria, $versionContext);
-        static::assertEquals(2, $result->getTotal());
-
-        $result = $this->productRepository->searchIds($criteria, $liveVersionContext);
-        static::assertEquals(1, $result->getTotal());
-    }
-
-    public function testOneToManyVersioning(): void
-    {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $liveVersionContext = Context::createDefaultContext();
-
-        $productId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
-        ];
-
-        $productData = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-        ];
-
-        $this->mediaRepository->create($mediaData, $liveVersionContext);
-        $this->productRepository->create($productData, $liveVersionContext);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, Defaults::LIVE_VERSION);
-        static::assertCount(1, $changes);
-
-        $versionId = $this->productRepository->createVersion($productId, $liveVersionContext);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
-        static::assertCount(1, $changes);
-
-        $versionContext = $liveVersionContext->createWithVersionId($versionId);
-
-        $criteria = new ReadCriteria([$productId]);
-        $criteria->addAssociation('media');
-
-        $liveProduct = $this->productRepository->read($criteria, $liveVersionContext);
-        $productMediaId = $liveProduct->first()->getMedia()->first()->getId();
-        $this->productRepository->upsert([
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-            ],
-        ], $versionContext);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $versionId);
-
-        static::assertCount(2, $changes);
-
-        $changes = $this->getVersionData(ProductMediaDefinition::getEntityName(), $productMediaId, $versionId);
-
-        static::assertCount(1, $changes);
-
-        $criteria = new ReadCriteria([$productId]);
-        $criteria->addAssociation('media');
-
-        $liveProduct = $this->productRepository->read($criteria, $liveVersionContext);
-        static::assertCount(1, $liveProduct);
-        static::assertTrue($liveProduct->has($productId));
-        $product = $liveProduct->get($productId);
-
-        /* @var ProductStruct $product */
-        static::assertEquals('4711', $product->getEan());
-        static::assertCount(1, $product->getMedia());
-
-        $criteria = new ReadCriteria([$productId]);
-        $criteria->addAssociation('media');
-        $versionProduct = $this->productRepository->read($criteria, $versionContext);
-        static::assertCount(1, $versionProduct);
-        static::assertTrue($versionProduct->has($productId));
-        $product = $versionProduct->get($productId);
-
-        /* @var ProductStruct $product */
-        static::assertEquals('4711', $product->getEan());
-        static::assertCount(1, $product->getMedia());
-
-        $this->productRepository->merge($versionId, $liveVersionContext);
-
-        $liveProduct = $this->productRepository->read($criteria, $liveVersionContext);
-        static::assertCount(1, $liveProduct);
-        static::assertTrue($liveProduct->has($productId));
-        $product = $liveProduct->get($productId);
-
-        /* @var ProductStruct $product */
-        static::assertEquals('4711', $product->getEan());
-        static::assertCount(1, $product->getMedia());
-
-        $liveProduct = $this->productRepository->read($criteria, $versionContext);
-        static::assertCount(1, $liveProduct);
-        static::assertTrue($liveProduct->has($productId));
-        $product = $liveProduct->get($productId);
-
-        /* @var ProductStruct $product */
-        static::assertEquals(2, $product->getEan());
-        static::assertCount(1, $product->getMedia());
-    }
-
-    public function testVersioningWithProductInheritance(): void
-    {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $productId = Uuid::uuid4()->getHex();
-        $variantId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
-        ];
-
-        $products = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'media' => [
-                        ['mediaId' => $mediaId],
-                    ],
-            ],
-            [
-                'id' => $variantId,
-                'price' => ['gross' => 15, 'net' => 14, 'linked' => false],
-                'parentId' => $productId,
-            ],
-        ];
-
-        $liveContext = Context::createDefaultContext();
-        $this->mediaRepository->create($mediaData, $liveContext);
-        $this->productRepository->create($products, $liveContext);
-
-        $variantVersionId = $this->productRepository->createVersion($variantId, $liveContext);
-        $versionContext = $liveContext->createWithVersionId($variantVersionId);
+        $versionContext = $context->createWithVersionId($versionId);
 
         $this->productRepository->update([
-            ['id' => $variantId, 'price' => ['gross' => 20, 'net' => 19, 'linked' => false]],
+            [
+                'id' => $id,
+                'releaseDate' => '2018-10-05',
+            ],
         ], $versionContext);
-
-        $variant = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($variantId),
-            'version' => Uuid::fromHexToBytes($variantVersionId),
-        ]);
-
-        static::assertEquals(['gross' => 20, 'net' => 19, 'linked' => false], json_decode($variant['price'], true));
-
-        $variants = $this->productRepository->read(new ReadCriteria([$variantId]), $versionContext);
-        static::assertCount(1, $variants);
-        static::assertTrue($variants->has($variantId));
-
-        $variant = $variants->get($variantId);
-        static::assertEquals(new PriceStruct(19, 20, false), $variant->getPrice());
-        static::assertEquals('parent', $variant->getName());
-
-        $this->productRepository->createVersion($productId, $liveContext, 'test parent', $variantVersionId);
-
-        $this->productRepository->update([
-            ['id' => $productId, 'name' => 'parent version', 'price' => ['gross' => 25, 'net' => 24]],
-        ], $versionContext);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $variantVersionId);
-        static::assertCount(2, $changes);
-
-        $changes = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productId', $productId, $variantVersionId);
-        static::assertCount(2, $changes);
-
-        $product = $this->connection->fetchAssoc(
-            'SELECT * FROM product_translation WHERE product_id = :id AND product_version_id = :version AND language_id = :language',
-            [
-                'id' => Uuid::fromHexToBytes($productId),
-                'version' => Uuid::fromHexToBytes($variantVersionId),
-                'language' => Uuid::fromHexToBytes($versionContext->getLanguageId()),
-            ]
-        );
-        static::assertEquals('parent version', $product['name']);
-
-        $variants = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext);
-        static::assertCount(1, $variants);
-        static::assertTrue($variants->has($productId));
-
-        $variant = $variants->get($productId);
-        static::assertEquals(25, $variant->getPrice()->getGross());
-        static::assertEquals('parent version', $variant->getName());
-
-        $variants = $this->productRepository->read(new ReadCriteria([$variantId]), $versionContext);
-        static::assertCount(1, $variants);
-        static::assertTrue($variants->has($variantId));
-
-        $variant = $variants->get($variantId);
-        static::assertEquals(20, $variant->getPrice()->getGross());
-        static::assertEquals('parent version', $variant->getName());
-    }
-
-    public function testVersioningWithProductPriceRules(): void
-    {
-        $this->markTestSkipped('Should be fixed with NEXT-1151');
-        $productId = Uuid::uuid4()->getHex();
-        $variantId = Uuid::uuid4()->getHex();
-        $ruleId = Uuid::uuid4()->getHex();
-
-        $products = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'priceRules' => [
-                    [
-                        'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
-                        'rule' => ['id' => $ruleId, 'name' => 'test', 'priority' => 1, 'payload' => new AndRule()],
-                        'currencyId' => Defaults::CURRENCY,
-                        'quantityStart' => 0,
-                    ],
-                ],
-            ],
-            [
-                'id' => $variantId,
-                'price' => ['gross' => 15, 'net' => 14, 'linked' => false],
-                'parentId' => $productId,
-            ],
-        ];
-
-        $liveContext = Context::createDefaultContext();
-        $this->productRepository->create($products, $liveContext);
-
-        $variantVersionId = $this->productRepository->createVersion($variantId, $liveContext);
-        $versionContext = $liveContext->createWithVersionId($variantVersionId);
-
-        $this->productRepository->update([
-            ['id' => $variantId, 'price' => ['gross' => 20, 'net' => 19, 'linked' => false]],
-        ], $versionContext);
-
-        $variant = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($variantId),
-            'version' => Uuid::fromHexToBytes($variantVersionId),
-        ]);
-
-        static::assertEquals(['gross' => 20, 'net' => 19, 'linked' => false], json_decode($variant['price'], true));
-
-        $variants = $this->productRepository->read(new ReadCriteria([$variantId]), $versionContext);
-        static::assertCount(1, $variants);
-        static::assertTrue($variants->has($variantId));
-
-        $variant = $variants->get($variantId);
-        static::assertEquals(new PriceStruct(19, 20, false), $variant->getPrice());
-        static::assertEquals('parent', $variant->getName());
-
-        $this->productRepository->createVersion($productId, $liveContext, 'test parent', $variantVersionId);
-
-        $this->productRepository->update([
-            ['id' => $productId, 'name' => 'parent version', 'price' => ['gross' => 25, 'net' => 24]],
-        ], $versionContext);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId, $variantVersionId);
-        static::assertCount(2, $changes);
-
-        $changes = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productId', $productId, $variantVersionId);
-        static::assertCount(2, $changes);
-
-        $product = $this->connection->fetchAssoc(
-            'SELECT * FROM product_translation WHERE product_id = :id AND product_version_id = :version AND language_id = :language',
-            [
-                'id' => Uuid::fromHexToBytes($productId),
-                'version' => Uuid::fromHexToBytes($variantVersionId),
-                'language' => Uuid::fromHexToBytes($versionContext->getLanguageId()),
-            ]
-        );
-        static::assertEquals('parent version', $product['name']);
-
-        $variants = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext);
-        static::assertCount(1, $variants);
-        static::assertTrue($variants->has($productId));
-
-        $variant = $variants->get($productId);
-        static::assertEquals(25, $variant->getPrice()->getGross());
-        static::assertEquals('parent version', $variant->getName());
-
-        $variants = $this->productRepository->read(new ReadCriteria([$variantId]), $versionContext);
-        static::assertCount(1, $variants);
-        static::assertTrue($variants->has($variantId));
-
-        $variant = $variants->get($variantId);
-        static::assertEquals(20, $variant->getPrice()->getGross());
-        static::assertEquals('parent version', $variant->getName());
-    }
-
-    public function testMergeBoolField(): void
-    {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $productId = Uuid::uuid4()->getHex();
-        $variantId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
-        ];
-
-        $productData = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'active' => true,
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-            [
-                'id' => $variantId,
-                'price' => ['gross' => 15, 'net' => 14, 'linked' => false],
-                'parentId' => $productId,
-            ],
-        ];
-
-        $liveContext = Context::createDefaultContext();
-        $this->mediaRepository->create($mediaData, $liveContext);
-        $this->productRepository->create($productData, $liveContext);
-
-        $versionId = $this->productRepository->createVersion($productId, $liveContext, 'boolVersionUpdate');
-
-        $versionContext = $liveContext->createWithVersionId($versionId);
-
-        $update = ['id' => $productId, 'active' => false];
-        $this->productRepository->update([$update], $versionContext);
-
-        //Fails because the mergeCall tries to convert the serialized number 0/1 to boolean (also see NEXT-670)
-        $this->productRepository->merge($versionId, $liveContext);
-
-        $category = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
-            'id' => Uuid::fromHexToBytes($productId),
-            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-        ]);
-
-        static::assertEquals(0, $category['active']);
-
-        $fetchedCategory = $this->productRepository->read(new ReadCriteria([$productId]), $liveContext)->get($productId);
-        static::assertEquals(false, $fetchedCategory->get('active'));
-    }
-
-    public function testMergeDateTimeField(): void
-    {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $productId = Uuid::uuid4()->getHex();
-        $versionId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
-
-        $mediaData = [
-            [
-                'id' => $mediaId,
-                'name' => 'test_media',
-                'extension' => '.jpg',
-            ],
-        ];
-
-        $productData = [
-            [
-                'id' => $productId,
-                'name' => 'parent',
-                'ean' => '4711',
-                'price' => ['gross' => 15, 'net' => 12, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'releaseDate' => new \DateTime(),
-                'tax' => ['taxRate' => 18, 'name' => 'test'],
-                'active' => true,
-                'media' => [
-                    ['mediaId' => $mediaId],
-                ],
-            ],
-        ];
-
-        $liveContext = Context::createDefaultContext();
-        $this->mediaRepository->create($mediaData, $liveContext);
-        $this->productRepository->create($productData, $liveContext);
-        $this->productRepository->createVersion($productId, $liveContext, 'dateVersionUpdate', $versionId);
-
-        $versionContext = $liveContext->createWithVersionId($versionId);
-        $updateTime = (new \DateTime())->add(new \DateInterval('P2Y4DT6H8M'));
-
-        $update = [
-            'id' => $productId,
-            'releaseDate' => $updateTime->format(Defaults::DATE_FORMAT),
-        ];
-
-        $this->productRepository->update([$update], $versionContext);
-
-        $this->productRepository->merge($versionId, $liveContext);
 
         /** @var ProductStruct $product */
-        $product = $this->productRepository->read(new ReadCriteria([$productId]), $liveContext)
-            ->get($productId);
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertEquals('2018-01-01', $product->getReleaseDate()->format('Y-m-d'));
 
-        static::assertEquals($updateTime->format(Defaults::DATE_FORMAT), $product->getReleaseDate()->format(Defaults::DATE_FORMAT));
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $versionContext)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
+
+        $this->productRepository->merge($versionId, $context);
+
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
     }
 
-    public function testMergeCalculatedField(): void
+    public function testICanVersionObjectFields()
     {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $liveContext = Context::createDefaultContext();
+        static::markTestIncomplete('Object fields are not supported currently');
+    }
 
-        $categories = [
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'catOld1',
-            ],
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'catOld2',
-            ],
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'catNew1',
-            ],
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'catNew2',
+    public function testICanVersionCalculatedPriceField()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $this->connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+
+        $price = new CalculatedPrice(
+            100.20,
+            100.30,
+            new CalculatedTaxCollection([
+                new CalculatedTax(0.19, 10, 10),
+                new CalculatedTax(0.19, 5, 10),
+            ]),
+            new TaxRuleCollection([
+                new TaxRule(10, 50),
+                new TaxRule(5, 50),
+            ])
+        );
+
+        $repository = new EntityRepository(
+            CalculatedPriceFieldTestDefinition::class,
+            $this->getContainer()->get(EntityReaderInterface::class),
+            $this->getContainer()->get(VersionManager::class),
+            $this->getContainer()->get(EntitySearcherInterface::class),
+            $this->getContainer()->get(EntityAggregatorInterface::class),
+            $this->getContainer()->get('event_dispatcher')
+        );
+
+        $context = Context::createDefaultContext();
+
+        $data = ['id' => $id, 'price' => $price];
+
+        $repository->create([$data], $context);
+
+        $versionId = $repository->createVersion($id, $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $newPrice = new CalculatedPrice(
+            500.20,
+            500.30,
+            new CalculatedTaxCollection([
+                new CalculatedTax(3.50, 15, 500.20),
+                new CalculatedTax(3.50, 30, 500.20),
+            ]),
+            new TaxRuleCollection([
+                new TaxRule(15, 30),
+                new TaxRule(30, 70),
+            ])
+        );
+
+        $updated = ['id' => $id, 'price' => $newPrice];
+        $repository->update([$updated], $versionContext);
+
+        $entity = $repository
+                    ->read(new ReadCriteria([$id]), $context)
+                    ->first();
+
+        //check that the live entity contains the original price
+        static::assertInstanceOf(ArrayStruct::class, $entity);
+
+        $livePrice = $entity->get('price');
+        static::assertInstanceOf(CalculatedPrice::class, $livePrice);
+
+        /** @var CalculatedPrice $livePrice */
+        static::assertEquals(100.20, $livePrice->getUnitPrice());
+        static::assertEquals(100.30, $livePrice->getTotalPrice());
+        static::assertEquals(0.38, $livePrice->getCalculatedTaxes()->getAmount());
+
+        //check that the version entity is updated with the new price
+        $entity = $repository
+            ->read(new ReadCriteria([$id]), $versionContext)
+            ->first();
+
+        static::assertInstanceOf(ArrayStruct::class, $entity);
+
+        $versionPrice = $entity->get('price');
+        static::assertInstanceOf(CalculatedPrice::class, $versionPrice);
+
+        /** @var CalculatedPrice $versionPrice */
+        static::assertEquals(500.20, $versionPrice->getUnitPrice());
+        static::assertEquals(500.30, $versionPrice->getTotalPrice());
+        static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
+
+        $this->getContainer()->get(DefinitionRegistry::class)->add(CalculatedPriceFieldTestDefinition::class);
+
+        $repository->merge($versionId, $context);
+
+        //check that the version entity is updated with the new price
+        $entity = $repository
+            ->read(new ReadCriteria([$id]), $context)
+            ->first();
+
+        static::assertInstanceOf(ArrayStruct::class, $entity);
+
+        $versionPrice = $entity->get('price');
+        static::assertInstanceOf(CalculatedPrice::class, $versionPrice);
+
+        /** @var CalculatedPrice $versionPrice */
+        static::assertEquals(500.20, $versionPrice->getUnitPrice());
+        static::assertEquals(500.30, $versionPrice->getTotalPrice());
+        static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
+    }
+
+    public function testICanVersionCalculatedFields()
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $id3 = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $id1,
+            'name' => 'category-1',
+            'children' => [
+                [
+                    'id' => $id2,
+                    'name' => 'category-2',
+                    'children' => [
+                        [
+                            'id' => $id3,
+                            'name' => 'category-3',
+                        ],
+                    ],
+                ],
             ],
         ];
 
-        $this->categoryRepository->create($categories, $liveContext);
+        $context = Context::createDefaultContext();
+        $this->categoryRepository->create([$data], $context);
 
-        $versionId = Uuid::uuid4()->getHex();
+        $versionId = $this->categoryRepository->createVersion($id3, $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        /** @var CategoryStruct $category */
+        $category = $this->categoryRepository->read(new ReadCriteria([$id3]), $versionContext)->first();
+        static::assertInstanceOf(CategoryStruct::class, $category);
+        static::assertEquals('|' . $id1 . '|' . $id2 . '|', $category->getPath());
+
+        //update parent of last category in version scope
+        $updated = ['id' => $id3, 'parentId' => $id1];
+
+        $this->categoryRepository->update([$updated], $versionContext);
+
+        /** @var CategoryStruct $category */
+        //check that the path updated
+        $category = $this->categoryRepository->read(new ReadCriteria([$id3]), $versionContext)->first();
+        static::assertInstanceOf(CategoryStruct::class, $category);
+        static::assertEquals('|' . $id1 . '|', $category->getPath());
+
+        $category = $this->categoryRepository->read(new ReadCriteria([$id3]), $context)->first();
+        static::assertInstanceOf(CategoryStruct::class, $category);
+        static::assertEquals('|' . $id1 . '|' . $id2 . '|', $category->getPath());
+
+        $this->categoryRepository->merge($versionId, $context);
+
+        //test after merge the path is updated too
+        /** @var CategoryStruct $category */
+        $category = $this->categoryRepository->read(new ReadCriteria([$id3]), $context)->first();
+        static::assertInstanceOf(CategoryStruct::class, $category);
+        static::assertEquals('|' . $id1 . '|', $category->getPath());
+    }
+
+    public function testICanVersionTranslatedFields()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productId', $id, $context->getVersionId());
+        static::assertCount(1, $changelog);
+        static::assertArrayHasKey('name', $changelog[0]['payload']);
+        static::assertEquals('test', $changelog[0]['payload']['name']);
+
+        $this->productRepository->update([['id' => $id, 'name' => 'updated']], $context);
+        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productId', $id, $context->getVersionId());
+        static::assertCount(2, $changelog);
+        static::assertArrayHasKey('name', $changelog[1]['payload']);
+        static::assertEquals('updated', $changelog[1]['payload']['name']);
+    }
+
+    public function testChangelogWrittenForCreate()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
+
+        static::assertCount(1, $changelog);
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+    }
+
+    public function testChangelogWrittenForUpdate()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $this->productRepository->upsert([['id' => $id, 'ean' => 'updated']], $context);
+
+        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
+
+        static::assertCount(2, $changelog);
+
+        //check insert written
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('insert', $changelog[0]['action']);
+
+        //check update written
+        static::assertEquals($id, $changelog[1]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[1]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[1]['entity_name']);
+        static::assertEquals('upsert', $changelog[1]['action']);
+    }
+
+    public function testChangelogWrittenWithMultipleEntities()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['id' => $id, 'name' => 'create'],
+            'tax' => ['id' => $id, 'name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
+
+        static::assertCount(1, $changelog);
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('insert', $changelog[0]['action']);
+
+        $changelog = $this->getVersionData('product_manufacturer', $id, $context->getVersionId());
+
+        static::assertCount(1, $changelog);
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product_manufacturer', $changelog[0]['entity_name']);
+        static::assertEquals('insert', $changelog[0]['action']);
+    }
+
+    public function testChangelogAppliedAfterMerge()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $versionId = $this->productRepository->createVersion($id, $context);
+
+        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
+
+        static::assertCount(1, $changelog);
+
+        //check insert written
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('insert', $changelog[0]['action']);
+
+        $changelog = $this->getVersionData('product', $id, $versionId);
+
+        static::assertCount(1, $changelog);
+
+        //check insert written
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($versionId, $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('clone', $changelog[0]['action']);
+
+        $versionContext = $context->createWithVersionId($versionId);
+        $this->productRepository->upsert([['id' => $id, 'ean' => 'updated']], $versionContext);
+
+        $changelog = $this->getVersionData('product', $id, $versionId);
+
+        static::assertCount(2, $changelog);
+
+        //check insert written
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($versionId, $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('clone', $changelog[0]['action']);
+
+        static::assertEquals($id, $changelog[1]['entity_id']['id']);
+        static::assertEquals($versionId, $changelog[1]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[1]['entity_name']);
+        static::assertEquals('upsert', $changelog[1]['action']);
+
+        static::assertArrayHasKey('payload', $changelog[1]);
+        static::assertArrayHasKey('ean', $changelog[1]['payload']);
+        static::assertEquals('updated', $changelog[1]['payload']['ean']);
+
+        $this->productRepository->merge($versionId, $context);
+
+        $changelog = $this->getVersionData('product', $id, $context->getVersionId());
+        static::assertCount(2, $changelog);
+
+        //check insert written
+        static::assertEquals($id, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('insert', $changelog[0]['action']);
+
+        static::assertEquals($id, $changelog[1]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[1]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[1]['entity_name']);
+        static::assertEquals('upsert', $changelog[1]['action']);
+
+        static::assertArrayHasKey('payload', $changelog[1]);
+        static::assertArrayHasKey('ean', $changelog[1]['payload']);
+        static::assertEquals('updated', $changelog[1]['payload']['ean']);
+    }
+
+    public function testICanVersionOneToManyAssociations()
+    {
         $productId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::uuid4()->getHex();
+        $priceId1 = Uuid::uuid4()->getHex();
+        $priceId2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+        ], $context);
+
         $product = [
             'id' => $productId,
-            'name' => 'Test',
-            'price' => ['gross' => 10, 'net' => 9],
-            'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'name' => 'test'],
-            'tax' => ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 17, 'name' => 'with id'],
-            'categories' => [
-                ['id' => $categories[0]['id']],
-                ['id' => $categories[1]['id']],
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'quantityEnd' => 20,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 15, 'net' => 10],
+                ],
+                [
+                    'id' => $priceId2,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 21,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 10, 'net' => 8],
+                ],
             ],
         ];
 
-        // Assign the first two categories to the product
-        $this->productRepository->create([$product], $liveContext);
+        $this->productRepository->create([$product], $context);
 
-        $fetchedProduct = $this->productRepository->read(new ReadCriteria([$productId]), $liveContext)->get($productId);
-        $oldCategories = $fetchedProduct->getCategoryTree();
+        $versionId = $this->productRepository->createVersion($productId, $context);
 
-        static::assertEquals(2, \count($oldCategories));
-        static::assertContains($categories[0]['id'], $oldCategories);
-        static::assertContains($categories[1]['id'], $oldCategories);
+        //check both products exists
+        $products = $this->connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+        static::assertCount(2, $products);
 
-        $fetchedCat = $this->categoryRepository->read(new ReadCriteria([$categories[0]['id']]), $liveContext)->get($categories[0]['id']);
-        static::assertEquals($categories[0]['name'], $fetchedCat->getName());
+        $versions = array_map(function ($item) {
+            return Uuid::fromBytesToHex($item['version_id']);
+        }, $products);
 
-        $this->productRepository->createVersion($productId, $liveContext, 'calcFieldVersionUpdate', $versionId);
-        $versionContext = $liveContext->createWithVersionId($versionId);
+        static::assertContains(Defaults::LIVE_VERSION, $versions);
+        static::assertContains($versionId, $versions);
 
-        $update = [
+        $prices = $this->connection->fetchAll('SELECT * FROM product_price_rule WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+        static::assertCount(4, $prices);
+
+        $versionPrices = array_filter($prices, function (array $price) use ($versionId) {
+            $version = Uuid::fromBytesToHex($price['version_id']);
+
+            return $version === $versionId;
+        });
+
+        static::assertCount(2, $versionPrices);
+        foreach ($versionPrices as $price) {
+            $productVersionId = Uuid::fromBytesToHex($price['product_version_id']);
+            static::assertEquals($versionId, $productVersionId);
+        }
+    }
+
+    public function testICanVersionManyToManyAssociations()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $categoryId1 = Uuid::uuid4()->getHex();
+        $categoryId2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $categoryId1, 'name' => 'cat1'],
+                ['id' => $categoryId2, 'name' => 'cat2'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $versionId = $this->productRepository->createVersion($productId, $context);
+
+        //check both products exists
+        $products = $this->connection->fetchAll(
+            'SELECT * FROM product WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($productId)]
+        );
+        static::assertCount(2, $products);
+
+        $versions = array_map(function ($item) {
+            return Uuid::fromBytesToHex($item['version_id']);
+        }, $products);
+
+        static::assertContains(Defaults::LIVE_VERSION, $versions);
+        static::assertContains($versionId, $versions);
+
+        $categories = $this->connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
+            ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+        );
+        static::assertCount(2, $categories);
+
+        foreach ($categories as $category) {
+            $categoryVersion = Uuid::fromBytesToHex($category['category_version_id']);
+            static::assertSame(Defaults::LIVE_VERSION, $categoryVersion);
+        }
+
+        $categories = $this->connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
+            ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
+        );
+        static::assertCount(2, $categories);
+
+        foreach ($categories as $category) {
+            $categoryVersion = Uuid::fromBytesToHex($category['category_version_id']);
+            static::assertSame(Defaults::LIVE_VERSION, $categoryVersion);
+        }
+    }
+
+    public function testICanReadASpecifyVersion()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $versionId = $this->productRepository->createVersion($id, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+        $this->productRepository->upsert([['id' => $id, 'ean' => 'updated']], $versionContext);
+
+        /** @var ProductStruct $product */
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $versionContext)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertSame('updated', $product->getEan());
+
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertSame('EAN', $product->getEan());
+
+        $this->productRepository->merge($versionId, $context);
+        $product = $this->productRepository->read(new ReadCriteria([$id]), $context)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertSame('updated', $product->getEan());
+    }
+
+    public function testICanReadOneToManyInASpecifyVersion()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::uuid4()->getHex();
+        $priceId1 = Uuid::uuid4()->getHex();
+        $priceId2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+        ], $context);
+
+        //create live product with two prices
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'quantityEnd' => 20,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 15, 'net' => 15],
+                ],
+                [
+                    'id' => $priceId2,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 21,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 10, 'net' => 10],
+                ],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        //create new version of the product, product and prices rows are duplicated now
+        $versionId = $this->productRepository->createVersion($productId, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        //update prices in version scope
+        $updated = [
+            'id' => $productId,
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'price' => ['gross' => 100, 'net' => 100],
+                ],
+                [
+                    'id' => $priceId2,
+                    'price' => ['gross' => 99, 'net' => 99],
+                ],
+            ],
+        ];
+
+        /* @var ProductStruct $product */
+        $this->productRepository->update([$updated], $versionContext);
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext)->first();
+
+        //check if the prices are updated in the version scope
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getPriceRules());
+        static::assertEquals(100, $product->getPriceRules()->get($priceId1)->getPrice()->getGross());
+        static::assertEquals(100, $product->getPriceRules()->get($priceId1)->getPrice()->getNet());
+        static::assertEquals(99, $product->getPriceRules()->get($priceId2)->getPrice()->getGross());
+        static::assertEquals(99, $product->getPriceRules()->get($priceId2)->getPrice()->getNet());
+
+        /** @var ProductStruct $product */
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $context)->first();
+
+        //check the prices of the live version are untouched
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getPriceRules());
+        static::assertEquals(15, $product->getPriceRules()->get($priceId1)->getPrice()->getGross());
+        static::assertEquals(15, $product->getPriceRules()->get($priceId1)->getPrice()->getNet());
+        static::assertEquals(10, $product->getPriceRules()->get($priceId2)->getPrice()->getGross());
+        static::assertEquals(10, $product->getPriceRules()->get($priceId2)->getPrice()->getNet());
+
+        //now delete the prices in version context
+        $priceRepository = $this->getContainer()->get('product_price_rule.repository');
+        $priceRepository->delete([
+            ['id' => $priceId1, 'versionId' => $versionId],
+            ['id' => $priceId2, 'versionId' => $versionId],
+        ], $versionContext);
+
+        /** @var ProductStruct $product */
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $context)->first();
+
+        //live version scope should be untouched
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getPriceRules());
+
+        /** @var ProductStruct $product */
+        //version scope should have no prices
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext)->first();
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(0, $product->getPriceRules());
+
+        //now add new prices
+        $newPriceId1 = Uuid::uuid4()->getHex();
+        $newPriceId2 = Uuid::uuid4()->getHex();
+        $newPriceId3 = Uuid::uuid4()->getHex();
+
+        $updated = [
+            'id' => $productId,
+            'priceRules' => [
+                [
+                    'id' => $newPriceId1,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'quantityEnd' => 20,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 15, 'net' => 10],
+                ],
+                [
+                    'id' => $newPriceId2,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 21,
+                    'quantityEnd' => 100,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 10, 'net' => 8],
+                ],
+                [
+                    'id' => $newPriceId3,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 101,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 5, 'net' => 3],
+                ],
+            ],
+        ];
+
+        //add new price matrix to product
+        $this->productRepository->update([$updated], $versionContext);
+
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $context)->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getPriceRules());
+
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $versionContext)->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(3, $product->getPriceRules());
+
+        $this->productRepository->merge($versionId, $context);
+
+        $product = $this->productRepository->read(new ReadCriteria([$productId]), $context)->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(3, $product->getPriceRules());
+
+        $versionId = $this->productRepository->createVersion($productId, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $newPriceId4 = Uuid::uuid4()->getHex();
+
+        //check that we can add entities into a sub version using the sub entity repository
+        $data = [
+            'id' => $newPriceId4,
+            'productId' => $productId,
+            'currencyId' => Defaults::CURRENCY,
+            'quantityStart' => 101,
+            'ruleId' => $ruleId,
+            'price' => ['gross' => 5, 'net' => 3],
+        ];
+
+        $priceRepository->create([$data], $versionContext);
+
+        $price4 = $priceRepository->read(new ReadCriteria([$newPriceId4]), $versionContext)->first();
+        static::assertInstanceOf(ProductPriceRuleStruct::class, $price4);
+
+        /** @var ProductPriceRuleStruct $price4 */
+        static::assertSame(5.0, $price4->getPrice()->getGross());
+        static::assertSame($newPriceId4, $price4->getId());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product_price_rule.productId', $productId));
+
+        $prices = $priceRepository->search($criteria, $versionContext);
+        static::assertCount(4, $prices);
+        static::assertContains($newPriceId4, $prices->getIds());
+    }
+
+    public function testICanReadManyToManyInASpecifyVersion()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $categoryId1 = Uuid::uuid4()->getHex();
+        $categoryId2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $categoryId1, 'name' => 'cat1'],
+                ['id' => $categoryId2, 'name' => 'cat2'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $versionId = $this->productRepository->createVersion($productId, $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $criteria = new ReadCriteria([$productId]);
+        $criteria->addAssociation('product.categories');
+
+        $product = $this->productRepository
+            ->read($criteria, $context)
+            ->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getCategories());
+
+        $categories = $this->connection->fetchAll(
+            'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
+            ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
+        );
+
+        static::assertCount(2, $categories);
+
+        foreach ($categories as $category) {
+            $categoryVersion = Uuid::fromBytesToHex($category['category_version_id']);
+            static::assertSame(Defaults::LIVE_VERSION, $categoryVersion);
+        }
+
+        $product = $this->productRepository
+            ->read($criteria, $versionContext)
+            ->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getCategories());
+
+        $this->productRepository->merge($versionId, $context);
+
+        $product = $this->productRepository
+            ->read($criteria, $context)
+            ->first();
+
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(2, $product->getCategories());
+    }
+
+    public function testICanSearchInASpecifyVersion()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $versionId = $this->productRepository->createVersion($id, $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $this->productRepository->update([
+            [
+                'id' => $id,
+                'price' => ['gross' => 1000, 'net' => 1000],
+            ],
+        ], $versionContext);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.price.gross', 1000));
+
+        $products = $this->productRepository->search($criteria, $context);
+        static::assertCount(0, $products);
+
+        $products = $this->productRepository->search($criteria, $versionContext);
+        static::assertCount(1, $products);
+
+        $this->productRepository->merge($versionId, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.price.gross', 1000));
+
+        $products = $this->productRepository->search($criteria, $context);
+        static::assertCount(1, $products);
+    }
+
+    public function testICanSearchOneToManyInASpecifyVersion()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::uuid4()->getHex();
+        $priceId1 = Uuid::uuid4()->getHex();
+        $priceId2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+        ], $context);
+
+        //create live product with two prices
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'quantityEnd' => 20,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 15, 'net' => 15],
+                ],
+                [
+                    'id' => $priceId2,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 21,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 10, 'net' => 10],
+                ],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        //create new version of the product, product and prices rows are duplicated now
+        $versionId = $this->productRepository->createVersion($productId, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        //update prices in version scope
+        $updated = [
+            'id' => $productId,
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'price' => ['gross' => 100, 'net' => 100],
+                ],
+                [
+                    'id' => $priceId2,
+                    'price' => ['gross' => 99, 'net' => 99],
+                ],
+            ],
+        ];
+
+        $this->productRepository->update([$updated], $versionContext);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.priceRules.price.gross', 100));
+
+        //live search shouldn't find anything because the 1000.00 price is only defined in version scope
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(0, $result->getIds());
+
+        //version contains should have the price
+        $result = $this->productRepository->searchIds($criteria, $versionContext);
+        static::assertCount(1, $result->getIds());
+        static::assertContains($productId, $result->getIds());
+
+        //delete second price to check if the delete is applied too
+        $this->getContainer()->get('product_price_rule.repository')->delete([
+            ['id' => $priceId2, 'versionId' => $versionId],
+        ], $versionContext);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.priceRules.price.gross', 99));
+        $result = $this->productRepository->searchIds($criteria, $versionContext);
+        static::assertCount(0, $result->getIds());
+
+        $this->productRepository->merge($versionId, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.priceRules.price.gross', 100));
+
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(1, $result->getIds());
+        static::assertContains($productId, $result->getIds());
+
+        $product = $this->productRepository
+            ->read(new ReadCriteria([$productId]), $context)
+            ->first();
+
+        static::assertInstanceOf(ProductStruct::class, $product);
+
+        /** @var ProductStruct $product */
+        static::assertCount(1, $product->getPriceRules());
+    }
+
+    public function testICanSearchManyToManyInASpecifyVersion()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $categoryId1 = Uuid::uuid4()->getHex();
+        $categoryId2 = Uuid::uuid4()->getHex();
+        $categoryId3 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $categoryId1, 'name' => 'cat1'],
+                ['id' => $categoryId2, 'name' => 'cat2'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $versionId = $this->productRepository->createVersion($productId, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $updated = [
             'id' => $productId,
             'categories' => [
-                ['id' => $categories[2]['id']],
-                ['id' => $categories[3]['id']],
+                ['id' => $categoryId3, 'name' => 'matching value'],
             ],
         ];
+        $this->productRepository->update([$updated], $versionContext);
 
-        // In the new version of the product, added two new categories
-        $this->productRepository->update([$update], $versionContext);
+        //create criteria which should match only the version scope
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.categories.name', 'matching value'));
 
-        $categoryIds = $this->connection->fetchAll(
-            'SELECT category_id FROM product_category WHERE product_id = :product AND product_version_id = :version',
-            [
-                'product' => Uuid::fromHexToBytes($productId),
-                'version' => Uuid::fromHexToBytes($versionContext->getVersionId()),
-            ]
-        );
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(0, $result->getIds());
 
-        $categoryIds = array_map(function ($id) {
-            return Uuid::fromBytesToHex($id['category_id']);
-        }, $categoryIds);
+        $result = $this->productRepository->searchIds($criteria, $versionContext);
+        static::assertCount(1, $result->getIds());
+        static::assertContains($productId, $result->getIds());
 
-        static::assertCount(4, $categoryIds);
+        $readCriteria = new ReadCriteria([$productId]);
+        $readCriteria->addAssociation('product.categories');
 
-        static::assertContains($categories[0]['id'], $categoryIds);
-        static::assertContains($categories[1]['id'], $categoryIds);
-        static::assertContains($categories[2]['id'], $categoryIds);
-        static::assertContains($categories[3]['id'], $categoryIds);
+        $product = $this->productRepository->read($readCriteria, $versionContext)->first();
 
-        $this->productRepository->merge($versionId, $liveContext);
+        /** @var ProductStruct $product */
+        static::assertInstanceOf(ProductStruct::class, $product);
+        static::assertCount(3, $product->getCategories(), print_r($product->getId(), true));
 
-        $categoryIds = $this->connection->fetchAll(
-            'SELECT category_id FROM product_category WHERE product_id = :product AND product_version_id = :version',
-            [
-                'product' => Uuid::fromHexToBytes($productId),
-                'version' => Uuid::fromHexToBytes($liveContext->getVersionId()),
-            ]
-        );
+        $this->productRepository->merge($versionId, $context);
 
-        $categoryIds = array_map(function ($id) {
-            return Uuid::fromBytesToHex($id['category_id']);
-        }, $categoryIds);
-
-        static::assertCount(4, $categoryIds);
-
-        static::assertContains($categories[0]['id'], $categoryIds);
-        static::assertContains($categories[1]['id'], $categoryIds);
-        static::assertContains($categories[2]['id'], $categoryIds);
-        static::assertContains($categories[3]['id'], $categoryIds);
-
-        $fetchedProductUpdated = $this->productRepository->read(new ReadCriteria([$productId]), $liveContext)->get($productId);
-
-        $updatedCategories = $fetchedProductUpdated->getCategoryTree();
-
-        static::assertEquals(4, \count($updatedCategories));
-
-        static::assertContains($categories[2]['id'], $updatedCategories);
-        static::assertContains($categories[3]['id'], $updatedCategories);
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(1, $result->getIds());
+        static::assertContains($productId, $result->getIds());
     }
 
-    public function testCampaign(): void
+    public function testSearchConsidersLiveVersionAsFallback()
     {
-        $this->markTestSkipped('Version Mapping broken see: NEXT/repos/platform/pull-requests/533/');
-        $liveContext = Context::createDefaultContext();
-
-        $parentCategoryId = $this->createCategory($liveContext);
-
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-
-        $category = Uuid::uuid4()->getHex();
-        $versionId = Uuid::uuid4()->getHex();
-
-        $taxId1 = Uuid::uuid4()->getHex();
-        $taxId2 = Uuid::uuid4()->getHex();
-
-        $taxId119 = Uuid::uuid4()->getHex();
-        $taxId225 = Uuid::uuid4()->getHex();
-
-        $products = [
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $data = [
             [
-                'id' => $product1,
-                'name' => 'product test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => $taxId1, 'name' => 'test', 'taxRate' => 7],
-                'categories' => [
-                    ['id' => $category, 'parentId' => $parentCategoryId, 'name' => 'TEST cat'],
-                ],
-            ], [
-                'id' => $product2,
-                'name' => 'product test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => $taxId2, 'name' => 'test', 'taxRate' => 7],
-                'categories' => [
-                    ['id' => $category],
-                ],
+                'id' => $id1,
+                'name' => 'test',
+                'ean' => 'EAN',
+                'price' => ['gross' => 100, 'net' => 10],
+                'manufacturer' => ['name' => 'create'],
+                'tax' => ['name' => 'create', 'taxRate' => 1],
+            ],
+            [
+                'id' => $id2,
+                'name' => 'test',
+                'ean' => null,
+                'price' => ['gross' => 100, 'net' => 10],
+                'manufacturer' => ['name' => 'create'],
+                'tax' => ['name' => 'create', 'taxRate' => 1],
             ],
         ];
 
-        //Create Live Version of two Products
-        $this->productRepository->create($products, $liveContext);
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($data, $context);
 
-        //Create Taxes
-        $this->taxRepository->create(
-            [
-                ['id' => $taxId119, 'name' => 'test2', 'taxRate' => 19],
-                ['id' => $taxId225, 'name' => 'test3', 'taxRate' => 25],
-            ],
-            $liveContext
-        );
+        $versionId = $this->productRepository->createVersion($id2, $context);
 
-        //Clone Product1 to new Version "Campaign"
-        $this->productRepository->createVersion($product1, $liveContext, 'Campaign', $versionId);
+        $versionContext = $context->createWithVersionId($versionId);
 
-        //New Context for Version2
-        $versionContext = $liveContext->createWithVersionId($versionId);
-
-        //Update Product1 in Version2
-        $update = ['id' => $product1, 'taxId' => $taxId119];
-        $this->productRepository->update([$update], $versionContext);
-
-        //Clone Product1 to new Version "Campaign"
-        $versionId = $this->productRepository->createVersion($product2, $liveContext, 'Campaign', $versionId);
-
-        //Update Product2 in Version "Campaign"
-        $update = ['id' => $product2, 'taxId' => $taxId225];
-        $this->productRepository->update([$update], $versionContext);
-
-        //Get Changes for Product1 (should be 2 (clone and update))
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1, $versionId);
-        static::assertCount(2, $changes);
-
-        //Get Changes for Product2 (should be 2 (clone and update))
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, $versionId);
-        static::assertCount(2, $changes);
-
-        //Get Products with given categorie and taxRate >= 19 (The two updated Products)
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.categories.id', $category));
-        $criteria->addFilter(new RangeFilter('product.tax.taxRate', [RangeFilter::GTE => 19]));
-
-        $search = $this->productRepository->searchIds($criteria, $versionContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
-
-        //Create new Context with not existing Version
-        $notExisting = Uuid::uuid4()->getHex();
-        $notExistingContext = $versionContext->createWithVersionId($notExisting);
-
-        $search = $this->productRepository->searchIds($criteria, $notExistingContext);
-        static::assertCount(0, $search->getIds());
-
-        $search = $this->productRepository->searchIds($criteria, $liveContext);
-        static::assertCount(0, $search->getIds());
+        $this->productRepository->update([['id' => $id2, 'ean' => 'EAN']], $versionContext);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.categories.id', $category));
-        $criteria->addFilter(new EqualsFilter('product.tax.taxRate', 7));
+        $criteria->addFilter(new EqualsFilter('product.ean', 'EAN'));
 
-        $search = $this->productRepository->searchIds($criteria, $liveContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
+        $products = $this->productRepository->search($criteria, $context);
+        static::assertCount(1, $products);
 
-        $search = $this->productRepository->searchIds($criteria, $notExistingContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
+        //in this version we have two products with the ean value "EAN"
+        $products = $this->productRepository->search($criteria, $versionContext);
+        static::assertCount(2, $products);
 
-        //MERGE
-        $this->productRepository->merge($versionId, $liveContext);
+        $this->productRepository->merge($versionId, $context);
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1, $versionId);
-        static::assertEmpty($changes);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, $versionId);
-        static::assertEmpty($changes);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1, Defaults::LIVE_VERSION);
-        static::assertCount(2, $changes);
-        static::assertEquals('insert', $changes[0]['action']);
-        static::assertEquals('update', $changes[1]['action']);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, Defaults::LIVE_VERSION);
-        static::assertCount(2, $changes);
-        static::assertEquals('insert', $changes[0]['action']);
-        static::assertEquals('update', $changes[1]['action']);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, $versionId);
-        static::assertEmpty($changes);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.categories.id', $category));
-        $criteria->addFilter(new RangeFilter('product.tax.taxRate', [RangeFilter::GTE => 19]));
-
-        $search = $this->productRepository->searchIds($criteria, $liveContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
+        $products = $this->productRepository->search($criteria, $context);
+        static::assertCount(2, $products);
     }
 
-    public function testCampaignWithCombinedUpdates(): void
+    public function testICanAggregateInASpecifyVersion()
     {
-        $this->markTestSkipped('Failes cause of versionCommits to unversioned Entities. Fix with NEXT-1159');
-        $liveContext = Context::createDefaultContext();
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
 
-        $parentCategoryId = $this->createCategory($liveContext);
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
 
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
+        $versionId = $this->productRepository->createVersion($id, $context);
 
-        $category = Uuid::uuid4()->getHex();
-        $versionId = Uuid::uuid4()->getHex();
+        $versionContext = $context->createWithVersionId($versionId);
 
-        $taxId1 = Uuid::uuid4()->getHex();
-        $taxId2 = Uuid::uuid4()->getHex();
-
-        $taxId119 = Uuid::uuid4()->getHex();
-        $taxId225 = Uuid::uuid4()->getHex();
-
-        $products = [
+        $this->productRepository->update([
             [
-                'id' => $product1,
-                'name' => 'product test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => $taxId1, 'name' => 'test', 'taxRate' => 7],
-                'categories' => [
-                    ['id' => $category, 'parentId' => $parentCategoryId, 'name' => 'TEST cat'],
+                'id' => $id,
+                'price' => ['gross' => 1000, 'net' => 1000],
+            ],
+        ], $versionContext);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.ean', 'EAN'));
+        $criteria->addAggregation(new SumAggregation('product.price.gross', 'sum_price'));
+
+        /** @var SumAggregationResult $sum */
+        $aggregations = $this->productRepository->aggregate($criteria, $context);
+        static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        $sum = $aggregations->getAggregations()->get('sum_price');
+        static::assertEquals(100, $sum->getSum());
+
+        /** @var SumAggregationResult $sum */
+        $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
+        static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        $sum = $aggregations->getAggregations()->get('sum_price');
+        static::assertEquals(1000, $sum->getSum());
+
+        $this->productRepository->merge($versionId, $context);
+
+        /** @var SumAggregationResult $sum */
+        $aggregations = $this->productRepository->aggregate($criteria, $context);
+        static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        $sum = $aggregations->getAggregations()->get('sum_price');
+        static::assertEquals(1000, $sum->getSum());
+    }
+
+    public function testICanAggregateOneToManyInASpecifyVersion()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::uuid4()->getHex();
+        $priceId1 = Uuid::uuid4()->getHex();
+        $priceId2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+        ], $context);
+
+        //create live product with two prices
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'quantityEnd' => 20,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 15, 'net' => 15],
                 ],
-            ], [
-                'id' => $product2,
-                'name' => 'product test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => $taxId2, 'name' => 'test', 'taxRate' => 7],
-                'categories' => [
-                    ['id' => $category],
+                [
+                    'id' => $priceId2,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 21,
+                    'ruleId' => $ruleId,
+                    'price' => ['gross' => 10, 'net' => 10],
                 ],
             ],
         ];
 
-        //Create Live Version of two Products
-        $this->productRepository->create($products, $liveContext);
+        $this->productRepository->create([$product], $context);
 
-        //Clone Product1 to new Version "Campaign"
-        $this->productRepository->createVersion($product1, $liveContext, 'Campaign', $versionId);
+        //create new version of the product, product and prices rows are duplicated now
+        $versionId = $this->productRepository->createVersion($productId, $context);
+        $versionContext = $context->createWithVersionId($versionId);
 
-        //New Context for Version2
-        $versionContext = $liveContext->createWithVersionId($versionId);
+        //update prices in version scope
+        $updated = [
+            'id' => $productId,
+            'priceRules' => [
+                [
+                    'id' => $priceId1,
+                    'price' => ['gross' => 100, 'net' => 100],
+                ],
+                [
+                    'id' => $priceId2,
+                    'price' => ['gross' => 99, 'net' => 99],
+                ],
+            ],
+        ];
 
-        //Update Product1 in Version2
-        $update = ['id' => $product1, 'tax' => ['id' => $taxId119, 'name' => 'test2', 'taxRate' => 19]];
-        $this->productRepository->upsert([$update], $versionContext);
-
-        //Clone Product1 to new Version "Campaign"
-        $versionId = $this->productRepository->createVersion($product2, $liveContext, 'Campaign', $versionId);
-
-        //Update Product2 in Version "Campaign"
-        $update = ['id' => $product2, 'tax' => ['id' => $taxId225, 'name' => 'test3', 'taxRate' => 25]];
-        $this->productRepository->upsert([$update], $versionContext);
-
-        //Get Changes for Product1 (should be 2 (clone and update))
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1, $versionId);
-        static::assertCount(2, $changes);
-
-        //Get Changes for Product2 (should be 2 (clone and update))
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, $versionId);
-        static::assertCount(2, $changes);
-
-        //Get Products with given categorie and taxRate >= 19 (The two updated Products)
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.categories.id', $category));
-        $criteria->addFilter(new RangeFilter('product.tax.taxRate', [RangeFilter::GTE => 19]));
-
-        $search = $this->productRepository->searchIds($criteria, $versionContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
-
-        //Create new Context with not existing Version
-        $notExisting = Uuid::uuid4()->getHex();
-        $notExistingContext = $versionContext->createWithVersionId($notExisting);
-
-        $search = $this->productRepository->searchIds($criteria, $notExistingContext);
-        static::assertCount(0, $search->getIds());
-
-        $search = $this->productRepository->searchIds($criteria, $liveContext);
-        static::assertCount(0, $search->getIds());
+        $this->productRepository->update([$updated], $versionContext);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.categories.id', $category));
-        $criteria->addFilter(new EqualsFilter('product.tax.taxRate', 7));
+        $criteria->addFilter(new EqualsFilter('product.id', $productId));
+        $criteria->addAggregation(new SumAggregation('product.priceRules.price.gross', 'sum_prices'));
 
-        $search = $this->productRepository->searchIds($criteria, $liveContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
+        $result = $this->productRepository->aggregate($criteria, $context);
+        $aggregation = $result->getAggregations()->get('sum_prices');
 
-        $search = $this->productRepository->searchIds($criteria, $notExistingContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
+        /** @var SumAggregationResult $aggregation */
+        static::assertInstanceOf(SumAggregationResult::class, $aggregation);
+        static::assertSame(25.0, $aggregation->getSum());
 
-        //MERGE Failes because of NEXT-1159
-        $this->productRepository->merge($versionId, $liveContext);
+        $result = $this->productRepository->aggregate($criteria, $versionContext);
+        $aggregation = $result->getAggregations()->get('sum_prices');
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1, $versionId);
-        static::assertEmpty($changes);
+        static::assertInstanceOf(SumAggregationResult::class, $aggregation);
+        static::assertSame(199.0, $aggregation->getSum());
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, $versionId);
-        static::assertEmpty($changes);
+        $this->productRepository->merge($versionId, $context);
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1, Defaults::LIVE_VERSION);
-        static::assertCount(2, $changes);
-        static::assertEquals('insert', $changes[0]['action']);
-        static::assertEquals('update', $changes[1]['action']);
+        $result = $this->productRepository->aggregate($criteria, $context);
+        $aggregation = $result->getAggregations()->get('sum_prices');
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, Defaults::LIVE_VERSION);
-        static::assertCount(2, $changes);
-        static::assertEquals('insert', $changes[0]['action']);
-        static::assertEquals('update', $changes[1]['action']);
+        static::assertInstanceOf(SumAggregationResult::class, $aggregation);
+        static::assertSame(199.0, $aggregation->getSum());
+    }
 
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product2, $versionId);
-        static::assertEmpty($changes);
+    public function testICanAggregateManyToManyInASpecifyVersion()
+    {
+        $productId = Uuid::uuid4()->getHex();
+        $categoryId1 = Uuid::uuid4()->getHex();
+        $categoryId2 = Uuid::uuid4()->getHex();
+        $categoryId3 = Uuid::uuid4()->getHex();
 
-        $tax = $this->connection->fetchAssoc(
-            'SELECT * FROM tax WHERE id = :id AND version_id = :version',
-            ['id' => Uuid::fromHexToBytes($taxId1), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $productId,
+            'name' => 'to clone',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $categoryId1, 'name' => 'cat1'],
+                ['id' => $categoryId2, 'name' => 'cat2'],
+            ],
+        ];
+
+        $this->productRepository->create([$product], $context);
+
+        $versionId = $this->productRepository->createVersion($productId, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $updated = [
+            'id' => $productId,
+            'categories' => [
+                ['id' => $categoryId3, 'name' => 'matching value'],
+            ],
+        ];
+        $this->productRepository->update([$updated], $versionContext);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.id', $productId));
+        $criteria->addAggregation(new CountAggregation('product.categories.id', 'category_count'));
+
+        /** @var CountAggregationResult $aggregation */
+        $result = $this->productRepository->aggregate($criteria, $context);
+        $aggregation = $result->getAggregations()->get('category_count');
+
+        static::assertInstanceOf(CountAggregationResult::class, $aggregation);
+        static::assertSame(2, $aggregation->getCount());
+
+        $result = $this->productRepository->aggregate($criteria, $versionContext);
+        $aggregation = $result->getAggregations()->get('category_count');
+
+        static::assertInstanceOf(CountAggregationResult::class, $aggregation);
+        static::assertSame(3, $aggregation->getCount());
+
+        $this->productRepository->merge($versionId, $context);
+
+        $result = $this->productRepository->aggregate($criteria, $context);
+        $aggregation = $result->getAggregations()->get('category_count');
+
+        static::assertInstanceOf(CountAggregationResult::class, $aggregation);
+        static::assertSame(3, $aggregation->getCount());
+    }
+
+    public function testAggregateConsidersLiveVersionAsFallback()
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+        $data = [
+            [
+                'id' => $id1,
+                'name' => 'test',
+                'ean' => 'EAN',
+                'price' => ['gross' => 100, 'net' => 10],
+                'manufacturer' => ['name' => 'create'],
+                'tax' => ['name' => 'create', 'taxRate' => 1],
+            ],
+            [
+                'id' => $id2,
+                'name' => 'test',
+                'ean' => 'EAN',
+                'price' => ['gross' => 100, 'net' => 10],
+                'manufacturer' => ['name' => 'create'],
+                'tax' => ['name' => 'create', 'taxRate' => 1],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($data, $context);
+
+        $versionId = $this->productRepository->createVersion($id1, $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $this->productRepository->update([
+            [
+                'id' => $id1,
+                'price' => ['gross' => 900, 'net' => 900],
+            ],
+        ], $versionContext);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.ean', 'EAN'));
+        $criteria->addAggregation(new SumAggregation('product.price.gross', 'sum_price'));
+
+        /** @var SumAggregationResult $sum */
+        $aggregations = $this->productRepository->aggregate($criteria, $context);
+        static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        $sum = $aggregations->getAggregations()->get('sum_price');
+        static::assertEquals(200, $sum->getSum());
+
+        /** @var SumAggregationResult $sum */
+        $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
+        static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        $sum = $aggregations->getAggregations()->get('sum_price');
+        static::assertEquals(1000, $sum->getSum());
+
+        $this->productRepository->merge($versionId, $context);
+        $aggregations = $this->productRepository->aggregate($criteria, $context);
+        static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        $sum = $aggregations->getAggregations()->get('sum_price');
+        static::assertEquals(1000, $sum->getSum());
+    }
+
+    public function testICanAddEntitiesToSpecifyVersion()
+    {
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $data = [
+            [
+                'id' => $id1,
+                'name' => 'test',
+                'ean' => 'EAN-1',
+                'price' => ['gross' => 100, 'net' => 10],
+                'manufacturer' => ['name' => 'create'],
+                'tax' => ['name' => 'create', 'taxRate' => 1],
+            ],
+            [
+                'id' => $id2,
+                'name' => 'test',
+                'ean' => 'EAN-2',
+                'price' => ['gross' => 100, 'net' => 10],
+                'manufacturer' => ['name' => 'create'],
+                'tax' => ['name' => 'create', 'taxRate' => 1],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($data, $context);
+
+        $versionId = Uuid::uuid4()->getHex();
+        $this->productRepository->createVersion($id1, $context, 'campaign', $versionId);
+        $this->productRepository->createVersion($id2, $context, 'campaign', $versionId);
+
+        //check changelog written for product 1
+        $changelog = $this->getVersionData('product', $id1, $context->getVersionId());
+        static::assertCount(1, $changelog);
+        static::assertEquals($id1, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('insert', $changelog[0]['action']);
+
+        //check changelog written for product 2 with same version
+        $changelog = $this->getVersionData('product', $id2, $context->getVersionId());
+        static::assertCount(1, $changelog);
+        static::assertEquals($id2, $changelog[0]['entity_id']['id']);
+        static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
+        static::assertEquals('product', $changelog[0]['entity_name']);
+        static::assertEquals('insert', $changelog[0]['action']);
+
+        //update products of specify version
+        $versionContext = $context->createWithVersionId($versionId);
+        $this->productRepository->update(
+            [
+                ['id' => $id1, 'ean' => 'EAN-1-update'],
+                ['id' => $id2, 'ean' => 'EAN-2-update'],
+            ],
+            $versionContext
         );
-        static::assertArraySubset(['name' => 'test', 'tax_rate' => 19], $tax);
 
-        $tax = $this->connection->fetchAssoc(
-            'SELECT * FROM tax WHERE id = :id AND version_id = :version',
-            ['id' => Uuid::fromHexToBytes($taxId2), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
-        );
-        static::assertArraySubset(['name' => 'test', 'tax_rate' => 25], $tax);
+        $products = $this->productRepository->read(new ReadCriteria([$id1, $id2]), $versionContext);
+        //check both products updated
+        static::assertCount(2, $products);
+        static::assertTrue($products->has($id1));
+        static::assertTrue($products->has($id2));
+        static::assertEquals('EAN-1-update', $products->get($id1)->getEan());
+        static::assertEquals('EAN-2-update', $products->get($id2)->getEan());
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.categories.id', $category));
-        $criteria->addFilter(new RangeFilter('product.tax.taxRate', [RangeFilter::GTE => 19]));
+        //check existing live version not to be updated
+        $products = $this->productRepository->read(new ReadCriteria([$id1, $id2]), $context);
+        static::assertCount(2, $products);
+        static::assertTrue($products->has($id1));
+        static::assertTrue($products->has($id2));
+        static::assertEquals('EAN-1', $products->get($id1)->getEan());
+        static::assertEquals('EAN-2', $products->get($id2)->getEan());
 
-        $search = $this->productRepository->searchIds($criteria, $liveContext);
-        static::assertCount(2, $search->getIds());
-        static::assertContains($product1, $search->getIds());
-        static::assertContains($product2, $search->getIds());
+        //do merge
+        $this->productRepository->merge($versionId, $context);
+
+        //check both products are merged
+        $products = $this->productRepository->read(new ReadCriteria([$id1, $id2]), $context);
+        static::assertCount(2, $products);
+        static::assertTrue($products->has($id1));
+        static::assertTrue($products->has($id2));
+        static::assertEquals('EAN-1-update', $products->get($id1)->getEan());
+        static::assertEquals('EAN-2-update', $products->get($id2)->getEan());
     }
 
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
-        return $this->connection->fetchAll(
+        $data = $this->connection->fetchAll(
             "SELECT d.* 
              FROM version_commit_data d
              INNER JOIN version_commit c
@@ -1318,11 +1593,20 @@ class VersioningTest extends TestCase
                 'version' => Uuid::fromHexToBytes($versionId),
             ]
         );
+
+        $data = array_map(function (array $row) {
+            $row['entity_id'] = json_decode($row['entity_id'], true);
+            $row['payload'] = json_decode($row['payload'], true);
+
+            return $row;
+        }, $data);
+
+        return $data;
     }
 
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId): array
     {
-        return $this->connection->fetchAll(
+        $data = $this->connection->fetchAll(
             "SELECT * 
              FROM version_commit_data 
              WHERE entity_name = :entity
@@ -1337,22 +1621,44 @@ class VersioningTest extends TestCase
                 'version' => $versionId,
             ]
         );
+
+        $data = array_map(function (array $row) {
+            $row['entity_id'] = json_decode($row['entity_id'], true);
+            $row['payload'] = json_decode($row['payload'], true);
+
+            return $row;
+        }, $data);
+
+        return $data;
+    }
+}
+
+class CalculatedPriceFieldTestDefinition extends EntityDefinition
+{
+    public static function getCreateTable()
+    {
+        return '
+DROP TABLE IF EXISTS calculated_price_field_test;  
+CREATE TABLE `calculated_price_field_test` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `calculated_price` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`, `version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ';
     }
 
-    private function createCategory(Context $context, array $override = []): string
+    public static function getEntityName(): string
     {
-        $id = Uuid::uuid4()->getHex();
-        $payload = array_merge(
-            [
-                'id' => $id,
-                'name' => 'Random category name',
-                'catalogId' => $context->getCatalogIds()[0],
-            ],
-            $override
-        );
+        return 'calculated_price_field_test';
+    }
 
-        $this->getContainer()->get('category.repository')->create([$payload], $context);
-
-        return $payload['id'];
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+            (new CalculatedPriceField('calculated_price', 'price'))->setFlags(new Required()),
+        ]);
     }
 }

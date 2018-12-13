@@ -69,4 +69,9 @@ class OrderAddressDefinition extends EntityDefinition
     {
         return OrderAddressStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return OrderDefinition::class;
+    }
 }

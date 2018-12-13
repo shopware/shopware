@@ -31,6 +31,11 @@ class CatalogTranslationDefinition extends EntityTranslationDefinition
         return CatalogTranslationStruct::class;
     }
 
+    public static function getRootEntity(): ?string
+    {
+        return CatalogDefinition::class;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([

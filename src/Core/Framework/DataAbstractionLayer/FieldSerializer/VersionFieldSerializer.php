@@ -27,7 +27,10 @@ class VersionFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(VersionField::class, $field);
         }
 
-        $value = $parameters->getContext()->getContext()->getVersionId();
+        $value = $data->getValue();
+        if ($value === null) {
+            $value = $parameters->getContext()->getContext()->getVersionId();
+        }
 
         //write version id of current object to write context
         $parameters->getContext()->set($parameters->getDefinition(), 'versionId', $value);

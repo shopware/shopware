@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
@@ -80,7 +80,7 @@ class PriceActionController extends AbstractController
 
         $definition = new QuantityPriceDefinition(
             $price,
-            new TaxRuleCollection([new PercentageTaxRule($tax->getTaxRate(), 100)]),
+            new TaxRuleCollection([new TaxRule($tax->getTaxRate())]),
             $quantity,
             $preCalculated
         );

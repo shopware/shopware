@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -99,6 +100,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         // not only foreign key provided? data is provided as insert or update command
         if (\count($data) > 1) {
             $data['id'] = $data['id'] ?? Uuid::uuid4()->getHex();
+            $data['versionId'] = Defaults::LIVE_VERSION;
 
             return [$association->getPropertyName() => $data];
         }
@@ -106,6 +108,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         // no id provided? data is provided as insert command (like create category in same request with the product)
         if (!isset($data[$association->getReferenceField()])) {
             $data['id'] = $data['id'] ?? Uuid::uuid4()->getHex();
+            $data['versionId'] = Defaults::LIVE_VERSION;
 
             return [$association->getPropertyName() => $data];
         }
@@ -127,10 +130,17 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         if (!$fk) {
             trigger_error(sprintf('Foreign key for association %s not found', $association->getPropertyName()));
 
+            $data['versionId'] = Defaults::LIVE_VERSION;
+
             return [$association->getPropertyName() => $data];
         }
 
         /* @var FkField $fk */
-        return [$fk->getPropertyName() => $data[$association->getReferenceField()]];
+        return [
+            $fk->getPropertyName() => $data[$association->getReferenceField()],
+
+            //break versioning at many to many relations
+            $association->getReferenceClass()::getEntityName() . '_version_id' => Defaults::LIVE_VERSION,
+        ];
     }
 }

@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -321,7 +321,7 @@ class ProductRepositoryTest extends TestCase
         /* @var ProductStruct $product */
         static::assertEquals($id->getHex(), $product->getId());
 
-        static::assertEquals(new PriceStruct(10, 15, false), $product->getPrice());
+        static::assertEquals(new Price(10, 15, false), $product->getPrice());
         static::assertCount(2, $product->getPriceRules());
 
         /** @var ProductPriceRuleStruct $price */
@@ -622,8 +622,18 @@ class ProductRepositoryTest extends TestCase
         $child = Uuid::uuid4()->getHex();
 
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test']],
-            ['id' => $child, 'parentId' => $id, 'price' => ['gross' => 12, 'net' => 11, 'linked' => false]],
+            [
+                'id' => $id,
+                'name' => 'Insert',
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'manufacturer' => ['name' => 'test'],
+            ],
+            [
+                'id' => $child,
+                'parentId' => $id,
+                'price' => ['gross' => 12, 'net' => 11, 'linked' => false],
+            ],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext());
@@ -1409,8 +1419,8 @@ class ProductRepositoryTest extends TestCase
         $blue = $configurators->get($blueId);
         $red = $configurators->get($redId);
 
-        static::assertEquals(new PriceStruct(25, 50, false), $red->getPrice());
-        static::assertEquals(new PriceStruct(90, 100, false), $blue->getPrice());
+        static::assertEquals(new Price(25, 50, false), $red->getPrice());
+        static::assertEquals(new Price(90, 100, false), $blue->getPrice());
 
         static::assertEquals('red', $red->getOption()->getName());
         static::assertEquals('blue', $blue->getOption()->getName());
@@ -1473,8 +1483,8 @@ class ProductRepositoryTest extends TestCase
         $blue = $services->get($blueId);
         $red = $services->get($redId);
 
-        static::assertEquals(new PriceStruct(25, 50, false), $red->getPrice());
-        static::assertEquals(new PriceStruct(90, 100, false), $blue->getPrice());
+        static::assertEquals(new Price(25, 50, false), $red->getPrice());
+        static::assertEquals(new Price(90, 100, false), $blue->getPrice());
 
         static::assertEquals(100, $red->getTax()->getTaxRate());
         static::assertEquals(1, $blue->getTax()->getTaxRate());
@@ -1629,7 +1639,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
-        static::assertEquals(new PriceStruct(4000, 5000, false), $price->getPrice());
+        static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertEquals(20, $price->getQuantityEnd());
@@ -1662,7 +1672,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
-        static::assertEquals(new PriceStruct(50, 50, false), $price->getPrice());
+        static::assertEquals(new Price(50, 50, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());

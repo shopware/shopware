@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -109,7 +109,7 @@ class ProductApiTest extends TestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
-        static::assertEquals(new PriceStruct(4000, 5000, false), $price->getPrice());
+        static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertEquals(20, $price->getQuantityEnd());
@@ -143,7 +143,7 @@ class ProductApiTest extends TestCase
         /** @var ProductPriceRuleStruct $price */
         $price = $product->getPriceRules()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
-        static::assertEquals(new PriceStruct(50, 50, false), $price->getPrice());
+        static::assertEquals(new Price(50, 50, false), $price->getPrice());
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());

@@ -95,7 +95,7 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('unitTranslations', UnitTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('configurationGroupTranslations', ConfigurationGroupTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('configurationGroupOptionTranslations', ConfigurationGroupOptionTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('discountsurchargeTranslations', DiscountSurchargeTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('discountSurchargeTranslations', DiscountSurchargeTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('salesChannelTranslations', SalesChannelTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('salesChannelTypeTranslations', SalesChannelTypeTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('searchDocuments', SearchDocumentDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),

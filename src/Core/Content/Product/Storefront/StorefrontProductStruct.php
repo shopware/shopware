@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Content\Product\Storefront;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Product\ProductStruct as ApiStruct;
 
 class StorefrontProductStruct extends ApiStruct
 {
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $calculatedListingPrice;
 
@@ -19,7 +19,7 @@ class StorefrontProductStruct extends ApiStruct
     protected $calculatedPriceRules;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $calculatedPrice;
 
@@ -32,12 +32,12 @@ class StorefrontProductStruct extends ApiStruct
         return $this->getStock() >= $this->getMinPurchase();
     }
 
-    public function getCalculatedListingPrice(): Price
+    public function getCalculatedListingPrice(): CalculatedPrice
     {
         return $this->calculatedListingPrice;
     }
 
-    public function setCalculatedListingPrice(Price $calculatedListingPrice): void
+    public function setCalculatedListingPrice(CalculatedPrice $calculatedListingPrice): void
     {
         $this->calculatedListingPrice = $calculatedListingPrice;
     }
@@ -52,12 +52,12 @@ class StorefrontProductStruct extends ApiStruct
         return $this->calculatedPriceRules;
     }
 
-    public function getCalculatedPrice(): Price
+    public function getCalculatedPrice(): CalculatedPrice
     {
         return $this->calculatedPrice;
     }
 
-    public function setCalculatedPrice(Price $calculatedPrice): void
+    public function setCalculatedPrice(CalculatedPrice $calculatedPrice): void
     {
         $this->calculatedPrice = $calculatedPrice;
     }

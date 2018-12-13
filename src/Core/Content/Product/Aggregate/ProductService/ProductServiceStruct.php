@@ -3,16 +3,16 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductService;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
-use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\TaxStruct;
 
 class ProductServiceStruct extends Entity
@@ -34,7 +34,7 @@ class ProductServiceStruct extends Entity
     protected $taxId;
 
     /**
-     * @var PriceStruct|null
+     * @var Price|null
      */
     protected $price;
 
@@ -118,12 +118,12 @@ class ProductServiceStruct extends Entity
         $this->taxId = $taxId;
     }
 
-    public function getPrice(): ?PriceStruct
+    public function getPrice(): ?Price
     {
         return $this->price;
     }
 
-    public function setPrice(PriceStruct $price): void
+    public function setPrice(Price $price): void
     {
         $this->price = $price;
     }
@@ -172,7 +172,7 @@ class ProductServiceStruct extends Entity
     public function getTaxRuleCollection(): TaxRuleCollection
     {
         return new TaxRuleCollection([
-            new PercentageTaxRule($this->getTax()->getTaxRate(), 100),
+            new TaxRule($this->getTax()->getTaxRate(), 100),
         ]);
     }
 

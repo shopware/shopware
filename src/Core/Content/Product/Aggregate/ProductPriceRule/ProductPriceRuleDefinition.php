@@ -56,4 +56,9 @@ class ProductPriceRuleDefinition extends EntityDefinition
     {
         return ProductPriceRuleStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return ProductDefinition::class;
+    }
 }

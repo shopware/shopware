@@ -128,6 +128,7 @@ class DefinitionValidator
             if ($instance instanceof MappingEntityDefinition) {
                 continue;
             }
+            /** @var string|EntityDefinition $definition */
             $struct = $definition::getStructClass();
 
             if ($struct !== ArrayStruct::class) {
@@ -541,12 +542,6 @@ class DefinitionValidator
                 $column->getName()
             );
         }
-
-        $indices = $manager->listTableIndexes($definition::getEntityName());
-
-        $uniques = array_filter($indices, function (Index $index) {
-            return $index->isUnique();
-        });
 
         return [$definition => $violations];
     }

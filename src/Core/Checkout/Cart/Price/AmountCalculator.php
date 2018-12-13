@@ -51,7 +51,7 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a new delivery.
-     * `Price::price` and `Price::netPrice` are equals and taxes are empty.
+     * `CalculatedPrice::price` and `CalculatedPrice::netPrice` are equals and taxes are empty.
      *
      * @param PriceCollection $prices
      * @param PriceCollection $shippingCosts
@@ -76,8 +76,8 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a gross delivery.
-     * `Price::netPrice` contains the summed gross prices minus amount of calculated taxes.
-     * `Price::price` contains the summed gross prices
+     * `CalculatedPrice::netPrice` contains the summed gross prices minus amount of calculated taxes.
+     * `CalculatedPrice::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
      *
      * @param PriceCollection $prices
@@ -111,8 +111,8 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a net based delivery, but gross prices has be be payed
-     * `Price::netPrice` contains the summed net prices.
-     * `Price::price` contains the summed net prices plus amount of calculated taxes
+     * `CalculatedPrice::netPrice` contains the summed net prices.
+     * `CalculatedPrice::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
      *
      * @param PriceCollection $prices

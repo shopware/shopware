@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -22,7 +22,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         static::assertTrue(
@@ -38,7 +38,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         static::assertFalse(
@@ -54,7 +54,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         static::assertTrue(
@@ -70,7 +70,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         static::assertTrue(
@@ -86,7 +86,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         static::assertFalse(
@@ -102,7 +102,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         static::assertTrue(
@@ -118,7 +118,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         static::assertTrue(
@@ -132,7 +132,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         $context = $this->createMock(CheckoutContext::class);
@@ -148,7 +148,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         $context = $this->createMock(CheckoutContext::class);
@@ -164,7 +164,7 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
-                new Price(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
         $context = $this->createMock(CheckoutContext::class);

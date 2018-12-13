@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -162,7 +162,7 @@ class DeliveryBuilder
             $position->getDeliveryDate(),
             $shippingMethod,
             $location,
-            new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
 
         $deliveries->add($delivery);

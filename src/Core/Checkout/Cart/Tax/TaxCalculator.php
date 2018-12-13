@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Core\Checkout\Cart\Exception\TaxRuleNotSupportedException;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface;
 
 class TaxCalculator
 {
@@ -16,20 +15,16 @@ class TaxCalculator
     private $rounding;
 
     /**
-     * @var TaxRuleCalculatorInterface[]
+     * @var TaxRuleCalculator
      */
-    private $calculators;
+    private $calculator;
 
-    /**
-     * @param PriceRounding                         $rounding
-     * @param iterable|TaxRuleCalculatorInterface[] $calculators
-     */
     public function __construct(
         PriceRounding $rounding,
-        iterable $calculators
+        TaxRuleCalculator $calculator
     ) {
         $this->rounding = $rounding;
-        $this->calculators = $calculators;
+        $this->calculator = $calculator;
     }
 
     public function calculateGross(float $netPrice, TaxRuleCollection $rules): float
@@ -44,8 +39,8 @@ class TaxCalculator
     {
         return new CalculatedTaxCollection(
             $rules->map(
-                function (TaxRuleInterface $rule) use ($price) {
-                    return $this->getTaxRuleCalculator($rule)
+                function (TaxRule $rule) use ($price) {
+                    return $this->calculator
                         ->calculateTaxFromGrossPrice($price, $rule);
                 }
             )
@@ -56,21 +51,11 @@ class TaxCalculator
     {
         return new CalculatedTaxCollection(
             $rules->map(
-                function (TaxRuleInterface $rule) use ($price) {
-                    return $this->getTaxRuleCalculator($rule)
+                function (TaxRule $rule) use ($price) {
+                    return $this->calculator
                         ->calculateTaxFromNetPrice($price, $rule);
                 }
             )
         );
-    }
-
-    private function getTaxRuleCalculator(TaxRuleInterface $rule): TaxRuleCalculatorInterface
-    {
-        foreach ($this->calculators as $calculator) {
-            if ($calculator->supports($rule)) {
-                return $calculator;
-            }
-        }
-        throw new TaxRuleNotSupportedException($rule);
     }
 }

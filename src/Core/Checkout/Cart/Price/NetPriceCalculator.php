@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -37,7 +37,7 @@ class NetPriceCalculator
         return new PriceCollection($prices);
     }
 
-    public function calculate(QuantityPriceDefinition $definition): Price
+    public function calculate(QuantityPriceDefinition $definition): CalculatedPrice
     {
         $unitPrice = $this->getUnitPrice($definition);
 
@@ -49,7 +49,7 @@ class NetPriceCalculator
 
         $calculatedTaxes = $this->taxCalculator->calculateNetTaxes($price, $definition->getTaxRules());
 
-        return new Price($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
+        return new CalculatedPrice($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
     }
 
     private function getUnitPrice(QuantityPriceDefinition $definition): float

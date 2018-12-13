@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Pricing;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-class PriceStruct extends Struct
+class Price extends Struct
 {
     /**
      * @var float

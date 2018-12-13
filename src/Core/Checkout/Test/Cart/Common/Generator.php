@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -203,11 +203,11 @@ class Generator extends TestCase
         $cart->setLineItems(
             new LineItemCollection([
                 (new LineItem('A', 'product', 27))
-                    ->setPrice(new Price(10, 270, new CalculatedTaxCollection(), new TaxRuleCollection(), 27)),
+                    ->setPrice(new CalculatedPrice(10, 270, new CalculatedTaxCollection(), new TaxRuleCollection(), 27)),
 
                 (new LineItem('B', 'test', 5))
                     ->setGood(false)
-                    ->setPrice(new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())),
+                    ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())),
             ])
         );
         $cart->setPrice(

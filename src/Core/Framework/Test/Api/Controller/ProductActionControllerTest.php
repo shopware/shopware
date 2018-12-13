@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -81,8 +81,8 @@ class ProductActionControllerTest extends TestCase
         $blue = $configurators->get($blueId);
         $red = $configurators->get($redId);
 
-        static::assertEquals(new PriceStruct(25, 50, false), $red->getPrice());
-        static::assertEquals(new PriceStruct(90, 100, false), $blue->getPrice());
+        static::assertEquals(new Price(25, 50, false), $red->getPrice());
+        static::assertEquals(new Price(90, 100, false), $blue->getPrice());
 
         static::assertEquals('red', $red->getOption()->getName());
         static::assertEquals('blue', $blue->getOption()->getName());

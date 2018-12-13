@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -81,14 +81,14 @@ class PriceActionControllerTest extends TestCase
         ]);
 
         static::assertEquals(
-            new Price(
+            new CalculatedPrice(
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
                     new CalculatedTax(1.9, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100),
+                    new TaxRule(19, 100),
                 ])
             ),
             $price
@@ -105,14 +105,14 @@ class PriceActionControllerTest extends TestCase
         ]);
 
         static::assertEquals(
-            new Price(
+            new CalculatedPrice(
                 10,
                 10,
                 new CalculatedTaxCollection([
                     new CalculatedTax(1.9, 19, 10.0),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100),
+                    new TaxRule(19, 100),
                 ])
             ),
             $price
@@ -128,14 +128,14 @@ class PriceActionControllerTest extends TestCase
         ]);
 
         static::assertEquals(
-            new Price(
+            new CalculatedPrice(
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
                     new CalculatedTax(1.9, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100),
+                    new TaxRule(19, 100),
                 ])
             ),
             $price
@@ -152,14 +152,14 @@ class PriceActionControllerTest extends TestCase
         ]);
 
         static::assertEquals(
-            new Price(
+            new CalculatedPrice(
                 11.9,
                 23.8,
                 new CalculatedTaxCollection([
                     new CalculatedTax(3.8, 19, 23.8),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100),
+                    new TaxRule(19, 100),
                 ]),
                 2
             ),
@@ -177,14 +177,14 @@ class PriceActionControllerTest extends TestCase
         ]);
 
         static::assertEquals(
-            new Price(
+            new CalculatedPrice(
                 10,
                 20,
                 new CalculatedTaxCollection([
                     new CalculatedTax(3.19, 19, 20),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100),
+                    new TaxRule(19, 100),
                 ]),
                 2
             ),
@@ -202,21 +202,21 @@ class PriceActionControllerTest extends TestCase
         ]);
 
         static::assertEquals(
-            new Price(
+            new CalculatedPrice(
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
                     new CalculatedTax(2.26, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100),
+                    new TaxRule(19, 100),
                 ])
             ),
             $price
         );
     }
 
-    private function sendRequest(array $data): Price
+    private function sendRequest(array $data): CalculatedPrice
     {
         $url = sprintf(
             '/api/v%s/_action/calculate-price',
@@ -232,7 +232,7 @@ class PriceActionControllerTest extends TestCase
 
         $data = $response['data'];
 
-        return new Price(
+        return new CalculatedPrice(
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
@@ -241,7 +241,7 @@ class PriceActionControllerTest extends TestCase
                 }, $data['calculatedTaxes'])
             ),
             new TaxRuleCollection(array_map(function ($row) {
-                return new PercentageTaxRule($row['taxRate'], $row['percentage']);
+                return new TaxRule($row['taxRate'], $row['percentage']);
             }, $data['taxRules'])),
             $data['quantity']
         );

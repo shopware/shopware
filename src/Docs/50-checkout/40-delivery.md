@@ -55,7 +55,7 @@ into different `Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery`.
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -82,7 +82,7 @@ class Delivery extends Struct
     protected $shippingMethod;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $shippingCosts;
 
@@ -102,7 +102,7 @@ The `DeliveryPositionCollection` contains a list of `DeliveryPosition`:
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\Struct\Struct;
 
 class DeliveryPosition extends Struct

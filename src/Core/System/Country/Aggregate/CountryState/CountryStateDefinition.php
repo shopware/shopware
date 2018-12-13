@@ -61,4 +61,9 @@ class CountryStateDefinition extends EntityDefinition
     {
         return CountryStateStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return CountryDefinition::class;
+    }
 }

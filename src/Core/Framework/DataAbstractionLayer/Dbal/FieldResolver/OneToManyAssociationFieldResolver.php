@@ -20,8 +20,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper,
-        bool $raw
+        EntityDefinitionQueryHelper $queryHelper
     ): bool {
         if (!$field instanceof OneToManyAssociationField) {
             return false;

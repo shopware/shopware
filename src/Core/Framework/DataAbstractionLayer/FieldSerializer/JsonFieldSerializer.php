@@ -149,6 +149,10 @@ class JsonFieldSerializer implements FieldSerializerInterface
                 $encoded = $this->fieldHandlerRegistry->encode($nestedField, $existence, $kvPair, $nestedParams);
 
                 foreach ($encoded as $fieldKey => $fieldValue) {
+                    if ($nestedField instanceof JsonField) {
+                        $fieldValue = json_decode($fieldValue, true);
+                    }
+
                     $stack->update($fieldKey, $fieldValue);
                 }
             } catch (InvalidFieldException $exception) {

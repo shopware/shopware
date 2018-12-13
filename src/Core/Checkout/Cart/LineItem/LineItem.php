@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaStruct;
@@ -57,7 +57,7 @@ class LineItem extends Struct
     protected $priceDefinition;
 
     /**
-     * @var Price|null
+     * @var CalculatedPrice|null
      */
     protected $price;
 
@@ -277,12 +277,12 @@ class LineItem extends Struct
         return $this;
     }
 
-    public function getPrice(): ?Price
+    public function getPrice(): ?CalculatedPrice
     {
         return $this->price;
     }
 
-    public function setPrice(?Price $price): self
+    public function setPrice(?CalculatedPrice $price): self
     {
         $this->price = $price;
 

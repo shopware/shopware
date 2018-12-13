@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -295,16 +295,16 @@ class LineItemCollectionTest extends TestCase
     {
         $lineItems = new LineItemCollection([
             (new LineItem('A', 'test'))
-                ->setPrice(new Price(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection())),
+                ->setPrice(new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection())),
 
             (new LineItem('B', 'test'))
-                ->setPrice(new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection())),
+                ->setPrice(new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection())),
         ]);
 
         static::assertEquals(
             new PriceCollection([
-                new Price(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new Price(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ]),
             $lineItems->getPrices()
         );

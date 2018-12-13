@@ -23,7 +23,7 @@ namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\Rule\Rule;
@@ -174,7 +174,7 @@ If you do not add a label initially, you must add it during the enrichtment proc
 A price definition contains all required information to (re-)calculate the price of the line item.
 Always add a price definition.
 
-### Price
+### CalculatedPrice
 A price defines the calculated price of the line item based on quantity, taxes and other rules.
 The price is not required. Shopware will automatically calculate the price based on your price definition.
 

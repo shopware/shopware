@@ -45,4 +45,9 @@ class PaymentMethodTranslationDefinition extends EntityTranslationDefinition
     {
         return PaymentMethodTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return PaymentMethodDefinition::class;
+    }
 }

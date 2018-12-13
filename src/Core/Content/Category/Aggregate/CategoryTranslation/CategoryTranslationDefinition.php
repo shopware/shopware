@@ -58,4 +58,9 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
     {
         return CategoryTranslationStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return CategoryDefinition::class;
+    }
 }

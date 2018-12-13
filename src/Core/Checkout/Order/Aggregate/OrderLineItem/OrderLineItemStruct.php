@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderStruct;
@@ -68,7 +68,7 @@ class OrderLineItemStruct extends Entity
     protected $priority;
 
     /**
-     * @var Price|null
+     * @var CalculatedPrice|null
      */
     protected $price;
 
@@ -232,12 +232,12 @@ class OrderLineItemStruct extends Entity
         $this->priority = $priority;
     }
 
-    public function getPrice(): ?Price
+    public function getPrice(): ?CalculatedPrice
     {
         return $this->price;
     }
 
-    public function setPrice(?Price $price): void
+    public function setPrice(?CalculatedPrice $price): void
     {
         $this->price = $price;
     }

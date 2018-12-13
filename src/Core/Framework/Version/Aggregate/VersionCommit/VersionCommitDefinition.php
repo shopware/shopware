@@ -71,4 +71,9 @@ class VersionCommitDefinition extends EntityDefinition
             'createdAt' => date(\DateTime::ATOM),
         ];
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return VersionDefinition::class;
+    }
 }

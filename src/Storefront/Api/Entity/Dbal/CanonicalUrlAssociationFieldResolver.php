@@ -15,7 +15,14 @@ use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 
 class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
 {
-    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, bool $raw): bool
+    public function resolve(
+        string $definition,
+        string $root,
+        Field $field,
+        QueryBuilder $query,
+        Context $context,
+        EntityDefinitionQueryHelper $queryHelper
+    ): bool
     {
         if (!$field instanceof CanonicalUrlAssociationField) {
             return false;

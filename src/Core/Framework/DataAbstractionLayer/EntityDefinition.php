@@ -107,6 +107,11 @@ abstract class EntityDefinition
         return ArrayStruct::class;
     }
 
+    public static function getRootEntity(): ?string
+    {
+        return null;
+    }
+
     public static function getTranslationDefinitionClass(): ?string
     {
         if (array_key_exists(static::class, static::$translationDefinitions)) {

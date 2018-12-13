@@ -56,4 +56,9 @@ class OrderTransactionDefinition extends EntityDefinition
     {
         return OrderTransactionStruct::class;
     }
+
+    public static function getRootEntity(): ?string
+    {
+        return OrderDefinition::class;
+    }
 }

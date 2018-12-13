@@ -18,8 +18,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper,
-        bool $raw
+        EntityDefinitionQueryHelper $queryHelper
     ): bool {
         if (!$field instanceof TranslatedField) {
             return false;
@@ -28,7 +27,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         $this->joinTranslationTable($root, $definition, $query, $context);
 
         /** @var string|EntityDefinition $definition */
-        if (!$definition::isInheritanceAware() || $raw) {
+        if (!$definition::isInheritanceAware()) {
             return true;
         }
 

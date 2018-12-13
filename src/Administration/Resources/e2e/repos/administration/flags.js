@@ -2,11 +2,13 @@ global.flags = {
     getAllActive,
     getAllInactive,
     isActive,
-    runIfIsActive
+    runIfIsActive,
+    getCache
 };
 
 const path = require('path');
 const fs = require('fs');
+const process = require('process');
 
 /** @type {String} Absolute path to feature flag configuration file */
 const filePath = resolveFromRootPath(`var/config_administration_features.json`);
@@ -16,6 +18,8 @@ const flags = readFlagsFromFile(filePath);
 
 /** @type {Map} Cache for the flags */
 const $cache = fillFeatureFlagsCache(new Map(), flags);
+
+renderAvailableFlags($cache);
 
 /**
  * Runs the callback function if all flags are active. Otherwise it disables the test.
@@ -130,5 +134,27 @@ function fillFeatureFlagsCache(cache, flags) {
  * @returns {String}
  */
 function resolveFromRootPath(directory) {
-    return path.join(__dirname, '../../../../../../../../../', directory);
+    return path.join(process.env.PROJECT_ROOT, directory);
+}
+
+/**
+ * Returns the feature flag cache
+ * @returns {Map}
+ */
+function getCache() {
+    return $cache;
+}
+
+/**
+ * Renders an header to stdout including information about the available flags.
+ *
+ * @param {Map} $cache
+ * @returns {void}
+ */
+function renderAvailableFlags($cache) {
+    console.log('### Available feature flags');
+
+    $cache.forEach((value, key) => {
+        console.log(`• ${value ? '✓' : '✖'} - ${key}`);
+    });
 }

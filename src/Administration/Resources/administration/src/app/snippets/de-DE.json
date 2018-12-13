@@ -148,14 +148,33 @@
         "startsWidth": "Beginnt mit",
         "endsWidth": "Endet mit",
         "contains": "Enthält",
-        "regex": "Regex"
+        "regex": "Regex",
+        "notEquals": "Ungleich"
       },
       "condition": {
+        "dateRangeRule": "Datumsbereich",
+        "salesChannelRule": "Verkaufskanal",
+        "currencyRule": "Währung",
+        "billingCountryRule": "Rechnungsland",
+        "billingStreetRule": "Rechnungsstraße",
+        "billingZipCodeRule": "Rechnung PLZ",
+        "customerGroupRule": "Kundengruppe",
+        "customerNumberRule": "Kundennummer",
+        "differentAddressRule": "Abweichende Adresse",
+        "isNewCustomerRule": "Neuer Kunde",
+        "lastNameRule": "Kunden Nachname",
+        "shippingCountryRule": "Lieferland",
+        "shippingStreetRule": "Lieferstraße",
+        "shippingZipCodeRule": "Liefer PLZ",
         "cartAmountRule": "Warenkorbwert",
         "goodsCountRule": "Anzahl Warenkorb Artikel",
         "goodsPriceRule": "Gesamtpreis Warenkorb Artikel",
         "lineItemOfTypeRule": "Line Item of Type Rule",
-        "dateRangeRule": "Datumsbereich",
+        "lineItemRule": "Artikel",
+        "lineItemsInCartRule": "Artikel im Warenkorb",
+        "lineItemUnitPriceRule": "Artikel Preis",
+        "lineItemTotalPriceRule": "Artikel Gesamtpreis",
+        "lineItemWithQuantityRule": "Artikel mit Anzahl",
         "field": {
           "valuePlaceholder": "Wert..."
         }

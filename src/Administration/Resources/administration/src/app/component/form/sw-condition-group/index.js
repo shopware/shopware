@@ -14,6 +14,7 @@ import './sw-condition-group.less';
 Component.register('sw-condition-group', {
     template,
 
+    inject: ['ruleConditionService'],
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -63,88 +64,8 @@ Component.register('sw-condition-group', {
         return {
             currentValue: null,
             boundExpression: '',
-            operators: {
-                lowerThanEquals: {
-                    identifier: '<=',
-                    label: this.$tc('global.sw-condition-group.operator.lowerThanEquals')
-                },
-                equals: {
-                    identifier: '==',
-                    label: this.$tc('global.sw-condition-group.operator.equals')
-                },
-                greaterThanEquals: {
-                    identifier: '>=',
-                    label: this.$tc('global.sw-condition-group.operator.greaterThanEquals')
-                },
-                lowerThan: {
-                    identifier: '<',
-                    label: this.$tc('global.sw-condition-group.operator.lower')
-                },
-                greaterThan: {
-                    identifier: '>',
-                    label: this.$tc('global.sw-condition-group.operator.greater')
-                },
-                startsWith: {
-                    identifier: '%*',
-                    label: this.$tc('global.sw-condition-group.operator.startsWidth')
-                },
-                endsWith: {
-                    identifier: '*%',
-                    label: this.$tc('global.sw-condition-group.operator.endsWidth')
-                },
-                contains: {
-                    identifier: '*',
-                    label: this.$tc('global.sw-condition-group.operator.contains')
-                },
-                regex: {
-                    identifier: 'preg_match',
-                    label: this.$tc('global.sw-condition-group.operator.regex')
-                }
-            },
             conditionOperators: {}
         };
-    },
-
-    computed: {
-        conditionTypes() {
-            return {
-                'Shopware\\Core\\Checkout\\Cart\\Rule\\BadsPriceRule': {
-                    label: this.$tc('global.sw-condition-group.condition.cartAmountRule'),
-                    operatorSet: this.operatorSets.defaultSet
-                },
-                'Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsPriceRule': {
-                    label: this.$tc('global.sw-condition-group.condition.goodsPriceRule'),
-                    operatorSet: this.operatorSets.defaultSet
-                },
-                'Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemOfTypeRule': {
-                    label: this.$tc('global.sw-condition-group.condition.lineItemOfTypeRule'),
-                    operatorSet: this.operatorSets.all
-                },
-                'Shopware\\Core\\Framework\\Rule\\DateRangeRule': {
-                    label: this.$tc('global.sw-condition-group.condition.dateRangeRule'),
-                    operatorSet: this.operatorSets.test
-                }
-            };
-        },
-        operatorSets() {
-            return {
-                defaultSet: [
-                    this.operators.equals,
-                    this.operators.lowerThan,
-                    this.operators.greaterThan,
-                    this.operators.lowerThanEquals,
-                    this.operators.greaterThanEquals
-                ],
-                all: [
-                    // todo get dynmaic all operators
-                    Object.values(this.operators)
-                ],
-                test: [
-                    this.operators.equals,
-                    this.operators.lowerThan
-                ]
-            };
-        }
     },
 
     watch: {
@@ -168,12 +89,11 @@ Component.register('sw-condition-group', {
 
         createdComponent() {
             const conditionType = this.condition.type;
-            const conditionTypes = this.conditionTypes;
-            this.conditionOperators = conditionTypes[conditionType].operatorSet;
+            this.conditionOperators = this.ruleConditionService.getByType(conditionType).operatorSet;
         },
 
         handleConditionChange(event) {
-            this.conditionOperators = this.conditionTypes[event.target.value].operatorSet;
+            this.conditionOperators = this.ruleConditionService.getByType(event.target.value).operatorSet;
         },
 
         handleOperatorChange() {

@@ -19,8 +19,7 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
         QueryBuilder $query,
         Context $context,
         EntityDefinitionQueryHelper $queryHelper
-    ): bool
-    {
+    ): bool {
         if (!$field instanceof SearchKeywordAssociationField) {
             return false;
         }

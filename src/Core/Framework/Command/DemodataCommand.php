@@ -634,8 +634,9 @@ class DemodataCommand extends Command
         return array_column($payload, 'id');
     }
 
-    private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule {
-        if($currentDepth === $depth) {
+    private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule
+    {
+        if ($currentDepth === $depth) {
             return $rule;
         }
 
@@ -644,9 +645,9 @@ class DemodataCommand extends Command
         $classes = array_column($rules, 'rule');
 
         if ($currentDepth % 2 === 0) {
-            $classes[] = $this->buildNestedRule(new OrRule(), $pool, $currentDepth+1, $depth);
+            $classes[] = $this->buildNestedRule(new OrRule(), $pool, $currentDepth + 1, $depth);
         } else {
-            $classes[] = $this->buildNestedRule(new AndRule(), $pool, $currentDepth+1, $depth);
+            $classes[] = $this->buildNestedRule(new AndRule(), $pool, $currentDepth + 1, $depth);
         }
 
         $rule->assign(['rules' => $classes]);

@@ -104,8 +104,7 @@ class EntityReader implements EntityReaderInterface
         string $entity,
         EntityCollection $collection,
         FieldCollection $fields
-    ): EntityCollection
-    {
+    ): EntityCollection {
         $hasFilters = !empty($criteria->getFilters()) || !empty($criteria->getPostFilters());
         $hasIds = !empty($criteria->getIds());
 

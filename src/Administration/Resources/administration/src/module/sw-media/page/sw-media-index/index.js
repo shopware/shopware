@@ -50,6 +50,14 @@ Component.register('sw-media-index', {
             return State.getStore('upload');
         },
 
+        mediaFolderConfigurationStore() {
+            return State.getStore('media_folder_configuration');
+        },
+
+        mediaSidebar() {
+            return this.$refs.mediaSidebar;
+        },
+
         selectableItems() {
             return [].concat(this.subFolders, this.uploadedItems, this.mediaItems);
         },
@@ -101,8 +109,8 @@ Component.register('sw-media-index', {
 
         debounceDisplayItems() {
             Utils.debounce(() => {
-                if (this.$refs.mediaGrid) {
-                    this.$refs.mediaGrid.$el.scrollTop = 0;
+                if (this.$refs.scrollContainer) {
+                    this.$refs.scrollContainer.scrollTop = 0;
                 }
             }, 100)();
         },
@@ -229,7 +237,9 @@ Component.register('sw-media-index', {
 
         sortMediaItems(event) {
             this.sortType = event.split(':');
+            this.page = 1;
             this.getList();
+            this.debounceDisplayItems();
         },
 
         getCatalogId() {
@@ -264,6 +274,16 @@ Component.register('sw-media-index', {
 
             newFolder.name = '';
             newFolder.parentId = this.mediaFolderId;
+            if (this.mediaFolderId !== null) {
+                newFolder.configurationId = this.currentFolder.configuration.id;
+                newFolder.useParentConfiguration = true;
+            } else {
+                const configuration = this.mediaFolderConfigurationStore.create();
+                configuration.createThumbnails = true;
+                configuration.thumbnailQuality = 80;
+                newFolder.configuration = configuration;
+                newFolder.useParentConfiguration = false;
+            }
 
             this.subFolders.unshift(newFolder);
         },

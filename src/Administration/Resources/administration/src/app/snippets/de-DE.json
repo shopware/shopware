@@ -43,7 +43,8 @@
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Löschen",
       "labelContextMenuRename": "Umbenennen",
-      "labelContextMenuShowMedia": "Medien anzeigen"
+      "labelContextMenuShowMedia": "Medien anzeigen",
+      "labelContextMenuShowSettings": "Einstellungen"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",
@@ -96,6 +97,26 @@
       "labelFileExtension": "Dateiendung",
       "invalidUrl": "Bitte gib eine valide URL ein, um eine Datei herunterzuladen.",
       "missingFileExtension": "Eine Url enthält keine Dateiendung. Bitte gib eine Dateiendung an."
+    },
+    "sw-media-modal-folder-settings": {
+      "labelSettings": "Einstellungen",
+      "labelThumbnails": "Thumbnails",
+      "labelFolderName": "Name",
+      "labelInheritSettings": "Einstellungen vom überliegenden Ordner übernehmen",
+      "labelGenerateThumbnails": "Thumbnails für diesen Ordner generieren",
+      "labelThumbnailQuality": "Thumbnail-Qualität",
+      "labelThumbnailSize": "Thumbnail-Größe",
+      "labelEditList": "Liste bearbeiten",
+      "labelStopEdit": "Bearbeiten beenden",
+      "labelSave": "Speichern",
+      "labelCancel": "Abbrechen",
+      "titleDeleteThumbnails": "Löschen",
+      "notificationSuccess": "Einstellungen erfolgreich gespeichert",
+      "notificationError": "Fehler beim Speichern der Einstellungen"
+    },
+    "sw-media-add-thumbnail-form": {
+      "labelMaximumSize": "Maximalmaße",
+      "labelAdd": "Hinzufügen"
     },
     "sw-sidebar-media-item": {
       "title": "Medien",

@@ -22,6 +22,11 @@ class MediaFolderConfigurationStruct extends Entity
     protected $createThumbnails;
 
     /**
+     * @var int
+     */
+    protected $thumbnailQuality;
+
+    /**
      * @var MediaThumbnailSizeCollection
      */
     protected $mediaThumbnailSizes;
@@ -54,5 +59,15 @@ class MediaFolderConfigurationStruct extends Entity
     public function setMediaThumbnailSizes(MediaThumbnailSizeCollection $mediaThumbnailSizes): void
     {
         $this->mediaThumbnailSizes = $mediaThumbnailSizes;
+    }
+
+    public function getThumbnailQuality(): int
+    {
+        return $this->thumbnailQuality;
+    }
+
+    public function setThumbnailQuality(int $thumbnailQuality): void
+    {
+        $this->thumbnailQuality = $thumbnailQuality;
     }
 }

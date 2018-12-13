@@ -26,6 +26,12 @@ Component.register('sw-media-folder-item', {
         }
     },
 
+    data() {
+        return {
+            showSettings: false
+        };
+    },
+
     computed: {
         defaultContextMenuClass() {
             return {
@@ -81,6 +87,14 @@ Component.register('sw-media-folder-item', {
 
         navigateToFolder() {
             this.$router.push(this.routerLink);
+        },
+
+        openSettings() {
+            this.showSettings = true;
+        },
+
+        closeSettings() {
+            this.showSettings = false;
         }
     }
 });

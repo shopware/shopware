@@ -9,6 +9,10 @@
             <argument type="service" id="kernel"/>
             <tag name="console.command"/>
         </service>
+        <service id="Shopware\Administration\Command\AdministrationDumpFeaturesCommand">
+            <argument type="service" id="kernel"/>
+            <tag name="console.command"/>
+        </service>
 
         <service id="Shopware\Administration\Controller\AdministrationController"
                  public="true">

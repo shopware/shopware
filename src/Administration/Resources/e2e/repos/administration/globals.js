@@ -1,3 +1,6 @@
+// Register flags globally so we have to import them one time
+require('./flags.js');
+
 const loginPage = require('./specs/before-scenario.js');
 
 module.exports = {

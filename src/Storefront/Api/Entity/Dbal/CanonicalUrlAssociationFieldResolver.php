@@ -22,8 +22,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
         QueryBuilder $query,
         Context $context,
         EntityDefinitionQueryHelper $queryHelper
-    ): bool
-    {
+    ): bool {
         if (!$field instanceof CanonicalUrlAssociationField) {
             return false;
         }

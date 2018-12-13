@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Listing\Controller;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Listing\Page\ListingPageLoader;
 use Shopware\Storefront\Listing\Page\ListingPageRequest;
+use Shopware\Storefront\Listing\PageLoader\ListingPageLoader;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 

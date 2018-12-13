@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Storefront\Checkout\Page\PaymentMethodLoader;
+use Shopware\Storefront\Checkout\PageLoader\PaymentMethodLoader;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

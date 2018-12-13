@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Search\Controller;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Search\Page\SearchPageLoader;
 use Shopware\Storefront\Search\Page\SearchPageRequest;
+use Shopware\Storefront\Search\PageLoader\SearchPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

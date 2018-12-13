@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Listing\Controller\Widget;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Storefront\Listing\NavigationService;
-use Shopware\Storefront\Seo\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;

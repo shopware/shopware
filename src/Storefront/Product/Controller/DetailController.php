@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Product\Controller;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Product\Page\DetailPageLoader;
+use Shopware\Storefront\Product\PageLoader\DetailPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

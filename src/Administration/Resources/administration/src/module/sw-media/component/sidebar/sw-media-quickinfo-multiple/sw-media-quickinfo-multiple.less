@@ -3,6 +3,7 @@
 
 @sw-media-quickinfo-multiple-color-highlighted: @color-shopware-blue;
 @sw-media-quickinfo-multiple-color-danger:      @color-crimson;
+@sw-media-quickinfo-multiple-color-divider:     @color-steam-cloud;
 
 .sw-media-quickinfo-multiple {
 
@@ -47,5 +48,9 @@
         &.is--danger {
             color: @sw-media-quickinfo-multiple-color-danger;
         }
+    }
+
+    >:last-child {
+        border-bottom: 1px solid @sw-media-quickinfo-multiple-color-divider;
     }
 }

@@ -101,9 +101,11 @@ Component.register('sw-sidebar-item', {
         },
 
         closeContent() {
-            this.isActive = false;
+            if (this.isActive) {
+                this.isActive = false;
 
-            this.$emit('sw-sidebar-item-close-content');
+                this.$emit('sw-sidebar-item-close-content');
+            }
         },
 
         sidebarButtonClick(sidebarItem) {

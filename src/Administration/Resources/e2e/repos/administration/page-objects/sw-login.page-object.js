@@ -19,7 +19,7 @@ class LoginPageObject {
             .waitForElementNotPresent('.sw-loader');
     }
 
-    // Used in order to log in more quickly, e.g. in BeforeScrenario
+    // Used in order to log in more quickly, e.g. in BeforeScenario
     fastLogin(username, password) {
         this.browser
             .waitForElementVisible('.sw-login__form')
@@ -29,19 +29,18 @@ class LoginPageObject {
             .waitForElementNotPresent('.sw-loader');
     }
 
-    logout(username) {
+    logout() {
         this.browser
-            .useUserActionMenu(username)
             .waitForElementVisible('.sw-admin-menu__logout-action')
             .click('.sw-admin-menu__logout-action')
             .waitForElementVisible('.sw-login__form-headline')
             .assert.containsText('.sw-login__form-headline', 'Log in to your Shopware store');
     }
 
-    verifyLogin(username) {
+    verifyLogin(name) {
         this.browser
             .waitForElementVisible('.sw-admin-menu')
-            .useUserActionMenu(username, false);
+            .clickUserActionMenu(name, false);
     }
 
     verifyFailedLogin(notificationMessage) {

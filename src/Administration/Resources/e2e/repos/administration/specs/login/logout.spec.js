@@ -11,6 +11,8 @@ module.exports = {
     },
     'log out right away': (browser) => {
         const page = loginPage(browser);
+
+        browser.clickUserActionMenu('admin');
         page.logout('admin');
     },
     'verify logout': (browser) => {

@@ -5,7 +5,8 @@ module.exports = {
     'make sure the user is not logged in already': (browser) => {
         const page = loginPage(browser);
         browser
-            .waitForElementVisible('.sw-dashboard-index__content');
+            .waitForElementVisible('.sw-dashboard-index__content')
+            .clickUserActionMenu('admin');
         page.logout('admin');
     },
     'view login screen': (browser) => {

@@ -78,9 +78,9 @@
                     <template v-else>
                         <div class="sw-select__single-selection">
                             {% block sw_select_single_selection_inner %}
-                                <slot v-if="singleSelection.name" name="selected_option" :item="singleSelection">
+                                <slot v-if="singleSelection[displayName]" name="selected_option" :item="singleSelection">
                                     {% block sw_select_single_selection_slot_label %}
-                                        {{ singleSelection.name }}
+                                        {{ singleSelection[displayName] }}
                                     {% endblock %}
                                 </slot>
 
@@ -133,7 +133,7 @@
                                                          <sw-select-option
                                                             :index="index"
                                                             :item="item">
-                                                            {{ item.name }}
+                                                            {{ item[displayName] }}
                                                          </sw-select-option>
                                                      {% endblock %}
                                                  </slot>

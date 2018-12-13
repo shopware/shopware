@@ -112,7 +112,8 @@
       "labelCancel": "Abbrechen",
       "titleDeleteThumbnails": "Löschen",
       "notificationSuccess": "Einstellungen erfolgreich gespeichert",
-      "notificationError": "Fehler beim Speichern der Einstellungen"
+      "notificationError": "Fehler beim Speichern der Einstellungen",
+      "labelDefaultFolder": "Standardspeicherort für:"
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße",

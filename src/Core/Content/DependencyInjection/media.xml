@@ -16,7 +16,11 @@
             <tag name="shopware.entity.definition" entity="media"/>
         </service>
 
-        <service class="Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition" id="Shopware\Core\Content\Media\Aggregate\Thumbnail\ThumbnailDefinition">
+        <service id="Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition">
+            <tag name="shopware.entity.definition" entity="media_default_folder"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition">
             <tag name="shopware.entity.definition" entity="media_thumbnail"/>
         </service>
 
@@ -163,6 +167,7 @@
         <!-- Services -->
         <service id="Shopware\Core\Content\Media\DeleteNotUsedMediaService">
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="media_default_folder.repository"/>
         </service>
     </services>
 </container>

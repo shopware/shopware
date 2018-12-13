@@ -30,6 +30,7 @@ import SnippetSetApiService from 'src/core/service/api/snippet-set.api.service';
 import SyncApiService from 'src/core/service/api/sync.api.service';
 import MediaThumbnailSizeApiService from 'src/core/service/api/media-thumbnail-size.api.service';
 import MediaFolderConfigurationApiService from 'src/core/service/api/media-folder-configuration.api.service';
+import MediaDefaultFolderApiService from 'src/core/service/api/media-default-folder.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -63,5 +64,6 @@ export default {
     snippetSetService: SnippetSetApiService,
     syncService: SyncApiService,
     mediaThumbnailSizeService: MediaThumbnailSizeApiService,
-    mediaFolderConfigurationService: MediaFolderConfigurationApiService
+    mediaFolderConfigurationService: MediaFolderConfigurationApiService,
+    mediaDefaultFolderService: MediaDefaultFolderApiService
 };

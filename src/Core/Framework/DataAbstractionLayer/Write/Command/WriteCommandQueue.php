@@ -3,27 +3,15 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
-use Shopware\Core\System\Language\LanguageDefinition;
 
 class WriteCommandQueue
 {
-    /**
-     * @var string[]
-     */
-    private $registeredResources = [];
-
-    /**
-     * @var string[]
-     */
-    private $order = [];
-
     /**
      * @var array
      */
@@ -37,81 +25,14 @@ class WriteCommandQueue
         $this->commands = $commands;
     }
 
-    /**
-     * @param string $definition
-     */
-    public function setOrder(string $definition): void
-    {
-        $identifierOrder = $this->getWriteOrder($definition);
-
-        if (\in_array($definition, $this->registeredResources, true)) {
-            return;
-        }
-
-        $this->order = $identifierOrder;
-
-        $this->order = $this->moveTranslationAfterLanguage($this->order);
-
-        foreach ($identifierOrder as $identifier) {
-            $this->commands[$identifier] = [];
-        }
-
-        $this->registeredResources[] = $definition;
-    }
-
-    public function updateOrder(string $definition): void
-    {
-        $identifierOrder = $this->getWriteOrder($definition);
-
-        if (\in_array($definition, $this->registeredResources, true)) {
-            return;
-        }
-
-        $notAlreadyOrderedIdentifiers = [];
-        foreach ($identifierOrder as $identifier) {
-            if ($identifier === $definition || !\in_array($identifier, $this->order, true)) {
-                $notAlreadyOrderedIdentifiers[] = $identifier;
-            }
-        }
-
-        $localIndex = array_search($definition, $this->order);
-        $this->order = array_merge(
-            \array_slice($this->order, 0, $localIndex),
-            $notAlreadyOrderedIdentifiers,
-            \array_slice($this->order, $localIndex + 1)
-        );
-
-        $this->order = $this->moveTranslationAfterLanguage($this->order);
-
-        foreach ($this->order as $identifier) {
-            if (isset($this->commands[$identifier])) {
-                continue;
-            }
-
-            $this->commands[$identifier] = [];
-        }
-
-        $this->registeredResources[] = $definition;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getOrder(): array
-    {
-        return $this->order;
-    }
-
     public function add(string $senderIdentification, WriteCommandInterface $command): void
     {
-        if (!\is_array($this->commands[$senderIdentification])) {
-            throw new \InvalidArgumentException(sprintf('Unable to set write command for %s, it was not beforehand registered.', $senderIdentification));
-        }
-
         $this->commands[$senderIdentification][] = $command;
     }
 
     /**
+     * @throws ImpossibleWriteOrderException
+     *
      * @return WriteCommandInterface[]
      */
     public function getCommandsInOrder(): array
@@ -120,7 +41,15 @@ class WriteCommandQueue
 
         $order = [];
 
+        $counter = 0;
+
         while (!empty($commands)) {
+            ++$counter;
+
+            if ($counter === 50) {
+                throw new ImpossibleWriteOrderException(array_keys($commands));
+            }
+
             foreach ($commands as $definition => $defCommands) {
                 $dependencies = $this->hasDependencies($definition, $commands);
 
@@ -228,76 +157,5 @@ class WriteCommandQueue
         }
 
         return $filtered;
-    }
-
-    /**
-     * @param array $order
-     *
-     * @return array
-     */
-    private function moveTranslationAfterLanguage(array $order): array
-    {
-        $flipped = \array_flip($order);
-
-        if (!isset($flipped[LanguageDefinition::class])) {
-            return $order;
-        }
-
-        $translations = [];
-
-        /** @var string|EntityDefinition $definition */
-        foreach ($order as $index => $definition) {
-            $translations[$definition::getTranslationDefinitionClass()] = 1;
-        }
-
-        $translations = array_intersect_key($flipped, $translations);
-        foreach ($translations as $definition => $index) {
-            unset($order[$index]);
-        }
-
-        $order = array_values($order);
-
-        foreach ($translations as $definition => $index) {
-            $order[] = $definition;
-        }
-
-        return $order;
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     *
-     * @return array
-     */
-    private function getWriteOrder(string $definition): array
-    {
-        $associations = $definition::getFields()->filter(function (Field $field) {
-            return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
-        });
-
-        $manyToOne = $definition::filterAssociationReferences(ManyToOneAssociationField::class, $associations);
-
-        $oneToMany = $definition::filterAssociationReferences(OneToManyAssociationField::class, $associations);
-
-        $manyToMany = $definition::filterAssociationReferences(ManyToManyAssociationField::class, $associations);
-
-        $self = array_filter([$definition, $definition::getTranslationDefinitionClass()]);
-
-        /*
-         * If a linked entity exists once as OneToMany but also as ManyToOne (bi-directional foreign keys),
-         * it must be treated as OneToMany. In the MySQL database,
-         * no foreign key may be created for the ManyToOne relation.
-         *
-         * Examples:
-         *      a customer has 1:N addresses
-         *      a customer has 1:1 default_shipping_address
-         *      a customer has 1:1 default_billing_address
-         */
-        $c = array_intersect($manyToOne, $oneToMany);
-        foreach ($c as $index => $value) {
-            unset($manyToOne[$index]);
-        }
-
-        return array_unique(array_values(array_merge($manyToOne, $self, $oneToMany, $manyToMany)));
     }
 }

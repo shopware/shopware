@@ -132,7 +132,6 @@ class EntityWriter implements EntityWriterInterface
         $this->validateWriteInput($ids);
 
         $commandQueue = new WriteCommandQueue();
-        $commandQueue->setOrder($definition);
 
         /** @var FieldCollection $fields */
         $fields = $definition::getPrimaryKeys();
@@ -276,13 +275,8 @@ class EntityWriter implements EntityWriterInterface
 
     private function buildCommandQueue(string $definition, array $rawData, WriteContext $writeContext): WriteCommandQueue
     {
-        $commandQueue = new WriteCommandQueue();
-
         $extender = new FieldExtenderCollection();
         $extender->addExtender($this->defaultExtender);
-
-        /* @var EntityDefinition|string $definition */
-        $commandQueue->setOrder($definition);
 
         $commandQueue = new WriteCommandQueue();
         $exceptionStack = new FieldExceptionStack();

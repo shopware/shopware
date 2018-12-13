@@ -58,8 +58,6 @@ class WriteCommandExtractor
         /* @var EntityDefinition|string $definition */
         $definition = $parameters->getDefinition();
 
-        $parameters->getCommandQueue()->updateOrder($definition);
-
         $fields = $this->getFieldsInWriteOrder($definition);
 
         $pkData = $this->getPrimaryKey($rawData, $parameters, $fields);

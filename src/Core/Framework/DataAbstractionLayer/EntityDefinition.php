@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -186,21 +185,6 @@ abstract class EntityDefinition
     public static function isWhitelistAware(): bool
     {
         return static::getFields()->has('whitelistIds');
-    }
-
-    public static function filterAssociationReferences(string $type, FieldCollection $fields): array
-    {
-        $associations = $fields->filterInstance($type)->getElements();
-
-        $associations = array_map(function (AssociationInterface $association) {
-            if ($association->getReferenceClass() !== static::class) {
-                return $association->getReferenceClass();
-            }
-
-            return null;
-        }, $associations);
-
-        return array_filter($associations);
     }
 
     abstract protected static function defineFields(): FieldCollection;

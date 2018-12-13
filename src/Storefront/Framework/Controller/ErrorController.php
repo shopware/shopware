@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Controller;
 
-use Shopware\Storefront\Twig\ErrorTemplateResolver;
+use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

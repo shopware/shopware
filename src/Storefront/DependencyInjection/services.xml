@@ -6,7 +6,7 @@
 
     <services>
         <defaults autowire="true" />
-        <service id="Shopware\Storefront\Twig\TemplateDataExtension">
+        <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <tag name="twig.extension" />
 
             <argument type="service" id="request_stack" />
@@ -101,12 +101,12 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Twig\ErrorTemplateResolver" public="false">
+        <service id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver" public="false">
             <argument type="service" id="twig"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Controller\ErrorController" public="false">
-            <argument type="service" id="Shopware\Storefront\Twig\ErrorTemplateResolver"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Listing\Controller\ListingController" public="true">

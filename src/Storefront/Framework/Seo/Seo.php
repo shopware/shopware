@@ -10,6 +10,6 @@ class Seo extends Bundle
 
     public function getParent()
     {
-        return 'Storefront';
+        return 'Storefront/Framework';
     }
 }

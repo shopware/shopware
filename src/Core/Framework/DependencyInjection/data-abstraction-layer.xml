@@ -275,7 +275,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="seo_url.repository" public="true">
-            <argument>Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition</argument>
+            <argument>Shopware\Storefront\Framework\Seo\SeoUrlDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>

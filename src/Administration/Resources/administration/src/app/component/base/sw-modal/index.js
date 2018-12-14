@@ -91,6 +91,12 @@ Component.register('sw-modal', {
             this.$el.querySelector('.sw-modal__dialog').focus();
         },
 
+        closeModalOnClickOutside(domEvent) {
+            if (!this.$refs.dialog.contains(domEvent.target)) {
+                this.closeModal();
+            }
+        },
+
         closeModal() {
             this.$emit('closeModal');
         },

@@ -1,14 +1,14 @@
 {% block sw_modal %}
     <transition name="sw-modal-fade">
         {% block sw_modal_element %}
-            <div class="sw-modal" :class="modalClasses" @click.prevent="closeModal">
+            <div class="sw-modal" :class="modalClasses" @click.prevent="closeModalOnClickOutside">
                 {% block sw_modal_dialog %}
                     <div class="sw-modal__dialog"
                          :style="{ maxWidth: size }"
                          role="dialog"
+                         ref="dialog"
                          aria-labelledby="modalTitleEl"
-                         tabindex="-1"
-                         @click.stop>
+                         tabindex="-1">
                         {% block sw_modal_header %}
                             <header class="sw-modal__header">
                                 <slot name="modal-header">

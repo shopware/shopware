@@ -33,7 +33,10 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
-        $this->deleteMediaService = new DeleteNotUsedMediaService($this->mediaRepo);
+        $this->deleteMediaService = new DeleteNotUsedMediaService(
+            $this->mediaRepo,
+            $this->getContainer()->get('media_default_folder.repository')
+        );
     }
 
     public function testCountNotUsedMedia()

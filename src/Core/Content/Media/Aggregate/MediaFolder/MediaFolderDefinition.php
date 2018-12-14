@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -77,6 +78,7 @@ class MediaFolderDefinition extends EntityDefinition
             new ChildCountField(),
 
             new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id', false),
+            new OneToManyAssociationField('defaultFolder', MediaDefaultFolderDefinition::class, 'media_folder_id', false),
             new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, true),
 
             (new TranslatedField('name'))->addFlags(new SearchRanking(self::HIGH_SEARCH_RANKING), new Required()),

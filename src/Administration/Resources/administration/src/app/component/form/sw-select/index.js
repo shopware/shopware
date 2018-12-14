@@ -38,6 +38,11 @@ Component.register('sw-select', {
             required: false,
             default: ''
         },
+        displayName: {
+            type: String,
+            required: false,
+            default: 'name'
+        },
         value: {
             required: true
         },

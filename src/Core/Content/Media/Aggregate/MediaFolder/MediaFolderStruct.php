@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -45,6 +46,11 @@ class MediaFolderStruct extends Entity
      * @var MediaFolderConfigurationStruct|null
      */
     protected $configuration;
+
+    /**
+     * @var MediaDefaultFolderStruct|null
+     */
+    protected $defaultFolder;
 
     /**
      * @var \DateTime
@@ -129,6 +135,22 @@ class MediaFolderStruct extends Entity
     public function setConfiguration(?MediaFolderConfigurationStruct $configuration): void
     {
         $this->configuration = $configuration;
+    }
+
+    /**
+     * @return MediaDefaultFolderStruct|null
+     */
+    public function getDefaultFolder(): ?MediaDefaultFolderStruct
+    {
+        return $this->defaultFolder;
+    }
+
+    /**
+     * @param MediaDefaultFolderStruct|null $defaultFolder
+     */
+    public function setDefaultFolder(?MediaDefaultFolderStruct $defaultFolder): void
+    {
+        $this->defaultFolder = $defaultFolder;
     }
 
     public function getCreatedAt(): \DateTime

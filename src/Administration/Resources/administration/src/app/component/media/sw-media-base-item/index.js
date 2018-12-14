@@ -165,7 +165,10 @@ Component.register('sw-media-base-item', {
         startInlineEdit(event) {
             if (this.editable) {
                 this.isInlineEdit = true;
-                event.stopPropagation();
+
+                if (event) {
+                    event.stopPropagation();
+                }
             }
         },
 

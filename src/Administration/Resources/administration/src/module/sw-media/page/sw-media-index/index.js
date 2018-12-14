@@ -59,11 +59,11 @@ Component.register('sw-media-index', {
         },
 
         selectableItems() {
-            return [].concat(
-                this.subFolders,
-                this.uploadedItems,
-                this.mediaItems
-            );
+            return [
+                ...this.subFolders,
+                ...this.uploadedItems,
+                ...this.mediaItems
+            ];
         },
 
         mediaFolderId() {

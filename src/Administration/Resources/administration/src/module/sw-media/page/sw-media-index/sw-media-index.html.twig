@@ -45,7 +45,7 @@
             {% block sw_media_index_smart_bar_header %}
                 <h2 slot="smart-bar-header">
                     {% block sw_media_index_smart_bar_heading %}
-
+                        {{ $tc('sw-media.smart-bar.smartBarHeader') }}
                     {% endblock %}
                 </h2>
             {% endblock %}
@@ -63,13 +63,13 @@
             </template>
         {% endblock %}
 
-        <template slot="content">
-            {% block sw_media_index_page_content %}
-                <div v-if="selectableItems.length > 0" class="sw-media-index__page-content">
-                    {% block sw_media_index_content_container %}
-                        <div class="sw-media-index__content-container">
-                            {% block sw_media_index_content %}
-                                <div class="sw-media-index__content">
+        {% block sw_media_index_page_content %}
+            <div slot="content"class="sw-media-index__page-content">
+                {% block sw_media_index_content_container %}
+                    <div class="sw-media-index__content-container">
+                        {% block sw_media_index_content %}
+                            <div class="sw-media-index__content">
+                                {% block sw_media_index_options_container %}
                                     <div class="sw-media-index__options-container">
                                         {% block sw_media_index_presentation %}
                                             <sw-field type="select"
@@ -154,8 +154,12 @@
                                             </sw-button>
                                         {% endblock %}
                                     </div>
+                                {% endblock %}
 
-                                    <div class="sw-media-index__scroll-container"
+                                {# MEDIA GRID #}
+                                {% block sw_media_index_listing_grid %}
+                                    <div v-if="selectableItems.length > 0 || parentFolder !== null"
+                                         class="sw-media-index__scroll-container"
                                          @mousedown.left="onMouseDown"
                                          ref="scrollContainer">
 
@@ -212,30 +216,34 @@
                                             </div>
                                         {% endblock %}
                                     </div>
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+                                {% endblock %}
 
-                    {% block sw_media_index_sidebar %}
-                        <div class="sw-media-index__sidebar">
-                            <sw-media-sidebar
-                                :items="selectedItems"
-                                @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
-                                ref="mediaSidebar">
-                            </sw-media-sidebar>
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
+                                {% block sw_media_index_empty_state %}
+                                    <sw-empty-state
+                                        v-else-if="!isLoading && selectableItems.length === 0"
+                                        class="sw-media-index__empty-state"
+                                        :title="$tc('sw-media.index.messageEmpty')">
+                                    </sw-empty-state>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
 
-            {% block sw_media_index_list_grid_loader %}
-                <sw-loader v-if="isLoading"></sw-loader>
-            {% endblock %}
+                {% block sw_media_index_sidebar %}
+                    <div class="sw-media-index__sidebar">
+                        <sw-media-sidebar
+                            :items="selectedItems"
+                            @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
+                            ref="mediaSidebar">
+                        </sw-media-sidebar>
+                    </div>
+                {% endblock %}
 
-            {% block sw_media_index_empty_state %}
-                <sw-empty-state v-else-if="!isLoading && selectableItems.length === 0" :title="$tc('sw-media.index.messageEmpty')"></sw-empty-state>
-            {% endblock %}
-        </template>
+                {% block sw_media_index_list_grid_loader %}
+                    <sw-loader v-if="isLoading"></sw-loader>
+                {% endblock %}
+            </div>
+        {% endblock %}
     </sw-page>
 {% endblock %}

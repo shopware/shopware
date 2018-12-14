@@ -115,15 +115,17 @@
     }
 
     .sw-media-index__parent-folder {
-        &:hover {
-            .sw-media-base-item__selected-indicator {
-                visibility: hidden;
-            }
-        }
-
         .sw-media-base-item__name-container {
             font-weight: 600;
         }
+
+        &:hover .sw-media-base-item__selected-indicator {
+            visibility: hidden;
+        }
+    }
+
+    .sw-media-index__empty-state {
+        position: relative;
     }
 
     .sw-media-index__load-more {

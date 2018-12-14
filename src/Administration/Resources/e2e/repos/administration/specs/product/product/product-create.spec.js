@@ -56,7 +56,7 @@ module.exports = {
         const page = productPage(browser);
         page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, 'Marci Darci');
         browser
-            .getAttribute('.sw-image__image', 'src', function (result) {
+            .getAttribute('.sw-media-preview__item', 'src', function (result) {
                 this.assert.ok(result.value);
                 this.assert.notEqual(result.value, `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
             });
@@ -79,7 +79,7 @@ module.exports = {
             .assert.containsText('.sw-product-list__column-manufacturer-name', 'shopware AG')
             .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button', '.sw-grid-row:first-child')
             .waitForElementVisible('.sw-product-detail-base')
-            .waitForElementVisible('.sw-image__image')
+            .waitForElementVisible('.sw-media-preview__item')
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-text')
             .assert.containsText('.ql-editor', 'My very first description')
             .assert.containsText('.sw-product-category-form .sw-select__selection-text', 'MainCategory')

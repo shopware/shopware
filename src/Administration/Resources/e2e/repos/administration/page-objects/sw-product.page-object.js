@@ -30,7 +30,7 @@ class ProductPageObject {
             .waitForElementNotPresent('input[name=sw-field--extensionFromInput]')
             .waitForElementNotPresent('.sw-alert--info')
             .click('.sw-media-url-form__submit-button')
-            .getAttribute('.sw-image > img', 'src', function (result) {
+            .getAttribute('.sw-media-preview > img', 'src', function (result) {
                 this.assert.ok(result.value);
                 this.assert.equal(result.value, imagePath);
             })

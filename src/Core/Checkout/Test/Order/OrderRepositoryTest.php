@@ -14,7 +14,9 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -54,6 +56,26 @@ class OrderRepositoryTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+    }
+
+    public function testCreateOrder()
+    {
+        $orderId = Uuid::uuid4()->getHex();
+        $orderData = $this->getOrderData($orderId);
+        $defaultContext = Context::createDefaultContext();
+        $this->orderRepository->create($orderData, $defaultContext);
+
+        $nestedCriteria2 = new Criteria();
+        $nestedCriteria2->addAssociation('customer.addresses');
+
+        $criteria = new ReadCriteria([$orderId]);
+        //$criteria->addAssociation('order.orderCustomer', $nestedCriteria);
+
+        $order = $this->orderRepository->read($criteria, $defaultContext);
+
+        static::assertEquals($orderId, $order->first()->get('id'));
+        static::assertNotNull($order->first()->getOrderCustomer());
+        static::assertEquals('test@example.com', $order->first()->getOrderCustomer()->getEmail());
     }
 
     public function testDeleteOrder()

@@ -8,6 +8,8 @@ use Throwable;
 
 class ImpossibleWriteOrderException extends ShopwareHttpException
 {
+    protected $code = 'IMPOSSIBLE-WRITE-ORDER';
+
     public function __construct(array $remaining, int $code = 0, Throwable $previous = null)
     {
         $message = sprintf('Can not resolve write order for provided data. Remaining write order classes: %s ', implode(',', $remaining));

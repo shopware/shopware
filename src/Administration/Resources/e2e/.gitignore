@@ -29,3 +29,7 @@ typings/
 
 # Yarn Integrity file
 .yarn-integrity
+
+# temp
+/temp/*
+!/temp/.gitkeep

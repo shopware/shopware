@@ -55,7 +55,8 @@
                 {% block sw_media_index_smart_bar_media_upload %}
                     <sw-media-upload
                         variant="compact"
-                        @new-uploads-added="onUploadsAdded">
+                        @new-uploads-added="onUploadsAdded"
+                        @media-upload-success="onUploadFinished">
                     </sw-media-upload>
                 {% endblock %}
 

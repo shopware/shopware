@@ -59,7 +59,11 @@ Component.register('sw-media-index', {
         },
 
         selectableItems() {
-            return [].concat(this.subFolders, this.uploadedItems, this.mediaItems);
+            return [].concat(
+                this.subFolders,
+                this.uploadedItems,
+                this.mediaItems
+            );
         },
 
         mediaFolderId() {
@@ -121,6 +125,7 @@ Component.register('sw-media-index', {
 
         onUploadsAdded({ uploadTag, data }) {
             data.forEach((upload) => {
+                upload.entity.isLoading = true;
                 upload.entity.mediaFolderId = this.mediaFolderId;
                 this.uploadedItems.unshift(upload.entity);
             });
@@ -128,6 +133,17 @@ Component.register('sw-media-index', {
             this.mediaItemStore.sync().then(() => {
                 this.uploadStore.runUploads(uploadTag);
             });
+        },
+
+        onUploadFinished(mediaItem) {
+            this.uploadedItems = this.uploadedItems.filter((upload) => {
+                return mediaItem !== upload;
+            });
+
+            if (this.mediaFolderId === mediaItem.mediaFolderId) {
+                this.mediaItems.unshift(mediaItem);
+            }
+            mediaItem.isLoading = false;
         },
 
         getFolderEntities() {

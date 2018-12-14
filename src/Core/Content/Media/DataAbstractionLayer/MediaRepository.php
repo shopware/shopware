@@ -68,12 +68,12 @@ class MediaRepository extends EntityRepository
             return $event;
         }
 
-        foreach ($affectedMedia as $mediaStruct) {
-            if (!$mediaStruct->hasFile()) {
+        foreach ($affectedMedia as $mediaEntity) {
+            if (!$mediaEntity->hasFile()) {
                 continue;
             }
 
-            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($mediaStruct);
+            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
 
             try {
                 $this->filesystem->delete($mediaPath);
@@ -81,7 +81,7 @@ class MediaRepository extends EntityRepository
                 //ignore file is already deleted
             }
 
-            $this->thumbnailRepository->deleteCascadingFromMedia($mediaStruct, $context);
+            $this->thumbnailRepository->deleteCascadingFromMedia($mediaEntity, $context);
         }
 
         return parent::delete($ids, $context);

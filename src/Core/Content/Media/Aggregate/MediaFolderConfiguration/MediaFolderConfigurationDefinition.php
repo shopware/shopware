@@ -43,6 +43,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
 
         return [
             'createThumbnails' => true,
+            'keepProportions' => true,
             'thumbnailQuality' => 80,
         ];
     }
@@ -53,6 +54,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             new BoolField('create_thumbnails', 'createThumbnails'),
+            new BoolField('keep_aspect_ratio', 'keepAspectRatio'),
             new IntField('thumbnail_quality', 'thumbnailQuality'),
 
             new OneToManyAssociationField(

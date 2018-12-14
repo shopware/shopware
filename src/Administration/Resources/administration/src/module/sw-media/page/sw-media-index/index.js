@@ -280,6 +280,7 @@ Component.register('sw-media-index', {
             } else {
                 const configuration = this.mediaFolderConfigurationStore.create();
                 configuration.createThumbnails = true;
+                configuration.keepProportions = true;
                 configuration.thumbnailQuality = 80;
                 newFolder.configuration = configuration;
                 newFolder.useParentConfiguration = false;

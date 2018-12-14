@@ -110,6 +110,7 @@
       "labelStopEdit": "Stop editing",
       "labelSave": "Save",
       "labelCancel": "Cancel",
+      "labelKeepProportions": "Keep aspect ratio",
       "titleDeleteThumbnails": "Delete",
       "notificationSuccess": "Settings has been saved successfully",
       "notificationError": "Error saving settings",

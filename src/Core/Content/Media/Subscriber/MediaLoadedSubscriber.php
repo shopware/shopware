@@ -75,8 +75,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
             $this->urlGenerator->getAbsoluteThumbnailUrl(
                 $media,
                 $thumbnail->getWidth(),
-                $thumbnail->getHeight(),
-                $thumbnail->getHighDpi()
+                $thumbnail->getHeight()
             )
         );
     }

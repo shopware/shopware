@@ -65,15 +65,12 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return string
      */
-    public function getRelativeThumbnailUrl(MediaEntity $media, int $width, int $height, bool $isHighDpi = false): string
+    public function getRelativeThumbnailUrl(MediaEntity $media, int $width, int $height): string
     {
         $mediaPathInfo = pathinfo($this->getRelativeMediaUrl($media));
         $mediaPathInfo['dirname'] = preg_replace('/^media/', 'thumbnail', $mediaPathInfo['dirname']);
 
         $thumbnailExtension = "_${width}x${height}";
-        if ($isHighDpi) {
-            $thumbnailExtension .= '@2x';
-        }
 
         $extension = isset($mediaPathInfo['extension']) ? '.' . $mediaPathInfo['extension'] : '';
 
@@ -83,9 +80,9 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @throws EmptyMediaFilenameException
      */
-    public function getAbsoluteThumbnailUrl(MediaEntity $media, int $width, int $height, bool $isHighDpi = false): string
+    public function getAbsoluteThumbnailUrl(MediaEntity $media, int $width, int $height): string
     {
-        return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $width, $height, $isHighDpi);
+        return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $width, $height);
     }
 
     private function normalizeBaseUrl($baseUrl): ?string

@@ -310,7 +310,7 @@ class FileSaverTest extends TestCase
             ],
         ]], $context);
         $oldMediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
-        $oldThumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($png, 100, 100, false);
+        $oldThumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($png, 100, 100);
 
         $this->getPublicFilesystem()->put($oldMediaPath, 'test file content');
         $this->getPublicFilesystem()->put($oldThumbnailPath, 'test file content');
@@ -321,7 +321,7 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
 
         static::assertFalse($this->getPublicFilesystem()->has($oldThumbnailPath));
-        static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeThumbnailUrl($updatedMedia, 100, 100, false)));
+        static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeThumbnailUrl($updatedMedia, 100, 100)));
     }
 
     public function test_renameMedia_makesRollbackOnFailure(): void

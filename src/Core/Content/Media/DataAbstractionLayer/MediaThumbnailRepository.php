@@ -60,13 +60,13 @@ class MediaThumbnailRepository extends EntityRepository
         return $this->deleteFromCollection($thumbnails, $context);
     }
 
-    public function deleteCascadingFromMedia(MediaEntity $mediaStruct, Context $context): EntityWrittenContainerEvent
+    public function deleteCascadingFromMedia(MediaEntity $mediaEntity, Context $context): EntityWrittenContainerEvent
     {
-        foreach ($mediaStruct->getThumbnails() as $thumbnail) {
-            $thumbnail->setMedia($mediaStruct);
+        foreach ($mediaEntity->getThumbnails() as $thumbnail) {
+            $thumbnail->setMedia($mediaEntity);
         }
 
-        return $this->deleteFromCollection($mediaStruct->getThumbnails(), $context);
+        return $this->deleteFromCollection($mediaEntity->getThumbnails(), $context);
     }
 
     private function getThumbnailsByIds(array $ids, Context $context): MediaThumbnailCollection
@@ -103,8 +103,7 @@ class MediaThumbnailRepository extends EntityRepository
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
                 $relatedMedia,
                 $thumbnail->getWidth(),
-                $thumbnail->getHeight(),
-                $thumbnail->getHighDpi()
+                $thumbnail->getHeight()
             );
 
             try {

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class MediaStructTest extends TestCase
+class MediaEntityTest extends TestCase
 {
     use IntegrationTestBehaviour, MediaFixtures;
 
@@ -78,7 +78,6 @@ class MediaStructTest extends TestCase
         static::assertEquals(MediaThumbnailEntity::class, \get_class($persistedThumbnail));
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
-        static::assertFalse($persistedThumbnail->getHighDpi());
     }
 
     private function getIdCriteria($mediaId): Criteria

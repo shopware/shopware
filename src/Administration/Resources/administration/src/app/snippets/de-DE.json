@@ -819,7 +819,6 @@
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnDateCreated": "Erstelldatum",
-      "columnType": "Typ",
       "columnPriority": "Priorität",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
@@ -831,10 +830,7 @@
       "modalTitleBulkDelete": "Regeln löschen",
       "textBulkDeleteConfirm": "Möchtest Du die ausgewählten Regeln wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "titleSidebarBulkTrash": "Regeln löschen",
-      "type" : {
-        "price": "Preis"
-      }
+      "titleSidebarBulkTrash": "Regeln löschen"
     },
     "detail": {
       "textHeadline": "Neue Regel",
@@ -844,19 +840,14 @@
       "labelName": "Name",
       "labelDescription": "Beschreibung",
       "labelPriority": "Priorität",
-      "labelType": "Typ",
       "placeholderName": "Legen Sie einen Namen für diese Regel fest..",
       "placeholderDescription": "Legen Sie eine Beschreibung für diese Regel fest..",
       "placeholderPriority": "Legen Sie eine Priorität für diese Regel fest..",
-      "placeholderType": "Legen Sie einen Typen für diese Regel fest..",
 
       "titleSaveSuccess": "Regel",
       "messageSaveSuccess": "Die Regel {name} wurde erfolgreich gespeichert.",
 
-      "ruleCard": "Bedingungen",
-      "type" : {
-        "price": "Preis"
-      }
+      "ruleCard": "Bedingungen"
     }
   },
   "sw-settings-tax": {

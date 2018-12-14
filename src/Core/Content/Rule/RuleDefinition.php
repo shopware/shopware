@@ -32,7 +32,6 @@ class RuleDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            new StringField('type', 'type'),
             (new IntField('priority', 'priority'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
             (new ObjectField('payload', 'payload'))->setFlags(new ReadOnly()),

@@ -104,18 +104,6 @@
                                                 </sw-grid-column>
                                             {% endblock %}
 
-                                            {% block sw_settings_rule_list_columns_type %}
-                                                <sw-grid-column flex="minmax(100px, 1fr)"
-                                                                class="sw-settings-rule-list__column-type"
-                                                                :label="$tc('sw-settings-rule.list.columnType')"
-                                                                dataIndex="type"
-                                                                sortable>
-                                                    {% block sw_settings_rule_list_columns_type_label %}
-                                                        {{ $tc(`sw-settings-rule.list.type.${item.type}`) }}
-                                                    {% endblock %}
-                                                </sw-grid-column>
-                                            {% endblock %}
-
                                             {% block sw_settings_rule_list_columns_priority %}
                                                 <sw-grid-column flex="minmax(100px, 1fr)"
                                                                 class="sw-settings-rule-list__column-priority"

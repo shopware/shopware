@@ -137,10 +137,10 @@ Component.register('sw-media-index', {
                 this.mediaFolderStore.getByIdAsync(this.currentFolder.parentId).then((parent) => {
                     this.parentFolder = parent;
                 }).catch(() => {
-                    this.parentFolder = null;
+                    this.parentFolder = this.getRootFolder();
                 });
             }).catch(() => {
-                this.currentFolder = null;
+                this.currentFolder = this.getRootFolder();
                 this.parentFolder = null;
             });
         },
@@ -299,6 +299,13 @@ Component.register('sw-media-index', {
             this.subFolders = this.subFolders.filter((folder) => {
                 return !ids.includes(folder.id);
             });
+        },
+
+        getRootFolder() {
+            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
+            root.name = this.$tc('sw-media.index.rootFolderName');
+
+            return root;
         }
     }
 });

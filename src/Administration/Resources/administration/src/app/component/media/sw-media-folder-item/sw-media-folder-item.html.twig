@@ -4,11 +4,8 @@
         {% block sw_media_folder_base_item %}
             <sw-media-base-item
                     ref="innerComponent"
-                    :isList="isList"
+                    v-bind="$attrs"
                     :isLoading="item.isLoading"
-                    :selected="selected"
-                    :showContextMenuButton="showContextMenuButton"
-                    :showSelectionIndicator="showSelectionIndicator"
                     :displayName="item.name"
                     :editValue="item.name"
                     @sw-media-item-selection-add="selectItem"
@@ -16,7 +13,15 @@
                     @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_folder_item_preview %}
+                    <sw-icon slot="sw-media-item-preview"
+                             v-if="isParent"
+                             name="folder-breadcums-parent"
+                             size="90%"
+                             class="sw-media-folder-item__folder-thumbnails"
+                             multicolor>
+                    </sw-icon>
                     <sw-icon slot="media-item-preview"
+                             v-else
                              :name="iconConfig.name"
                              size="90%"
                              class="sw-media-folder-item__folder-thumbnails"
@@ -32,7 +37,7 @@
 
                 {% block sw_media_folder_item_context_menu %}
                     <template slot="media-item-context-menu">
-                        <slot name="additional-context-menu-items">
+                        <slot>
                             {% block sw_media_folder_item_additional_context_menu_slot %}{% endblock %}
                         </slot>
 

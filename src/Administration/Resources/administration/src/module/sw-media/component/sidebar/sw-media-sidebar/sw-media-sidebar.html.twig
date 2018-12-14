@@ -40,7 +40,7 @@
                     <sw-sidebar-item
                         icon="default-action-trash"
                         :title="$tc('sw-media.sidebar.actions.delete')"
-                        :disabled="!hasItems"
+                        :disabled="!mediaItems.length"
                         position="bottom"
                         @click="openModalDelete">
                     </sw-sidebar-item>
@@ -59,7 +59,7 @@
         {% block sw_media_sidebar_modal_delete %}
             <sw-media-modal-delete
                 v-if="hasItems && showModalDelete"
-                :itemsToDelete="items"
+                :itemsToDelete="mediaItems"
                 @sw-media-modal-delete-close="closeModalDelete"
                 @sw-media-modal-delete-items-deleted="deleteSelectedItems">
             </sw-media-modal-delete>

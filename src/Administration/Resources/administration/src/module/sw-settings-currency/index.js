@@ -11,6 +11,7 @@ Module.register('sw-settings-currency', {
     description: 'Currency section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    entity: 'currency',
 
     routes: {
         index: {

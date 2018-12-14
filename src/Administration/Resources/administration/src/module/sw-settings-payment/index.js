@@ -11,6 +11,7 @@ Module.register('sw-settings-payment', {
     description: 'Payment section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    entity: 'payment_method',
 
     routes: {
         index: {

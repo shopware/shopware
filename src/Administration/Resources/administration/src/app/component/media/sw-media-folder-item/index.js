@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Application, Component, Mixin } from 'src/core/shopware';
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.less';
 
@@ -49,6 +49,30 @@ Component.register('sw-media-folder-item', {
                 params: {
                     folderId: this.item.id
                 }
+            };
+        },
+
+        moduleFactory() {
+            return Application.getContainer('factory').module;
+        },
+
+        iconConfig() {
+            if (this.item.defaultFolder.length > 0) {
+                const defaultFolder = this.item.defaultFolder.shift();
+                const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
+                if (module) {
+                    return {
+                        name: module.manifest.icon,
+                        color: module.manifest.color,
+                        multicolor: false
+                    };
+                }
+            }
+
+            return {
+                name: 'folder-thumbnail',
+                color: false,
+                multicolor: true
             };
         }
     },

@@ -161,8 +161,14 @@ Component.register('sw-media-index', {
             return this.mediaFolderStore.getList({
                 limit: 50,
                 sortBy: 'name',
-                criteria: CriteriaFactory.equals('parentId', this.mediaFolderId)
-            }).then((response) => {
+                criteria: CriteriaFactory.equals('parentId', this.mediaFolderId),
+                associations: {
+                    defaultFolder: {
+                        page: 1,
+                        limit: 5
+                    }
+                }
+            }, true).then((response) => {
                 this.subFolders = response.items;
             });
         },

@@ -62,7 +62,8 @@ module.exports = {
     Module: {
         register: ModuleFactory.registerModule,
         getModuleRegistry: ModuleFactory.getModuleRegistry,
-        getModuleRoutes: ModuleFactory.getModuleRoutes
+        getModuleRoutes: ModuleFactory.getModuleRoutes,
+        getModuleByEntityName: ModuleFactory.getModuleByEntityName
     },
 
     /**

@@ -11,6 +11,7 @@ Module.register('sw-settings-language', {
     description: 'Language section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    entity: 'language',
 
     routes: {
         index: {

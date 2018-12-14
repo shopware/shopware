@@ -29,10 +29,11 @@ class ApiService {
      * @param {String} term
      * @param {Object} criteria
      * @param {Object} aggregations
+     * @param {Object} associations
      * @param {Object} headers
      * @returns {Promise<T>}
      */
-    getList({ page = 1, limit = 25, sortBy, sortDirection = 'asc', term, criteria, aggregations, headers }) {
+    getList({ page = 1, limit = 25, sortBy, sortDirection = 'asc', term, criteria, aggregations, associations, headers }) {
         const requestHeaders = this.getBasicHeaders(headers);
         const params = { page, limit };
 
@@ -52,10 +53,15 @@ class ApiService {
             params.aggregations = aggregations;
         }
 
+        if (associations) {
+            params.associations = associations;
+        }
+
         // Switch to the general search end point when we're having a search term or aggregations
         if ((params.term && params.term.length) ||
                 (params.filter && params.filter.length) ||
-                (params.aggregations)) {
+                (params.aggregations) ||
+                (params.associations)) {
             return this.httpClient
                 .post(`${this.getApiBasePath(null, 'search')}`, params, { headers: requestHeaders })
                 .then((response) => {

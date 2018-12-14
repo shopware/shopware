@@ -12,6 +12,7 @@ Module.register('sw-settings-rule', {
     description: 'Rules section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    entity: 'rule',
 
     routes: {
         index: {

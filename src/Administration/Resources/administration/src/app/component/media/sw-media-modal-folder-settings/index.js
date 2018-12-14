@@ -104,6 +104,12 @@ Component.register('sw-media-modal-folder-settings', {
             }
         },
 
+        getItemName(item) {
+            const entityNameIdentifier = `global.entities.${item.entity}`;
+
+            return `${this.$tc(entityNameIdentifier)} ${this.$tc('global.entities.media', 2)}`;
+        },
+
         getThumbnailSizes() {
             this.mediaThumbnailSizeStore.getList({
                 limit: 50,

@@ -11,6 +11,7 @@ Module.register('sw-settings-country', {
     description: 'Country section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    entity: 'country',
 
     routes: {
         index: {

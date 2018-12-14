@@ -59,7 +59,7 @@
     },
     "sw-media-modal-delete": {
       "titleModal": "Medien löschen",
-      "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Diese {count} Medien löschen",
+      "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Möchtest Du diese {count} Medien wirklich löschen?",
       "buttonDelete": "Löschen",
       "buttonAbort": "Abbrechen",
       "notificationSuccessSingle": "File \"{mediaName}\" erfolgreich gelöscht",
@@ -74,7 +74,7 @@
       "buttonReplace": "Ersetzen",
       "notificationSuccess": "Datei erfolgreich ersetzt",
       "notificationFailure": "Fehler beim Ersetzen von {mediaName}",
-      "notificationFileReaderError": "Wir konnten die Datei nicht lesen"
+      "notificationFileReaderError": "Die Datei konnte nicht gelesen werden"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
@@ -83,7 +83,7 @@
     "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
-      "buttonSwitchToFileUpload": "Datei von deinem Computer hochladen",
+      "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
       "buttonSwitchToUrlUpload": "Datei von Url hochladen",
       "buttonOpenMedia": "Medien öffnen",
       "notificationSuccess": "Datei erfolgreich gespeichert",
@@ -714,7 +714,7 @@
       "usage": {
         "tooltipFoundInProducts": "Gefunden in Produkten",
         "tooltipFoundInManufacturers": "Gefunden in Herstellern",
-        "titleMediaNotUsed": "Medium wird nicht verwendet",
+        "titleMediaNotUsed": "Medium nicht verwendet",
         "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
       }
     },

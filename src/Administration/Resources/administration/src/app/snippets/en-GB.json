@@ -53,18 +53,18 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
-      "notificationRenamingSuccess": "Media item successfully renamed.",
+      "notificationRenamingSuccess": "Media item has been renamed successfully.",
       "notificationRenamingError": "Error renaming file",
-      "labelUploading": "uploading..."
+      "labelUploading": "Uploading..."
     },
     "sw-media-modal-delete": {
       "titleModal": "Delete media files",
-      "deleteMessage": "Do you want to delete \"{mediaName}\" ? | Delete {count} media items?",
+      "deleteMessage": "Are you sure you want to delete \"{mediaName}\" ? | Are you sure you want to delete {count} media items?",
       "buttonDelete": "Delete",
       "buttonAbort": "Cancel",
-      "notificationSuccessSingle": "File \"{mediaName}\" successfully Deleted",
+      "notificationSuccessSingle": "File \"{mediaName}\"  has been deleted successfully ",
       "notificationErrorSingle": "Error deleting \"{mediaName}\"",
-      "notificationSuccessOverall": "Media item successfully deleted.",
+      "notificationSuccessOverall": "Media item has been deleted successfully.",
       "notificationErrorOverall": "Error deleting file"
     },
     "sw-media-modal-replace": {
@@ -86,7 +86,7 @@
       "buttonSwitchToFileUpload": "Upload file from your computer",
       "buttonSwitchToUrlUpload": "Upload file from url",
       "buttonOpenMedia": "Open media",
-      "notificationSuccess": "File successfully saved",
+      "notificationSuccess": "File has been saved successfully",
       "notificationFailure": "Error uploading"
     },
     "sw-media-url-form": {
@@ -94,9 +94,9 @@
       "upload": "Upload",
       "cancel": "Cancel",
       "example": "https://www.example.com",
-      "labelFileExtension": "file extension",
+      "labelFileExtension": "File extension",
       "invalidUrl": "Please enter a valid URL to download a file.",
-      "missingFileExtension": "The URL does not contain a file extension. Please add a file extension above."
+      "missingFileExtension": "The URL does not contain a file extension. Please enter a file extension above."
     },
     "sw-media-modal-folder-settings": {
       "labelSettings": "Settings",
@@ -111,7 +111,7 @@
       "labelSave": "Save",
       "labelCancel": "Cancel",
       "titleDeleteThumbnails": "Delete",
-      "notificationSuccess": "Settings successfully saved",
+      "notificationSuccess": "Settings has been saved successfully",
       "notificationError": "Error saving settings"
     },
     "sw-media-add-thumbnail-form": {
@@ -121,7 +121,7 @@
     "sw-sidebar-media-item": {
       "title": "Media",
       "placeholderSearch": "Search",
-      "labelLoadMore": "Load more"
+      "labelLoadMore": "Load more items"
     },
     "sw-select": {
       "messageNoResults": "No results found for \"{term}\".",
@@ -712,8 +712,8 @@
       "usage": {
         "tooltipFoundInProducts": "Found in products",
         "tooltipFoundInManufacturers": "Found in manufacturers",
-        "titleMediaNotUsed": "Media is not used",
-        "labelMediaNotUsed": "The media item is currently not used."
+        "titleMediaNotUsed": "Media not used",
+        "labelMediaNotUsed": "This media item is currently not in use."
       }
     },
     "index": {
@@ -722,7 +722,7 @@
       "labelSort": "Sort by:",
       "labelPresentation": "Presentation:",
       "labelPresentationSmall": "Small preview",
-      "labelPresentationMedium": "Normal preview",
+      "labelPresentationMedium": "Regular preview",
       "labelPresentationLarge": "Large preview",
       "labelCatalog": "Selected catalog:",
       "labelSortByNameAsc": "Name, ascending",

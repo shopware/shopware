@@ -42,7 +42,7 @@
                          ref="itemName"
                          :title="displayName"
                          :data-last-content="lastContent"
-                         @dblclick="startInlineEdit">
+                         @dblclick.stop="startInlineEdit">
                         {{ displayName }}
                     </div>
                 {% endblock %}

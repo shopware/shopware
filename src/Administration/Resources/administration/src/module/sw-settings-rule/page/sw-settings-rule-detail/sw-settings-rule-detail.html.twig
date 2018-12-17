@@ -39,19 +39,6 @@
                                 </sw-field>
                             {% endblock %}
 
-                            {% block sw_settings_rule_detail_content_card_field_labeltype %}
-                                <sw-field type="select"
-                                          :label="$tc('sw-settings-rule.detail.labelType')"
-                                          :placeholder="$tc('sw-settings-rule.detail.placeholderType')"
-                                          validation="required"
-                                          v-model="rule.type">
-                                    <option slot="options"
-                                            value="price">
-                                        {{ $tc('sw-settings-rule.detail.type.price') }}
-                                    </option>
-                                </sw-field>
-                            {% endblock %}
-
                             {% block sw_settings_rule_detail_content_card_field_description %}
                                 <sw-field type="textarea"
                                           :label="$tc('sw-settings-rule.detail.labelDescription')"
@@ -81,8 +68,7 @@
                             <sw-field type="hidden" v-model="rule.conditions"></sw-field>
 
                             <div v-for="condition in nestedConditions.children">
-                                <sw-condition-group :type="rule.type"
-                                                    :condition="condition">
+                                <sw-condition-group :condition="condition">
                                 </sw-condition-group>
                             </div>
 

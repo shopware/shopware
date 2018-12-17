@@ -20,11 +20,6 @@ class RuleEntity extends Entity
     /**
      * @var string|null
      */
-    protected $type;
-
-    /**
-     * @var string|null
-     */
     protected $description;
 
     /**
@@ -80,16 +75,6 @@ class RuleEntity extends Entity
     public function setPayload(Rule $payload): void
     {
         $this->payload = $payload;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): void
-    {
-        $this->type = $type;
     }
 
     public function getDescription(): ?string

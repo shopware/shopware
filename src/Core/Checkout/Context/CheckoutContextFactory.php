@@ -123,7 +123,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     ): CheckoutContext {
         $context = $this->getContext($salesChannelId);
 
-        /** @var SalesChannelStruct|null $salesChannel */
+        /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$context->getSourceContext()->getSalesChannelId()]), $context)
             ->get($context->getSourceContext()->getSalesChannelId());
 

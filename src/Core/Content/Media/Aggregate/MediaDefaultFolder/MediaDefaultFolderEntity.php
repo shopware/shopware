@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-class MediaDefaultFolderStruct extends Entity
+class MediaDefaultFolderEntity extends Entity
 {
     use EntityIdTrait;
 

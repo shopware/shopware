@@ -9,9 +9,9 @@ use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Shopware\Storefront\Page\Account\AccountService;
-use Shopware\Storefront\Page\Account\RegistrationRequest;
+use Shopware\Storefront\Account\Exception\CustomerNotFoundException;
+use Shopware\Storefront\Account\Page\AccountService;
+use Shopware\Storefront\Account\Page\RegistrationRequest;
 
 class AccountServiceTest extends TestCase
 {

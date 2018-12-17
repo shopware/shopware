@@ -10,8 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Page\Account\AccountService;
-use Shopware\Storefront\Page\Account\EmailSaveRequest;
+use Shopware\Storefront\Account\Page\AccountService;
+use Shopware\Storefront\Account\Page\EmailSaveRequest;
 
 class PageRequestTest extends TestCase
 {

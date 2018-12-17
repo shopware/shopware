@@ -129,9 +129,6 @@ class EntityReader implements EntityReaderInterface
         $rows = $this->fetch($criteria, $definition, $context, $fields);
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName(), $context);
 
-        dump($collection);
-        dump($entities);
-
         $collection->fill($entities);
 
         if ($collection->count() <= 0) {

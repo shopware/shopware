@@ -140,15 +140,9 @@ SQL;
         if ($chain[0] === Defaults::LANGUAGE_SYSTEM) {
             return $chain; // no query needed
         }
-
-        $parentId = $this->getParentLanguageId($chain[0]);
-        if ($parentId) {
-            $chain[] = $parentId;
-        }
-
-        if (end($chain) !== $params['systemFallbackLanguageId']) {
-            $chain[] = $params['systemFallbackLanguageId'];
-        }
+        // `Context` ignores nulls and duplicates
+        $chain[] = $this->getParentLanguageId($chain[0]);
+        $chain[] = $params['systemFallbackLanguageId'];
 
         return $chain;
     }

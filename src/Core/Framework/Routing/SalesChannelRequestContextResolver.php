@@ -70,4 +70,9 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
     }
+
+    private function getLanguageId(Request $request): ?string
+    {
+        return $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
+    }
 }

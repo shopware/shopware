@@ -66,17 +66,17 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         $this->contextPersister = $contextPersister;
     }
 
-    public function get(string $salesChannelId, string $token): CheckoutContext
+    public function get(string $salesChannelId, string $token, ?string $languageId = null): CheckoutContext
     {
-        return $this->load($salesChannelId, $token, true);
+        return $this->load($salesChannelId, $token, true, $languageId);
     }
 
-    public function refresh(string $salesChannelId, string $token): void
+    public function refresh(string $salesChannelId, string $token, ?string $languageId = null): void
     {
-        $this->load($salesChannelId, $token, false);
+        $this->load($salesChannelId, $token, false, $languageId);
     }
 
-    private function load(string $salesChannelId, string $token, bool $useCache): CheckoutContext
+    private function load(string $salesChannelId, string $token, bool $useCache, ?string $languageId = null): CheckoutContext
     {
         $key = $salesChannelId . '-' . $token;
 
@@ -96,6 +96,10 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         }
 
         if (!$context) {
+            if ($languageId) {
+                $parameters['requestLanguageId'] = $languageId;
+            }
+
             $context = $this->factory->create($token, $salesChannelId, $parameters);
 
             $item->set(serialize($context));

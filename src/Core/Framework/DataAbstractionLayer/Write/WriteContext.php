@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class WriteContext
@@ -35,7 +36,15 @@ class WriteContext
      */
     private $inheritance = [];
 
+    /**
+     * @var array
+     */
     private $languages;
+
+    /**
+     * @var string[]|null
+     */
+    private $languageCodeIdMapping;
 
     private function __construct(Context $context)
     {
@@ -57,6 +66,7 @@ class WriteContext
     public function setLanguages($languages): void
     {
         $this->languages = $languages;
+        $this->languageCodeIdMapping = null;
     }
 
     public function getLanguages(): array
@@ -70,7 +80,12 @@ class WriteContext
 
     public function getLanguageId(string $identifier): ?string
     {
-        return $this->getLanguages()[strtolower($identifier)]['id'] ?? null;
+        if (Uuid::isValid($identifier)) {
+            return $this->getLanguages()[strtolower($identifier)]['id'] ?? null;
+        }
+        $mapping = $this->getLanguageCodeToIdMapping();
+
+        return $mapping[strtolower($identifier)] ?? null;
     }
 
     public function isRootLanguage(string $identifier): bool
@@ -214,6 +229,24 @@ class WriteContext
     public function createWithVersionId(string $versionId): self
     {
         return self::createFromContext($this->getContext()->createWithVersionId($versionId));
+    }
+
+    private function getLanguageCodeToIdMapping(): array
+    {
+        if ($this->languageCodeIdMapping !== null) {
+            return $this->languageCodeIdMapping;
+        }
+
+        $mapping = [];
+        $languages = $this->getLanguages();
+        foreach ($languages as $language) {
+            if (!$language['code']) {
+                continue;
+            }
+            $mapping[strtolower($language['code'])] = $language['id'];
+        }
+
+        return $this->languageCodeIdMapping = $mapping;
     }
 
     /**

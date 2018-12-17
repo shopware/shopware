@@ -108,8 +108,10 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
             $languageId = $keyValue;
             if ($isNumeric) {
+                // languageId is a property of $subResources. Also see formats above
                 $languageId = $subResources[$field->getReferenceField()];
             } elseif ($field->getReferenceField()) {
+                // the key is the language id, also write it into $subResources
                 $subResources[$field->getReferenceField()] = $languageId;
             }
             $languageIds[] = $languageId;
@@ -123,15 +125,18 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             $this->writeExtractor->extract($subResources, $clonedParams);
         }
 
+        // the validation is only required for new entities
         if ($existence->exists()) {
             return;
         }
 
+        // the translation in the system language is always required for new entities
         if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;
             throw new MissingSystemTranslationException($path);
         }
 
+        // if you insert a translation for a child language, you need to include one for the child's root too.
         foreach ($languageIds as $id) {
             $isChild = !$parameters->getContext()->isRootLanguage($id);
             $rootId = $parameters->getContext()->getRootLanguageId($id);

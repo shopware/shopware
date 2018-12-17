@@ -21,9 +21,8 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
-
-use Shopware\Storefront\Framework\Seo\SeoUrlDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Seo\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 

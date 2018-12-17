@@ -47,6 +47,7 @@ DROP TABLE IF EXISTS _test_nullable_translation;
 CREATE TABLE `_test_nullable_translation` (
   `wp_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
+  `language_parent_id` binary(16) NULL,
   `protected` varchar(255) NULL,
   PRIMARY KEY `pk` (`wp_id`, `language_id`)
 );

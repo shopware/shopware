@@ -56,7 +56,7 @@ class ProductServiceDefinition extends EntityDefinition
         return ProductServiceEntity::class;
     }
 
-    public static function getRootEntity(): ?string
+    public static function getRootDefinition(): ?string
     {
         return ProductDefinition::class;
     }

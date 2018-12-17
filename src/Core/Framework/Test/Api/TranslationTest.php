@@ -548,7 +548,7 @@ class TranslationTest extends TestCase
 
         $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . Defaults::LANGUAGE_SYSTEM);
         $response = $this->getClient()->getResponse();
-        static::assertEquals(400, $response->getStatusCode());
+        static::assertEquals(400, $response->getStatusCode(), $response->getContent());
 
         $data = json_decode($response->getContent(), true);
         static::assertEquals(TranslationValidator::DELETE_SYSTEM_TRANSLATION_VIOLATION, $data['errors'][0]['code']);
@@ -636,72 +636,6 @@ class TranslationTest extends TestCase
         $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . $childId);
         $response = $this->getClient()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
-    }
-
-    public function testDeleteRootWithChildTranslationViolation(): void
-    {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
-        $rootId = Uuid::uuid4()->getHex();
-        $childId = Uuid::uuid4()->getHex();
-
-        $this->createLanguage($childId, $rootId);
-
-        $categoryData = [
-            'id' => $id,
-            'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['name' => 'system'],
-                $rootId => ['name' => 'root'],
-                $childId => ['name' => 'child'],
-            ],
-        ];
-
-        $this->getClient()->request('POST', $baseResource, $categoryData);
-        $response = $this->getClient()->getResponse();
-
-        static::assertEquals(204, $response->getStatusCode());
-        $this->assertEntityExists($this->getClient(), 'category', $id);
-
-        $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . $rootId);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(400, $response->getStatusCode());
-
-        $data = json_decode($response->getContent(), true);
-        static::assertEquals(TranslationValidator::ORPHAN_TRANSLATION_VIOLATION, $data['errors'][0]['code']);
-        static::assertEquals('/' . $id . '/translations/' . $rootId, $data['errors'][0]['source']['pointer']);
-    }
-
-    public function testDeleteRootWithChildTranslationNonVersionedEntityViolation(): void
-    {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/country';
-        $id = Uuid::uuid4()->getHex();
-        $rootId = Uuid::uuid4()->getHex();
-        $childId = Uuid::uuid4()->getHex();
-
-        $this->createLanguage($childId, $rootId);
-
-        $countryData = [
-            'id' => $id,
-            'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['name' => 'system'],
-                $rootId => ['name' => 'root'],
-                $childId => ['name' => 'child'],
-            ],
-        ];
-
-        $this->getClient()->request('POST', $baseResource, $countryData);
-        $response = $this->getClient()->getResponse();
-
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertEntityExists($this->getClient(), 'country', $id);
-
-        $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . $rootId);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(400, $response->getStatusCode());
-
-        $data = json_decode($response->getContent(), true);
-        static::assertEquals(TranslationValidator::ORPHAN_TRANSLATION_VIOLATION, $data['errors'][0]['code']);
-        static::assertEquals('/' . $id . '/translations/' . $rootId, $data['errors'][0]['source']['pointer']);
     }
 
     public function testTranslationAssociation(): void

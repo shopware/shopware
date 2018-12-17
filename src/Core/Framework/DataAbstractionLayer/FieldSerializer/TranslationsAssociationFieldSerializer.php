@@ -79,6 +79,16 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
             unset($value[$identifier]);
         }
+
+        // move root translations before child translations
+        $context = $parameters->getContext();
+        uksort($value, function ($a, $b) use ($context) {
+            $aIsRoot = $context->isRootLanguage($a);
+            $bIsRoot = $context->isRootLanguage($b);
+
+            return $bIsRoot <=> $aIsRoot;
+        });
+
         $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
         return $this->map($field, $data, $parameters, $existence);

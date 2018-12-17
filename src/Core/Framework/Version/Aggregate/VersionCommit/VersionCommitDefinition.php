@@ -72,7 +72,7 @@ class VersionCommitDefinition extends EntityDefinition
         ];
     }
 
-    public static function getRootEntity(): ?string
+    public static function getRootDefinition(): ?string
     {
         return VersionDefinition::class;
     }

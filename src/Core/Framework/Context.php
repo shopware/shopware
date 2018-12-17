@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\ProtectionStruct;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\SalesChannelStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class Context extends Struct
 {
@@ -97,7 +97,7 @@ class Context extends Struct
         return new self($sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
     }
 
-    public static function createFromSalesChannel(SalesChannelStruct $salesChannel, string $origin): self
+    public static function createFromSalesChannel(SalesChannelEntity $salesChannel, string $origin): self
     {
         $sourceContext = new SourceContext($origin);
         $sourceContext->setSalesChannelId($salesChannel->getId());

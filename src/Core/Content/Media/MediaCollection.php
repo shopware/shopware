@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class MediaCollection extends EntityCollection
 {
     /**
-     * @var MediaStruct[]
+     * @var MediaEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? MediaStruct
+    public function get(string $id): ? MediaEntity
     {
         return parent::get($id);
     }
 
-    public function current(): MediaStruct
+    public function current(): MediaEntity
     {
         return parent::current();
     }
 
     public function getUserIds(): array
     {
-        return $this->fmap(function (MediaStruct $media) {
+        return $this->fmap(function (MediaEntity $media) {
             return $media->getUserId();
         });
     }
 
     public function filterByUserId(string $id): self
     {
-        return $this->filter(function (MediaStruct $media) use ($id) {
+        return $this->filter(function (MediaEntity $media) use ($id) {
             return $media->getUserId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return MediaStruct::class;
+        return MediaEntity::class;
     }
 }

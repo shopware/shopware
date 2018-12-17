@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -132,7 +132,7 @@ class GenerateThumbnailsCommand extends Command
         } while ($result->getTotal() > $this->batchSize);
     }
 
-    private function generateThumbnail(Context $context, MediaStruct $media): void
+    private function generateThumbnail(Context $context, MediaEntity $media): void
     {
         try {
             $this->thumbnailService->deleteThumbnails($media, $context);

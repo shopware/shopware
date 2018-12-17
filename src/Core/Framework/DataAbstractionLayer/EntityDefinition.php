@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 
 abstract class EntityDefinition
 {
@@ -101,9 +101,9 @@ abstract class EntityDefinition
         return EntityCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return ArrayStruct::class;
+        return ArrayEntity::class;
     }
 
     public static function getRootEntity(): ?string

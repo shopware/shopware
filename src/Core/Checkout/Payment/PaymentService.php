@@ -114,7 +114,7 @@ class PaymentService
     {
         $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
 
-        /** @var PaymentMethodStruct|null $paymentMethod */
+        /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $paymentMethods->get($paymentMethodId);
         if (!$paymentMethod) {
             throw new UnknownPaymentMethodException($paymentMethodId);

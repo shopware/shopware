@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -293,7 +293,7 @@ class CatalogTest extends TestCase
                 $id->getHex() => $id->getHex(),
                 $id2->getHex() => $id2->getHex(),
             ],
-            $categories->first()->getChildren()->map(function (CategoryStruct $category) {
+            $categories->first()->getChildren()->map(function (CategoryEntity $category) {
                 return $category->getId();
             }));
     }

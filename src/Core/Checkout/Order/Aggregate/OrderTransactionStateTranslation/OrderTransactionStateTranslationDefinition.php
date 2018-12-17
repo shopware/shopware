@@ -41,9 +41,9 @@ class OrderTransactionStateTranslationDefinition extends EntityTranslationDefini
         return OrderTransactionStateTranslationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return OrderTransactionStateTranslationStruct::class;
+        return OrderTransactionStateTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

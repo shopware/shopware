@@ -97,9 +97,9 @@ class OrderDefinition extends EntityDefinition
         return OrderCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return OrderStruct::class;
+        return OrderEntity::class;
     }
 
     public static function getWriteOrder(): array

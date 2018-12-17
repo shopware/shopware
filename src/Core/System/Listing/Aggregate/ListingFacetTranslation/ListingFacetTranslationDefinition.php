@@ -39,9 +39,9 @@ class ListingFacetTranslationDefinition extends EntityTranslationDefinition
         return ListingFacetTranslationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return ListingFacetTranslationStruct::class;
+        return ListingFacetTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

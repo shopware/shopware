@@ -31,7 +31,7 @@ $fields->add(
 ```
 
 Given this example extends the `ProductDefinition`, the hydrator would run into a problem because of the
-`promotions` property does not exist in the `ProductStruct`.
+`promotions` property does not exist in the `ProductEntity`.
 
 ### Register extension in service container
 

@@ -42,9 +42,9 @@ class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
         return ShippingMethodTranslationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return ShippingMethodTranslationStruct::class;
+        return ShippingMethodTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

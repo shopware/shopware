@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class DiscountSurchargeTranslationCollection extends EntityCollection
 {
     /**
-     * @var DiscountSurchargeTranslationStruct[]
+     * @var DiscountSurchargeTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? DiscountSurchargeTranslationStruct
+    public function get(string $id): ? DiscountSurchargeTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): DiscountSurchargeTranslationStruct
+    public function current(): DiscountSurchargeTranslationEntity
     {
         return parent::current();
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (DiscountSurchargeTranslationStruct $discountSurchargeTranslation) {
+        return $this->fmap(function (DiscountSurchargeTranslationEntity $discountSurchargeTranslation) {
             return $discountSurchargeTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (DiscountSurchargeTranslationStruct $discountSurchargeTranslation) use ($id) {
+        return $this->filter(function (DiscountSurchargeTranslationEntity $discountSurchargeTranslation) use ($id) {
             return $discountSurchargeTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return DiscountSurchargeTranslationStruct::class;
+        return DiscountSurchargeTranslationEntity::class;
     }
 }

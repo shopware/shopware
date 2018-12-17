@@ -7,79 +7,79 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CategoryCollection extends EntityCollection
 {
     /**
-     * @var CategoryStruct[]
+     * @var CategoryEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CategoryStruct
+    public function get(string $id): ? CategoryEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CategoryStruct
+    public function current(): CategoryEntity
     {
         return parent::current();
     }
 
     public function getParentIds(): array
     {
-        return $this->fmap(function (CategoryStruct $category) {
+        return $this->fmap(function (CategoryEntity $category) {
             return $category->getParentId();
         });
     }
 
     public function filterByParentId(string $id): self
     {
-        return $this->filter(function (CategoryStruct $category) use ($id) {
+        return $this->filter(function (CategoryEntity $category) use ($id) {
             return $category->getParentId() === $id;
         });
     }
 
     public function getMediaIds(): array
     {
-        return $this->fmap(function (CategoryStruct $category) {
+        return $this->fmap(function (CategoryEntity $category) {
             return $category->getMediaId();
         });
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (CategoryStruct $category) use ($id) {
+        return $this->filter(function (CategoryEntity $category) use ($id) {
             return $category->getMediaId() === $id;
         });
     }
 
     public function getSortingIds(): array
     {
-        return $this->fmap(function (CategoryStruct $category) {
+        return $this->fmap(function (CategoryEntity $category) {
             return $category->getSortingIds();
         });
     }
 
     public function filterBySortingIds(string $id): self
     {
-        return $this->filter(function (CategoryStruct $category) use ($id) {
+        return $this->filter(function (CategoryEntity $category) use ($id) {
             return $category->getSortingIds() === $id;
         });
     }
 
     public function getFacetIds(): array
     {
-        return $this->fmap(function (CategoryStruct $category) {
+        return $this->fmap(function (CategoryEntity $category) {
             return $category->getFacetIds();
         });
     }
 
     public function filterByFacetIds(string $id): self
     {
-        return $this->filter(function (CategoryStruct $category) use ($id) {
+        return $this->filter(function (CategoryEntity $category) use ($id) {
             return $category->getFacetIds() === $id;
         });
     }
 
     public function sortByPosition(): self
     {
-        $this->sort(function (CategoryStruct $a, CategoryStruct $b) {
+        $this->sort(function (CategoryEntity $a, CategoryEntity $b) {
             return $a->getPosition() <=> $b->getPosition();
         });
 
@@ -88,7 +88,7 @@ class CategoryCollection extends EntityCollection
 
     public function sortByName(): self
     {
-        $this->sort(function (CategoryStruct $a, CategoryStruct $b) {
+        $this->sort(function (CategoryEntity $a, CategoryEntity $b) {
             return strnatcasecmp($a->getName(), $b->getName());
         });
 
@@ -97,6 +97,6 @@ class CategoryCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return CategoryStruct::class;
+        return CategoryEntity::class;
     }
 }

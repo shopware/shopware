@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
-use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
-use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 class CheckoutContextFactory implements CheckoutContextFactoryInterface
@@ -207,7 +207,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $context;
     }
 
-    private function getPaymentMethod(array $options, Context $context, SalesChannelStruct $salesChannel, ?CustomerStruct $customer): PaymentMethodStruct
+    private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel, ?CustomerEntity $customer): PaymentMethodEntity
     {
         //payment switched in checkout?
         if (array_key_exists(CheckoutContextService::PAYMENT_METHOD_ID, $options)) {
@@ -226,7 +226,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $customer->getDefaultPaymentMethod();
     }
 
-    private function getShippingMethod(array $options, Context $context, SalesChannelStruct $salesChannel): ShippingMethodStruct
+    private function getShippingMethod(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingMethodEntity
     {
         $id = $salesChannel->getShippingMethodId();
         if (array_key_exists(CheckoutContextService::SHIPPING_METHOD_ID, $options)) {
@@ -274,11 +274,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         );
     }
 
-    private function loadCustomer(array $options, Context $context): ?CustomerStruct
+    private function loadCustomer(array $options, Context $context): ?CustomerEntity
     {
         $customerId = $options[CheckoutContextService::CUSTOMER_ID];
 
-        /** @var CustomerStruct|null $customer */
+        /** @var CustomerEntity|null $customer */
         $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
 
         if (!$customer) {
@@ -319,7 +319,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private function loadShippingLocation(
         array $options,
         Context $context,
-        SalesChannelStruct $salesChannel
+        SalesChannelEntity $salesChannel
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if (array_key_exists(CheckoutContextService::STATE_ID, $options)) {

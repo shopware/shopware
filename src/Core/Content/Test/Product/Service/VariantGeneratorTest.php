@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -90,21 +90,21 @@ class VariantGeneratorTest extends TestCase
 
         static::assertCount(2, $variants);
 
-        /** @var ProductStruct $red */
-        $red = $variants->filter(function (ProductStruct $detail) use ($redId) {
+        /** @var ProductEntity $red */
+        $red = $variants->filter(function (ProductEntity $detail) use ($redId) {
             return \in_array($redId, $detail->getVariations()->getIds(), true);
         })->first();
 
-        /** @var ProductStruct $blue */
-        $blue = $variants->filter(function (ProductStruct $detail) use ($blueId) {
+        /** @var ProductEntity $blue */
+        $blue = $variants->filter(function (ProductEntity $detail) use ($blueId) {
             return \in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
 
         static::assertEquals('test blue', $blue->getName());
         static::assertEquals('test red', $red->getName());
 
-        static::assertInstanceOf(ProductStruct::class, $red);
-        static::assertInstanceOf(ProductStruct::class, $blue);
+        static::assertInstanceOf(ProductEntity::class, $red);
+        static::assertInstanceOf(ProductEntity::class, $blue);
 
         static::assertEquals(new Price(35, 60, false), $red->getPrice());
         static::assertEquals(new Price(100, 110, false), $blue->getPrice());
@@ -260,7 +260,7 @@ class VariantGeneratorTest extends TestCase
         $parent = $this->repository->read(new ReadCriteria([$id]), $context)
             ->get($id);
 
-        /** @var ProductStruct $variant */
+        /** @var ProductEntity $variant */
         foreach ($variants as $variant) {
             static::assertEquals($id, $variant->getParentId());
             static::assertEquals($parent->getPrice(), $variant->getViewData()->getPrice());

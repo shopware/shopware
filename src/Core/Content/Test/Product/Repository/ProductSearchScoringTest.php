@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -56,10 +56,10 @@ class ProductSearchScoringTest extends TestCase
         /** @var Entity $entity */
         foreach ($result as $entity) {
             static::assertArrayHasKey('search', $entity->getExtensions());
-            /** @var ArrayStruct $extension */
+            /** @var ArrayEntity $extension */
             $extension = $entity->getExtension('search');
 
-            static::assertInstanceOf(ArrayStruct::class, $extension);
+            static::assertInstanceOf(ArrayEntity::class, $extension);
             static::assertArrayHasKey('_score', $extension);
             static::assertGreaterThan(0, (float) $extension['_score']);
         }

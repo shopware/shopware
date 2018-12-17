@@ -6,18 +6,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class MediaThumbnailSizeCollection extends EntityCollection
 {
-    public function get(string $id): ? MediaThumbnailSizeStruct
+    public function get(string $id): ? MediaThumbnailSizeEntity
     {
         return parent::get($id);
     }
 
-    public function current(): MediaThumbnailSizeStruct
+    public function current(): MediaThumbnailSizeEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return MediaThumbnailSizeStruct::class;
+        return MediaThumbnailSizeEntity::class;
     }
 }

@@ -30,9 +30,9 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
         return MediaFolderConfigurationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return MediaFolderConfigurationStruct::class;
+        return MediaFolderConfigurationEntity::class;
     }
 
     public static function getDefaults(EntityExistence $existence): array

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category\Util;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -59,7 +59,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $this->updateRecursive($parent, $parents, $context);
     }
 
-    private function updateRecursive(CategoryStruct $parent, CategoryCollection $parents, Context $context): void
+    private function updateRecursive(CategoryEntity $parent, CategoryCollection $parents, Context $context): void
     {
         $categories = $this->updateByParent($parent, $parents, $context);
         foreach ($categories as $category) {
@@ -69,7 +69,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         }
     }
 
-    private function updateByParent(CategoryStruct $parent, CategoryCollection $parents, Context $context): CategoryCollection
+    private function updateByParent(CategoryEntity $parent, CategoryCollection $parents, Context $context): CategoryCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', $parent->getId()));
@@ -80,16 +80,17 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
         $version = Uuid::fromStringToBytes($context->getVersionId());
 
-        $parents->sort(function (CategoryStruct $a, CategoryStruct $b) {
+        /** @var CategoryEntity $category */
+        $parents->sort(function (CategoryEntity $a, CategoryEntity $b) {
             return $a->getLevel() <=> $b->getLevel();
         });
 
-        /** @var CategoryStruct $category */
+        /** @var CategoryEntity $category */
         foreach ($categories as $category) {
             $idPath = implode('|', $parents->getIds());
 
             $names = $parents->map(
-                function (CategoryStruct $parent) {
+                function (CategoryEntity $parent) {
                     if ($parent->getLevel() === 0) {
                         return null;
                     }

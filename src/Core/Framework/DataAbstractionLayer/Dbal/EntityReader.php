@@ -31,7 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 
 /**
@@ -91,7 +91,7 @@ class EntityReader implements EntityReaderInterface
             $criteria,
             $definition,
             $context,
-            $definition::getStructClass(),
+            $definition::getEntityClass(),
             new $collectionClass(),
             $definition::getFields()->filterBasic()
         );
@@ -128,6 +128,10 @@ class EntityReader implements EntityReaderInterface
 
         $rows = $this->fetch($criteria, $definition, $context, $fields);
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName(), $context);
+
+        dump($collection);
+        dump($entities);
+
         $collection->fill($entities);
 
         if ($collection->count() <= 0) {
@@ -355,7 +359,7 @@ class EntityReader implements EntityReaderInterface
             new ReadCriteria($ids),
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -577,7 +581,7 @@ class EntityReader implements EntityReaderInterface
             $readCriteria,
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -651,7 +655,7 @@ class EntityReader implements EntityReaderInterface
             $readCriteria,
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -708,14 +712,14 @@ class EntityReader implements EntityReaderInterface
             new ReadCriteria($ids),
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
-            /** @var ArrayStruct $extension */
+            /** @var ArrayEntity $extension */
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
 
             //use assign function to avoid setter name building
@@ -855,7 +859,7 @@ class EntityReader implements EntityReaderInterface
             $read,
             $referenceClass,
             $context,
-            $referenceClass::getStructClass(),
+            $referenceClass::getEntityClass(),
             new $collectionClass(),
             $referenceClass::getFields()->filterBasic()
         );
@@ -881,7 +885,7 @@ class EntityReader implements EntityReaderInterface
                 $structData->sortByIdArray($mapping[$parentId]);
             }
 
-            /** @var ArrayStruct $extension */
+            /** @var ArrayEntity $extension */
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
 
             //if the association is inheritance aware, we have to check if the parent or the child is the owner of the association foreign key

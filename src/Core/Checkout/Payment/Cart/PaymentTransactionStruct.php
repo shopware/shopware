@@ -3,10 +3,10 @@
 namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Order\OrderStruct;
-use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\Language\LanguageEntity;
 
 class PaymentTransactionStruct extends Struct
 {
@@ -16,7 +16,7 @@ class PaymentTransactionStruct extends Struct
     protected $transactionId;
 
     /**
-     * @var OrderStruct
+     * @var OrderEntity
      */
     protected $order;
 
@@ -36,19 +36,19 @@ class PaymentTransactionStruct extends Struct
     protected $paymentMethodId;
 
     /**
-     * @var null|PaymentMethodStruct
+     * @var null|PaymentMethodEntity
      */
     protected $paymentMethod;
 
     /**
-     * @var LanguageStruct|null
+     * @var LanguageEntity|null
      */
     protected $language;
 
     public function __construct(
         string $transactionId,
         string $paymentMethodId,
-        OrderStruct $order,
+        OrderEntity $order,
         CalculatedPrice $amount,
         string $returnUrl
     ) {
@@ -68,9 +68,9 @@ class PaymentTransactionStruct extends Struct
     }
 
     /**
-     * @return OrderStruct
+     * @return OrderEntity
      */
-    public function getOrder(): OrderStruct
+    public function getOrder(): OrderEntity
     {
         return $this->order;
     }
@@ -96,22 +96,22 @@ class PaymentTransactionStruct extends Struct
         return $this->paymentMethodId;
     }
 
-    public function getPaymentMethod(): ?PaymentMethodStruct
+    public function getPaymentMethod(): ?PaymentMethodEntity
     {
         return $this->paymentMethod;
     }
 
-    public function setPaymentMethod(PaymentMethodStruct $paymentMethod): void
+    public function setPaymentMethod(PaymentMethodEntity $paymentMethod): void
     {
         $this->paymentMethod = $paymentMethod;
     }
 
-    public function getLanguage(): ?LanguageStruct
+    public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
     }
 
-    public function setLanguage(LanguageStruct $language): void
+    public function setLanguage(LanguageEntity $language): void
     {
         $this->language = $language;
     }

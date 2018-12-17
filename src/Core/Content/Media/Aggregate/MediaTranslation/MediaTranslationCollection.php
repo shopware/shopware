@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class MediaTranslationCollection extends EntityCollection
 {
     /**
-     * @var MediaTranslationStruct[]
+     * @var MediaTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? MediaTranslationStruct
+    public function get(string $id): ? MediaTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): MediaTranslationStruct
+    public function current(): MediaTranslationEntity
     {
         return parent::current();
     }
 
     public function getMediaIds(): array
     {
-        return $this->fmap(function (MediaTranslationStruct $mediaTranslation) {
+        return $this->fmap(function (MediaTranslationEntity $mediaTranslation) {
             return $mediaTranslation->getMediaId();
         });
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (MediaTranslationStruct $mediaTranslation) use ($id) {
+        return $this->filter(function (MediaTranslationEntity $mediaTranslation) use ($id) {
             return $mediaTranslation->getMediaId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (MediaTranslationStruct $mediaTranslation) {
+        return $this->fmap(function (MediaTranslationEntity $mediaTranslation) {
             return $mediaTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (MediaTranslationStruct $mediaTranslation) use ($id) {
+        return $this->filter(function (MediaTranslationEntity $mediaTranslation) use ($id) {
             return $mediaTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return MediaTranslationStruct::class;
+        return MediaTranslationEntity::class;
     }
 }

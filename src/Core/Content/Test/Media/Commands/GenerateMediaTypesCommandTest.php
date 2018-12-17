@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\Media\Commands;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -61,7 +61,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
-        /** @var MediaStruct $updatedMedia */
+        /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             static::assertInstanceOf(MediaType::class, $updatedMedia->getMediaType());
         }
@@ -79,7 +79,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
-        /** @var MediaStruct $updatedMedia */
+        /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             static::assertNull($updatedMedia->getMediaType());
         }

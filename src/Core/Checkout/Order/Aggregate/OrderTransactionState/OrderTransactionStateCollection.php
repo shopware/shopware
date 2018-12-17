@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class OrderTransactionStateCollection extends EntityCollection
 {
     /**
-     * @var OrderTransactionStateStruct[]
+     * @var OrderTransactionStateEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? OrderTransactionStateStruct
+    public function get(string $id): ? OrderTransactionStateEntity
     {
         return parent::get($id);
     }
 
-    public function current(): OrderTransactionStateStruct
+    public function current(): OrderTransactionStateEntity
     {
         return parent::current();
     }
 
     public function getOrderTransactionStateIds(): array
     {
-        return $this->fmap(function (OrderTransactionStateStruct $orderTransactionState) {
+        return $this->fmap(function (OrderTransactionStateEntity $orderTransactionState) {
             return $orderTransactionState->getId();
         });
     }
 
     public function filterByOrderTransactionStateId(string $id): self
     {
-        return $this->filter(function (OrderTransactionStateStruct $orderTransactionState) use ($id) {
+        return $this->filter(function (OrderTransactionStateEntity $orderTransactionState) use ($id) {
             return $orderTransactionState->getId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return OrderTransactionStateStruct::class;
+        return OrderTransactionStateEntity::class;
     }
 }

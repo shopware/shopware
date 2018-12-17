@@ -10,7 +10,7 @@
 
 {# Meta opengraph tags #}
 {% block frontend_index_header_meta_tags_opengraph %}
-    {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductStruct #}
+    {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
 
     {% set product = page.product %}
     <meta property="og:type" content="product" />
@@ -38,7 +38,7 @@
 {# Keywords #}
 {% block frontend_index_header_meta_keywords %}
     {% spaceless %}
-        {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductStruct #}
+        {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
         {% if page.product.keywords %}
             {{ page.product.keywords|escape('html') }}
         {% endif %}
@@ -46,7 +46,7 @@
 {% endblock %}
 
 {# Description #}
-{# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductStruct #}
+{# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
 {% block frontend_index_header_meta_description %}
     {% spaceless %}
         {% if page.product.description  %}
@@ -59,7 +59,7 @@
 
 {# Canonical link #}
 {% block frontend_index_header_canonical %}
-    {# @var url \Shopware\Core\Api\Seo\Struct\SeoUrlStruct #}
+    {# @var url \Shopware\Core\Api\Seo\Struct\SeoUrlEntity #}
     {% set url = page.product.extension('canonicalUrl') %}
 
     <link rel="canonical" href="{{ url.url }}" />

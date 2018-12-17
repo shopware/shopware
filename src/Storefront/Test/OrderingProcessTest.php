@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Order\OrderStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -71,7 +71,7 @@ class OrderingProcessTest extends TestCase
         $orderId = $this->payOrder();
         self::assertTrue(Uuid::isValid($orderId));
 
-        /** @var OrderStruct $order */
+        /** @var OrderEntity $order */
         $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext())
             ->get($orderId);
 

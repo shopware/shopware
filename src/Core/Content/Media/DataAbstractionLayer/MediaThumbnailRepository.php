@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -60,7 +60,7 @@ class MediaThumbnailRepository extends EntityRepository
         return $this->deleteFromCollection($thumbnails, $context);
     }
 
-    public function deleteCascadingFromMedia(MediaStruct $mediaStruct, Context $context): EntityWrittenContainerEvent
+    public function deleteCascadingFromMedia(MediaEntity $mediaStruct, Context $context): EntityWrittenContainerEvent
     {
         foreach ($mediaStruct->getThumbnails() as $thumbnail) {
             $thumbnail->setMedia($mediaStruct);

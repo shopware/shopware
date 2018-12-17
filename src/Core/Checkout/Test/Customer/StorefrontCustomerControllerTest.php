@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
@@ -233,7 +233,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $addressId = $this->createCustomerAddress($customerId);
 
         $customerAddress = $this->readCustomerAddress($addressId);
-        static::assertInstanceOf(CustomerAddressStruct::class, $customerAddress);
+        static::assertInstanceOf(CustomerAddressEntity::class, $customerAddress);
         static::assertEquals($addressId, $customerAddress->getId());
 
         $this->getStorefrontClient()->request('DELETE', '/storefront-api/customer/address/' . $addressId);
@@ -570,7 +570,7 @@ class StorefrontCustomerControllerTest extends TestCase
         return $addressId;
     }
 
-    private function readCustomer(string $userID): CustomerStruct
+    private function readCustomer(string $userID): CustomerEntity
     {
         return $this->customerRepository->read(
             new ReadCriteria([$userID]),
@@ -578,7 +578,7 @@ class StorefrontCustomerControllerTest extends TestCase
         )->get($userID);
     }
 
-    private function readCustomerAddress(string $addressId): ?CustomerAddressStruct
+    private function readCustomerAddress(string $addressId): ?CustomerAddressEntity
     {
         return $this->customerAddressRepository->read(
             new ReadCriteria([$addressId]),

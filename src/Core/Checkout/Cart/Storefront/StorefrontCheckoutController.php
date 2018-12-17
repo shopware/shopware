@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Order\OrderStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
@@ -204,7 +204,7 @@ class StorefrontCheckoutController extends AbstractController
     /**
      * @throws OrderNotFoundException
      */
-    private function getOrderById(string $orderId, CheckoutContext $context): OrderStruct
+    private function getOrderById(string $orderId, CheckoutContext $context): OrderEntity
     {
         $criteria = new ReadCriteria([$orderId]);
         $order = $this->orderRepository->read($criteria, $context->getContext())->get($orderId);

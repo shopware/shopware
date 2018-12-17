@@ -10,16 +10,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class RuleCollection extends EntityCollection
 {
     /**
-     * @var RuleStruct[]
+     * @var RuleEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? RuleStruct
+    public function get(string $id): ? RuleEntity
     {
         return parent::get($id);
     }
 
-    public function current(): RuleStruct
+    public function current(): RuleEntity
     {
         return parent::current();
     }
@@ -27,7 +27,7 @@ class RuleCollection extends EntityCollection
     public function filterMatchingRules(Cart $cart, CheckoutContext $context)
     {
         return $this->filter(
-            function (RuleStruct $rule) use ($cart, $context) {
+            function (RuleEntity $rule) use ($cart, $context) {
                 return $rule->getPayload()->match(new CartRuleScope($cart, $context))->matches();
             }
         );
@@ -35,13 +35,13 @@ class RuleCollection extends EntityCollection
 
     public function sortByPriority(): void
     {
-        $this->sort(function (RuleStruct $a, RuleStruct $b) {
+        $this->sort(function (RuleEntity $a, RuleEntity $b) {
             return $b->getPriority() <=> $a->getPriority();
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return RuleStruct::class;
+        return RuleEntity::class;
     }
 }

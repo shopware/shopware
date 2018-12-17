@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CountryTranslationCollection extends EntityCollection
 {
     /**
-     * @var CountryTranslationStruct[]
+     * @var CountryTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CountryTranslationStruct
+    public function get(string $id): ? CountryTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CountryTranslationStruct
+    public function current(): CountryTranslationEntity
     {
         return parent::current();
     }
 
     public function getCountryIds(): array
     {
-        return $this->fmap(function (CountryTranslationStruct $countryTranslation) {
+        return $this->fmap(function (CountryTranslationEntity $countryTranslation) {
             return $countryTranslation->getCountryId();
         });
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(function (CountryTranslationStruct $countryTranslation) use ($id) {
+        return $this->filter(function (CountryTranslationEntity $countryTranslation) use ($id) {
             return $countryTranslation->getCountryId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (CountryTranslationStruct $countryTranslation) {
+        return $this->fmap(function (CountryTranslationEntity $countryTranslation) {
             return $countryTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CountryTranslationStruct $countryTranslation) use ($id) {
+        return $this->filter(function (CountryTranslationEntity $countryTranslation) use ($id) {
             return $countryTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return CountryTranslationStruct::class;
+        return CountryTranslationEntity::class;
     }
 }

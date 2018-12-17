@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Command;
 
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
-use Shopware\Core\Framework\Plugin\PluginStruct;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -49,7 +49,7 @@ class PluginListCommand extends Command
         if ($filter = $input->getOption('filter')) {
             $io->comment(sprintf('Filtering for: %s', $filter));
 
-            $plugins = array_filter($plugins, function (PluginStruct $plugin) use ($filter) {
+            $plugins = array_filter($plugins, function (PluginEntity $plugin) use ($filter) {
                 return stripos($plugin->getName(), $filter) !== false || stripos($plugin->getLabel(), $filter) !== false;
             });
         }

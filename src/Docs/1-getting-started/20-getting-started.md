@@ -696,7 +696,7 @@ $result = $client->post(
 
 ## Defining an Entity
 An entity defines the data structure of a table in the system. The platform uses
-type hinted `Struct` classes to provide autocompletion and offer an
+type hinted `Entity` classes to provide autocompletion and offer an
 interface for developers on which they can rely.
 
 The properties in the PHP code are usually mapped to corresponding columns
@@ -707,7 +707,7 @@ The core works a bit differently with entities than you might expect. First of a
 entity or model class. Column mappings are also not implemented with annotations.
 Instead, an `EntityDefinition` class for each entity is required.  
 In this class, the corresponding columns and properties of an entity are defined as well as 
-associated classes such as events, structs, translations, collections, etc.
+associated classes such as events, entities, translations, collections, etc.
 
 Once an entity definition has been created with the associated classes, 
 it can be selected via the data abstraction layer, events are thrown
@@ -717,13 +717,12 @@ All classes for an entity are in the corresponding domain folder.
 Each of these domains has the following structure:
 * Aggregate - *Includes subordinate entities (e.g. `ProductTranslation`,` ProductCategory`)*
 * Exception - *Contains all exceptions that occur when working with the entity*
-* Struct - *Contains the struct classes*
 * {EntityName}Definition.php - *The corresponding definition class*
 
 ### EntityDefinition class
 In an entity definition class, the following information is recorded:
 * Which fields does the entity consist of?
-* Which DTO (Struct & Collection) classes belong to the entity?
+* Which DTO (Entity & Collection) classes belong to the entity?
 
 Let's begin with an empty entity definition:
 
@@ -934,11 +933,11 @@ You can always address this association via the property name:
 * To read the manufacturer of a product via API - `GET /api/v1/product/{id}/manufacturer`
 * ...
 
-## Struct classes
+## Entity classes
 To transport the data between the database and the corresponding endpoints, the core uses
-struct classes. These are simple PHP classes in which the properties of an entity are
+entity classes. These are simple PHP classes in which the properties of an entity definition are
 defined as PHP properties and are available via getter/setter functions.
-The `Struct` class contains all the properties of an entity defined and the relations.
+The `Entity` class contains all the properties of an entity definition defined and the relations.
 Be aware, most of these values are nullable and they might not be loaded by default to
 improve the performance. In general, all properties of the entity are loaded
 and the associations are not. So you have a minimum set of properties in order
@@ -946,15 +945,16 @@ to work with the entity.
 
 
 
-A simple struct class can look like this:
+A simple entity class can look like this:
 ```php
 <?php
 
-namespace Shopware\Core\System\Locale\Struct;
+namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-class LocaleStruct extends Entity
+class LocaleEntity extends Entity
 {
     use EntityIdTrait;
 
@@ -1036,7 +1036,7 @@ class LocaleStruct extends Entity
 ```
 
 ### Collection classes
-The repository classes of the core do not return arrays with struct classes but
+The repository classes of the core do not return arrays with entity classes but
 a type-aware collection class which contain all elements. These classes can 
 be iterated to easily handle all records:
 ```php
@@ -1055,8 +1055,8 @@ $repository = $this->container->get('product.repository');
 
 $products = $repository->read(new ReadCriteria($ids), $context);
 
-foreach ($products as $productStruct) {
-    echo $productStruct->getName();
+foreach ($products as $product) {
+    echo $product->getName();
 }
 ```
 In addition, the collections provide small helper functions allow an easy access to

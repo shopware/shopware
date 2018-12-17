@@ -4,18 +4,18 @@ namespace Shopware\Core\Checkout;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\ContextRulesLockedException;
-use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
-use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Currency\CurrencyStruct;
-use Shopware\Core\System\Language\LanguageStruct;
-use Shopware\Core\System\SalesChannel\SalesChannelStruct;
+use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
@@ -33,22 +33,22 @@ class CheckoutContext extends Struct
     protected $token;
 
     /**
-     * @var CustomerGroupStruct
+     * @var CustomerGroupEntity
      */
     protected $currentCustomerGroup;
 
     /**
-     * @var CustomerGroupStruct
+     * @var CustomerGroupEntity
      */
     protected $fallbackCustomerGroup;
 
     /**
-     * @var CurrencyStruct
+     * @var CurrencyEntity
      */
     protected $currency;
 
     /**
-     * @var SalesChannelStruct
+     * @var SalesChannelEntity
      */
     protected $salesChannel;
 
@@ -58,17 +58,17 @@ class CheckoutContext extends Struct
     protected $taxRules;
 
     /**
-     * @var CustomerStruct|null
+     * @var CustomerEntity|null
      */
     protected $customer;
 
     /**
-     * @var PaymentMethodStruct
+     * @var PaymentMethodEntity
      */
     protected $paymentMethod;
 
     /**
-     * @var ShippingMethodStruct
+     * @var ShippingMethodEntity
      */
     protected $shippingMethod;
 
@@ -95,12 +95,12 @@ class CheckoutContext extends Struct
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
-     * @var LanguageStruct
+     * @var LanguageEntity
      */
     protected $language;
 
     /**
-     * @var null|LanguageStruct
+     * @var null|LanguageEntity
      */
     protected $fallbackLanguage;
 
@@ -111,17 +111,17 @@ class CheckoutContext extends Struct
 
     public function __construct(
         string $token,
-        SalesChannelStruct $salesChannel,
-        LanguageStruct $language,
-        ?LanguageStruct $fallbackLanguage,
-        CurrencyStruct $currency,
-        CustomerGroupStruct $currentCustomerGroup,
-        CustomerGroupStruct $fallbackCustomerGroup,
+        SalesChannelEntity $salesChannel,
+        LanguageEntity $language,
+        ?LanguageEntity $fallbackLanguage,
+        CurrencyEntity $currency,
+        CustomerGroupEntity $currentCustomerGroup,
+        CustomerGroupEntity $fallbackCustomerGroup,
         TaxCollection $taxRules,
-        PaymentMethodStruct $paymentMethod,
-        ShippingMethodStruct $shippingMethod,
+        PaymentMethodEntity $paymentMethod,
+        ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
-        ?CustomerStruct $customer,
+        ?CustomerEntity $customer,
         array $rulesIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
@@ -139,22 +139,22 @@ class CheckoutContext extends Struct
         $this->fallbackLanguage = $fallbackLanguage;
     }
 
-    public function getCurrentCustomerGroup(): CustomerGroupStruct
+    public function getCurrentCustomerGroup(): CustomerGroupEntity
     {
         return $this->currentCustomerGroup;
     }
 
-    public function getFallbackCustomerGroup(): CustomerGroupStruct
+    public function getFallbackCustomerGroup(): CustomerGroupEntity
     {
         return $this->fallbackCustomerGroup;
     }
 
-    public function getCurrency(): CurrencyStruct
+    public function getCurrency(): CurrencyEntity
     {
         return $this->currency;
     }
 
-    public function getSalesChannel(): SalesChannelStruct
+    public function getSalesChannel(): SalesChannelEntity
     {
         return $this->salesChannel;
     }
@@ -164,17 +164,17 @@ class CheckoutContext extends Struct
         return $this->taxRules;
     }
 
-    public function getCustomer(): ?CustomerStruct
+    public function getCustomer(): ?CustomerEntity
     {
         return $this->customer;
     }
 
-    public function getPaymentMethod(): PaymentMethodStruct
+    public function getPaymentMethod(): PaymentMethodEntity
     {
         return $this->paymentMethod;
     }
 
-    public function getShippingMethod(): ShippingMethodStruct
+    public function getShippingMethod(): ShippingMethodEntity
     {
         return $this->shippingMethod;
     }
@@ -229,12 +229,12 @@ class CheckoutContext extends Struct
         return $this->token;
     }
 
-    public function getLanguage(): LanguageStruct
+    public function getLanguage(): LanguageEntity
     {
         return $this->language;
     }
 
-    public function getFallbackLanguage(): ?LanguageStruct
+    public function getFallbackLanguage(): ?LanguageEntity
     {
         return $this->fallbackLanguage;
     }

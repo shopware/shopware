@@ -13,8 +13,8 @@ use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
@@ -197,7 +197,7 @@ class FileSaver
         }
     }
 
-    private function popCurrentMedia(MediaCollection $relatedMedia, $mediaId): MediaStruct
+    private function popCurrentMedia(MediaCollection $relatedMedia, $mediaId): MediaEntity
     {
         $currentMedia = $relatedMedia->get($mediaId);
         if ($currentMedia === null) {
@@ -240,7 +240,7 @@ class FileSaver
     ): string {
         $nextFileName = $preferredFileName . $this->getIterationExtension($iteration);
 
-        /** @var MediaStruct $media */
+        /** @var MediaEntity $media */
         foreach ($relatedMedia as $media) {
             if ($media->hasFile()) {
                 if ($media->getFileName() === $nextFileName) {
@@ -257,7 +257,7 @@ class FileSaver
         return $iteration === 0 ? '' : " ($iteration)";
     }
 
-    private function removeOldMediaData(MediaStruct $media, Context $context): void
+    private function removeOldMediaData(MediaEntity $media, Context $context): void
     {
         if (!$media->hasFile()) {
             return;
@@ -269,7 +269,7 @@ class FileSaver
         $this->thumbnailService->deleteThumbnails($media, $context);
     }
 
-    private function saveFileToMediaDir(MediaFile $mediaFile, MediaStruct $media): void
+    private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media): void
     {
         $stream = fopen($mediaFile->getFileName(), 'r');
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
@@ -283,11 +283,11 @@ class FileSaver
     private function updateMediaEntity(
         MediaFile $mediaFile,
         string $destination,
-        MediaStruct $media,
+        MediaEntity $media,
         Metadata $metadata,
         MediaType $mediaType,
         Context $context
-    ): MediaStruct {
+    ): MediaEntity {
         $data = [
             'id' => $media->getId(),
             'mimeType' => $mediaFile->getMimeType(),
@@ -320,7 +320,7 @@ class FileSaver
      * @throws FileExistsException
      * @throws FileNotFoundException
      */
-    private function rollbackRenameAction(MediaStruct $oldMedia, array $renamedFiles): void
+    private function rollbackRenameAction(MediaEntity $oldMedia, array $renamedFiles): void
     {
         foreach ($renamedFiles as $oldFileName => $newFileName) {
             $this->filesystem->rename($newFileName, $oldFileName);

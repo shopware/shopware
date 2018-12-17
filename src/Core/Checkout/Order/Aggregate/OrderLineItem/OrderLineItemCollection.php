@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class OrderLineItemCollection extends EntityCollection
 {
     /**
-     * @var OrderLineItemStruct[]
+     * @var OrderLineItemEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? OrderLineItemStruct
+    public function get(string $id): ? OrderLineItemEntity
     {
         return parent::get($id);
     }
 
-    public function current(): OrderLineItemStruct
+    public function current(): OrderLineItemEntity
     {
         return parent::current();
     }
 
     public function getOrderIds(): array
     {
-        return $this->fmap(function (OrderLineItemStruct $orderLineItem) {
+        return $this->fmap(function (OrderLineItemEntity $orderLineItem) {
             return $orderLineItem->getOrderId();
         });
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(function (OrderLineItemStruct $orderLineItem) use ($id) {
+        return $this->filter(function (OrderLineItemEntity $orderLineItem) use ($id) {
             return $orderLineItem->getOrderId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return OrderLineItemStruct::class;
+        return OrderLineItemEntity::class;
     }
 }

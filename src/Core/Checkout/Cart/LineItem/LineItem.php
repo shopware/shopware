@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -77,7 +77,7 @@ class LineItem extends Struct
     protected $description;
 
     /**
-     * @var null|MediaStruct
+     * @var null|MediaEntity
      */
     protected $cover;
 
@@ -325,12 +325,12 @@ class LineItem extends Struct
         return $this;
     }
 
-    public function getCover(): ?MediaStruct
+    public function getCover(): ?MediaEntity
     {
         return $this->cover;
     }
 
-    public function setCover(?MediaStruct $cover): self
+    public function setCover(?MediaEntity $cover): self
     {
         $this->cover = $cover;
 

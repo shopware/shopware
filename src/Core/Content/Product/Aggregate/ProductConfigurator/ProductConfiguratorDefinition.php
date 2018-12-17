@@ -47,9 +47,9 @@ class ProductConfiguratorDefinition extends EntityDefinition
         return ProductConfiguratorCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return ProductConfiguratorStruct::class;
+        return ProductConfiguratorEntity::class;
     }
 
     public static function getRootEntity(): ?string

@@ -7,22 +7,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CurrencyCollection extends EntityCollection
 {
     /**
-     * @var CurrencyStruct[]
+     * @var CurrencyEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CurrencyStruct
+    public function get(string $id): ? CurrencyEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CurrencyStruct
+    public function current(): CurrencyEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return CurrencyStruct::class;
+        return CurrencyEntity::class;
     }
 }

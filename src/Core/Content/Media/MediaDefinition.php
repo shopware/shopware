@@ -77,8 +77,8 @@ class MediaDefinition extends EntityDefinition
         return MediaCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return MediaStruct::class;
+        return MediaEntity::class;
     }
 }

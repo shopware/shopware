@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateTimeDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -78,7 +78,7 @@ EOF;
 
         static::assertTrue($entities->has($id));
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
@@ -104,7 +104,7 @@ EOF;
 
         static::assertTrue($entities->has($id));
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
@@ -132,7 +132,7 @@ EOF;
 
         static::assertTrue($entities->has($id));
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
@@ -150,7 +150,7 @@ EOF;
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
         $entity = $entities->get($id);
         static::assertNull($entity->get('updatedAt'));
@@ -161,7 +161,7 @@ EOF;
         $this->repo->update([$data], $context);
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
         $entity = $entities->get($id);
         static::assertNotNull($entity->get('updatedAt'));
@@ -178,7 +178,7 @@ EOF;
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
         $entity = $entities->get($id);
         static::assertNull($entity->get('updatedAt'));
@@ -189,7 +189,7 @@ EOF;
         $this->repo->update([$data], $context);
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
         $entity = $entities->get($id);
         static::assertNotNull($entity->get('updatedAt'));
@@ -208,7 +208,7 @@ EOF;
 
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
         $entity = $entities->get($id);
         static::assertNull($entity->get('updatedAt'));
@@ -219,7 +219,7 @@ EOF;
         $this->repo->update([$data], $context);
         $entities = $this->repo->read(new ReadCriteria([$id]), $context);
 
-        /** @var ArrayStruct $entity */
+        /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
         $entity = $entities->get($id);
         static::assertNotNull($entity->get('updatedAt'));

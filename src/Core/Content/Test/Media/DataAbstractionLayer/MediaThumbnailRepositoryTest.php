@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -66,7 +66,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
 
-    private function createThumbnailWithMedia($mediaId): MediaStruct
+    private function createThumbnailWithMedia($mediaId): MediaEntity
     {
         $this->context->getWriteProtection()->allow(
             MediaProtectionFlags::WRITE_META_INFO,
@@ -96,7 +96,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         return $this->mediaRepository->read(new ReadCriteria([$mediaId]), $this->context)->get($mediaId);
     }
 
-    private function createThumbnailFile(MediaStruct $media)
+    private function createThumbnailFile(MediaEntity $media)
     {
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl(

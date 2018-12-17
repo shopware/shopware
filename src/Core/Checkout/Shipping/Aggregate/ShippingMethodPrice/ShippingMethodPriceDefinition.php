@@ -42,9 +42,9 @@ class ShippingMethodPriceDefinition extends EntityDefinition
         return ShippingMethodPriceCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return ShippingMethodPriceStruct::class;
+        return ShippingMethodPriceEntity::class;
     }
 
     public static function getRootEntity(): ?string

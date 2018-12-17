@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 
@@ -122,7 +122,7 @@ class DeliveryCalculator
         return $this->priceCalculator->calculate($definition, $context);
     }
 
-    private function findShippingCosts(ShippingMethodStruct $shippingMethod, float $value, Context $context): float
+    private function findShippingCosts(ShippingMethodEntity $shippingMethod, float $value, Context $context): float
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('costs.price');

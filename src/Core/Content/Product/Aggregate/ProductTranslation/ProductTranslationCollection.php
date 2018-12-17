@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ProductTranslationCollection extends EntityCollection
 {
     /**
-     * @var ProductTranslationStruct[]
+     * @var ProductTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ProductTranslationStruct
+    public function get(string $id): ? ProductTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ProductTranslationStruct
+    public function current(): ProductTranslationEntity
     {
         return parent::current();
     }
 
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductTranslationStruct $productTranslation) {
+        return $this->fmap(function (ProductTranslationEntity $productTranslation) {
             return $productTranslation->getProductId();
         });
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductTranslationStruct $productTranslation) use ($id) {
+        return $this->filter(function (ProductTranslationEntity $productTranslation) use ($id) {
             return $productTranslation->getProductId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ProductTranslationStruct $productTranslation) {
+        return $this->fmap(function (ProductTranslationEntity $productTranslation) {
             return $productTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductTranslationStruct $productTranslation) use ($id) {
+        return $this->filter(function (ProductTranslationEntity $productTranslation) use ($id) {
             return $productTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return ProductTranslationStruct::class;
+        return ProductTranslationEntity::class;
     }
 }

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Rule\RuleStruct;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -110,7 +110,7 @@ class AndRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
-        /** @var RuleStruct $ruleStruct */
+        /** @var RuleEntity $ruleStruct */
         $ruleStruct = $this->ruleRepository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
         static::assertEquals(new AndRule([new AndRule()]), $ruleStruct->getPayload());
     }

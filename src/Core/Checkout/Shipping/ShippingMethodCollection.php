@@ -8,16 +8,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ShippingMethodCollection extends EntityCollection
 {
     /**
-     * @var ShippingMethodStruct[]
+     * @var ShippingMethodEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ShippingMethodStruct
+    public function get(string $id): ? ShippingMethodEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ShippingMethodStruct
+    public function current(): ShippingMethodEntity
     {
         return parent::current();
     }
@@ -46,6 +46,6 @@ class ShippingMethodCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return ShippingMethodStruct::class;
+        return ShippingMethodEntity::class;
     }
 }

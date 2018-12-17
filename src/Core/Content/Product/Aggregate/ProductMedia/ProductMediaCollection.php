@@ -8,44 +8,44 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ProductMediaCollection extends EntityCollection
 {
     /**
-     * @var ProductMediaStruct[]
+     * @var ProductMediaEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ProductMediaStruct
+    public function get(string $id): ? ProductMediaEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ProductMediaStruct
+    public function current(): ProductMediaEntity
     {
         return parent::current();
     }
 
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductMediaStruct $productMedia) {
+        return $this->fmap(function (ProductMediaEntity $productMedia) {
             return $productMedia->getProductId();
         });
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductMediaStruct $productMedia) use ($id) {
+        return $this->filter(function (ProductMediaEntity $productMedia) use ($id) {
             return $productMedia->getProductId() === $id;
         });
     }
 
     public function getMediaIds(): array
     {
-        return $this->fmap(function (ProductMediaStruct $productMedia) {
+        return $this->fmap(function (ProductMediaEntity $productMedia) {
             return $productMedia->getMediaId();
         });
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (ProductMediaStruct $productMedia) use ($id) {
+        return $this->filter(function (ProductMediaEntity $productMedia) use ($id) {
             return $productMedia->getMediaId() === $id;
         });
     }
@@ -53,7 +53,7 @@ class ProductMediaCollection extends EntityCollection
     public function getMedia(): MediaCollection
     {
         return new MediaCollection(
-            $this->fmap(function (ProductMediaStruct $productMedia) {
+            $this->fmap(function (ProductMediaEntity $productMedia) {
                 return $productMedia->getMedia();
             })
         );
@@ -61,6 +61,6 @@ class ProductMediaCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return ProductMediaStruct::class;
+        return ProductMediaEntity::class;
     }
 }

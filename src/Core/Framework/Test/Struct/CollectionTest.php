@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Test\Struct;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryStruct;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -131,11 +131,11 @@ class CollectionTest extends TestCase
 
     public function testFilterInstance()
     {
-        $productStruct = new ProductStruct();
-        $categoryStruct = new CategoryStruct();
+        $productStruct = new ProductEntity();
+        $categoryStruct = new CategoryEntity();
         $elements = ['a', $productStruct, $categoryStruct];
         $collection = new ObjectTestCollection();
-        self::assertEquals(0, ($collection->filterInstance(ProductStruct::class))->count());
+        self::assertEquals(0, ($collection->filterInstance(ProductEntity::class))->count());
 
         $collection->fill($elements);
         $filtered = $collection->filterInstance(Struct::class);

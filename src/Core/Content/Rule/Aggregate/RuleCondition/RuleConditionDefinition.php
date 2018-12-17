@@ -21,9 +21,9 @@ class RuleConditionDefinition extends EntityDefinition
         return 'rule_condition';
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return RuleConditionStruct::class;
+        return RuleConditionEntity::class;
     }
 
     public static function getCollectionClass(): string

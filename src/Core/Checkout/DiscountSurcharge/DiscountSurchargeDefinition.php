@@ -48,8 +48,8 @@ class DiscountSurchargeDefinition extends EntityDefinition
         return DiscountSurchargeCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return DiscountSurchargeStruct::class;
+        return DiscountSurchargeEntity::class;
     }
 }

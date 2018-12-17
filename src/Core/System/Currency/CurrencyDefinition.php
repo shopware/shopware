@@ -59,8 +59,8 @@ class CurrencyDefinition extends EntityDefinition
         return CurrencyCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return CurrencyStruct::class;
+        return CurrencyEntity::class;
     }
 }

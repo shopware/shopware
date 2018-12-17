@@ -41,9 +41,9 @@ class MediaTranslationDefinition extends EntityTranslationDefinition
         return MediaTranslationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return MediaTranslationStruct::class;
+        return MediaTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

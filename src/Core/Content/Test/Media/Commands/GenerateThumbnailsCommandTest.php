@@ -3,9 +3,9 @@
 namespace Shopware\Core\Content\Test\Media\Commands;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -77,7 +77,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
-        /** @var MediaStruct $updatedMedia */
+        /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertEquals(
@@ -111,7 +111,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
-        /** @var MediaStruct $updatedMedia */
+        /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
                 $thumbnails = $updatedMedia->getThumbnails();
@@ -127,7 +127,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    protected function assertThumbnailExists(MediaStruct $media, MediaThumbnailStruct $thumbnail): void
+    protected function assertThumbnailExists(MediaEntity $media, MediaThumbnailEntity $thumbnail): void
     {
         $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
             $media,

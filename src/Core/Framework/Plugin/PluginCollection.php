@@ -7,22 +7,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class PluginCollection extends EntityCollection
 {
     /**
-     * @var PluginStruct[]
+     * @var PluginEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? PluginStruct
+    public function get(string $id): ? PluginEntity
     {
         return parent::get($id);
     }
 
-    public function current(): PluginStruct
+    public function current(): PluginEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return PluginStruct::class;
+        return PluginEntity::class;
     }
 }

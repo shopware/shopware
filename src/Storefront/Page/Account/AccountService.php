@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -59,7 +59,7 @@ class AccountService
     /**
      * @throws CustomerNotFoundException
      */
-    public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerStruct
+    public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerEntity
     {
         $customer = $this->getCustomerByEmail($email, $context);
 
@@ -73,7 +73,7 @@ class AccountService
     /**
      * @throws CustomerNotFoundException
      */
-    public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerStruct
+    public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerEntity
     {
         $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
 
@@ -81,7 +81,7 @@ class AccountService
             throw new CustomerNotFoundException($email);
         }
 
-        /** @var CustomerStruct $customer */
+        /** @var CustomerEntity $customer */
         $customer = $customers->first();
 
         return $customer;
@@ -103,7 +103,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      */
-    public function getCustomerByContext(CheckoutContext $context): CustomerStruct
+    public function getCustomerByContext(CheckoutContext $context): CustomerEntity
     {
         $this->validateCustomer($context);
 
@@ -163,7 +163,7 @@ class AccountService
      * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
-    public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressStruct
+    public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressEntity
     {
         return $this->validateAddressId($addressId, $context);
     }
@@ -436,13 +436,13 @@ class AccountService
      * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
-    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressStruct
+    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressEntity
     {
         if (!Uuid::isValid($addressId)) {
             throw new InvalidUuidException($addressId);
         }
 
-        /** @var CustomerAddressStruct|null $address */
+        /** @var CustomerAddressEntity|null $address */
         $address = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext())->get($addressId);
 
         if (!$address || $address->getCustomerId() !== $context->getCustomer()->getId()) {

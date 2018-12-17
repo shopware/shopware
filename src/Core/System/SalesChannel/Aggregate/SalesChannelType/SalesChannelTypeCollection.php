@@ -8,16 +8,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class SalesChannelTypeCollection extends EntityCollection
 {
     /**
-     * @var SalesChannelTypeStruct[]
+     * @var SalesChannelTypeEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? SalesChannelTypeStruct
+    public function get(string $id): ? SalesChannelTypeEntity
     {
         return parent::get($id);
     }
 
-    public function current(): SalesChannelTypeStruct
+    public function current(): SalesChannelTypeEntity
     {
         return parent::current();
     }
@@ -25,7 +25,7 @@ class SalesChannelTypeCollection extends EntityCollection
     public function getSalesChannels(): SalesChannelCollection
     {
         return new SalesChannelCollection(
-            $this->fmap(function (SalesChannelTypeStruct $salesChannel) {
+            $this->fmap(function (SalesChannelTypeEntity $salesChannel) {
                 return $salesChannel->getSalesChannels();
             })
         );
@@ -33,6 +33,6 @@ class SalesChannelTypeCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return SalesChannelTypeStruct::class;
+        return SalesChannelTypeEntity::class;
     }
 }

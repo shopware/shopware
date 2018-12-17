@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
+use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -78,7 +78,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         //add query as extension to transport active aggregation view elements
         $criteria = $event->getCriteria();
-        $criteria->addExtension(self::AGGREGATION_NAME, new ArrayStruct(['ids' => $ids]));
+        $criteria->addExtension(self::AGGREGATION_NAME, new ArrayEntity(['ids' => $ids]));
         $criteria->addPostFilter($query);
     }
 
@@ -99,7 +99,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
         /** @var EntityAggregationResult $aggregation */
         $aggregation = $result->get(self::AGGREGATION_NAME);
 
-        /** @var ArrayStruct|null $filter */
+        /** @var ArrayEntity|null $filter */
         $filter = $page->getCriteria()->getExtension(self::AGGREGATION_NAME);
 
         $active = $filter !== null;
@@ -115,7 +115,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $groups = $values->groupByConfigurationGroups();
 
-        /** @var ConfigurationGroupStruct $group */
+        /** @var ConfigurationGroupEntity $group */
         foreach ($groups as $group) {
             $items = [];
 

@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Payment\Handler\TestPaymentHandler;
@@ -155,7 +155,7 @@ class PaymentServiceTest extends TestCase
             null,
             null,
             null,
-            (new PaymentMethodStruct())->assign(['id' => $paymentMethodId])
+            (new PaymentMethodEntity())->assign(['id' => $paymentMethodId])
         );
     }
 

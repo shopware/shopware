@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -143,7 +143,7 @@ class CompositeEntitySearcher
             foreach ($entities as $entity) {
                 $score = (float) $rows[$entity->getId()];
 
-                $entity->addExtension('search', new ArrayStruct(['_score' => $score]));
+                $entity->addExtension('search', new ArrayEntity(['_score' => $score]));
 
                 $results[] = [
                     'type' => $name,

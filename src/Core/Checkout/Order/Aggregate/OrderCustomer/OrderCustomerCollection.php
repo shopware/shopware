@@ -8,30 +8,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class OrderCustomerCollection extends EntityCollection
 {
     /**
-     * @var OrderCustomerStruct[]
+     * @var OrderCustomerEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? OrderCustomerStruct
+    public function get(string $id): ? OrderCustomerEntity
     {
         return parent::get($id);
     }
 
-    public function current(): OrderCustomerStruct
+    public function current(): OrderCustomerEntity
     {
         return parent::current();
     }
 
     public function getCustomerIds(): array
     {
-        return $this->fmap(function (OrderCustomerStruct $orderCustomer) {
+        return $this->fmap(function (OrderCustomerEntity $orderCustomer) {
             return $orderCustomer->getCustomerId();
         });
     }
 
     public function filterByCustomerId(string $id): self
     {
-        return $this->filter(function (OrderCustomerStruct $orderCustomer) use ($id) {
+        return $this->filter(function (OrderCustomerEntity $orderCustomer) use ($id) {
             return $orderCustomer->getCustomerId() === $id;
         });
     }
@@ -39,7 +39,7 @@ class OrderCustomerCollection extends EntityCollection
     public function getCustomers(): CustomerCollection
     {
         return new CustomerCollection(
-            $this->fmap(function (OrderCustomerStruct $orderCustomer) {
+            $this->fmap(function (OrderCustomerEntity $orderCustomer) {
                 return $orderCustomer->getCustomer();
             })
         );
@@ -47,6 +47,6 @@ class OrderCustomerCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return OrderCustomerStruct::class;
+        return OrderCustomerEntity::class;
     }
 }

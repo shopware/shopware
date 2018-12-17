@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Category\Util\Tree;
 
-use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Content\Category\CategoryEntity;
 
 class TreeItem
 {
     /**
-     * @var CategoryStruct
+     * @var CategoryEntity
      */
     protected $category;
 
@@ -16,13 +16,13 @@ class TreeItem
      */
     protected $children;
 
-    public function __construct(CategoryStruct $category, array $children)
+    public function __construct(CategoryEntity $category, array $children)
     {
         $this->category = $category;
         $this->children = $children;
     }
 
-    public function getCategory(): CategoryStruct
+    public function getCategory(): CategoryEntity
     {
         return $this->category;
     }

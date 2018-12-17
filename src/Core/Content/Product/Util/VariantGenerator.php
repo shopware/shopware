@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\Product\Util;
 
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorEntity;
 use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -60,14 +60,14 @@ class VariantGenerator
             }, $combination);
 
             $options = $configurator->filter(
-                function (ProductConfiguratorStruct $config) use ($combination) {
+                function (ProductConfiguratorEntity $config) use ($combination) {
                     return \in_array($config->getOptionId(), $combination, true);
                 }
             );
 
             $options->sortByGroup();
 
-            $names = $options->map(function (ProductConfiguratorStruct $config) {
+            $names = $options->map(function (ProductConfiguratorEntity $config) {
                 return $config->getOption()->getName();
             });
 
@@ -127,9 +127,9 @@ class VariantGenerator
         return $all;
     }
 
-    private function buildPrice(ProductStruct $product, ProductConfiguratorCollection $options): ?array
+    private function buildPrice(ProductEntity $product, ProductConfiguratorCollection $options): ?array
     {
-        $surcharges = $options->fmap(function (ProductConfiguratorStruct $configurator) {
+        $surcharges = $options->fmap(function (ProductConfiguratorEntity $configurator) {
             return $configurator->getPrice();
         });
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Core\Checkout\Order\OrderStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
@@ -66,7 +66,7 @@ class PaymentTransactionChainProcessor
         $criteria = new ReadCriteria([$orderId]);
         $criteria->addAssociation('order.transactions');
 
-        /** @var OrderStruct|null $order */
+        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->read($criteria, $context)->first();
 
         if (!$order) {

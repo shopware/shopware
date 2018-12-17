@@ -10,72 +10,72 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class OrderDeliveryCollection extends EntityCollection
 {
     /**
-     * @var OrderDeliveryStruct[]
+     * @var OrderDeliveryEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? OrderDeliveryStruct
+    public function get(string $id): ? OrderDeliveryEntity
     {
         return parent::get($id);
     }
 
-    public function current(): OrderDeliveryStruct
+    public function current(): OrderDeliveryEntity
     {
         return parent::current();
     }
 
     public function getOrderIds(): array
     {
-        return $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
+        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
             return $orderDelivery->getOrderId();
         });
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryStruct $orderDelivery) use ($id) {
+        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
             return $orderDelivery->getOrderId() === $id;
         });
     }
 
     public function getShippingAddressIds(): array
     {
-        return $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
+        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
             return $orderDelivery->getShippingOrderAddressId();
         });
     }
 
     public function filterByShippingAddressId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryStruct $orderDelivery) use ($id) {
+        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
             return $orderDelivery->getShippingOrderAddressId() === $id;
         });
     }
 
     public function getOrderStateIds(): array
     {
-        return $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
+        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
             return $orderDelivery->getOrderStateId();
         });
     }
 
     public function filterByOrderStateId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryStruct $orderDelivery) use ($id) {
+        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
             return $orderDelivery->getOrderStateId() === $id;
         });
     }
 
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
+        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
             return $orderDelivery->getShippingMethodId();
         });
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(function (OrderDeliveryStruct $orderDelivery) use ($id) {
+        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
             return $orderDelivery->getShippingMethodId() === $id;
         });
     }
@@ -83,7 +83,7 @@ class OrderDeliveryCollection extends EntityCollection
     public function getShippingAddress(): OrderAddressCollection
     {
         return new OrderAddressCollection(
-            $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
+            $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
                 return $orderDelivery->getShippingOrderAddress();
             })
         );
@@ -92,7 +92,7 @@ class OrderDeliveryCollection extends EntityCollection
     public function getOrderStates(): OrderStateCollection
     {
         return new OrderStateCollection(
-            $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
+            $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
                 return $orderDelivery->getOrderState();
             })
         );
@@ -101,7 +101,7 @@ class OrderDeliveryCollection extends EntityCollection
     public function getShippingMethods(): ShippingMethodCollection
     {
         return new ShippingMethodCollection(
-            $this->fmap(function (OrderDeliveryStruct $orderDelivery) {
+            $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
                 return $orderDelivery->getShippingMethod();
             })
         );
@@ -109,6 +109,6 @@ class OrderDeliveryCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return OrderDeliveryStruct::class;
+        return OrderDeliveryEntity::class;
     }
 }

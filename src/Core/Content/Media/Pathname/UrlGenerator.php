@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Pathname;
 
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -38,7 +38,7 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @throws EmptyMediaFilenameException
      */
-    public function getRelativeMediaUrl(MediaStruct $media): string
+    public function getRelativeMediaUrl(MediaEntity $media): string
     {
         $physicalFileName = $media->getFileName();
 
@@ -55,7 +55,7 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @throws EmptyMediaFilenameException
      */
-    public function getAbsoluteMediaUrl(MediaStruct $media): string
+    public function getAbsoluteMediaUrl(MediaEntity $media): string
     {
         return $this->getBaseUrl() . '/' . $this->getRelativeMediaUrl($media);
     }
@@ -65,7 +65,7 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return string
      */
-    public function getRelativeThumbnailUrl(MediaStruct $media, int $width, int $height, bool $isHighDpi = false): string
+    public function getRelativeThumbnailUrl(MediaEntity $media, int $width, int $height, bool $isHighDpi = false): string
     {
         $mediaPathInfo = pathinfo($this->getRelativeMediaUrl($media));
         $mediaPathInfo['dirname'] = preg_replace('/^media/', 'thumbnail', $mediaPathInfo['dirname']);
@@ -83,7 +83,7 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @throws EmptyMediaFilenameException
      */
-    public function getAbsoluteThumbnailUrl(MediaStruct $media, int $width, int $height, bool $isHighDpi = false): string
+    public function getAbsoluteThumbnailUrl(MediaEntity $media, int $width, int $height, bool $isHighDpi = false): string
     {
         return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $width, $height, $isHighDpi);
     }

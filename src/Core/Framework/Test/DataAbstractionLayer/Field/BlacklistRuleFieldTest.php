@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -762,9 +762,9 @@ class BlacklistRuleFieldTest extends TestCase
         $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
 
         //test if all products can be read if context contains no rules
-        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
 
-        /** @var ProductManufacturerStruct $manufacturer */
+        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(4, $manufacturer->getProducts());
 
@@ -777,8 +777,8 @@ class BlacklistRuleFieldTest extends TestCase
         $context = $this->createContextWithRules();
         $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerStruct $manufacturer */
-        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        /** @var ProductManufacturerEntity $manufacturer */
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
 
@@ -791,8 +791,8 @@ class BlacklistRuleFieldTest extends TestCase
         $context = $this->createContextWithRules([$ruleId, $ruleId2]);
         $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerStruct $manufacturer */
-        static::assertInstanceOf(ProductManufacturerStruct::class, $manufacturer);
+        /** @var ProductManufacturerEntity $manufacturer */
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
     }

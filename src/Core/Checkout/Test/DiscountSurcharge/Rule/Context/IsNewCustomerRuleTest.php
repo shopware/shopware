@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 
 class IsNewCustomerRuleTest extends TestCase
@@ -17,7 +17,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setFirstLogin(new \DateTime());
 
         $context = $this->createMock(CheckoutContext::class);
@@ -37,7 +37,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setFirstLogin(
             (new \DateTime())->sub(
                 new \DateInterval('P' . 10 . 'D')
@@ -61,7 +61,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $customer = new CustomerStruct();
+        $customer = new CustomerEntity();
         $customer->setFirstLogin(
             (new \DateTime())->add(
                 new \DateInterval('P' . 10 . 'D')

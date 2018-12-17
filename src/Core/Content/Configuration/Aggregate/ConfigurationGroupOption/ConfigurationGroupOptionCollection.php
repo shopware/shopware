@@ -3,50 +3,50 @@
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption;
 
 use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
-use Shopware\Core\Content\Configuration\ConfigurationGroupStruct;
+use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ConfigurationGroupOptionCollection extends EntityCollection
 {
     /**
-     * @var ConfigurationGroupOptionStruct[]
+     * @var ConfigurationGroupOptionEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ConfigurationGroupOptionStruct
+    public function get(string $id): ? ConfigurationGroupOptionEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ConfigurationGroupOptionStruct
+    public function current(): ConfigurationGroupOptionEntity
     {
         return parent::current();
     }
 
     public function getConfigurationGroupIds(): array
     {
-        return $this->fmap(function (ConfigurationGroupOptionStruct $configurationGroupOption) {
+        return $this->fmap(function (ConfigurationGroupOptionEntity $configurationGroupOption) {
             return $configurationGroupOption->getGroupId();
         });
     }
 
     public function filterByGroupId(string $id): self
     {
-        return $this->filter(function (ConfigurationGroupOptionStruct $configurationGroupOption) use ($id) {
+        return $this->filter(function (ConfigurationGroupOptionEntity $configurationGroupOption) use ($id) {
             return $configurationGroupOption->getGroupId() === $id;
         });
     }
 
     public function getMediaIds(): array
     {
-        return $this->fmap(function (ConfigurationGroupOptionStruct $configurationGroupOption) {
+        return $this->fmap(function (ConfigurationGroupOptionEntity $configurationGroupOption) {
             return $configurationGroupOption->getMediaId();
         });
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(function (ConfigurationGroupOptionStruct $configurationGroupOption) use ($id) {
+        return $this->filter(function (ConfigurationGroupOptionEntity $configurationGroupOption) use ($id) {
             return $configurationGroupOption->getMediaId() === $id;
         });
     }
@@ -54,7 +54,7 @@ class ConfigurationGroupOptionCollection extends EntityCollection
     public function getGroups(): ConfigurationGroupCollection
     {
         return new ConfigurationGroupCollection(
-            $this->fmap(function (ConfigurationGroupOptionStruct $configurationGroupOption) {
+            $this->fmap(function (ConfigurationGroupOptionEntity $configurationGroupOption) {
                 return $configurationGroupOption->getGroup();
             })
         );
@@ -67,7 +67,7 @@ class ConfigurationGroupOptionCollection extends EntityCollection
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());
             } else {
-                $group = ConfigurationGroupStruct::createFrom($element->getGroup());
+                $group = ConfigurationGroupEntity::createFrom($element->getGroup());
                 $groups->add($group);
 
                 $group->setOptions(new self());
@@ -81,6 +81,6 @@ class ConfigurationGroupOptionCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return ConfigurationGroupOptionStruct::class;
+        return ConfigurationGroupOptionEntity::class;
     }
 }

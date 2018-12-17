@@ -7,22 +7,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CatalogCollection extends EntityCollection
 {
     /**
-     * @var CatalogStruct[]
+     * @var CatalogEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CatalogStruct
+    public function get(string $id): ? CatalogEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CatalogStruct
+    public function current(): CatalogEntity
     {
         return parent::current();
     }
 
     protected function getExpectedClass(): string
     {
-        return CatalogStruct::class;
+        return CatalogEntity::class;
     }
 }

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\SalesChannelStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -50,7 +50,7 @@ class StorefrontProxyController extends AbstractController
      */
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context)
     {
-        /** @var SalesChannelStruct|null $salesChannel */
+        /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$salesChannelId]), $context)->get($salesChannelId);
 
         if (!$salesChannel) {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Test\Media;
 
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
@@ -132,54 +132,54 @@ trait MediaFixtures
         return $context;
     }
 
-    public function getEmptyMedia(): MediaStruct
+    public function getEmptyMedia(): MediaEntity
     {
         return $this->getMediaFixture('NamedEmpty');
     }
 
-    public function getPngWithoutExtension(): MediaStruct
+    public function getPngWithoutExtension(): MediaEntity
     {
         return $this->getMediaFixture('NamedMimePng');
     }
 
-    public function getPng(): MediaStruct
+    public function getPng(): MediaEntity
     {
         return $this->getMediaFixture('NamedMimePngEtxPng');
     }
 
-    public function getTxt(): MediaStruct
+    public function getTxt(): MediaEntity
     {
         return $this->getMediaFixture('NamedMimeTxtEtxTxt');
     }
 
-    public function getJpg(): MediaStruct
+    public function getJpg(): MediaEntity
     {
         return $this->getMediaFixture('NamedMimeJpgEtxJpg');
     }
 
-    public function getPdf(): MediaStruct
+    public function getPdf(): MediaEntity
     {
         return $this->getMediaFixture('NamedMimePdfEtxPdf');
     }
 
-    public function getMediaWithThumbnail(): MediaStruct
+    public function getMediaWithThumbnail(): MediaEntity
     {
         return $this->getMediaFixture('NamedWithThumbnail');
     }
 
-    public function getMediaWithProduct(): MediaStruct
+    public function getMediaWithProduct(): MediaEntity
     {
         return $this->getMediaFixture('MediaWithProduct');
     }
 
-    public function getMediaWithManufacturer(): MediaStruct
+    public function getMediaWithManufacturer(): MediaEntity
     {
         $fixture = $this->getMediaFixture('MediaWithManufacturer');
 
         return $fixture;
     }
 
-    private function getMediaFixture(string $fixtureName): MediaStruct
+    private function getMediaFixture(string $fixtureName): MediaEntity
     {
         return $this->createFixture(
             $fixtureName,

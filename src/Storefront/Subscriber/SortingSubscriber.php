@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Subscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\Listing\ListingSortingStruct;
+use Shopware\Core\System\Listing\ListingSortingEntity;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\ListingPageRequestEvent;
@@ -60,7 +60,7 @@ class SortingSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var ListingSortingStruct $sorting */
+        /** @var ListingSortingEntity $sorting */
         $sorting = $sortings->first();
         $criteria = $event->getCriteria();
         foreach ($sorting->getPayload() as $fieldSorting) {

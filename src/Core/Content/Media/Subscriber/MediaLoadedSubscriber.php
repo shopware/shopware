@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Subscriber;
 
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
@@ -41,7 +41,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
     public function addUrls(EntityLoadedEvent $event): void
     {
-        /** @var MediaStruct $media */
+        /** @var MediaEntity $media */
         foreach ($event->getEntities() as $media) {
             if (!$media->hasFile()) {
                 continue;
@@ -57,7 +57,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
     public function loadTypedMetadata(EntityLoadedEvent $event): void
     {
-        /** @var MediaStruct $entity */
+        /** @var MediaEntity $entity */
         foreach ($event->getEntities() as $entity) {
             $metadata = $entity->getMetaData();
 
@@ -69,7 +69,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function addThumbnailUrl(MediaThumbnailStruct $thumbnail, MediaStruct $media): void
+    private function addThumbnailUrl(MediaThumbnailEntity $thumbnail, MediaEntity $media): void
     {
         $thumbnail->setUrl(
             $this->urlGenerator->getAbsoluteThumbnailUrl(

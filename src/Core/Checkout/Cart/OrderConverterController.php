@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Order\OrderStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -58,7 +58,7 @@ class OrderConverterController extends AbstractController
      */
     public function convertToCart(string $orderId, Context $context)
     {
-        /** @var OrderStruct|null $order */
+        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $context)->get($orderId);
 
         if (!$order) {

@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class ListingSortingTranslationCollection extends EntityCollection
 {
     /**
-     * @var ListingSortingTranslationStruct[]
+     * @var ListingSortingTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? ListingSortingTranslationStruct
+    public function get(string $id): ? ListingSortingTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): ListingSortingTranslationStruct
+    public function current(): ListingSortingTranslationEntity
     {
         return parent::current();
     }
 
     public function getListingSortingIds(): array
     {
-        return $this->fmap(function (ListingSortingTranslationStruct $listingSortingTranslation) {
+        return $this->fmap(function (ListingSortingTranslationEntity $listingSortingTranslation) {
             return $listingSortingTranslation->getListingSortingId();
         });
     }
 
     public function filterByListingSortingId(string $id): self
     {
-        return $this->filter(function (ListingSortingTranslationStruct $listingSortingTranslation) use ($id) {
+        return $this->filter(function (ListingSortingTranslationEntity $listingSortingTranslation) use ($id) {
             return $listingSortingTranslation->getListingSortingId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ListingSortingTranslationStruct $listingSortingTranslation) {
+        return $this->fmap(function (ListingSortingTranslationEntity $listingSortingTranslation) {
             return $listingSortingTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ListingSortingTranslationStruct $listingSortingTranslation) use ($id) {
+        return $this->filter(function (ListingSortingTranslationEntity $listingSortingTranslation) use ($id) {
             return $listingSortingTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return ListingSortingTranslationStruct::class;
+        return ListingSortingTranslationEntity::class;
     }
 }

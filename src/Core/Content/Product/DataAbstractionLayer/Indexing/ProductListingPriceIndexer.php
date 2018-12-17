@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -152,7 +152,7 @@ class ProductListingPriceIndexer implements IndexerInterface
                     'ruleId' => Uuid::fromBytesToHex($price['rule_id']),
                     'currencyId' => Uuid::fromBytesToHex($price['currency_id']),
                     'price' => $value,
-                    '_class' => PriceRuleStruct::class,
+                    '_class' => PriceRuleEntity::class,
                 ];
             },
             $productPrices

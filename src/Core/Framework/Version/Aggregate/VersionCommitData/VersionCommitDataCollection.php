@@ -8,23 +8,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 class VersionCommitDataCollection extends EntityCollection
 {
     /**
-     * @var VersionCommitDataStruct[]
+     * @var VersionCommitDataEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? VersionCommitDataStruct
+    public function get(string $id): ? VersionCommitDataEntity
     {
         return parent::get($id);
     }
 
-    public function current(): VersionCommitDataStruct
+    public function current(): VersionCommitDataEntity
     {
         return parent::current();
     }
 
     public function filterByEntity(string $definition): self
     {
-        return $this->filter(function (VersionCommitDataStruct $change) use ($definition) {
+        return $this->filter(function (VersionCommitDataEntity $change) use ($definition) {
             /* @var string|EntityDefinition $definition */
             return $change->getEntityName() === $definition::getEntityName();
         });
@@ -32,7 +32,7 @@ class VersionCommitDataCollection extends EntityCollection
 
     public function filterByEntityPrimary(string $definition, array $primary): self
     {
-        return $this->filter(function (VersionCommitDataStruct $change) use ($definition, $primary) {
+        return $this->filter(function (VersionCommitDataEntity $change) use ($definition, $primary) {
             /** @var string|EntityDefinition $definition */
             if ($change->getEntityName() !== $definition::getEntityName()) {
                 return false;
@@ -45,6 +45,6 @@ class VersionCommitDataCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return VersionCommitDataStruct::class;
+        return VersionCommitDataEntity::class;
     }
 }

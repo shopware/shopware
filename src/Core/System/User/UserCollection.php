@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class UserCollection extends EntityCollection
 {
     /**
-     * @var UserStruct[]
+     * @var UserEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? UserStruct
+    public function get(string $id): ? UserEntity
     {
         return parent::get($id);
     }
 
-    public function current(): UserStruct
+    public function current(): UserEntity
     {
         return parent::current();
     }
 
     public function getLocaleIds(): array
     {
-        return $this->fmap(function (UserStruct $user) {
+        return $this->fmap(function (UserEntity $user) {
             return $user->getLocaleId();
         });
     }
 
     public function filterByLocaleId(string $id): self
     {
-        return $this->filter(function (UserStruct $user) use ($id) {
+        return $this->filter(function (UserEntity $user) use ($id) {
             return $user->getLocaleId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return UserStruct::class;
+        return UserEntity::class;
     }
 }

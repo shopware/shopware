@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Delivery extends Struct
@@ -24,7 +24,7 @@ class Delivery extends Struct
     protected $deliveryDate;
 
     /**
-     * @var ShippingMethodStruct
+     * @var ShippingMethodEntity
      */
     protected $shippingMethod;
 
@@ -41,7 +41,7 @@ class Delivery extends Struct
     public function __construct(
         DeliveryPositionCollection $positions,
         DeliveryDate $deliveryDate,
-        ShippingMethodStruct $shippingMethod,
+        ShippingMethodEntity $shippingMethod,
         ShippingLocation $location,
         CalculatedPrice $shippingCosts
     ) {
@@ -79,7 +79,7 @@ class Delivery extends Struct
         return $this->endDeliveryDate;
     }
 
-    public function getShippingMethod(): ShippingMethodStruct
+    public function getShippingMethod(): ShippingMethodEntity
     {
         return $this->shippingMethod;
     }

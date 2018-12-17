@@ -39,9 +39,9 @@ class DiscountSurchargeTranslationDefinition extends EntityTranslationDefinition
         return DiscountSurchargeTranslationCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return DiscountSurchargeTranslationStruct::class;
+        return DiscountSurchargeTranslationEntity::class;
     }
 
     public static function getRootEntity(): ?string

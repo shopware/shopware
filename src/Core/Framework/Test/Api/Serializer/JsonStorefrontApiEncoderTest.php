@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder;
@@ -53,7 +53,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
 
     public function testEncodeStruct(): void
     {
-        $struct = new MediaStruct();
+        $struct = new MediaEntity();
         $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
         $struct->setTitle('Manufacturer');
         $struct->setMimeType('image/png');

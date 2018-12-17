@@ -7,36 +7,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class PaymentMethodCollection extends EntityCollection
 {
     /**
-     * @var PaymentMethodStruct[]
+     * @var PaymentMethodEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? PaymentMethodStruct
+    public function get(string $id): ? PaymentMethodEntity
     {
         return parent::get($id);
     }
 
-    public function current(): PaymentMethodStruct
+    public function current(): PaymentMethodEntity
     {
         return parent::current();
     }
 
     public function getPluginIds(): array
     {
-        return $this->fmap(function (PaymentMethodStruct $paymentMethod) {
+        return $this->fmap(function (PaymentMethodEntity $paymentMethod) {
             return $paymentMethod->getPluginId();
         });
     }
 
     public function filterByPluginId(string $id): self
     {
-        return $this->filter(function (PaymentMethodStruct $paymentMethod) use ($id) {
+        return $this->filter(function (PaymentMethodEntity $paymentMethod) use ($id) {
             return $paymentMethod->getPluginId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return PaymentMethodStruct::class;
+        return PaymentMethodEntity::class;
     }
 }

@@ -7,50 +7,50 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 class CountryStateTranslationCollection extends EntityCollection
 {
     /**
-     * @var CountryStateTranslationStruct[]
+     * @var CountryStateTranslationEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? CountryStateTranslationStruct
+    public function get(string $id): ? CountryStateTranslationEntity
     {
         return parent::get($id);
     }
 
-    public function current(): CountryStateTranslationStruct
+    public function current(): CountryStateTranslationEntity
     {
         return parent::current();
     }
 
     public function getCountryStateIds(): array
     {
-        return $this->fmap(function (CountryStateTranslationStruct $countryStateTranslation) {
+        return $this->fmap(function (CountryStateTranslationEntity $countryStateTranslation) {
             return $countryStateTranslation->getCountryStateId();
         });
     }
 
     public function filterByCountryStateId(string $id): self
     {
-        return $this->filter(function (CountryStateTranslationStruct $countryStateTranslation) use ($id) {
+        return $this->filter(function (CountryStateTranslationEntity $countryStateTranslation) use ($id) {
             return $countryStateTranslation->getCountryStateId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (CountryStateTranslationStruct $countryStateTranslation) {
+        return $this->fmap(function (CountryStateTranslationEntity $countryStateTranslation) {
             return $countryStateTranslation->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (CountryStateTranslationStruct $countryStateTranslation) use ($id) {
+        return $this->filter(function (CountryStateTranslationEntity $countryStateTranslation) use ($id) {
             return $countryStateTranslation->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return CountryStateTranslationStruct::class;
+        return CountryStateTranslationEntity::class;
     }
 }

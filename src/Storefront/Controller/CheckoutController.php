@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Order\OrderStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
@@ -219,7 +219,7 @@ class CheckoutController extends StorefrontController
      * @throws CustomerNotLoggedInException
      * @throws OrderNotFoundException
      */
-    private function getOrder(string $orderId, CheckoutContext $context): OrderStruct
+    private function getOrder(string $orderId, CheckoutContext $context): OrderEntity
     {
         $customer = $context->getCustomer();
         if ($customer === null) {

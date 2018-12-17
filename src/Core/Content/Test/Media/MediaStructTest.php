@@ -5,9 +5,9 @@ namespace Shopware\Core\Content\Test\Media;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -43,7 +43,7 @@ class MediaStructTest extends TestCase
         $result = $this->repository->search($criteria, $this->context);
         $media = $result->getEntities()->first();
 
-        static::assertInstanceOf(MediaStruct::class, $media);
+        static::assertInstanceOf(MediaEntity::class, $media);
         static::assertEquals($media->getId(), $media->getId());
     }
 
@@ -75,7 +75,7 @@ class MediaStructTest extends TestCase
         static::assertEquals(MediaThumbnailCollection::class, \get_class($fetchedMedia->getThumbnails()));
 
         $persistedThumbnail = $fetchedMedia->getThumbnails()->first();
-        static::assertEquals(MediaThumbnailStruct::class, \get_class($persistedThumbnail));
+        static::assertEquals(MediaThumbnailEntity::class, \get_class($persistedThumbnail));
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
         static::assertFalse($persistedThumbnail->getHighDpi());

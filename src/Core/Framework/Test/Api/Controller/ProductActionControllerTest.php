@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -70,7 +70,7 @@ class ProductActionControllerTest extends TestCase
         $criteria->addAssociation('product.configurators');
         $product = $this->productRepository->read($criteria, $context)->get($id);
 
-        /** @var ProductStruct $product */
+        /** @var ProductEntity $product */
         $configurators = $product->getConfigurators();
 
         static::assertCount(2, $configurators);

@@ -8,6 +8,6 @@ class IntegrationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string
     {
-        return IntegrationStruct::class;
+        return IntegrationEntity::class;
     }
 }

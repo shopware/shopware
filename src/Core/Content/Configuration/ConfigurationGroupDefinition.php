@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Configuration;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -34,7 +35,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             new BoolField('comparable', 'comparable'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('options', Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }
@@ -44,8 +45,8 @@ class ConfigurationGroupDefinition extends EntityDefinition
         return ConfigurationGroupCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return ConfigurationGroupStruct::class;
+        return ConfigurationGroupEntity::class;
     }
 }

@@ -25,7 +25,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
-use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -88,7 +88,7 @@ class LineItem extends Struct
     protected $description;
 
     /**
-     * @var null|MediaStruct
+     * @var null|MediaEntity
      */
     protected $cover;
 
@@ -185,7 +185,7 @@ Boolean value which defines if the line item is a good. Set to true by default.
 Optional description of the line item.
 
 ### Cover
-Optional `Shopware\Core\Content\Media\MediaStruct` to define a cover picture.
+Optional `Shopware\Core\Content\Media\MediaEntity` to define a cover picture.
 
 ### Delivery information
 Optional `Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation` to define delivery dates, 

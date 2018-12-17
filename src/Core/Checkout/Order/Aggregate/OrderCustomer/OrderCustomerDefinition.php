@@ -52,9 +52,9 @@ class OrderCustomerDefinition extends EntityDefinition
         return OrderCustomerCollection::class;
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return OrderCustomerStruct::class;
+        return OrderCustomerEntity::class;
     }
 
     public static function getRootEntity(): ?string

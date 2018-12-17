@@ -8,44 +8,44 @@ use Shopware\Core\System\Locale\LocaleCollection;
 class LanguageCollection extends EntityCollection
 {
     /**
-     * @var LanguageStruct[]
+     * @var LanguageEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? LanguageStruct
+    public function get(string $id): ? LanguageEntity
     {
         return parent::get($id);
     }
 
-    public function current(): LanguageStruct
+    public function current(): LanguageEntity
     {
         return parent::current();
     }
 
     public function getParentIds(): array
     {
-        return $this->fmap(function (LanguageStruct $language) {
+        return $this->fmap(function (LanguageEntity $language) {
             return $language->getParentId();
         });
     }
 
     public function filterByParentId(string $id): LanguageCollection
     {
-        return $this->filter(function (LanguageStruct $language) use ($id) {
+        return $this->filter(function (LanguageEntity $language) use ($id) {
             return $language->getParentId() === $id;
         });
     }
 
     public function getLocaleIds(): array
     {
-        return $this->fmap(function (LanguageStruct $language) {
+        return $this->fmap(function (LanguageEntity $language) {
             return $language->getLocaleId();
         });
     }
 
     public function filterByLocaleId(string $id): LanguageCollection
     {
-        return $this->filter(function (LanguageStruct $language) use ($id) {
+        return $this->filter(function (LanguageEntity $language) use ($id) {
             return $language->getLocaleId() === $id;
         });
     }
@@ -53,7 +53,7 @@ class LanguageCollection extends EntityCollection
     public function getLocales(): LocaleCollection
     {
         return new LocaleCollection(
-            $this->fmap(function (LanguageStruct $language) {
+            $this->fmap(function (LanguageEntity $language) {
                 return $language->getLocale();
             })
         );
@@ -61,6 +61,6 @@ class LanguageCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return LanguageStruct::class;
+        return LanguageEntity::class;
     }
 }

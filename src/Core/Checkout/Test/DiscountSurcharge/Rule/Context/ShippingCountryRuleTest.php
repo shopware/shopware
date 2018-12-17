@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Country\CountryEntity;
 
 class ShippingCountryRuleTest extends TestCase
 {
@@ -21,7 +21,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
         $context
@@ -41,7 +41,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
         $context
@@ -61,7 +61,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context
@@ -81,7 +81,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context
@@ -108,7 +108,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context
@@ -126,7 +126,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryStruct();
+        $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context

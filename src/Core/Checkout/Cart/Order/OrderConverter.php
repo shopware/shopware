@@ -21,12 +21,12 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
-use Shopware\Core\Checkout\Customer\CustomerStruct;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
-use Shopware\Core\Checkout\Order\OrderStruct;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -131,7 +131,7 @@ class OrderConverter
      * @throws InvalidPayloadException
      * @throws LineItemNotStackableException
      */
-    public function convertToCart(OrderStruct $order, Context $context): Cart
+    public function convertToCart(OrderEntity $order, Context $context): Cart
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_line_item.orderId', $order->getId()));
@@ -159,7 +159,7 @@ class OrderConverter
         $index = [];
         $root = new LineItemCollection();
 
-        /** @var OrderLineItemStruct $lineItem */
+        /** @var OrderLineItemEntity $lineItem */
         foreach ($lineItems as $id => $lineItem) {
             if (!array_key_exists($id, $index)) {
                 $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
@@ -207,13 +207,13 @@ class OrderConverter
         return $cart;
     }
 
-    public function assembleCheckoutContext(OrderStruct $order, Context $context): CheckoutContext
+    public function assembleCheckoutContext(OrderEntity $order, Context $context): CheckoutContext
     {
         $customerId = $order->getOrderCustomer()->getCustomerId();
         $customerGroupId = null;
 
         if ($customerId) {
-            /** @var CustomerStruct|null $customer */
+            /** @var CustomerEntity|null $customer */
             $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
             $customerGroupId = $customer->getGroupId() ?? null;
         }
@@ -231,7 +231,7 @@ class OrderConverter
         );
     }
 
-    private function getTaxStatus(OrderStruct $order): string
+    private function getTaxStatus(OrderEntity $order): string
     {
         if ($order->getIsTaxFree()) {
             return CartPrice::TAX_STATE_FREE;
@@ -240,7 +240,7 @@ class OrderConverter
         return $order->getIsNet() ? CartPrice::TAX_STATE_NET : CartPrice::TAX_STATE_GROSS;
     }
 
-    private function convertAddress(CustomerAddressStruct $address): array
+    private function convertAddress(CustomerAddressEntity $address): array
     {
         return array_filter([
             'company' => $address->getCompany(),

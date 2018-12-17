@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\System\Tax\TaxStruct;
+use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,7 +69,7 @@ class PriceActionController extends AbstractController
 
         $taxes = $this->taxRepository->read(new ReadCriteria([$taxId]), $context);
         $tax = $taxes->get($taxId);
-        if (!$tax instanceof TaxStruct) {
+        if (!$tax instanceof TaxEntity) {
             throw new \InvalidArgumentException(sprintf('Tax rule with id %s not found taxId missing', $taxId));
         }
 

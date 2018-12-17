@@ -6,8 +6,8 @@ use League\Flysystem\FileNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -79,7 +79,7 @@ class ThumbnailServiceTest extends TestCase
         $searchCriteria->addFilter(new EqualsFilter('media.id', $media->getId()));
 
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
-        /** @var MediaStruct $updatedMedia */
+        /** @var MediaEntity $updatedMedia */
         $updatedMedia = $mediaResult->getEntities()->first();
 
         $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
@@ -176,7 +176,7 @@ class ThumbnailServiceTest extends TestCase
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
 
         $searchResult = $this->mediaRepository->search($mediaCriteria, $this->context);
-        /** @var MediaStruct $media */
+        /** @var MediaEntity $media */
         $media = $searchResult->getEntities()->get($mediaId);
         $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media);
 

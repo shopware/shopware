@@ -11,7 +11,6 @@ use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -29,11 +28,6 @@ class ThumbnailServiceTest extends TestCase
      * @var UrlGeneratorInterface
      */
     private $urlGenerator;
-
-    /**
-     * @var ThumbnailConfiguration
-     */
-    private $thumbnailConfiguration;
 
     /**
      * @var Context
@@ -54,7 +48,6 @@ class ThumbnailServiceTest extends TestCase
     {
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->context = Context::createDefaultContext();
         $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
@@ -64,7 +57,7 @@ class ThumbnailServiceTest extends TestCase
     public function testThumbnailGeneration(): void
     {
         $this->setFixtureContext($this->context);
-        $media = $this->getPng();
+        $media = $this->getPngWithFolder();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
@@ -82,14 +75,9 @@ class ThumbnailServiceTest extends TestCase
         /** @var MediaEntity $updatedMedia */
         $updatedMedia = $mediaResult->getEntities()->first();
 
-        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
-        if ($this->thumbnailConfiguration->isHighDpi()) {
-            $expectedNumberOfThumbnails *= 2;
-        }
-
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertEquals(
-            $expectedNumberOfThumbnails,
+            2,
             $thumbnails->count()
         );
 
@@ -100,23 +88,13 @@ class ThumbnailServiceTest extends TestCase
                 $thumbnail->getHeight()
             );
             static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
-
-            if ($thumbnail->getHighDpi()) {
-                $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                    $media,
-                    $thumbnail->getWidth(),
-                    $thumbnail->getHeight(),
-                    true
-                );
-                static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
-            }
         }
     }
 
     public function testGeneratorThrowsExceptionIfFileDoesNotExist(): void
     {
         $this->setFixtureContext($this->context);
-        $media = $this->getPng();
+        $media = $this->getPngWithFolder();
 
         $this->expectException(FileNotFoundException::class);
         $this->thumbnailService->generateThumbnails(
@@ -128,7 +106,7 @@ class ThumbnailServiceTest extends TestCase
     public function testGeneratorThrowsExceptionIfFileIsNoImage(): void
     {
         $this->setFixtureContext($this->context);
-        $media = $this->getPng();
+        $media = $this->getPngWithFolder();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
@@ -189,8 +167,7 @@ class ThumbnailServiceTest extends TestCase
             $thumbnailUrl = $this->urlGenerator->getRelativeThumbnailUrl(
                 $media,
                 $thumbnail->getWidth(),
-                $thumbnail->getHeight(),
-                $thumbnail->getHighDpi()
+                $thumbnail->getHeight()
             );
             $this->getPublicFilesystem()->put($thumbnailUrl, 'test content');
             $thumbnailUrls[] = $thumbnailUrl;

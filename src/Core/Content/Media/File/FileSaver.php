@@ -167,14 +167,12 @@ class FileSaver
                     $this->urlGenerator->getRelativeThumbnailUrl(
                         $currentMedia,
                         $thumbnail->getWidth(),
-                        $thumbnail->getHeight(),
-                        $thumbnail->getHighDpi()
+                        $thumbnail->getHeight()
                     ),
                     $this->urlGenerator->getRelativeThumbnailUrl(
                         $updatedMedia,
                         $thumbnail->getWidth(),
-                        $thumbnail->getHeight(),
-                        $thumbnail->getHighDpi()
+                        $thumbnail->getHeight()
                     ),
                     $renamedFiles
                 );

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
@@ -13,7 +16,10 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ThumbnailService
 {
@@ -38,30 +44,31 @@ class ThumbnailService
     private $urlGenerator;
 
     /**
-     * @var ThumbnailConfiguration
+     * @var EntityRepository
      */
-    private $configuration;
+    private $mediaFolderRepository;
 
     public function __construct(
         RepositoryInterface $mediaRepository,
         MediaThumbnailRepository $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,
-        ThumbnailConfiguration $configuration
+        EntityRepository $mediaFolderRepository
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->thumbnailRepository = $thumbnailRepository;
         $this->fileSystem = $fileSystem;
         $this->urlGenerator = $urlGenerator;
-        $this->configuration = $configuration;
+        $this->mediaFolderRepository = $mediaFolderRepository;
     }
 
+    /**
+     * @throws FileNotFoundException
+     * @throws FileTypeNotSupportedException
+     * @throws ThumbnailCouldNotBeSavedException
+     */
     public function updateThumbnailsAfterUpload(MediaEntity $media, Context $context): void
     {
-        if (!$this->configuration->isAutoGenerateAfterUpload()) {
-            return;
-        }
-
         $this->generateThumbnails($media, $context);
     }
 
@@ -80,13 +87,19 @@ class ThumbnailService
             throw new FileTypeNotSupportedException($media->getId());
         }
 
+        $config = $this->getConfigForMedia($media, $context);
+
+        if ($config === null || $config->getCreateThumbnails() === false) {
+            return;
+        }
+
         $mediaImage = $this->getImageResource($media);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 
         $savedThumbnails = [];
         try {
-            foreach ($this->configuration->getThumbnailSizes() as $size) {
-                $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size);
+            foreach ($config->getMediaThumbnailSizes() as $size) {
+                $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size, $config);
                 $thumbnail = $this->createNewImage(
                     $mediaImage,
                     $media->getMediaType(),
@@ -94,11 +107,16 @@ class ThumbnailService
                     $thumbnailSize
                 );
 
-                $savedThumbnails[] = $this->saveThumbnail($media, $size, $thumbnail, false);
-
-                if ($this->configuration->isHighDpi()) {
-                    $savedThumbnails[] = $this->saveThumbnail($media, $size, $thumbnail, true);
-                }
+                $url = $this->urlGenerator->getRelativeThumbnailUrl(
+                    $media,
+                    $size->getWidth(),
+                    $size->getHeight()
+                );
+                $this->writeThumbnail($thumbnail, $media->getMimeType(), $url, $config->getThumbnailQuality());
+                $savedThumbnails[] = [
+                    'width' => $size->getWidth(),
+                    'height' => $size->getHeight(),
+                ];
 
                 imagedestroy($thumbnail);
             }
@@ -111,6 +129,23 @@ class ThumbnailService
     public function deleteThumbnails(MediaEntity $media, Context $context): void
     {
         $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
+    }
+
+    private function getConfigForMedia(MediaEntity $media, Context $context): ?MediaFolderConfigurationEntity
+    {
+        if (!$media->getMediaFolderId()) {
+            return null;
+        }
+
+        $criteria = new ReadCriteria([$media->getMediaFolderId()]);
+        $thumbnailSizesCriteria = new Criteria();
+        $thumbnailSizesCriteria->addAssociation('mediaThumbnailSizes', new Criteria());
+        $criteria->addAssociation('configuration', $thumbnailSizesCriteria);
+
+        /** @var MediaFolderEntity $folder */
+        $folder = $this->mediaFolderRepository->read($criteria, $context)->get($media->getMediaFolderId());
+
+        return $folder->getConfiguration();
     }
 
     /**
@@ -139,26 +174,32 @@ class ThumbnailService
         ];
     }
 
-    private function calculateThumbnailSize(array $imageSize, array $preferredThumbnailSize): array
-    {
-        if (!$this->configuration->isKeepProportions()) {
-            return $preferredThumbnailSize;
+    private function calculateThumbnailSize(
+        array $imageSize,
+        MediaThumbnailSizeEntity $preferredThumbnailSize,
+        MediaFolderConfigurationEntity $config
+    ): array {
+        if (!$config->getKeepAspectRatio()) {
+            return [
+                'width' => $preferredThumbnailSize->getWidth(),
+                'height' => $preferredThumbnailSize->getHeight(),
+            ];
         }
 
         if ($imageSize['width'] >= $imageSize['height']) {
             $aspectRatio = $imageSize['height'] / $imageSize['width'];
 
             return [
-                'width' => (int) $preferredThumbnailSize['width'],
-                'height' => (int) ceil($preferredThumbnailSize['height'] * $aspectRatio),
+                'width' => $preferredThumbnailSize->getWidth(),
+                'height' => (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio),
             ];
         }
         $aspectRatio = $imageSize['width'] / $imageSize['height'];
 
         return [
-                'width' => (int) ceil($preferredThumbnailSize['width'] * $aspectRatio),
-                'height' => (int) $preferredThumbnailSize['height'],
-            ];
+            'width' => (int) ceil($preferredThumbnailSize->getWidth() * $aspectRatio),
+            'height' => $preferredThumbnailSize->getHeight(),
+        ];
     }
 
     /**
@@ -194,25 +235,6 @@ class ThumbnailService
 
     /**
      * @throws ThumbnailCouldNotBeSavedException
-     *
-     * @return array
-     */
-    private function saveThumbnail(MediaEntity $media, array $size, $thumbnail, bool $isHighDpi): array
-    {
-        $quality = $isHighDpi ?
-            $this->configuration->getHighDpiQuality() : $this->configuration->getStandardQuality();
-        $url = $this->urlGenerator->getRelativeThumbnailUrl(
-            $media,
-            $size['width'],
-            $size['height'],
-            $isHighDpi
-        );
-        $this->writeThumbnail($thumbnail, $media->getMimeType(), $url, $quality);
-
-        return $this->createThumbnailData($size, $isHighDpi);
-    }
-
-    /**
      * @throws ThumbnailCouldNotBeSavedException
      */
     private function writeThumbnail($thumbnail, string $mimeType, string $url, int $quality): void
@@ -236,15 +258,6 @@ class ThumbnailService
         if ($this->fileSystem->put($url, $imageFile) === false) {
             throw new ThumbnailCouldNotBeSavedException($url);
         }
-    }
-
-    private function createThumbnailData(array $size, bool $isHighDpi): array
-    {
-        return [
-            'width' => $size['width'],
-            'height' => $size['height'],
-            'highDpi' => $isHighDpi,
-        ];
     }
 
     private function persistThumbnailData(MediaEntity $media, array $savedThumbnails, Context $context): void

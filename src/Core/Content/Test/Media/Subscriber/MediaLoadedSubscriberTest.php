@@ -30,20 +30,20 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
         $mimeType = 'image/png';
 
-        $mediaStruct = new MediaEntity();
-        $mediaStruct->setId($mediaId);
-        $mediaStruct->setMimeType($mimeType);
-        $mediaStruct->setFileExtension('png');
-        $mediaStruct->setFileName($mediaId . '-134578345');
-        $mediaStruct->setThumbnails(new MediaThumbnailCollection());
+        $mediaEntity = new MediaEntity();
+        $mediaEntity->setId($mediaId);
+        $mediaEntity->setMimeType($mimeType);
+        $mediaEntity->setFileExtension('png');
+        $mediaEntity->setFileName($mediaId . '-134578345');
+        $mediaEntity->setThumbnails(new MediaThumbnailCollection());
 
-        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
+        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaEntity]), $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
-            $mediaStruct->getFileName() . '.' . $mediaStruct->getFileExtension(),
-            $mediaStruct->getUrl());
-        static::assertEquals([], $mediaStruct->getThumbnails()->getElements());
+            $mediaEntity->getFileName() . '.' . $mediaEntity->getFileExtension(),
+            $mediaEntity->getUrl());
+        static::assertEquals([], $mediaEntity->getThumbnails()->getElements());
     }
 
     public function testItAddsThumbnailUrl(): void
@@ -54,23 +54,23 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
         $mimeType = 'image/png';
 
-        $thumbnailStruct = new MediaThumbnailEntity();
-        $thumbnailStruct->setId($mediaId);
-        $thumbnailStruct->setHeight(100);
-        $thumbnailStruct->setWidth(100);
-        $thumbnailStruct->setHighDpi(false);
-        $mediaStruct = new MediaEntity();
-        $mediaStruct->setId($mediaId);
-        $mediaStruct->setMimeType($mimeType);
-        $mediaStruct->setFileExtension('png');
-        $mediaStruct->setFileName($mediaId . '-134578345');
-        $mediaStruct->setThumbnails(new MediaThumbnailCollection([$thumbnailStruct]));
+        $thumbnailEntity = new MediaThumbnailEntity();
+        $thumbnailEntity->setId($mediaId);
+        $thumbnailEntity->setHeight(100);
+        $thumbnailEntity->setWidth(100);
 
-        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaStruct]), $context);
+        $mediaEntity = new MediaEntity();
+        $mediaEntity->setId($mediaId);
+        $mediaEntity->setMimeType($mimeType);
+        $mediaEntity->setFileExtension('png');
+        $mediaEntity->setFileName($mediaId . '-134578345');
+        $mediaEntity->setThumbnails(new MediaThumbnailCollection([$thumbnailEntity]));
+
+        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaEntity]), $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
-            $mediaStruct->getFileName() . '_100x100.' . $mediaStruct->getFileExtension(),
-            $mediaStruct->getThumbnails()->get($thumbnailStruct->getId())->getUrl());
+            $mediaEntity->getFileName() . '_100x100.' . $mediaEntity->getFileExtension(),
+            $mediaEntity->getThumbnails()->get($thumbnailEntity->getId())->getUrl());
     }
 }

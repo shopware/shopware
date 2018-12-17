@@ -26,6 +26,8 @@ trait MediaFixtures
     public function initializeMediaFixtures(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
+        $thumbnailSize150Id = Uuid::uuid4()->getHex();
+        $thumbnailSize300Id = Uuid::uuid4()->getHex();
 
         $this->mediaFixtures = [
             'NamedEmpty' => [
@@ -47,7 +49,6 @@ trait MediaFixtures
                 'mediaType' => new ImageType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
-
             'NamedMimeTxtEtxTxt' => [
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'plain/txt',
@@ -121,6 +122,66 @@ trait MediaFixtures
                     ],
                 ],
             ],
+            'NamedMimePngEtxPngWithFolder' => [
+                'id' => Uuid::uuid4()->getHex(),
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+                'fileName' => 'pngFileWithExtension',
+                'fileSize' => 1024,
+                'mediaType' => new ImageType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                'mediaFolder' => [
+                    'name' => 'test folder',
+                    'useParentConfiguration' => false,
+                    'configuration' => [
+                        'createThumbnails' => true,
+                        'keepProportions' => true,
+                        'thumbnailQuality' => 80,
+                        'mediaThumbnailSizes' => [
+                            [
+                                'id' => $thumbnailSize150Id,
+                                'width' => 150,
+                                'height' => 150,
+                            ],
+                            [
+                                'id' => $thumbnailSize300Id,
+                                'width' => 300,
+                                'height' => 300,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'NamedMimeJpgEtxJpgWithFolder' => [
+                'id' => Uuid::uuid4()->getHex(),
+                'mimeType' => 'image/jpg',
+                'fileExtension' => 'jpg',
+                'fileName' => 'jpgFileWithExtensionAndCatalog',
+                'fileSize' => 1024,
+                'mediaType' => new ImageType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                'mediaFolder' => [
+                    'name' => 'test folder',
+                    'useParentConfiguration' => false,
+                    'configuration' => [
+                        'createThumbnails' => true,
+                        'keepProportions' => true,
+                        'thumbnailQuality' => 80,
+                        'mediaThumbnailSizes' => [
+                            [
+                                'id' => $thumbnailSize150Id,
+                                'width' => 150,
+                                'height' => 150,
+                            ],
+                            [
+                                'id' => $thumbnailSize300Id,
+                                'width' => 300,
+                                'height' => 300,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -174,9 +235,17 @@ trait MediaFixtures
 
     public function getMediaWithManufacturer(): MediaEntity
     {
-        $fixture = $this->getMediaFixture('MediaWithManufacturer');
+        return $this->getMediaFixture('MediaWithManufacturer');
+    }
 
-        return $fixture;
+    public function getPngWithFolder(): MediaEntity
+    {
+        return $this->getMediaFixture('NamedMimePngEtxPngWithFolder');
+    }
+
+    public function getJpgWithFolder(): MediaEntity
+    {
+        return $this->getMediaFixture('NamedMimeJpgEtxJpgWithFolder');
     }
 
     private function getMediaFixture(string $fixtureName): MediaEntity

@@ -80,7 +80,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
         $version = Uuid::fromStringToBytes($context->getVersionId());
 
-        /** @var CategoryEntity $category */
+        /* @var CategoryEntity $category */
         $parents->sort(function (CategoryEntity $a, CategoryEntity $b) {
             return $a->getLevel() <=> $b->getLevel();
         });

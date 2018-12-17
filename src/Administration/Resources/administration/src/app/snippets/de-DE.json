@@ -110,6 +110,7 @@
       "labelStopEdit": "Bearbeiten beenden",
       "labelSave": "Speichern",
       "labelCancel": "Abbrechen",
+      "labelKeepProportions": "Seitenverhältnis beibehalten",
       "titleDeleteThumbnails": "Löschen",
       "notificationSuccess": "Einstellungen erfolgreich gespeichert",
       "notificationError": "Fehler beim Speichern der Einstellungen",

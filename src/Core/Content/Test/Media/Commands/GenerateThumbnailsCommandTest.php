@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailConfiguration;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -39,11 +38,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     private $urlGenerator;
 
     /**
-     * @var ThumbnailConfiguration
-     */
-    private $thumbnailConfiguration;
-
-    /**
      * @var Context
      */
     private $context;
@@ -52,7 +46,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $this->thumbnailConfiguration = $this->getContainer()->get(ThumbnailConfiguration::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
         $this->context = $this->getContextWithWriteAccess();
     }
@@ -70,18 +63,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
         static::assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
 
-        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
-        if ($this->thumbnailConfiguration->isHighDpi()) {
-            $expectedNumberOfThumbnails *= 2;
-        }
-
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertEquals(
-                $expectedNumberOfThumbnails,
+                2,
                 $thumbnails->count()
             );
 
@@ -104,11 +92,6 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals(1, preg_match('/.*Generated\s*1.*/', $string));
         static::assertEquals(1, preg_match('/.*Skipped\s*1.*/', $string));
 
-        $expectedNumberOfThumbnails = \count($this->thumbnailConfiguration->getThumbnailSizes());
-        if ($this->thumbnailConfiguration->isHighDpi()) {
-            $expectedNumberOfThumbnails *= 2;
-        }
-
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaEntity $updatedMedia */
@@ -116,7 +99,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertEquals(
-                    $expectedNumberOfThumbnails,
+                    2,
                     $thumbnails->count()
                 );
 
@@ -135,23 +118,13 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnail->getHeight()
         );
         static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
-
-        if ($thumbnail->getHighDpi()) {
-            $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $media,
-                $thumbnail->getWidth(),
-                $thumbnail->getHeight(),
-                true
-            );
-            static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
-        }
     }
 
     protected function createValidMediaFiles(): void
     {
         $this->setFixtureContext($this->context);
-        $mediaPng = $this->getPng();
-        $mediaJpg = $this->getJpg();
+        $mediaPng = $this->getPngWithFolder();
+        $mediaJpg = $this->getJpgWithFolder();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
@@ -170,7 +143,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $mediaPdf = $this->getPdf();
-        $mediaJpg = $this->getJpg();
+        $mediaJpg = $this->getJpgWithFolder();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(

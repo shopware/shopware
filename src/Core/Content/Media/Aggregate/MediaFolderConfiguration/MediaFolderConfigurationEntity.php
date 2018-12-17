@@ -22,6 +22,11 @@ class MediaFolderConfigurationEntity extends Entity
     protected $createThumbnails;
 
     /**
+     * @var bool
+     */
+    protected $keepAspectRatio;
+
+    /**
      * @var int
      */
     protected $thumbnailQuality;
@@ -49,6 +54,16 @@ class MediaFolderConfigurationEntity extends Entity
     public function setCreateThumbnails(bool $createThumbnails): void
     {
         $this->createThumbnails = $createThumbnails;
+    }
+
+    public function getKeepAspectRatio(): bool
+    {
+        return $this->keepAspectRatio;
+    }
+
+    public function setKeepAspectRatio(bool $keepAspectRatio): void
+    {
+        $this->keepAspectRatio = $keepAspectRatio;
     }
 
     public function getMediaThumbnailSizes(): MediaThumbnailSizeCollection

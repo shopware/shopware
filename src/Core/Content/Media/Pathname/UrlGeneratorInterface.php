@@ -10,7 +10,7 @@ interface UrlGeneratorInterface
 
     public function getRelativeMediaUrl(MediaEntity $media): string;
 
-    public function getAbsoluteThumbnailUrl(MediaEntity $media, int $width, int $height, bool $isHighDpi = false): string;
+    public function getAbsoluteThumbnailUrl(MediaEntity $media, int $width, int $height): string;
 
-    public function getRelativeThumbnailUrl(MediaEntity $media, int $width, int $height, bool $isHighDpi = false): string;
+    public function getRelativeThumbnailUrl(MediaEntity $media, int $width, int $height): string;
 }

@@ -21,11 +21,6 @@ class MediaThumbnailEntity extends Entity
     protected $height;
 
     /**
-     * @var bool
-     */
-    protected $highDpi;
-
-    /**
      * @var string
      */
     protected $url = '';
@@ -68,16 +63,6 @@ class MediaThumbnailEntity extends Entity
     public function setHeight(int $height): void
     {
         $this->height = $height;
-    }
-
-    public function getHighDpi(): bool
-    {
-        return $this->highDpi;
-    }
-
-    public function setHighDpi(bool $highDpi): void
-    {
-        $this->highDpi = $highDpi;
     }
 
     public function getUrl(): string
@@ -133,9 +118,6 @@ class MediaThumbnailEntity extends Entity
     public function getIdentifier(): string
     {
         $identifier = sprintf('%dx%d', $this->getWidth(), $this->getHeight());
-        if ($this->getHighDpi()) {
-            $identifier .= '@2x';
-        }
 
         return  $identifier;
     }

@@ -7,7 +7,7 @@
                         {% block sw_settings_snippet_set_list_smart_bar_header_title_text %}
                             {{ $tc('sw-settings.index.title') }}
                             <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                            {{ $tc('sw-settings-snippet-sets.general.mainMenuItemGeneral') }}
+                            {{ $tc('sw-settings-snippet.general.mainMenuItemGeneral') }}
                         {% endblock %}
                     </h2>
                 {% endblock %}
@@ -18,13 +18,14 @@
             <sw-card-view slot="content">
                 {% block sw_settings_snippet_set_list_card_title %}
                     <sw-card>
-                        <h3>{{ $tc('sw-settings-snippet-sets.list.title') }}</h3>
-                        <p>{{ $tc('sw-settings-snippet-sets.list.description') }}</p>
+                        <h3>{{ $tc('sw-settings-snippet.list.title') }}</h3>
+                        <p>{{ $tc('sw-settings-snippet.list.description') }}</p>
                     </sw-card>
                 {% endblock %}
 
                 {% block sw_settings_snippet_set_list_card_list %}
-                    <sw-card :isLoading="isLoading">
+                    <sw-card :isLoading="isLoading"
+                             :title="$tc('sw-settings-snippet.list.cardTitle')">
                         {% block sw_settings_snippet_set_list_card_list_container %}
                             <sw-container columns="1fr">
                                 <sw-card-section divider="bottom">
@@ -32,19 +33,19 @@
                                         <div class="sw-settings-snippet-set-list__actions">
                                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}
                                                 <sw-button size="small" variant="ghost" disabled>
-                                                    {{ $tc('sw-settings-snippet-sets.list.buttonExport') }}
+                                                    {{ $tc('sw-settings-snippet.list.buttonExport') }}
                                                 </sw-button>
                                             {% endblock %}
 
                                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
                                                 <sw-button size="small" variant="primary" disabled>
-                                                    {{ $tc('sw-settings-snippet-sets.list.buttonEditSet') }}
+                                                    {{ $tc('sw-settings-snippet.list.buttonEditSet') }}
                                                 </sw-button>
                                             {% endblock %}
 
                                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
                                                 <sw-button class="sw-settings-snippet-set-list__action-add" size="small" @click="onAddSnippetSet" variant="ghost">
-                                                    {{ $tc('sw-settings-snippet-sets.list.buttonAddSet') }}
+                                                    {{ $tc('sw-settings-snippet.list.buttonAddSet') }}
                                                 </sw-button>
                                             {% endblock %}
                                         </div>
@@ -65,7 +66,7 @@
                                         {% block sw_settings_snippet_set_list_card_list_grid_column_name %}
                                             <sw-grid-column flex="1fr"
                                                             class="sw-settings-snippet-set__column-name"
-                                                            :label="$tc('sw-settings-snippet-sets.list.columnName')"
+                                                            :label="$tc('sw-settings-snippet.list.columnName')"
                                                             dataIndex="name"
                                                             editable>
                                                 {{ item.name }}
@@ -82,7 +83,7 @@
                                         {% block sw_settings_snippet_set_list_card_list_grid_column_changed %}
                                             <sw-grid-column flex="1fr"
                                                             class="sw-settings-snippet-set-file__column-changed-at"
-                                                            :label="$tc('sw-settings-snippet-sets.list.columnChangedAt')"
+                                                            :label="$tc('sw-settings-snippet.list.columnChangedAt')"
                                                             dataIndex="baseFile">
                                                 {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
                                                     <div v-if="item.updatedAt">{{ item.updatedAt | date }}</div>
@@ -94,7 +95,7 @@
                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_file %}
                                             <sw-grid-column flex="1fr"
                                                             class="sw-settings-snippet-set-file__column-base-file"
-                                                            :label="$tc('sw-settings-snippet-sets.list.columnBaseFile')"
+                                                            :label="$tc('sw-settings-snippet.list.columnBaseFile')"
                                                             dataIndex="baseFile">
                                                 {{ item.baseFile }}
                                             </sw-grid-column>
@@ -106,21 +107,21 @@
                                                     <sw-context-button>
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
                                                             <sw-context-menu-item
-                                                                    :routerLink="{ name: 'sw-settings-snippet-set-list', params:{ id:item.id } }">
-                                                                {{ $tc('sw-settings-snippet-sets.list.contextMenuEdit') }}
+                                                                    :routerLink="{ name: 'sw.settings.snippet.index', params:{ id:item.id } }">
+                                                                {{ $tc('sw-settings-snippet.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
                                                             <sw-context-menu-item disabled>
-                                                                {{ $tc('sw-settings-snippet-sets.list.contextMenuClone') }}
+                                                                {{ $tc('sw-settings-snippet.list.contextMenuClone') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete %}
                                                             <sw-context-menu-item variant="danger"
                                                                                   @click="onDeleteSet(item.id)">
-                                                                {{ $tc('sw-settings-snippet-sets.list.contextMenuDelete') }}
+                                                                {{ $tc('sw-settings-snippet.list.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                     </sw-context-button>
@@ -131,11 +132,11 @@
                                         {% block sw_settings_snippet_set_list_columns_delete_modal %}
                                             <sw-modal v-if="showDeleteModal === item.id"
                                                       @closeModal="onCloseDeleteModal"
-                                                      :title="$tc('sw-settings-snippet-sets.list.modalTitleDelete')"
+                                                      :title="$tc('sw-settings-snippet.list.modalTitleDelete')"
                                                       variant="small">
                                                 {% block sw_settings_snippet_set_list_delete_modal_confirm_delete_text %}
                                                     <p class="sw-settings-snippet-set-list__confirm-delete-text">
-                                                        {{ $tc('sw-settings-snippet-sets.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                        {{ $tc('sw-settings-snippet.list.textDeleteConfirm', 0, { name: item.name }) }}
                                                     </p>
                                                 {% endblock %}
 
@@ -144,7 +145,7 @@
                                                         {% block sw_settings_snippet_set_list_delete_modal_cancel %}
                                                             <sw-button @click="onCloseDeleteModal"
                                                                        size="small">
-                                                                {{ $tc('sw-settings-snippet-sets.list.buttonCancel') }}
+                                                                {{ $tc('sw-settings-snippet.list.buttonCancel') }}
                                                             </sw-button>
                                                         {% endblock %}
 
@@ -152,7 +153,7 @@
                                                             <sw-button @click="onConfirmDelete(item.id)"
                                                                        variant="primary"
                                                                        size="small">
-                                                                {{ $tc('sw-settings-snippet-sets.list.buttonDelete') }}
+                                                                {{ $tc('sw-settings-snippet.list.buttonDelete') }}
                                                             </sw-button>
                                                         {% endblock %}
                                                     </template>

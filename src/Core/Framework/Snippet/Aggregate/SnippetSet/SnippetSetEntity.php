@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet\Aggregate\SnippetSet;
+namespace Shopware\Core\Framework\Snippet\Aggregate\SnippetSet;
 
 use DateTime;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Snippet\SnippetCollection;
+use Shopware\Core\Framework\Snippet\SnippetCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-class SnippetSetStruct extends Entity
+class SnippetSetEntity extends Entity
 {
     /**
      * @var string
@@ -37,6 +38,11 @@ class SnippetSetStruct extends Entity
      * @var SnippetCollection|null
      */
     protected $snippets;
+
+    /**
+     * @var SalesChannelCollection
+     */
+    protected $salesChannels;
 
     /**
      * @return string
@@ -132,5 +138,21 @@ class SnippetSetStruct extends Entity
     public function setSnippets(SnippetCollection $snippets): void
     {
         $this->snippets = $snippets;
+    }
+
+    /**
+     * @return SalesChannelCollection
+     */
+    public function getSalesChannels(): SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    /**
+     * @param SalesChannelCollection $salesChannels
+     */
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

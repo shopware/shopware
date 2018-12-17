@@ -10,6 +10,18 @@ final class Defaults
 
     public const LANGUAGE_DE = '00e84bd18c574a6ca748ac0db17654dc';
 
+    public const SNIPPET_BASE_SET_EN = '71a916e745114d72abafbfdc51cbd9d0';
+
+    public const SNIPPET_BASE_SET_DE = 'b8d2230a7b324e448c9c8b22ed1b89d8';
+
+    public const LOCALE_EN_GB = '20080911ffff4fffafffffff19830531';
+
+    public const LOCALE_DE_DE = '2f3663edb7614308a60188c21c7963d5';
+
+    public const LOCALE_EN_GB_ISO = 'en_GB';
+
+    public const LOCALE_DE_DE_ISO = 'de_DE';
+
     public const FALLBACK_CUSTOMER_GROUP = '20080911ffff4fffafffffff19830531';
 
     public const LIVE_VERSION = '20080911ffff4fffafffffff19830531';
@@ -21,10 +33,6 @@ final class Defaults
     public const COUNTRY = '20080911ffff4fffafffffff19830531';
 
     public const SHIPPING_METHOD = '20080911ffff4fffafffffff19830531';
-
-    public const LOCALE_EN_GB = '20080911ffff4fffafffffff19830531';
-
-    public const LOCALE_DE_DE = '2f3663edb7614308a60188c21c7963d5';
 
     public const ORDER_STATE_OPEN = '1194a493806742c9b85e61f1f2cf9be8';
 

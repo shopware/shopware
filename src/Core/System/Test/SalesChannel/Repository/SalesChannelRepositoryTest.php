@@ -33,6 +33,7 @@ class SalesChannelRepositoryTest extends TestCase
      * @var RepositoryInterface
      */
     private $catalogRepository;
+
     /**
      * @var RepositoryInterface
      */
@@ -105,6 +106,7 @@ class SalesChannelRepositoryTest extends TestCase
             'accessKey' => $accessKey,
             'secretAccessKey' => $secretKey,
             'languageId' => Defaults::LANGUAGE_EN,
+            'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,

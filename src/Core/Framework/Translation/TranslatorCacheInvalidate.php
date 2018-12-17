@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\Framework\Snippet\SnippetDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TranslatorCacheInvalidate implements EventSubscriberInterface

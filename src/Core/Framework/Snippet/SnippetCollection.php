@@ -1,42 +1,42 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet;
+namespace Shopware\Core\Framework\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SnippetCollection extends EntityCollection
 {
     /**
-     * @var SnippetStruct[]
+     * @var SnippetEntity[]
      */
     protected $elements = [];
 
-    public function get(string $id): ? SnippetStruct
+    public function get(string $id): ? SnippetEntity
     {
         return parent::get($id);
     }
 
-    public function current(): SnippetStruct
+    public function current(): SnippetEntity
     {
         return parent::current();
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (SnippetStruct $snippet) {
+        return $this->fmap(function (SnippetEntity $snippet) {
             return $snippet->getLanguageId();
         });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (SnippetStruct $snippet) use ($id) {
+        return $this->filter(function (SnippetEntity $snippet) use ($id) {
             return $snippet->getLanguageId() === $id;
         });
     }
 
     protected function getExpectedClass(): string
     {
-        return SnippetStruct::class;
+        return SnippetEntity::class;
     }
 }

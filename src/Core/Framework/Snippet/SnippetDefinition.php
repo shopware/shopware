@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet;
+namespace Shopware\Core\Framework\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -13,8 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
 class SnippetDefinition extends EntityDefinition
 {
@@ -34,7 +34,7 @@ class SnippetDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
-            new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, true),
+            new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, false),
         ]);
     }
 
@@ -45,7 +45,7 @@ class SnippetDefinition extends EntityDefinition
 
     public static function getStructClass(): string
     {
-        return SnippetStruct::class;
+        return SnippetEntity::class;
     }
 
     public static function getRootEntity(): ?string

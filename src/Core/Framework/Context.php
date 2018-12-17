@@ -22,6 +22,11 @@ class Context extends Struct
     /**
      * @var string
      */
+    protected $snippetSetId;
+
+    /**
+     * @var string
+     */
     protected $versionId;
 
     /**
@@ -67,7 +72,8 @@ class Context extends Struct
         string $languageId,
         ?string $fallbackLanguageId = null,
         string $versionId = Defaults::LIVE_VERSION,
-        float $currencyFactor = 1.0
+        float $currencyFactor = 1.0,
+        string $snippetSetId = Defaults::SNIPPET_BASE_SET_EN
     ) {
         $this->sourceContext = $sourceContext;
         $this->catalogIds = $catalogIds;
@@ -77,6 +83,7 @@ class Context extends Struct
         $this->fallbackLanguageId = $fallbackLanguageId;
         $this->versionId = $versionId;
         $this->currencyFactor = $currencyFactor;
+        $this->snippetSetId = $snippetSetId;
 
         $this->writeProtection = new ProtectionStruct();
         $this->deleteProtection = new ProtectionStruct();
@@ -163,7 +170,8 @@ class Context extends Struct
             $this->languageId,
             $this->fallbackLanguageId,
             $versionId,
-            $this->currencyFactor
+            $this->currencyFactor,
+            $this->snippetSetId
         );
 
         foreach ($this->getExtensions() as $key => $extension) {
@@ -186,7 +194,8 @@ class Context extends Struct
             $this->languageId,
             $this->fallbackLanguageId,
             $this->versionId,
-            $this->currencyFactor
+            $this->currencyFactor,
+            $this->snippetSetId
         );
 
         foreach ($this->getExtensions() as $key => $extension) {
@@ -227,5 +236,10 @@ class Context extends Struct
         }
 
         return [Defaults::LANGUAGE_EN];
+    }
+
+    public function getSnippetSetId(): string
+    {
+        return $this->snippetSetId;
     }
 }

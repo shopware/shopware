@@ -802,13 +802,14 @@
       "buttonSave": "Save"
     }
   },
-  "sw-settings-snippet-sets": {
+  "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Snippets",
       "placeholderSearchBar": "Find snippets (name, content, section)"
     },
     "list": {
       "title": "Manage snippets",
+      "cardTitle" : "Snippet sets",
       "description": "This is an overview of your snippet sets. Select the sets whose snippets you want to edit and switch to the editing table via button press. You can also import snippets, create new ones and export existing ones as CSV files.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",

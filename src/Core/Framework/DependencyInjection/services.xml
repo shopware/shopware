@@ -191,17 +191,41 @@
         </service>
 
         <!-- Translation -->
-        <service id="Shopware\Core\Framework\Translation\Translator" decorates="translator">
+        <service id="Shopware\Core\Framework\Translation\Translator"
+                 decorates="translator">
             <argument type="service" id="Shopware\Core\Framework\Translation\Translator.inner"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
+            <argument type="service" id="translator.formatter"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
             <tag name="monolog.logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
             <argument type="service" id="shopware.cache"/>
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+
+        <service id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection">
+            <argument type="tagged" tag="shopware.language.file"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Services\SnippetFileConverter" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+        </service>
+
+        <!--LanguageFiles-->
+        <service id="Shopware\Core\Framework\Snippet\Files\de_DE\LanguageFile_de_DE" public="true">
+            <tag name="shopware.language.file" priority="100"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Files\en_EN\LanguageFile_en_GB" public="true">
+            <tag name="shopware.language.file" priority="100"/>
         </service>
 
         <!-- Twig -->
@@ -211,7 +235,6 @@
 
         <service id="Shopware\Core\Framework\Twig\InheritanceExtension">
             <tag name="twig.extension"/>
-
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
         </service>
 
@@ -237,7 +260,6 @@
 
         <service id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
                  decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
-
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
         </service>

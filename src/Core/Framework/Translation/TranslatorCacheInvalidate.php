@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\Framework\Snippet\SnippetDefinition;
+use Shopware\Core\Framework\Snippet\SnippetEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TranslatorCacheInvalidate implements EventSubscriberInterface
@@ -22,28 +24,30 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            EntityWrittenContainerEvent::NAME => 'invalidate',
+            SnippetEvents::SNIPPET_WRITTEN_EVENT => 'invalidate',
+            SnippetEvents::SNIPPET_DELETED_EVENT => 'invalidate',
+            SnippetEvents::SNIPPET_SET_DELETED_EVENT => 'invalidate',
         ];
     }
 
-    public function invalidate(EntityWrittenContainerEvent $event): void
+    public function invalidate(EntityWrittenEvent $event): void
     {
-        $snippetEvent = $event->getEventByDefinition(SnippetDefinition::class);
-        if (!$snippetEvent) {
-            return;
+        $snippetSetIds = [];
+        if ($event->getDefinition() === SnippetDefinition::class) {
+            foreach ($event->getPayload() as $snippet) {
+                $snippetSetIds[] = $snippet['setId'];
+            }
+        } elseif ($event->getDefinition() === SnippetSetDefinition::class) {
+            $snippetSetIds = $event->getIds();
         }
+        $snippetSetIds = array_unique($snippetSetIds);
 
-        $contextHash = md5(
-            $snippetEvent->getContext()->getLanguageId()
-            . $snippetEvent->getContext()->getFallbackLanguageId()
-        );
-
-        $cacheItem = $this->cache->getItem('translation.catalog.' . $contextHash);
-
-        if (!$cacheItem->isHit()) {
-            return;
+        foreach ($snippetSetIds as $id) {
+            $cacheItem = $this->cache->getItem('translation.catalog.' . $id);
+            if (!$cacheItem->isHit()) {
+                continue;
+            }
+            $this->cache->deleteItem($cacheItem->getKey());
         }
-
-        $this->cache->deleteItem($cacheItem->getKey());
     }
 }

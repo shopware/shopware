@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Snippet;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
-use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\System\Language\LanguageEntity;
 
 class SnippetEntity extends Entity
 {
@@ -41,7 +41,7 @@ class SnippetEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @var LanguageStruct
+     * @var LanguageEntity
      */
     protected $language;
 
@@ -116,27 +116,21 @@ class SnippetEntity extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getLanguage(): LanguageStruct
+    public function getLanguage(): LanguageEntity
     {
         return $this->language;
     }
 
-    public function setLanguage(LanguageStruct $language): void
+    public function setLanguage(LanguageEntity $language): void
     {
         $this->language = $language;
     }
 
-    /**
-     * @return SnippetSetEntity
-     */
     public function getSet(): SnippetSetEntity
     {
         return $this->set;
     }
 
-    /**
-     * @param SnippetSetEntity $set
-     */
     public function setSet(SnippetSetEntity $set): void
     {
         $this->set = $set;

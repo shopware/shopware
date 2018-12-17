@@ -15,6 +15,7 @@ Module.register('sw-settings-snippet', {
     targetVersion: '1.0.0',
     color: '#2471C8',
     icon: 'default-action-settings',
+    entity: 'snippet',
 
     routes: {
         index: {

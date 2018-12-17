@@ -8,7 +8,8 @@ import types from 'src/core/service/utils/types.utils';
 export default {
     getModuleRoutes,
     registerModule,
-    getModuleRegistry
+    getModuleRegistry,
+    getModuleByEntityName
 };
 
 /**
@@ -318,4 +319,16 @@ function getModuleRoutes() {
     });
 
     return moduleRoutes;
+}
+
+/**
+ * Returns the first found module with the given entity name
+ *
+ * @param {String} entityName
+ * @returns {undefined|Object}
+ */
+function getModuleByEntityName(entityName) {
+    return Array.from(modules.values()).find((value) => {
+        return entityName === value.manifest.entity;
+    });
 }

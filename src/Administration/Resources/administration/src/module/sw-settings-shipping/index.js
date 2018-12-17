@@ -11,6 +11,7 @@ Module.register('sw-settings-shipping', {
     description: 'Shipping section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    entity: 'shipping_method',
 
     routes: {
         index: {

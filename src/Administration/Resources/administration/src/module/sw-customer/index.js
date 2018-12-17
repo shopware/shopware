@@ -18,6 +18,7 @@ Module.register('sw-customer', {
     targetVersion: '1.0.0',
     color: '#F88962',
     icon: 'default-avatar-multiple',
+    entity: 'customer',
 
     routes: {
         index: {

@@ -11,6 +11,7 @@ Module.register('sw-integration', {
     targetVersion: '1.0.0',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    entity: 'integration',
 
     routes: {
         index: {

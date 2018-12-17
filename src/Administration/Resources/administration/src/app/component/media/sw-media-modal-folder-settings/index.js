@@ -104,6 +104,12 @@ Component.register('sw-media-modal-folder-settings', {
             }
         },
 
+        getItemName(item) {
+            const entityNameIdentifier = `global.entities.${item.entity}`;
+
+            return `${this.$tc(entityNameIdentifier)} ${this.$tc('global.entities.media', 2)}`;
+        },
+
         getThumbnailSizes() {
             this.mediaThumbnailSizeStore.getList({
                 limit: 50,
@@ -180,7 +186,7 @@ Component.register('sw-media-modal-folder-settings', {
 
             const resetDefaultFolder = () => {
                 if (this.defaultFolder && this.folder.defaultFolder.length > 0) {
-                    const currentFolder = this.folder.defaultFolder.shift();
+                    const currentFolder = this.folder.defaultFolder[0];
                     if (currentFolder.id !== this.defaultFolder.id) {
                         const oldFolder = this.mediaDefaultFolderStore.getById(this.defaultFolder.id);
                         oldFolder.folderId = null;
@@ -212,7 +218,7 @@ Component.register('sw-media-modal-folder-settings', {
                     });
                 });
 
-            this.$emit('sw-media-modal-folder-settings-save', this.folder);
+            this.$emit('sw-media-modal-folder-settings-save', this.current);
         },
 
         onClickCancel(originalDomEvent) {
@@ -224,11 +230,14 @@ Component.register('sw-media-modal-folder-settings', {
             this.$emit('sw-media-modal-folder-settings-close', { originalDomEvent });
         },
 
-        onInputDefaultFolder(defaultFolder) {
+        onInputDefaultFolder(defaultFolderId) {
             this.folder.defaultFolder.splice(0);
             this.mediaDefaultFolderAssociationStore.removeAll();
-            const folder = this.mediaDefaultFolderAssociationStore.create(defaultFolder);
-            this.folder.defaultFolder.push(folder);
+            this.mediaDefaultFolderStore.getByIdAsync(defaultFolderId).then((response) => {
+                response.folderId = this.folder.id;
+                this.mediaDefaultFolderAssociationStore.add(response);
+                this.folder.defaultFolder.push(response);
+            });
         }
     }
 });

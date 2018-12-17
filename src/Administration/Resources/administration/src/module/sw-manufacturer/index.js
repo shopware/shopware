@@ -11,6 +11,7 @@ Module.register('sw-manufacturer', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'default-symbol-products',
+    entity: 'product_manufacturer',
 
     routes: {
         index: {

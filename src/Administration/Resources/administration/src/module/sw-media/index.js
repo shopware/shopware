@@ -17,6 +17,7 @@ Module.register('sw-media', {
     targetVersion: '1.0.0',
     color: '#FFD700',
     icon: 'default-object-image',
+    entity: 'media',
 
     routes: {
         index: {

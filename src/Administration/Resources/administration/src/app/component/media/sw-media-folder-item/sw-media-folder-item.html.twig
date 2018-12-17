@@ -16,7 +16,13 @@
                     @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_folder_item_preview %}
-                    <sw-icon slot="media-item-preview" name="folder-thumbnail" size="90%" class="sw-media-folder-item__folder-thumbnails"  multicolor></sw-icon>
+                    <sw-icon slot="media-item-preview"
+                             :name="iconConfig.name"
+                             size="90%"
+                             class="sw-media-folder-item__folder-thumbnails"
+                             :style="getIconStyle"
+                             :multicolor="iconConfig.multicolor">
+                    </sw-icon>
                 {% endblock %}
 
                 {% block sw_media_folder_meta_data %}

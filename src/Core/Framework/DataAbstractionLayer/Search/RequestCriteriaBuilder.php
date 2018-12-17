@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\QueryLimitExceededException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
@@ -111,6 +113,30 @@ class RequestCriteriaBuilder
 
         if (isset($payload['aggregations'])) {
             AggregationParser::buildAggregations($definition, $payload, $criteria, $searchException);
+        }
+
+        if (isset($payload['associations'])) {
+            foreach ($payload['associations'] as $propertyName => $association) {
+                $nested = new Criteria();
+
+                /** @var string|EntityDefinition $definition */
+                $field = $definition::getFields()->get($propertyName);
+
+                if (!$field instanceof AssociationInterface) {
+                    throw new \RuntimeException(sprintf('Can not find association by name %s', $propertyName));
+                }
+
+                $ref = $field->getReferenceClass();
+                if ($field instanceof ManyToManyAssociationField) {
+                    $ref = $field->getReferenceDefinition();
+                }
+
+                $nested = $this->fromArray($association, $nested, $ref, $context);
+
+                $accessor = $definition::getEntityName() . '.' . $propertyName;
+
+                $criteria->addAssociation($accessor, $nested);
+            }
         }
 
         $searchException->tryToThrow();

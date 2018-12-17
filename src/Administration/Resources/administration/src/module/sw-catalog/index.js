@@ -11,6 +11,7 @@ Module.register('sw-catalog', {
     targetVersion: '1.0.0',
     color: '#FF85C2',
     icon: 'default-package-closed',
+    entity: 'catalog',
 
     routes: {
         index: {

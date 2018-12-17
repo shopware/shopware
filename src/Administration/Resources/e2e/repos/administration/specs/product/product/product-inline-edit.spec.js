@@ -40,14 +40,6 @@ module.exports = {
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', 'Second one');
     },
-    'delete created product': (browser) => {
-        browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', 'Are you sure you really want to delete the product "Second one"?')
-            .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-product-list__column-product-name')
-    },
     after: (browser) => {
         browser.end();
     }

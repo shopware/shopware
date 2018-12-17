@@ -63,10 +63,6 @@ module.exports = {
             .waitForElementPresent('.sw-integration-list__column-integration-name')
             .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Once again: Edits integration');
     },
-    'delete integration and verify deletion': (browser) => {
-        const page = integrationPage(browser);
-        page.deleteSingleIntegration('Once again: Edits integration');
-    },
     after: (browser) => {
         browser.end();
     }

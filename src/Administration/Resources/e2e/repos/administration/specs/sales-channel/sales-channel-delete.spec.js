@@ -1,7 +1,7 @@
 const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
 
 module.exports = {
-    '@tags': ['sales-channel-create', 'sales-channel', 'create'],
+    '@tags': ['sales-channel-delete', 'sales-channel', 'delete'],
     'open sales channel creation': (browser) => {
         browser
             .waitForElementVisible('.sw-admin-menu__headline')
@@ -34,23 +34,10 @@ module.exports = {
         const page = salesChannelPage(browser);
         page.createBasicSalesChannel('1st Epic Sales Channel');
     },
-    'verify creation and check if the data of the sales channel is assigned correctly': (browser) => {
-        browser
-            .refresh();
+    'delete sales channel': (browser) => {
         const page = salesChannelPage(browser);
         page.openSalesChannel('1st Epic Sales Channel');
-        browser
-            .waitForElementNotPresent('.sw-loader')
-            .waitForElementVisible('input[name=sw-field--salesChannel-name]')
-            .expect.element('input[name=sw-field--salesChannel-name]').to.have.value.that.equals('1st Epic Sales Channel');
-    },
-    'check if the sales channel can be used in other modules': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/customer/index', 'Customers')
-            .waitForElementPresent('.smart-bar__actions a[href="#/sw/customer/create"]')
-            .click('.smart-bar__actions a[href="#/sw/customer/create"]')
-            .waitForElementVisible('.sw-customer-base-form')
-            .fillSelectField('select[name=sw-field--customer-salesChannelId]', '1st Epic Sales Channel');
+        page.deleteSingleSalesChannel('1st Epic Sales Channel');
     },
     after: (browser) => {
         browser.end();

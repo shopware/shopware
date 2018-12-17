@@ -40,16 +40,6 @@ module.exports = {
             .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate');
     },
-    'delete tax': (browser) => {
-        browser
-            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the tax "Even higher tax rate"?')
-            .click('.sw-modal__footer button.sw-button--primary')
-            .checkNotification('Tax "Even higher tax rate" has been deleted successfully.');
-    },
     after: (browser) => {
         browser.end();
     }

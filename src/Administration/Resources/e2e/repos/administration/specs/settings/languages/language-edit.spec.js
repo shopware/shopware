@@ -56,16 +56,6 @@ module.exports = {
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Philippine English english');
     },
-    'delete language': (browser) => {
-        browser
-            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Philippine English english')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the language "Very Philippine English english"?')
-            .click('.sw-modal__footer button.sw-button--primary')
-            .checkNotification('Language "Very Philippine English english" has been deleted successfully.');
-    },
     after: (browser) => {
         browser.end();
     }

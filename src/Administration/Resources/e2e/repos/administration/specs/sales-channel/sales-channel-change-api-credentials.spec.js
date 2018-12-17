@@ -52,10 +52,6 @@ module.exports = {
             .waitForElementNotPresent('.sw-loader');
         page.verifyChangedApiCredentials();
     },
-    'delete sales channel': (browser) => {
-        const page = salesChannelPage(browser);
-        page.deleteSingleSalesChannel('3rd Epic Sales Channel');
-    },
     after: (browser) => {
         browser.end();
     }

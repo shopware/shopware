@@ -52,10 +52,6 @@ module.exports = {
             .waitForElementVisible('input[name=sw-field--salesChannel-name]')
             .expect.element('input[name=sw-field--salesChannel-name]').to.have.value.that.equals('2nd Epic Sales Channel at all');
     },
-    'delete sales channel': (browser) => {
-        const page = salesChannelPage(browser);
-        page.deleteSingleSalesChannel('2nd Epic Sales Channel at all');
-    },
     after: (browser) => {
         browser.end();
     }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Product\Subscriber;
+namespace Shopware\Storefront\Listing\Subscriber;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
@@ -9,10 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Storefront\Listing\Event\ListingEvents;
 use Shopware\Storefront\Listing\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Listing\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Listing\ListingEvents;
 use Shopware\Storefront\Listing\Page\AggregationView\ListAggregation;
 use Shopware\Storefront\Listing\Page\AggregationView\ListItem;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

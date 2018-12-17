@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Product\Subscriber;
+namespace Shopware\Storefront\Listing\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Storefront\Listing\Event\ListingEvents;
 use Shopware\Storefront\Listing\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Listing\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Listing\ListingEvents;
 use Shopware\Storefront\Listing\Page\AggregationView\SliderAggregation;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

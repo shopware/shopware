@@ -1,6 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Listing\Event;
+namespace Shopware\Storefront\Listing;
+
+use Shopware\Storefront\Listing\Event\ListingPageLoadedEvent;
+use Shopware\Storefront\Listing\Event\ListingPageRequestEvent;
+use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
 
 class ListingEvents
 {

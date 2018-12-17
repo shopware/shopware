@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Search\Subscriber;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
-use Shopware\Storefront\Listing\Event\ListingEvents;
 use Shopware\Storefront\Listing\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Listing\ListingEvents;
 use Shopware\Storefront\Search\Page\SearchPageRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

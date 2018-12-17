@@ -4,10 +4,10 @@ namespace Shopware\Storefront\Listing\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Storefront\Listing\Event\ListingEvents;
 use Shopware\Storefront\Listing\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Listing\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Listing\ListingEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PaginationSubscriber implements EventSubscriberInterface

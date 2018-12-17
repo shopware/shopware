@@ -197,7 +197,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Product\Subscriber\DatasheetAggregationSubscriber">
+        <service id="Shopware\Storefront\Listing\Subscriber\DatasheetAggregationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -205,12 +205,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Product\Subscriber\ManufacturerAggregationSubscriber">
+        <service id="Shopware\Storefront\Listing\Subscriber\ManufacturerAggregationSubscriber">
             <argument type="service" id="product_manufacturer.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Product\Subscriber\PriceAggregationSubscriber">
+        <service id="Shopware\Storefront\Listing\Subscriber\PriceAggregationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 

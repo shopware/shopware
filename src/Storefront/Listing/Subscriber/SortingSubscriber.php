@@ -6,10 +6,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Listing\ListingSortingEntity;
-use Shopware\Storefront\Listing\Event\ListingEvents;
 use Shopware\Storefront\Listing\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Listing\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Listing\ListingEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SortingSubscriber implements EventSubscriberInterface

@@ -808,6 +808,25 @@
       "mainMenuItemGeneral": "Snippets",
       "placeholderSearchBar": "Find snippets (name, content, section)"
     },
+    "detail": {
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "cardGeneralTitle": "Information",
+      "cardSnippetSetsTitle": "Translations",
+      "labelContent": "Snippet set: {name}",
+      "labelContentPlaceholder": "Define content",
+      "labelName": "Name",
+      "labelNamePlaceholder": "Add name",
+      "labelNamespace": "Section",
+      "labelNamespacePlaceholder": "Select section",
+      "messageCreateError": "Snippets couldn't be created.",
+      "messageSaveError": "Snippets for \"{key}\" could not be saved.",
+      "messageSaveSuccess": "Snippets for \"{key}\" has been saved successfully.",
+      "textHeadline": "New snippet",
+      "titleCreateError": "Error while creating",
+      "titleSaveError": "Error: Snippets",
+      "titleSaveSuccess": "Snippets"
+    },
     "list": {
       "title": "Manage snippets",
       "cardTitle" : "Snippet sets",

@@ -810,6 +810,25 @@
       "mainMenuItemGeneral": "Textbausteine",
       "placeholderSearchBar": "Finde Textbausteine (Name, Inhalt, Bereich)"
     },
+    "detail": {
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "cardGeneralTitle": "Informationen",
+      "cardSnippetSetsTitle": "Übersetzungen",
+      "labelContent": "Textbaustein-Set: {name}",
+      "labelContentPlaceholder": "Inhalt definieren",
+      "labelName": "Name",
+      "labelNamePlaceholder": "Benennung hinzufügen",
+      "labelNamespace": "Bereich",
+      "labelNamespacePlaceholder": "Bereich auswählen",
+      "messageCreateError": "Die Textbausteine konnten nicht angelegt werden.",
+      "messageSaveError": "Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
+      "messageSaveSuccess": "Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
+      "textHeadline": "Neuer Textbaustein",
+      "titleCreateError": "Fehler beim Anlegen",
+      "titleSaveError": "Fehler: Textbausteine",
+      "titleSaveSuccess": "Textbausteine"
+    },
     "list": {
       "title": "Textbausteine verwalten & bearbeiten",
       "cardTitle" : "Testbaustein-Sets",
@@ -865,10 +884,8 @@
       "placeholderName": "Legen Sie einen Namen für diese Regel fest..",
       "placeholderDescription": "Legen Sie eine Beschreibung für diese Regel fest..",
       "placeholderPriority": "Legen Sie eine Priorität für diese Regel fest..",
-
       "titleSaveSuccess": "Regel",
       "messageSaveSuccess": "Die Regel {name} wurde erfolgreich gespeichert.",
-
       "ruleCard": "Bedingungen"
     }
   },

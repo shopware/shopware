@@ -92,8 +92,12 @@ class CreateMigrationCommand extends Command
         $file = fopen($path, 'w');
 
         $template = file_get_contents(realpath(__DIR__ . '/../Migration/Template/MigrationTemplate.txt'));
-
-        fwrite($file, str_replace(['%%namespace%%', '%%timestamp%%'], [$namespace, $timestamp], $template));
+        $params = [
+            '%%namespace%%' => $namespace,
+            '%%timestamp%%' => $timestamp,
+            '%%name%%' => $name,
+        ];
+        fwrite($file, str_replace(array_keys($params), array_values($params), $template));
         fclose($file);
 
         $output->writeln('Migration created: "' . $path . '"');

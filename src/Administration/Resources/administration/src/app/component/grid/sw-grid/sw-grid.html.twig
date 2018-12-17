@@ -55,6 +55,7 @@
                                         <sw-grid-row class="sw-grid__item"
                                                      :style="columnFlex"
                                                      :item="item"
+                                                     @inline-edit-finish="onInlineEditFinish"
                                                      :class="{ 'is--selected': isSelected(item.id) }">
 
                                             {% block sw_grid_body_item_selectable %}

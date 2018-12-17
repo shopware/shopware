@@ -81,7 +81,7 @@ Component.register('sw-grid-row', {
 
         onInlineEditFinish() {
             this.isEditingActive = false;
-            this.$parent.$emit('inline-edit-finish', this.item);
+            this.$emit('inline-edit-finish', this.item);
         }
     }
 });

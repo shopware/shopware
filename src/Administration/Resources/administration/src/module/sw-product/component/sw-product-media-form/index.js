@@ -215,6 +215,21 @@ Component.register('sw-product-media-form', {
             };
         },
 
+        removeFile(key) {
+            const item = find(this.mediaItems, (e) => e.mediaId === key);
+
+            this.product.media = this.product.media.filter((e) => e.mediaId !== key);
+            if (this.isCover(item)) {
+                if (this.product.media.length === 0) {
+                    this.product.coverId = null;
+                } else {
+                    this.product.coverId = this.product.media[0].id;
+                }
+            }
+
+            item.delete();
+        },
+
         isCover(productMedia) {
             if (productMedia.isPlaceholder) {
                 return productMedia.isCover;

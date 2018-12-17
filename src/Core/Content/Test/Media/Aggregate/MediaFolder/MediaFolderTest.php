@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media\Aggregate\MediaFolder;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;

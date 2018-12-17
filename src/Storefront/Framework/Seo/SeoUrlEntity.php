@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Framework\Seo;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\SalesChannel\SalesChannelStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-class SeoUrlStruct extends Entity
+class SeoUrlEntity extends Entity
 {
     /**
      * @var string
@@ -53,7 +53,7 @@ class SeoUrlStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var SalesChannelStruct|null
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -152,12 +152,12 @@ class SeoUrlStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getSalesChannel(): ?SalesChannelStruct
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
 
-    public function setSalesChannel(SalesChannelStruct $salesChannel): void
+    public function setSalesChannel(SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
     }

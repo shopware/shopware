@@ -324,16 +324,11 @@ function getModuleRoutes() {
 /**
  * Returns the first found module with the given entity name
  *
- *  @param {String} entityName
+ * @param {String} entityName
  * @returns {undefined|Object}
  */
 function getModuleByEntityName(entityName) {
-    const filtered = [];
-    modules.forEach((module) => {
-        if (entityName === module.manifest.entity) {
-            filtered.push(module);
-        }
+    return Array.from(modules.values()).find((value) => {
+        return entityName === value.manifest.entity;
     });
-
-    return filtered.shift();
 }

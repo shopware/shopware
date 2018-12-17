@@ -58,7 +58,7 @@ Component.register('sw-media-folder-item', {
 
         iconConfig() {
             if (this.item.defaultFolder.length > 0) {
-                const defaultFolder = this.item.defaultFolder.shift();
+                const defaultFolder = this.item.defaultFolder[0];
                 const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
                 if (module) {
                     return {
@@ -73,6 +73,16 @@ Component.register('sw-media-folder-item', {
                 name: 'folder-thumbnail',
                 color: false,
                 multicolor: true
+            };
+        },
+
+        getIconStyle() {
+            if (this.iconConfig.color === false) {
+                return '';
+            }
+
+            return {
+                color: this.iconConfig.color
             };
         }
     },

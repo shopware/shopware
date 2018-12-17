@@ -15,7 +15,7 @@ Module.register('sw-sales-channel', {
     targetVersion: '1.0.0',
     color: '#14D7A5',
     icon: 'default-device-server',
-    entity: 'saöes_channel',
+    entity: 'sales_channel',
 
     routes: {
         detail: {

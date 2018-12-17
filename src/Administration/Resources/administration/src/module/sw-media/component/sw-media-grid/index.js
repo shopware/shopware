@@ -33,7 +33,8 @@ Component.register('sw-media-grid', {
                 'sw-media-sidebar',
                 'sw-context-menu',
                 'sw-media-index__load-more',
-                'sw-media-index__options-container'
+                'sw-media-index__options-container',
+                'sw-modal'
             ];
         }
     },

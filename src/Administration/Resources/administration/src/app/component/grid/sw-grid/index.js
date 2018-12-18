@@ -178,6 +178,11 @@ Component.register('sw-grid', {
             this.editing = id;
         },
 
+        onInlineEditFinish(item) {
+            this.editing = null;
+            this.$emit('inline-edit-finish', item);
+        },
+
         disableActiveInlineEditing() {
             this.editing = null;
         },

@@ -387,9 +387,7 @@ export default class EntityProxy {
      * @return {void}
      */
     override(newEntity) {
-        Object.keys(newEntity).forEach((key) => {
-            this.draft[key] = newEntity[key];
-        });
+        this.setLocalData(newEntity);
         this.id = newEntity.id;
     }
 

@@ -780,7 +780,7 @@
     },
     "index": {
       "buttonCreateFolder": "Neuen Ordner hinzufügen",
-      "messageEmpty": "Noch keine Medien in diesem Ordner",
+      "messageEmpty": "Du hast noch keine Medien hochgeladen",
       "labelSort": "Sortiere nach:",
       "labelPresentation": "Darstellung:",
       "labelPresentationSmall": "Kleine Vorschau",

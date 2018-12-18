@@ -51,6 +51,12 @@ Component.register('sw-media-sidebar', {
                 key = item.id;
             }
             return key + this.autoplay;
+        },
+
+        mediaItems() {
+            return this.items.filter((item) => {
+                return item.entityName === 'media';
+            });
         }
     },
 

@@ -25,7 +25,7 @@
                     {% endblock %}
 
                     {% block sw_media_index_bread_crumb_navigation_parent%}
-                        <span v-if="currentFolder" class="sw-media-index__navigation-parent">
+                        <span v-if="parentFolder" class="sw-media-index__navigation-parent">
                             <sw-icon name="small-arrow-medium-right" class="sw-media-index__navigation-breadcrumb"></sw-icon>
                             <router-link :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
                                 {{ this.parentFolderName }}
@@ -55,20 +55,21 @@
                 {% block sw_media_index_smart_bar_media_upload %}
                     <sw-media-upload
                         variant="compact"
-                        @new-uploads-added="onUploadsAdded">
+                        @new-uploads-added="onUploadsAdded"
+                        @media-upload-success="onUploadFinished">
                     </sw-media-upload>
                 {% endblock %}
 
             </template>
         {% endblock %}
 
-        <template slot="content">
-            {% block sw_media_index_page_content %}
-                <div v-if="selectableItems.length > 0" class="sw-media-index__page-content">
-                    {% block sw_media_index_content_container %}
-                        <div class="sw-media-index__content-container">
-                            {% block sw_media_index_content %}
-                                <div class="sw-media-index__content">
+        {% block sw_media_index_page_content %}
+            <div slot="content"class="sw-media-index__page-content">
+                {% block sw_media_index_content_container %}
+                    <div class="sw-media-index__content-container">
+                        {% block sw_media_index_content %}
+                            <div class="sw-media-index__content">
+                                {% block sw_media_index_options_container %}
                                     <div class="sw-media-index__options-container">
                                         {% block sw_media_index_presentation %}
                                             <sw-field type="select"
@@ -153,16 +154,32 @@
                                             </sw-button>
                                         {% endblock %}
                                     </div>
+                                {% endblock %}
 
-                                    <div class="sw-media-index__scroll-container"
+                                {# MEDIA GRID #}
+                                {% block sw_media_index_listing_grid %}
+                                    <div v-if="selectableItems.length > 0 || parentFolder !== null"
+                                         class="sw-media-index__scroll-container"
                                          @mousedown.left="onMouseDown"
                                          ref="scrollContainer">
 
-                                        {% block sw_media_catalog_media_grid %}
+                                        {% block sw_media_index_media_grid %}
                                             <sw-media-grid
                                                     class="sw-media-index__media-grid"
                                                     :presentation="presentation"
+                                                    ref="mediaGrid"
                                                     @sw-media-grid-selection-clear="clearSelection">
+
+                                                {% block sw_media_index_parent_folder %}
+                                                    <sw-media-folder-item
+                                                        class="sw-media-index__parent-folder"
+                                                        v-if="parentFolder"
+                                                        :item="parentFolder"
+                                                        :showContextMenuButton="false"
+                                                        :editable="false"
+                                                        isParent>
+                                                    </sw-media-folder-item>
+                                                {% endblock %}
 
                                                 {% block sw_media_index_selectable_items %}
                                                     <sw-media-entity-mapper
@@ -199,30 +216,34 @@
                                             </div>
                                         {% endblock %}
                                     </div>
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+                                {% endblock %}
 
-                    {% block sw_media_index_sidebar %}
-                        <div class="sw-media-index__sidebar">
-                            <sw-media-sidebar
-                                :items="selectedItems"
-                                @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
-                                ref="mediaSidebar">
-                            </sw-media-sidebar>
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
+                                {% block sw_media_index_empty_state %}
+                                    <sw-empty-state
+                                        v-else-if="!isLoading && selectableItems.length === 0"
+                                        class="sw-media-index__empty-state"
+                                        :title="$tc('sw-media.index.messageEmpty')">
+                                    </sw-empty-state>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
 
-            {% block sw_media_index_list_grid_loader %}
-                <sw-loader v-if="isLoading"></sw-loader>
-            {% endblock %}
+                {% block sw_media_index_sidebar %}
+                    <div class="sw-media-index__sidebar">
+                        <sw-media-sidebar
+                            :items="selectedItems"
+                            @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
+                            ref="mediaSidebar">
+                        </sw-media-sidebar>
+                    </div>
+                {% endblock %}
 
-            {% block sw_media_index_empty_state %}
-                <sw-empty-state v-else-if="!isLoading && selectableItems.length === 0" :title="$tc('sw-media.index.messageEmpty')"></sw-empty-state>
-            {% endblock %}
-        </template>
+                {% block sw_media_index_list_grid_loader %}
+                    <sw-loader v-if="isLoading"></sw-loader>
+                {% endblock %}
+            </div>
+        {% endblock %}
     </sw-page>
 {% endblock %}

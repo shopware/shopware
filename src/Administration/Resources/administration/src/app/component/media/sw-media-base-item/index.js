@@ -31,7 +31,7 @@ Component.register('sw-media-base-item', {
         showSelectionIndicator: {
             required: false,
             type: Boolean,
-            default: true
+            default: false
         },
 
         showContextMenuButton: {
@@ -60,6 +60,12 @@ Component.register('sw-media-base-item', {
         editValue: {
             type: String,
             required: true
+        },
+
+        editable: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -156,8 +162,14 @@ Component.register('sw-media-base-item', {
             this.$emit('sw-media-item-selection-remove', originalDomEvent);
         },
 
-        startInlineEdit() {
-            this.isInlineEdit = true;
+        startInlineEdit(event) {
+            if (this.editable) {
+                this.isInlineEdit = true;
+
+                if (event) {
+                    event.stopPropagation();
+                }
+            }
         },
 
         endInlineEdit() {

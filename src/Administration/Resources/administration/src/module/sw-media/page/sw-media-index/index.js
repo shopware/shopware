@@ -59,7 +59,11 @@ Component.register('sw-media-index', {
         },
 
         selectableItems() {
-            return [].concat(this.subFolders, this.uploadedItems, this.mediaItems);
+            return [
+                ...this.subFolders,
+                ...this.uploadedItems,
+                ...this.mediaItems
+            ];
         },
 
         mediaFolderId() {
@@ -121,6 +125,7 @@ Component.register('sw-media-index', {
 
         onUploadsAdded({ uploadTag, data }) {
             data.forEach((upload) => {
+                upload.entity.isLoading = true;
                 upload.entity.mediaFolderId = this.mediaFolderId;
                 this.uploadedItems.unshift(upload.entity);
             });
@@ -130,6 +135,17 @@ Component.register('sw-media-index', {
             });
         },
 
+        onUploadFinished(mediaItem) {
+            this.uploadedItems = this.uploadedItems.filter((upload) => {
+                return mediaItem !== upload;
+            });
+
+            if (this.mediaFolderId === mediaItem.mediaFolderId) {
+                this.mediaItems.unshift(mediaItem);
+            }
+            mediaItem.isLoading = false;
+        },
+
         getFolderEntities() {
             this.mediaFolderStore.getByIdAsync(this.mediaFolderId).then((folder) => {
                 this.currentFolder = folder;
@@ -137,10 +153,10 @@ Component.register('sw-media-index', {
                 this.mediaFolderStore.getByIdAsync(this.currentFolder.parentId).then((parent) => {
                     this.parentFolder = parent;
                 }).catch(() => {
-                    this.parentFolder = null;
+                    this.parentFolder = this.getRootFolder();
                 });
             }).catch(() => {
-                this.currentFolder = null;
+                this.currentFolder = this.getRootFolder();
                 this.parentFolder = null;
             });
         },
@@ -299,6 +315,13 @@ Component.register('sw-media-index', {
             this.subFolders = this.subFolders.filter((folder) => {
                 return !ids.includes(folder.id);
             });
+        },
+
+        getRootFolder() {
+            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
+            root.name = this.$tc('sw-media.index.rootFolderName');
+
+            return root;
         }
     }
 });

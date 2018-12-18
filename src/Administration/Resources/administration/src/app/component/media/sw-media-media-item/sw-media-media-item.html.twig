@@ -3,11 +3,8 @@
         {% block sw_media_media_item_item %}
             <sw-media-base-item
                 ref="innerComponent"
-                :isList="isList"
+                v-bind="$attrs"
                 :isLoading="item.isLoading"
-                :selected="selected"
-                :showContextMenuButton="showContextMenuButton"
-                :showSelectionIndicator="showSelectionIndicator"
                 :displayName="displayName"
                 :editValue="editFileName"
                 @sw-media-item-selection-add="selectItem"
@@ -15,7 +12,7 @@
                 @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_media_item_preview %}
-                    <sw-media-preview slot="media-item-preview" :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
+                    <sw-media-preview slot="sw-media-item-preview" :item="item" :class="mediaPreviewClasses" @sw-media-preview-play="emitPlayEvent">
                     </sw-media-preview>
                 {% endblock %}
 

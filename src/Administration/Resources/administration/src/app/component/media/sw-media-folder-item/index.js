@@ -23,6 +23,12 @@ Component.register('sw-media-folder-item', {
             validator(value) {
                 return value.entityName === 'media_folder';
             }
+        },
+
+        isParent: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

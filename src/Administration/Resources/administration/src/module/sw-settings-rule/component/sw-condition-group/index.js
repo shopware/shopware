@@ -37,9 +37,7 @@ Component.register('sw-condition-group', {
 
     data() {
         return {
-            conditionFields: {},
-            State: State,
-            dirty: false
+            conditionFields: {}
         };
     },
 
@@ -48,6 +46,9 @@ Component.register('sw-condition-group', {
     },
 
     methods: {
+        getStore(name) {
+            return State.getStore(name);
+        },
         createdComponent() {
             if (!this.condition.value) {
                 this.condition.value = {};
@@ -62,8 +63,7 @@ Component.register('sw-condition-group', {
             Object.keys(this.condition.value).forEach((key) => {
                 delete this.condition.value[key];
             });
-            this.dirty = true;
-            this.$nextTick(() => { this.dirty = false; });
+            this.$forceUpdate();
         }
     }
 });

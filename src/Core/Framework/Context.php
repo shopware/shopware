@@ -80,7 +80,7 @@ class Context extends Struct
         if (empty($languageIdChain)) {
             throw new \InvalidArgumentException('languageIdChain may not be empty');
         }
-        $this->languageIdChain = array_unique(array_filter(array_values($languageIdChain)));
+        $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
 
         $this->writeProtection = new ProtectionStruct();
         $this->deleteProtection = new ProtectionStruct();

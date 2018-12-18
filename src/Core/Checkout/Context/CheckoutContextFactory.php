@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -116,11 +115,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $context = $this->getContext($salesChannelId, $options);
 
         /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$context->getSourceContext()->getSalesChannelId()]), $context)
-            ->get($context->getSourceContext()->getSalesChannelId());
+        $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$salesChannelId]), $context)
+            ->get($salesChannelId);
 
         if (!$salesChannel) {
-            throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $context->getSourceContext()->getSalesChannelId()));
+            throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $salesChannelId));
         }
 
         //load active currency, fallback to shop currency
@@ -217,9 +216,9 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $this->shippingMethodRepository->read(new ReadCriteria([$id]), $context)->get($id);
     }
 
-    private function getContext(string $salesChannelId, array $options): Context
+    private function getContext(string $salesChannelId, array $session): Context
     {
-        $origin = $options['origin'] ?? SourceContext::ORIGIN_STOREFRONT_API;
+        $origin = $session['origin'] ?? SourceContext::ORIGIN_STOREFRONT_API;
 
         $sql = '
         SELECT 
@@ -227,10 +226,15 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
           sales_channel.language_id as sales_channel_default_language_id,
           sales_channel.currency_id as sales_channel_currency_id,
           currency.factor as sales_channel_currency_factor,
-          GROUP_CONCAT(LOWER(HEX(sales_channel_catalog.catalog_id))) as sales_channel_catalog_ids
+          GROUP_CONCAT(LOWER(HEX(sales_channel_catalog.catalog_id))) as sales_channel_catalog_ids,
+          GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids
         FROM sales_channel
-        INNER JOIN currency ON sales_channel.currency_id = currency.id
-        LEFT JOIN sales_channel_catalog ON sales_channel.id = sales_channel_catalog.sales_channel_id
+            INNER JOIN currency 
+                ON sales_channel.currency_id = currency.id
+            LEFT JOIN sales_channel_catalog 
+                ON sales_channel.id = sales_channel_catalog.sales_channel_id
+            LEFT JOIN sales_channel_language
+                ON sales_channel_language.sales_channel_id = sales_channel.id
         WHERE sales_channel.id = :id
         GROUP BY sales_channel.id, sales_channel.language_id, sales_channel.currency_id, currency.factor';
 
@@ -241,28 +245,26 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $sourceContext = new SourceContext($origin);
         $sourceContext->setSalesChannelId($salesChannelId);
 
-        $salesChannelCatalogIds = $data['sales_channel_catalog_ids'] ? explode(',', $data['sales_channel_catalog_ids']) : null;
+        $catalogIds = $data['sales_channel_catalog_ids'] ? explode(',', $data['sales_channel_catalog_ids']) : null;
+
+        //explode all available languages for the provided sales channel
+        $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : null;
+        $languageIds = array_keys(array_flip($languageIds));
+
+        //check which language should be used in the current request (request header set, or context already contains a language - stored in `storefront_api_context`)
+        $defaultLanguageId = Uuid::fromBytesToHex($data['sales_channel_default_language_id']);
+
+        $languageChain = $this->buildLanguageChain($session, $defaultLanguageId, $languageIds);
 
         return new Context(
             $sourceContext,
-            $salesChannelCatalogIds,
+            $catalogIds,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
-            $this->getLanguageIdChain($salesChannelId, Uuid::fromBytesToHex($data['sales_channel_default_language_id']), $options['requestLanguageId'] ?? null),
+            $languageChain,
             Defaults::LIVE_VERSION,
             (float) $data['sales_channel_currency_factor']
         );
-    }
-
-    private function getSalesChannelLanguageIds(string $salesChannelId): array
-    {
-        return $this->connection->createQueryBuilder()
-            ->select(['LOWER(HEX(language_id))'])
-            ->from('sales_channel_language')
-            ->where('sales_channel_id = :id')
-            ->setParameter('id', Uuid::fromHexToBytes($salesChannelId))
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
     }
 
     private function getParentLanguageId(string $languageId): ?string
@@ -276,28 +278,13 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($languageId))
             ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->fetchColumn();
 
-        if (empty($data)) {
+        if ($data === false) {
             throw new LanguageNotFoundException($languageId);
         }
 
-        return $data[0];
-    }
-
-    private function getLanguageIdChain(string $salesChannelId, string $defaultLanguageId, string $requestLanguageId = null): array
-    {
-        $availableLanguageIds = $this->getSalesChannelLanguageIds($salesChannelId);
-        $chain = [];
-        if ($requestLanguageId && \in_array($requestLanguageId, $availableLanguageIds, true)) {
-            $chain[] = $requestLanguageId;
-
-            // TODO: decide if parent_id needs to be in available languages
-            $chain[] = $this->getParentLanguageId($requestLanguageId);
-        }
-        $chain[] = $defaultLanguageId;
-
-        return $chain;
+        return $data;
     }
 
     private function loadCustomer(array $options, Context $context): ?CustomerEntity
@@ -367,5 +354,27 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             ->get($countryId);
 
         return ShippingLocation::createFromCountry($country);
+    }
+
+    private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
+    {
+        $current = $defaultLanguageId;
+
+        //language provided?
+        if (isset($sessionOptions[CheckoutContextService::LANGUAGE_ID])) {
+            $current = $sessionOptions[CheckoutContextService::LANGUAGE_ID];
+        }
+
+        //check provided language is part of the available languages
+        if (!\in_array($current, $availableLanguageIds, true)) {
+            throw new \RuntimeException('Provided language is not available');
+        }
+
+        if ($current === Defaults::LANGUAGE_SYSTEM) {
+            return [Defaults::LANGUAGE_SYSTEM];
+        }
+
+        //provided language can be a child language
+        return [$current, $this->getParentLanguageId($current), Defaults::LANGUAGE_SYSTEM];
     }
 }

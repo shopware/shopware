@@ -100,9 +100,9 @@ class ContextController extends StorefrontController
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.id', $languageId));
 
-        $currencies = $this->languageRepository->searchIds($criteria, $context->getContext());
+        $languages = $this->languageRepository->searchIds($criteria, $context->getContext());
 
-        if ($currencies->getTotal() !== 0) {
+        if ($languages->getTotal() !== 0) {
             return $languageId;
         }
 

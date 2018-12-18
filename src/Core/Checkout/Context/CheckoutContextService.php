@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Context;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @category  Shopware\Core
@@ -82,6 +81,10 @@ class CheckoutContextService implements CheckoutContextServiceInterface
 
         $parameters = $this->contextPersister->load($token);
 
+        if ($languageId) {
+            $parameters[self::LANGUAGE_ID] = $languageId;
+        }
+
         $cacheKey = $key . '-' . implode($parameters);
 
         $item = $this->cache->getItem($cacheKey);
@@ -96,13 +99,9 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         }
 
         if (!$context) {
-            if ($languageId) {
-                $parameters['requestLanguageId'] = $languageId;
-            }
-
             $context = $this->factory->create($token, $salesChannelId, $parameters);
 
-            $item->set(serialize($context));
+            $item->set($context);
 
             $item->expiresAfter(120);
 
@@ -118,7 +117,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
 
     private function loadFromCache(CacheItemInterface $item, string $token): CheckoutContext
     {
-        $cacheContext = unserialize($item->get(), [Struct::class]);
+        $cacheContext = $item->get();
 
         /* @var CheckoutContext $cacheContext */
         return new CheckoutContext(

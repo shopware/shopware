@@ -28,7 +28,7 @@
         {% block sw_settings_rule_detail_content %}
             <sw-card-view slot="content">
                 {% block sw_settings_rule_detail_content_card %}
-                    <sw-card :title="$tc('sw-settings-rule.detail.titleCard')">
+                    <sw-card :large="true" :title="$tc('sw-settings-rule.detail.titleCard')">
                         <sw-container grid="1fr 1fr" gap="0px 30px">
                             {% block sw_settings_rule_detail_content_card_field_label %}
                                 <sw-field type="text"
@@ -60,7 +60,7 @@
                 {% endblock %}
 
                 {% block sw_settings_rule_detail_conditions_card %}
-                    <sw-card :title="$tc('sw-settings-rule.detail.ruleCard')">
+                    <sw-card :large="true" :title="$tc('sw-settings-rule.detail.ruleCard')">
                         <sw-container grid="1fr" gap="0px">
 
                             {# @todo add nested conditions with twig blocks #}

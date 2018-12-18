@@ -42,7 +42,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Faker\Commerce;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
-use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
@@ -585,11 +584,11 @@ class DemodataCommand extends Command
                 'name' => 'Cart >= 5000',
             ],
             [
-                'rule' => (new NotRule())->assign(['rules' => [(new CustomerGroupRule())->assign(['customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]])]]),
+                'rule' => (new CustomerGroupRule())->assign(['customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]),
                 'name' => 'Default group',
             ],
             [
-                'rule' => (new NotRule())->assign(['rules' => [(new CurrencyRule())->assign(['currencyIds' => [Defaults::CURRENCY]])]]),
+                'rule' => (new CurrencyRule())->assign(['currencyIds' => [Defaults::CURRENCY]]),
                 'name' => 'Default currency',
             ],
         ];

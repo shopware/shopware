@@ -28,51 +28,48 @@ export default function createConditionService() {
             identifier: '>',
             label: 'global.sw-condition-group.operator.greater'
         },
-        startsWith: {
-            identifier: '%*',
-            label: 'global.sw-condition-group.operator.startsWidth'
-        },
-        endsWith: {
-            identifier: '*%',
-            label: 'global.sw-condition-group.operator.endsWidth'
-        },
-        contains: {
-            identifier: '*',
-            label: 'global.sw-condition-group.operator.contains'
-        },
-        regex: {
-            identifier: 'preg_match',
-            label: 'global.sw-condition-group.operator.regex'
-        },
         notEquals: {
             identifier: '!=',
             label: 'global.sw-condition-group.operator.notEquals'
+        },
+        isOneOf: {
+            identifier: '=',
+            label: 'global.sw-condition-group.operator.isOneOf'
+        },
+        isNoneOf: {
+            identifier: '!=',
+            label: 'global.sw-condition-group.operator.isNoneOf'
         }
     };
     const operatorSets = {
         defaultSet: [
             operators.equals,
-            operators.lowerThan,
-            operators.greaterThan,
-            operators.lowerThanEquals,
-            operators.greaterThanEquals
+            operators.notEquals,
+            operators.greaterThanEquals,
+            operators.lowerThanEquals
+        ],
+        singleStore: [
+            operators.equals,
+            operators.notEquals
+        ],
+        multiStore: [
+            operators.isOneOf,
+            operators.isNoneOf
         ],
         string: [
             operators.equals,
             operators.notEquals
         ],
+        bool: [
+            operators.equals
+        ],
         number: [
             operators.equals,
-            operators.notEquals,
             operators.greaterThanEquals,
-            operators.lowerThanEquals
-        ],
-        all: [
-            ...Object.values(operators)
-        ],
-        test: [
-            operators.equals,
-            operators.lowerThan
+            operators.greaterThan,
+            operators.lowerThan,
+            operators.lowerThanEquals,
+            operators.notEquals
         ]
     };
 

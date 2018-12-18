@@ -1,24 +1,10 @@
 const productPage = require('administration/page-objects/sw-product.page-object.js');
-const mediaPageObject = require('administration/page-objects/sw-media.page-object.js');
+let categoryFixture = global.FixtureService.loadJson('category.json');
 
 module.exports = {
     '@tags': ['product-create', 'product', 'create', 'upload'],
-    'create simple category to assign the product to it later ': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/catalog/index', 'Catalogues')
-            .waitForElementPresent('.sw-catalog-list__intro')
-            .waitForElementPresent('.sw-catalog-list__edit-action')
-            .click('.sw-catalog-list__edit-action')
-            .waitForElementPresent('input[name=sw-field--addCategoryName]')
-            .getLocationInView('.sw-catalog-detail__categories')
-            .fillField('input[name=sw-field--addCategoryName]', 'MainCategory')
-            .click('.sw-catalog-detail__add-action')
-            .waitForElementPresent('.sw-tree-item__label')
-            .assert.containsText('.sw-tree-item__label', 'MainCategory')
-            .click('.sw-button--primary')
-            .waitForElementNotPresent('.sw-catalog-detail__properties .sw-card__content .sw-loader')
-            .click('.sw-alert button.sw-alert__close')
-            .waitForElementNotPresent('.sw-alert__message');
+    before: (browser, done) => {
+        global.FixtureService.create('/v1/category', categoryFixture, 'category', done);
     },
     'open product listing': (browser) => {
         browser

@@ -1,37 +1,23 @@
 const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
+const integrationFixture = global.FixtureService.loadJson('integration.json');
 
 module.exports = {
-    '@tags': ['integration-delete','integration', 'delete'],
-    'open integration module': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
+    '@tags': ['integration-delete', 'integration', 'delete'],
+    before: (browser, done) => {
+        global.FixtureService.create('/v1/integration', integrationFixture, 'integration', done);
+        integrationFixture.name = 'My very own integration';
+        integrationFixture.label = 'My very own integration';
     },
-    'go to create integration page': (browser) => {
+    'open integration module and look for the integration to be deleted': (browser) => {
         browser
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
             .waitForElementVisible('.sw-integration-list__welcome-headline')
             .assert.containsText('.sw-integration-list__welcome-headline', 'Welcome to the integration management')
-            .waitForElementVisible('.sw-integration-list__add-integration-action')
-            .click('.sw-integration-list__add-integration-action');
-
-    },
-    'create and save integration': (browser) => {
-        browser
-            .waitForElementVisible('.sw-modal__title')
-            .assert.containsText('.sw-modal__title', 'Integration')
-            .fillField('input[name=sw-field--currentIntegration-label]', 'My very own integration')
-            .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]','on')
-            .waitForElementVisible('.sw-field__copy-button')
-            .click('.sw-field__copy-button')
-            .checkNotification('Text has been copied to clipboard')
-            .waitForElementPresent('.sw-integration-detail-modal__save-action')
-            .click('.sw-integration-detail-modal__save-action')
-            .waitForElementVisible('.sw-notifications .sw-alert')
-            .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
     'delete integration and verify deletion': (browser) => {
         const page = integrationPage(browser);
-        page.deleteSingleIntegration('My very own integration');
+        page.deleteSingleIntegration(integrationFixture.name);
     },
     after: (browser) => {
         browser.end();

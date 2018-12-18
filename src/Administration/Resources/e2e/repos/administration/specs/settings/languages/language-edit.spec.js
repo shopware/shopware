@@ -1,52 +1,25 @@
 module.exports = {
     '@tags': ['setting','language-edit', 'language', 'edit'],
-    'open language module': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages');
+    before: (browser, done) => {
+        const languageFixture = global.FixtureService.loadJson('language.json');
+        global.LanguageFixtureService.setLanguageFixtures(languageFixture, done);
     },
-    'create new language': (browser) => {
+    'open language module and look for language to be edited': (browser) => {
         browser
-            .click('a[href="#/sw/settings/language/create"]')
-            .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
-            .assert.urlContains('#/sw/settings/language/create')
-            .assert.containsText('.sw-card__title', 'Settings')
-            .fillField('input[name=sw-field--language-name]', 'Philippine English english')
-            .fillSwSelectComponent(
-                '.sw-settings-language-detail__select-locale',
-                {
-                    value: 'English, Philippines (en_PH)',
-                    searchTerm: 'en_PH'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-settings-language-detail__select-parent',
-                {
-                    value: 'English',
-                    searchTerm: 'English'
-                }
-            )
-            .waitForElementPresent('.sw-settings-language-detail__save-action')
-            .click('.sw-settings-language-detail__save-action')
-            .checkNotification('Language "Philippine English english" has been saved successfully.')
-            .assert.urlContains('#/sw/settings/language/detail');
-    },
-    'go back to listing and verify creation': (browser) => {
-        browser
-            .click('a.smart-bar__back-btn')
-            .waitForElementNotPresent('.sw-loader')
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages')
             .waitForElementVisible('.sw-settings-language-list-grid')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English english');
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English');
     },
     'edit language': (browser) => {
         browser
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English english')
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English')
             .clickContextMenuItem('.sw-language-list__edit-action', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
-            .fillField('input[name=sw-field--language-name]', 'Very Philippine English english')
+            .fillField('input[name=sw-field--language-name]', 'Very Philippine English')
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
-            .checkNotification('Language "Very Philippine English english" has been saved successfully.')
+            .checkNotification('Language "Very Philippine English" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'verify edited language': (browser) => {
@@ -54,7 +27,7 @@ module.exports = {
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-language-list-grid')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Philippine English english');
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Very Philippine English');
     },
     after: (browser) => {
         browser.end();

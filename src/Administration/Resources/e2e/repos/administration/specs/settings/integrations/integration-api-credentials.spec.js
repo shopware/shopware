@@ -1,33 +1,19 @@
 const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
+const integrationFixture = global.FixtureService.loadJson('integration.json');
 
 module.exports = {
     '@tags': ['integration-api-credentials', 'integration', 'api-credentials'],
-    'open integration module': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
+    before: (browser, done) => {
+        global.FixtureService.create('/v1/integration', integrationFixture, 'integration', done);
     },
-    'go to create integration page': (browser) => {
+    'open integration module and look for the integration to be edited': (browser) => {
         browser
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
             .waitForElementVisible('.sw-integration-list__welcome-headline')
             .assert.containsText('.sw-integration-list__welcome-headline', 'Welcome to the integration management')
-            .waitForElementVisible('.sw-integration-list__add-integration-action')
-            .click('.sw-integration-list__add-integration-action');
-    },
-    'create and save integration': (browser) => {
-        browser
-            .waitForElementVisible('.sw-modal__title')
-            .assert.containsText('.sw-modal__title', 'Integration')
-            .fillField('input[name=sw-field--currentIntegration-label]', 'Wonderful API integration example')
-            .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]','on')
-            .waitForElementPresent('.sw-integration-detail-modal__save-action')
-            .click('.sw-integration-detail-modal__save-action')
-            .checkNotification('Integration has been saved successfully')
-            .assert.urlContains('#/sw/integration/index');
-    },
-    'verify newly created integration': (browser) => {
-        browser
+            .assert.urlContains('#/sw/integration/index')
             .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Wonderful API integration example');
+            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', integrationFixture.name);
     },
     'check the clipboard': (browser) => {
         const page = integrationPage(browser);

@@ -1,34 +1,19 @@
-const integrationPage = require('administration/page-objects/sw-integration.page-object.js');
+const integrationFixture = global.FixtureService.loadJson('integration.json');
 
 module.exports = {
     '@tags': ['integration-edit','integration', 'edit'],
-    'open integration module': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
+    before: (browser, done) => {
+        global.FixtureService.create('/v1/integration', integrationFixture, 'integration', done);
+        integrationFixture.name='Edits integration';
+        integrationFixture.label='Edits integration';
     },
-    'go to create integration page': (browser) => {
+    'open integration module and look for the integration to be edited': (browser) => {
         browser
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
             .waitForElementVisible('.sw-integration-list__welcome-headline')
             .assert.containsText('.sw-integration-list__welcome-headline', 'Welcome to the integration management')
-            .waitForElementVisible('.sw-integration-list__add-integration-action')
-            .click('.sw-integration-list__add-integration-action');
-    },
-    'create and save integration': (browser) => {
-        browser
-            .waitForElementVisible('.sw-modal__title')
-            .assert.containsText('.sw-modal__title', 'Integration')
-            .fillField('input[name=sw-field--currentIntegration-label]', 'Edits integration')
-            .click('input[name=sw-field--currentIntegration-writeAccess]')
-            .waitForElementPresent('.sw-integration-detail-modal__save-action')
-            .click('.sw-integration-detail-modal__save-action')
-            .checkNotification('Integration has been saved successfully')
-            .assert.urlContains('#/sw/integration/index');
-    },
-    'verify newly created integration': (browser) => {
-        browser
-            .refresh()
             .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Edits integration');
+            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', integrationFixture.name);
     },
     'edit integration': (browser) => {
         browser

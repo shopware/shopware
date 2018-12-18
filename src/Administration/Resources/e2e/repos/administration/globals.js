@@ -1,5 +1,10 @@
-// Register flags globally so we have to import them one time
+// Register flags and fixtures globally so we have to import them one time
 require('./flags.js');
+require('./service/fixtures.service');
+require('./service/product-fixture.service');
+require('./service/language-fixture.service');
+require('./service/customer-fixtures.service');
+require('./service/sales-channel-fixture.service');
 
 const beforeScenarioActions = require('./specs/before-scenario.js');
 
@@ -33,14 +38,16 @@ module.exports = {
         });
     },
     afterEach(done) {
-        console.log("Setting database to clean state...");
+        console.log("### Setting database to clean state...");
 
         if (process.env.E2E_ENV === "default") {
             exec(`mysql -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} -h 127.0.0.1 --port=4406 ${process.env.DB_NAME} < ${resolve('../temp/clean_db.sql')}`).then(() => {
+                console.log('• ✓ - Done with reset');
                 done();
             });
         } else {
             exec(`mysql -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} -h mysql --port=3306 ${process.env.DB_NAME} < ${resolve('../temp/clean_db.sql')}`).then(() => {
+                console.log('• ✓ - Done with reset');
                 done();
             });
         }

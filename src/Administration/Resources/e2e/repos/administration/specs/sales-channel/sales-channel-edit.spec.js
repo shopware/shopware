@@ -1,43 +1,24 @@
 const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
+let salesChannelFixture = global.FixtureService.loadJson('sales-channel.json');
 
 module.exports = {
     '@tags': ['sales-channel-edit', 'sales-channel', 'edit'],
-    'open sales channel creation': (browser) => {
-        browser
-            .waitForElementVisible('.sw-admin-menu__headline')
-            .assert.containsText('.sw-admin-menu__headline', 'Sales channel')
-            .waitForElementVisible('.sw-admin-menu__headline-action')
-            .click('.sw-admin-menu__headline-action')
-            .waitForElementVisible('.sw-sales-channel-modal')
-            .waitForElementVisible('.sw-sales-channel-modal__title')
-            .assert.containsText('.sw-sales-channel-modal__title', 'Add sales channel');
+    before: (browser, done) => {
+        salesChannelFixture.name = '2nd Epic Sales Channel';
+        global.SalesChannelFixtureService.setSalesChannelFixture(salesChannelFixture, done);
     },
-    'open form to add sales channel': (browser) => {
+    'verify creation of sales channel to be edited': (browser) => {
         browser
-            .waitForElementVisible('.sw-sales-channel-modal__grid-item-name:first-child')
-            .assert.containsText('.sw-sales-channel-modal__grid-item-name:first-child', 'Storefront')
-            .waitForElementVisible('.sw-sales-channel-modal__add-channel-action')
-            .click('.sw-sales-channel-modal__add-channel-action')
-            .waitForElementNotPresent('.sw-sales-channel-modal')
-            .waitForElementVisible('.sw-sales-channel-detail-base')
-            .assert.containsText('.sw-card__title', 'General Settings');
-    },
-    'fill in form and add new sales channel': (browser) => {
-        const page = salesChannelPage(browser);
-        page.createBasicSalesChannel('2nd Epic Sales Channel');
-    },
-    'verify creation of new sales channel': (browser) => {
-        browser
-            .waitForElementNotPresent('.sw-loader')
+            .refresh()
             .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', '2nd Epic Sales Channel');
+            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', salesChannelFixture.name);
     },
     'edit name of sales channel': (browser) => {
         browser
             .waitForElementVisible('.sw-admin-menu__sales-channel-item:first-child')
             .click('.sw-admin-menu__sales-channel-item:first-child')
             .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', '2nd Epic Sales Channel')
+            .assert.containsText('.smart-bar__header h2', salesChannelFixture.name)
             .fillField('input[name=sw-field--salesChannel-name]', '2nd Epic Sales Channel at all')
             .waitForElementVisible('.sw-sales-channel-detail__save-action')
             .click('.sw-sales-channel-detail__save-action');

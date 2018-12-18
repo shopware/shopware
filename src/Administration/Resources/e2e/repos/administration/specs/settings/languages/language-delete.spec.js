@@ -1,40 +1,17 @@
 module.exports = {
     '@tags': ['setting', 'language-delete', 'language', 'delete'],
-    'open language module': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages');
+    before: (browser, done) => {
+        const languageFixture = global.FixtureService.loadJson('language.json');
+        global.LanguageFixtureService.setLanguageFixtures(languageFixture, done);
     },
-    'create new language': (browser) => {
+    'open language module and look for language to be deleted': (browser) => {
         browser
-            .click('a[href="#/sw/settings/language/create"]')
-            .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
-            .assert.urlContains('#/sw/settings/language/create')
-            .assert.containsText('.sw-card__title', 'Settings')
-            .fillField('input[name=sw-field--language-name]', 'Philippine English')
-            .fillSwSelectComponent(
-                '.sw-settings-language-detail__select-locale',
-                {
-                    value: 'English, Philippines (en_PH)',
-                    searchTerm: 'en_PH'
-                }
-            )
-            .fillSwSelectComponent(
-                '.sw-settings-language-detail__select-parent',
-                {
-                    value: 'English',
-                    searchTerm: 'English'
-                }
-            )
-            .waitForElementPresent('.sw-settings-language-detail__save-action')
-            .click('.sw-settings-language-detail__save-action')
-            .checkNotification('Language "Philippine English" has been saved successfully.')
-            .assert.urlContains('#/sw/settings/language/detail');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages')
+            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English');
     },
     'delete language': (browser) => {
         browser
-            .click('a.smart-bar__back-btn')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English')
             .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:last-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText(

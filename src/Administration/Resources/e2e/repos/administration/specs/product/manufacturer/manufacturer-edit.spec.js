@@ -1,26 +1,16 @@
-const manufacturerPage = require('administration/page-objects/sw-manufacturer.page-object.js');
+const manufacturerFixture = global.FixtureService.loadJson('manufacturer.json');
 
 module.exports = {
     '@tags': ['product', 'manufacturer-edit', 'manufacturer', 'edit'],
-    'navigate to manufacturer module and click on add manufacturer': (browser) => {
+    before: (browser, done) => {
+        global.FixtureService.create('/v1/product-manufacturer', manufacturerFixture, 'manufacturer', done);
+    },
+    'navigate to manufacturer module and look for manufacturer to be edited': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .assert.urlContains('#/sw/manufacturer/index')
-            .waitForElementPresent('.sw-button__content')
-            .click('.sw-button__content');
-    },
-    'create first manufacturer': (browser) => {
-        const page = manufacturerPage(browser);
-        page.createBasicManufacturer('MAN-U-FACTURE');
-    },
-    'check if new manufacturer exists in overview': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
-            .waitForElementPresent('.sw-button__content')
-            .assert.urlContains('#/sw/manufacturer/index')
-            .assert.containsText('.smart-bar__header', 'Manufacturer')
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-grid-row:first-child', 'MAN-U-FACTURE');
+            .assert.containsText('.sw-grid-row:first-child', manufacturerFixture.name);
     },
     'open manufacturer details and change the given data': (browser) => {
         browser
@@ -35,7 +25,7 @@ module.exports = {
             .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
             .fillField('input[name=name]', 'Minnie\'s Haberdashery')
             .fillField('input[name=link]', 'https://google.com/doodles')
-            .fillField('.ql-editor', 'Schnell den langen Text austauschen, sodass es keiner mitbekommt!','editor')
+            .fillField('.ql-editor', 'Schnell den langen Text austauschen, sodass es keiner mitbekommt!', 'editor')
             .click('.sw-manufacturer-detail__save-action')
             .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
             .click('.sw-button__content');

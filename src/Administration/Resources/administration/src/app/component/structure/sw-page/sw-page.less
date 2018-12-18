@@ -1,6 +1,7 @@
 @import "~less/variables";
 
 @sw-page-smart-bar-border-color:            @color-steam-cloud;
+@sw-page-divider-background-color:          @color-steam-cloud;
 @sw-page-smart-bar-background-color:        @color-white;
 @sw-page-smart-bar-headline-color:          @color-kashmir;
 @sw-page-smart-bar-headline-font-size:      18px;
@@ -9,24 +10,41 @@
 .sw-page {
     width: 100%;
     height: 100%;
+    position: relative;
     display: grid;
     grid-template-rows: auto 1fr;
-    position: relative;
 
-    .sw-page__container {
+    .sw-page__head-area {
+        position: relative;
         display: grid;
-        grid-template-rows: auto;
+        grid-column-gap: 8px;
+        grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, 800px) [header-content-end] 1fr [smart-bar-end];
+        align-items: center;
+        background: @sw-page-smart-bar-background-color;
+        border-bottom: 2px solid @sw-page-smart-bar-border-color;
+    }
 
-        &.has--smart-bar {
-            grid-template-rows: 70px auto;
+    .sw-page__search-bar {
+        grid-row: 1;
+        grid-column: header-content-start / header-content-end;
+        z-index: 800;
+
+        @media screen and (max-width: 500px) {
+            grid-column: head-start / smart-bar-end;
         }
     }
 
-    .sw-page__smart-bar {
-        height: 70px;
-        position: relative;
-        background: @sw-page-smart-bar-background-color;
-        border-bottom: 2px solid @sw-page-smart-bar-border-color;
+    .sw-page__smart-bar-divider {
+        position: absolute;
+        top: 80px;
+        width: 100%;
+        height: 1px;
+        background-color: @sw-page-divider-background-color;
+    }
+
+    .sw-page__back-btn-container {
+        grid-column: back-btn-start / back-btn-end;
+        grid-row: 2;
     }
 
     .smart-bar__back-btn {
@@ -36,13 +54,7 @@
         display: grid;
         grid-template-columns: 30px 24px;
         align-items: center;
-        position: absolute;
-        top: 22px;
-        left: 20px;
-
-        @media screen and (max-width: 1360px) {
-            display: none;
-        }
+        margin-left: 20px;
 
         .sw-icon.icons--small-arrow-large-left {
             line-height: 24px;
@@ -52,26 +64,15 @@
 
     .smart-bar__content {
         max-width: 800px;
-        height: 100%;
-        line-height: 68px;
-        margin: 0 auto;
+        padding: 15px 0;
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        position: relative;
-    }
-
-    .smart-bar__content-inner {
-        display: flex;
-        align-items: center;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        grid-column: header-content-start / header-content-end;
+        grid-row: 2;
 
         @media screen and (max-width: 1360px) {
-            left: 15px;
-            right: 15px;
+            padding: 15px;
         }
     }
 

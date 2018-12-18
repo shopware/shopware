@@ -23,13 +23,12 @@
 
 .sw-media-index {
     .sw-media-index__navigation {
-        display: grid;
+        display: inline-grid;
         align-items: center;
         grid-auto-flow: column;
         grid-column-gap: 8px;
-        position: absolute;
-        top: 16px;
-        left: 20px;
+        padding-left: 20px;
+        min-width: 150px;
         font-size:@sw-media-index-font-size-navigation;
     }
 
@@ -40,6 +39,7 @@
     }
 
     .sw-media-index__navigation-parent {
+        .truncate();
         color: @sw-media-index-color-navigation-parent;
         a:any-link {
             color: inherit;
@@ -48,6 +48,7 @@
     }
 
     .sw-media-index__navigation-current {
+        .truncate();
         color: @sw-media-index-color-navigation-current;
     }
 

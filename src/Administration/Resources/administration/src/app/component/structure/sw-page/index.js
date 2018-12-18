@@ -48,7 +48,8 @@ Component.register('sw-page', {
             module: null,
             parentRoute: null,
             sidebarOffset: 0,
-            scrollbarOffset: 0
+            scrollbarOffset: 0,
+            hasFullWidthHeader: false
         };
     },
 
@@ -64,18 +65,15 @@ Component.register('sw-page', {
         },
 
         pageOffset() {
+            if (this.hasFullWidthHeader) {
+                return 0;
+            }
             return `${this.sidebarOffset + this.scrollbarOffset}px`;
         },
 
-        smartBarStyles() {
+        headerStyles() {
             return {
                 'border-bottom-color': this.pageColor,
-                'padding-right': this.pageOffset
-            };
-        },
-
-        searchBarStyles() {
-            return {
                 'padding-right': this.pageOffset
             };
         }
@@ -93,19 +91,33 @@ Component.register('sw-page', {
         this.updatedComponent();
     },
 
+    beforeDestroy() {
+        this.beforeDestroyComponent();
+    },
+
     methods: {
         createdComponent() {
             this.$on('sw-sidebar-mounted', this.setSidebarOffset);
             this.$on('sw-sidebar-destroyed', this.removeSidebarOffset);
+            window.addEventListener('resize', this.readScreenWidth);
         },
 
         mountedComponent() {
             this.initPage();
+            this.readScreenWidth();
             this.setScrollbarOffset();
         },
 
         updatedComponent() {
             this.setScrollbarOffset();
+        },
+
+        beforeDestroyComponent() {
+            window.removeEventListener('resize', this.readScreenWidth);
+        },
+
+        readScreenWidth() {
+            this.hasFullWidthHeader = document.body.clientWidth <= 500;
         },
 
         setSidebarOffset(sidebarWidth) {

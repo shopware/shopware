@@ -199,4 +199,69 @@ describe('core/factory/module.factory.js', () => {
         expect(routes[0].name).equals('sw.foo.index');
         expect(routes[0].type).equals('plugin');
     });
+
+    it('should be possible to get an module by its entity name', () => {
+        const registeredModule = register('sw-foo', {
+            entity: 'foo',
+
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foo-bar-index'
+                }
+            }
+        });
+
+        const module = ModuleFactory.getModuleByEntityName('foo');
+
+        expect(module).to.be.an('object');
+        expect(module).equals(registeredModule);
+        expect(module.manifest.entity).equals('foo');
+    });
+
+    it('should return first module when entity isn`t unique', () => {
+        const registeredModule = register('sw-foo', {
+            entity: 'foo',
+
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foo-bar-index'
+                }
+            }
+        });
+
+        register('sw-another-foo', {
+            entity: 'foo',
+
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-another-foo-bar-index'
+                }
+            }
+        });
+
+        const module = ModuleFactory.getModuleByEntityName('foo');
+
+        expect(module).to.be.an('object');
+        expect(module).equals(registeredModule);
+        expect(module.manifest.entity).equals('foo');
+    });
+
+    it('should return undefined if module with that entity is not found', () => {
+        register('sw-foo', {
+            entity: 'foo',
+
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foo-bar-index'
+                }
+            }
+        });
+        const module = ModuleFactory.getModuleByEntityName('bar');
+
+        expect(module).to.be.an('undefined');
+    });
 });

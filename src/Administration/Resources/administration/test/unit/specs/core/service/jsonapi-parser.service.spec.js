@@ -138,7 +138,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
                 },
                 categoryCount: {
                     count: { field: 'catalog.categories.id' }
-                },
+                }
             },
             filter: [
                 CriteriaFactory.equals('id', catalogId).getQuery()
@@ -154,7 +154,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
 
                     expect(data.aggregations).to.deep.include({
                         productCount: { count: 0 },
-                        categoryCount: { count: 0 },
+                        categoryCount: { count: 0 }
                     });
 
                     expect(data.data.length).to.be.equal(1);

@@ -305,4 +305,49 @@ describe('core/data/EntityStore.js', () => {
 
         expect(entity).to.be.deep.equal(storeEntity);
     });
+
+    it('should duplicate the entity', () => {
+        const store = new EntityStore('tax', 'taxService', EntityProxy);
+
+        const tax = new EntityProxy('tax', 'taxService');
+        tax.setData({
+            name: 'Test tax rate',
+            taxRate: 99.98
+        });
+        const product = tax.associations.products.create();
+
+        store.add(tax);
+
+        const newTax = store.duplicate(tax.id);
+
+        expect(newTax.id).not.equals(tax.id);
+        expect(newTax.name).equals(tax.name);
+        expect(newTax.taxRate).equals(tax.taxRate);
+        /* eslint no-unused-expressions: 0 */
+        expect(newTax.products).to.be.empty;
+        expect(newTax.associations.products.store[product.id]).to.be.an('undefined');
+    });
+
+    it('should duplicate the entity with associations', () => {
+        const store = new EntityStore('tax', 'taxService', EntityProxy);
+
+        const tax = new EntityProxy('tax', 'taxService');
+        tax.setData({
+            name: 'Test tax rate',
+            taxRate: 99.98
+        });
+        const product = tax.associations.products.create();
+
+        console.log(tax.associations);
+        store.add(tax);
+
+        const newTax = store.duplicate(tax.id, true);
+
+        expect(newTax.id).not.equals(tax.id);
+        expect(newTax.name).equals(tax.name);
+        expect(newTax.taxRate).equals(tax.taxRate);
+        expect(newTax.products).to.have.length(1);
+        expect(newTax.products[0].id).equals(product.id);
+        expect(newTax.associations.products.store[product.id]).to.be.an('object');
+    });
 });

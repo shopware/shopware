@@ -16,9 +16,13 @@
 
         <service id="Shopware\Core\System\Language\LanguageLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="shopware.cache"/>
+        </service>
 
+        <service id="Shopware\Core\System\Language\CachedLanguageLoader" decorates="Shopware\Core\System\Language\LanguageLoader">
+            <argument id="Shopware\Core\System\Language\CachedLanguageLoader.inner" type="service"/>
+            <argument type="service" id="shopware.cache"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
     </services>
 </container>

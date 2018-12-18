@@ -62,33 +62,25 @@ Component.register('sw-media-folder-item', {
             return Application.getContainer('factory').module;
         },
 
+        isDefaultFolder() {
+            return this.item.defaultFolder.length > 0;
+        },
+
         iconConfig() {
-            if (this.item.defaultFolder.length > 0) {
+            if (this.isDefaultFolder) {
                 const defaultFolder = this.item.defaultFolder[0];
                 const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
                 if (module) {
                     return {
                         name: module.manifest.icon,
-                        color: module.manifest.color,
-                        multicolor: false
+                        color: module.manifest.color
                     };
                 }
             }
 
             return {
                 name: 'folder-thumbnail',
-                color: false,
-                multicolor: true
-            };
-        },
-
-        getIconStyle() {
-            if (this.iconConfig.color === false) {
-                return '';
-            }
-
-            return {
-                color: this.iconConfig.color
+                color: false
             };
         }
     },

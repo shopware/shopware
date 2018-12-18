@@ -79,6 +79,35 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
+    public function testExecuteWithCustomBatchSize(): void
+    {
+        $this->createValidMediaFiles();
+
+        $input = new StringInput('-b 1');
+        $output = new BufferedOutput();
+
+        $this->runCommand($this->thumbnailCommand, $input, $output);
+
+        $string = $output->fetch();
+        static::assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
+        static::assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
+
+        $searchCriteria = new Criteria();
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        /** @var MediaEntity $updatedMedia */
+        foreach ($mediaResult->getEntities() as $updatedMedia) {
+            $thumbnails = $updatedMedia->getThumbnails();
+            static::assertEquals(
+                2,
+                $thumbnails->count()
+            );
+
+            foreach ($thumbnails as $thumbnail) {
+                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+            }
+        }
+    }
+
     public function testItSkipsNotSupportedMediaTypes(): void
     {
         $this->createNotSupportedMediaFiles();
@@ -108,6 +137,15 @@ class GenerateThumbnailsCommandTest extends TestCase
                 }
             }
         }
+    }
+
+    public function testItThrowsExceptionOnNonNumericBatchsize(): void
+    {
+        static::expectException(\Exception::class);
+        $input = new StringInput('-b test');
+        $output = new BufferedOutput();
+
+        $this->runCommand($this->thumbnailCommand, $input, $output);
     }
 
     protected function assertThumbnailExists(MediaEntity $media, MediaThumbnailEntity $thumbnail): void

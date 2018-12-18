@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Symfony\Component\HttpFoundation\HeaderBag;
@@ -77,6 +78,50 @@ class FileFetcherTest extends TestCase
         );
     }
 
+    public function testFetchRequestDataWithMissingExtension(): void
+    {
+        $this->expectException(MissingFileExtensionException::class);
+
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $request = $this->createMock(Request::class);
+
+        $request->query = new ParameterBag();
+
+        $fileSize = filesize(self::TEST_IMAGE);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', $fileSize);
+
+        $this->fileFetcher->fetchRequestData(
+            $request,
+            $tempFile
+        );
+    }
+
+    public function testItThrowsExceptionWhenDestinationStreamCannotBeOpened(): void
+    {
+        $fileName = '';
+        $this->expectException(UploadException::class);
+        $this->expectExceptionMessage("Could not open Stream to write upload data: ${fileName}");
+
+        $request = $this->createMock(Request::class);
+        $request->expects(static::once())
+            ->method('getContent')
+            ->willReturn(fopen(self::TEST_IMAGE, 'r'));
+
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
+
+        $fileSize = filesize(self::TEST_IMAGE);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', $fileSize);
+
+        $this->fileFetcher->fetchRequestData(
+            $request,
+            $fileName
+        );
+    }
+
     public function testFetchFileFromUrl(): void
     {
         $url = getenv('APP_URL') . '/favicon.ico';
@@ -86,6 +131,7 @@ class FileFetcherTest extends TestCase
         $request->query = new ParameterBag([
             'extension' => 'ico',
         ]);
+
         $request->request = new ParameterBag([
             'url' => $url,
         ]);
@@ -125,6 +171,10 @@ class FileFetcherTest extends TestCase
         $this->expectExceptionMessage('malformed url');
 
         $request = $this->createMock(Request::class);
+
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
         $request->request = new ParameterBag([
             'url' => 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg',
         ]);

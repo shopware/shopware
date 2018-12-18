@@ -96,7 +96,7 @@ class GenerateThumbnailsCommand extends Command
 
     private function validateBatchSize(InputInterface $input): int
     {
-        $batchSize = (int) $input->getOption('batch-size');
+        $batchSize = $input->getOption('batch-size');
         if (!$batchSize) {
             return 100;
         }
@@ -105,7 +105,7 @@ class GenerateThumbnailsCommand extends Command
             throw new \Exception('BatchSize is not numeric');
         }
 
-        return $batchSize;
+        return (int) $batchSize;
     }
 
     private function getMediaCount(Context $context): int

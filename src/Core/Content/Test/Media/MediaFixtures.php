@@ -182,6 +182,22 @@ trait MediaFixtures
                     ],
                 ],
             ],
+            'NamedMimeJpgEtxJpgWithFolderWithoutThumbnails' => [
+                'id' => Uuid::uuid4()->getHex(),
+                'mimeType' => 'image/jpg',
+                'fileExtension' => 'jpg',
+                'fileName' => 'jpgFileWithExtensionAndCatalog',
+                'fileSize' => 1024,
+                'mediaType' => new ImageType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                'mediaFolder' => [
+                    'name' => 'test folder',
+                    'useParentConfiguration' => false,
+                    'configuration' => [
+                        'createThumbnails' => false,
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -246,6 +262,11 @@ trait MediaFixtures
     public function getJpgWithFolder(): MediaEntity
     {
         return $this->getMediaFixture('NamedMimeJpgEtxJpgWithFolder');
+    }
+
+    public function getJpgWithFolderWithoutThumbnails(): MediaEntity
+    {
+        return $this->getMediaFixture('NamedMimeJpgEtxJpgWithFolderWithoutThumbnails');
     }
 
     private function getMediaFixture(string $fixtureName): MediaEntity

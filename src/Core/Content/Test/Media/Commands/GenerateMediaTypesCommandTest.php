@@ -67,6 +67,23 @@ class GenerateMediaTypesCommandTest extends TestCase
         }
     }
 
+    public function testExecuteWithCustomBatchSize(): void
+    {
+        $this->createValidMediaFiles();
+
+        $input = new StringInput('-b 1');
+        $output = new BufferedOutput();
+
+        $this->runCommand($this->generateMediaTypesCommand, $input, $output);
+
+        $searchCriteria = new Criteria();
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        /** @var MediaEntity $updatedMedia */
+        foreach ($mediaResult->getEntities() as $updatedMedia) {
+            static::assertInstanceOf(MediaType::class, $updatedMedia->getMediaType());
+        }
+    }
+
     public function testExecuteWithMediaWithoutFile(): void
     {
         $this->setFixtureContext($this->context);
@@ -83,6 +100,17 @@ class GenerateMediaTypesCommandTest extends TestCase
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             static::assertNull($updatedMedia->getMediaType());
         }
+    }
+
+    public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
+    {
+        static::expectException(\Exception::class);
+        $this->createValidMediaFiles();
+
+        $input = new StringInput('-b "test"');
+        $output = new BufferedOutput();
+
+        $this->runCommand($this->generateMediaTypesCommand, $input, $output);
     }
 
     protected function createValidMediaFiles(): void

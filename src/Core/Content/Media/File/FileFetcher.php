@@ -115,7 +115,7 @@ class FileFetcher
         $inputStream = @fopen($filename, 'w');
 
         if ($inputStream === false) {
-            throw new UploadException('Could not open Stream to write uploaddata: {filename}');
+            throw new UploadException("Could not open Stream to write upload data: ${filename}");
         }
 
         return $inputStream;

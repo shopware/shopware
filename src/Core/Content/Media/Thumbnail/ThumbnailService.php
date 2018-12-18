@@ -194,6 +194,7 @@ class ThumbnailService
                 'height' => (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio),
             ];
         }
+
         $aspectRatio = $imageSize['width'] / $imageSize['height'];
 
         return [

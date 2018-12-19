@@ -16,7 +16,7 @@ Component.register('sw-media-quickinfo', {
             required: false,
             type: Object,
             validator(value) {
-                return value.type === 'media';
+                return ['media', 'media_folder'].includes(value.entityName);
             }
         },
 
@@ -36,16 +36,20 @@ Component.register('sw-media-quickinfo', {
             return this.item.url;
         },
 
+        isMediaObject() {
+            return this.item.type === 'media';
+        },
+
         fileSize() {
             return format.fileSize(this.item.fileSize);
         },
 
         createdAt() {
-            let date = this.item.uploadedAt;
-
-            if (!date) {
-                date = this.item.createdAt;
+            let date = this.item.createdAt;
+            if (this.item.entityName === 'media' && this.item.uploadedAt) {
+                date = this.item.uploadedAt;
             }
+
             return format.date(date);
         }
     },
@@ -64,6 +68,10 @@ Component.register('sw-media-quickinfo', {
 
         emitOpenModalReplace() {
             this.$emit('sw-media-quickinfo-open-modal-replace');
+        },
+
+        emitOpenFolderSettings() {
+            this.$emit('sw-media-quickinfo-open-folder-settings');
         }
     }
 });

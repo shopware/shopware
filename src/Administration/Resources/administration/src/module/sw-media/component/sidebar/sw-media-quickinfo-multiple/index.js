@@ -10,6 +10,11 @@ Component.register('sw-media-quickinfo-multiple', {
         items: {
             required: false,
             type: Array
+        },
+
+        hasFolder: {
+            required: true,
+            type: Boolean
         }
     },
 

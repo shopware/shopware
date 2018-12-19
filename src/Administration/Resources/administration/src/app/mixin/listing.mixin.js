@@ -30,6 +30,13 @@ Mixin.register('listing', {
         }
     },
 
+    watch: {
+        '$route.query.page'() {
+            this.getDataFromRoute();
+            this.getList();
+        }
+    },
+
     created() {
         this.getDataFromRoute();
         this.updateRoute();
@@ -71,10 +78,25 @@ Mixin.register('listing', {
                 delete params.criteria;
             }
 
-            this.$router.push({
+            const previousParams = this.$route.query;
+            let pageHasChanged = parseInt(previousParams.page, 10) !== params.page;
+
+            // Don't push another item onto the stack, if the component has not been mounted yet, to prevent duplicate
+            // items that effectively load the same list
+            if (typeof this.$el === 'undefined') {
+                pageHasChanged = false;
+            }
+
+            const route = {
                 name: this.routeName,
-                query: params
-            });
+                query: { ...this.$route.query, ...params }
+            };
+
+            if (pageHasChanged) {
+                this.$router.push(route);
+            } else {
+                this.$router.replace(route);
+            }
         },
 
         getListingParams() {

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -64,6 +65,11 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
      */
     private $eventIdExtractor;
 
+    /**
+     * @var CheckoutContextFactoryInterface
+     */
+    private $checkoutContextFactory;
+
     public function __construct(
         Connection $connection,
         SlugifyInterface $slugify,
@@ -71,7 +77,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         RepositoryInterface $categoryRepository,
         RepositoryInterface $applicationRepository,
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor
+        EventIdExtractor $eventIdExtractor,
+        CheckoutContextFactoryInterface $checkoutContextFactory
     ) {
         $this->connection = $connection;
         $this->slugify = $slugify;
@@ -80,6 +87,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->categoryRepository = $categoryRepository;
         $this->eventIdExtractor = $eventIdExtractor;
+        $this->checkoutContextFactory = $checkoutContextFactory;
     }
 
     public function index(\DateTime $timestamp): void
@@ -87,7 +95,14 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext());
 
         foreach ($applications as $application) {
-            $context = Context::createFromSalesChannel($application, SourceContext::ORIGIN_SYSTEM);
+            $options = $application->jsonSerialize();
+            $options['origin'] = SourceContext::ORIGIN_SYSTEM;
+            $checkoutContext = $this->checkoutContextFactory->create(
+                Uuid::uuid4()->getHex(),
+                $application->getId(),
+                $options
+            );
+            $context = $checkoutContext->getContext();
 
             $iterator = new RepositoryIterator($this->categoryRepository, $context);
 

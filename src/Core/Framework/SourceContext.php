@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Defaults;
+
 class SourceContext
 {
     public const ORIGIN_API = 'api';
@@ -24,13 +26,14 @@ class SourceContext
     private $integrationId;
 
     /**
-     * @var null|string
+     * @var string
      */
     private $salesChannelId;
 
     public function __construct(string $origin = self::ORIGIN_SYSTEM)
     {
         $this->origin = $origin;
+        $this->salesChannelId = Defaults::SALES_CHANNEL;
     }
 
     public function getOrigin(): string

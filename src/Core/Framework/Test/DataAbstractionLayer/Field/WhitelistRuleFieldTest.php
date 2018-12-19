@@ -731,6 +731,6 @@ class WhitelistRuleFieldTest extends TestCase
         $source = new SourceContext('cli');
         $source->setSalesChannelId(Defaults::SALES_CHANNEL);
 
-        return new Context($source, null, $ruleIds, Defaults::CURRENCY, Defaults::LANGUAGE_EN);
+        return new Context($source, [Defaults::CATALOG], $ruleIds, Defaults::CURRENCY);
     }
 }

@@ -411,9 +411,7 @@ class ProductRepositoryTest extends TestCase
         $context = new Context(
             $sourceContext,
             [Defaults::CATALOG],
-            [$ruleA],
-            Defaults::CURRENCY,
-            Defaults::LANGUAGE_EN
+            [$ruleA]
         );
 
         $products = $this->repository->searchIds($criteria, $context);
@@ -1775,7 +1773,7 @@ class ProductRepositoryTest extends TestCase
         $sourceContext = new SourceContext('cli');
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
-        return new Context($sourceContext, [Defaults::CATALOG], $ruleIds, Defaults::CURRENCY, Defaults::LANGUAGE_EN);
+        return new Context($sourceContext, [Defaults::CATALOG], $ruleIds);
     }
 }
 

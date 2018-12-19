@@ -149,7 +149,7 @@ class ApiTestCase extends WebTestCase
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_EN_GB),
+            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_SYSTEM),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);
@@ -185,14 +185,14 @@ class ApiTestCase extends WebTestCase
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,
-            'languageId' => Defaults::LANGUAGE_EN,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'countryId' => Defaults::COUNTRY,
             'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => Defaults::LANGUAGE_EN]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
         ]], Context::createDefaultContext());
 
         $this->storefrontApiSalesChannelId = $salesChannelId->getHex();

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -117,14 +118,14 @@ class SearchKeywordIndexer implements IndexerInterface
         $sourceContext = new SourceContext();
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
+        /** @var LanguageEntity $language */
         foreach ($languages as $language) {
             $context = new Context(
                 $sourceContext,
                 $catalogIds->getIds(),
                 [],
                 Defaults::CURRENCY,
-                $language->getId(),
-                $language->getParentId(),
+                [$language->getId(), $language->getParent(), Defaults::LANGUAGE_SYSTEM],
                 Defaults::LIVE_VERSION
             );
 

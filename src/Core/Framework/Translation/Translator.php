@@ -225,7 +225,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
             ->select(['code'])
             ->from('locale')
             ->where('id = :localeId')
-            ->setParameter('localeId', Uuid::fromHexToBytes(Defaults::LOCALE_EN_GB))
+            ->setParameter('localeId', Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM))
             ->execute()
             ->fetchColumn();
 

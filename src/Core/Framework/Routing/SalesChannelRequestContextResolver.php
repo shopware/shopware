@@ -47,18 +47,18 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->get($salesChannelId, $contextToken);
+            $context = $this->contextService->get(
+                $salesChannelId,
+                $contextToken,
+                $master->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+            );
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
     }
 
-    public function handleCheckoutContext(
-        Request $request,
-        Request $master,
-        string $salesChannelId,
-        string $contextToken): void
+    public function handleCheckoutContext(Request $request, Request $master, string $salesChannelId, string $contextToken): void
     {
         // sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {

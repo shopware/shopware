@@ -534,11 +534,15 @@ class WriterTest extends TestCase
 
         $this->getContainer()->get('language.repository')->upsert([
             [
-                'id' => '2d905256-e751-4967-8dd5-a32a81b94f1f',
+                'id' => '2d905256e75149678dd5a32a81b94f1f',
                 'name' => 'language 2',
                 'localeId' => $localeId,
                 'localeVersionId' => Defaults::LIVE_VERSION,
-                'translationCode' => ['code' => 'x-tst_' . Uuid::uuid4()->getHex()],
+                'translationCode' => [
+                    'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                    'name' => 'test name',
+                    'territory' => 'test territory',
+                ],
             ],
         ], Context::createDefaultContext());
 
@@ -548,22 +552,22 @@ class WriterTest extends TestCase
                 [
                     'id' => $this->id,
                     'name' => [
-                        Defaults::LANGUAGE_EN => '1ABC',
-                        '2d905256-e751-4967-8dd5-a32a81b94f1f' => '2ABC',
+                        Defaults::LANGUAGE_SYSTEM => '1ABC',
+                        '2d905256e75149678dd5a32a81b94f1f' => '2ABC',
                     ],
                     'description' => 'foo', // implicit FFA32A50-E2D0-4CF3-8389-A53F8D6CD594
                     'descriptionLong' => [
-                        '2d905256-e751-4967-8dd5-a32a81b94f1f' => '2CBA',
+                        '2d905256e75149678dd5a32a81b94f1f' => '2CBA',
                     ],
                     'translations' => [
-                        '2d905256-e751-4967-8dd5-a32a81b94f1f' => [
+                        '2d905256e75149678dd5a32a81b94f1f' => [
                             'name' => 'bar',
                             'description' => 'foo',
                             'keywords' => 'fiz,baz',
                         ],
                     ],
                     'metaTitle' => [
-                        '2d905256-e751-4967-8dd5-a32a81b94f1f' => 'bar',
+                        '2d905256e75149678dd5a32a81b94f1f' => 'bar',
                     ],
                 ],
             ],
@@ -612,7 +616,7 @@ class WriterTest extends TestCase
         }, $productTranslations);
 
         foreach ($productTranslations as $translation) {
-            if ($translation['language_id'] === Defaults::LANGUAGE_EN) {
+            if ($translation['language_id'] === Defaults::LANGUAGE_SYSTEM) {
                 self::assertSame('1ABC', $translation['name']);
                 self::assertSame('foo', $translation['description']);
                 self::assertNull($translation['description_long']);

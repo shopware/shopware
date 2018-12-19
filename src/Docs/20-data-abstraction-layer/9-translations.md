@@ -5,13 +5,15 @@
 Besides the ability to save primitive data to the database, it is possible
 to translate them in different languages.
 
-The translation system is based on a two-level language system. This means,
-that there is a first-level language, which is your base language like
-English (en_GB) or German (de_DE). The second level is a derivation of this
+The translation system is based on a three-level language system. This means,
+that there is a first-level language, the system language. There always needs to
+be a translation for the system language. The second level is the root language like
+English (en_GB) or German (de_DE). The third level is a derivation of this
 language like Swiss German (`de_CH`).
 
-So your data is saved in `de_DE` and may have a second-level translation
-`de_CH` for overriding a specific value.
+So your data is by default saved in the system language (currently `en_GB` by default).
+You may add another complete root-level translation like `de_DE` and may have a third-level translation
+`de_CH` for partially overriding a specific value.
 
 **Example**
 
@@ -29,7 +31,7 @@ easily. It provides a strict structure and data consistency is ensured through c
 For the translation concept, you need two classes:
 
 1. `EntityDefinition` for your entity, e.g. `ProductDefinition`
-2. `EntityDefinition` which holds all translatable fields, e.g.
+2. `EntityTranslationDefinition` which holds all translatable fields, e.g.
 `ProductTranslationDefinition`
 
 ### Enable translations
@@ -94,7 +96,7 @@ will be used:
 $repository->create(
     [
         'stock' => 10,
-        'description' => 'Das ist eine Beschreibung',
+        'description' => 'This is an example',
     ],
     $context
 );
@@ -107,8 +109,8 @@ $repository->create(
     [
         'stock' => 10,
         'translations' => [
-            'de_DE' => [
-                'description' => 'Das ist eine Beschreibung',
+            'en_GB' => [
+                'description' => 'This is an example',
             ],
         ]
     ],

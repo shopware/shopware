@@ -73,7 +73,7 @@ class TranslatorTest extends TestCase
         $snippet = [
             'translationKey' => 'footer.copyright',
             'value' => 'Realisiert mit Unit test',
-            'languageId' => Defaults::LANGUAGE_EN,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'setId' => Defaults::SNIPPET_BASE_SET_EN,
         ];
         $this->snippetRepository->create([$snippet], $context);

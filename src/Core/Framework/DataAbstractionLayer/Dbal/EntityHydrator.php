@@ -215,8 +215,7 @@ class EntityHydrator
             return null;
         }
 
-        /** @var string|EntityDefinition $translationDefinition */
-        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $definition, $context, true);
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, false);
 
         $structClass = $translationDefinition::getEntityClass();
 
@@ -227,7 +226,7 @@ class EntityHydrator
 
         //builds a complete collection with translation structs of the current entity
         foreach ($chain as $accessor) {
-            $entity = $this->hydrateEntity(new $structClass(), $translationDefinition, $row, $accessor, $context);
+            $entity = $this->hydrateEntity(new $structClass(), $translationDefinition, $row, $accessor['alias'], $context);
             $collection->add($entity);
         }
 

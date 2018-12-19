@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -24,35 +23,23 @@ class TranslationFieldResolver implements FieldResolverInterface
             return false;
         }
 
-        $this->joinTranslationTable($root, $definition, $query, $context);
-
-        /** @var string|EntityDefinition $definition */
-        if (!$definition::isInheritanceAware()) {
-            return true;
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition::isInheritanceAware());
+        foreach ($chain as $part) {
+            $this->joinTranslationTable($part, $definition, $query);
         }
-
-        /** @var EntityDefinition $definition */
-        $alias = $root . '.parent';
-
-        $this->joinTranslationTable($alias, $definition, $query, $context);
 
         return true;
     }
 
-    private function joinTranslationTable(string $root, string $definition, QueryBuilder $query, Context $context): void
+    private function joinTranslationTable(array $part, string $definition, QueryBuilder $query): void
     {
-        $alias = $root . '.translation';
-        if ($query->hasState($alias)) {
+        $table = $definition::getEntityName() . '_translation';
+        $parameterName = str_replace('.', '_', $part['name']) . 'LanguageId';
+
+        if ($query->hasState($part['alias'])) {
             return;
         }
-
-        $query->addState($alias);
-
-        /** @var EntityDefinition $definition */
-        $table = $definition::getEntityName() . '_translation';
-
-        $languageId = Uuid::fromStringToBytes($context->getLanguageId());
-        $query->setParameter('languageId', $languageId);
+        $query->addState($part['alias']);
 
         $versionJoin = '';
         if ($definition::isVersionAware()) {
@@ -60,45 +47,23 @@ class TranslationFieldResolver implements FieldResolverInterface
         }
 
         $parameters = [
-            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
+            '#alias#' => EntityDefinitionQueryHelper::escape($part['alias']),
             '#entity#' => $definition::getEntityName(),
-            '#root#' => EntityDefinitionQueryHelper::escape($root),
+            '#root#' => EntityDefinitionQueryHelper::escape($part['root']),
         ];
 
         $query->leftJoin(
-            EntityDefinitionQueryHelper::escape($root),
+            EntityDefinitionQueryHelper::escape($part['root']),
             EntityDefinitionQueryHelper::escape($table),
-            EntityDefinitionQueryHelper::escape($alias),
+            EntityDefinitionQueryHelper::escape($part['alias']),
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :languageId' . $versionJoin
+                    '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :' . $parameterName . $versionJoin
             )
         );
 
-        if (!$context->hasFallback()) {
-            return;
-        }
-
-        $alias = $root . '.translation.fallback';
-
-        $parameters = [
-            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#entity#' => $definition::getEntityName(),
-            '#root#' => EntityDefinitionQueryHelper::escape($root),
-        ];
-
-        $query->leftJoin(
-            EntityDefinitionQueryHelper::escape($root),
-            EntityDefinitionQueryHelper::escape($table),
-            EntityDefinitionQueryHelper::escape($alias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :fallbackLanguageId' . $versionJoin
-            )
-        );
-        $languageId = Uuid::fromStringToBytes($context->getFallbackLanguageId());
-        $query->setParameter('fallbackLanguageId', $languageId);
+        $languageId = Uuid::fromHexToBytes($part['id']);
+        $query->setParameter($parameterName, $languageId);
     }
 }

@@ -5,19 +5,13 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\ProtectionStruct;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class Context extends Struct
 {
     /**
-     * @var string
+     * @var string[]
      */
-    protected $languageId;
-
-    /**
-     * @var string
-     */
-    protected $fallbackLanguageId;
+    protected $languageIdChain;
 
     /**
      * @var string
@@ -66,11 +60,10 @@ class Context extends Struct
 
     public function __construct(
         SourceContext $sourceContext,
-        ?array $catalogIds,
-        array $rules,
-        string $currencyId,
-        string $languageId,
-        ?string $fallbackLanguageId = null,
+        ?array $catalogIds = [Defaults::CATALOG],
+        array $rules = [],
+        string $currencyId = Defaults::CURRENCY,
+        array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
         float $currencyFactor = 1.0,
         string $snippetSetId = Defaults::SNIPPET_BASE_SET_EN
@@ -79,11 +72,15 @@ class Context extends Struct
         $this->catalogIds = $catalogIds;
         $this->rules = $rules;
         $this->currencyId = $currencyId;
-        $this->languageId = $languageId;
-        $this->fallbackLanguageId = $fallbackLanguageId;
+
         $this->versionId = $versionId;
         $this->currencyFactor = $currencyFactor;
         $this->snippetSetId = $snippetSetId;
+
+        if (empty($languageIdChain)) {
+            throw new \InvalidArgumentException('languageIdChain may not be empty');
+        }
+        $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
 
         $this->writeProtection = new ProtectionStruct();
         $this->deleteProtection = new ProtectionStruct();
@@ -91,33 +88,7 @@ class Context extends Struct
 
     public static function createDefaultContext(): self
     {
-        $sourceContext = new SourceContext('cli');
-        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
-
-        return new self($sourceContext, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE_EN);
-    }
-
-    public static function createFromSalesChannel(SalesChannelEntity $salesChannel, string $origin): self
-    {
-        $sourceContext = new SourceContext($origin);
-        $sourceContext->setSalesChannelId($salesChannel->getId());
-
-        return new self(
-            $sourceContext,
-            $salesChannel->getCatalogs()->getIds(),
-            [],
-            $salesChannel->getCurrencyId(),
-            $salesChannel->getLanguageId(),
-            $salesChannel->getLanguage()->getParentId(),
-            Defaults::LIVE_VERSION,
-            $salesChannel->getCurrency()->getFactor()
-        );
-    }
-
-    public function hasFallback(): bool
-    {
-        return $this->getFallbackLanguageId() !== null
-            && $this->getFallbackLanguageId() !== $this->getLanguageId();
+        return new self(new SourceContext('cli'));
     }
 
     public function getSourceContext(): SourceContext
@@ -132,7 +103,7 @@ class Context extends Struct
 
     public function getLanguageId(): string
     {
-        return $this->languageId;
+        return $this->languageIdChain[0];
     }
 
     public function getCatalogIds(): ?array
@@ -155,9 +126,9 @@ class Context extends Struct
         return $this->rules;
     }
 
-    public function getFallbackLanguageId(): ?string
+    public function getLanguageIdChain(): array
     {
-        return $this->fallbackLanguageId;
+        return $this->languageIdChain;
     }
 
     public function createWithVersionId(string $versionId): self
@@ -167,8 +138,7 @@ class Context extends Struct
             $this->catalogIds,
             $this->rules,
             $this->currencyId,
-            $this->languageId,
-            $this->fallbackLanguageId,
+            $this->languageIdChain,
             $versionId,
             $this->currencyFactor,
             $this->snippetSetId
@@ -191,8 +161,7 @@ class Context extends Struct
             $catalogIds,
             $this->rules,
             $this->currencyId,
-            $this->languageId,
-            $this->fallbackLanguageId,
+            $this->languageIdChain,
             $this->versionId,
             $this->currencyFactor,
             $this->snippetSetId
@@ -216,26 +185,6 @@ class Context extends Struct
     public function getDeleteProtection(): ProtectionStruct
     {
         return $this->deleteProtection;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getLanguageIdChain(): array
-    {
-        if ($this->hasFallback()) {
-            $root = $this->getFallbackLanguageId();
-            $sub = $this->getLanguageId();
-
-            return [Defaults::LANGUAGE_EN, $root, $sub];
-        }
-
-        $root = $this->getLanguageId();
-        if ($root !== Defaults::LANGUAGE_EN) {
-            return [Defaults::LANGUAGE_EN, $root];
-        }
-
-        return [Defaults::LANGUAGE_EN];
     }
 
     public function getSnippetSetId(): string

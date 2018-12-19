@@ -58,7 +58,7 @@ class ListFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(ListField::class, $field);
         }
         /** @var ListField $field */
-        if ($this->requiresValidation($field, $existence, $data->getValue())) {
+        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
             $constraints = $this->constraintBuilder
                 ->isArray()
                 ->getConstraints();

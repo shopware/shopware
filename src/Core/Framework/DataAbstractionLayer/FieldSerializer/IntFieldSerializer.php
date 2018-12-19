@@ -46,7 +46,7 @@ class IntFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof IntField) {
             throw new InvalidSerializerFieldException(IntField::class, $field);
         }
-        if ($this->requiresValidation($field, $existence, $data->getValue())) {
+        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
             $constraints = $this->constraintBuilder
                 ->isInt()
                 ->getConstraints();

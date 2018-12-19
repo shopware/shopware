@@ -33,7 +33,7 @@ class UserProvisioner
             'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromHexToBytes(Defaults::LOCALE_EN_GB),
+            'locale_id' => Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM),
             'active' => true,
             'created_at' => date(Defaults::DATE_FORMAT),
         ];

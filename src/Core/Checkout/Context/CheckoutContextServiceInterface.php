@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\CheckoutContext;
  */
 interface CheckoutContextServiceInterface
 {
-    public function get(string $salesChannelId, string $token): CheckoutContext;
+    public function get(string $salesChannelId, string $token, ?string $languageId): CheckoutContext;
 
-    public function refresh(string $salesChannelId, string $token): void;
+    public function refresh(string $salesChannelId, string $token, ?string $languageId): void;
 }

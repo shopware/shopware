@@ -111,7 +111,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
             'netzwerkprotokolle',
         ];
 
-        $languageId = Uuid::fromString(Defaults::LANGUAGE_EN)->getBytes();
+        $languageId = Uuid::fromString(Defaults::LANGUAGE_SYSTEM)->getBytes();
 
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);

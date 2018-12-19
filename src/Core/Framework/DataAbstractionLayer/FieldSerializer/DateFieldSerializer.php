@@ -59,7 +59,7 @@ class DateFieldSerializer implements FieldSerializerInterface
         }
 
         /** @var DateField $field */
-        if ($this->requiresValidation($field, $existence, $value)) {
+        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             $constraints = $this->constraintBuilder
                 ->isDate()
                 ->getConstraints();

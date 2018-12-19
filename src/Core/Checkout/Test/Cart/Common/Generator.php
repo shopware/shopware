@@ -26,12 +26,11 @@ use Shopware\Core\Content\Catalog\CatalogCollection;
 use Shopware\Core\Content\Catalog\CatalogEntity;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -39,6 +38,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 class Generator extends TestCase
 {
     public static function createCheckoutContext(
+        Context $baseContext = null,
         $currentCustomerGroup = null,
         $fallbackCustomerGroup = null,
         $salesChannel = null,
@@ -47,10 +47,11 @@ class Generator extends TestCase
         $country = null,
         $state = null,
         $shipping = null,
-        $language = null,
-        $fallbackLanguage = null,
         $paymentMethod = null
     ): CheckoutContext {
+        if (!$baseContext) {
+            $baseContext = Context::createDefaultContext();
+        }
         if ($salesChannel === null) {
             $salesChannel = new SalesChannelEntity();
             $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
@@ -110,25 +111,6 @@ class Generator extends TestCase
             $shipping->setCountryState($state);
         }
 
-        if (!$language) {
-            $locale = new LocaleEntity();
-            $locale->setCode('en_GB');
-
-            $language = new LanguageEntity();
-            $language->setId(Defaults::LANGUAGE_EN);
-            $language->setLocale($locale);
-            $language->setName('Language 1');
-        }
-
-        if (!$fallbackLanguage) {
-            $locale = new LocaleEntity();
-            $locale->setCode('en_GB');
-
-            $fallbackLanguage = new LanguageEntity();
-            $fallbackLanguage->setLocale($locale);
-            $fallbackLanguage->setName('Fallback Language 1');
-        }
-
         if (!$paymentMethod) {
             $paymentMethod = (new PaymentMethodEntity())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
         }
@@ -144,10 +126,9 @@ class Generator extends TestCase
         $customer->setGroup($currentCustomerGroup);
 
         return new CheckoutContext(
+            $baseContext,
             Uuid::uuid4()->toString(),
             $salesChannel,
-            $language,
-            $fallbackLanguage,
             $currency,
             $currentCustomerGroup,
             $fallbackCustomerGroup,

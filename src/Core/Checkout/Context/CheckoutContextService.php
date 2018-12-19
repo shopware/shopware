@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Context;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @category  Shopware\Core
@@ -66,21 +65,25 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         $this->contextPersister = $contextPersister;
     }
 
-    public function get(string $salesChannelId, string $token): CheckoutContext
+    public function get(string $salesChannelId, string $token, ?string $languageId = null): CheckoutContext
     {
-        return $this->load($salesChannelId, $token, true);
+        return $this->load($salesChannelId, $token, true, $languageId);
     }
 
-    public function refresh(string $salesChannelId, string $token): void
+    public function refresh(string $salesChannelId, string $token, ?string $languageId = null): void
     {
-        $this->load($salesChannelId, $token, false);
+        $this->load($salesChannelId, $token, false, $languageId);
     }
 
-    private function load(string $salesChannelId, string $token, bool $useCache): CheckoutContext
+    private function load(string $salesChannelId, string $token, bool $useCache, ?string $languageId = null): CheckoutContext
     {
         $key = $salesChannelId . '-' . $token;
 
         $parameters = $this->contextPersister->load($token);
+
+        if ($languageId) {
+            $parameters[self::LANGUAGE_ID] = $languageId;
+        }
 
         $cacheKey = $key . '-' . implode($parameters);
 
@@ -98,7 +101,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         if (!$context) {
             $context = $this->factory->create($token, $salesChannelId, $parameters);
 
-            $item->set(serialize($context));
+            $item->set($context);
 
             $item->expiresAfter(120);
 
@@ -114,14 +117,13 @@ class CheckoutContextService implements CheckoutContextServiceInterface
 
     private function loadFromCache(CacheItemInterface $item, string $token): CheckoutContext
     {
-        $cacheContext = unserialize($item->get(), [Struct::class]);
+        $cacheContext = $item->get();
 
         /* @var CheckoutContext $cacheContext */
         return new CheckoutContext(
+            $cacheContext->getContext(),
             $token,
             $cacheContext->getSalesChannel(),
-            $cacheContext->getLanguage(),
-            $cacheContext->getFallbackLanguage(),
             $cacheContext->getCurrency(),
             $cacheContext->getCurrentCustomerGroup(),
             $cacheContext->getFallbackCustomerGroup(),

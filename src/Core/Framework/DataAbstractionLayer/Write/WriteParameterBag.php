@@ -6,7 +6,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
-use Shopware\Core\System\Locale\LanguageResolverInterface;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class WriteParameterBag
 {
@@ -46,24 +47,22 @@ class WriteParameterBag
     protected $exceptionStack;
 
     /**
-     * @var LanguageResolverInterface
+     * @var string|null
      */
-    protected $languageResolver;
+    private $currentWriteLanguageId;
 
     public function __construct(
         string $definition,
         WriteContext $context,
         string $path,
         WriteCommandQueue $commandQueue,
-        FieldExceptionStack $exceptionStack,
-        LanguageResolverInterface $languageResolver
+        FieldExceptionStack $exceptionStack
     ) {
         $this->definition = $definition;
         $this->context = $context;
         $this->path = $path;
         $this->commandQueue = $commandQueue;
         $this->exceptionStack = $exceptionStack;
-        $this->languageResolver = $languageResolver;
     }
 
     /**
@@ -94,11 +93,6 @@ class WriteParameterBag
         return $this->exceptionStack;
     }
 
-    public function getLanguageResolver(): LanguageResolverInterface
-    {
-        return $this->languageResolver;
-    }
-
     public function cloneForSubresource(string $definition, string $path): self
     {
         return new self(
@@ -106,8 +100,25 @@ class WriteParameterBag
             $this->context,
             $path,
             $this->commandQueue,
-            $this->exceptionStack,
-            $this->languageResolver
+            $this->exceptionStack
         );
+    }
+
+    public function getCurrentWriteLanguageId(): string
+    {
+        if ($this->currentWriteLanguageId !== null) {
+            return $this->currentWriteLanguageId;
+        }
+
+        return $this->context->getContext()->getLanguageId();
+    }
+
+    public function setCurrentWriteLanguageId(string $languageId): void
+    {
+        if (!Uuid::isValid($languageId)) {
+            throw new LanguageNotFoundException($languageId);
+        }
+
+        $this->currentWriteLanguageId = $languageId;
     }
 }

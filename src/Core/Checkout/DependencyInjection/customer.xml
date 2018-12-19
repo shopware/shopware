@@ -51,7 +51,6 @@
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="country_state.repository"/>
-            <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 

@@ -47,7 +47,7 @@ class StringFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof StringField) {
             throw new InvalidSerializerFieldException(StringField::class, $field);
         }
-        if ($this->requiresValidation($field, $existence, $data->getValue())) {
+        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
             $constraints = $this->constraintBuilder
                 ->isNotBlank()
                 ->isString()

@@ -9,12 +9,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\ContextRulesLockedException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
@@ -95,25 +92,14 @@ class CheckoutContext extends Struct
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
-     * @var LanguageEntity
-     */
-    protected $language;
-
-    /**
-     * @var null|LanguageEntity
-     */
-    protected $fallbackLanguage;
-
-    /**
-     * @var Context|null
+     * @var Context
      */
     private $context;
 
     public function __construct(
+        Context $baseContext,
         string $token,
         SalesChannelEntity $salesChannel,
-        LanguageEntity $language,
-        ?LanguageEntity $fallbackLanguage,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
         CustomerGroupEntity $fallbackCustomerGroup,
@@ -135,8 +121,7 @@ class CheckoutContext extends Struct
         $this->shippingLocation = $shippingLocation;
         $this->rulesIds = $rulesIds;
         $this->token = $token;
-        $this->language = $language;
-        $this->fallbackLanguage = $fallbackLanguage;
+        $this->context = $baseContext;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -186,23 +171,7 @@ class CheckoutContext extends Struct
 
     public function getContext(): Context
     {
-        if ($this->context) {
-            return $this->context;
-        }
-
-        $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
-        $sourceContext->setSalesChannelId($this->salesChannel->getId());
-
-        return $this->context = new Context(
-            $sourceContext,
-            $this->salesChannel->getCatalogs()->getIds(),
-            $this->rulesIds,
-            $this->currency->getId(),
-            $this->language->getId(),
-            $this->language->getParentId(),
-            Defaults::LIVE_VERSION,
-            $this->currency->getFactor()
-        );
+        return $this->context;
     }
 
     public function getRuleIds(): array
@@ -227,16 +196,6 @@ class CheckoutContext extends Struct
     public function getToken(): string
     {
         return $this->token;
-    }
-
-    public function getLanguage(): LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function getFallbackLanguage(): ?LanguageEntity
-    {
-        return $this->fallbackLanguage;
     }
 
     public function getTaxState(): string

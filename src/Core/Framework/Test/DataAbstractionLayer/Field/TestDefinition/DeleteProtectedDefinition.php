@@ -17,7 +17,7 @@ class DeleteProtectedDefinition extends EntityDefinition
         return 'add_me';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection();
     }

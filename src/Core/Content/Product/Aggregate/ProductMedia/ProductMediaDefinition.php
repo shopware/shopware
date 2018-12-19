@@ -27,7 +27,22 @@ class ProductMediaDefinition extends EntityDefinition
         return 'product_media';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ProductMediaCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ProductMediaEntity::class;
+    }
+
+    public static function getRootDefinition(): ?string
+    {
+        return MediaDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -46,20 +61,5 @@ class ProductMediaDefinition extends EntityDefinition
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ProductMediaCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ProductMediaEntity::class;
-    }
-
-    public static function getRootDefinition(): ?string
-    {
-        return MediaDefinition::class;
     }
 }

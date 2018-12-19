@@ -54,7 +54,17 @@ class LanguageDefinition extends EntityDefinition
         return 'language';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return LanguageCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return LanguageEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -101,15 +111,5 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('searchDocuments', SearchDocumentDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mediaFolderTranslations', MediaFolderTranslationDefinition::class, 'language_id', false))->setFlags(new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return LanguageCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return LanguageEntity::class;
     }
 }

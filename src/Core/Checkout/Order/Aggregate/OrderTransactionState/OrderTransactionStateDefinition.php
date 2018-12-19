@@ -26,7 +26,17 @@ class OrderTransactionStateDefinition extends EntityDefinition
         return 'order_transaction_state';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderTransactionStateCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderTransactionStateEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new VersionField(),
@@ -39,15 +49,5 @@ class OrderTransactionStateDefinition extends EntityDefinition
             (new TranslationsAssociationField(OrderTransactionStateTranslationDefinition::class))->setFlags(new Required(), new RestrictDelete()),
             new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'order_transaction_state_id', false, 'id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderTransactionStateCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderTransactionStateEntity::class;
     }
 }

@@ -35,7 +35,22 @@ class OrderLineItemDefinition extends EntityDefinition
         return 'order_line_item';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderLineItemCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderLineItemEntity::class;
+    }
+
+    public static function getRootDefinition(): ?string
+    {
+        return OrderDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -68,20 +83,5 @@ class OrderLineItemDefinition extends EntityDefinition
             new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderLineItemCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderLineItemEntity::class;
-    }
-
-    public static function getRootDefinition(): ?string
-    {
-        return OrderDefinition::class;
     }
 }

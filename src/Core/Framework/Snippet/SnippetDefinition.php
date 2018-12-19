@@ -23,21 +23,6 @@ class SnippetDefinition extends EntityDefinition
         return 'snippet';
     }
 
-    public static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
-            (new FkField('snippet_set_id', 'setId', SnippetSetDefinition::class))->setFlags(new Required()),
-            (new StringField('translation_key', 'translationKey'))->setFlags(new Required()),
-            (new LongTextField('value', 'value'))->setFlags(new Required()),
-            new CreatedAtField(),
-            new UpdatedAtField(),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
-            new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, false),
-        ]);
-    }
-
     public static function getCollectionClass(): string
     {
         return SnippetCollection::class;
@@ -51,5 +36,20 @@ class SnippetDefinition extends EntityDefinition
     public static function getRootDefinition(): ?string
     {
         return SnippetSetDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
+            (new FkField('snippet_set_id', 'setId', SnippetSetDefinition::class))->setFlags(new Required()),
+            (new StringField('translation_key', 'translationKey'))->setFlags(new Required()),
+            (new LongTextField('value', 'value'))->setFlags(new Required()),
+            new CreatedAtField(),
+            new UpdatedAtField(),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, false),
+        ]);
     }
 }

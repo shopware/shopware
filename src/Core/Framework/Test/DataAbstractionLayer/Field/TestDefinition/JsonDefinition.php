@@ -16,7 +16,7 @@ class JsonDefinition extends EntityDefinition
         return '_test_nullable';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),

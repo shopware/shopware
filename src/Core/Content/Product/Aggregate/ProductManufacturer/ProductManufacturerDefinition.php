@@ -33,7 +33,17 @@ class ProductManufacturerDefinition extends EntityDefinition
         return 'product_manufacturer';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ProductManufacturerCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ProductManufacturerEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -55,15 +65,5 @@ class ProductManufacturerDefinition extends EntityDefinition
             (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class))->setFlags(new CascadeDelete(), new Required()),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ProductManufacturerCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ProductManufacturerEntity::class;
     }
 }

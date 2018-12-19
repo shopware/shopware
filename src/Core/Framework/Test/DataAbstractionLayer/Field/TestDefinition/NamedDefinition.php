@@ -18,7 +18,7 @@ class NamedDefinition extends EntityDefinition
         return 'named';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),

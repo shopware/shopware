@@ -26,7 +26,22 @@ class OrderCustomerDefinition extends EntityDefinition
         return 'order_customer';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderCustomerCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderCustomerEntity::class;
+    }
+
+    public static function getRootDefinition(): ?string
+    {
+        return OrderDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -45,20 +60,5 @@ class OrderCustomerDefinition extends EntityDefinition
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false))->setFlags(new SearchRanking(0.5)),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_customer_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderCustomerCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderCustomerEntity::class;
-    }
-
-    public static function getRootDefinition(): ?string
-    {
-        return OrderDefinition::class;
     }
 }

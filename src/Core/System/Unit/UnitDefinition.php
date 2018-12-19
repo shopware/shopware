@@ -26,7 +26,17 @@ class UnitDefinition extends EntityDefinition
         return 'unit';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return UnitCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return UnitEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -37,15 +47,5 @@ class UnitDefinition extends EntityDefinition
             (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete(), new ReverseInherited('unit')),
             (new TranslationsAssociationField(UnitTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return UnitCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return UnitEntity::class;
     }
 }

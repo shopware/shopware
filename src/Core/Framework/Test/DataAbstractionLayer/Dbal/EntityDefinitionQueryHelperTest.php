@@ -92,7 +92,7 @@ class JsonObjectTestDefinition extends EntityDefinition
         return 'json_object_test';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new ObjectField('amount', 'amount'),

@@ -26,7 +26,17 @@ class TaxDefinition extends EntityDefinition
         return 'tax';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return TaxCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return TaxEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -37,15 +47,5 @@ class TaxDefinition extends EntityDefinition
             (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->setFlags(new RestrictDelete(), new ReverseInherited('tax')),
             (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return TaxCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return TaxEntity::class;
     }
 }

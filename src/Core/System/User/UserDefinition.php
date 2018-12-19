@@ -29,7 +29,17 @@ class UserDefinition extends EntityDefinition
         return 'user';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return UserCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return UserEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -48,15 +58,5 @@ class UserDefinition extends EntityDefinition
             new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
             new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', false, 'id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return UserCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return UserEntity::class;
     }
 }

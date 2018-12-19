@@ -24,7 +24,22 @@ class CustomerAddressDefinition extends EntityDefinition
         return 'customer_address';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return CustomerAddressCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CustomerAddressEntity::class;
+    }
+
+    public static function getRootDefinition(): ?string
+    {
+        return CustomerDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -54,20 +69,5 @@ class CustomerAddressDefinition extends EntityDefinition
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return CustomerAddressCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CustomerAddressEntity::class;
-    }
-
-    public static function getRootDefinition(): ?string
-    {
-        return CustomerDefinition::class;
     }
 }

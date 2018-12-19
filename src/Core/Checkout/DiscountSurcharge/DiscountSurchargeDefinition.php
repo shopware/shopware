@@ -27,7 +27,17 @@ class DiscountSurchargeDefinition extends EntityDefinition
         return 'discount_surcharge';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return DiscountSurchargeCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return DiscountSurchargeEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -41,15 +51,5 @@ class DiscountSurchargeDefinition extends EntityDefinition
             (new TranslationsAssociationField(DiscountSurchargeTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return DiscountSurchargeCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return DiscountSurchargeEntity::class;
     }
 }

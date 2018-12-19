@@ -15,13 +15,6 @@ class OrderTransactionStateTranslationDefinition extends EntityTranslationDefini
         return 'order_transaction_state_translation';
     }
 
-    public static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new StringField('description', 'description'))->setFlags(new Required()),
-        ]);
-    }
-
     public static function getCollectionClass(): string
     {
         return OrderTransactionStateTranslationCollection::class;
@@ -35,5 +28,12 @@ class OrderTransactionStateTranslationDefinition extends EntityTranslationDefini
     public static function getDefinition(): string
     {
         return OrderTransactionStateDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new StringField('description', 'description'))->setFlags(new Required()),
+        ]);
     }
 }

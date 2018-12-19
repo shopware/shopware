@@ -27,7 +27,17 @@ class RuleDefinition extends EntityDefinition
         return 'rule';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return RuleCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return RuleEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -42,15 +52,5 @@ class RuleDefinition extends EntityDefinition
             (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'rule_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return RuleCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return RuleEntity::class;
     }
 }

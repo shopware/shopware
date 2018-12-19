@@ -29,7 +29,17 @@ class OrderStateDefinition extends EntityDefinition
         return 'order_state';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderStateCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderStateEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -43,15 +53,5 @@ class OrderStateDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField(OrderStateTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderStateCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderStateEntity::class;
     }
 }

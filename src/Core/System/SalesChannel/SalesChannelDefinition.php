@@ -43,7 +43,17 @@ class SalesChannelDefinition extends EntityDefinition
         return 'sales_channel';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return SalesChannelCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return SalesChannelEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -77,15 +87,5 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('orders', OrderDefinition::class, 'sales_channel_id', false, 'id'),
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', false, 'id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return SalesChannelCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return SalesChannelEntity::class;
     }
 }

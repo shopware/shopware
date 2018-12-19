@@ -105,7 +105,7 @@ class ScoreBuilderTestDefinition extends EntityDefinition
         return 'test';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
@@ -123,7 +123,7 @@ class NestedDefinition extends EntityDefinition
         return 'nested';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
@@ -138,7 +138,7 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
         return 'translated';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new TranslatedField('name'),

@@ -31,7 +31,22 @@ class OrderDeliveryDefinition extends EntityDefinition
         return 'order_delivery';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderDeliveryCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderDeliveryEntity::class;
+    }
+
+    public static function getRootDefinition(): ?string
+    {
+        return OrderDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -59,20 +74,5 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, true))->setFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('positions', OrderDeliveryPositionDefinition::class, 'order_delivery_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderDeliveryCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderDeliveryEntity::class;
-    }
-
-    public static function getRootDefinition(): ?string
-    {
-        return OrderDefinition::class;
     }
 }

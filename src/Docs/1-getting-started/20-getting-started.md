@@ -741,7 +741,7 @@ class ProductDefinition extends EntityDefinition
         return 'product';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([]);
     }
@@ -764,7 +764,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 
-public static function defineFields(): FieldCollection
+protected static function defineFields(): FieldCollection
 {
     return new FieldCollection([
         new StringField('ean', 'ean'),
@@ -798,7 +798,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
-public static function defineFields(): FieldCollection
+protected static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),  
@@ -831,7 +831,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
-public static function defineFields(): FieldCollection
+protected static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...
@@ -861,7 +861,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 
-public static function defineFields(): FieldCollection
+protected static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...
@@ -898,7 +898,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 
 
-public static function defineFields(): FieldCollection
+protected static function defineFields(): FieldCollection
 {
     return new FieldCollection([
        // ...

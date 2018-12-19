@@ -32,7 +32,22 @@ class CatalogDefinition extends EntityDefinition
         return 'catalog';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return CatalogCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CatalogEntity::class;
+    }
+
+    public static function getTranslationDefinitionClass(): ?string
+    {
+        return CatalogTranslationDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -49,20 +64,5 @@ class CatalogDefinition extends EntityDefinition
             (new TranslationsAssociationField(CatalogTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCatalogDefinition::class, false, 'catalog_id', 'sales_channel_id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return CatalogCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CatalogEntity::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return CatalogTranslationDefinition::class;
     }
 }

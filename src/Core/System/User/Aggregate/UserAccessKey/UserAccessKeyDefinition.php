@@ -23,20 +23,6 @@ class UserAccessKeyDefinition extends EntityDefinition
         return 'user_access_key';
     }
 
-    public static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('user_id', 'userId', UserDefinition::class))->setFlags(new Required()),
-            (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
-            (new PasswordField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
-            new BoolField('write_access', 'writeAccess'),
-            new CreatedAtField(),
-            new DateField('last_usage_at', 'lastUsageAt'),
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
-        ]);
-    }
-
     public static function getCollectionClass(): string
     {
         return UserAccessKeyCollection::class;
@@ -50,5 +36,19 @@ class UserAccessKeyDefinition extends EntityDefinition
     public static function getRootDefinition(): ?string
     {
         return UserDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('user_id', 'userId', UserDefinition::class))->setFlags(new Required()),
+            (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
+            (new PasswordField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
+            new BoolField('write_access', 'writeAccess'),
+            new CreatedAtField(),
+            new DateField('last_usage_at', 'lastUsageAt'),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
+        ]);
     }
 }

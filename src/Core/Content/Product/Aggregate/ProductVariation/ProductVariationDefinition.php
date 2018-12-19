@@ -19,7 +19,7 @@ class ProductVariationDefinition extends MappingEntityDefinition
         return 'product_variation';
     }
 
-    public static function defineFields(): FieldCollection
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),

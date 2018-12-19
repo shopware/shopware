@@ -22,7 +22,17 @@ class SeoUrlDefinition extends EntityDefinition
         return 'seo_url';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return SeoUrlCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return SeoUrlEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -37,15 +47,5 @@ class SeoUrlDefinition extends EntityDefinition
             new UpdatedAtField(),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return SeoUrlCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return SeoUrlEntity::class;
     }
 }

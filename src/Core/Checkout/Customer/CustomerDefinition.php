@@ -36,7 +36,17 @@ class CustomerDefinition extends EntityDefinition
         return 'customer';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return CustomerCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CustomerEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -89,15 +99,5 @@ class CustomerDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'customer_id', false, 'id'))->setFlags(new RestrictDelete()),
             new SearchKeywordAssociationField(),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return CustomerCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CustomerEntity::class;
     }
 }

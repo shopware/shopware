@@ -33,7 +33,17 @@ class ShippingMethodDefinition extends EntityDefinition
         return 'shipping_method';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ShippingMethodCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ShippingMethodEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -71,15 +81,5 @@ class ShippingMethodDefinition extends EntityDefinition
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, false, 'shipping_method_id', 'sales_channel_id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ShippingMethodCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ShippingMethodEntity::class;
     }
 }

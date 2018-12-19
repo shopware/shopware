@@ -25,7 +25,17 @@ class ConfigurationGroupDefinition extends EntityDefinition
         return 'configuration_group';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ConfigurationGroupCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ConfigurationGroupEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -38,15 +48,5 @@ class ConfigurationGroupDefinition extends EntityDefinition
             (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ConfigurationGroupCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ConfigurationGroupEntity::class;
     }
 }

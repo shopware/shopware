@@ -39,7 +39,17 @@ class MediaDefinition extends EntityDefinition
         return 'media';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return MediaCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return MediaEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -70,15 +80,5 @@ class MediaDefinition extends EntityDefinition
             (new BoolField('has_file', 'hasFile'))->setFlags(new Deferred()),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return MediaCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return MediaEntity::class;
     }
 }

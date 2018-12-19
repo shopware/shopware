@@ -21,7 +21,17 @@ class IntegrationDefinition extends EntityDefinition
         return 'integration';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return IntegrationCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return IntegrationEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -33,15 +43,5 @@ class IntegrationDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return IntegrationCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return IntegrationEntity::class;
     }
 }

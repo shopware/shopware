@@ -21,19 +21,6 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
         return 'customer_group_discount';
     }
 
-    public static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
-            (new FloatField('percentage_discount', 'percentageDiscount'))->setFlags(new Required()),
-            (new FloatField('minimum_cart_amount', 'minimumCartAmount'))->setFlags(new Required()),
-            new CreatedAtField(),
-            new UpdatedAtField(),
-            new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
-        ]);
-    }
-
     public static function getCollectionClass(): string
     {
         return CustomerGroupDiscountCollection::class;
@@ -47,5 +34,18 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
     public static function getRootDefinition(): ?string
     {
         return CustomerGroupDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
+            (new FloatField('percentage_discount', 'percentageDiscount'))->setFlags(new Required()),
+            (new FloatField('minimum_cart_amount', 'minimumCartAmount'))->setFlags(new Required()),
+            new CreatedAtField(),
+            new UpdatedAtField(),
+            new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
+        ]);
     }
 }

@@ -27,7 +27,22 @@ class ProductServiceDefinition extends EntityDefinition
         return 'product_service';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ProductServiceCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ProductServiceEntity::class;
+    }
+
+    public static function getRootDefinition(): ?string
+    {
+        return ProductDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -44,20 +59,5 @@ class ProductServiceDefinition extends EntityDefinition
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ProductServiceCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ProductServiceEntity::class;
-    }
-
-    public static function getRootDefinition(): ?string
-    {
-        return ProductDefinition::class;
     }
 }

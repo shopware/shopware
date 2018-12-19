@@ -40,7 +40,33 @@ class OrderDefinition extends EntityDefinition
         return 'order';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderEntity::class;
+    }
+
+    public static function getWriteOrder(): array
+    {
+        $order = parent::getWriteOrder();
+
+        $deliveryIndex = array_search(OrderDeliveryDefinition::class, $order, true);
+        $lineItemIndex = array_search(OrderLineItemDefinition::class, $order, true);
+
+        $max = max($deliveryIndex, $lineItemIndex);
+        $min = min($deliveryIndex, $lineItemIndex);
+
+        $order[$max] = OrderDeliveryDefinition::class;
+        $order[$min] = OrderLineItemDefinition::class;
+
+        return $order;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -85,15 +111,5 @@ class OrderDefinition extends EntityDefinition
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
             new SearchKeywordAssociationField(),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderEntity::class;
     }
 }

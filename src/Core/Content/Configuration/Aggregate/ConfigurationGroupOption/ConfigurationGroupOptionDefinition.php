@@ -34,25 +34,6 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
         return 'configuration_group_option';
     }
 
-    public static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('configuration_group_id', 'groupId', ConfigurationGroupDefinition::class))->setFlags(new Required()),
-            new TranslatedField('name'),
-            new StringField('color_hex_code', 'colorHexCode'),
-            new FkField('media_id', 'mediaId', MediaDefinition::class),
-            new CreatedAtField(),
-            new UpdatedAtField(),
-            new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, true),
-            (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new ReverseInherited('datasheet')),
-            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete()),
-        ]);
-    }
-
     public static function getCollectionClass(): string
     {
         return ConfigurationGroupOptionCollection::class;
@@ -71,5 +52,24 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
     public static function getRootDefinition(): ?string
     {
         return ConfigurationGroupDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('configuration_group_id', 'groupId', ConfigurationGroupDefinition::class))->setFlags(new Required()),
+            new TranslatedField('name'),
+            new StringField('color_hex_code', 'colorHexCode'),
+            new FkField('media_id', 'mediaId', MediaDefinition::class),
+            new CreatedAtField(),
+            new UpdatedAtField(),
+            new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, true),
+            (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new ReverseInherited('datasheet')),
+            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete()),
+        ]);
     }
 }

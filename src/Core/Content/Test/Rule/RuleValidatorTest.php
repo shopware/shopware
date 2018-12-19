@@ -345,6 +345,46 @@ class RuleValidatorTest extends TestCase
         static::assertNull($this->conditionRepository->read(new ReadCriteria([$conditionId]), $this->context)->get($conditionId));
     }
 
+    public function testWriteConditionWithAdditionalFields(): void
+    {
+        $ruleId = Uuid::uuid4()->getHex();
+        $this->ruleRepository->create(
+            [
+                [
+                    'id' => $ruleId,
+                    'name' => 'test rule',
+                    'priority' => 1,
+                ],
+            ], $this->context
+        );
+
+        $conditionId = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $conditionId,
+            'ruleId' => $ruleId,
+            'type' => MockIntRule::class,
+            'value' => [
+                'property' => 42,
+                'invalidProp' => 23,
+            ],
+        ];
+        try {
+            $this->conditionRepository->create([$data], $this->context);
+            static::fail('Exception should be thrown');
+        } catch (WriteStackException $stackException) {
+            /** @var ConstraintViolationException $exception */
+            foreach ($stackException->getExceptions() as $exception) {
+                static::assertInstanceOf(ConstraintViolationException::class, $exception);
+                static::assertCount(1, $exception->getViolations());
+                static::assertSame('The property "invalidProp" is not allowed.', $exception->getViolations()->get(0)->getMessage());
+                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId . ' (invalidProp)', $exception->getViolations()->get(0)->getPropertyPath());
+            }
+        }
+
+        static::assertNull($this->conditionRepository->read(new ReadCriteria([$conditionId]), $this->context)->get($conditionId));
+    }
+
     public function testWriteRuleWithConsistentConditions(): void
     {
         $id = Uuid::uuid4()->getHex();

@@ -4,6 +4,7 @@ import { NEXT516 } from 'src/flag/feature_next516';
 import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 import './page/sw-settings-rule-create';
+import './component/sw-condition-group';
 
 Module.register('sw-settings-rule', {
     flag: NEXT516,

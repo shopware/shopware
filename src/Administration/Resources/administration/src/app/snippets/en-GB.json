@@ -147,14 +147,15 @@
         "greaterThanEquals": "Greater equals",
         "lower": "Lower",
         "greater": "Greater",
-        "startsWidth": "Begins with",
-        "endsWidth": "Ends with",
-        "contains": "Contains",
-        "regex": "Regex",
-        "notEquals": "Not equals"
+        "notEquals": "Not equals",
+        "isOneOf": "Is one of",
+        "isNoneOf": "Is none of"
       },
       "condition": {
-        "dateRangeRule": "Date range",
+        "dateRangeRule": {
+          "label": "Date range",
+          "useTime": "use time"
+        },
         "salesChannelRule": "sales channel",
         "currencyRule": "currency",
         "billingCountryRule": "billing country",
@@ -171,12 +172,17 @@
         "cartAmountRule": "cart amount",
         "goodsCountRule": "goods count",
         "goodsPriceRule": "goods price",
-        "lineItemOfTypeRule": "line item of type",
+        "lineItemOfTypeRule": {
+          "label": "line item of type",
+          "product": "product"
+        },
         "lineItemRule": "line item",
         "lineItemsInCartRule": "line items in cart",
         "lineItemUnitPriceRule": "line item unit price",
         "lineItemTotalPriceRule": "line item total price",
         "lineItemWithQuantityRule": "line item with quantity",
+        "yes": "yes",
+        "no": "no",
         "field": {
           "valuePlaceholder": "Value..."
         }

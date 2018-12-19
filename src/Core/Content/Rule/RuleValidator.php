@@ -59,7 +59,7 @@ class RuleValidator implements WriteCommandValidatorInterface
             }
 
             $validations = $type::getConstraints();
-            $basePath = sprintf('%s::%s', $type, Uuid::fromBytesToHex($payload['id']));
+            $basePath = sprintf('%s::%s', $type, Uuid::fromBytesToHex($command->getPrimaryKey()['id']));
 
             $violationList->addAll($this->validateConsistence($basePath, $validations, $this->extractValue($payload)));
         }
@@ -141,6 +141,20 @@ class RuleValidator implements WriteCommandValidatorInterface
                     ->validate($payload[$fieldName] ?? null, $validations)
                     ->getViolations()
             );
+        }
+
+        foreach ($payload as $fieldName => $value) {
+            $currentPath = sprintf('%s (%s)', $basePath, $fieldName);
+
+            if (!array_key_exists($fieldName, $fieldValidations)) {
+                $list->add(
+                    $this->buildViolation(
+                        'The property "{{ fieldName }}" is not allowed.', ['{{ fieldName }}' => $fieldName],
+                        null,
+                        $currentPath
+                    )
+                );
+            }
         }
 
         return $list;

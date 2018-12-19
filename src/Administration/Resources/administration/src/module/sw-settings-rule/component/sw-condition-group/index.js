@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-condition-group.html.twig';
 import './sw-condition-group.less';
 
@@ -26,65 +26,44 @@ Component.register('sw-condition-group', {
     inheritAttrs: false,
 
     props: {
-        label: {
-            type: String,
-            required: false,
-            default: ''
-        },
         condition: {
             type: Object,
             required: false,
             default() {
                 return {};
             }
-        },
-        options: {
-            type: Array,
-            required: false,
-            default: () => {
-                return [];
-            }
         }
     },
 
     data() {
         return {
-            currentValue: null,
-            boundExpression: '',
-            conditionOperators: {}
+            conditionFields: {}
         };
-    },
-
-    watch: {
-        value(value) {
-            this.currentConditionType = this.convertValueType(value);
-        }
     },
 
     created() {
         this.createdComponent();
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
     methods: {
-        mountedComponent() {
-            this.conditionTypeSelect = this.$refs.conditionTypeSelect;
+        getStore(name) {
+            return State.getStore(name);
         },
-
         createdComponent() {
+            if (!this.condition.value) {
+                this.condition.value = {};
+            }
             const conditionType = this.condition.type;
-            this.conditionOperators = this.ruleConditionService.getByType(conditionType).operatorSet;
+            this.conditionFields = this.ruleConditionService.getByType(conditionType).fields;
         },
 
         handleConditionChange(event) {
-            this.conditionOperators = this.ruleConditionService.getByType(event.target.value).operatorSet;
-        },
-
-        handleOperatorChange() {
-            // todo
+            this.condition.type = event.target.value;
+            this.conditionFields = this.ruleConditionService.getByType(this.condition.type).fields;
+            Object.keys(this.condition.value).forEach((key) => {
+                delete this.condition.value[key];
+            });
+            this.$forceUpdate();
         }
     }
 });

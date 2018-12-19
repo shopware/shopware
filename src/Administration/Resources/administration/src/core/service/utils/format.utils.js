@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import MD5 from 'md5-es';
 
 /**
  * @module core/service/utils/format
@@ -48,7 +48,7 @@ export function date(val, locale = 'de-DE', options = {}) {
  * @return {String}
  */
 export function md5(value) {
-    return crypto.createHash('md5').update(value).digest('hex');
+    return MD5.hash(value);
 }
 
 /**

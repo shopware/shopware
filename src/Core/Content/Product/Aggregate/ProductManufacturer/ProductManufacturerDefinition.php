@@ -45,7 +45,7 @@ class ProductManufacturerDefinition extends EntityDefinition
             new StringField('link', 'link'),
             new UpdatedAtField(),
             new CreatedAtField(),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('description'),
             new TranslatedField('metaTitle'),
             new TranslatedField('metaDescription'),

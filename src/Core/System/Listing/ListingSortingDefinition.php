@@ -32,7 +32,7 @@ class ListingSortingDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new ListField('payload', 'payload', ObjectField::class))->setFlags(new Required()),
-            (new TranslatedField('label'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('label'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),

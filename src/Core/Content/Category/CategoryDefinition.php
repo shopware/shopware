@@ -73,9 +73,9 @@ class CategoryDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('pathNames'),
-            (new TranslatedField('metaKeywords'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new TranslatedField('metaKeywords'))->setFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             new TranslatedField('metaTitle'),
             new TranslatedField('metaDescription'),
             new TranslatedField('cmsHeadline'),

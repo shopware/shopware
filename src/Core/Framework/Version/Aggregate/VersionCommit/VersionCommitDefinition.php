@@ -47,7 +47,7 @@ class VersionCommitDefinition extends EntityDefinition
             new IdField('integration_id', 'integrationId'),
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
             new BoolField('is_merge', 'isMerge'),
-            (new StringField('message', 'message'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('message', 'message'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),
             new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),

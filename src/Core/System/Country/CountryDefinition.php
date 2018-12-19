@@ -38,15 +38,15 @@ class CountryDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
-            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new StringField('iso', 'iso'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('iso', 'iso'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('shipping_free', 'shippingFree'),
             new BoolField('tax_free', 'taxFree'),
             new BoolField('taxfree_for_vat_id', 'taxfreeForVatId'),
             new BoolField('taxfree_vatid_checked', 'taxfreeVatidChecked'),
             new BoolField('active', 'active'),
-            (new StringField('iso3', 'iso3'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('iso3', 'iso3'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new BoolField('display_state_in_registration', 'displayStateInRegistration'),
             new BoolField('force_state_in_registration', 'forceStateInRegistration'),
             new CreatedAtField(),

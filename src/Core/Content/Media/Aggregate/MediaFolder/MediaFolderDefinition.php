@@ -81,7 +81,7 @@ class MediaFolderDefinition extends EntityDefinition
             new OneToManyAssociationField('defaultFolder', MediaDefaultFolderDefinition::class, 'media_folder_id', false),
             new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, true),
 
-            (new TranslatedField('name'))->addFlags(new SearchRanking(self::HIGH_SEARCH_RANKING), new Required()),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
             new TranslationsAssociationField(MediaFolderTranslationDefinition::class),
 
             new CreatedAtField(),

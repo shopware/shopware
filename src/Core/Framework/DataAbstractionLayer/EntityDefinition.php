@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -18,11 +19,6 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 abstract class EntityDefinition
 {
-    public const HIGH_SEARCH_RANKING = 500;
-    public const MIDDLE_SEARCH_RANKING = 250;
-    public const LOW_SEARCH_RAKING = 80;
-    public const ASSOCIATION_SEARCH_RANKING = 0.25;
-
     /**
      * @var (FieldCollection|null)[]
      */
@@ -43,6 +39,11 @@ abstract class EntityDefinition
      */
     protected static $translationDefinitions = [];
 
+    /**
+     * @var bool[]
+     */
+    protected static $keywordSearchDefinitions = [];
+
     public static function addExtension(EntityExtensionInterface $extension): void
     {
         static::$extensions[static::class][\get_class($extension)] = $extension;
@@ -53,7 +54,17 @@ abstract class EntityDefinition
 
     public static function useKeywordSearch(): bool
     {
-        return false;
+        if (isset(static::$keywordSearchDefinitions[static::class])) {
+            return static::$keywordSearchDefinitions[static::class];
+        }
+
+        foreach (static::getFields() as $field) {
+            if ($field instanceof SearchKeywordAssociationField) {
+                return static::$keywordSearchDefinitions[static::class] = true;
+            }
+        }
+
+        return static::$keywordSearchDefinitions[static::class] = false;
     }
 
     /**

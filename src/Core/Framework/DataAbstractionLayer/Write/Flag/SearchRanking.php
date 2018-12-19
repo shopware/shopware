@@ -7,6 +7,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
  */
 class SearchRanking extends Flag
 {
+    public const ASSOCIATION_SEARCH_RANKING = 0.25;
+    public const MIDDLE_SEARCH_RANKING = 250;
+    public const LOW_SEARCH_RAKING = 80;
+    public const HIGH_SEARCH_RANKING = 500;
+
     /**
      * @var float
      */

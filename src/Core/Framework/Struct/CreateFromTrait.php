@@ -12,7 +12,9 @@ trait CreateFromTrait
     public static function createFrom(Struct $object)
     {
         $self = new static();
-        foreach ($object as $property => $value) {
+        $vars = get_object_vars($object);
+
+        foreach ($vars as $property => $value) {
             $self->$property = $value;
         }
 

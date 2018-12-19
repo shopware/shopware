@@ -13,21 +13,39 @@
                     @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_folder_item_preview %}
-                    <sw-icon slot="sw-media-item-preview"
-                             v-if="isParent"
-                             name="folder-breadcums-parent"
-                             size="90%"
-                             class="sw-media-folder-item__folder-thumbnails"
-                             multicolor>
-                    </sw-icon>
-                    <sw-icon slot="sw-media-item-preview"
-                             v-else
-                             :name="iconConfig.name"
-                             size="90%"
-                             class="sw-media-folder-item__folder-thumbnails"
-                             :style="getIconStyle"
-                             :multicolor="iconConfig.multicolor">
-                    </sw-icon>
+                    {% block sw_media_folder_parent_icon%}
+                        <sw-icon slot="sw-media-item-preview"
+                                 v-if="isParent"
+                                 name="folder-breadcums-parent"
+                                 size="90%"
+                                 class="sw-media-folder-item__folder-thumbnails"
+                                 multicolor>
+                        </sw-icon>
+                    {% endblock %}
+
+                    {% block sw_media_folder_default_icon%}
+                        <span slot="sw-media-item-preview" v-else-if="isDefaultFolder">
+                            <sw-icon name="default-folder-thumbnail"
+                                     size="90%"
+                                     class="sw-media-folder-item__folder-thumbnails"
+                                     :color="iconConfig.color">
+                            </sw-icon>
+                            <sw-icon :name="iconConfig.name"
+                                     class="sw-media-folder-item__folder-thumbnails is--inner"
+                                     :color="iconConfig.color">
+                            </sw-icon>
+                        </span>
+                    {% endblock %}
+
+                    {% block sw_media_folder_folder_icon%}
+                        <sw-icon slot="sw-media-item-preview"
+                                 v-else
+                                 size="90%"
+                                 name="folder-thumbnail"
+                                 class="sw-media-folder-item__folder-thumbnails"
+                                 multicolor>
+                        </sw-icon>
+                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_media_folder_meta_data %}

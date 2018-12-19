@@ -10,21 +10,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CustomerCollection extends EntityCollection
 {
-    /**
-     * @var CustomerEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? CustomerEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): CustomerEntity
-    {
-        return parent::current();
-    }
-
     public function getGroupIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {

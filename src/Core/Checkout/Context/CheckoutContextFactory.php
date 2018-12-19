@@ -194,7 +194,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $currency,
             $customerGroup,
             $fallbackGroup,
-            new TaxCollection($taxRules->getElements()),
+            new TaxCollection($taxRules),
             $payment,
             $delivery,
             $shippingLocation,

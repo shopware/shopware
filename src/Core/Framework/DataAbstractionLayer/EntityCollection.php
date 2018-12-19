@@ -6,28 +6,12 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class EntityCollection extends Collection
 {
-    public function add(Entity $entity): void
-    {
-        $class = $this->getExpectedClass();
-        if (!$entity instanceof $class) {
-            throw new \InvalidArgumentException(
-                sprintf('Expected collection element of type %s got %s', $class, \get_class($entity))
-            );
-        }
-
-        $this->elements[$entity->getUniqueIdentifier()] = $entity;
-    }
-
     /**
-     * @return mixed|null
+     * @param Entity $entity
      */
-    public function get(string $id)
+    public function add($entity): void
     {
-        if ($this->has($id)) {
-            return $this->elements[$id];
-        }
-
-        return null;
+        $this->set($entity->getUniqueIdentifier(), $entity);
     }
 
     public function getIds(): array
@@ -55,11 +39,6 @@ class EntityCollection extends Collection
             }
             $this->add($entity);
         }
-    }
-
-    public function remove(string $id): void
-    {
-        parent::doRemoveByKey($id);
     }
 
     public function getList(array $ids)

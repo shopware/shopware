@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class UserAccessKeyCollection extends EntityCollection
 {
-    /**
-     * @var UserAccessKeyEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? UserAccessKeyEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): UserAccessKeyEntity
-    {
-        return parent::current();
-    }
-
     public function getUserIds(): array
     {
         return $this->fmap(function (UserAccessKeyEntity $user) {

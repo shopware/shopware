@@ -7,21 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class PriceRuleCollection extends EntityCollection
 {
-    /**
-     * @var PriceRuleEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? PriceRuleEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): PriceRuleEntity
-    {
-        return parent::current();
-    }
-
     public function getCurrencyIds(): array
     {
         return $this->fmap(function (PriceRuleEntity $price) {

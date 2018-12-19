@@ -7,17 +7,16 @@ use Shopware\Core\Framework\Struct\Collection;
 class ErrorCollection extends Collection
 {
     /**
-     * @var Error[]
+     * @param Error $error
      */
-    protected $elements = [];
-
-    public function add(Error $error): void
+    public function add($error): void
     {
-        $this->elements[$error->getKey()] = $error;
+        $this->set($error->getKey(), $error);
     }
 
     public function blockOrder(): bool
     {
+        /** @var Error $error */
         foreach ($this->elements as $error) {
             if ($error->blockOrder()) {
                 return true;
@@ -29,6 +28,7 @@ class ErrorCollection extends Collection
 
     public function hasLevel(int $errorLevel): bool
     {
+        /** @var Error $element */
         foreach ($this->elements as $element) {
             if ($element->getLevel() === $errorLevel) {
                 return true;
@@ -36,5 +36,10 @@ class ErrorCollection extends Collection
         }
 
         return false;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return Error::class;
     }
 }

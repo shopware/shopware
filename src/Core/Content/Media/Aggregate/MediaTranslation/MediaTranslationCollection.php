@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class MediaTranslationCollection extends EntityCollection
 {
-    /**
-     * @var MediaTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? MediaTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): MediaTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getMediaIds(): array
     {
         return $this->fmap(function (MediaTranslationEntity $mediaTranslation) {

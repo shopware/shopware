@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderTransactionStateTranslationCollection extends EntityCollection
 {
-    /**
-     * @var OrderTransactionStateTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? OrderTransactionStateTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): OrderTransactionStateTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getOrderTransactionStateIds(): array
     {
         return $this->fmap(function (OrderTransactionStateTranslationEntity $orderTransactionStateTranslation) {

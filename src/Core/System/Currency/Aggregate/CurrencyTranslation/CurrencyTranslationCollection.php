@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class CurrencyTranslationCollection extends EntityCollection
 {
-    /**
-     * @var CurrencyTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? CurrencyTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): CurrencyTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getCurrencyIds(): array
     {
         return $this->fmap(function (CurrencyTranslationEntity $currencyTranslation) {

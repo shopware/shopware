@@ -9,21 +9,6 @@ use Shopware\Core\System\Country\CountryCollection;
 
 class CustomerAddressCollection extends EntityCollection
 {
-    /**
-     * @var CustomerAddressEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? CustomerAddressEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): CustomerAddressEntity
-    {
-        return parent::current();
-    }
-
     public function getCustomerIds(): array
     {
         return $this->fmap(function (CustomerAddressEntity $customerAddress) {

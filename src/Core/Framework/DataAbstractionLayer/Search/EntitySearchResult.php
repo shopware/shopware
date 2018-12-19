@@ -35,7 +35,7 @@ class EntitySearchResult extends EntityCollection
 
     public function __construct(int $total, EntityCollection $entities, ?AggregationResultCollection $aggregations, Criteria $criteria, Context $context)
     {
-        parent::__construct($entities->getElements());
+        parent::__construct($entities);
         $this->entities = $entities;
         $this->total = $total;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();

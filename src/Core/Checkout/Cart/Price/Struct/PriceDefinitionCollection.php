@@ -6,27 +6,19 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class PriceDefinitionCollection extends Collection
 {
-    /**
-     * @var PriceDefinitionInterface[]
-     */
-    protected $elements = [];
-
-    public function add(PriceDefinitionInterface $price): void
+    public function get($key): ? PriceDefinitionInterface
     {
-        parent::doAdd($price);
-    }
+        $key = (int) $key;
 
-    public function remove(int $key): void
-    {
-        parent::doRemoveByKey($key);
-    }
-
-    public function get(int $key): ? PriceDefinitionInterface
-    {
         if ($this->has($key)) {
             return $this->elements[$key];
         }
 
         return null;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return PriceDefinitionInterface::class;
     }
 }

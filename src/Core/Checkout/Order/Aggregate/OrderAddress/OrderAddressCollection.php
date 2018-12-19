@@ -8,21 +8,6 @@ use Shopware\Core\System\Country\CountryCollection;
 
 class OrderAddressCollection extends EntityCollection
 {
-    /**
-     * @var OrderAddressEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? OrderAddressEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): OrderAddressEntity
-    {
-        return parent::current();
-    }
-
     public function getCountryIds(): array
     {
         return $this->fmap(function (OrderAddressEntity $orderAddress) {

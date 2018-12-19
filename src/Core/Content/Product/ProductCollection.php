@@ -12,21 +12,6 @@ use Shopware\Core\System\Unit\UnitCollection;
 
 class ProductCollection extends EntityCollection
 {
-    /**
-     * @var ProductEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ProductEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ProductEntity
-    {
-        return parent::current();
-    }
-
     public function getParentIds(): array
     {
         return $this->fmap(function (ProductEntity $product) {
@@ -112,24 +97,28 @@ class ProductCollection extends EntityCollection
 
     public function getPriceRuleIds(): array
     {
-        $ids = [];
+        $ids = [[]];
+
+        /** @var ProductEntity $element */
         foreach ($this->elements as $element) {
-            foreach ($element->getPriceRules()->getIds() as $id) {
-                $ids[] = $id;
-            }
+            $ids[] = $element->getPriceRules()->getIds();
         }
 
-        return $ids;
+        return array_merge(...$ids);
     }
 
     public function getPriceRules(): ProductPriceRuleCollection
     {
-        $collection = new ProductPriceRuleCollection();
+        $rules = [[]];
+
+        /** @var ProductEntity $element */
         foreach ($this->elements as $element) {
-            $collection->fill($element->getPriceRules()->getElements());
+            $rules[] = $element->getPriceRules();
         }
 
-        return $collection;
+        $rules = array_merge(...$rules);
+
+        return new ProductPriceRuleCollection($rules);
     }
 
     public function getPrices(): PriceCollection

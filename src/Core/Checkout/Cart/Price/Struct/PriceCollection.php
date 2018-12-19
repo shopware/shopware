@@ -8,23 +8,10 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class PriceCollection extends Collection
 {
-    /**
-     * @var CalculatedPrice[]
-     */
-    protected $elements = [];
-
-    public function add(CalculatedPrice $price): void
+    public function get($key): ? CalculatedPrice
     {
-        parent::doAdd($price);
-    }
+        $key = (int) $key;
 
-    public function remove(int $key): void
-    {
-        parent::doRemoveByKey($key);
-    }
-
-    public function get(int $key): ? CalculatedPrice
-    {
         if ($this->has($key)) {
             return $this->elements[$key];
         }
@@ -35,6 +22,8 @@ class PriceCollection extends Collection
     public function getTaxRules(): TaxRuleCollection
     {
         $rules = new TaxRuleCollection([]);
+
+        /** @var CalculatedPrice $price */
         foreach ($this->elements as $price) {
             $rules = $rules->merge($price->getTaxRules());
         }
@@ -55,6 +44,8 @@ class PriceCollection extends Collection
     public function getCalculatedTaxes(): CalculatedTaxCollection
     {
         $taxes = new CalculatedTaxCollection([]);
+
+        /** @var CalculatedPrice $price */
         foreach ($this->elements as $price) {
             $taxes = $taxes->merge($price->getCalculatedTaxes());
         }
@@ -65,6 +56,11 @@ class PriceCollection extends Collection
     public function merge(self $prices): self
     {
         return $this->doMerge($prices);
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return CalculatedPrice::class;
     }
 
     private function getUnitPriceAmount(): float

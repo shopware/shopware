@@ -8,21 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ConfigurationGroupOptionCollection extends EntityCollection
 {
-    /**
-     * @var ConfigurationGroupOptionEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ConfigurationGroupOptionEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ConfigurationGroupOptionEntity
-    {
-        return parent::current();
-    }
-
     public function getConfigurationGroupIds(): array
     {
         return $this->fmap(function (ConfigurationGroupOptionEntity $configurationGroupOption) {
@@ -63,6 +48,8 @@ class ConfigurationGroupOptionCollection extends EntityCollection
     public function groupByConfigurationGroups(): ConfigurationGroupCollection
     {
         $groups = new ConfigurationGroupCollection();
+
+        /** @var ConfigurationGroupOptionEntity $element */
         foreach ($this->elements as $element) {
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());

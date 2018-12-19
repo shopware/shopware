@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class VersionCommitCollection extends EntityCollection
 {
-    /**
-     * @var VersionCommitEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? VersionCommitEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): VersionCommitEntity
-    {
-        return parent::current();
-    }
-
     public function getUserIds(): array
     {
         return $this->fmap(function (VersionCommitEntity $versionChange) {

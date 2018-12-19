@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class MediaCollection extends EntityCollection
 {
-    /**
-     * @var MediaEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? MediaEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): MediaEntity
-    {
-        return parent::current();
-    }
-
     public function getUserIds(): array
     {
         return $this->fmap(function (MediaEntity $media) {

@@ -7,23 +7,12 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class LanguageFileCollection extends Collection
 {
-    public function __construct(iterable $elements)
+    /**
+     * @param LanguageFileInterface $languageFile
+     */
+    public function add($languageFile): void
     {
-        parent::__construct(iterator_to_array($elements, false));
-    }
-
-    public function add(LanguageFileInterface $languageFile): void
-    {
-        $this->elements[$languageFile->getName()] = $languageFile;
-    }
-
-    public function get(string $index): ?LanguageFileInterface
-    {
-        if ($this->has($index)) {
-            return $this->elements[$index];
-        }
-
-        return null;
+        $this->set($languageFile->getName(), $languageFile);
     }
 
     public function getIsoList(): array
@@ -35,7 +24,7 @@ class LanguageFileCollection extends Collection
     {
         $list = $this->getListSortedByIso();
 
-        return isset($list[$iso]) ? $list[$iso] : [];
+        return $list[$iso] ?? [];
     }
 
     public function getBaseFileByIso(string $iso): LanguageFileInterface
@@ -54,9 +43,16 @@ class LanguageFileCollection extends Collection
         throw new InvalidLanguageFileException($iso);
     }
 
+    protected function getExpectedClass(): ?string
+    {
+        return LanguageFileInterface::class;
+    }
+
     private function getListSortedByIso(): array
     {
         $list = [];
+
+        /** @var LanguageFileInterface $element */
         foreach ($this->elements as $element) {
             $list[$element->getIso()][] = $element;
         }

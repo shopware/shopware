@@ -15,8 +15,13 @@ class FieldCollection extends Collection
      */
     protected $mapping = [];
 
-    public function add(Field $field): void
+    /**
+     * @param Field $field
+     */
+    public function add($field): void
     {
+        $this->validateType($field);
+
         $this->elements[$field->getPropertyName()] = $field;
         if ($field instanceof StorageAware && !$field instanceof AssociationInterface) {
             $this->mapping[$field->getStorageName()] = $field;
@@ -28,15 +33,16 @@ class FieldCollection extends Collection
      *
      * @internal
      */
-    public function remove(string $fieldName): void
+    public function remove($fieldName): void
     {
         if (isset($this->mapping[$fieldName])) {
             unset($this->mapping[$fieldName]);
         }
-        unset($this->elements[$fieldName]);
+
+        parent::remove($fieldName);
     }
 
-    public function get(string $propertyName): ?Field
+    public function get($propertyName): ?Field
     {
         return $this->elements[$propertyName] ?? null;
     }
@@ -61,11 +67,6 @@ class FieldCollection extends Collection
         });
     }
 
-    public function current(): Field
-    {
-        return parent::current();
-    }
-
     public function getByStorageName(string $storageName): ?Field
     {
         return $this->mapping[$storageName] ?? null;
@@ -76,5 +77,10 @@ class FieldCollection extends Collection
         return $this->filter(function (Field $field) use ($flagClass) {
             return $field->is($flagClass);
         });
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return Field::class;
     }
 }

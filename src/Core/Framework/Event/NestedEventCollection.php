@@ -6,20 +6,11 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class NestedEventCollection extends Collection
 {
-    /**
-     * @var NestedEvent[]
-     */
-    protected $elements = [];
-
-    public function add(NestedEvent $event): void
-    {
-        $this->elements[] = $event;
-    }
-
     public function getFlatEventList(): self
     {
         $events = [];
 
+        /** @var NestedEvent $event */
         foreach ($this->elements as $event) {
             foreach ($event->getFlatEventList() as $item) {
                 $events[] = $item;
@@ -27,5 +18,10 @@ class NestedEventCollection extends Collection
         }
 
         return new self($events);
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return NestedEvent::class;
     }
 }

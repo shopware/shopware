@@ -7,41 +7,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ShippingMethodCollection extends EntityCollection
 {
-    /**
-     * @var ShippingMethodEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ShippingMethodEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ShippingMethodEntity
-    {
-        return parent::current();
-    }
-
     public function getPriceIds(): array
     {
-        $ids = [];
+        $ids = [[]];
+
+        /** @var ShippingMethodEntity $element */
         foreach ($this->elements as $element) {
-            foreach ($element->getPrices()->getIds() as $id) {
-                $ids[] = $id;
-            }
+            $ids[] = $element->getPrices()->getIds();
         }
 
-        return $ids;
+        return array_merge(...$ids);
     }
 
     public function getPrices(): ShippingMethodPriceCollection
     {
-        $collection = new ShippingMethodPriceCollection();
+        $prices = [[]];
+
+        /** @var ShippingMethodEntity $element */
         foreach ($this->elements as $element) {
-            $collection->fill($element->getPrices()->getElements());
+            $prices[] = $element->getPrices();
         }
 
-        return $collection;
+        $prices = array_merge(...$prices);
+
+        return new ShippingMethodPriceCollection($prices);
     }
 
     protected function getExpectedClass(): string

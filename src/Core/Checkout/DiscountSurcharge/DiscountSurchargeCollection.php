@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class DiscountSurchargeCollection extends EntityCollection
 {
-    /**
-     * @var DiscountSurchargeEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? DiscountSurchargeEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): DiscountSurchargeEntity
-    {
-        return parent::current();
-    }
-
     public function getRuleIds(): array
     {
         return $this->fmap(function (DiscountSurchargeEntity $discountSurcharge) {

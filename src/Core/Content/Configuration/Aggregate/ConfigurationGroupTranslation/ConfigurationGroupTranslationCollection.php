@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ConfigurationGroupTranslationCollection extends EntityCollection
 {
-    /**
-     * @var ConfigurationGroupTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ConfigurationGroupTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ConfigurationGroupTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getConfigurationGroupIds(): array
     {
         return $this->fmap(function (ConfigurationGroupTranslationEntity $configurationGroupTranslation) {

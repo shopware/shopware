@@ -2,21 +2,50 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-abstract class Collection extends Struct implements \Countable, \ArrayAccess, \Iterator
+abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
      * @var array
      */
     protected $elements = [];
 
-    public function __construct(array $elements = [])
+    public function __construct(iterable $elements = [])
     {
-        $this->fill($elements);
+        foreach ($elements as $element) {
+            $this->add($element);
+        }
     }
 
-    public function fill(array $elements): void
+    public function add($element): void
     {
-        array_map([$this, 'add'], $elements);
+        $this->validateType($element);
+
+        $this->elements[] = $element;
+    }
+
+    public function set($key, $element): void
+    {
+        $this->validateType($element);
+
+        if ($key === null) {
+            $this->elements[] = $element;
+        } else {
+            $this->elements[$key] = $element;
+        }
+    }
+
+    /**
+     * @param mixed|null $key
+     *
+     * @return mixed|null
+     */
+    public function get($key)
+    {
+        if ($this->has($key)) {
+            return $this->elements[$key];
+        }
+
+        return null;
     }
 
     public function clear()
@@ -55,9 +84,11 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     }
 
     /**
+     * @param string $class
+     *
      * @return Collection
      */
-    public function filterInstance(string $class)
+    public function filterInstance(string $class): Collection
     {
         return $this->filter(function ($item) use ($class) {
             return $item instanceof $class;
@@ -98,59 +129,35 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
         return array_values($this->elements)[\count($this->elements) - 1] ?? null;
     }
 
-    public function offsetExists($offset)
-    {
-        return array_key_exists($offset, $this->elements);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->elements[$offset];
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        $this->elements[$offset] = $value;
-    }
-
-    public function offsetUnset($offset)
-    {
-        unset($this->elements[$offset]);
-    }
-
-    public function current()
-    {
-        return current($this->elements);
-    }
-
-    public function next()
-    {
-        return next($this->elements);
-    }
-
-    public function key()
-    {
-        return key($this->elements);
-    }
-
-    public function rewind()
-    {
-        reset($this->elements);
-    }
-
-    public function valid()
-    {
-        return isset($this->elements[key($this->elements)]);
-    }
-
-    protected function doAdd($element): void
-    {
-        $this->elements[] = $element;
-    }
-
-    protected function doRemoveByKey($key): void
+    public function remove($key): void
     {
         unset($this->elements[$key]);
+    }
+
+    public function getIterator(): \Generator
+    {
+        yield from $this->elements;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return null;
+    }
+
+    protected function validateType($element): void
+    {
+        $expectedClass = $this->getExpectedClass();
+        if ($expectedClass === null) {
+            return;
+        }
+
+        $elementClass = get_class($element);
+
+        if (!$element instanceof $expectedClass) {
+            throw new \InvalidArgumentException(
+                sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
+            );
+        }
     }
 
     protected function doMerge(self $collection)

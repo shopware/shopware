@@ -66,7 +66,7 @@ class EntityLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        $associations = $this->extractAssociations($this->definition, $this->entities->getElements());
+        $associations = $this->extractAssociations($this->definition, $this->entities);
 
         $events = [];
 
@@ -81,10 +81,10 @@ class EntityLoadedEvent extends NestedEvent
         return new NestedEventCollection($events);
     }
 
-    protected function extractAssociations(string $definition, array $entities): array
+    protected function extractAssociations(string $definition, iterable $entities): array
     {
         /** @var string|EntityDefinition $definition */
-        $associations = $definition::getFields()->getElements();
+        $associations = $definition::getFields();
 
         $events = [];
         /** @var Field $association */

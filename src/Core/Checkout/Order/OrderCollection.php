@@ -12,21 +12,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class OrderCollection extends EntityCollection
 {
-    /**
-     * @var OrderEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? OrderEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): OrderEntity
-    {
-        return parent::current();
-    }
-
     public function getOrderCustomerIds(): array
     {
         return $this->fmap(function (OrderEntity $order) {

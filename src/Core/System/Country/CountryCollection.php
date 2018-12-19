@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class CountryCollection extends EntityCollection
 {
-    /**
-     * @var CountryEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? CountryEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): CountryEntity
-    {
-        return parent::current();
-    }
-
     public function getTaxfreeForVatIds(): array
     {
         return $this->fmap(function (CountryEntity $country) {
@@ -38,6 +23,8 @@ class CountryCollection extends EntityCollection
     public function sortCountryAndStates(): void
     {
         $this->sortByPositionAndName();
+
+        /** @var CountryEntity $country */
         foreach ($this->elements as $country) {
             if ($country->getStates()) {
                 $country->getStates()->sortByPositionAndName();

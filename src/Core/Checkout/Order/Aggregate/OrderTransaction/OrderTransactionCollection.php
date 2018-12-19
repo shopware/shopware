@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderTransactionCollection extends EntityCollection
 {
-    /**
-     * @var OrderTransactionEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? OrderTransactionEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): OrderTransactionEntity
-    {
-        return parent::current();
-    }
-
     public function filterByOrderStateId(string $state): self
     {
         return $this->filter(function (OrderTransactionEntity $transaction) use ($state) {

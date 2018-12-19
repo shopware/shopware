@@ -40,23 +40,6 @@ class PriceCollectionTest extends TestCase
         );
     }
 
-    public function testFillFunctionFillsTheCollection(): void
-    {
-        $collection = new PriceCollection();
-        $collection->fill([
-            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-        ]);
-
-        static::assertEquals(
-            new PriceCollection([
-                new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            ]),
-            $collection
-        );
-    }
-
     public function testTotalAmountWithEmptyCollection(): void
     {
         $collection = new PriceCollection();

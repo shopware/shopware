@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SnippetCollection extends EntityCollection
 {
-    /**
-     * @var SnippetEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? SnippetEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): SnippetEntity
-    {
-        return parent::current();
-    }
-
     public function getLanguageIds(): array
     {
         return $this->fmap(function (SnippetEntity $snippet) {

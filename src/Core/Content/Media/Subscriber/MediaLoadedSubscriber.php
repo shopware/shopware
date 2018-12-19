@@ -49,7 +49,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
             $media->setUrl($this->urlGenerator->getAbsoluteMediaUrl($media));
 
-            foreach ($media->getThumbnails()->getElements() as $thumbnail) {
+            foreach ($media->getThumbnails() as $thumbnail) {
                 $this->addThumbnailUrl($thumbnail, $media);
             }
         }

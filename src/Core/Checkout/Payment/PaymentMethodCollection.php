@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class PaymentMethodCollection extends EntityCollection
 {
-    /**
-     * @var PaymentMethodEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? PaymentMethodEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): PaymentMethodEntity
-    {
-        return parent::current();
-    }
-
     public function getPluginIds(): array
     {
         return $this->fmap(function (PaymentMethodEntity $paymentMethod) {

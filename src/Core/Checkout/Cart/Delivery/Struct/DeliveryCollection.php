@@ -9,21 +9,6 @@ use Shopware\Core\Framework\Struct\Collection;
 class DeliveryCollection extends Collection
 {
     /**
-     * @var Delivery[]
-     */
-    protected $elements = [];
-
-    public function add(Delivery $delivery): void
-    {
-        parent::doAdd($delivery);
-    }
-
-    public function remove(string $key): void
-    {
-        parent::doRemoveByKey($key);
-    }
-
-    /**
      * Sorts the delivery collection by earliest delivery date
      */
     public function sortDeliveries(): self
@@ -41,6 +26,7 @@ class DeliveryCollection extends Collection
 
     public function getDelivery(DeliveryDate $deliveryDate, ShippingLocation $location): ? Delivery
     {
+        /** @var Delivery $delivery */
         foreach ($this->elements as $delivery) {
             if ($delivery->getDeliveryDate()->getEarliest() != $deliveryDate->getEarliest()) {
                 continue;
@@ -49,7 +35,7 @@ class DeliveryCollection extends Collection
                 continue;
             }
 
-            if ($delivery->getLocation() != $location) {
+            if ($delivery->getLocation() !== $location) {
                 continue;
             }
 
@@ -66,6 +52,7 @@ class DeliveryCollection extends Collection
      */
     public function contains(LineItem $item): bool
     {
+        /** @var Delivery $delivery */
         foreach ($this->elements as $delivery) {
             if ($delivery->getPositions()->has($item->getKey())) {
                 return true;
@@ -82,5 +69,10 @@ class DeliveryCollection extends Collection
                 return $delivery->getShippingCosts();
             })
         );
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return Delivery::class;
     }
 }

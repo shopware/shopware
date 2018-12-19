@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SearchDocumentCollection extends EntityCollection
 {
-    /**
-     * @var SearchDocumentEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? SearchDocumentEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): SearchDocumentEntity
-    {
-        return parent::current();
-    }
-
     public function getLanguageIds(): array
     {
         return $this->fmap(function (SearchDocumentEntity $document) {

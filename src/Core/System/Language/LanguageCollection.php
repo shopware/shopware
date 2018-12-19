@@ -7,21 +7,6 @@ use Shopware\Core\System\Locale\LocaleCollection;
 
 class LanguageCollection extends EntityCollection
 {
-    /**
-     * @var LanguageEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? LanguageEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): LanguageEntity
-    {
-        return parent::current();
-    }
-
     public function getParentIds(): array
     {
         return $this->fmap(function (LanguageEntity $language) {

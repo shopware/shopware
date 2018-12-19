@@ -33,7 +33,7 @@ class EntityScoreQueryBuilder
 
         $queries = [];
         /** @var Field $field */
-        foreach ($fields->getElements() as $field) {
+        foreach ($fields as $field) {
             /** @var SearchRanking|null $flag */
             $flag = $field->getFlag(SearchRanking::class);
 
@@ -90,6 +90,7 @@ class EntityScoreQueryBuilder
     private function getQueryFields(string $definition): FieldCollection
     {
         /** @var EntityDefinition $definition */
+        /** @var FieldCollection $fields */
         $fields = $definition::getFields()->filterByFlag(SearchRanking::class);
 
         if ($fields->count() > 0) {
@@ -101,6 +102,9 @@ class EntityScoreQueryBuilder
             return $fields;
         }
 
-        return $definition::getFields()->filterInstance(StringField::class);
+        /** @var FieldCollection $field */
+        $field = $definition::getFields()->filterInstance(StringField::class);
+
+        return $field;
     }
 }

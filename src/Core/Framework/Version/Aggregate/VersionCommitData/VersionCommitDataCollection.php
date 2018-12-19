@@ -7,21 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 class VersionCommitDataCollection extends EntityCollection
 {
-    /**
-     * @var VersionCommitDataEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? VersionCommitDataEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): VersionCommitDataEntity
-    {
-        return parent::current();
-    }
-
     public function filterByEntity(string $definition): self
     {
         return $this->filter(function (VersionCommitDataEntity $change) use ($definition) {

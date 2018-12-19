@@ -739,7 +739,8 @@
     "sidebar": {
       "actions": {
         "quickInfo": "Information",
-        "delete": "Löschen"
+        "delete": "Löschen",
+        "settings": "Einstellungen"
       },
       "quickinfo": {
         "actions": "Aktionen",

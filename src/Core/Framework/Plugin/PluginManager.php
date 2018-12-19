@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use DateTime;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Kernel;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -110,8 +112,8 @@ class PluginManager
 
     public function installPlugin(PluginEntity $plugin): InstallContext
     {
+        /** @var Plugin|ContainerAwareTrait $pluginBootstrap */
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
-
         // set container because the plugin has not been initialized yet and therefore has no container set
         $pluginBootstrap->setContainer($this->container);
 
@@ -132,12 +134,16 @@ class PluginManager
 
         $this->runMigrations($pluginBootstrap);
 
-        $plugin->setInstallationDate(new \DateTime());
-        $plugin->setUpdateDate(new \DateTime());
+        $plugin->setInstallationDate(new DateTime());
+        $plugin->setUpdateDate(new DateTime());
 
         $updates = [];
         $updates['installation_date'] = $plugin->getInstallationDate()->format(Defaults::DATE_FORMAT);
-        $updates['update_date'] = $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT);
+
+        $updateDate = $plugin->getUpdateDate();
+        if ($updateDate !== null) {
+            $updates['update_date'] = $updateDate->format(Defaults::DATE_FORMAT);
+        }
 
         $this->connection->update('plugin', $updates, ['name' => $plugin->getName()]);
 
@@ -148,8 +154,8 @@ class PluginManager
 
     public function uninstallPlugin(PluginEntity $plugin, bool $removeUserData = true): UninstallContext
     {
+        /** @var Plugin|ContainerAwareTrait $pluginBootstrap */
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
-
         // set container because the plugin has not been initialized yet and therefore has no container set
         $pluginBootstrap->setContainer($this->container);
 
@@ -179,7 +185,11 @@ class PluginManager
 
     public function updatePlugin(PluginEntity $plugin): UpdateContext
     {
+        /** @var Plugin|ContainerAwareTrait $pluginBootstrap */
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
+        // set container because the plugin has not been initialized yet and therefore has no container set
+        $pluginBootstrap->setContainer($this->container);
+
         $this->requirementValidator->validate($pluginBootstrap->getPath() . '/plugin.xml', Framework::VERSION, $this->getPlugins());
 
         $context = new UpdateContext(
@@ -194,17 +204,21 @@ class PluginManager
 
         $this->runMigrations($pluginBootstrap);
 
-        $plugin->setVersion($context->getUpdateVersion());
+        $plugin->setVersion($context->getUpdatePluginVersion());
         $plugin->setUpdateVersion(null);
         $plugin->setUpdateSource(null);
-        $plugin->setUpdateDate(new \DateTime());
+        $plugin->setUpdateDate(new DateTime());
 
         $updates = [
-            'version' => $context->getUpdateVersion(),
+            'version' => $context->getUpdatePluginVersion(),
             'update_version' => null,
             'update_source' => null,
-            'update_date' => $plugin->getUpdateDate()->format(Defaults::DATE_FORMAT),
         ];
+
+        $updateDate = $plugin->getUpdateDate();
+        if ($updateDate !== null) {
+            $updates['update_date'] = $updateDate->format(Defaults::DATE_FORMAT);
+        }
 
         $this->connection->update('plugin', $updates, ['name' => $plugin->getName()]);
 
@@ -215,7 +229,11 @@ class PluginManager
 
     public function activatePlugin(PluginEntity $plugin): ActivateContext
     {
+        /** @var Plugin|ContainerAwareTrait $pluginBootstrap */
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
+        // set container because the plugin has not been initialized yet and therefore has no container set
+        $pluginBootstrap->setContainer($this->container);
+
         $context = new ActivateContext($pluginBootstrap, $this->createContext(), Framework::VERSION, $plugin->getVersion());
 
         if ($plugin->getActive()) {
@@ -239,7 +257,11 @@ class PluginManager
 
     public function deactivatePlugin(PluginEntity $plugin): DeactivateContext
     {
+        /** @var Plugin|ContainerAwareTrait $pluginBootstrap */
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
+        // set container because the plugin has not been initialized yet and therefore has no container set
+        $pluginBootstrap->setContainer($this->container);
+
         $context = new DeactivateContext($pluginBootstrap, $this->createContext(), Framework::VERSION, $plugin->getVersion());
 
         if (!$plugin->getInstallationDate()) {
@@ -265,7 +287,7 @@ class PluginManager
 
     public function updatePlugins(): void
     {
-        $refreshDate = new \DateTime();
+        $refreshDate = new DateTime();
 
         $finder = new Finder();
         $filesystemPlugins = $finder->directories()->depth(0)->in($this->pluginPath)->getIterator();
@@ -341,8 +363,7 @@ class PluginManager
         $info = [];
 
         if (is_file($pluginInfoPath)) {
-            $xmlConfigReader = new XmlPluginInfoReader();
-            $info = $xmlConfigReader->read($pluginInfoPath);
+            $info = (new XmlPluginInfoReader())->read($pluginInfoPath);
         }
 
         return $info;
@@ -369,13 +390,13 @@ class PluginManager
         $plugin->setDescription($databasePlugin['description']);
         $plugin->setDescriptionLong($databasePlugin['description_long']);
         $plugin->setActive((bool) $databasePlugin['active']);
-        $plugin->setCreatedAt(new \DateTime($databasePlugin['created_at']));
+        $plugin->setCreatedAt(new DateTime($databasePlugin['created_at']));
         $plugin->setInstallationDate(
-            $databasePlugin['installation_date'] ? new \DateTime($databasePlugin['installation_date']) : null
+            $databasePlugin['installation_date'] ? new DateTime($databasePlugin['installation_date']) : null
         );
-        $plugin->setUpdateDate($databasePlugin['update_date'] ? new \DateTime($databasePlugin['update_date']) : null);
+        $plugin->setUpdateDate($databasePlugin['update_date'] ? new DateTime($databasePlugin['update_date']) : null);
         $plugin->setRefreshDate(
-            $databasePlugin['refresh_date'] ? new \DateTime($databasePlugin['refresh_date']) : null
+            $databasePlugin['refresh_date'] ? new DateTime($databasePlugin['refresh_date']) : null
         );
         $plugin->setAuthor($databasePlugin['author']);
         $plugin->setCopyright($databasePlugin['copyright']);
@@ -385,7 +406,7 @@ class PluginManager
         $plugin->setChanges($databasePlugin['changes']);
         $plugin->setLink($databasePlugin['link']);
         $plugin->setStoreVersion($databasePlugin['store_version']);
-        $plugin->setStoreDate($databasePlugin['store_date'] ? new \DateTime($databasePlugin['store_date']) : null);
+        $plugin->setStoreDate($databasePlugin['store_date'] ? new DateTime($databasePlugin['store_date']) : null);
         $plugin->setCapabilityUpdate((bool) $databasePlugin['capability_update']);
         $plugin->setCapabilityInstall((bool) $databasePlugin['capability_install']);
         $plugin->setCapabilityEnable((bool) $databasePlugin['capability_enable']);

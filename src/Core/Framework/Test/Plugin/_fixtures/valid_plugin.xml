@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../Plugin/Schema/plugin.xsd">
+
+    <version>1.0.0</version>
+    <compatibility minVersion="6.0.0" maxVersion="6.1.0">
+        <blacklist>6.0.5</blacklist>
+    </compatibility>
+
+    <requiredPlugins>
+        <requiredPlugin pluginName="SwagTest" minVersion="1.0.0" maxVersion="2.0.0"/>
+    </requiredPlugins>
+</plugin>

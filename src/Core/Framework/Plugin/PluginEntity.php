@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use DateTime;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -61,22 +62,22 @@ class PluginEntity extends Entity
     protected $descriptionLong;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $installationDate;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $updateDate;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $refreshDate;
 
@@ -116,7 +117,7 @@ class PluginEntity extends Entity
     protected $storeVersion;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $storeDate;
 
@@ -131,7 +132,7 @@ class PluginEntity extends Entity
     protected $updateVersion;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $updatedAt;
 
@@ -240,42 +241,42 @@ class PluginEntity extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getInstallationDate(): ?\DateTime
+    public function getInstallationDate(): ?DateTime
     {
         return $this->installationDate;
     }
 
-    public function setInstallationDate(?\DateTime $installationDate): void
+    public function setInstallationDate(?DateTime $installationDate): void
     {
         $this->installationDate = $installationDate;
     }
 
-    public function getUpdateDate(): ?\DateTime
+    public function getUpdateDate(): ?DateTime
     {
         return $this->updateDate;
     }
 
-    public function setUpdateDate(?\DateTime $updateDate): void
+    public function setUpdateDate(?DateTime $updateDate): void
     {
         $this->updateDate = $updateDate;
     }
 
-    public function getRefreshDate(): ?\DateTime
+    public function getRefreshDate(): ?DateTime
     {
         return $this->refreshDate;
     }
 
-    public function setRefreshDate(?\DateTime $refreshDate): void
+    public function setRefreshDate(?DateTime $refreshDate): void
     {
         $this->refreshDate = $refreshDate;
     }
@@ -350,12 +351,12 @@ class PluginEntity extends Entity
         $this->storeVersion = $storeVersion;
     }
 
-    public function getStoreDate(): ?\DateTime
+    public function getStoreDate(): ?DateTime
     {
         return $this->storeDate;
     }
 
-    public function setStoreDate(?\DateTime $storeDate): void
+    public function setStoreDate(?DateTime $storeDate): void
     {
         $this->storeDate = $storeDate;
     }
@@ -380,12 +381,12 @@ class PluginEntity extends Entity
         $this->updateVersion = $updateVersion;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

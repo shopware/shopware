@@ -15,11 +15,11 @@ class UninstallContext extends InstallContext
     public function __construct(
         Plugin $plugin,
         Context $context,
-        string $shopwareVersion,
-        string $currentVersion,
+        string $currentShopwareVersion,
+        string $currentPluginVersion,
         bool $keepUserData
     ) {
-        parent::__construct($plugin, $context, $shopwareVersion, $currentVersion);
+        parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion);
         $this->keepUserData = $keepUserData;
     }
 

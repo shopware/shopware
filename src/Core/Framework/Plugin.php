@@ -62,7 +62,6 @@ class Plugin extends Bundle
      */
     public function update(UpdateContext $context): void
     {
-        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
 
     public function postUpdate(UpdateContext $context): void
@@ -76,7 +75,6 @@ class Plugin extends Bundle
      */
     public function activate(ActivateContext $context)
     {
-        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
 
     /**
@@ -86,7 +84,6 @@ class Plugin extends Bundle
      */
     public function deactivate(DeactivateContext $context)
     {
-        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
 
     /**
@@ -96,7 +93,6 @@ class Plugin extends Bundle
      */
     public function uninstall(UninstallContext $context)
     {
-        $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
 
     public function build(ContainerBuilder $container)

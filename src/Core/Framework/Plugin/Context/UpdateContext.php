@@ -10,21 +10,21 @@ class UpdateContext extends InstallContext
     /**
      * @var string
      */
-    private $updateVersion;
+    private $updatePluginVersion;
 
     public function __construct(
         Plugin $plugin,
         Context $context,
-        string $shopwareVersion,
-        string $currentVersion,
-        string $updateVersion
+        string $currentShopwareVersion,
+        string $currentPluginVersion,
+        string $updatePluginVersion
     ) {
-        parent::__construct($plugin, $context, $shopwareVersion, $currentVersion);
-        $this->updateVersion = $updateVersion;
+        parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion);
+        $this->updatePluginVersion = $updatePluginVersion;
     }
 
-    public function getUpdateVersion(): string
+    public function getUpdatePluginVersion(): string
     {
-        return $this->updateVersion;
+        return $this->updatePluginVersion;
     }
 }

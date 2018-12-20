@@ -34,7 +34,7 @@ class CustomerAddressDefinition extends EntityDefinition
         return CustomerAddressEntity::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return CustomerDefinition::class;
     }

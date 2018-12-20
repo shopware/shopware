@@ -31,7 +31,7 @@ class ShippingMethodPriceDefinition extends EntityDefinition
         return ShippingMethodPriceEntity::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return ShippingMethodDefinition::class;
     }

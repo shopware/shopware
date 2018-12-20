@@ -112,7 +112,7 @@ abstract class EntityDefinition
         return ArrayEntity::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return null;
     }

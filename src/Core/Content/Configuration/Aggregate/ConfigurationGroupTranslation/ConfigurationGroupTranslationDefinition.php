@@ -25,7 +25,7 @@ class ConfigurationGroupTranslationDefinition extends EntityTranslationDefinitio
         return ConfigurationGroupTranslationEntity::class;
     }
 
-    public static function getDefinition(): string
+    public static function getDefinitionClass(): string
     {
         return ConfigurationGroupDefinition::class;
     }

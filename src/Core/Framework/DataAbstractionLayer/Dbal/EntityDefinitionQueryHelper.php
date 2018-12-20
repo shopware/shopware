@@ -192,7 +192,7 @@ class EntityDefinitionQueryHelper
             $context->getVersionId() !== Defaults::LIVE_VERSION
             &&
             // sub entities have no live fallback
-            $definition::getRootDefinition() === null
+            $definition::getParentDefinitionClass() === null
         );
 
         if ($useVersionFallback) {

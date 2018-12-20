@@ -83,7 +83,7 @@ class TranslationValidator implements WriteCommandValidatorInterface
      */
     private function getFkFields($definition): array
     {
-        $rootEntity = $definition::getRootDefinition();
+        $rootEntity = $definition::getParentDefinitionClass();
         if (!$rootEntity) {
             throw new \RuntimeException(sprintf('`%s` should implement `getRootEntity`', $definition));
         }

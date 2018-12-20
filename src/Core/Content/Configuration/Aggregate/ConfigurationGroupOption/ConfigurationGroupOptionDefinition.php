@@ -49,7 +49,7 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
         return ConfigurationGroupOptionTranslationDefinition::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return ConfigurationGroupDefinition::class;
     }

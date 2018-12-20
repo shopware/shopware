@@ -45,7 +45,7 @@ class OrderLineItemDefinition extends EntityDefinition
         return OrderLineItemEntity::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return OrderDefinition::class;
     }

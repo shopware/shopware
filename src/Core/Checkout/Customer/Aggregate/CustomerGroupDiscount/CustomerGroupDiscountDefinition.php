@@ -31,7 +31,7 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
         return CustomerGroupDiscountEntity::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return CustomerGroupDefinition::class;
     }

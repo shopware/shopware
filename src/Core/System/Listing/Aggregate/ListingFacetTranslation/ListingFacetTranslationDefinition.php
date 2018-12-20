@@ -25,7 +25,7 @@ class ListingFacetTranslationDefinition extends EntityTranslationDefinition
         return ListingFacetTranslationEntity::class;
     }
 
-    public static function getDefinition(): string
+    public static function getDefinitionClass(): string
     {
         return ListingFacetDefinition::class;
     }

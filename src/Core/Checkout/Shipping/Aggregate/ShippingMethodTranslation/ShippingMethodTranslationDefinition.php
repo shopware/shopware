@@ -16,7 +16,7 @@ class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
         return 'shipping_method_translation';
     }
 
-    public static function getDefinition(): string
+    public static function getDefinitionClass(): string
     {
         return ShippingMethodDefinition::class;
     }

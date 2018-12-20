@@ -33,7 +33,7 @@ class SnippetDefinition extends EntityDefinition
         return SnippetEntity::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return SnippetSetDefinition::class;
     }

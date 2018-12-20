@@ -31,7 +31,7 @@ class RuleConditionDefinition extends EntityDefinition
         return RuleConditionCollection::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return RuleDefinition::class;
     }

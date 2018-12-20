@@ -37,7 +37,7 @@ class ProductMediaDefinition extends EntityDefinition
         return ProductMediaEntity::class;
     }
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return MediaDefinition::class;
     }

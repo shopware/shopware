@@ -15,11 +15,11 @@ use Shopware\Core\System\Language\LanguageDefinition;
 
 abstract class EntityTranslationDefinition extends EntityDefinition
 {
-    abstract public static function getDefinition(): string;
+    abstract public static function getDefinitionClass(): string;
 
-    public static function getRootDefinition(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
-        return static::getDefinition();
+        return static::getDefinitionClass();
     }
 
     public static function getFields(): FieldCollection
@@ -44,7 +44,7 @@ abstract class EntityTranslationDefinition extends EntityDefinition
     private static function getBaseFields(): array
     {
         /** @var string|EntityDefinition $translatedDefinition */
-        $translatedDefinition = static::getDefinition();
+        $translatedDefinition = static::getDefinitionClass();
         $entityName = $translatedDefinition::getEntityName();
 
         $propertyBaseName = \explode('_', $entityName);

@@ -163,6 +163,15 @@
             width: 40px;
             height: 40px;
             grid-row:  1 / span 2;
+
+            &::after {
+                content: none;
+            }
+
+            .sw-media-preview__item {
+                max-width: 100%;
+                max-height: 100%;
+            }
         }
 
         .sw-media-base-item__name-container {

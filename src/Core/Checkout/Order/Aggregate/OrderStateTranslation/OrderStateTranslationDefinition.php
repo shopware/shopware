@@ -15,7 +15,7 @@ class OrderStateTranslationDefinition extends EntityTranslationDefinition
         return 'order_state_translation';
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return OrderStateDefinition::class;
     }

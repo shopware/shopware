@@ -19,7 +19,7 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
         return 'category_translation';
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return CategoryDefinition::class;
     }

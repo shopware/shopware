@@ -25,7 +25,7 @@ class LocaleTranslationDefinition extends EntityTranslationDefinition
         return LocaleTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return LocaleDefinition::class;
     }

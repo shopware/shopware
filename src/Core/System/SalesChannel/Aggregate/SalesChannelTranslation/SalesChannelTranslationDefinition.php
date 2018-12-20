@@ -25,7 +25,7 @@ class SalesChannelTranslationDefinition extends EntityTranslationDefinition
         return SalesChannelTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return SalesChannelDefinition::class;
     }

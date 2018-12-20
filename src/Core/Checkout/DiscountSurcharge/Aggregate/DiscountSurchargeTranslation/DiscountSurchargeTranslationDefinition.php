@@ -25,7 +25,7 @@ class DiscountSurchargeTranslationDefinition extends EntityTranslationDefinition
         return DiscountSurchargeTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return DiscountSurchargeDefinition::class;
     }

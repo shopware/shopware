@@ -25,7 +25,7 @@ class CustomerGroupTranslationDefinition extends EntityTranslationDefinition
         return CustomerGroupTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return CustomerGroupDefinition::class;
     }

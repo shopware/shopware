@@ -80,10 +80,10 @@ The `additionalText` field will now be written to the translation definition
 instead of the base definition. You don't have to handle this yourself
 as the DataAbstractionLayer knows about translatable fields.
 
-Additionally you need to define the reverse method in the `EntityTranslationDefinition`
+Additionally, your entity translation definition must override the `getParentDefinitionClass` method.
 
 ```php
-public static function getDefinitionClass(): string
+public static function getParentDefinitionClass(): string
 {
     return ProductDefinition::class;
 }

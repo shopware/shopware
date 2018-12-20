@@ -25,7 +25,7 @@ class CountryStateTranslationDefinition extends EntityTranslationDefinition
         return CountryStateTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return CountryStateDefinition::class;
     }

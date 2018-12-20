@@ -25,7 +25,7 @@ class UnitTranslationDefinition extends EntityTranslationDefinition
         return UnitTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return UnitDefinition::class;
     }

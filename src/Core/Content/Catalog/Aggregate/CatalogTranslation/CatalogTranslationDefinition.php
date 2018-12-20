@@ -25,7 +25,7 @@ class CatalogTranslationDefinition extends EntityTranslationDefinition
         return CatalogTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return CatalogDefinition::class;
     }

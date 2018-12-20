@@ -25,7 +25,7 @@ class ListingSortingTranslationDefinition extends EntityTranslationDefinition
         return ListingSortingTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return ListingSortingDefinition::class;
     }

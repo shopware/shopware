@@ -25,7 +25,7 @@ class CurrencyTranslationDefinition extends EntityTranslationDefinition
         return CurrencyTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return CurrencyDefinition::class;
     }

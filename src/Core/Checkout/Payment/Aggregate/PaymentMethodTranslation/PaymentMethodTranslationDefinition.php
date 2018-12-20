@@ -26,7 +26,7 @@ class PaymentMethodTranslationDefinition extends EntityTranslationDefinition
         return PaymentMethodTranslationEntity::class;
     }
 
-    public static function getDefinitionClass(): string
+    public static function getParentDefinitionClass(): string
     {
         return PaymentMethodDefinition::class;
     }

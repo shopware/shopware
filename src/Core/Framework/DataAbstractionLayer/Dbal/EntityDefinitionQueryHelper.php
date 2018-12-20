@@ -445,7 +445,7 @@ class EntityDefinitionQueryHelper
         }
 
         $i = 1;
-        foreach ($context->getLanguageIdChain() as $id) {
+        foreach ($idChain as $id) {
             $name = 'translation.fallback_' . $i++;
             $chain[] = [
                 'id' => $id,

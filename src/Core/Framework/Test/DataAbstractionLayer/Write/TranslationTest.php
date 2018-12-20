@@ -4,13 +4,17 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
@@ -455,5 +459,37 @@ class TranslationTest extends TestCase
         $languageIds = array_column($translations->getPayload(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
         static::assertContains($germanLanguageId, $languageIds);
+    }
+
+    public function testTranslationsAssociationOfMissingRoot(): void
+    {
+        /** @var EntityRepository $categoryRepository */
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $category = [
+            'id' => Uuid::uuid4()->getHex(),
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'system'],
+            ],
+        ];
+        $categoryRepository->create([$category], $this->context);
+
+        /** @var CategoryEntity $catSystem */
+        $catSystem = $categoryRepository->read(new ReadCriteria([$category['id']]), $this->context)->first();
+
+        static::assertNotNull($catSystem);
+        static::assertEquals('system', $catSystem->getName());
+        static::assertEquals('system', $catSystem->getViewData()->getName());
+        static::assertCount(1, $catSystem->getTranslations());
+
+        $deDeContext = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_DE, Defaults::LANGUAGE_SYSTEM]);
+        /** @var CategoryEntity $catDeDe */
+        $catDeDe = $categoryRepository->read(new ReadCriteria([$category['id']]), $deDeContext)->first();
+
+        static::assertNotNull($catDeDe);
+        static::assertNull($catDeDe->getName());
+        static::assertEquals('system', $catDeDe->getViewData()->getName());
+
+        static::assertCount(1, $catDeDe->getTranslations());
     }
 }

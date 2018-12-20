@@ -224,8 +224,14 @@ class EntityHydrator
         /** @var EntityCollection $collection */
         $collection = new $collection();
 
-        //builds a complete collection with translation structs of the current entity
+        //builds a complete collection with translation entities of the current entity
         foreach ($chain as $accessor) {
+            $idAccessor = $accessor['alias'] . '.languageId';
+            // skip if translation doesn't exist
+            if (!isset($row[$idAccessor])) {
+                continue;
+            }
+
             $entity = $this->hydrateEntity(new $structClass(), $translationDefinition, $row, $accessor['alias'], $context);
             $collection->add($entity);
         }

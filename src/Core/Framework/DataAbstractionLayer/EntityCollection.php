@@ -41,6 +41,11 @@ class EntityCollection extends Collection
         }
     }
 
+    /**
+     * @param array $ids
+     *
+     * @return static
+     */
     public function getList(array $ids)
     {
         return new static(array_intersect_key($this->elements, array_flip($ids)));

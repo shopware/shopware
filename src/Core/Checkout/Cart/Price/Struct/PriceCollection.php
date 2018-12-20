@@ -55,7 +55,7 @@ class PriceCollection extends Collection
 
     public function merge(self $prices): self
     {
-        return $this->doMerge($prices);
+        return new self(array_merge($this->elements, $prices->getElements()));
     }
 
     protected function getExpectedClass(): ?string

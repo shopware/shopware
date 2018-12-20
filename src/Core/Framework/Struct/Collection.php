@@ -48,7 +48,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return null;
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->elements = [];
     }
@@ -86,20 +86,31 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param string $class
      *
-     * @return Collection
+     * @return static
      */
-    public function filterInstance(string $class): Collection
+    public function filterInstance(string $class)
     {
         return $this->filter(function ($item) use ($class) {
             return $item instanceof $class;
         });
     }
 
+    /**
+     * @param \Closure $closure
+     *
+     * @return static
+     */
     public function filter(\Closure $closure)
     {
         return new static(array_filter($this->elements, $closure));
     }
 
+    /**
+     * @param int      $offset
+     * @param int|null $length
+     *
+     * @return static
+     */
     public function slice(int $offset, ?int $length = null)
     {
         return new static(\array_slice($this->elements, $offset, $length, true));
@@ -158,10 +169,5 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
                 sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
             );
         }
-    }
-
-    protected function doMerge(self $collection)
-    {
-        return new static(array_merge($this->elements, $collection->getElements()));
     }
 }

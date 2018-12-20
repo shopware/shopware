@@ -194,6 +194,9 @@
         "buttonDelete": "Löschen"
       }
     },
+    "sw-simple-search-field": {
+      "defaultPlaceholder": "Suche"
+    },
     "entities": {
       "cart": "Warenkorb | Warenkörbe",
       "catalog": "Katalog | Kataloge",

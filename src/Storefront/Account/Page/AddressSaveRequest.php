@@ -3,9 +3,15 @@
 namespace Shopware\Storefront\Account\Page;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\HttpFoundation\Request;
 
 class AddressSaveRequest extends Struct
 {
+    /**
+     * @var Request
+     */
+    protected $httpRequest;
+
     /** @var string|null */
     protected $id;
 
@@ -238,5 +244,21 @@ class AddressSaveRequest extends Struct
     public function setIsDefaultShippingAddress(bool $isDefaultShippingAddress): void
     {
         $this->isDefaultShippingAddress = $isDefaultShippingAddress;
+    }
+
+    /**
+     * @return Request
+     */
+    public function getHttpRequest(): Request
+    {
+        return $this->httpRequest;
+    }
+
+    /**
+     * @param Request $httpRequest
+     */
+    public function setHttpRequest(Request $httpRequest): void
+    {
+        $this->httpRequest = $httpRequest;
     }
 }

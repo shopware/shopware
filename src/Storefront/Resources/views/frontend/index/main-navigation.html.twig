@@ -1,3 +1,4 @@
 {% block frontend_index_navigation_categories %}
-    {{ render(controller('Storefront/Listing:Widget/Navigation:navigation')) }}
+    {#{{ render(controller('Storefront/Listing:Widget/Navigation:navigation')) }}#}
+            {% sw_include "@Storefront/widgets/navigation/navigation.html.twig" %}
 {% endblock %}

@@ -37,6 +37,7 @@ class SearchPageRequestResolver implements ArgumentValueResolverInterface
     {
         $pageRequest = new SearchPageRequest();
 
+        $pageRequest->setHttpRequest($request);
         $context = $this->requestStack
             ->getMasterRequest()
             ->attributes

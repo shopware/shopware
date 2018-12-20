@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Listing\Controller\Widget;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
-use Shopware\Storefront\Listing\NavigationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,9 +32,9 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        /** @var NavigationService $navigationService */
-        $navigationService = $this->get(NavigationService::class);
-        $navigation = $navigationService->load($navigationId, $context->getContext());
+        /** @var StorefrontCategoryRepository $navigationPageletLoader */
+        $navigationPageletLoader = $this->get(StorefrontCategoryRepository::class);
+        $navigation = $navigationPageletLoader->read($navigationId, $context->getContext());
 
         return $this->render('@Storefront/widgets/navigation/navigation.html.twig', [
             'navigation' => $navigation,
@@ -60,9 +60,9 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        /** @var NavigationService $navigationService */
-        $navigationService = $this->get(NavigationService::class);
-        $navigation = $navigationService->load($navigationId, $context->getContext());
+        /** @var StorefrontCategoryRepository $navigationPageletLoader */
+        $navigationPageletLoader = $this->get(StorefrontCategoryRepository::class);
+        $navigation = $navigationPageletLoader->read($navigationId, $context->getContext());
 
         return $this->render('@Storefront/widgets/navigation/sidebar.html.twig', [
             'navigation' => $navigation,

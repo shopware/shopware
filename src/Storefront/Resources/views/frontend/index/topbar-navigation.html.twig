@@ -10,8 +10,8 @@
                 {% block frontend_index_top_bar_nav %}
                     <nav class="top-bar--navigation block" role="menubar">
 
-                        {{ render(controller('Storefront/Content:Widget/Index:shopMenu')) }}
-
+                        {#{{ render(controller('Storefront/Content:Widget/Index:shopMenu')) }}#}
+{% sw_include "@Storefront/widgets/index/shop_menu.html.twig" %}
                         {# Article Compare #}
                         {% block frontend_index_navigation_inline %}
                             {% if shopware.config.compareshow %}

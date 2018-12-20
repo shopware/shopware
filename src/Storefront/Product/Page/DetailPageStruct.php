@@ -2,45 +2,49 @@
 
 namespace Shopware\Storefront\Product\Page;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
-use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Checkout\Page\CartInfoPageletStruct;
+use Shopware\Storefront\Content\Page\CurrencyPageletStruct;
+use Shopware\Storefront\Content\Page\HeaderPageletTrait;
+use Shopware\Storefront\Content\Page\LanguagePageletStruct;
+use Shopware\Storefront\Content\Page\ShopmenuPageletStruct;
+use Shopware\Storefront\Framework\Page\PageStruct;
+use Shopware\Storefront\Listing\Page\NavigationPageletStruct;
 
-class DetailPageStruct extends Struct
+class DetailPageStruct extends PageStruct
 {
-    /**
-     * @var ProductEntity
-     */
-    protected $product;
+    use HeaderPageletTrait;
 
     /**
-     * @var ProductConfiguratorCollection
+     * @var DetailPageletStruct
      */
-    protected $configurator;
+    protected $productDetail;
 
-    public function __construct(ProductEntity $product)
+    /**
+     * DetailPageStruct constructor.
+     */
+    public function __construct()
     {
-        $this->product = $product;
-        $this->configurator = new ProductConfiguratorCollection();
+        $this->productDetail = new DetailPageletStruct();
+        $this->language = new LanguagePageletStruct();
+        $this->cartInfo = new CartInfoPageletStruct();
+        $this->shopmenu = new ShopmenuPageletStruct();
+        $this->currency = new CurrencyPageletStruct();
+        $this->navigation = new NavigationPageletStruct();
     }
 
-    public function getConfigurator(): ProductConfiguratorCollection
+    /**
+     * @return DetailPageletStruct
+     */
+    public function getProductDetail(): DetailPageletStruct
     {
-        return $this->configurator;
+        return $this->productDetail;
     }
 
-    public function setConfigurator(ProductConfiguratorCollection $configurator): void
+    /**
+     * @param DetailPageletStruct $productDetail
+     */
+    public function setProductDetail(DetailPageletStruct $productDetail): void
     {
-        $this->configurator = $configurator;
-    }
-
-    public function getProduct(): ProductEntity
-    {
-        return $this->product;
-    }
-
-    public function setProduct(ProductEntity $product): void
-    {
-        $this->product = $product;
+        $this->productDetail = $productDetail;
     }
 }

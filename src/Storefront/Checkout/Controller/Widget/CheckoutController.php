@@ -33,8 +33,8 @@ class CheckoutController extends StorefrontController
         return $this->render('@Storefront/widgets/checkout/info.html.twig', [
             'cartQuantity' => $cart->getLineItems()->filterGoods()->count(),
             'cartAmount' => $cart->getPrice()->getTotalPrice(),
-            'sNotesQuantity' => 0,
-            'sUserLoggedIn' => false,
+            'notesQuantity' => 0,
+            'userLoggedIn' => false,
         ]);
     }
 }

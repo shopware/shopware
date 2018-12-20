@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Listing;
+namespace Shopware\Storefront\Listing\Page;
 
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Util\Tree\TreeItem;
+use Shopware\Storefront\Framework\Page\PageletStruct;
 
-class Navigation
+class NavigationPageletStruct extends PageletStruct
 {
     /**
      * @var TreeItem[]
@@ -17,40 +18,33 @@ class Navigation
      */
     protected $activeCategory;
 
-    public function __construct(?CategoryEntity $activeCategory, array $tree)
-    {
-        $this->tree = $tree;
-        $this->activeCategory = $activeCategory;
-    }
-
-    public function isCategorySelected(CategoryEntity $category): bool
-    {
-        if (!$this->activeCategory) {
-            return false;
-        }
-
-        if ($category->getId() === $this->activeCategory->getId()) {
-            return true;
-        }
-
-        return \in_array($category->getId(), $this->activeCategory->getPathArray(), true);
-    }
-
+    /**
+     * @return TreeItem[]
+     */
     public function getTree(): array
     {
         return $this->tree;
     }
 
+    /**
+     * @param TreeItem[] $tree
+     */
     public function setTree(array $tree): void
     {
         $this->tree = $tree;
     }
 
+    /**
+     * @return null|CategoryEntity
+     */
     public function getActiveCategory(): ?CategoryEntity
     {
         return $this->activeCategory;
     }
 
+    /**
+     * @param null|CategoryEntity $activeCategory
+     */
     public function setActiveCategory(?CategoryEntity $activeCategory): void
     {
         $this->activeCategory = $activeCategory;

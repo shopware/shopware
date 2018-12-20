@@ -3,61 +3,88 @@
 namespace Shopware\Storefront\Search\PageLoader;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Storefront\Listing\Event\ListingPageLoadedEvent;
-use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Checkout\PageLoader\CartInfoPageletLoader;
+use Shopware\Storefront\Content\PageLoader\CurrencyPageletLoader;
+use Shopware\Storefront\Content\PageLoader\LanguagePageletLoader;
+use Shopware\Storefront\Content\PageLoader\ShopmenuPageletLoader;
+use Shopware\Storefront\Listing\PageLoader\NavigationPageletLoader;
 use Shopware\Storefront\Search\Page\SearchPageRequest;
 use Shopware\Storefront\Search\Page\SearchPageStruct;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchPageLoader
 {
     /**
-     * @var StorefrontProductRepository
-     */
-    private $productRepository;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function __construct(
-        StorefrontProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @param ContainerInterface|null $container
+     */
+    public function setContainer(ContainerInterface $container = null): void
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @param SearchPageRequest $request
+     * @param CheckoutContext   $context
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
+     *
+     * @return SearchPageStruct
+     */
     public function load(SearchPageRequest $request, CheckoutContext $context): SearchPageStruct
     {
-        $config = [];
+        $page = new SearchPageStruct();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.active', 1));
-
-        $this->eventDispatcher->dispatch(
-            PageCriteriaCreatedEvent::NAME,
-            new PageCriteriaCreatedEvent($criteria, $context, $request)
+        /** @var SearchPageletLoader $searchLoader */
+        $searchLoader = $this->container->get(SearchPageletLoader::class);
+        $page->attach(
+            $searchLoader->load($request, $context)
         );
 
-        if (!$request->loadAggregations()) {
-            $criteria->resetAggregations();
-        }
+        /** @var NavigationPageletLoader $navigatonLoader */
+        $navigatonLoader = $this->container->get(NavigationPageletLoader::class);
+        $page->attach(
+            $navigatonLoader->load($request, $context)
+        );
 
-        $products = $this->productRepository->search($criteria, $context);
+        /** @var CartInfoPageletLoader $cartInfoLoader */
+        $cartInfoLoader = $this->container->get(CartInfoPageletLoader::class);
+        $page->attach(
+            $cartInfoLoader->load($request, $context)
+        );
 
-        $layout = $config['searchProductBoxLayout'] ?? 'basic';
+        /** @var ShopmenuPageletLoader $shopmenuLoader */
+        $shopmenuLoader = $this->container->get(ShopmenuPageletLoader::class);
+        $page->attach(
+            $shopmenuLoader->load($request, $context)
+        );
 
-        $page = new SearchPageStruct(null, $products, $criteria);
-        $page->setProductBoxLayout($layout);
+        /** @var LanguagePageletLoader $languageLoader */
+        $languageLoader = $this->container->get(LanguagePageletLoader::class);
+        $page->attach(
+            $languageLoader->load($request, $context)
+        );
 
-        $this->eventDispatcher->dispatch(
-            ListingPageLoadedEvent::NAME,
-            new ListingPageLoadedEvent($page, $context, $request)
+        /** @var CurrencyPageletLoader $currencyLoader */
+        $currencyLoader = $this->container->get(CurrencyPageletLoader::class);
+        $page->attach(
+            $currencyLoader->load($request, $context)
         );
 
         return $page;

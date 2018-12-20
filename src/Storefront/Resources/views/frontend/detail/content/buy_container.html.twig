@@ -1,7 +1,7 @@
 {% block frontend_detail_index_buy_container %}
     {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
     {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
-    <div class="product--buybox block{% if page.configurator and product.sConfiguratorSettings.type == 2 %} is--wide{% endif %}">
+    <div class="product--buybox block{% if detail.configurator and product.sConfiguratorSettings.type == 2 %} is--wide{% endif %}">
 
         {% block frontend_detail_rich_snippets_brand %}
             <meta itemprop="brand" content="{{ product.manufacturer.name }}"/>
@@ -85,7 +85,7 @@
                 {# Configurator drop down menu's #}
                 {% block frontend_detail_index_configurator %}
                     <div class="product--configurator">
-                        {% if page.configurator.count >= 0 %}
+                        {% if detail.configurator.count >= 0 %}
                             {% sw_include '@Storefront/frontend/detail/config_step.html.twig' %}
                         {% endif %}
                     </div>

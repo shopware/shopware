@@ -1,18 +1,18 @@
 {# Language switcher #}
 {% block frontend_index_actions_active_shop %}
-    {% if languages and languages|length > 1 %}
+    {% if language.languages and language.languages|length > 1 %}
         <div class="top-bar--language navigation--entry">
             {% block frontend_index_actions_active_shop_top_bar_language %}
-                <form method="post" class="language--form">
+                <form method="post" action="{{ url('frontend.context.update') }}" class="language--form">
                     {% block frontend_index_actions_active_shop_language_form_content %}
                         <div class="field--select">
                             <div class="language--flag {{ language.locale.code }}">{{ language.name }}</div>
 
                             {% block frontend_index_actions_active_shop_language_form_select %}
                                 <div class="select-field">
-                                    <select name="__shop" class="language--select" data-auto-submit="true">
-                                        {% for lang in languages %}
-                                            <option value="{{ lang.id }}" {% if language.id == lang.id %}selected="selected"{% endif %}>
+                                    <select name="__language" class="language--select" data-auto-submit="true">
+                                        {% for lang in language.languages %}
+                                            <option value="{{ lang.id }}" {% if context.salesChannel.languageId == lang.id %}selected="selected"{% endif %}>
                                                 {{ lang.name }}
                                             </option>
                                         {% endfor %}
@@ -31,7 +31,7 @@
 
 {# Currency changer #}
 {% block frontend_index_actions_currency %}
-    {% if currencies|length > 1 %}
+    {% if currency.currencies|length > 1 %}
         <div class="top-bar--currency navigation--entry">
             {% block frontend_index_actions_currency_form %}
                 <form method="post" action="{{ url('frontend.context.update') }}" class="currency--form">
@@ -40,8 +40,8 @@
                             {% block frontend_index_actions_currency_form_select %}
                                 <div class="select-field">
                                     <select name="__currency" class="currency--select" data-auto-submit="true">
-                                        {% for selection in currencies %}
-                                            <option value="{{ selection.id }}"{% if selection.id == currency.id %} selected="selected"{% endif %}>
+                                        {% for selection in currency.currencies %}
+                                            <option value="{{ selection.id }}"{% if selection.id == currency.currency.id %} selected="selected"{% endif %}>
                                                 {% if selection.symbol != selection.currency %}{{ selection.symbol|raw }} {% endif %} {{ selection.shortName }}
                                             </option>
                                         {% endfor %}

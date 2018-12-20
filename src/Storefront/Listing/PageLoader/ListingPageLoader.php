@@ -3,61 +3,88 @@
 namespace Shopware\Storefront\Listing\PageLoader;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Storefront\Listing\Event\ListingPageLoadedEvent;
-use Shopware\Storefront\Listing\Event\PageCriteriaCreatedEvent;
-use Shopware\Storefront\Listing\ListingEvents;
+use Shopware\Storefront\Checkout\PageLoader\CartInfoPageletLoader;
+use Shopware\Storefront\Content\PageLoader\CurrencyPageletLoader;
+use Shopware\Storefront\Content\PageLoader\LanguagePageletLoader;
+use Shopware\Storefront\Content\PageLoader\ShopmenuPageletLoader;
+use Shopware\Storefront\Framework\PageLoader\PageLoader;
 use Shopware\Storefront\Listing\Page\ListingPageRequest;
 use Shopware\Storefront\Listing\Page\ListingPageStruct;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ListingPageLoader
+class ListingPageLoader implements PageLoader
 {
-    /**
-     * @var StorefrontProductRepository
-     */
-    private $productRepository;
-
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function __construct(
-        StorefrontProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @param ContainerInterface|null $container
+     */
+    public function setContainer(ContainerInterface $container = null): void
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @param ListingPageRequest $request
+     * @param CheckoutContext    $context
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
+     *
+     * @return ListingPageStruct
+     */
     public function load(ListingPageRequest $request, CheckoutContext $context): ListingPageStruct
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.active', true));
-        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $request->getNavigationId()));
+        $page = new ListingPageStruct();
 
-        $this->eventDispatcher->dispatch(
-            ListingEvents::CRITERIA_CREATED,
-            new PageCriteriaCreatedEvent($criteria, $context, $request)
+        /** @var ListingPageletLoader $listingLoader */
+        $listingLoader = $this->container->get(ListingPageletLoader::class);
+        $page->attach(
+            $listingLoader->load($request, $context)
         );
 
-        if (!$request->loadAggregations()) {
-            $criteria->resetAggregations();
-        }
+        /** @var NavigationPageletLoader $navigatonLoader */
+        $navigatonLoader = $this->container->get(NavigationPageletLoader::class);
+        $page->attach(
+            $navigatonLoader->load($request, $context)
+        );
 
-        $products = $this->productRepository->search($criteria, $context);
+        /** @var CartInfoPageletLoader $cartinfoLoader */
+        $cartinfoLoader = $this->container->get(CartInfoPageletLoader::class);
+        $page->attach(
+            $cartinfoLoader->load($request, $context)
+        );
 
-        $page = new ListingPageStruct($request->getNavigationId(), $products, $criteria);
+        /** @var ShopmenuPageletLoader $shopmenuLoader */
+        $shopmenuLoader = $this->container->get(ShopmenuPageletLoader::class);
+        $page->attach(
+            $shopmenuLoader->load($request, $context)
+        );
 
-        $page->setShowListing(true);
-        $page->setProductBoxLayout('basic');
+        /** @var LanguagePageletLoader $languageLoader */
+        $languageLoader = $this->container->get(LanguagePageletLoader::class);
+        $page->attach(
+            $languageLoader->load($request, $context)
+        );
 
-        $this->eventDispatcher->dispatch(
-            ListingEvents::LOADED,
-            new ListingPageLoadedEvent($page, $context, $request)
+        /** @var CurrencyPageletLoader $currencyLoader */
+        $currencyLoader = $this->container->get(CurrencyPageletLoader::class);
+        $page->attach(
+            $currencyLoader->load($request, $context)
         );
 
         return $page;

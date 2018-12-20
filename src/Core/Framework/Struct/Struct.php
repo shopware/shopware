@@ -23,4 +23,14 @@ abstract class Struct implements \JsonSerializable, ExtendableInterface
 
     //allows to create a new instance with all data of the provided object
     use CreateFromTrait;
+
+    public function toArray()
+    {
+        $jsonArray = [];
+        foreach (get_object_vars($this) as $key => $value) {
+            $jsonArray[$key] = $value;
+        }
+
+        return $jsonArray;
+    }
 }

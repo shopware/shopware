@@ -3,8 +3,8 @@
 {# Meta title #}
 {% block frontend_index_header_title %}
     {% spaceless %}
-        {% set product = page.product %}
-        {% if product.metaTitle %}{{ product.metaTitle|escape('html')}} | {{ shopware.config.shopName|escape('html') }}{% else %}{{ product.name }} | {{ parent() }}{% endif %}
+        {% set product = productDetail.product %}
+        {% if productDetail.product.metaTitle %}{{ productDetail.product.metaTitle|escape('html')}} | {{ shopware.config.shopName|escape('html') }}{% else %}{{ productDetail.product.name }} | {{ parent() }}{% endif %}
     {% endspaceless %}
 {% endblock %}
 
@@ -12,12 +12,12 @@
 {% block frontend_index_header_meta_tags_opengraph %}
     {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
 
-    {% set product = page.product %}
+    {% set product = productDetail.product %}
     <meta property="og:type" content="product" />
     <meta property="og:site_name" content="{{ shopware.config.shopName|escape('html') }}" />
-    {% set url = path('frontend.detail.page', { 'id' : page.product.id }) %}
-    {% if page.product.extension('canonicalUrl') %}
-        {% set url = page.product.extension('canonicalUrl').url %}
+    {% set url = path('frontend.detail.page', { 'id' : productDetail.product.id }) %}
+    {% if productDetail.product.extension('canonicalUrl') %}
+        {% set url = productDetail.product.extension('canonicalUrl').url %}
     {% endif %}
 
     <meta property="og:url" content="{{ url }}" />
@@ -39,8 +39,8 @@
 {% block frontend_index_header_meta_keywords %}
     {% spaceless %}
         {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
-        {% if page.product.keywords %}
-            {{ page.product.keywords|escape('html') }}
+        {% if productDetail.product.keywords %}
+            {{ productDetail.product.keywords|escape('html') }}
         {% endif %}
     {% endspaceless %}
 {% endblock %}
@@ -49,10 +49,10 @@
 {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
 {% block frontend_index_header_meta_description %}
     {% spaceless %}
-        {% if page.product.description  %}
-            {{ page.product.description|escape('html') }}
+        {% if productDetail.product.description  %}
+            {{ productDetail.product.description|escape('html') }}
         {% else %}
-            {{ page.product.descriptionLong|escape('html') }}
+            {{ productDetail.product.descriptionLong|escape('html') }}
         {% endif %}
     {% endspaceless %}
 {% endblock %}
@@ -60,7 +60,7 @@
 {# Canonical link #}
 {% block frontend_index_header_canonical %}
     {# @var url \Shopware\Core\Api\Seo\Struct\SeoUrlEntity #}
-    {% set url = page.product.extension('canonicalUrl') %}
+    {% set url = productDetail.product.extension('canonicalUrl') %}
 
     <link rel="canonical" href="{{ url.url }}" />
 {% endblock %}

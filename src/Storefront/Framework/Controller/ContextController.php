@@ -48,7 +48,7 @@ class ContextController extends StorefrontController
     }
 
     /**
-     * @Route("/context", name="frontend.context.update", methods={"PATCH"})
+     * @Route("/context", name="frontend.context.update", methods={"POST"})
      */
     public function updateContext(Request $request, CheckoutContext $context): RedirectResponse
     {

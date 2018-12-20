@@ -3,125 +3,83 @@
 namespace Shopware\Storefront\Product\PageLoader;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Storefront\Checkout\PageLoader\CartInfoPageletLoader;
+use Shopware\Storefront\Content\PageLoader\CurrencyPageletLoader;
+use Shopware\Storefront\Content\PageLoader\LanguagePageletLoader;
+use Shopware\Storefront\Content\PageLoader\ShopmenuPageletLoader;
+use Shopware\Storefront\Framework\Page\PageRequest;
+use Shopware\Storefront\Listing\PageLoader\NavigationPageletLoader;
 use Shopware\Storefront\Product\Page\DetailPageStruct;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DetailPageLoader
 {
     /**
-     * @var StorefrontProductRepository
+     * @var ContainerInterface
      */
-    private $productRepository;
+    private $container;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $configuratorRepository;
-
-    public function __construct(
-        StorefrontProductRepository $productRepository,
-        RepositoryInterface $configuratorRepository
-    ) {
-        $this->productRepository = $productRepository;
-        $this->configuratorRepository = $configuratorRepository;
+    public function __construct()
+    {
     }
 
-    public function load(string $productId, Request $request, CheckoutContext $context): DetailPageStruct
+    /**
+     * @param ContainerInterface|null $container
+     */
+    public function setContainer(ContainerInterface $container = null): void
     {
-        $parentId = $this->fetchParentId($productId, $context);
+        $this->container = $container;
+    }
 
-        $productId = $this->resolveProductId($productId, $parentId, $request, $context);
+    /**
+     * @param string          $productId
+     * @param PageRequest     $request
+     * @param CheckoutContext $context
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
+     *
+     * @return DetailPageStruct
+     */
+    public function load(string $productId, PageRequest $request, CheckoutContext $context): DetailPageStruct
+    {
+        $page = new DetailPageStruct();
 
-        $collection = $this->productRepository->readDetail([$productId], $context);
+        /** @var DetailPageletLoader $detailLoader */
+        $detailLoader = $this->container->get(DetailPageletLoader::class);
+        $page->attach(
+            $detailLoader->load($productId, $request, $context)
+        );
 
-        if (!$collection->has($productId)) {
-            throw new \RuntimeException('Product was not found.');
-        }
+        /** @var NavigationPageletLoader $navigatonLoader */
+        $navigatonLoader = $this->container->get(NavigationPageletLoader::class);
+        $page->attach(
+            $navigatonLoader->load($request, $context)
+        );
 
-        /** @var StorefrontProductEntity $product */
-        $product = $collection->get($productId);
+        /** @var CartInfoPageletLoader $cartInfoLoader */
+        $cartInfoLoader = $this->container->get(CartInfoPageletLoader::class);
+        $page->attach(
+            $cartInfoLoader->load($request, $context)
+        );
 
-        $page = new DetailPageStruct($product);
+        /** @var ShopmenuPageletLoader $shopmenuLoader */
+        $shopmenuLoader = $this->container->get(ShopmenuPageletLoader::class);
+        $page->attach(
+            $shopmenuLoader->load($request, $context)
+        );
 
-        $page->setConfigurator(
-            $this->loadConfigurator($product, $context)
+        /** @var LanguagePageletLoader $languageLoader */
+        $languageLoader = $this->container->get(LanguagePageletLoader::class);
+        $page->attach(
+            $languageLoader->load($request, $context)
+        );
+
+        /** @var CurrencyPageletLoader $currencyLoader */
+        $currencyLoader = $this->container->get(CurrencyPageletLoader::class);
+        $page->attach(
+            $currencyLoader->load($request, $context)
         );
 
         return $page;
-    }
-
-    private function resolveProductId(
-        string $productId,
-        string $parentId,
-        Request $request,
-        CheckoutContext $context
-    ): string {
-        $selection = array_filter($request->get('group', []));
-
-        if (empty($selection)) {
-            return $productId;
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.parentId', $parentId));
-
-        $queries = [];
-        foreach ($selection as $groupId => $optionId) {
-            $queries[] = new EqualsFilter('product.variationIds', $optionId);
-        }
-
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, $queries));
-        $criteria->setLimit(1);
-
-        $ids = $this->productRepository->searchIds($criteria, $context);
-        $ids = $ids->getIds();
-
-        $first = array_shift($ids);
-
-        if ($first) {
-            return $first;
-        }
-
-        return $productId;
-    }
-
-    private function loadConfigurator(StorefrontProductEntity $product, CheckoutContext $context): ProductConfiguratorCollection
-    {
-        $containerId = $product->getParentId() ?? $product->getId();
-
-        $criteria = new ReadCriteria([]);
-        $criteria->addFilter(new EqualsFilter('product_configurator.productId', $containerId));
-
-        /** @var ProductConfiguratorCollection $configurator */
-        $configurator = $this->configuratorRepository->read($criteria, $context->getContext());
-        $variationIds = $product->getVariationIds() ?? [];
-
-        foreach ($configurator as $config) {
-            $config->setSelected(\in_array($config->getOptionId(), $variationIds, true));
-        }
-
-        return $configurator;
-    }
-
-    private function fetchParentId(string $productId, CheckoutContext $context): string
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.children.id', $productId));
-
-        $ids = $this->productRepository->searchIds($criteria, $context)->getIds();
-
-        if (!empty($ids)) {
-            return array_shift($ids);
-        }
-
-        return $productId;
     }
 }

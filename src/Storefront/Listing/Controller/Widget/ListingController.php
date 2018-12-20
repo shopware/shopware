@@ -65,18 +65,14 @@ class ListingController extends StorefrontController
 
         $page = $this->listingPageLoader->load($request, $context);
 
-        $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', [
-            'listing' => $page,
-        ]);
+        $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', $page->toArray());
 
-        $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', [
-            'listing' => $page,
-        ]);
+        $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', $page->toArray());
 
         return new JsonResponse([
             'listing' => $template->getContent(),
             'pagination' => $pagination->getContent(),
-            'totalCount' => $page->getProducts()->getTotal(),
+            'totalCount' => $page->getListing()->getProducts()->getTotal(),
         ]);
     }
 
@@ -87,18 +83,14 @@ class ListingController extends StorefrontController
     {
         $page = $this->searchPageLoader->load($request, $context);
 
-        $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', [
-            'listing' => $page,
-        ]);
+        $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', $page->toArray());
 
-        $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', [
-            'listing' => $page,
-        ]);
+        $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', $page->toArray());
 
         return new JsonResponse([
             'listing' => $template->getContent(),
             'pagination' => $pagination->getContent(),
-            'totalCount' => $page->getProducts()->getTotal(),
+            'totalCount' => $page->getListing()->getProducts()->getTotal(),
         ]);
     }
 }

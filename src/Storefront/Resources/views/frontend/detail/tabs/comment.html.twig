@@ -24,7 +24,7 @@
                     {#{include file="frontend/_includes/messages.tpl" type="error" content="{s name='DetailCommentInfoFillOutFields'}{/s}"}#}
                 {#{/if}#}
             {#{else}#}
-                {#{if {config name="OptinVote"} && !{$smarty.get.sConfirmation} && !{$userLoggedIn}}#}
+                {#{if {config name="OptinVote"} && !{$smarty.get.sConfirmation} && !{$cartInfo.userLoggedIn}}#}
                     {#{include file="frontend/_includes/messages.tpl" type="success" content="{s name='DetailCommentInfoSuccessOptin'}{/s}"}#}
                 {#{else}#}
                     {#{include file="frontend/_includes/messages.tpl" type="success" content="{s name='DetailCommentInfoSuccess'}{/s}"}#}

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Storefront\Checkout\PageLoader\PaymentMethodLoader;
+use Shopware\Storefront\Checkout\PageLoader\PaymentMethodPageletLoader;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +39,7 @@ class CheckoutController extends StorefrontController
     private $orderRepository;
 
     /**
-     * @var PaymentMethodLoader
+     * @var PaymentMethodPageletLoader
      */
     private $paymentMethodLoader;
 
@@ -61,7 +61,7 @@ class CheckoutController extends StorefrontController
     public function __construct(
         CartService $cartService,
         RepositoryInterface $orderRepository,
-        PaymentMethodLoader $paymentMethodLoader,
+        PaymentMethodPageletLoader $paymentMethodLoader,
         CheckoutContextPersister $contextPersister,
         PaymentService $paymentService,
         RouterInterface $router
@@ -103,9 +103,8 @@ class CheckoutController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        return $this->renderStorefront('@Storefront/frontend/checkout/shipping_payment.html.twig', [
-            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getContext()),
-        ]);
+        return $this->renderStorefront('@Storefront/frontend/checkout/shipping_payment.html.twig',
+            $this->paymentMethodLoader->load($request, $context)->toArray());
     }
 
     /**

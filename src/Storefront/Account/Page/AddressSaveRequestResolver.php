@@ -37,6 +37,8 @@ class AddressSaveRequestResolver implements ArgumentValueResolverInterface
     {
         $pageRequest = new AddressSaveRequest();
 
+        $pageRequest->setHttpRequest($request);
+
         $context = $this->requestStack
             ->getMasterRequest()
             ->attributes

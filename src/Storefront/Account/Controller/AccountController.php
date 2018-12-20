@@ -14,17 +14,19 @@ use Shopware\Storefront\Account\Exception\AddressNotFoundException;
 use Shopware\Storefront\Account\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Account\Page\AccountService;
 use Shopware\Storefront\Account\Page\AddressSaveRequest;
-use Shopware\Storefront\Account\Page\CustomerAddressPageLoader;
 use Shopware\Storefront\Account\Page\EmailSaveRequest;
 use Shopware\Storefront\Account\Page\LoginRequest;
-use Shopware\Storefront\Account\Page\OrderPageLoader;
 use Shopware\Storefront\Account\Page\PasswordSaveRequest;
 use Shopware\Storefront\Account\Page\ProfileSaveRequest;
 use Shopware\Storefront\Account\Page\RegistrationRequest;
-use Shopware\Storefront\Account\PageLoader\CustomerPageLoader;
-use Shopware\Storefront\Checkout\PageLoader\PaymentMethodLoader;
+use Shopware\Storefront\Account\PageLoader\AccountAddressPageLoader;
+use Shopware\Storefront\Account\PageLoader\AccountOrderPageLoader;
+use Shopware\Storefront\Account\PageLoader\AccountOverviewPageLoader;
+use Shopware\Storefront\Account\PageLoader\AccountPaymentMethodsPageLoader;
+use Shopware\Storefront\Account\PageLoader\AccountProfilePageLoader;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Exception\BadCredentialsException;
+use Shopware\Storefront\Framework\Page\PageRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,69 +46,81 @@ class AccountController extends StorefrontController
     private $checkoutContextService;
 
     /**
-     * @var PaymentMethodLoader
-     */
-    private $paymentMethodLoader;
-
-    /**
-     * @var OrderPageLoader
-     */
-    private $orderPageLoader;
-
-    /**
      * @var AccountService
      */
     private $accountService;
 
     /**
-     * @var CustomerAddressPageLoader
+     * @var AccountAddressPageLoader
      */
-    private $customerAddressPageLoader;
+    private $accountAddressPageLoader;
 
     /**
-     * @var CustomerPageLoader
+     * @var AccountOverviewPageLoader
      */
-    private $customerPageLoader;
+    private $accountOverviewPageLoader;
+
+    /**
+     * @var AccountProfilePageLoader
+     */
+    private $accountProfilePageLoader;
+
+    /**
+     * @var AccountPaymentMethodsPageLoader
+     */
+    private $accountPaymentMethodsPageLoader;
+
+    /**
+     * @var AccountOrderPageLoader
+     */
+    private $accountOrderPageLoader;
 
     public function __construct(
         CheckoutContextPersister $contextPersister,
         AccountService $accountService,
-        CustomerAddressPageLoader $customerAddressPageLoader,
-        CustomerPageLoader $customerPageLoader,
-        CheckoutContextService $checkoutContextService,
-        PaymentMethodLoader $paymentMethodLoader,
-        OrderPageLoader $orderPageLoader
+        AccountOverviewPageLoader $accountOverviewPageLoader,
+        AccountAddressPageLoader $accountAddressPageLoader,
+        AccountProfilePageLoader $accountProfilePageLoader,
+        AccountPaymentMethodsPageLoader $accountPaymentMethodsPageLoader,
+        AccountOrderPageLoader $accountOrderPageLoader,
+        CheckoutContextService $checkoutContextService
     ) {
         $this->contextPersister = $contextPersister;
         $this->accountService = $accountService;
-        $this->customerAddressPageLoader = $customerAddressPageLoader;
-        $this->customerPageLoader = $customerPageLoader;
+        $this->accountAddressPageLoader = $accountAddressPageLoader;
+        $this->accountOverviewPageLoader = $accountOverviewPageLoader;
+        $this->accountProfilePageLoader = $accountProfilePageLoader;
+        $this->accountPaymentMethodsPageLoader = $accountPaymentMethodsPageLoader;
+        $this->accountOrderPageLoader = $accountOrderPageLoader;
         $this->checkoutContextService = $checkoutContextService;
-        $this->paymentMethodLoader = $paymentMethodLoader;
-        $this->orderPageLoader = $orderPageLoader;
     }
 
     /**
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
-    public function index(): Response
+    public function index(PageRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        return $this->renderStorefront('frontend/account/index.html.twig');
+        $page = $this->accountOverviewPageLoader->load($request, $context);
+
+        return $this->renderStorefront('frontend/account/index.html.twig', $page->toArray());
     }
 
     /**
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
-    public function login(Request $request, CheckoutContext $context): Response
+    public function login(PageRequest $request, CheckoutContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
         }
 
         return $this->renderStorefront('frontend/register/index.html.twig', [
-            'redirectTo' => $request->get('redirectTo', $this->generateUrl('frontend.account.home.page')),
+            'redirectTo' => $request->getHttpRequest()->get('redirectTo', $this->generateUrl('frontend.account.home.page')),
             'countryList' => $this->accountService->getCountryList($context),
         ]);
     }
@@ -144,6 +158,8 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/logout", name="frontend.account.logout", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function logout(CheckoutContext $context): Response
     {
@@ -181,18 +197,24 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
-    public function paymentOverview(Request $request, CheckoutContext $context): Response
+    public function paymentOverview(PageRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        return $this->renderStorefront('@Storefront/frontend/account/payment.html.twig', [
-            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getContext()),
-        ]);
+        $page = $this->accountPaymentMethodsPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/frontend/account/payment.html.twig', $page->toArray());
     }
 
     /**
      * @Route("/account/payment", name="frontend.account.payment.switch", options={"seo"="false"}, methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws PaymentMethodNotFoundException
      */
     public function switchPayment(Request $request, CheckoutContext $context): Response
     {
@@ -214,20 +236,26 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
-    public function orderOverview(Request $request, CheckoutContext $context): Response
+    public function orderOverview(PageRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        return $this->renderStorefront('@Storefront/frontend/account/orders.html.twig', [
-            'orderPage' => $this->orderPageLoader->load($request, $context),
-        ]);
+        $page = $this->accountOrderPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/frontend/account/orders.html.twig', $page->toArray());
     }
 
     /**
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
-    public function profileOverview(Request $request, CheckoutContext $context): Response
+    public function profileOverview(PageRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -243,18 +271,23 @@ class AccountController extends StorefrontController
 //            $errorMessages = array_unique($errorMessages);
 //        }
 
-        return $this->renderStorefront('@Storefront/frontend/account/profile.html.twig', [
-            'customerPage' => $this->customerPageLoader->load($context),
-            'formData' => $request->request->get('formData', []),
-            'errorFlags' => [],
-            'errorMessages' => [],
-            'success' => $request->query->get('success'),
-            'section' => $request->query->get('section'),
-        ]);
+        $page = array_merge($this->accountProfilePageLoader->load($request, $context)->toArray(),
+            [
+                'formData' => $request->getHttpRequest()->request->get('formData', []),
+                'errorFlags' => [],
+                'errorMessages' => [],
+                'success' => $request->getHttpRequest()->query->get('success'),
+                'section' => $request->getHttpRequest()->query->get('section'),
+            ]
+        );
+
+        return $this->renderStorefront('@Storefront/frontend/account/profile.html.twig', $page);
     }
 
     /**
      * @Route("/account/profile", name="frontend.account.profile.update", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function updateProfile(ProfileSaveRequest $profileSaveRequest, CheckoutContext $context): Response
     {
@@ -275,6 +308,8 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/password", name="frontend.account.password.update", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function updatePassword(PasswordSaveRequest $passwordSaveRequest, CheckoutContext $context): Response
     {
@@ -292,6 +327,8 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/email", name="frontend.account.email.update", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
      */
     public function updateEmail(EmailSaveRequest $emailSaveRequest, CheckoutContext $context): Response
     {
@@ -309,24 +346,34 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
-    public function addressOverview(CheckoutContext $context): Response
+    public function addressOverview(PageRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        return $this->renderStorefront('@Storefront/frontend/address/index.html.twig', [
-            'customerAdressPage' => $this->customerAddressPageLoader->load($context),
-        ]);
+        $page = $this->accountAddressPageLoader->load($request, $context)->toArray();
+
+        return $this->renderStorefront('@Storefront/frontend/address/index.html.twig', $page);
     }
 
     /**
-     * @Route("/account/address", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
+     * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
-    public function createAddress(CheckoutContext $context): Response
+    public function createAddress(PageRequest $request, CheckoutContext $context): Response
     {
-        return $this->renderStorefront('@Storefront/frontend/address/create.html.twig', [
-            'countryList' => $this->accountService->getCountryList($context),
-        ]);
+        $page = array_merge(
+            $this->accountOverviewPageLoader->load($request, $context)->toArray(),
+            [
+                'countryList' => $this->accountService->getCountryList($context),
+            ]
+        );
+
+        return $this->renderStorefront('@Storefront/frontend/address/create.html.twig', $page);
     }
 
     /**
@@ -360,8 +407,12 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
-    public function editAddress($addressId, Request $request, CheckoutContext $context): Response
+    public function editAddress($addressId, PageRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -370,18 +421,22 @@ class AccountController extends StorefrontController
         return $this->renderStorefront('@Storefront/frontend/address/edit.html.twig', [
             'formData' => $address,
             'countryList' => $this->accountService->getCountryList($context),
-            'redirectTo' => $request->query->get('redirectTo'),
+            'redirectTo' => $request->getHttpRequest()->query->get('redirectTo'),
         ]);
     }
 
     /**
      * @Route("/account/address/{addressId}/delete-confirm", name="frontend.account.address.delete-confirm.page", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
-    public function deleteAddressConfirm(Request $request, CheckoutContext $context): Response
+    public function deleteAddressConfirm(PageRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $addressId = $request->query->get('addressId');
+        $addressId = $request->getHttpRequest()->query->get('addressId');
         $address = $this->accountService->getAddressById($addressId, $context);
 
         return $this->renderStorefront('@Storefront/frontend/address/delete.html.twig', ['address' => $address]);
@@ -391,6 +446,8 @@ class AccountController extends StorefrontController
      * @Route("/account/address/{addressId}", name="frontend.account.address.delete", options={"seo"="false"}, methods={"DELETE"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function deleteAddress($addressId, Request $request, CheckoutContext $context): Response
     {
@@ -405,6 +462,8 @@ class AccountController extends StorefrontController
      * @Route("/account/address/{addressId}/default-billing", name="frontend.account.address.set-default-billing", options={"seo"="false"}, methods={"PATCH"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function setDefaultBillingAddress(string $addressId, Request $request, CheckoutContext $context): Response
     {
@@ -417,9 +476,11 @@ class AccountController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/{addressId}/default-shipping", name="frontend.account.address.set-default-shipping", options={"seo"="false"}, methods={"PATCH"})
+     * @Route("/account/address/{addressId}/default-shipping", name="frontend.account.address.set-default-shipping", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function setDefaultShippingAddress(string $addressId, Request $request, CheckoutContext $context): Response
     {
@@ -463,6 +524,10 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/ajax/account/address/edit", name="frontend.account.address.edit.ajax", options={"seo"="false"}, methods={"GET"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     * @throws AddressNotFoundException
      */
     public function addressAjaxEdit(Request $request, CheckoutContext $context): Response
     {
@@ -483,19 +548,19 @@ class AccountController extends StorefrontController
      * @Route("/ajax/account/address", name="frontend.account.address.upsert.ajax", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws \Exception
      */
-    public function addressAjaxSave(Request $request, CheckoutContext $context): Response
+    public function addressAjaxSave(AddressSaveRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         // todo validate user input
-        $formData = $request->request->get('address');
-        $addressId = $this->accountService->saveAddress($formData, $context);
+        $addressId = $this->accountService->saveAddress($request, $context);
 
-        if ($request->request->get('setDefaultShippingAddress')) {
+        if ($request->getHttpRequest()->get('setDefaultShippingAddress')) {
             $this->accountService->setDefaultShippingAddress($addressId, $context);
         }
-        if ($request->request->get('setDefaultBillingAddress')) {
+        if ($request->getHttpRequest()->get('setDefaultBillingAddress')) {
             $this->accountService->setDefaultBillingAddress($addressId, $context);
         }
 

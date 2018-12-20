@@ -5,15 +5,15 @@ namespace Shopware\Storefront\Listing\Event;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Storefront\Listing\Page\ListingPageletStruct;
 use Shopware\Storefront\Listing\Page\ListingPageRequest;
-use Shopware\Storefront\Listing\Page\ListingPageStruct;
 
 class ListingPageLoadedEvent extends NestedEvent
 {
     public const NAME = 'listing.page.loaded.event';
 
     /**
-     * @var ListingPageStruct
+     * @var ListingPageletStruct
      */
     protected $page;
 
@@ -27,7 +27,7 @@ class ListingPageLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(ListingPageStruct $page, CheckoutContext $context, ListingPageRequest $request)
+    public function __construct(ListingPageletStruct $page, CheckoutContext $context, ListingPageRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -49,7 +49,7 @@ class ListingPageLoadedEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getPage(): ListingPageStruct
+    public function getPage(): ListingPageletStruct
     {
         return $this->page;
     }

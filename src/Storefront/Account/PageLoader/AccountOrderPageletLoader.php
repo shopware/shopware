@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Account\Page;
+namespace Shopware\Storefront\Account\PageLoader;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -9,9 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Symfony\Component\HttpFoundation\Request;
+use Shopware\Storefront\Account\Page\CustomerOrderPageletStruct;
+use Shopware\Storefront\Framework\Page\PageRequest;
+use Shopware\Storefront\Framework\PageLoader\PageLoader;
 
-class OrderPageLoader
+class AccountOrderPageletLoader implements PageLoader
 {
     public const LIMIT_PARAMETER = 'limit';
 
@@ -27,10 +29,18 @@ class OrderPageLoader
         $this->orderRepository = $orderRepository;
     }
 
-    public function load(Request $request, CheckoutContext $context): OrderPageStruct
+    /**
+     * @param PageRequest     $request
+     * @param CheckoutContext $context
+     *
+     * @throws CustomerNotLoggedInException
+     *
+     * @return CustomerOrderPageletStruct
+     */
+    public function load(PageRequest $request, CheckoutContext $context): CustomerOrderPageletStruct
     {
-        $limit = $request->query->getInt(self::LIMIT_PARAMETER, 10);
-        $page = $request->query->getInt(self::PAGE_PARAMETER, 1);
+        $limit = $request->getHttpRequest()->query->getInt(self::LIMIT_PARAMETER, 10);
+        $page = $request->getHttpRequest()->query->getInt(self::PAGE_PARAMETER, 1);
 
         $customer = $context->getCustomer();
         if ($customer === null) {
@@ -40,7 +50,7 @@ class OrderPageLoader
         $criteria = $this->createCriteria($customer->getId(), $limit, $page);
         $orders = $this->orderRepository->search($criteria, $context->getContext());
 
-        return new OrderPageStruct(
+        return new CustomerOrderPageletStruct(
             $orders,
             $criteria,
             $page,

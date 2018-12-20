@@ -3,40 +3,23 @@
 namespace Shopware\Storefront\Listing\Page;
 
 use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Framework\Page\PageRequestResolver;
 use Shopware\Storefront\Listing\Event\ListingPageRequestEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class ListingPageRequestResolver implements ArgumentValueResolverInterface
+class ListingPageRequestResolver extends PageRequestResolver
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    public function __construct(EventDispatcherInterface $eventDispatcher, RequestStack $requestStack)
-    {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->requestStack = $requestStack;
-    }
-
-    public function supports(Request $request, ArgumentMetadata $argument)
+    public function supports(Request $request, ArgumentMetadata $argument): bool
     {
         return $argument->getType() === ListingPageRequest::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument)
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         $pageRequest = new ListingPageRequest();
 
+        $pageRequest->setHttpRequest($request);
         $context = $this->requestStack
             ->getMasterRequest()
             ->attributes

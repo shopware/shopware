@@ -26,7 +26,7 @@
                         {include file="frontend/_includes/messages.tpl" type="error" content="{s name="BlogInfoFailureFields"}{/s}"}
                     {/if}
                 {else}
-                    {if {config name=OptInVote} && !{$smarty.get.sConfirmation} && !{$userLoggedIn}}
+                    {if {config name=OptInVote} && !{$smarty.get.sConfirmation} && !{$cartInfo.userLoggedIn}}
                         {include file="frontend/_includes/messages.tpl" type="success" content="{s name="BlogInfoSuccessOptin"}{/s}"}
                     {else}
                         {include file="frontend/_includes/messages.tpl" type="success" content="{s name="BlogInfoSuccess"}{/s}"}

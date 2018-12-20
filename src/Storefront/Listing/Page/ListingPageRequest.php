@@ -2,10 +2,16 @@
 
 namespace Shopware\Storefront\Listing\Page;
 
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Framework\Page\PageRequest;
+use Symfony\Component\HttpFoundation\Request;
 
-class ListingPageRequest extends Struct
+class ListingPageRequest extends PageRequest
 {
+    /**
+     * @var Request
+     */
+    protected $httpRequest;
+
     /**
      * @var int
      */

@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Account\Page;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Framework\Page\PageletStruct;
 
-class OrderPageStruct extends Struct
+class CustomerOrderPageletStruct extends PageletStruct
 {
     /**
      * @var EntitySearchResult
@@ -29,8 +29,8 @@ class OrderPageStruct extends Struct
     private $pageCount;
 
     public function __construct(
-        EntitySearchResult $orders,
-        Criteria $criteria,
+        EntitySearchResult $orders = null,
+        Criteria $criteria = null,
         int $currentPage = 1,
         int $pageCount = 1
     ) {

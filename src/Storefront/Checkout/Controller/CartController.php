@@ -112,7 +112,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/line-item", name="frontend.cart.line-item.delete", options={"seo"="false"}, methods={"DELETE"})
+     * @Route("/cart/line-item/delete", name="frontend.cart.line-item.delete", options={"seo"="false"}, methods={"POST"})
      *
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemovableException

@@ -122,6 +122,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $salesChannelId));
         }
 
+        //load active language, fallback to shop language
+        if (array_key_exists(CheckoutContextService::LANGUAGE_ID, $options)) {
+            $salesChannel->setLanguageId($options[CheckoutContextService::LANGUAGE_ID]);
+        }
+
         //load active currency, fallback to shop currency
         $currency = $salesChannel->getCurrency();
         if (array_key_exists(CheckoutContextService::CURRENCY_ID, $options)) {

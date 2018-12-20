@@ -1,15 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Checkout\PageLoader;
+namespace Shopware\Storefront\Account\PageLoader;
 
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Storefront\Checkout\Page\PaymentMethodPageletStruct;
+use Shopware\Storefront\Framework\Page\PageRequest;
+use Shopware\Storefront\Framework\PageLoader\PageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
-class PaymentMethodLoader
+class AccountPaymentMethodsPageletLoader implements PageLoader
 {
     /**
      * @var RepositoryInterface
@@ -21,13 +24,13 @@ class PaymentMethodLoader
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
-    public function load(Request $request, Context $context): PaymentMethodCollection
+    public function load(PageRequest $request, CheckoutContext $context): PaymentMethodPageletStruct
     {
         // todo@dr remove request, provide storefront context, provide calculated cart, use context rule system to validate
-        $criteria = $this->createCriteria($request);
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $context);
+        $criteria = $this->createCriteria($request->getHttpRequest());
+        $paymentMethods = $this->paymentMethodRepository->search($criteria, $context->getContext());
 
-        return new PaymentMethodCollection($paymentMethods);
+        return new PaymentMethodPageletStruct(new PaymentMethodCollection($paymentMethods->getElements()));
     }
 
     private function createCriteria(Request $request): Criteria

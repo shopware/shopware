@@ -1,6 +1,6 @@
 {% block widgets_listing_top_seller %}
     {# @var products \Shopware\Core\Content\Product\ProductCollection #}
-    {% if products.count > 0 %}
+    {% if listing.products.count > 0 %}
         {% block widgets_listing_top_seller_panel %}
             <div class="topseller panel has--border is--rounded">
                 {% block widgets_listing_top_seller_panel_inner %}

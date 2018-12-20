@@ -22,7 +22,7 @@
             <argument type="service" id="serializer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Storefront\CartService">
+        <service id="Shopware\Core\Checkout\Cart\Storefront\CartService" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>

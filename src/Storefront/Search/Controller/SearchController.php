@@ -29,15 +29,10 @@ class SearchController extends StorefrontController
      */
     public function index(CheckoutContext $context, SearchPageRequest $searchPageRequest): Response
     {
-        $listing = $this->searchPageLoader->load($searchPageRequest, $context);
+        $page = $this->searchPageLoader->load($searchPageRequest, $context);
 
         return $this->renderStorefront(
-            '@Storefront/frontend/search/index.html.twig',
-            [
-                'listing' => $listing,
-                'productBoxLayout' => $listing->getProductBoxLayout(),
-                'searchTerm' => $searchPageRequest->getSearchTerm(),
-            ]
+            '@Storefront/frontend/search/index.html.twig', $page->toArray()
         );
     }
 

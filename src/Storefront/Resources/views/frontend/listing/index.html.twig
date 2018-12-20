@@ -52,11 +52,11 @@
             {% set topSellerActive = config.topSellerActive %}
             {% set topSellerActive = true %}
             {% if hasEmotion == false and topSellerActive %}
-                {{ render(controller('Storefront/Listing:Widget/Listing:topSeller')) }}
-            {% endif %}
-        {% endblock %}
+        {#{{ render(controller('Storefront/Listing:Widget/Listing:topSeller')) }}#}
+    {% endif %}
+{% endblock %}
 
-        {# Listing #}
+{# Listing #}
         {% block frontend_listing_index_listing %}
             {% sw_include '@Storefront/frontend/listing/listing.html.twig' %}
         {% endblock %}

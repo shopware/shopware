@@ -14,7 +14,7 @@
 
 {* Main content *}
 {block name="frontend_index_content"}
-    <div class="content{if $sUserLoggedIn} account--content{else} note--content{/if}" data-compare-ajax="true">
+    <div class="content{if $cartInfo.userLoggedIn} account--content{else} note--content{/if}" data-compare-ajax="true">
 
         {* Infotext *}
         {block name="frontend_note_index_welcome"}

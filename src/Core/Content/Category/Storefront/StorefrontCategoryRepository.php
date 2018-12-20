@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Listing;
+namespace Shopware\Core\Content\Category\Storefront;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Navigation;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -13,24 +14,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
-class NavigationService
+class StorefrontCategoryRepository
 {
     /**
      * @var RepositoryInterface
      */
-    private $repository;
+    private $categoryRepository;
 
     /**
-     * @var Navigation[]
+     * @var array
      */
     private $navigation;
 
     public function __construct(RepositoryInterface $repository)
     {
-        $this->repository = $repository;
+        $this->categoryRepository = $repository;
+        $this->navigation = [];
     }
 
-    public function load(?string $categoryId, Context $context): ?Navigation
+    public function read(?string $categoryId, Context $context): ?Navigation
     {
         $applicationId = $context->getSourceContext()->getSalesChannelId();
 
@@ -43,12 +45,12 @@ class NavigationService
         $criteria->addFilter(new EqualsFilter('category.active', true));
 
         /** @var EntitySearchResult $rootCategories */
-        $rootCategories = $this->repository->search($criteria, $context);
+        $rootCategories = $this->categoryRepository->search($criteria, $context);
         $rootIds = [];
 
         if ($categoryId) {
             /** @var CategoryEntity|null $activeCategory */
-            $activeCategory = $this->repository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
+            $activeCategory = $this->categoryRepository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {
                 $rootIds = array_merge($activeCategory->getPathArray(), [$categoryId]);
@@ -59,7 +61,7 @@ class NavigationService
         $criteria->addFilter(new EqualsAnyFilter('category.parentId', $rootIds));
         $criteria->addFilter(new EqualsFilter('category.active', 1));
 
-        $leafCategories = $this->repository->search($criteria, $context);
+        $leafCategories = $this->categoryRepository->search($criteria, $context);
 
         $activeCategory = $rootCategories->filter(function (CategoryEntity $category) use ($categoryId) {
             return $category->getId() === $categoryId;

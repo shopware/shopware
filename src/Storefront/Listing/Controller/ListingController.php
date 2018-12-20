@@ -23,15 +23,15 @@ class ListingController extends StorefrontController
 
     /**
      * @Route("/listing/{id}", name="frontend.listing.page", options={"seo"=true}, methods={"GET"})
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      */
     public function index(string $id, CheckoutContext $context, ListingPageRequest $request): Response
     {
         $request->setNavigationId($id);
 
-        $listingPage = $this->listingPageLoader->load($request, $context);
+        $page = $this->listingPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', [
-            'listing' => $listingPage,
-        ]);
+        return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', $page->toArray());
     }
 }

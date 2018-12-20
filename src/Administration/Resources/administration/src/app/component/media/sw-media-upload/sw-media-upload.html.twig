@@ -38,6 +38,7 @@
 
                         {% block sw_media_upload_regular_url_form %}
                             <sw-media-url-form
+                                class="sw-media-upload__url-form"
                                 v-if="showUrlInput"
                                 variant="inline"
                                 @sw-media-url-form-submit="onUrlUpload">
@@ -68,7 +69,7 @@
                                 {% endblock %}
 
                                 {% block sw_media_upload_regular_media_sidebar_button %}
-                                    <sw-button class="sw-media-upload__button"
+                                    <sw-button class="sw-media-upload__button open-media-sidebar"
                                                size="small"
                                                :disabled="!hasOpenSidebarButtonListener"
                                                @click="onClickOpenMediaSidebar">
@@ -77,7 +78,7 @@
                                 {% endblock %}
 
                                 {% block sw_media_upload_regular_upload_button %}
-                                    <sw-button class="sw-media-upload__button"
+                                    <sw-button class="sw-media-upload__button upload"
                                                variant="primary"
                                                size="small"
                                                @click="onClickUpload">

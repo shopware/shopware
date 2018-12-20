@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SeoUrlCollection extends EntityCollection
 {
-    /**
-     * @var SeoUrlEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? SeoUrlEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): SeoUrlEntity
-    {
-        return parent::current();
-    }
-
     public function getApplicationIds(): array
     {
         return $this->fmap(function (SeoUrlEntity $seoUrl) {
@@ -37,6 +22,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function getByPathInfo(string $pathInfo): ?SeoUrlEntity
     {
+        /** @var SeoUrlEntity $element */
         foreach ($this->elements as $element) {
             if ($element->getPathInfo() === $pathInfo) {
                 return $element;
@@ -48,6 +34,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function getBySeoPathInfo(string $seoPathInfo): ?SeoUrlEntity
     {
+        /** @var SeoUrlEntity $element */
         foreach ($this->elements as $element) {
             if ($element->getSeoPathInfo() === $seoPathInfo) {
                 return $element;
@@ -66,6 +53,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function hasForeignKey(string $name, string $foreignKey): bool
     {
+        /** @var SeoUrlEntity $element */
         foreach ($this->elements as $element) {
             if ($element->getForeignKey() === $foreignKey && $element->getName() === $name) {
                 return true;
@@ -77,6 +65,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function hasPathInfo(string $pathInfo): bool
     {
+        /** @var SeoUrlEntity $element */
         foreach ($this->elements as $element) {
             if ($element->getPathInfo() === $pathInfo) {
                 return true;

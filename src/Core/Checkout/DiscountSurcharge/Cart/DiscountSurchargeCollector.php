@@ -55,7 +55,7 @@ class DiscountSurchargeCollector implements CollectorInterface
             }
         }
 
-        $definitions->add(new DiscountSurchargeFetchDefinition($ruleIds), self::DATA_KEY);
+        $definitions->set(self::DATA_KEY, new DiscountSurchargeFetchDefinition($ruleIds));
     }
 
     public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
@@ -79,7 +79,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         $criteria->addFilter(new EqualsAnyFilter('discount_surcharge.ruleId', $ids));
         $discountSurcharges = $this->repository->search($criteria, $context->getContext());
 
-        $data->add($discountSurcharges, self::DATA_KEY);
+        $data->set(self::DATA_KEY, $discountSurcharges);
     }
 
     public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context): void

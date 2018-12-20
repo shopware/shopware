@@ -41,25 +41,6 @@ class CalculatedTaxCollectionTest extends TestCase
         );
     }
 
-    public function testFillFunctionFillsTheCollection(): void
-    {
-        $collection = new CalculatedTaxCollection();
-        $collection->fill([
-            new CalculatedTax(5.50, 19, 1),
-            new CalculatedTax(4.40, 18, 1),
-            new CalculatedTax(3.30, 17, 1),
-        ]);
-
-        static::assertEquals(
-            new CalculatedTaxCollection([
-                new CalculatedTax(5.50, 19, 1),
-                new CalculatedTax(4.40, 18, 1),
-                new CalculatedTax(3.30, 17, 1),
-            ]),
-            $collection
-        );
-    }
-
     public function testTaxesCanBeGetterByTheirRate(): void
     {
         $collection = new CalculatedTaxCollection([
@@ -69,7 +50,7 @@ class CalculatedTaxCollectionTest extends TestCase
         ]);
         static::assertEquals(
             new CalculatedTax(5.50, 19, 1),
-            $collection->get(19)
+            $collection->get('19')
         );
     }
 
@@ -162,22 +143,6 @@ class CalculatedTaxCollectionTest extends TestCase
         );
     }
 
-    public function testFillFunctionsFillsTheCollection(): void
-    {
-        $collection = new CalculatedTaxCollection();
-        $collection->fill([
-            new CalculatedTax(5.50, 19, 1),
-            new CalculatedTax(5.50, 18, 1),
-            new CalculatedTax(5.50, 17, 1),
-        ]);
-
-        static::assertEquals(new CalculatedTaxCollection([
-            new CalculatedTax(5.50, 19, 1),
-            new CalculatedTax(5.50, 18, 1),
-            new CalculatedTax(5.50, 17, 1),
-        ]), $collection);
-    }
-
     public function testTaxesCanBeRemovedByRate(): void
     {
         $collection = new CalculatedTaxCollection([
@@ -208,7 +173,7 @@ class CalculatedTaxCollectionTest extends TestCase
     public function testGetOnEmptyCollection(): void
     {
         $collection = new CalculatedTaxCollection();
-        static::assertNull($collection->get(19));
+        static::assertNull($collection->get('19'));
     }
 
     public function testRemoveElement(): void

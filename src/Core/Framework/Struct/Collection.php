@@ -2,24 +2,53 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-abstract class Collection extends Struct implements \Countable, \ArrayAccess, \Iterator
+abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
      * @var array
      */
     protected $elements = [];
 
-    public function __construct(array $elements = [])
+    public function __construct(iterable $elements = [])
     {
-        $this->fill($elements);
+        foreach ($elements as $element) {
+            $this->add($element);
+        }
     }
 
-    public function fill(array $elements): void
+    public function add($element): void
     {
-        array_map([$this, 'add'], $elements);
+        $this->validateType($element);
+
+        $this->elements[] = $element;
     }
 
-    public function clear()
+    public function set($key, $element): void
+    {
+        $this->validateType($element);
+
+        if ($key === null) {
+            $this->elements[] = $element;
+        } else {
+            $this->elements[$key] = $element;
+        }
+    }
+
+    /**
+     * @param mixed|null $key
+     *
+     * @return mixed|null
+     */
+    public function get($key)
+    {
+        if ($this->has($key)) {
+            return $this->elements[$key];
+        }
+
+        return null;
+    }
+
+    public function clear(): void
     {
         $this->elements = [];
     }
@@ -55,7 +84,9 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
     }
 
     /**
-     * @return Collection
+     * @param string $class
+     *
+     * @return static
      */
     public function filterInstance(string $class)
     {
@@ -64,11 +95,22 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
         });
     }
 
+    /**
+     * @param \Closure $closure
+     *
+     * @return static
+     */
     public function filter(\Closure $closure)
     {
         return new static(array_filter($this->elements, $closure));
     }
 
+    /**
+     * @param int      $offset
+     * @param int|null $length
+     *
+     * @return static
+     */
     public function slice(int $offset, ?int $length = null)
     {
         return new static(\array_slice($this->elements, $offset, $length, true));
@@ -98,63 +140,34 @@ abstract class Collection extends Struct implements \Countable, \ArrayAccess, \I
         return array_values($this->elements)[\count($this->elements) - 1] ?? null;
     }
 
-    public function offsetExists($offset)
-    {
-        return array_key_exists($offset, $this->elements);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->elements[$offset];
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        $this->elements[$offset] = $value;
-    }
-
-    public function offsetUnset($offset)
-    {
-        unset($this->elements[$offset]);
-    }
-
-    public function current()
-    {
-        return current($this->elements);
-    }
-
-    public function next()
-    {
-        return next($this->elements);
-    }
-
-    public function key()
-    {
-        return key($this->elements);
-    }
-
-    public function rewind()
-    {
-        reset($this->elements);
-    }
-
-    public function valid()
-    {
-        return isset($this->elements[key($this->elements)]);
-    }
-
-    protected function doAdd($element): void
-    {
-        $this->elements[] = $element;
-    }
-
-    protected function doRemoveByKey($key): void
+    public function remove($key): void
     {
         unset($this->elements[$key]);
     }
 
-    protected function doMerge(self $collection)
+    public function getIterator(): \Generator
     {
-        return new static(array_merge($this->elements, $collection->getElements()));
+        yield from $this->elements;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return null;
+    }
+
+    protected function validateType($element): void
+    {
+        $expectedClass = $this->getExpectedClass();
+        if ($expectedClass === null) {
+            return;
+        }
+
+        $elementClass = get_class($element);
+
+        if (!$element instanceof $expectedClass) {
+            throw new \InvalidArgumentException(
+                sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
+            );
+        }
     }
 }

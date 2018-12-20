@@ -8,21 +8,6 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 class ProductServiceCollection extends EntityCollection
 {
-    /**
-     * @var ProductServiceEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ProductServiceEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ProductServiceEntity
-    {
-        return parent::current();
-    }
-
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductServiceEntity $productService) {

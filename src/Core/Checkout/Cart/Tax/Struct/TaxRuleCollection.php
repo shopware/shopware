@@ -6,24 +6,14 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class TaxRuleCollection extends Collection
 {
-    /**
-     * @var TaxRule[]
-     */
-    protected $elements = [];
-
-    public function add(TaxRule $taxRule): void
+    public function add($taxRule): void
     {
-        $this->elements[$this->getKey($taxRule)] = $taxRule;
-    }
-
-    public function remove(float $taxRate): void
-    {
-        parent::doRemoveByKey((string) $taxRate);
+        $this->set($this->getKey($taxRule), $taxRule);
     }
 
     public function removeElement(TaxRule $taxRule): void
     {
-        parent::doRemoveByKey($this->getKey($taxRule));
+        $this->remove($this->getKey($taxRule));
     }
 
     public function exists(TaxRule $taxRule): bool
@@ -31,7 +21,7 @@ class TaxRuleCollection extends Collection
         return parent::has($this->getKey($taxRule));
     }
 
-    public function get(float $taxRate): ?TaxRule
+    public function get($taxRate): ?TaxRule
     {
         $key = (string) $taxRate;
 
@@ -55,6 +45,11 @@ class TaxRuleCollection extends Collection
         );
 
         return $new;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return TaxRule::class;
     }
 
     protected function getKey(TaxRule $element): string

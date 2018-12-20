@@ -9,21 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class RuleCollection extends EntityCollection
 {
-    /**
-     * @var RuleEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? RuleEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): RuleEntity
-    {
-        return parent::current();
-    }
-
     public function filterMatchingRules(Cart $cart, CheckoutContext $context)
     {
         return $this->filter(

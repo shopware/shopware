@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class LocaleTranslationCollection extends EntityCollection
 {
-    /**
-     * @var LocaleTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? LocaleTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): LocaleTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getLocaleIds(): array
     {
         return $this->fmap(function (LocaleTranslationEntity $localeTranslation) {

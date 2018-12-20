@@ -175,7 +175,7 @@ class WriteCommandExtractor
      */
     private function getFieldsInWriteOrder(string $definition): array
     {
-        $fields = $definition::getFields()->getElements();
+        $fields = $definition::getFields();
 
         $filtered = [];
 

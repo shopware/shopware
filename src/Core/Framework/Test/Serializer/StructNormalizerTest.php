@@ -215,9 +215,9 @@ class TestStruct extends Struct
 
 class TestStructCollection extends Collection
 {
-    public function add(TestStruct $struct): void
+    protected function getExpectedClass(): ?string
     {
-        $this->elements[] = $struct;
+        return TestStruct::class;
     }
 }
 

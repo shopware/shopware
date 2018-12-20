@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class UserCollection extends EntityCollection
 {
-    /**
-     * @var UserEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? UserEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): UserEntity
-    {
-        return parent::current();
-    }
-
     public function getLocaleIds(): array
     {
         return $this->fmap(function (UserEntity $user) {

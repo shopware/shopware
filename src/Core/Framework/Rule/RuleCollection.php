@@ -10,11 +10,6 @@ class RuleCollection extends Collection
     /**
      * @var Rule[]
      */
-    protected $elements = [];
-
-    /**
-     * @var Rule[]
-     */
     protected $flat = [];
 
     /**
@@ -22,9 +17,12 @@ class RuleCollection extends Collection
      */
     protected $classes = [];
 
-    public function add(Rule $rule): void
+    /**
+     * @param Rule $rule
+     */
+    public function add($rule): void
     {
-        parent::doAdd($rule);
+        parent::add($rule);
 
         $this->addMeta($rule);
     }
@@ -34,7 +32,6 @@ class RuleCollection extends Collection
         parent::clear();
 
         $this->flat = [];
-
         $this->classes = [];
     }
 

@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class CustomerGroupDiscountCollection extends EntityCollection
 {
-    /**
-     * @var CustomerGroupDiscountEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? CustomerGroupDiscountEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): CustomerGroupDiscountEntity
-    {
-        return parent::current();
-    }
-
     public function getCustomerGroupIds(): array
     {
         return $this->fmap(function (CustomerGroupDiscountEntity $customerGroupDiscount) {
@@ -38,6 +23,8 @@ class CustomerGroupDiscountCollection extends EntityCollection
     public function getDiscountForCartAmount(float $totalPrice, string $customerGroupId): ?float
     {
         $discount = null;
+
+        /** @var CustomerGroupDiscountEntity $discountData */
         foreach ($this->elements as $discountData) {
             if ($discountData->getMinimumCartAmount() > $totalPrice) {
                 break;

@@ -118,7 +118,9 @@ class EntityReader implements EntityReaderInterface
 
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName(), $context);
 
-        $collection->fill($entities);
+        foreach ($entities as $row) {
+            $collection->add($row);
+        }
 
         if ($collection->count() <= 0) {
             return $collection;
@@ -221,7 +223,7 @@ class EntityReader implements EntityReaderInterface
 
                 $basics = $reference::getFields()->filterBasic();
 
-                if ($this->shouldBeLoadedDelayed($reference, $basics->getElements())) {
+                if ($this->shouldBeLoadedDelayed($reference, $basics)) {
                     continue;
                 }
 
@@ -326,7 +328,7 @@ class EntityReader implements EntityReaderInterface
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->filterBasic();
-        if (!$this->shouldBeLoadedDelayed($reference, $fields->getElements())) {
+        if (!$this->shouldBeLoadedDelayed($reference, $fields)) {
             return;
         }
 
@@ -466,7 +468,7 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    private function shouldBeLoadedDelayed(string $definition, array $fields): bool
+    private function shouldBeLoadedDelayed(string $definition, iterable $fields): bool
     {
         /** @var Field $field */
         foreach ($fields as $field) {
@@ -489,7 +491,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            $nested = $reference::getFields()->filterBasic()->getElements();
+            $nested = $reference::getFields()->filterBasic();
             if ($this->shouldBeLoadedDelayed($reference, $nested)) {
                 return true;
             }
@@ -1013,7 +1015,7 @@ class EntityReader implements EntityReaderInterface
             return $association->getReferenceClass()::getEntityName() . '.parentId';
         }
 
-        $fields = $association->getReferenceClass()::getFields()->getElements();
+        $fields = $association->getReferenceClass()::getFields();
         foreach ($fields as $field) {
             if (!$field instanceof FkField) {
                 continue;

@@ -74,7 +74,7 @@ class ProductCollector implements CollectorInterface
 
         $products = $this->productGateway->get($ids, $context);
 
-        $data->add($products, self::DATA_KEY);
+        $data->set(self::DATA_KEY, $products);
     }
 
     public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context): void

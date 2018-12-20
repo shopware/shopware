@@ -85,7 +85,7 @@ class JsonApiEncoder
         }
 
         /** @var Field[] $fields */
-        $fields = $definition::getFields()->getElements();
+        $fields = $definition::getFields();
 
         $serialized = new SerializedEntity($entity->getUniqueIdentifier(), $definition::getEntityName());
 

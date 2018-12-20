@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ProductTranslationCollection extends EntityCollection
 {
-    /**
-     * @var ProductTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ProductTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ProductTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductTranslationEntity $productTranslation) {

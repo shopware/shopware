@@ -135,12 +135,12 @@ class EntityWriter implements EntityWriterInterface
 
         /** @var FieldCollection $fields */
         $fields = $definition::getPrimaryKeys();
-        $primaryKeyFields = [];
 
         $resolved = [];
         foreach ($ids as $raw) {
             $mapped = [];
 
+            /** @var Field $field */
             foreach ($fields as $field) {
                 if (!($field instanceof StorageAware)) {
                     continue;
@@ -148,7 +148,6 @@ class EntityWriter implements EntityWriterInterface
 
                 if (array_key_exists($field->getPropertyName(), $raw)) {
                     $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
-                    $primaryKeyFields[$field->getPropertyName()] = $raw[$field->getPropertyName()];
                     continue;
                 }
 

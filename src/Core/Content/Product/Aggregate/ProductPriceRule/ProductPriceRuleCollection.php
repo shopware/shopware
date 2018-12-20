@@ -6,11 +6,6 @@ use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 
 class ProductPriceRuleCollection extends PriceRuleCollection
 {
-    /**
-     * @var ProductPriceRuleEntity[]
-     */
-    protected $elements = [];
-
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductPriceRuleEntity $price) {
@@ -34,6 +29,7 @@ class ProductPriceRuleCollection extends PriceRuleCollection
 
     public function getQuantityPrice(int $quantity): ProductPriceRuleEntity
     {
+        /** @var ProductPriceRuleEntity $price */
         foreach ($this->elements as $price) {
             $end = $price->getQuantityEnd() ?? $quantity + 1;
 

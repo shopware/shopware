@@ -60,7 +60,10 @@ class StorefrontProductRepository
         $listProducts = $this->loadListProducts($products, $context);
 
         $basics->clear();
-        $basics->fill($listProducts->getElements());
+
+        foreach ($listProducts as $listProduct) {
+            $basics->add($listProduct);
+        }
 
         return $basics;
     }

@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class SalesChannelTypeTranslationCollection extends EntityCollection
 {
-    /**
-     * @var SalesChannelTypeTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? SalesChannelTypeTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): SalesChannelTypeTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getSalesChannelTypeIds(): array
     {
         return $this->fmap(function (SalesChannelTypeTranslationEntity $salesChannelTypeTranslation) {

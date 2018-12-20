@@ -9,25 +9,10 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class DeliveryPositionCollection extends Collection
 {
-    /**
-     * @var DeliveryPosition[]
-     */
-    protected $elements = [];
-
-    public function add(DeliveryPosition $deliveryPosition): void
+    public function add($deliveryPosition): void
     {
         $key = $this->getKey($deliveryPosition);
         $this->elements[$key] = $deliveryPosition;
-    }
-
-    public function remove(string $identifier): void
-    {
-        parent::doRemoveByKey($identifier);
-    }
-
-    public function removeElement(DeliveryPosition $deliveryPosition): void
-    {
-        parent::doRemoveByKey($this->getKey($deliveryPosition));
     }
 
     public function exists(DeliveryPosition $deliveryPosition): bool
@@ -35,7 +20,7 @@ class DeliveryPositionCollection extends Collection
         return parent::has($this->getKey($deliveryPosition));
     }
 
-    public function get(string $identifier): ? DeliveryPosition
+    public function get($identifier): ? DeliveryPosition
     {
         if ($this->has($identifier)) {
             return $this->elements[$identifier];
@@ -84,6 +69,11 @@ class DeliveryPositionCollection extends Collection
         });
 
         return array_sum($quantities);
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return DeliveryPosition::class;
     }
 
     /**

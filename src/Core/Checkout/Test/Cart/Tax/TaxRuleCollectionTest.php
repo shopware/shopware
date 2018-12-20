@@ -74,25 +74,6 @@ class TaxRuleCollectionTest extends TestCase
         static::assertEquals(new TaxRuleCollection(), $collection);
     }
 
-    public function testCollectionCanBeFilledWithMultipleElements(): void
-    {
-        $collection = new TaxRuleCollection();
-        $collection->fill([
-            new TaxRule(19),
-            new TaxRule(18),
-            new TaxRule(17),
-        ]);
-
-        static::assertEquals(
-            new TaxRuleCollection([
-                new TaxRule(19),
-                new TaxRule(18),
-                new TaxRule(17),
-            ]),
-            $collection
-        );
-    }
-
     public function testMergeFunctionReturnsNewInstance(): void
     {
         $a = new TaxRuleCollection([new TaxRule(19)]);

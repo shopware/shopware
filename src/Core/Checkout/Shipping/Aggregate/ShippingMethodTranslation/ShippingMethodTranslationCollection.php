@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ShippingMethodTranslationCollection extends EntityCollection
 {
-    /**
-     * @var ShippingMethodTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ShippingMethodTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ShippingMethodTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getShippingMethodIds(): array
     {
         return $this->fmap(function (ShippingMethodTranslationEntity $shippingMethodTranslation) {

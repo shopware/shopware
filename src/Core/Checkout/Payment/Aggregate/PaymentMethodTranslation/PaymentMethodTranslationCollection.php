@@ -6,21 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class PaymentMethodTranslationCollection extends EntityCollection
 {
-    /**
-     * @var PaymentMethodTranslationEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? PaymentMethodTranslationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): PaymentMethodTranslationEntity
-    {
-        return parent::current();
-    }
-
     public function getPaymentMethodIds(): array
     {
         return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {

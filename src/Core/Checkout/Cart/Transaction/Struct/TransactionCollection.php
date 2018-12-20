@@ -6,18 +6,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class TransactionCollection extends Collection
 {
-    /**
-     * @var Transaction[]
-     */
-    protected $elements = [];
-
-    public function add(Transaction $transaction): void
+    protected function getExpectedClass(): ?string
     {
-        parent::doAdd($transaction);
-    }
-
-    public function remove(string $key): void
-    {
-        parent::doRemoveByKey($key);
+        return Transaction::class;
     }
 }

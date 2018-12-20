@@ -6,24 +6,14 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class CalculatedTaxCollection extends Collection
 {
-    /**
-     * @var CalculatedTax[]
-     */
-    protected $elements = [];
-
-    public function add(CalculatedTax $calculatedTax): void
+    public function add($calculatedTax): void
     {
-        $this->elements[$this->getKey($calculatedTax)] = $calculatedTax;
-    }
-
-    public function remove(float $taxRate): void
-    {
-        parent::doRemoveByKey((string) $taxRate);
+        $this->set($this->getKey($calculatedTax), $calculatedTax);
     }
 
     public function removeElement(CalculatedTax $calculatedTax): void
     {
-        parent::doRemoveByKey($this->getKey($calculatedTax));
+        $this->remove($this->getKey($calculatedTax));
     }
 
     public function exists(CalculatedTax $calculatedTax): bool
@@ -31,9 +21,9 @@ class CalculatedTaxCollection extends Collection
         return parent::has($this->getKey($calculatedTax));
     }
 
-    public function get(float $taxRate): ? CalculatedTax
+    public function get($key): ? CalculatedTax
     {
-        $key = (string) $taxRate;
+        $key = (string) $key;
 
         if ($this->has($key)) {
             return $this->elements[$key];
@@ -69,11 +59,16 @@ class CalculatedTaxCollection extends Collection
                 continue;
             }
 
-            $new->get($calculatedTax->getTaxRate())
-                ->increment($calculatedTax);
+            $taxRate = (string) $calculatedTax->getTaxRate();
+            $new->get($taxRate)->increment($calculatedTax);
         }
 
         return $new;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return CalculatedTax::class;
     }
 
     protected function getKey(CalculatedTax $element): string

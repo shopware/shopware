@@ -17,7 +17,7 @@ class TreeBuilder
     {
         $result = [];
         /** @var CategoryEntity $category */
-        foreach ($categories->getElements() as $category) {
+        foreach ($categories as $category) {
             if ($category->getParentId() !== $parentId) {
                 continue;
             }

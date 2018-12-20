@@ -115,7 +115,9 @@ class CartService
 
     public function fill(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): Cart
     {
-        $cart->getLineItems()->fill($lineItems->getElements());
+        foreach ($lineItems as $lineItem) {
+            $cart->getLineItems()->add($lineItem);
+        }
 
         return $this->calculate($cart, $context);
     }

@@ -9,21 +9,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 
 class SalesChannelCollection extends EntityCollection
 {
-    /**
-     * @var SalesChannelEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? SalesChannelEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): SalesChannelEntity
-    {
-        return parent::current();
-    }
-
     public function getLanguageIds(): array
     {
         return $this->fmap(function (SalesChannelEntity $salesChannel) {

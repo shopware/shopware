@@ -9,12 +9,16 @@ use Shopware\Core\Framework\Struct\Collection;
 class LineItemCollection extends Collection
 {
     /**
-     * @var LineItem[]
+     * @param LineItem $lineItem
+     *
+     * @throws MixedLineItemTypeException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      */
-    protected $elements = [];
-
-    public function add(LineItem $lineItem): void
+    public function add($lineItem): void
     {
+        $this->validateType($lineItem);
+
         $exists = $this->get($lineItem->getKey());
 
         if ($exists && $exists->getType() !== $lineItem->getType()) {
@@ -30,14 +34,9 @@ class LineItemCollection extends Collection
         $this->elements[$this->getKey($lineItem)] = $lineItem;
     }
 
-    public function remove(string $identifier): void
-    {
-        parent::doRemoveByKey($identifier);
-    }
-
     public function removeElement(LineItem $lineItem): void
     {
-        parent::doRemoveByKey($this->getKey($lineItem));
+        $this->remove($this->getKey($lineItem));
     }
 
     public function exists(LineItem $lineItem): bool
@@ -45,7 +44,7 @@ class LineItemCollection extends Collection
         return parent::has($this->getKey($lineItem));
     }
 
-    public function get(string $identifier): ? LineItem
+    public function get($identifier): ? LineItem
     {
         if ($this->has($identifier)) {
             return $this->elements[$identifier];
@@ -81,12 +80,7 @@ class LineItemCollection extends Collection
 
     public function getFlat(): array
     {
-        return $this->buildFlat($this->getElements());
-    }
-
-    public function current(): LineItem
-    {
-        return parent::current();
+        return $this->buildFlat($this);
     }
 
     public function sortByPriority(): void
@@ -121,7 +115,12 @@ class LineItemCollection extends Collection
         return $element->getKey();
     }
 
-    private function buildFlat(array $lineItems): array
+    protected function getExpectedClass(): ?string
+    {
+        return LineItem::class;
+    }
+
+    private function buildFlat(LineItemCollection $lineItems): array
     {
         $flat = [];
         foreach ($lineItems as $lineItem) {
@@ -130,7 +129,7 @@ class LineItemCollection extends Collection
                 continue;
             }
 
-            $nested = $this->buildFlat($lineItem->getChildren()->getElements());
+            $nested = $this->buildFlat($lineItem->getChildren());
 
             foreach ($nested as $nest) {
                 $flat[] = $nest;

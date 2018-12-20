@@ -7,21 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class OrderDeliveryPositionCollection extends EntityCollection
 {
-    /**
-     * @var OrderDeliveryPositionEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? OrderDeliveryPositionEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): OrderDeliveryPositionEntity
-    {
-        return parent::current();
-    }
-
     public function getOrderDeliveryIds(): array
     {
         return $this->fmap(function (OrderDeliveryPositionEntity $orderDeliveryPosition) {

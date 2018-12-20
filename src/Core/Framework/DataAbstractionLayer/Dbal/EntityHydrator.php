@@ -54,7 +54,7 @@ class EntityHydrator
     private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context): Entity
     {
         /** @var EntityDefinition $definition */
-        $fields = $definition::getFields()->getElements();
+        $fields = $definition::getFields();
 
         $identifier = $this->buildPrimaryKey($definition, $row, $root);
         $identifier = implode('-', $identifier);

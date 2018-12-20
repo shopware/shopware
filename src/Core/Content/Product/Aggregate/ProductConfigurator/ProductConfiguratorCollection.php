@@ -9,21 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ProductConfiguratorCollection extends EntityCollection
 {
-    /**
-     * @var ProductConfiguratorEntity[]
-     */
-    protected $elements = [];
-
-    public function get(string $id): ? ProductConfiguratorEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): ProductConfiguratorEntity
-    {
-        return parent::current();
-    }
-
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductConfiguratorEntity $productConfigurator) {
@@ -64,6 +49,8 @@ class ProductConfiguratorCollection extends EntityCollection
     public function getGroupedOptions(): ConfigurationGroupCollection
     {
         $groups = new ConfigurationGroupCollection();
+
+        /** @var ProductConfiguratorEntity $element */
         foreach ($this->elements as $element) {
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());
@@ -87,6 +74,7 @@ class ProductConfiguratorCollection extends EntityCollection
 
     public function getByOptionId(string $optionId): ?ProductConfiguratorEntity
     {
+        /** @var ProductConfiguratorEntity $element */
         foreach ($this->elements as $element) {
             if ($element->getOptionId() === $optionId) {
                 return $element;

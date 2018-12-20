@@ -6,16 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class MediaFolderConfigurationCollection extends EntityCollection
 {
-    public function get(string $id): ? MediaFolderConfigurationEntity
-    {
-        return parent::get($id);
-    }
-
-    public function current(): MediaFolderConfigurationEntity
-    {
-        return parent::current();
-    }
-
     protected function getExpectedClass(): string
     {
         return MediaFolderConfigurationEntity::class;

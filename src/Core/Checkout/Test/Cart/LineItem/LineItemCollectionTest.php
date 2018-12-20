@@ -147,22 +147,6 @@ class LineItemCollectionTest extends TestCase
         ], $collection->getKeys());
     }
 
-    public function testFillCollectionWithItems(): void
-    {
-        $collection = new LineItemCollection();
-        $collection->fill([
-            new LineItem('A', 'a', 1),
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
-        ]);
-
-        static::assertEquals(new LineItemCollection([
-            new LineItem('A', 'a', 1),
-            new LineItem('B', 'a', 1),
-            new LineItem('C', 'a', 1),
-        ]), $collection);
-    }
-
     public function testGetOnEmptyCollection(): void
     {
         $collection = new LineItemCollection();

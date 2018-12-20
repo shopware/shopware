@@ -129,7 +129,8 @@ class LineItem extends Struct
     {
         $self = new static($lineItem->key, $lineItem->type, $lineItem->quantity, $lineItem->priority);
 
-        foreach ($lineItem as $property => $value) {
+        $vars = get_object_vars($lineItem);
+        foreach ($vars as $property => $value) {
             $self->$property = $value;
         }
 

@@ -7,21 +7,20 @@ use Shopware\Core\Framework\Struct\Collection;
 class AggregationResultCollection extends Collection
 {
     /**
-     * @var AggregationResult[]
+     * @param AggregationResult $result
      */
-    protected $elements = [];
-
-    public function add(AggregationResult $result): void
+    public function add($result): void
     {
-        $this->elements[$result->getAggregation()->getName()] = $result;
+        $this->set($result->getAggregation()->getName(), $result);
     }
 
-    public function get(string $name): ?AggregationResult
+    public function get($name): ?AggregationResult
     {
-        if (!$this->has($name)) {
-            return null;
-        }
+        return $this->elements[$name] ?? null;
+    }
 
-        return $this->elements[$name];
+    protected function getExpectedClass(): ?string
+    {
+        return AggregationResult::class;
     }
 }

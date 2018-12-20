@@ -27,7 +27,7 @@ class PaymentMethodLoader
         $criteria = $this->createCriteria($request);
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context);
 
-        return new PaymentMethodCollection($paymentMethods->getElements());
+        return new PaymentMethodCollection($paymentMethods);
     }
 
     private function createCriteria(Request $request): Criteria

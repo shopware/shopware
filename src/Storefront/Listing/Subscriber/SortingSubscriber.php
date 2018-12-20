@@ -72,7 +72,10 @@ class SortingSubscriber implements EventSubscriberInterface
     {
         $search = new Criteria();
         $sortings = $this->repository->search($search, $event->getContext());
-        $event->getPage()->getSortings()->fill($sortings->getElements());
+
+        foreach ($sortings as $sort) {
+            $event->getPage()->getSortings()->add($sort);
+        }
 
         $event->getPage()->setCurrentSorting(
             $event->getRequest()->getSortingKey()

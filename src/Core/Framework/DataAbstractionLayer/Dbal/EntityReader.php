@@ -112,21 +112,10 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
-        /* @var string|EntityDefinition $definition */
-        foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
-            $fieldName = str_replace(
-                [$definition::getEntityName() . '.', 'extensions.'],
-                '',
-                $fieldName
-            );
-
-            $field = $definition::getFields()->get($fieldName);
-            if ($field) {
-                $fields->add($field);
-            }
-        }
+        $fields = $this->addAssociationFieldsToCriteria($criteria, $definition, $fields);
 
         $rows = $this->fetch($criteria, $definition, $context, $fields);
+
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName(), $context);
 
         $collection->fill($entities);
@@ -243,6 +232,7 @@ class EntityReader implements EntityReaderInterface
                 $joinCriteria = null;
                 if ($criteria && $criteria->hasAssociation($accessor)) {
                     $joinCriteria = $criteria->getAssociation($accessor);
+                    $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $field->getReferenceClass(), $basics);
                 }
 
                 $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics, $joinCriteria);
@@ -1069,5 +1059,24 @@ class EntityReader implements EntityReaderInterface
             ||
             !empty($fieldCriteria->getAssociations())
         ;
+    }
+
+    private function addAssociationFieldsToCriteria(Criteria $criteria, string $definition, FieldCollection $fields): FieldCollection
+    {
+        /* @var string|EntityDefinition $definition */
+        foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
+            $fieldName = str_replace(
+                [$definition::getEntityName() . '.', 'extensions.'],
+                '',
+                $fieldName
+            );
+
+            $field = $definition::getFields()->get($fieldName);
+            if ($field) {
+                $fields->add($field);
+            }
+        }
+
+        return $fields;
     }
 }

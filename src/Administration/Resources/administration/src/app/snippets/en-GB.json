@@ -61,11 +61,21 @@
       "titleModal": "Delete media files",
       "deleteMessage": "Are you sure you want to delete \"{mediaName}\" ? | Are you sure you want to delete {count} media items?",
       "buttonDelete": "Delete",
-      "buttonAbort": "Cancel",
+      "buttonCancel": "Cancel",
       "notificationSuccessSingle": "File \"{mediaName}\"  has been deleted successfully ",
       "notificationErrorSingle": "Error deleting \"{mediaName}\"",
-      "notificationSuccessOverall": "Media item has been deleted successfully.",
-      "notificationErrorOverall": "Error deleting file"
+      "notificationSuccessOverall": "Files have been deleted successfully",
+      "notificationErrorOverall": "Error deleting files"
+    },
+    "sw-media-modal-dissolve": {
+      "titleModal": "Dissolve folder",
+      "dissolveMessage":"Are you sure you want to dissolve \"{folderName}\" ? | Are you sure you want to dissolve {count} folders?",
+      "buttonDissolve": "Dissolve",
+      "buttonCancel": "Cancel",
+      "notificationSuccessSingle": "Folder \"{folderName}\"  has been dissolved successfully",
+      "notificationErrorSingle": "Error dissolving \"{folderName}\"",
+      "notificationSuccessOverall": "Folders have been dissolved successfully",
+      "notificationErrorOverall": "Error dissolving folders"
     },
     "sw-media-modal-replace": {
       "titleModal": "Replace media files",

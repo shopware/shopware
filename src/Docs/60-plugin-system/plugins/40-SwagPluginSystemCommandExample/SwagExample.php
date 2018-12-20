@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace SwagPluginSystemCommandExample;
+namespace SwagExample;
 
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\Config\FileLocator;

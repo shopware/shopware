@@ -49,7 +49,7 @@ In your plugin base class you need to load your XML routing file:
 ```php
 <?php declare(strict_types=1);
 
-namespace SwagPluginSystemCommandExample;
+namespace SwagExample;
 
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\Config\FileLocator;

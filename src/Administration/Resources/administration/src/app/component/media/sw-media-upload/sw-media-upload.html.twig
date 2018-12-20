@@ -46,7 +46,7 @@
                         {% endblock %}
 
                         {% block sw_media_upload_regular_file_upload %}
-                            <div v-else class="sw-media-upload__file-form">
+                            <div v-else class="sw-media-upload__file-form"  :class="previewClass">
                                 {% block sw_media_upload_regular_preview %}
                                     <div v-if="showPreview" class="sw-media-upload__preview-placeholder">
                                         {% block sw_media_upload_regular_preview_file %}
@@ -70,8 +70,8 @@
 
                                 {% block sw_media_upload_regular_media_sidebar_button %}
                                     <sw-button class="sw-media-upload__button open-media-sidebar"
+                                               v-if="hasOpenSidebarButtonListener"
                                                size="small"
-                                               :disabled="!hasOpenSidebarButtonListener"
                                                @click="onClickOpenMediaSidebar">
                                         {{ $tc('global.sw-media-upload.buttonOpenMedia') }}
                                     </sw-button>
@@ -79,6 +79,7 @@
 
                                 {% block sw_media_upload_regular_upload_button %}
                                     <sw-button class="sw-media-upload__button upload"
+                                               :class="openMediaSidebarClass"
                                                variant="primary"
                                                size="small"
                                                @click="onClickUpload">

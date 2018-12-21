@@ -1,0 +1,48 @@
+{% block sw_media_field %}
+    <div class="sw-media-field">
+        {% block sw_media_field_input %}
+            <label v-if="label" class="sw-media-field__label">{{ label }}</label>
+            <div class="sw-media-field__input" :class="mediaFieldClasses">
+                {% block sw_media_field_preview %}
+                    <sw-media-preview v-if="mediaEntity" :item="mediaEntity"></sw-media-preview>
+                    <div v-else class="sw-media-field__empty-preview"></div>
+                {% endblock %}
+
+                {% block sw_media_field_toggle_button %}
+                    <sw-button class="sw-media-field__toggle-button" @click="onTogglePicker">
+                        {% block sw_media_field_media_icon %}
+                            <sw-icon name="default-object-image"></sw-icon>
+                        {% endblock %}
+                    </sw-button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_media_field_media_picker %}
+            <transition name="sw-media-picker-down">
+                <div v-if="showPicker" class="sw-media-field-picker" :style="pickerClasses">
+                    {% block sw_media_field_search_field %}
+                        <sw-simple-search-field v-model="searchTerm"></sw-simple-search-field>
+                    {% endblock %}
+
+                    {% block sw_media_field_media_list %}
+                        <sw-loader v-if="isLoadingSuggestions" style="position: static"></sw-loader>
+
+                        <ul v-else>
+                            <li v-for="suggestion in suggestedItems">
+                                {% block sw_media_field_suggestion_preview %}
+                                    <sw-media-media-item class="sw-media-field-media__list-item"
+                                        :item="suggestion"
+                                        :isList="true"
+                                        :showContextMenuButton="false"
+                                        @sw-media-item-clicked="mediaItemChanged(suggestion.id)">
+                                    </sw-media-media-item>
+                                {% endblock %}
+                            </li>
+                        </ul>
+                    {% endblock %}
+                </div>
+            </transition>
+        {% endblock %}
+    </div>
+{% endblock %}

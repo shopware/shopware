@@ -194,6 +194,9 @@
         "buttonDelete": "Delete"
       }
     },
+    "sw-simple-search-field": {
+      "defaultPlaceholder": "Search"
+    },
     "entities": {
       "cart": "Cart | Carts",
       "catalog": "Catalog | Catalogues",

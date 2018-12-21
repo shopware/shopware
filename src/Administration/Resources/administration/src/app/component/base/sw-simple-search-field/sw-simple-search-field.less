@@ -1,0 +1,32 @@
+@import "~less/variables";
+
+@sw-simple-search-field-input-color:                @color-light-gray;
+@sw-simple-search-field-input-background-focused:   @color-white;
+@sw-simple-search-field-input-border-color-focused: @color-shopware-blue;
+@sw-simple-search-field-search-icon-color:          @color-gutenberg;
+
+.sw-simple-search-field {
+    position: relative;
+
+    .sw-simple-search-field__input {
+        input {
+            height: 40px;
+            padding: 0 20px 0 44px;
+            background-color: @sw-simple-search-field-input-color;
+            border-color: @sw-simple-search-field-input-color;
+            border-radius: 20px;
+
+            &:focus {
+                background-color: @sw-simple-search-field-input-background-focused;
+                border-color: @sw-simple-search-field-input-border-color-focused;
+            }
+        }
+    }
+
+    .sw-simple-search-field__search-icon {
+        position: absolute;
+        color: @sw-simple-search-field-search-icon-color;
+        left: 24px;
+        top: 12px;
+    }
+}

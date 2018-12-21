@@ -5,6 +5,7 @@ import './base/sw-button';
 import './base/sw-button-group';
 import './base/sw-icon';
 import './base/sw-product-image';
+import './base/sw-simple-search-field';
 import './base/sw-alert';
 import './base/sw-avatar';
 import './base/sw-container';
@@ -57,6 +58,7 @@ import './structure/sw-search-bar-item';
 import './structure/sw-error';
 
 import './media/sw-media-entity-mapper';
+import './media/sw-media-field';
 import './media/sw-media-base-item';
 import './media/sw-media-folder-item';
 import './media/sw-media-media-item';

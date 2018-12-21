@@ -65,7 +65,7 @@ echo "127.0.0.1 shopware.test" | sudo tee --append /etc/hosts
 Follow the steps described in [common setup steps](#Common-setup-steps) and return here once you are done.
 
 Afterwards the system should  be fully functional. You should be able to access the example storefront <http://shopware.test:8000>
-and the admin <http://shopware.test:8000/admin>.
+and the admin <http://shopware.test:8000/admin>. The default credentials are `admin` and `shopware`.
 
 To shutdown the container, logout from the container and run stop:
 
@@ -236,7 +236,7 @@ Choose ```dev```.
 2. `URL to your /public folder`: the URL from which the shop should be reached. Use `http://shopware.test:8000`.
 3. `Database host`: where the database is hosted.
     - **Local Installation** Use the default.
-    - **Docker Installation** Use `mysql`.
+    - **Docker Installation** Use `app_mysql`.
 4. `Database port`: the port under which the database may be reached. Use the default.
 5. `Database name`: the name of the database which Shopware will use. Use the default.
 6. `Database user`: the user shopware will use to access the database. Use the default.

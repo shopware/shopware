@@ -746,7 +746,8 @@
     "sidebar": {
       "actions": {
         "quickInfo": "Quick info",
-        "delete": "Delete"
+        "delete": "Delete",
+        "settings": "Settings"
       },
       "quickinfo": {
         "actions": "Actions",

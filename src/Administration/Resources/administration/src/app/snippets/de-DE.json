@@ -949,7 +949,7 @@
       "messageSaveSuccess": "Die Regel {name} wurde erfolgreich gespeichert.",
       "ruleCard": "Bedingungen",
       "titleSaveError": "Regel",
-      "messageSaveError": "Beim Speichern der Entität {name} ist ein Fehler aufgetreten."
+      "messageSaveError": "Beim Speichern der Regel {name} ist ein Fehler aufgetreten."
     }
   },
   "sw-settings-tax": {

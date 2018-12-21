@@ -156,7 +156,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_customer_list_grid_columns_actions_view %}
-                                                            <sw-context-menu-item :routerLink="{
+                                                            <sw-context-menu-item class="sw-customer-list__view-action" :routerLink="{
                                                                         name: 'sw.customer.detail',
                                                                         params: { id: item.id } }">
                                                                     {{ $tc('sw-customer.list.contextMenuView') }}

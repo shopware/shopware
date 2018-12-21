@@ -1,35 +1,24 @@
+const taxFixture = global.FixtureService.loadJson('tax.json');
+
 module.exports = {
-    '@tags': ['setting','tax-delete', 'tax', 'delete'],
-    'open tax module': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
+    '@tags': ['setting', 'tax-delete', 'tax', 'delete'],
+    before: (browser, done) => {
+        global.FixtureService.create('/v1/tax', taxFixture, 'tax', done);
     },
-    'goto create tax page': (browser) => {
+    'open tax module and look for tax to be deleted': (browser) => {
         browser
-            .click('a[href="#/sw/settings/tax/create"]')
-            .waitForElementVisible('.sw-settings-tax-detail .sw-page__content')
-            .assert.urlContains('#/sw/settings/tax/create')
-            .assert.containsText('.sw-card__title', 'Settings')
-            .fillField('input[name=sw-field--tax-name]', 'High tax')
-            .fillField('input[name=sw-field--tax-taxRate]', '99')
-            .click('.sw-settings-tax-detail__save-action')
-            .checkNotification('Tax "High tax" has been saved successfully.')
-            .assert.urlContains('#/sw/settings/tax/detail');
-    },
-    'go back to listing': (browser) => {
-        browser
-            .click('a.smart-bar__back-btn')
-            .waitForElementVisible('.sw-settings-tax-list-grid');
+            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax')
+            .waitForElementVisible('.sw-settings-tax-list-grid')
+            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
+            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', taxFixture.name);
     },
     'delete tax': (browser) => {
         browser
-            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'High tax')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:last-child')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:last-child')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-modal__body', 'Are you sure you want to delete the tax "High tax"?')
+            .assert.containsText('.sw-modal .sw-modal__body', `Are you sure you want to delete the tax "${taxFixture.name}"?`)
             .click('.sw-modal__footer button.sw-button--primary')
-            .checkNotification('Tax "High tax" has been deleted successfully.');
+            .checkNotification(`Tax "${taxFixture.name}" has been deleted successfully.`);
     },
     after: (browser) => {
         browser.end();

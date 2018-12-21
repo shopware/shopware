@@ -1,29 +1,24 @@
 const manufacturerPage = require('administration/page-objects/sw-manufacturer.page-object.js');
 const mediaPageObject = require('administration/page-objects/sw-media.page-object.js');
+const manufacturerFixture = global.FixtureService.loadJson('manufacturer.json');
 
 module.exports = {
     '@tags': ['product', 'manufacturer-delete', 'manufacturer', 'delete'],
-    'navigate to manufacturer module and click on add manufacturer': (browser) => {
+    before: (browser, done) => {
+        global.FixtureService.create('/v1/product-manufacturer', manufacturerFixture, 'manufacturer', done);
+    },
+    'navigate to manufacturer module and look for manufacturer to be edited': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
-            .assert.urlContains('#/sw/manufacturer/index')
-            .waitForElementPresent('.sw-button__content')
-            .click('.sw-button__content');
-    },
-    'enter manufacturer information and save': (browser) => {
-        const page = manufacturerPage(browser);
-        page.createBasicManufacturer('MAN-U-FACTURE');
-        page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
+            .assert.urlContains('#/sw/manufacturer/index');
     },
     'check if new manufacturer exists in overview': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
-            .refresh()
             .waitForElementPresent('.sw-button__content')
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText('.smart-bar__header', 'Manufacturer')
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-grid-row:first-child', 'MAN-U-FACTURE');
+            .assert.containsText('.sw-grid-row:first-child', manufacturerFixture.name);
     },
     'verify manufacturer details': (browser) => {
         browser
@@ -35,7 +30,11 @@ module.exports = {
             .click('.sw-context-menu .sw-context-menu-item__text')
             .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.smart-bar__header h2:not(.sw-manufacturer-detail__empty-title)')
-            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE');
+            .assert.containsText('.smart-bar__header', manufacturerFixture.name);
+    },
+    'enter manufacturer logo': (browser) => {
+        const page = manufacturerPage(browser);
+        page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
     'check if the manufacturer can be used in product': (browser) => {
         browser
@@ -43,7 +42,7 @@ module.exports = {
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
-            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'MAN-U-FACTURE');
+            .fillSelectField('select[name=sw-field--product-manufacturerId]', manufacturerFixture.name);
     },
     'delete manufacturer, including its logo': (browser) => {
         browser
@@ -51,7 +50,7 @@ module.exports = {
 
         const page = manufacturerPage(browser);
         const mediaPage = mediaPageObject(browser);
-        page.deleteManufacturer('MAN-U-FACTURE');
+        page.deleteManufacturer(manufacturerFixture.name);
 
         browser
             .waitForElementVisible('.sw-sidebar__navigation .sw-sidebar-navigation-item')

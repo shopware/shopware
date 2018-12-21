@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "app-module-path": "2.2.0",
+    "axios": "0.18.0",
     "babel-core": "6.26.3",
     "babel-plugin-add-module-exports": "1.0.0",
     "babel-preset-env": "1.7.0",

@@ -42,8 +42,9 @@ export default class AdminApiService extends ApiService {
 
     request({url, method, params, data}) {
         return super.request({url, method, params, data}).catch(({ config, response }) => {
-            console.log('###############################');
-            console.log(response.data);
+            if (response.data && response.data.errors) {
+                console.log(response.data.errors);
+            }
         });
     }
 }

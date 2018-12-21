@@ -51,9 +51,9 @@ export default class ProductFixture extends FixtureService {
             return Object.assign({}, {
                 taxId: taxId,
                 manufacturerId: manufacturerId
-            }, productData);
+            }, productData, userData);
         }).then((finalProductData) => {
-            return this.apiClient.post('/v1/product?_response=true', finalProductData, userData);
+            return this.apiClient.post('/v1/product?_response=true', finalProductData);
         }).catch((err) => {
             console.log('• ✖ - Error: ', err);
         }).then((product) => {

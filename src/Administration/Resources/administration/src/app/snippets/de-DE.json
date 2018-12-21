@@ -805,7 +805,7 @@
       "labelSortByDataTypeAsc": "Dateityp aufsteigend",
       "labelSortByDataTypeDsc": "Dateityp absteigend",
       "labelLoadMore": "{count} weitere Dateien laden",
-      "rootFolderName": "Unsortierte Medien"
+      "rootFolderName": "Medien"
     }
   },
   "sw-settings": {

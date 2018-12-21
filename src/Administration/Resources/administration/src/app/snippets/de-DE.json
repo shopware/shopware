@@ -947,7 +947,9 @@
       "placeholderPriority": "Legen Sie eine Priorität für diese Regel fest..",
       "titleSaveSuccess": "Regel",
       "messageSaveSuccess": "Die Regel {name} wurde erfolgreich gespeichert.",
-      "ruleCard": "Bedingungen"
+      "ruleCard": "Bedingungen",
+      "titleSaveError": "Regel",
+      "messageSaveError": "Beim Speichern der Entität {name} ist ein Fehler aufgetreten."
     }
   },
   "sw-settings-tax": {

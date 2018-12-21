@@ -1,4 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-settings-rule-detail.html.twig';
 
 Component.register('sw-settings-rule-detail', {
@@ -46,7 +47,7 @@ Component.register('sw-settings-rule-detail', {
                 page: 1,
                 limit: 500
             }).then(() => {
-                this.nestedConditions = this.buildNestedConditions(this.rule.conditions, null)[0];
+                this.nestedConditions = this.buildNestedConditions(this.rule.conditions, null);
                 if (this.duplicate) {
                     this.rule.conditions.forEach((condition) => {
                         condition.id = null;
@@ -81,17 +82,39 @@ Component.register('sw-settings-rule-detail', {
                 { name: this.rule.name }
             );
 
+            const titleSaveError = this.$tc('sw-settings-rule.detail.titleSaveError');
+            const messageSaveError = this.$tc(
+                'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
+            );
+
             if (this.duplicate) {
                 // todo change conditions for duplicate
             }
-
             this.rule.conditions = this.nestedConditions;
+            this.removeOriginalConditionTypes(this.rule.conditions);
 
             return this.rule.save().then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
+            }).catch((exception) => {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                warn(this._name, exception.message, exception.response);
+            });
+        },
+        removeOriginalConditionTypes(conditions) {
+            conditions.forEach((condition) => {
+                if (condition.children) {
+                    this.removeOriginalConditionTypes(condition.children);
+                }
+                const changes = Object.keys(condition.getChanges()).length;
+                if (changes) {
+                    condition.original.type = '';
+                }
             });
         }
     }

@@ -10,7 +10,7 @@ abstract class Rule extends Struct
 
     public const OPERATOR_LTE = '<=';
 
-    public const OPERATOR_EQ = '=';
+    public const OPERATOR_EQ = '==';
 
     public const OPERATOR_NEQ = '!=';
 

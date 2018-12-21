@@ -67,7 +67,7 @@
 
                             <sw-field type="hidden" v-model="rule.conditions"></sw-field>
 
-                            <div v-for="condition in nestedConditions.children">
+                            <div v-for="condition in nestedConditions[0].children">
                                 <sw-condition-group :condition="condition">
                                 </sw-condition-group>
                             </div>

@@ -71,6 +71,7 @@
         ul {
             list-style: none;
             > li:hover {
+                cursor: pointer;
                 background: @sw-media-field-background-color-list-item-hover;
             }
         }
@@ -78,6 +79,10 @@
         .sw-loader__container {
             transform: translate(-50%, 0%);
         }
+    }
+
+    .sw-media-field__picker-loader {
+        position: static;
     }
 
     .sw-media-picker-down-enter-active,

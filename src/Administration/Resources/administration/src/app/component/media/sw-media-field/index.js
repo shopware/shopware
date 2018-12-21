@@ -89,7 +89,11 @@ Component.register('sw-media-field', {
             ];
 
             if (this.searchTerm) {
-                searchCriteria.push(CriteriaFactory.equals('fileName', this.searchTerm));
+                searchCriteria.push(
+                    CriteriaFactory.multi('or',
+                        CriteriaFactory.contains('fileName', this.searchTerm),
+                        CriteriaFactory.contains('fileExtension', this.searchTerm))
+                );
             }
 
             this.mediaStore.getList({

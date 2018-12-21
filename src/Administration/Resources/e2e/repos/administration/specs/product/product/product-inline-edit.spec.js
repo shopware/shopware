@@ -1,10 +1,13 @@
-let productFixture = global.FixtureService.loadJson('product.json');
+const fixture = {
+    name: 'First one'
+};
 
 module.exports = {
     '@tags': ['product', 'product-inline-edit', 'inline-edit'],
     before: (browser, done) => {
-        productFixture.name = 'First one';
-        global.ProductFixtureService.setProductFixtures(productFixture, done);
+        global.ProductFixtureService.setProductFixtures(fixture).then(() => {
+            done();
+        });
     },
     'open product listing and look for the product to be edited': (browser) => {
         browser
@@ -13,7 +16,7 @@ module.exports = {
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)')
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-product-list__column-product-name', productFixture.name);
+            .assert.containsText('.sw-product-list__column-product-name', fixture.name);
     },
     'edit product name via inline editing and verify change': (browser) => {
         browser

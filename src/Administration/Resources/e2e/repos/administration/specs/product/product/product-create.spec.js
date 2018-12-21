@@ -1,10 +1,10 @@
 const productPage = require('administration/page-objects/sw-product.page-object.js');
-let categoryFixture = global.FixtureService.loadJson('category.json');
+let categoryFixture = FixtureService.loadJson('category.json');
 
 module.exports = {
     '@tags': ['product-create', 'product', 'create', 'upload'],
     before: (browser, done) => {
-        global.FixtureService.create('/v1/category', categoryFixture, 'category', done);
+        FixtureService.create('/v1/category', categoryFixture, 'category', done);
     },
     'open product listing': (browser) => {
         browser

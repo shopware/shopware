@@ -1,24 +1,29 @@
 const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
-let salesChannelFixture = global.FixtureService.loadJson('sales-channel.json');
+
+const fixture = {
+    name: '2nd Epic Sales Channel',
+    accessKey: global.FixtureService.createUuid()
+};
 
 module.exports = {
     '@tags': ['sales-channel-edit', 'sales-channel', 'edit'],
     before: (browser, done) => {
-        salesChannelFixture.name = '2nd Epic Sales Channel';
-        global.SalesChannelFixtureService.setSalesChannelFixture(salesChannelFixture, done);
+        global.SalesChannelFixtureService.setSalesChannelFixture(fixture).then(() => {
+            done();
+        });
     },
     'verify creation of sales channel to be edited': (browser) => {
         browser
             .refresh()
             .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', salesChannelFixture.name);
+            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', fixture.name);
     },
     'edit name of sales channel': (browser) => {
         browser
             .waitForElementVisible('.sw-admin-menu__sales-channel-item:first-child')
             .click('.sw-admin-menu__sales-channel-item:first-child')
             .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', salesChannelFixture.name)
+            .assert.containsText('.smart-bar__header h2', fixture.name)
             .fillField('input[name=sw-field--salesChannel-name]', '2nd Epic Sales Channel at all')
             .waitForElementVisible('.sw-sales-channel-detail__save-action')
             .click('.sw-sales-channel-detail__save-action');

@@ -1,17 +1,22 @@
 const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
-let salesChannelFixture = global.FixtureService.loadJson('sales-channel.json');
+
+const fixture = {
+    name: '1st Epic Sales Channel',
+    accessKey: global.FixtureService.createUuid()
+};
 
 module.exports = {
     '@tags': ['sales-channel-delete', 'sales-channel', 'delete'],
     before: (browser, done) => {
-        salesChannelFixture.name = '1st Epic Sales Channel';
-        global.SalesChannelFixtureService.setSalesChannelFixture(salesChannelFixture, done);
+        global.SalesChannelFixtureService.setSalesChannelFixture(fixture).then(() => {
+            done();
+        });
     },
     'delete sales channel': (browser) => {
         browser.refresh();
         const page = salesChannelPage(browser);
-        page.openSalesChannel(salesChannelFixture.name);
-        page.deleteSingleSalesChannel(salesChannelFixture.name);
+        page.openSalesChannel(fixture.name);
+        page.deleteSingleSalesChannel(fixture.name);
     },
     after: (browser) => {
         browser.end();

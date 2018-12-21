@@ -1,12 +1,20 @@
-const FixtureService = require('administration/service/fixtures.service');
+const FixtureService = require('administration/service/fixture.service').default;
 
 export default class SalesChannelFixtureService extends FixtureService {
     constructor() {
         super();
+
+        this.salesChannelFixture = this.loadJson('sales-channel.json');
     }
 
-    setSalesChannelFixture(jsonData, done) {
+    setSalesChannelBasicFixture(json) {
+        this.salesChannelFixture = json;
+    }
+
+    setSalesChannelFixture(userData) {
         console.log('### Set sales channel fixtures...');
+
+        const jsonData = this.salesChannelFixture;
 
         let currencyId = '';
         let paymentMethodId = '';
@@ -81,14 +89,13 @@ export default class SalesChannelFixtureService extends FixtureService {
                 countryId: countryId,
                 languageId: languageId,
                 typeId: salesChannelTypeId,
-            });
+            }, userData);
         }).then((finalChannelData) => {
             return this.apiClient.post('/v1/sales-channel?_response=true', finalChannelData);
         }).catch((err) => {
             console.log('• ✖ - Error: ', err);
         }).then((salesChannel) => {
             console.log('• ✓ - Created: ', salesChannel.id);
-            done();
         });
     }
 }

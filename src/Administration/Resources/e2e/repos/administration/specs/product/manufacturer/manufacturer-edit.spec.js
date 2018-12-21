@@ -25,7 +25,7 @@ module.exports = {
             .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
             .fillField('input[name=name]', 'Minnie\'s Haberdashery')
             .fillField('input[name=link]', 'https://google.com/doodles')
-            .fillField('.ql-editor', 'Schnell den langen Text austauschen, sodass es keiner mitbekommt!', 'editor')
+            .fillField('.ql-editor', 'A wonderfully changed description', 'editor')
             .click('.sw-manufacturer-detail__save-action')
             .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
             .click('.sw-button__content');

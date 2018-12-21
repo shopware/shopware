@@ -1,16 +1,29 @@
-const FixtureService = require('administration/service/fixtures.service');
-const uuid = require('uuid/v4');
+const FixtureService = require('administration/service/fixture.service.js').default;
 
 export default class CustomerFixtureService extends FixtureService {
     constructor() {
         super();
+
+        this.customerFixture = this.loadJson('customer.json');
+        this.customerAddressFixture = this.loadJson('customer-address.json');
     }
 
-    setCustomerFixture(customerJson, customerAdressJson, done) {
+    setCustomerBaseFixture(json) {
+        this.customerFixture = json;
+    }
+
+    setCustomerAddressBaseFixture(json) {
+        this.customerAddressFixture = json;
+    }
+
+    setCustomerFixture(userData) {
         console.log('### Set customer fixtures...');
 
-        const addressId = uuid();
-        const customerId = uuid();
+        const customerJson = this.customerFixture;
+        const customerAddressJson = this.customerAddressFixture;
+
+        const addressId = this.createUuid();
+        const customerId = this.createUuid();
         let countryId = '';
         let paymentMethodId = '';
         let salesChannelId = '';
@@ -62,7 +75,7 @@ export default class CustomerFixtureService extends FixtureService {
                     id: addressId,
                     countryId: countryId,
                 }]
-            }, customerAdressJson);
+            }, customerAddressJson);
         }).then(() => {
             return this.mergeFixtureWithData(customerJson, {
                 defaultPaymentMethodId: paymentMethodId,
@@ -72,15 +85,14 @@ export default class CustomerFixtureService extends FixtureService {
                 defaultShippingAddressId: addressId,
             });
         }).then((finalCustomerRawData) => {
-            return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData);
+            return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData, userData);
         }).then((finalCustomerData) => {
             return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
         }).catch((err) => {
             console.log('• ✖ - Error: ', err);
         }).then((customer) => {
             console.log(`• ✓ - Created: ${customer.id}`);
-            done();
-        })
+        });
     }
 }
 

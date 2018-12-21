@@ -1,12 +1,13 @@
-let productFixture = global.FixtureService.loadJson('product.json');
+const fixture = {
+    name: 'Soon be gone'
+};
 
 module.exports = {
     '@tags': ['product-delete', 'product', 'delete'],
     before: (browser, done) => {
-        productFixture.name = 'Soon be gone';
-        productFixture.description = 'Came and went away so quickly';
-
-        global.ProductFixtureService.setProductFixtures(productFixture, done);
+        global.ProductFixtureService.setProductFixtures(fixture).then(() => {
+            done()
+        });
     },
     'open product listing and look for the product to be deleted': (browser) => {
         browser
@@ -16,13 +17,13 @@ module.exports = {
             .waitForElementVisible('.sw-page__smart-bar-amount')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)')
             .waitForElementVisible('.sw-product-list__column-product-name')
-            .assert.containsText('.sw-product-list__column-product-name', productFixture.name);
+            .assert.containsText('.sw-product-list__column-product-name', fixture.name);
     },
     'delete created product': (browser) => {
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', `Are you sure you really want to delete the product "${productFixture.name}"?`)
+            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', `Are you sure you really want to delete the product "${fixture.name}"?`)
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementNotPresent('.sw-product-list__column-product-name > a')

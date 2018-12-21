@@ -1,11 +1,11 @@
-let customerFixture = global.FixtureService.loadJson('customer.json');
-let customerAddressFixture = global.FixtureService.loadJson('customer-address.json');
-
 module.exports = {
     '@tags': ['customer-edit', 'customer', 'edit'],
     before: (browser, done) => {
-        customerFixture.email = 'test-again@example.com';
-        global.CustomerFixtureService.setCustomerFixture(customerFixture, customerAddressFixture, done);
+        global.CustomerFixtureService.setCustomerFixture({
+            email: 'test-again@example.com'
+        }).then(() => {
+            done();
+        });
     },
     'open customer listing and look for customer to be edited': (browser) => {
         browser

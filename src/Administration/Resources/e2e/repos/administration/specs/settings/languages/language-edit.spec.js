@@ -1,8 +1,9 @@
 module.exports = {
     '@tags': ['setting','language-edit', 'language', 'edit'],
     before: (browser, done) => {
-        const languageFixture = global.FixtureService.loadJson('language.json');
-        global.LanguageFixtureService.setLanguageFixtures(languageFixture, done);
+        global.LanguageFixtureService.setLanguageFixtures().then(() => {
+            done();
+        });
     },
     'open language module and look for language to be edited': (browser) => {
         browser

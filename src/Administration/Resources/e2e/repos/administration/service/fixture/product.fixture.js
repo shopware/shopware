@@ -1,12 +1,20 @@
-const FixtureService = require('administration/service/fixtures.service');
+const FixtureService = require('administration/service/fixture.service.js').default;
 
-export default class ProductFixtureService extends FixtureService {
+export default class ProductFixture extends FixtureService {
     constructor() {
         super();
+
+        this.productFixture = this.loadJson('product.json');
     }
 
-    setProductFixtures(productData, done) {
+    setProductBaseFixture(json) {
+        this.productFixture = json;
+    }
+
+    setProductFixtures(userData) {
         console.log('### Set product fixtures...');
+
+        const productData = this.productFixture;
 
         let manufacturerId = '';
         let taxId = '';
@@ -19,7 +27,6 @@ export default class ProductFixtureService extends FixtureService {
             }]
         }).then((data) => {
             taxId = data.id;
-            return data.id;
         }).then(() => {
             return this.apiClient.post('/v1/search/product-manufacturer', {
                 filter: [{
@@ -30,7 +37,6 @@ export default class ProductFixtureService extends FixtureService {
             });
         }).then((data) => {
             manufacturerId = data.id;
-            return data.id;
         }).then(() => {
             return this.apiClient.post('/v1/search/product-manufacturer', {
                 filter: [{
@@ -41,21 +47,19 @@ export default class ProductFixtureService extends FixtureService {
             });
         }).then((data) => {
             manufacturerId = data.id;
-            return data.id;
         }).then(() => {
             return Object.assign({}, {
                 taxId: taxId,
                 manufacturerId: manufacturerId
             }, productData);
         }).then((finalProductData) => {
-            return this.apiClient.post('/v1/product?_response=true', finalProductData);
+            return this.apiClient.post('/v1/product?_response=true', finalProductData, userData);
         }).catch((err) => {
             console.log('• ✖ - Error: ', err);
         }).then((product) => {
             console.log('• ✓ - Created: ', product.id);
-            done();
         });
     }
 }
 
-global.ProductFixtureService = new ProductFixtureService();
+global.ProductFixtureService = new ProductFixture();

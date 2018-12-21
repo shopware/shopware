@@ -1,10 +1,6 @@
 // Register flags and fixtures globally so we have to import them one time
 require('./flags.js');
-require('./service/fixtures.service');
-require('./service/product-fixture.service');
-require('./service/language-fixture.service');
-require('./service/customer-fixtures.service');
-require('./service/sales-channel-fixture.service');
+require('./service/fixture.service');
 
 const beforeScenarioActions = require('./specs/before-scenario.js');
 

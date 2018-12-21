@@ -1,8 +1,9 @@
 module.exports = {
     '@tags': ['setting', 'language-delete', 'language', 'delete'],
     before: (browser, done) => {
-        const languageFixture = global.FixtureService.loadJson('language.json');
-        global.LanguageFixtureService.setLanguageFixtures(languageFixture, done);
+        global.LanguageFixtureService.setLanguageFixtures().then(() => {
+            done();
+        });
     },
     'open language module and look for language to be deleted': (browser) => {
         browser

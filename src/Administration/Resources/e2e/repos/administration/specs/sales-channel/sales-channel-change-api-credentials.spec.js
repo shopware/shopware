@@ -1,17 +1,22 @@
 const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
-let salesChannelFixture = global.FixtureService.loadJson('sales-channel.json');
+
+const fixture = {
+    name: '3rd Epic Sales Channel',
+    accessKey: global.FixtureService.createUuid()
+};
 
 module.exports = {
     '@tags': ['sales-channel-api-credentials', 'sales-channel', 'api-credentials'],
     before: (browser, done) => {
-        salesChannelFixture.name = '3rd Epic Sales Channel';
-        global.SalesChannelFixtureService.setSalesChannelFixture(salesChannelFixture, done);
+        global.SalesChannelFixtureService.setSalesChannelFixture(fixture).then(() => {
+            done();
+        });
     },
     'verify existence of sales channel to be edited': (browser) => {
         browser
             .refresh()
             .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', salesChannelFixture.name);
+            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', fixture.name);
     },
     'edit api credentials': (browser) => {
         browser
@@ -21,14 +26,14 @@ module.exports = {
 
         const page = salesChannelPage(browser);
         page.checkClipboard();
-        page.changeApiCredentials(salesChannelFixture.name);
+        page.changeApiCredentials(fixture.name);
     },
     'check if the api credentials of the sales channel are changed correctly': (browser) => {
         browser
             .refresh();
 
         const page = salesChannelPage(browser);
-        page.openSalesChannel(salesChannelFixture.name);
+        page.openSalesChannel(fixture.name);
         browser
             .waitForElementNotPresent('.sw-loader');
         page.verifyChangedApiCredentials();

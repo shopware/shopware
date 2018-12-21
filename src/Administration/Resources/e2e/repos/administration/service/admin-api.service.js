@@ -39,4 +39,11 @@ export default class AdminApiService extends ApiService {
             'Content-Type': 'application/json'
         };
     }
+
+    request({url, method, params, data}) {
+        return super.request({url, method, params, data}).catch(({ config, response }) => {
+            console.log('###############################');
+            console.log(response.data);
+        });
+    }
 }

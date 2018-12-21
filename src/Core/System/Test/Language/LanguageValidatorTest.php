@@ -172,7 +172,7 @@ class LanguageValidatorTest extends TestCase
             ],
         ];
         $this->assertInsertViolations([$c, $a], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $a['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a['id'] . '/parentId'],
         ]);
     }
 
@@ -192,7 +192,7 @@ class LanguageValidatorTest extends TestCase
             ],
         ];
         $this->assertUpsertViolations([$a], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $a['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a['id'] . '/parentId'],
         ]);
     }
 
@@ -461,7 +461,7 @@ class LanguageValidatorTest extends TestCase
         ];
 
         $this->assertInsertViolations([$parent, $child], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $child['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $child['id'] . '/parentId'],
         ]);
     }
 
@@ -483,7 +483,7 @@ class LanguageValidatorTest extends TestCase
         ];
 
         $this->assertInsertViolations([$parentParent, $parent, $child], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $child['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $child['id'] . '/parentId'],
         ]);
     }
 
@@ -508,7 +508,7 @@ class LanguageValidatorTest extends TestCase
         ];
 
         $this->assertInsertViolations([$a], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $a['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a['id'] . '/parentId'],
         ]);
     }
 
@@ -537,7 +537,7 @@ class LanguageValidatorTest extends TestCase
         ];
 
         $this->assertUpdateViolations([$upd], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $child['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $child['id'] . '/parentId'],
         ]);
     }
 
@@ -570,7 +570,7 @@ class LanguageValidatorTest extends TestCase
         ];
 
         $this->assertUpdateViolations([$upd], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $upd['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $upd['id'] . '/parentId'],
         ]);
     }
 
@@ -667,7 +667,7 @@ class LanguageValidatorTest extends TestCase
         $bUpdate = ['id' => $b['id'], 'parentId' => $c['id']];
 
         $this->assertUpsertViolations([$c, $bUpdate], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $a['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a['id'] . '/parentId'],
         ]);
     }
 
@@ -690,7 +690,7 @@ class LanguageValidatorTest extends TestCase
             'parentId' => $b['id'],
         ];
         $this->assertUpsertViolations([$b, $aUpdate], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $a['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a['id'] . '/parentId'],
         ]);
     }
 
@@ -711,7 +711,7 @@ class LanguageValidatorTest extends TestCase
         ];
         $aUpdate = ['id' => $a['id'], 'parentId' => $b['id']];
         $this->assertUpsertViolations([$b, $aUpdate], [
-            [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $aUpdate['id'] . '/parentId'],
+            [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $aUpdate['id'] . '/parentId'],
         ]);
     }
 
@@ -736,7 +736,7 @@ class LanguageValidatorTest extends TestCase
         $this->assertDeleteViolations(
             [$enGb],
             [
-                [LanguageValidator::DELETE_DEFAULT_LANGUAGE_VIOLATION, '/' . $enGb['id']],
+                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $enGb['id']],
             ]
         );
     }
@@ -749,7 +749,7 @@ class LanguageValidatorTest extends TestCase
         $this->assertDeleteViolations(
             [$deDe],
             [
-                [LanguageValidator::DELETE_DEFAULT_LANGUAGE_VIOLATION, '/' . $deDe['id']],
+                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $deDe['id']],
             ]
         );
     }
@@ -765,8 +765,8 @@ class LanguageValidatorTest extends TestCase
 
         $this->assertInsertViolations([$c, $b, $a1, $a2],
             [
-                [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $a1['id'] . '/parentId'],
-                [LanguageValidator::PARENT_HAS_PARENT_VIOLATION, '/' . $a2['id'] . '/parentId'],
+                [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a1['id'] . '/parentId'],
+                [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a2['id'] . '/parentId'],
             ]
         );
     }
@@ -780,8 +780,8 @@ class LanguageValidatorTest extends TestCase
         $this->assertDeleteViolations(
             [$enGb, $deDe],
             [
-                [LanguageValidator::DELETE_DEFAULT_LANGUAGE_VIOLATION, '/' . $enGb['id']],
-                [LanguageValidator::DELETE_DEFAULT_LANGUAGE_VIOLATION, '/' . $deDe['id']],
+                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $enGb['id']],
+                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $deDe['id']],
             ]
         );
     }
@@ -793,7 +793,7 @@ class LanguageValidatorTest extends TestCase
         $this->assertInsertViolations(
             [$root],
             [
-                [LanguageValidator::CODE_REQUIRED_FOR_ROOT_LANGUAGE, '/' . $root['id'] . '/translationCodeId'],
+                [LanguageValidator::VIOLATION_CODE_REQUIRED_FOR_ROOT_LANGUAGE, '/' . $root['id'] . '/translationCodeId'],
             ],
             false // no default locale !
         );

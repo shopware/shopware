@@ -12,7 +12,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class MissingSystemTranslationException extends ConstraintViolationException
 {
-    public const MISSING_SYSTEM_TRANSLATION_VIOLATION = 'MISSING-SYSTEM-TRANSLATION';
+    public const VIOLATION_MISSING_SYSTEM_TRANSLATION = 'MISSING-SYSTEM-TRANSLATION';
 
     public function __construct(string $path = '')
     {
@@ -27,7 +27,7 @@ class MissingSystemTranslationException extends ConstraintViolationException
                 $path,
                 Defaults::LANGUAGE_SYSTEM,
                 null,
-                self::MISSING_SYSTEM_TRANSLATION_VIOLATION
+                self::VIOLATION_MISSING_SYSTEM_TRANSLATION
             ),
         ]);
         parent::__construct($constraintViolationList, $path, 0, null, '');

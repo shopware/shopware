@@ -22,11 +22,11 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
-    public function __construct(string $storageName, string $propertyName, string $referenceClass)
+    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
-        $this->referenceField = 'id';
+        $this->referenceField = $referenceField;
         parent::__construct($propertyName);
     }
 

@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class TranslationValidator implements WriteCommandValidatorInterface
 {
-    public const DELETE_SYSTEM_TRANSLATION_VIOLATION = 'delete-system-translation-violation';
+    public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
 
     public function preValidate(array $writeCommands, WriteContext $context): void
     {
@@ -60,15 +60,14 @@ class TranslationValidator implements WriteCommandValidatorInterface
 
             $fks = $this->getFkFields($def);
             $id = Uuid::fromBytesToHex($pk[$fks['id']->getStorageName()]);
-            $languageId = Defaults::LANGUAGE_SYSTEM;
             $violations->add(
                 $this->buildViolation(
                     'Cannot delete system translation',
                     ['{{ id }}' => $id],
                     null,
                     '/' . $id . '/translations/' . Defaults::LANGUAGE_SYSTEM,
-                    [$id, $languageId],
-                    self::DELETE_SYSTEM_TRANSLATION_VIOLATION
+                    [$id, Defaults::LANGUAGE_SYSTEM],
+                    self::VIOLATION_DELETE_SYSTEM_TRANSLATION
                 )
             );
         }

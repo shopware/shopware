@@ -231,7 +231,7 @@ class TranslationTest extends TestCase
         $this->assertTranslationError(
             [
                 [
-                    'code' => MissingSystemTranslationException::MISSING_SYSTEM_TRANSLATION_VIOLATION,
+                    'code' => MissingSystemTranslationException::VIOLATION_MISSING_SYSTEM_TRANSLATION,
                     'status' => '400',
                     'source' => [
                         'pointer' => '/translations/' . Defaults::LANGUAGE_SYSTEM,
@@ -333,7 +333,7 @@ class TranslationTest extends TestCase
         $this->assertTranslationError(
             [
                 [
-                    'code' => MissingRootTranslationException::MISSING_ROOT_TRANSLATION_VIOLATION,
+                    'code' => MissingRootTranslationException::VIOLATION_MISSING_ROOT_TRANSLATION,
                     'status' => '400',
                     'source' => [
                         'pointer' => '/translations/' . $rootId,
@@ -551,7 +551,7 @@ class TranslationTest extends TestCase
         static::assertEquals(400, $response->getStatusCode(), $response->getContent());
 
         $data = json_decode($response->getContent(), true);
-        static::assertEquals(TranslationValidator::DELETE_SYSTEM_TRANSLATION_VIOLATION, $data['errors'][0]['code']);
+        static::assertEquals(TranslationValidator::VIOLATION_DELETE_SYSTEM_TRANSLATION, $data['errors'][0]['code']);
         static::assertEquals('/' . $id . '/translations/' . Defaults::LANGUAGE_SYSTEM, $data['errors'][0]['source']['pointer']);
     }
 

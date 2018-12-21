@@ -35,11 +35,6 @@ class SalesChannelTypeDefinition extends EntityDefinition
         return SalesChannelTypeEntity::class;
     }
 
-    public static function getParentDefinitionClass(): ?string
-    {
-        return SalesChannelDefinition::class;
-    }
-
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([

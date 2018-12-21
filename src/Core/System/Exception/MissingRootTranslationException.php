@@ -11,7 +11,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class MissingRootTranslationException extends ConstraintViolationException
 {
-    public const MISSING_ROOT_TRANSLATION_VIOLATION = 'MISSING-ROOT-TRANSLATION';
+    public const VIOLATION_MISSING_ROOT_TRANSLATION = 'MISSING-ROOT-TRANSLATION';
 
     public function __construct(string $rootId, string $childId, string $path = '')
     {
@@ -29,7 +29,7 @@ class MissingRootTranslationException extends ConstraintViolationException
                 $path,
                 $childId,
                 null,
-                self::MISSING_ROOT_TRANSLATION_VIOLATION
+                self::VIOLATION_MISSING_ROOT_TRANSLATION
             ),
         ]);
         parent::__construct($constraintViolationList, $path, 0, null, '');

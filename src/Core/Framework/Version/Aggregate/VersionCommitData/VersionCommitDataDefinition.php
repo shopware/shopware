@@ -46,7 +46,7 @@ class VersionCommitDataDefinition extends EntityDefinition
 
     public static function getParentDefinitionClass(): ?string
     {
-        return VersionCommitDataDefinition::class;
+        return VersionCommitDefinition::class;
     }
 
     protected static function defineFields(): FieldCollection

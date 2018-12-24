@@ -27,7 +27,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_UNICODE), true);
+        $value = json_decode(json_encode($data->getValue(), JSON_PRESERVE_ZERO_FRACTION), true);
 
         $value = JsonType::format($value);
 

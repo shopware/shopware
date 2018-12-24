@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -200,7 +201,7 @@ class VersionManager
                 ];
 
                 // deduplicate to prevent deletion errors
-                $entityKey = md5(json_encode($entity));
+                $entityKey = md5(JsonFieldSerializer::encodeJson($entity));
                 $entities[$entityKey] = $entity;
 
                 switch ($data->getAction()) {
@@ -245,7 +246,7 @@ class VersionManager
 
             return [
                 'entityId' => $id,
-                'payload' => json_encode($payload),
+                'payload' => JsonFieldSerializer::encodeJson($payload),
                 'userId' => $data->getUserId(),
                 'integrationId' => $data->getIntegrationId(),
                 'entityName' => $data->getEntityName(),
@@ -503,8 +504,8 @@ class VersionManager
                         'id' => $id,
                         'version_commit_id' => $commitId->getBytes(),
                         'entity_name' => $entityName,
-                        'entity_id' => json_encode($primary, JSON_UNESCAPED_UNICODE),
-                        'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                        'entity_id' => JsonFieldSerializer::encodeJson($primary),
+                        'payload' => JsonFieldSerializer::encodeJson($payload),
                         'user_id' => $userId,
                         'integration_id' => $integrationId,
                         'action' => $action,

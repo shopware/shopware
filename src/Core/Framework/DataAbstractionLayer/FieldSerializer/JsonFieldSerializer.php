@@ -49,6 +49,14 @@ class JsonFieldSerializer implements FieldSerializerInterface
         return JsonField::class;
     }
 
+    /**
+     * mariadbs `JSON_VALID` function does not allow escaped unicode.
+     */
+    public static function encodeJson($value, int $options = JSON_UNESCAPED_UNICODE): string
+    {
+        return \json_encode($value, $options);
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -72,7 +80,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
         }
 
         if ($value !== null) {
-            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+            $value = self::encodeJson($value);
         }
 
         yield $field->getStorageName() => $value;

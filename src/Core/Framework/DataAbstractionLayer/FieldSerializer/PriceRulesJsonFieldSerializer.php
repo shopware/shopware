@@ -70,7 +70,7 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_string($value) && $value !== null) {
-            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+            $value = JsonFieldSerializer::encodeJson($value);
         }
 
         yield $field->getStorageName() => $value;

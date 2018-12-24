@@ -6,6 +6,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
+use RuntimeException;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -15,8 +16,10 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollectionBuilder;
@@ -50,20 +53,21 @@ class Kernel extends HttpKernel
 
     public function registerBundles()
     {
-        $contents = require $this->getProjectDir() . '/config/bundles.php';
+        /** @var array $bundles */
+        $bundles = require $this->getProjectDir() . '/config/bundles.php';
 
         foreach (self::$plugins->getActives() as $plugin) {
-            $contents[\get_class($plugin)] = ['all' => true];
+            $bundles[\get_class($plugin)] = ['all' => true];
         }
 
-        foreach ($contents as $class => $envs) {
+        foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
                 yield new $class();
             }
         }
     }
 
-    public function boot($withPlugins = true)
+    public function boot($withPlugins = true): void
     {
         if ($this->booted === true) {
             if ($this->debug) {
@@ -95,6 +99,7 @@ class Kernel extends HttpKernel
         // init container
         $this->initializeContainer();
 
+        /** @var Bundle|ContainerAwareTrait $bundle */
         foreach ($this->getBundles() as $bundle) {
             $bundle->setContainer($this->container);
             $bundle->boot();
@@ -124,7 +129,7 @@ class Kernel extends HttpKernel
         return self::$connection;
     }
 
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return sprintf(
             '%s/var/cache/%s_%s',
@@ -134,7 +139,7 @@ class Kernel extends HttpKernel
         );
     }
 
-    public function getLogDir()
+    public function getLogDir(): string
     {
         return $this->getProjectDir() . '/var/logs';
     }
@@ -144,7 +149,7 @@ class Kernel extends HttpKernel
         return $this->getProjectDir() . '/custom/plugins';
     }
 
-    public function shutdown()
+    public function shutdown(): void
     {
         if (!$this->booted) {
             return;
@@ -153,7 +158,7 @@ class Kernel extends HttpKernel
         self::$plugins = new BundleCollection();
         self::$connection = null;
 
-        return parent::shutdown();
+        parent::shutdown();
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
@@ -206,7 +211,7 @@ class Kernel extends HttpKernel
         );
     }
 
-    protected function getContainerClass()
+    protected function getContainerClass(): string
     {
         $pluginHash = sha1(implode('', array_keys(self::getPlugins()->getActives())));
 
@@ -219,7 +224,9 @@ class Kernel extends HttpKernel
 
     protected function initializePlugins(): void
     {
-        $stmt = self::getConnection()->executeQuery('SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installation_date` IS NOT NULL');
+        $stmt = self::getConnection()->executeQuery(
+            'SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installation_date` IS NOT NULL'
+        );
         $activePlugins = $stmt->fetchAll(FetchMode::COLUMN);
 
         $finder = new Finder();
@@ -236,7 +243,7 @@ class Kernel extends HttpKernel
             $className = '\\' . $namespace . '\\' . $pluginName;
 
             if (!class_exists($className)) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     sprintf('Unable to load class %s for plugin %s in file %s', $className, $pluginName, $pluginFile)
                 );
             }
@@ -247,7 +254,7 @@ class Kernel extends HttpKernel
             $plugin = new $className($isActive);
 
             if (!$plugin instanceof Plugin) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     sprintf('Class %s must extend %s in file %s', \get_class($plugin), Plugin::class, $pluginFile)
                 );
             }
@@ -307,10 +314,10 @@ class Kernel extends HttpKernel
         }
     }
 
-    private function initializeDatabaseConnectionVariables()
+    private function initializeDatabaseConnectionVariables(): void
     {
         /** @var Connection $connection */
-        $connection = $this->container->get('Doctrine\DBAL\Connection');
+        $connection = $this->container->get(Connection::class);
 
         $nonDestructiveMigrations = $connection->executeQuery('
             SELECT `creation_timestamp`
@@ -333,12 +340,13 @@ class Kernel extends HttpKernel
         }
     }
 
-    private function initializeFeatureFlags()
+    private function initializeFeatureFlags(): void
     {
         $cacheFile = $this->getCacheDir() . '/features.php';
         $featureCache = new ConfigCache($cacheFile, $this->isDebug());
 
         if (!$featureCache->isFresh()) {
+            /** @var Finder $files */
             $files = (new Finder())
                 ->in(__DIR__ . '/Flag/')
                 ->name('feature_*.php')

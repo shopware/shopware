@@ -8,7 +8,7 @@ use Throwable;
 
 class UnknownPaymentMethodException extends ShopwareHttpException
 {
-    protected $code = 'UNKNOWN-PAYMENT-MEHTOD';
+    protected $code = 'UNKNOWN-PAYMENT-METHOD';
 
     public function __construct(string $token, $code = 0, Throwable $previous = null)
     {

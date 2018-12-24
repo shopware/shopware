@@ -72,7 +72,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
         }
 
         if ($value !== null) {
-            $value = json_encode($value);
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
         }
 
         yield $field->getStorageName() => $value;

@@ -235,6 +235,7 @@ class OrderRepositoryTest extends TestCase
                         'salutation' => 'Mr',
                         'title' => 'Doc',
                         'customerNumber' => 'Test',
+                        'guest' => true,
                         'group' => ['name' => 'testse2323'],
                         'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
                         'salesChannelId' => Defaults::SALES_CHANNEL,
@@ -242,6 +243,7 @@ class OrderRepositoryTest extends TestCase
                         'defaultShippingAddressId' => $addressId,
                         'addresses' => [
                             [
+                                'id' => $addressId,
                                 'salutation' => 'mr',
                                 'firstName' => 'Floy',
                                 'lastName' => 'Glover',

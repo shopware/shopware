@@ -1577,6 +1577,26 @@ class VersioningTest extends TestCase
         static::assertEquals('EAN-2-update', $products->get($id2)->getEan());
     }
 
+    public function testVersionCommitUtf8(): void
+    {
+        $product = [
+            'id' => Uuid::uuid4()->getHex(),
+            'name' => '😄',
+            'ean' => 'EAN-1',
+            'price' => ['gross' => 100, 'net' => 10],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $affected = $productRepository->create([$product], Context::createDefaultContext());
+        $writtenProductTranslations = $affected->getEventByDefinition(ProductTranslationDefinition::class)->getPayload();
+
+        static::assertCount(1, $writtenProductTranslations);
+        static::assertEquals('😄', $writtenProductTranslations[0]['name']);
+    }
+
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAll(

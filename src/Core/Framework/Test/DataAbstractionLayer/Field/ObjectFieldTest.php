@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -112,6 +113,32 @@ EOF;
         static::assertCount(1, $data);
         static::assertEquals($id->getBytes(), $data[0]['id']);
         static::assertEquals('{"_class":"Shopware\\\\Core\\\\Framework\\\\Pricing\\\\Price","net":10,"gross":20,"linked":false,"extensions":[]}', $data[0]['data']);
+    }
+
+    public function testWriteUtf8(): void
+    {
+        $id = Uuid::uuid4();
+        $context = $this->createWriteContext();
+
+        $cat = new CategoryEntity();
+        $cat->setName('😄');
+
+        $data = [
+            'id' => $id->getHex(),
+            'data' => $cat,
+        ];
+
+        $written = $this->getWriter()->insert(ObjectDefinition::class, [$data], $context);
+
+        static::assertArrayHasKey(ObjectDefinition::class, $written);
+        static::assertCount(1, $written[ObjectDefinition::class]);
+        $payload = $written[ObjectDefinition::class][0]['payload'];
+
+        static::assertArrayHasKey('data', $payload);
+        /** @var CategoryEntity $writtenCat */
+        $writtenCat = $written[ObjectDefinition::class][0]['payload']['data'];
+
+        static::assertEquals('😄', $writtenCat->getName());
     }
 
     protected function createWriteContext(): WriteContext

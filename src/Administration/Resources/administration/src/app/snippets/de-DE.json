@@ -40,6 +40,11 @@
     "sw-modal": {
       "labelClose": "Schließen"
     },
+    "sw-media-field": {
+      "labelToggleSearchExisting": "Medien suchen",
+      "labelToggleUploadNew": "Neue Medien hochladen",
+      "labelUnlink": "Verknüpfung aufheben"
+    },
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Löschen",
       "labelContextMenuRename": "Umbenennen",

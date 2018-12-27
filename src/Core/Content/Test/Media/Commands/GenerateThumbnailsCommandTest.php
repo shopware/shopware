@@ -28,6 +28,11 @@ class GenerateThumbnailsCommandTest extends TestCase
     private $mediaRepository;
 
     /**
+     * @var RepositoryInterface
+     */
+    private $mediaFolderRepository;
+
+    /**
      * @var GenerateThumbnailsCommand
      */
     private $thumbnailCommand;
@@ -45,6 +50,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     public function setUp()
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
         $this->context = $this->getContextWithWriteAccess();
@@ -63,8 +69,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
         static::assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
 
-        $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -121,8 +126,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals(1, preg_match('/.*Generated\s*1.*/', $string));
         static::assertEquals(1, preg_match('/.*Skipped\s*1.*/', $string));
 
-        $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
@@ -137,6 +141,60 @@ class GenerateThumbnailsCommandTest extends TestCase
                 }
             }
         }
+    }
+
+    public function testHappyPathWithGivenFolderName()
+    {
+        $this->createValidMediaFiles();
+
+        $input = new StringInput('--folder-name="test folder"');
+        $output = new BufferedOutput();
+
+        $this->runCommand($this->thumbnailCommand, $input, $output);
+
+        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
+        /** @var MediaEntity $updatedMedia */
+        foreach ($mediaResult->getEntities() as $updatedMedia) {
+            $thumbnails = $updatedMedia->getThumbnails();
+            static::assertEquals(2, $thumbnails->count());
+
+            foreach ($thumbnails as $thumbnail) {
+                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+            }
+        }
+    }
+
+    public function testSkipsMediaEntitiesFromDifferentFolders()
+    {
+        $this->createValidMediaFiles();
+        $this->mediaFolderRepository->create([
+            [
+                'name' => 'folder-to-search',
+                'useParentConfiguration' => false,
+                'configuration' => [],
+            ],
+        ], $this->context);
+
+        $input = new StringInput('--folder-name="folder-to-search"');
+        $output = new BufferedOutput();
+
+        $this->runCommand($this->thumbnailCommand, $input, $output);
+
+        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
+        foreach ($mediaResult->getEntities() as $updatedMedia) {
+            $thumbnails = $updatedMedia->getThumbnails();
+            static::assertEquals(0, $thumbnails->count());
+        }
+    }
+
+    public function testCommandAbortsIfNoFolderCanBeFound()
+    {
+        static::expectException(\UnexpectedValueException::class);
+        static::expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');
+
+        $input = new StringInput('--folder-name="non-existing-folder"');
+        $output = new BufferedOutput();
+        $this->runCommand($this->thumbnailCommand, $input, $output);
     }
 
     public function testItThrowsExceptionOnNonNumericBatchsize(): void

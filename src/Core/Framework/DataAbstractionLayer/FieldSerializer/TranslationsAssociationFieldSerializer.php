@@ -119,7 +119,13 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             $languageId = $keyValue;
             if ($isNumeric) {
                 // languageId is a property of $subResources. Also see formats above
-                $languageId = $subResources[$field->getReferenceField()];
+                if (isset($subResources[$field->getReferenceField()])) {
+                    $languageId = $subResources[$field->getReferenceField()];
+                } elseif (isset($subResources['language']['id'])) {
+                    $languageId = $subResources['language']['id'];
+                } else {
+                    throw new LanguageNotFoundException('');
+                }
             } elseif ($field->getReferenceField()) {
                 // the key is the language id, also write it into $subResources
                 $subResources[$field->getReferenceField()] = $languageId;

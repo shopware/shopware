@@ -7,7 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -22,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 class TranslationTest extends TestCase
 {
@@ -631,6 +635,94 @@ class TranslationTest extends TestCase
 
         // equals Defaults::LANGUAGE_SYSTEM now
         static::assertEquals(Defaults::LANGUAGE_SYSTEM, $child->getLanguageParentId());
+    }
+
+    public function testUpsert(): void
+    {
+        $data = [
+            [
+                'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                'manufacturer' => [
+                    'id' => 'e4e8988334a34bb48d397b41a611084f',
+                    'name' => 'Das blaue Haus',
+                    'link' => 'http://www.blaueshaus-shop.de',
+                ],
+                'tax' => [
+                    'id' => 'fe4eb0fd92a7417ebf8720a5148aae64',
+                    'taxRate' => 19,
+                    'name' => '19%',
+                ],
+                'price' => [
+                    'gross' => 7.9899999999999824,
+                    'net' => 6.7142857142857,
+                ],
+                'translations' => [
+                    [
+                        'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                        'name' => 'Backform gelb',
+                        'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
+                        'descriptionLong' => '
+    sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator incola, en per Nitesco, arx Persisto, incontinencia vis coloratus cogo in attonbitus quam repo immarcescibilis inceptum. Ego Vena series sudo ac Nitidus. Speculum, his opus in undo de editio Resideo impetus memor, inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.
+    ',
+                        'language' => [
+                            'id' => Defaults::LANGUAGE_SYSTEM,
+                            'name' => 'system',
+                        ],
+                    ],
+                ],
+                'media' => [
+                    [
+                        'id' => 'd610dccf27754a7faa5c22d7368e6d8f',
+                        'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                        'isCover' => true,
+                        'position' => 1,
+                        'media' => [
+                            'id' => '4b2252d11baa49f3a62e292888f5e439',
+                            'name' => 'Backform-gelb',
+                            'album' => [
+                                'id' => 'a7104eb19fc649fa86cf6fe6c26ad65a',
+                                'name' => 'Artikel',
+                                'position' => 2,
+                                'createThumbnails' => false,
+                                'thumbnailSize' => '200x200;600x600;1280x1280',
+                                'icon' => 'sprite-inbox',
+                                'thumbnailHighDpi' => true,
+                                'thumbnailQuality' => 90,
+                                'thumbnailHighDpiQuality' => 60,
+                            ],
+                        ],
+                    ],
+                ],
+                'active' => true,
+                'isCloseout' => false,
+                'pseudoSales' => 0,
+                'markAsTopseller' => false,
+                'allowNotification' => false,
+                'sales' => 0,
+                'stock' => 45,
+                'minStock' => 0,
+                'position' => 0,
+                'weight' => 0,
+                'minPurchase' => 1,
+                'shippingFree' => false,
+                'purchasePrice' => 0,
+            ],
+        ];
+        $productRepo = $this->getContainer()->get('product.repository');
+        $affected = $productRepo->upsert($data, Context::createDefaultContext());
+
+        static::assertNotNull($affected->getEventByDefinition(LanguageDefinition::class));
+
+        static::assertNotNull($affected->getEventByDefinition(ProductDefinition::class));
+        static::assertNotNull($affected->getEventByDefinition(ProductTranslationDefinition::class));
+
+        static::assertNotNull($affected->getEventByDefinition(TaxDefinition::class));
+
+        static::assertNotNull($affected->getEventByDefinition(ProductManufacturerDefinition::class));
+        static::assertNotNull($affected->getEventByDefinition(ProductManufacturerTranslationDefinition::class));
+
+        static::assertNotNull($affected->getEventByDefinition(ProductMediaDefinition::class));
+        static::assertNotNull($affected->getEventByDefinition(MediaDefinition::class));
     }
 
     private function addLanguage($id, $rootLanguageId = null): void

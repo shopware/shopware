@@ -110,7 +110,7 @@ class DetailControllerDecorator extends AbstractController
 To understand what you need to do, just take a look into the `Shopware\Storefront\Controller\DetailController`.
 The `DetailController` contains one `index` method, which returns a `Response` object.
 If the user is logged in, you want to call the original `index` method, to display the product detail page.
-You can achieve that by checking if the [context](../1-getting-started/20-getting-started.md) *add #context to generated link* holds user information.
+You can achieve that by checking if the [context](../1-getting-started/20-getting-started.md#context) holds user information.
 Otherwise, return a new `RedirectResponse`, which leads to the login page.
 Because you inherited from `AbstractController`, you can generate the URL based on the route's name, by calling `$this->generateUrl()`.
 To find the route's name, just take a look into the `Shopware\Storefront\Account\Controller\AccountController`,

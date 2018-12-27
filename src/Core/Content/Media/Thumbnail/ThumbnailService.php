@@ -6,6 +6,8 @@ use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
@@ -19,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ThumbnailService
 {
@@ -67,38 +68,64 @@ class ThumbnailService
      * @throws FileTypeNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
-    public function updateThumbnailsAfterUpload(MediaEntity $media, Context $context): void
-    {
-        $this->generateThumbnails($media, $context);
-    }
-
-    /**
-     * @throws FileNotFoundException
-     * @throws FileTypeNotSupportedException
-     * @throws ThumbnailCouldNotBeSavedException
-     */
     public function generateThumbnails(MediaEntity $media, Context $context): void
     {
-        if (!$media->hasFile()) {
+        if (!$this->mediaCanHaveThumbnails($media, $context)) {
             return;
         }
 
-        if (!$this->thumbnailsAreGeneratable($media)) {
-            throw new FileTypeNotSupportedException($media->getId());
+        $config = $media->getMediaFolder()->getConfiguration();
+        $this->createThumbnailsForSizes($media, $config, $config->getMediaThumbnailSizes(), $context);
+    }
+
+    public function updateThumbnails(MediaEntity $media, Context $context)
+    {
+        if (!$this->mediaCanHaveThumbnails($media, $context)) {
+            $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
         }
 
-        $config = $this->getConfigForMedia($media, $context);
+        $config = $media->getMediaFolder()->getConfiguration();
 
-        if ($config === null || $config->getCreateThumbnails() === false) {
-            return;
+        $expectedThumbnailSizes = $config->getMediaThumbnailSizes();
+        $createdThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
+
+        $toBeCreated = new MediaThumbnailSizeCollection();
+
+        /** @var MediaThumbnailSizeEntity $expectedThumbnailSize */
+        foreach ($expectedThumbnailSizes as $expectedThumbnailSize) {
+            foreach ($createdThumbnails as $createdThumbnail) {
+                if ($createdThumbnail->getWidth() === $expectedThumbnailSize->getWidth() &&
+                    $createdThumbnail->getHeight() === $expectedThumbnailSize->getHeight()
+                ) {
+                    $createdThumbnails->remove($createdThumbnail->getId());
+                    continue 2;
+                }
+            }
+
+            $toBeCreated->add($expectedThumbnailSize);
         }
 
+        $this->thumbnailRepository->delete($createdThumbnails->getIds(), $context);
+        $this->createThumbnailsForSizes($media, $config, $toBeCreated, $context);
+    }
+
+    public function deleteThumbnails(MediaEntity $media, Context $context): void
+    {
+        $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
+    }
+
+    private function createThumbnailsForSizes(
+        MediaEntity $media,
+        MediaFolderConfigurationEntity $config,
+        MediaThumbnailSizeCollection $thumbnailSizes,
+        Context $context
+    ): void {
         $mediaImage = $this->getImageResource($media);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 
         $savedThumbnails = [];
         try {
-            foreach ($config->getMediaThumbnailSizes() as $size) {
+            foreach ($thumbnailSizes as $size) {
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size, $config);
                 $thumbnail = $this->createNewImage(
                     $mediaImage,
@@ -126,24 +153,20 @@ class ThumbnailService
         }
     }
 
-    public function deleteThumbnails(MediaEntity $media, Context $context): void
-    {
-        $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
-    }
-
     private function getConfigForMedia(MediaEntity $media, Context $context): ?MediaFolderConfigurationEntity
     {
         if (!$media->getMediaFolderId()) {
             return null;
         }
 
-        $criteria = new ReadCriteria([$media->getMediaFolderId()]);
-        $thumbnailSizesCriteria = new Criteria();
-        $thumbnailSizesCriteria->addAssociation('mediaThumbnailSizes', new Criteria());
-        $criteria->addAssociation('configuration', $thumbnailSizesCriteria);
+        if ($media->getMediaFolder() !== null) {
+            return $media->getMediaFolder()->getConfiguration();
+        }
 
+        $criteria = new ReadCriteria([$media->getMediaFolderId()]);
         /** @var MediaFolderEntity $folder */
         $folder = $this->mediaFolderRepository->read($criteria, $context)->get($media->getMediaFolderId());
+        $media->setMediaFolder($folder);
 
         return $folder->getConfiguration();
     }
@@ -278,15 +301,34 @@ class ThumbnailService
         }
     }
 
-    private function thumbnailsAreGeneratable(MediaEntity $media): bool
+    private function mediaCanHaveThumbnails(MediaEntity $media, Context $context): bool
+    {
+        if (!$media->hasFile()) {
+            return false;
+        }
+
+        $this->thumbnailsAreGeneratable($media);
+
+        $config = $this->getConfigForMedia($media, $context);
+        if ($config === null) {
+            return false;
+        }
+
+        return $config->getCreateThumbnails();
+    }
+
+    /**
+     * @throws FileTypeNotSupportedException
+     */
+    private function thumbnailsAreGeneratable(MediaEntity $media): void
     {
         if ($media->getMediaType() instanceof ImageType &&
             !$media->getMediaType()->is(ImageType::VECTOR_GRAPHIC) &&
             !$media->getMediaType()->is(ImageType::ANIMATED)
         ) {
-            return true;
+            return;
         }
 
-        return false;
+        throw new FileTypeNotSupportedException($media->getId());
     }
 }

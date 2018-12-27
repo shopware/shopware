@@ -106,7 +106,7 @@ class FileSaver
         $this->saveFileToMediaDir($mediaFile, $media);
 
         try {
-            $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
+            $this->thumbnailService->generateThumbnails($media, $context);
         } catch (FileTypeNotSupportedException $e) {
             //ignore wrong filetype
         }

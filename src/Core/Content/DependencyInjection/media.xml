@@ -86,6 +86,8 @@
         <service id="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="media_folder.repository"/>
+
             <tag name="console.command"/>
         </service>
 

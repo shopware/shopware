@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -318,7 +319,7 @@ class PluginManager
                 'capability_enable' => true,
                 'capability_secure_uninstall' => true,
                 'refresh_date' => $refreshDate->format(Defaults::DATE_FORMAT),
-                'changes' => array_key_exists('changelog', $info) ? json_encode($info['changelog']) : null,
+                'changes' => array_key_exists('changelog', $info) ? JsonFieldSerializer::encodeJson($info['changelog']) : null,
             ];
 
             $currentPluginInfo = $installedPlugins[$pluginName] ?? null;

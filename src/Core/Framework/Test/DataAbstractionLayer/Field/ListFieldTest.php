@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ListDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
 class ListFieldTest extends TestCase
 {
@@ -134,6 +135,22 @@ EOF;
         $fieldException = $ex->getExceptions()[2];
         static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
         static::assertEquals('/data/3', $fieldException->getPath());
+    }
+
+    public function testWriteUtf8(): void
+    {
+        $type = [
+            'name' => 'test',
+            'screenshotUrls' => ['😄'],
+        ];
+
+        $written = $this->getWriter()->insert(SalesChannelTypeDefinition::class, [$type], $this->createWriteContext());
+
+        static::assertArrayHasKey(SalesChannelTypeDefinition::class, $written);
+        static::assertCount(1, $written[SalesChannelTypeDefinition::class]);
+        $payload = $written[SalesChannelTypeDefinition::class][0]['payload'];
+        static::assertCount(1, $payload['screenshotUrls']);
+        static::assertEquals('😄', $payload['screenshotUrls'][0]);
     }
 
     protected function createWriteContext(): WriteContext

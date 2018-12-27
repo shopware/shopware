@@ -296,6 +296,25 @@ EOF;
         static::assertEquals('/data/foo/baz/deep', $fieldException->getPath());
     }
 
+    public function testWriteUtf8(): void
+    {
+        $context = $this->createWriteContext();
+
+        $data = [
+            ['id' => Uuid::uuid4()->getHex(), 'data' => ['a' => '😄']],
+        ];
+
+        $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+
+        static::assertArrayHasKey(JsonDefinition::class, $written);
+        static::assertCount(1, $written[JsonDefinition::class]);
+        $payload = $written[JsonDefinition::class][0]['payload'];
+
+        static::assertArrayHasKey('data', $payload);
+        static::assertArrayHasKey('a', $payload['data']);
+        static::assertEquals('😄', $payload['data']['a']);
+    }
+
     protected function createWriteContext(): WriteContext
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());

@@ -9,7 +9,7 @@ class Migration1544778905AddKeepAspectRatioToFolderConfig extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1543492672;
+        return 1544778905;
     }
 
     public function update(Connection $connection): void

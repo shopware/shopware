@@ -28,7 +28,17 @@ class CustomerGroupDefinition extends EntityDefinition
         return 'customer_group';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return CustomerGroupCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CustomerGroupEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -45,15 +55,5 @@ class CustomerGroupDefinition extends EntityDefinition
             (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return CustomerGroupCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CustomerGroupEntity::class;
     }
 }

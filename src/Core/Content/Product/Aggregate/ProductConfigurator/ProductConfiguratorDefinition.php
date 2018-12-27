@@ -25,7 +25,22 @@ class ProductConfiguratorDefinition extends EntityDefinition
         return 'product_configurator';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ProductConfiguratorCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ProductConfiguratorEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return ProductDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -40,20 +55,5 @@ class ProductConfiguratorDefinition extends EntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ProductConfiguratorCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ProductConfiguratorEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return ProductDefinition::class;
     }
 }

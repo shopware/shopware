@@ -27,7 +27,22 @@ class OrderTransactionDefinition extends EntityDefinition
         return 'order_transaction';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderTransactionCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderTransactionEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return OrderDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -45,20 +60,5 @@ class OrderTransactionDefinition extends EntityDefinition
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             (new ManyToOneAssociationField('orderTransactionState', 'order_transaction_state_id', OrderTransactionStateDefinition::class, false))->setFlags(new RestrictDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderTransactionCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderTransactionEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return OrderDefinition::class;
     }
 }

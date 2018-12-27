@@ -36,7 +36,7 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         } elseif ($parameters->getContext()->has($field->getVersionReference(), 'versionId')) {
             // if the reference is already written, use the version id of the written entity
             $value = $parameters->getContext()->get($field->getVersionReference(), 'versionId');
-        } elseif ($parameters->getDefinition()::getRootEntity() === $field->getVersionReference()) {
+        } elseif ($parameters->getDefinition()::getParentDefinitionClass() === $field->getVersionReference()) {
             // if the current entity is a sub entity (e.g. order -> line-item)
             // and the version id isn't set, use the same version id of the own entity
             // this is the case, if a entity is created over a sub api call

@@ -43,7 +43,17 @@ class CategoryDefinition extends EntityDefinition
         return 'category';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return CategoryCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CategoryEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -89,15 +99,5 @@ class CategoryDefinition extends EntityDefinition
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new ReadOnly()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return CategoryCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CategoryEntity::class;
     }
 }

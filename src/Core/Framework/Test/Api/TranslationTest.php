@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Exception\MissingRootTranslationException;
 use Shopware\Core\System\Exception\MissingSystemTranslationException;
+use Shopware\Core\System\Language\TranslationValidator;
 use Shopware\Core\System\Locale\LocaleStruct;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -230,7 +231,7 @@ class TranslationTest extends TestCase
         $this->assertTranslationError(
             [
                 [
-                    'code' => MissingSystemTranslationException::MISSING_SYSTEM_TRANSLATION_VIOLATION,
+                    'code' => MissingSystemTranslationException::VIOLATION_MISSING_SYSTEM_TRANSLATION,
                     'status' => '400',
                     'source' => [
                         'pointer' => '/translations/' . Defaults::LANGUAGE_SYSTEM,
@@ -332,7 +333,7 @@ class TranslationTest extends TestCase
         $this->assertTranslationError(
             [
                 [
-                    'code' => MissingRootTranslationException::MISSING_ROOT_TRANSLATION_VIOLATION,
+                    'code' => MissingRootTranslationException::VIOLATION_MISSING_ROOT_TRANSLATION,
                     'status' => '400',
                     'source' => [
                         'pointer' => '/translations/' . $rootId,
@@ -520,12 +521,121 @@ class TranslationTest extends TestCase
 
         $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . $langId);
         $response = $this->getClient()->getResponse();
-        static::assertEquals(204, $response->getStatusCode());
+        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent(), true);
         static::assertEquals(null, $responseData['data']['attributes']['name']);
+    }
+
+    public function testDeleteSystemLanguageViolation(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $id = Uuid::uuid4()->getHex();
+
+        $categoryData = [
+            'id' => $id,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'Test category'],
+            ],
+        ];
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
+
+        static::assertEquals(204, $response->getStatusCode());
+        $this->assertEntityExists($this->getClient(), 'category', $id);
+
+        $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . Defaults::LANGUAGE_SYSTEM);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(400, $response->getStatusCode(), $response->getContent());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(TranslationValidator::VIOLATION_DELETE_SYSTEM_TRANSLATION, $data['errors'][0]['code']);
+        static::assertEquals('/' . $id . '/translations/' . Defaults::LANGUAGE_SYSTEM, $data['errors'][0]['source']['pointer']);
+    }
+
+    public function testDeleteEntityWithOneRootTranslation(): void
+    {
+        /**
+         * This works because the dal does not generate a `DeleteCommand` for the `CategoryTranslation`.
+         * The translation is delete by the foreign key delete cascade.
+         */
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $id = Uuid::uuid4()->getHex();
+        $rootId = Uuid::uuid4()->getHex();
+
+        $this->createLanguage($rootId);
+
+        $categoryData = [
+            'id' => $id,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'Test category'],
+            ],
+        ];
+
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
+
+        static::assertEquals(204, $response->getStatusCode());
+        $this->assertEntityExists($this->getClient(), 'category', $id);
+
+        $this->getClient()->request('DELETE', $baseResource . '/' . $id);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode());
+    }
+
+    public function testDeleteNonSystemRootTranslations(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $id = Uuid::uuid4()->getHex();
+        $rootDelete = Uuid::uuid4()->getHex();
+        $this->createLanguage($rootDelete);
+
+        $categoryData = [
+            'id' => $id,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'system'],
+                $rootDelete => ['name' => 'root delete'],
+            ],
+        ];
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
+
+        static::assertEquals(204, $response->getStatusCode());
+        $this->assertEntityExists($this->getClient(), 'category', $id);
+
+        $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . $rootDelete);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode());
+    }
+
+    public function testDeleteChildLanguageTranslation(): void
+    {
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $id = Uuid::uuid4()->getHex();
+        $rootId = Uuid::uuid4()->getHex();
+        $childId = Uuid::uuid4()->getHex();
+
+        $this->createLanguage($childId, $rootId);
+
+        $categoryData = [
+            'id' => $id,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'system'],
+                $rootId => ['name' => 'root'],
+                $childId => ['name' => 'child'],
+            ],
+        ];
+        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $response = $this->getClient()->getResponse();
+
+        static::assertEquals(204, $response->getStatusCode());
+        $this->assertEntityExists($this->getClient(), 'category', $id);
+
+        $this->getClient()->request('DELETE', $baseResource . '/' . $id . '/translations/' . $childId);
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(204, $response->getStatusCode());
     }
 
     public function testTranslationAssociation(): void

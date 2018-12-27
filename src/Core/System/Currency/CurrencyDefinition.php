@@ -33,7 +33,17 @@ class CurrencyDefinition extends EntityDefinition
         return 'currency';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return CurrencyCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CurrencyEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -52,15 +62,5 @@ class CurrencyDefinition extends EntityDefinition
             new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'currency_id', false, 'id'),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCurrencyDefinition::class, false, 'currency_id', 'sales_channel_id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return CurrencyCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CurrencyEntity::class;
     }
 }

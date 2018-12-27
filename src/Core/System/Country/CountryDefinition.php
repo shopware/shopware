@@ -33,7 +33,17 @@ class CountryDefinition extends EntityDefinition
         return 'country';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return CountryCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CountryEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -58,15 +68,5 @@ class CountryDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, false, 'country_id', 'sales_channel_id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return CountryCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CountryEntity::class;
     }
 }

@@ -34,7 +34,27 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
         return 'configuration_group_option';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ConfigurationGroupOptionCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ConfigurationGroupOptionEntity::class;
+    }
+
+    public static function getTranslationDefinitionClass(): ?string
+    {
+        return ConfigurationGroupOptionTranslationDefinition::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return ConfigurationGroupDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -51,25 +71,5 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new ReverseInherited('datasheet')),
             (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ConfigurationGroupOptionCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ConfigurationGroupOptionEntity::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return ConfigurationGroupOptionTranslationDefinition::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return ConfigurationGroupDefinition::class;
     }
 }

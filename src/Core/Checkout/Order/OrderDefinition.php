@@ -40,7 +40,17 @@ class OrderDefinition extends EntityDefinition
         return 'order';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -85,15 +95,5 @@ class OrderDefinition extends EntityDefinition
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
             new SearchKeywordAssociationField(),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderEntity::class;
     }
 }

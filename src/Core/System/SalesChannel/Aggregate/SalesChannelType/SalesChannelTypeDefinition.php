@@ -25,7 +25,17 @@ class SalesChannelTypeDefinition extends EntityDefinition
         return 'sales_channel_type';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return SalesChannelTypeCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return SalesChannelTypeEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -43,20 +53,5 @@ class SalesChannelTypeDefinition extends EntityDefinition
 
             new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'type_id', false, 'id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return SalesChannelTypeCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return SalesChannelTypeEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return SalesChannelDefinition::class;
     }
 }

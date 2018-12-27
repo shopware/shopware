@@ -21,7 +21,22 @@ class ShippingMethodPriceDefinition extends EntityDefinition
         return 'shipping_method_price';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ShippingMethodPriceCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ShippingMethodPriceEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return ShippingMethodDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -35,20 +50,5 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             new UpdatedAtField(),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ShippingMethodPriceCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ShippingMethodPriceEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return ShippingMethodDefinition::class;
     }
 }

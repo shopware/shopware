@@ -237,6 +237,7 @@ class EntityWriter implements EntityWriterInterface
             );
         }
 
+        $writeContext->setLanguages($this->languageLoader->loadLanguages());
         $identifiers = $this->getWriteIdentifiers($commandQueue);
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 

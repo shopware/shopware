@@ -23,7 +23,22 @@ class UserAccessKeyDefinition extends EntityDefinition
         return 'user_access_key';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return UserAccessKeyCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return UserAccessKeyEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return UserDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -35,20 +50,5 @@ class UserAccessKeyDefinition extends EntityDefinition
             new DateField('last_usage_at', 'lastUsageAt'),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return UserAccessKeyCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return UserAccessKeyEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return UserDefinition::class;
     }
 }

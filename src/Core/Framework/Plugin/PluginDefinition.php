@@ -24,7 +24,17 @@ class PluginDefinition extends EntityDefinition
         return 'plugin';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return PluginCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return PluginEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -55,15 +65,5 @@ class PluginDefinition extends EntityDefinition
             new StringField('update_version', 'updateVersion'),
             (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return PluginCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return PluginEntity::class;
     }
 }

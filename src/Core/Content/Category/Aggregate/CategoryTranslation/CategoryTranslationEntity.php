@@ -27,6 +27,11 @@ class CategoryTranslationEntity extends Entity
     /**
      * @var string|null
      */
+    protected $languageParentId;
+
+    /**
+     * @var string|null
+     */
     protected $name;
 
     /**
@@ -122,6 +127,16 @@ class CategoryTranslationEntity extends Entity
     public function setLanguageId(string $languageId): void
     {
         $this->languageId = $languageId;
+    }
+
+    public function getLanguageParentId(): ?string
+    {
+        return $this->languageParentId;
+    }
+
+    public function setLanguageParentId(?string $languageParentId): void
+    {
+        $this->languageParentId = $languageParentId;
     }
 
     public function getName(): ?string

@@ -20,11 +20,11 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class LanguageValidator implements WriteCommandValidatorInterface
 {
-    public const PARENT_HAS_PARENT_VIOLATION = 'parent_has_parent_violation';
+    public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';
 
-    public const CODE_REQUIRED_FOR_ROOT_LANGUAGE = 'code_required_for_root_language';
+    public const VIOLATION_CODE_REQUIRED_FOR_ROOT_LANGUAGE = 'code_required_for_root_language';
 
-    public const DELETE_DEFAULT_LANGUAGE_VIOLATION = 'delete_default_language_violation';
+    public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
 
     public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_DE];
 
@@ -77,7 +77,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
                     null,
                     '/' . $id,
                     $id,
-                    self::DELETE_DEFAULT_LANGUAGE_VIOLATION
+                    self::VIOLATION_DELETE_DEFAULT_LANGUAGE
                 )
             );
         }
@@ -108,7 +108,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
                     null,
                     '/' . $id . '/parentId',
                     $id,
-                    self::PARENT_HAS_PARENT_VIOLATION
+                    self::VIOLATION_PARENT_HAS_PARENT
                 )
             );
         }
@@ -140,7 +140,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
                     null,
                     '/' . $id . '/translationCodeId',
                     $id,
-                    self::CODE_REQUIRED_FOR_ROOT_LANGUAGE
+                    self::VIOLATION_CODE_REQUIRED_FOR_ROOT_LANGUAGE
                 )
             );
         }

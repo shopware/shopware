@@ -65,7 +65,38 @@ class ProductDefinition extends EntityDefinition
         return true;
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ProductCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ProductEntity::class;
+    }
+
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        if ($existence->exists()) {
+            return [];
+        }
+        if ($existence->isChild()) {
+            return [];
+        }
+
+        return [
+            'minPurchase' => 1,
+            'isCloseout' => false,
+            'purchaseSteps' => 1,
+            'shippingFree' => false,
+            'sales' => 0,
+            'restockTime' => 1,
+            'minDeliveryTime' => 1,
+            'maxDeliveryTime' => 2,
+        ];
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -166,36 +197,5 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ProductCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ProductEntity::class;
-    }
-
-    public static function getDefaults(EntityExistence $existence): array
-    {
-        if ($existence->exists()) {
-            return [];
-        }
-        if ($existence->isChild()) {
-            return [];
-        }
-
-        return [
-            'minPurchase' => 1,
-            'isCloseout' => false,
-            'purchaseSteps' => 1,
-            'shippingFree' => false,
-            'sales' => 0,
-            'restockTime' => 1,
-            'minDeliveryTime' => 1,
-            'maxDeliveryTime' => 2,
-        ];
     }
 }

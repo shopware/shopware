@@ -27,7 +27,22 @@ class ProductPriceRuleDefinition extends EntityDefinition
         return 'product_price_rule';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ProductPriceRuleCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ProductPriceRuleEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return ProductDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -45,20 +60,5 @@ class ProductPriceRuleDefinition extends EntityDefinition
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ProductPriceRuleCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ProductPriceRuleEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return ProductDefinition::class;
     }
 }

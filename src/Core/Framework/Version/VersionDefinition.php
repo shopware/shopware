@@ -33,17 +33,6 @@ class VersionDefinition extends EntityDefinition
         return 'entity.version';
     }
 
-    public static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new CreatedAtField(),
-            new UpdatedAtField(),
-            new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),
-        ]);
-    }
-
     public static function getCollectionClass(): string
     {
         return VersionCollection::class;
@@ -60,5 +49,16 @@ class VersionDefinition extends EntityDefinition
             'name' => sprintf('Draft (%s)', date(Defaults::DATE_FORMAT)),
             'createdAt' => date(\DateTime::ATOM),
         ];
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            new CreatedAtField(),
+            new UpdatedAtField(),
+            new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),
+        ]);
     }
 }

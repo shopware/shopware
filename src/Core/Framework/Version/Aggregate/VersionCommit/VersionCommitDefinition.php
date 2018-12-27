@@ -38,22 +38,6 @@ class VersionCommitDefinition extends EntityDefinition
         return 'entity.version_commit';
     }
 
-    public static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('version_id', 'versionId', VersionDefinition::class))->setFlags(new Required()),
-            new IdField('user_id', 'userId'),
-            new IdField('integration_id', 'integrationId'),
-            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
-            new BoolField('is_merge', 'isMerge'),
-            (new StringField('message', 'message'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new CreatedAtField(),
-            (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),
-            new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),
-        ]);
-    }
-
     public static function getCollectionClass(): string
     {
         return VersionCommitCollection::class;
@@ -72,8 +56,24 @@ class VersionCommitDefinition extends EntityDefinition
         ];
     }
 
-    public static function getRootEntity(): ?string
+    public static function getParentDefinitionClass(): ?string
     {
         return VersionDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('version_id', 'versionId', VersionDefinition::class))->setFlags(new Required()),
+            new IdField('user_id', 'userId'),
+            new IdField('integration_id', 'integrationId'),
+            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
+            new BoolField('is_merge', 'isMerge'),
+            (new StringField('message', 'message'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            new CreatedAtField(),
+            (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),
+        ]);
     }
 }

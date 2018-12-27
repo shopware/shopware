@@ -21,7 +21,17 @@ class SnippetSetDefinition extends EntityDefinition
         return 'snippet_set';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return SnippetSetCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return SnippetSetEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -32,15 +42,5 @@ class SnippetSetDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false))->setFlags(new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return SnippetSetCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return SnippetSetEntity::class;
     }
 }

@@ -38,7 +38,17 @@ class PaymentMethodDefinition extends EntityDefinition
         return 'payment_method';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return PaymentMethodCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return PaymentMethodEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -74,15 +84,5 @@ class PaymentMethodDefinition extends EntityDefinition
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, false, 'payment_method_id', 'sales_channel_id'),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return PaymentMethodCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return PaymentMethodEntity::class;
     }
 }

@@ -23,7 +23,22 @@ class SnippetDefinition extends EntityDefinition
         return 'snippet';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return SnippetCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return SnippetEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return SnippetSetDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -36,20 +51,5 @@ class SnippetDefinition extends EntityDefinition
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return SnippetCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return SnippetEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return SnippetSetDefinition::class;
     }
 }

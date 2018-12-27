@@ -34,7 +34,22 @@ class VersionCommitDataDefinition extends EntityDefinition
         return 'entity.version_commit_data';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return VersionCommitDataCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return VersionCommitDataEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return VersionCommitDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -49,20 +64,5 @@ class VersionCommitDataDefinition extends EntityDefinition
             (new VersionDataPayloadField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             new CreatedAtField(),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return VersionCommitDataCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return VersionCommitDataEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return VersionCommitDataDefinition::class;
     }
 }

@@ -27,7 +27,17 @@ class ListingSortingDefinition extends EntityDefinition
         return 'listing_sorting';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ListingSortingCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ListingSortingEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -41,15 +51,5 @@ class ListingSortingDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new TranslationsAssociationField(ListingSortingTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ListingSortingCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ListingSortingEntity::class;
     }
 }

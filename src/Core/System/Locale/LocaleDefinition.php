@@ -27,7 +27,17 @@ class LocaleDefinition extends EntityDefinition
         return 'locale';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return LocaleCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return LocaleEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -40,15 +50,5 @@ class LocaleDefinition extends EntityDefinition
             (new TranslationsAssociationField(LocaleTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return LocaleCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return LocaleEntity::class;
     }
 }

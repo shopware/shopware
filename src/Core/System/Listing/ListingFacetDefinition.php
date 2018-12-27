@@ -26,7 +26,17 @@ class ListingFacetDefinition extends EntityDefinition
         return 'listing_facet';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return ListingFacetCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return ListingFacetEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -41,15 +51,5 @@ class ListingFacetDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new TranslationsAssociationField(ListingFacetTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return ListingFacetCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return ListingFacetEntity::class;
     }
 }

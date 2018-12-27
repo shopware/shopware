@@ -28,7 +28,22 @@ class OrderAddressDefinition extends EntityDefinition
         return 'order_address';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return OrderAddressCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return OrderAddressEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return OrderDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -58,20 +73,5 @@ class OrderAddressDefinition extends EntityDefinition
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return OrderAddressCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return OrderAddressEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return OrderDefinition::class;
     }
 }

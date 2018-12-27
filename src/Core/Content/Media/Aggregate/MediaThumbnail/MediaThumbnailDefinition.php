@@ -25,7 +25,22 @@ class MediaThumbnailDefinition extends EntityDefinition
         return 'media_thumbnail';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return MediaThumbnailCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return MediaThumbnailEntity::class;
+    }
+
+    public static function getParentDefinitionClass(): ?string
+    {
+        return MediaDefinition::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -40,20 +55,5 @@ class MediaThumbnailDefinition extends EntityDefinition
 
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return MediaThumbnailCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return MediaThumbnailEntity::class;
-    }
-
-    public static function getRootEntity(): ?string
-    {
-        return MediaDefinition::class;
     }
 }

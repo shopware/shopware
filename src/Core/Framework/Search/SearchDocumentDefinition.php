@@ -20,7 +20,17 @@ class SearchDocumentDefinition extends EntityDefinition
         return 'search_document';
     }
 
-    public static function defineFields(): FieldCollection
+    public static function getCollectionClass(): string
+    {
+        return SearchDocumentCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return SearchDocumentEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -31,15 +41,5 @@ class SearchDocumentDefinition extends EntityDefinition
             (new FloatField('ranking', 'ranking'))->setFlags(new Required()),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
-    }
-
-    public static function getCollectionClass(): string
-    {
-        return SearchDocumentCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return SearchDocumentEntity::class;
     }
 }

@@ -462,7 +462,7 @@ class WriterTest extends TestCase
 
     public function testInsertIgnoresDeferredFields(): void
     {
-        self::assertNotNull(MediaDefinition::defineFields()->get('url')->getFlag(Deferred::class));
+        self::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $writeContext->getContext()->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -490,7 +490,7 @@ class WriterTest extends TestCase
 
     public function testUpdateIgnoresDeferredFields(): void
     {
-        self::assertNotNull(MediaDefinition::defineFields()->get('url')->getFlag(Deferred::class));
+        self::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $writeContext->getContext()->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);

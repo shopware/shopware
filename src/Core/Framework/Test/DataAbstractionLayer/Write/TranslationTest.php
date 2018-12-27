@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -491,5 +493,174 @@ class TranslationTest extends TestCase
         static::assertEquals('system', $catDeDe->getViewData()->getName());
 
         static::assertCount(1, $catDeDe->getTranslations());
+    }
+
+    public function testParentLanguageIdIsWritten(): void
+    {
+        $rootId = Uuid::uuid4()->getHex();
+        $id = Uuid::uuid4()->getHex();
+
+        $this->addLanguage($id, $rootId);
+
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $category = [
+            'name' => 'system',
+            'translations' => [
+                $rootId => ['name' => 'root'],
+                $id => ['name' => 'child'],
+            ],
+        ];
+
+        $result = $categoryRepository->create([$category], $this->context);
+        $categories = $result->getEventByDefinition(CategoryDefinition::class);
+        static::assertCount(1, $categories->getIds());
+
+        $translations = $result->getEventByDefinition(CategoryTranslationDefinition::class);
+        static::assertCount(3, $translations->getIds());
+
+        $payload = $translations->getPayload();
+        static::assertEquals('root', $payload[0]['name']);
+        static::assertEquals('system', $payload[1]['name']);
+        static::assertEquals('child', $payload[2]['name']);
+
+        static::assertNull($payload[0]['languageParentId']);
+        static::assertNull($payload[1]['languageParentId']);
+        static::assertEquals($rootId, $payload[2]['languageParentId']);
+    }
+
+    public function testCascadeDeleteRootTranslation(): void
+    {
+        $rootId = Uuid::uuid4()->getHex();
+        $id = Uuid::uuid4()->getHex();
+
+        $this->addLanguage($id, $rootId);
+
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $catId = Uuid::uuid4()->getHex();
+        $category = [
+            'id' => $catId,
+            'name' => 'system',
+            'translations' => [
+                $rootId => ['name' => 'root'],
+                $id => ['name' => 'child'],
+            ],
+        ];
+
+        $categoryRepository->create([$category], $this->context);
+
+        $categoryTranslationRepository = $this->getContainer()->get('category_translation.repository');
+        $deleteId = ['categoryId' => $catId, 'languageId' => $rootId];
+        $categoryTranslationRepository->delete([$deleteId], $this->context);
+
+        /* @var CategoryEntity $categoryResult */
+        $categoryResult = $categoryRepository->read(new ReadCriteria(['id' => $catId]), $this->context)->first();
+
+        $translations = $categoryResult->getTranslations();
+        static::assertCount(1, $translations);
+        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translations->first()->getLanguageId());
+    }
+
+    public function testChangeParentLanguage(): void
+    {
+        $rootId = Uuid::uuid4()->getHex();
+        $id = Uuid::uuid4()->getHex();
+
+        $this->addLanguage($id, $rootId);
+        $languageChain = [$id, $rootId, Defaults::LANGUAGE_SYSTEM];
+        $context = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, $languageChain);
+
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $catId = Uuid::uuid4()->getHex();
+        $category = [
+            'id' => $catId,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => 'system'],
+                $rootId => ['name' => 'root'],
+                $id => ['name' => 'child'],
+            ],
+        ];
+
+        $categoryRepository->create([$category], $context);
+
+        /** @var CategoryEntity $category */
+        $category = $categoryRepository->read(new ReadCriteria([$catId]), $context)->first();
+
+        $translations = $category->getTranslations();
+        static::assertCount(3, $translations);
+
+        $system = $translations->get($catId . '-' . Defaults::LANGUAGE_SYSTEM);
+        $root = $translations->get($catId . '-' . $rootId);
+        $child = $translations->get($catId . '-' . $id);
+
+        static::assertEquals('system', $system->getName());
+        static::assertEquals('root', $root->getName());
+        static::assertEquals('child', $child->getName());
+
+        static::assertNull($system->getLanguageParentId());
+        static::assertNull($root->getLanguageParentId());
+        static::assertEquals($root->getLanguageId(), $child->getLanguageParentId());
+
+        // change parent id
+        $languageUpdate = [
+            'id' => $id,
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+        ];
+        $result = $this->languageRepository->update([$languageUpdate], $context);
+        $categoryEvents = $result->getEventByDefinition(LanguageDefinition::class);
+        static::assertEquals([$id], $categoryEvents->getIds());
+
+        /** @var CategoryEntity $category */
+        $category = $categoryRepository->read(new ReadCriteria([$catId]), $context)->first();
+
+        $translations = $category->getTranslations();
+        static::assertCount(3, $translations);
+
+        $system = $translations->get($catId . '-' . Defaults::LANGUAGE_SYSTEM);
+        $root = $translations->get($catId . '-' . $rootId);
+        $child = $translations->get($catId . '-' . $id);
+
+        static::assertEquals('system', $system->getName());
+        static::assertEquals('root', $root->getName());
+        static::assertEquals('child', $child->getName());
+
+        static::assertNull($system->getLanguageParentId());
+        static::assertNull($root->getLanguageParentId());
+
+        // equals Defaults::LANGUAGE_SYSTEM now
+        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $child->getLanguageParentId());
+    }
+
+    private function addLanguage($id, $rootLanguageId = null): void
+    {
+        $languages = [];
+        if ($rootLanguageId) {
+            $languages[] = [
+                'id' => $rootLanguageId,
+                'name' => 'root language ' . $rootLanguageId,
+                'localeId' => Defaults::LOCALE_SYSTEM,
+                'translationCode' => [
+                    'code' => 'x-tst_root_' . $rootLanguageId,
+                    'name' => 'root iso name' . $rootLanguageId,
+                    'territory' => 'root territory ' . $rootLanguageId,
+                ],
+            ];
+        }
+
+        $languages[] = [
+            'id' => $id,
+            'parentId' => $rootLanguageId,
+            'name' => 'test language ' . $id,
+            'localeId' => Defaults::LOCALE_SYSTEM,
+            'translationCode' => [
+                'code' => 'x-tst_' . $id,
+                'name' => 'iso name' . $id,
+                'territory' => 'territory ' . $id,
+            ],
+        ];
+
+        $this->languageRepository->create($languages, $this->context);
     }
 }

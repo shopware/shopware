@@ -95,7 +95,7 @@ class SwagAdministrationExample extends Plugin {
 
 This is already a valid shopware plugin. You can however add additional functionality like for example custom install or update methods. Only the bootstrap class is required to start making changes in the administration.
 
-[Learn about Plugins](../1-getting-started/getting-started.md) 
+[Learn about Plugins](../1-getting-started/20-getting-started.md) 
 
 ## Install the plugin
 

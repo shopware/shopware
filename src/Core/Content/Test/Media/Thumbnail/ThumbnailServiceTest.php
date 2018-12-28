@@ -67,7 +67,7 @@ class ThumbnailServiceTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
-        $this->thumbnailService->generateThumbnails(
+        $this->thumbnailService->createThumbnailsForNewFile(
             $media,
             $this->context
         );
@@ -110,7 +110,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPngWithFolder();
 
         $this->expectException(FileNotFoundException::class);
-        $this->thumbnailService->generateThumbnails(
+        $this->thumbnailService->createThumbnailsForNewFile(
             $media,
             $this->context
         );
@@ -125,7 +125,7 @@ class ThumbnailServiceTest extends TestCase
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
         $this->expectException(FileTypeNotSupportedException::class);
-        $this->thumbnailService->generateThumbnails(
+        $this->thumbnailService->createThumbnailsForNewFile(
             $media,
             $this->context
         );
@@ -225,7 +225,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->expectException(FileTypeNotSupportedException::class);
 
-        $this->thumbnailService->generateThumbnails(
+        $this->thumbnailService->createThumbnailsForNewFile(
             $media,
             $this->context
         );
@@ -239,7 +239,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->expectException(FileTypeNotSupportedException::class);
 
-        $this->thumbnailService->generateThumbnails(
+        $this->thumbnailService->createThumbnailsForNewFile(
             $media,
             $this->context
         );
@@ -253,7 +253,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->expectException(FileTypeNotSupportedException::class);
 
-        $this->thumbnailService->generateThumbnails(
+        $this->thumbnailService->createThumbnailsForNewFile(
             $media,
             $this->context
         );

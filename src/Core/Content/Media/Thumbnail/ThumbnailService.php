@@ -68,7 +68,7 @@ class ThumbnailService
      * @throws FileTypeNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
-    public function generateThumbnails(MediaEntity $media, Context $context): void
+    public function createThumbnailsForNewFile(MediaEntity $media, Context $context): void
     {
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
             return;
@@ -86,27 +86,23 @@ class ThumbnailService
 
         $config = $media->getMediaFolder()->getConfiguration();
 
-        $expectedThumbnailSizes = $config->getMediaThumbnailSizes();
-        $createdThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
+        $tobBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
+        $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
 
-        $toBeCreated = new MediaThumbnailSizeCollection();
-
-        /** @var MediaThumbnailSizeEntity $expectedThumbnailSize */
-        foreach ($expectedThumbnailSizes as $expectedThumbnailSize) {
-            foreach ($createdThumbnails as $createdThumbnail) {
-                if ($createdThumbnail->getWidth() === $expectedThumbnailSize->getWidth() &&
-                    $createdThumbnail->getHeight() === $expectedThumbnailSize->getHeight()
+        foreach ($tobBeCreatedSizes as $thumbnailSize) {
+            foreach ($toBeDeletedThumbnails as $thumbnail) {
+                if ($thumbnail->getWidth() === $thumbnailSize->getWidth() &&
+                    $thumbnail->getHeight() === $thumbnailSize->getHeight()
                 ) {
-                    $createdThumbnails->remove($createdThumbnail->getId());
+                    $toBeDeletedThumbnails->remove($thumbnail->getId());
+                    $tobBeCreatedSizes->remove($thumbnailSize->getId());
                     continue 2;
                 }
             }
-
-            $toBeCreated->add($expectedThumbnailSize);
         }
 
-        $this->thumbnailRepository->delete($createdThumbnails->getIds(), $context);
-        $this->createThumbnailsForSizes($media, $config, $toBeCreated, $context);
+        $this->thumbnailRepository->delete($toBeDeletedThumbnails->getIds(), $context);
+        $this->createThumbnailsForSizes($media, $config, $tobBeCreatedSizes, $context);
     }
 
     public function deleteThumbnails(MediaEntity $media, Context $context): void
@@ -153,22 +149,20 @@ class ThumbnailService
         }
     }
 
-    private function getConfigForMedia(MediaEntity $media, Context $context): ?MediaFolderConfigurationEntity
+    private function ensureConfigIsLoaded(MediaEntity $media, Context $context): void
     {
         if (!$media->getMediaFolderId()) {
-            return null;
+            return;
         }
 
         if ($media->getMediaFolder() !== null) {
-            return $media->getMediaFolder()->getConfiguration();
+            return;
         }
 
         $criteria = new ReadCriteria([$media->getMediaFolderId()]);
         /** @var MediaFolderEntity $folder */
         $folder = $this->mediaFolderRepository->read($criteria, $context)->get($media->getMediaFolderId());
         $media->setMediaFolder($folder);
-
-        return $folder->getConfiguration();
     }
 
     /**
@@ -309,12 +303,13 @@ class ThumbnailService
 
         $this->thumbnailsAreGeneratable($media);
 
-        $config = $this->getConfigForMedia($media, $context);
-        if ($config === null) {
+        $this->ensureConfigIsLoaded($media, $context);
+
+        if ($media->getMediaFolder() === null || $media->getMediaFolder()->getConfiguration() === null) {
             return false;
         }
 
-        return $config->getCreateThumbnails();
+        return $media->getMediaFolder()->getConfiguration()->getCreateThumbnails();
     }
 
     /**

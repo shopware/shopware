@@ -106,9 +106,9 @@ class ApiController extends AbstractController
         return new JsonResponse(JsonType::format($result));
     }
 
-    public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
+    public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $pathSegments = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($entityName, $path);
 
         $root = $pathSegments[0]['entity'];
         $id = $pathSegments[\count($pathSegments) - 1]['value'];
@@ -143,49 +143,49 @@ class ApiController extends AbstractController
         return $responseFactory->createDetailResponse($entity, $definition, $request, $context);
     }
 
-    public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
+    public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $result = $this->fetchListing($request, $context, $path);
+        $result = $this->fetchListing($request, $context, $entityName, $path);
 
-        $definition = $this->getDefinitionOfPath($path);
+        $definition = $this->getDefinitionOfPath($entityName, $path);
 
         return $responseFactory->createListingResponse($result, $definition, $request, $context);
     }
 
-    public function list(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
+    public function list(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $result = $this->fetchListing($request, $context, $path);
+        $result = $this->fetchListing($request, $context, $entityName, $path);
 
-        $definition = $this->getDefinitionOfPath($path);
+        $definition = $this->getDefinitionOfPath($entityName, $path);
 
         return $responseFactory->createListingResponse($result, $definition, $request, $context);
     }
 
-    public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
+    public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
         }
 
-        return $this->write($request, $context, $responseFactory, $path, self::WRITE_CREATE);
+        return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_CREATE);
     }
 
-    public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
+    public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
         }
 
-        return $this->write($request, $context, $responseFactory, $path, self::WRITE_UPDATE);
+        return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_UPDATE);
     }
 
-    public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path): Response
+    public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
         }
 
-        $pathSegments = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($entityName, $path);
 
         $last = $pathSegments[\count($pathSegments) - 1];
 
@@ -293,9 +293,9 @@ class ApiController extends AbstractController
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
-    private function fetchListing(Request $request, Context $context, string $path): EntitySearchResult
+    private function fetchListing(Request $request, Context $context, string $entityName, string $path): EntitySearchResult
     {
-        $pathSegments = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($entityName, $path);
 
         $first = array_shift($pathSegments);
 
@@ -400,9 +400,9 @@ class ApiController extends AbstractController
         return $repository->search($criteria, $context);
     }
 
-    private function getDefinitionOfPath(string $path): string
+    private function getDefinitionOfPath(string $entityName, string $path): string
     {
-        $pathSegments = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($entityName, $path);
 
         $first = array_shift($pathSegments);
 
@@ -429,7 +429,7 @@ class ApiController extends AbstractController
         return $child['definition'];
     }
 
-    private function write(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $path, string $type): Response
+    private function write(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path, string $type): Response
     {
         $payload = $this->getRequestBody($request);
         $noContent = !$request->query->has('_response');
@@ -440,7 +440,7 @@ class ApiController extends AbstractController
             throw new BadRequestHttpException('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
         }
 
-        $pathSegments = $this->buildEntityPath($path);
+        $pathSegments = $this->buildEntityPath($entityName, $path);
 
         $last = $pathSegments[\count($pathSegments) - 1];
 
@@ -612,9 +612,9 @@ class ApiController extends AbstractController
         return $this->getAssociation($nested, $keys);
     }
 
-    private function buildEntityPath(string $pathInfo): array
+    private function buildEntityPath(string $entityName, string $pathInfo): array
     {
-        $exploded = explode('/', $pathInfo);
+        $exploded = explode('/', $entityName . '/' . ltrim($pathInfo, '/'));
 
         $parts = [];
         foreach ($exploded as $index => $part) {

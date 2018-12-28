@@ -84,11 +84,11 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    public function testExecuteWithCustomBatchSize(): void
+    public function testExecuteWithCustomLimit(): void
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput('-b 1');
+        $input = new StringInput('-l 2');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -197,10 +197,10 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
     }
 
-    public function testItThrowsExceptionOnNonNumericBatchsize(): void
+    public function testItThrowsExceptionOnNonNumericLimit(): void
     {
         static::expectException(\Exception::class);
-        $input = new StringInput('-b test');
+        $input = new StringInput('-i test');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -240,6 +240,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->setFixtureContext($this->context);
         $mediaPdf = $this->getPdf();
         $mediaJpg = $this->getJpgWithFolder();
+
+        $this->mediaRepository->update([
+            [
+                'id' => $mediaPdf->getId(),
+                'mediaFolderId' => $mediaJpg->getMediaFolderId(),
+            ],
+        ], $this->context);
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(

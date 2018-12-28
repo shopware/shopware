@@ -15,8 +15,9 @@ const webpackConfig = process.env.NODE_ENV === 'testing'
     ? require('./webpack.prod.conf')
     : require('./webpack.dev.conf');
 
-// default port where dev server listens for incoming traffic
+// default host + port where dev server listens for incoming traffic
 const port = process.env.PORT || config.dev.port;
+const host = process.env.HOST || config.dev.host;
 
 // automatically open browser, if not set will be false
 const autoOpenBrowser = !!config.dev.autoOpenBrowser;
@@ -82,7 +83,7 @@ staticPaths.forEach((paths) => {
     app.use('/static', express.static(paths.systemPath));
 });
 
-const uri = 'http://localhost:' + port;
+const uri = 'http://' + host + ':' + port;
 
 console.log('# Compiling Webpack configuration');
 console.log(`Environment: ${process.env.NODE_ENV}`);
@@ -97,7 +98,7 @@ devMiddleware.waitUntilValid(() => {
     console.log('Dev server listening at ' + uri + '\n');
 });
 
-module.exports = app.listen(port, (err) => {
+module.exports = app.listen(port, host, (err) => {
     if (err) {
         console.log(err);
         return false;

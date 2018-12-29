@@ -151,9 +151,14 @@ class VersionManager
         $this->entityWriter->upsert(VersionDefinition::class, [$versionData], $context);
 
         /** @var EntityDefinition|string $definition */
-        $identifiers = $this->clone($definition, $primaryKey, $versionId, $context);
+        $affected = $this->clone($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context);
 
-        $this->writeAuditLog($identifiers, $context, 'clone', $versionId);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+
+        $this->writeAuditLog($affected, $context, 'clone', $versionId);
 
         return $versionId;
     }
@@ -307,10 +312,15 @@ class VersionManager
         }
     }
 
-    private function clone(string $definition, array $primaryKey, string $versionId, WriteContext $context): array
-    {
+    public function clone(
+        string $definition,
+        string $id,
+        string $newId,
+        string $versionId,
+        WriteContext $context
+    ): array {
         /** @var string|EntityDefinition $definition */
-        $criteria = new ReadCriteria([$primaryKey['id']]);
+        $criteria = new ReadCriteria([$id]);
 
         //add all cascade delete associations
         $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
@@ -321,25 +331,23 @@ class VersionManager
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
         if ($detail === null) {
-            throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), print_r($primaryKey, true)));
+            throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), $id));
         }
 
         $data = json_decode($this->serializer->serialize($detail, 'json'), true);
         $data = JsonType::format($data);
 
-        $data = $this->filterPropertiesForClone($definition, $data);
+        $keepIds = $newId === $id;
+
+        $data = $this->filterPropertiesForClone($definition, $data, $keepIds);
+        $data['id'] = $newId;
 
         $versionContext = $context->createWithVersionId($versionId);
 
-        $affected = $this->entityWriter->insert($definition, [$data], $versionContext);
-
-        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
-        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
-
-        return $affected;
+        return $this->entityWriter->insert($definition, [$data], $versionContext);
     }
 
-    private function filterPropertiesForClone(string $definition, array $data): array
+    private function filterPropertiesForClone(string $definition, array $data, bool $keepIds): array
     {
         $extensions = [];
         $payload = [];
@@ -394,10 +402,17 @@ class VersionManager
             if (!$field->is(CascadeDelete::class)) {
                 continue;
             }
+
             if ($field instanceof OneToManyAssociationField) {
                 $nested = [];
                 foreach ($value as $item) {
-                    $nested[] = $this->filterPropertiesForClone($field->getReferenceClass(), $item);
+                    $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $item, $keepIds);
+
+                    if (!$keepIds) {
+                        $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                    }
+
+                    $nested[] = $nestedItem;
                 }
 
                 $nested = array_filter($nested);
@@ -544,5 +559,18 @@ class VersionManager
         }
 
         return $payload;
+    }
+
+    private function removePrimaryKey(OneToManyAssociationField $field, array $nestedItem): array
+    {
+        $pkFields = $field->getReferenceClass()::getPrimaryKeys();
+        /** @var Field $pkField */
+        foreach ($pkFields as $pkField) {
+            if (array_key_exists($pkField->getPropertyName(), $nestedItem)) {
+                unset($nestedItem[$pkField->getPropertyName()]);
+            }
+        }
+
+        return $nestedItem;
     }
 }

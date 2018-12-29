@@ -17,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class EntityRepository implements RepositoryInterface
@@ -186,5 +188,19 @@ class EntityRepository implements RepositoryInterface
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
+    }
+
+    public function clone(string $id, Context $context, string $newId = null): EntityWrittenContainerEvent
+    {
+        $newId = $newId ?? Uuid::uuid4()->getHex();
+        if (!Uuid::isValid($newId)) {
+            throw new InvalidUuidException($newId);
+        }
+
+        $affected = $this->versionManager->clone($this->definition, $id, $newId, $context->getVersionId(), WriteContext::createFromContext($context));
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
+
+        return $event;
     }
 }

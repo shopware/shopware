@@ -4,12 +4,18 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -308,6 +314,181 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(Entity::class, $locale->get($id));
 
         static::assertSame('Test', $locale->get($id)->getName());
+    }
+
+    public function testClone()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'price' => ['gross' => 15, 'net' => 10],
+            'manufacturer' => ['id' => $id, 'name' => 'test'],
+            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+        ];
+
+        $repository = $this->createRepository(ProductDefinition::class);
+        $context = Context::createDefaultContext();
+
+        $repository->create([$data], $context);
+        $newId = Uuid::uuid4()->getHex();
+
+        $result = $repository->clone($id, $context, $newId);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+
+        $written = $result->getEventByDefinition(ProductDefinition::class);
+        static::assertCount(1, $written->getIds());
+        static::assertContains($newId, $written->getIds());
+
+        $entities = $repository->read(new ReadCriteria([$id, $newId]), $context);
+
+        static::assertCount(2, $entities);
+        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->has($newId));
+
+        $old = $entities->get($id);
+        $new = $entities->get($newId);
+
+        static::assertInstanceOf(ProductEntity::class, $old);
+        static::assertInstanceOf(ProductEntity::class, $new);
+
+        /** @var ProductEntity $old */
+        /** @var ProductEntity $new */
+        static::assertSame($old->getName(), $new->getName());
+        static::assertSame($old->getTaxId(), $new->getTaxId());
+        static::assertSame($old->getManufacturerId(), $new->getManufacturerId());
+    }
+
+    public function testCloneWithOneToMany()
+    {
+        $ruleA = Uuid::uuid4()->getHex();
+        $ruleB = Uuid::uuid4()->getHex();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+        ], Context::createDefaultContext());
+
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'price' => ['gross' => 15, 'net' => 10],
+            'manufacturer' => ['id' => $id, 'name' => 'test'],
+            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+            'priceRules' => [
+                [
+                    'id' => $ruleA,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'ruleId' => $ruleA,
+                    'price' => ['gross' => 15, 'net' => 10],
+                ],
+                [
+                    'id' => $ruleB,
+                    'currencyId' => Defaults::CURRENCY,
+                    'quantityStart' => 1,
+                    'ruleId' => $ruleB,
+                    'price' => ['gross' => 10, 'net' => 8],
+                ],
+            ],
+        ];
+
+        $repository = $this->createRepository(ProductDefinition::class);
+        $context = Context::createDefaultContext();
+
+        $repository->create([$data], $context);
+        $newId = Uuid::uuid4()->getHex();
+
+        $result = $repository->clone($id, $context, $newId);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+
+        $written = $result->getEventByDefinition(ProductPriceRuleDefinition::class);
+        static::assertCount(2, $written->getIds());
+
+        $entities = $repository->read(new ReadCriteria([$id, $newId]), $context);
+
+        /** @var ProductEntity $old */
+        /** @var ProductEntity $new */
+        static::assertCount(2, $entities);
+        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->has($newId));
+
+        $old = $entities->get($id);
+        $new = $entities->get($newId);
+
+        static::assertInstanceOf(ProductEntity::class, $old);
+        static::assertInstanceOf(ProductEntity::class, $new);
+
+        static::assertCount(2, $old->getPriceRules());
+        static::assertCount(2, $new->getPriceRules());
+
+        $oldPriceIds = $old->getPriceRules()->map(function (ProductPriceRuleEntity $price) {
+            return $price->getId();
+        });
+        $newPriceIds = $new->getPriceRules()->map(function (ProductPriceRuleEntity $price) {
+            return $price->getId();
+        });
+
+        foreach ($oldPriceIds as $id) {
+            static::assertNotContains($id, $newPriceIds);
+        }
+    }
+
+    public function testCloneWithManyToMany()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'price' => ['gross' => 15, 'net' => 10],
+            'manufacturer' => ['id' => $id, 'name' => 'test'],
+            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $id, 'name' => 'test'],
+            ],
+        ];
+
+        $repository = $this->createRepository(ProductDefinition::class);
+        $context = Context::createDefaultContext();
+
+        $repository->create([$data], $context);
+        $newId = Uuid::uuid4()->getHex();
+
+        $result = $repository->clone($id, $context, $newId);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+
+        $written = $result->getEventByDefinition(ProductCategoryDefinition::class);
+        static::assertCount(1, $written->getIds());
+
+        $written = $result->getEventByDefinition(CategoryDefinition::class);
+        static::assertNull($written);
+
+        $criteria = new ReadCriteria([$id, $newId]);
+        $criteria->addAssociation('product.categories');
+        $criteria->addAssociation('product.categoriesRo');
+        $entities = $repository->read($criteria, $context);
+
+        static::assertCount(2, $entities);
+        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->has($newId));
+
+        $old = $entities->get($id);
+        $new = $entities->get($newId);
+
+        static::assertInstanceOf(ProductEntity::class, $old);
+        static::assertInstanceOf(ProductEntity::class, $new);
+
+        /** @var ProductEntity $old */
+        /** @var ProductEntity $new */
+        static::assertCount(1, $old->getCategories());
+        static::assertCount(1, $new->getCategories());
+
+        static::assertCount(1, $old->getCategoryTree());
+        static::assertCount(1, $new->getCategoryTree());
+
+        static::assertCount(1, $old->getCategoriesRo());
+        static::assertCount(1, $new->getCategoriesRo());
     }
 
     protected function createRepository(string $definition): EntityRepository

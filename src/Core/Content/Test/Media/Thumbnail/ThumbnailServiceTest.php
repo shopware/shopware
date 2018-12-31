@@ -70,6 +70,7 @@ class ThumbnailServiceTest extends TestCase
         $searchCriteria = new Criteria();
         $searchCriteria->setLimit(1);
         $searchCriteria->addFilter(new EqualsFilter('media.id', $media->getId()));
+        $searchCriteria->addAssociation('mediaFolder', new Criteria());
 
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
         /** @var MediaEntity $updatedMedia */
@@ -87,6 +88,13 @@ class ThumbnailServiceTest extends TestCase
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight()
             );
+            $filtered = $updatedMedia->getMediaFolder()
+                ->getConfiguration()
+                ->getMediaThumbnailSizes()
+                ->filter(function ($size) use ($thumbnail) {
+                    return $size->getWidth() === $thumbnail->getWidth() && $size->getHeight() === $thumbnail->getHeight();
+                });
+            static::assertCount(1, $filtered);
             static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
         }
     }
@@ -115,6 +123,34 @@ class ThumbnailServiceTest extends TestCase
         $this->thumbnailService->generateThumbnails(
             $media,
             $this->context
+        );
+    }
+
+    public function testItUsesFolderConfigGenerateThumbnails(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getJpgWithFolderWithoutThumbnails();
+
+        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
+        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
+
+        $this->thumbnailService->generateThumbnails(
+            $media,
+            $this->context
+        );
+
+        $searchCriteria = new Criteria();
+        $searchCriteria->setLimit(1);
+        $searchCriteria->addFilter(new EqualsFilter('media.id', $media->getId()));
+
+        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        /** @var MediaEntity $updatedMedia */
+        $updatedMedia = $mediaResult->getEntities()->first();
+
+        $thumbnails = $updatedMedia->getThumbnails();
+        static::assertEquals(
+            0,
+            $thumbnails->count()
         );
     }
 

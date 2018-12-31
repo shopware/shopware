@@ -51,7 +51,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver = $this->getContainer()->get(FileSaver::class);
     }
 
-    public function test_persistFileToMedia_happyPathForInitialUpload(): void
+    public function testPersistFileToMediaHappyPathForInitialUpload(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
         copy(self::TEST_IMAGE, $tempFile);
@@ -92,7 +92,7 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
-    public function test_persistFileToMedia_removesOldFile(): void
+    public function testPersistFileToMediaRemovesOldFile(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
         copy(self::TEST_IMAGE, $tempFile);
@@ -129,7 +129,48 @@ class FileSaverTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($oldMediaFilePath));
     }
 
-    public function test_persistFileToMedia_doesNotAddSuffixOnReplacement(): void
+    public function testPersistFileToMediaForMediaTypeWithoutThumbs(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        copy(__DIR__ . '/../fixtures/reader.doc', $tempFile);
+
+        $fileSize = filesize($tempFile);
+        $mediaFile = new MediaFile($tempFile, 'application/doc', 'doc', $fileSize);
+
+        $mediaId = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'name' => 'test file',
+                ],
+            ],
+            $context
+        );
+
+        try {
+            $this->fileSaver->persistFileToMedia(
+                $mediaFile,
+                'test-file',
+                $mediaId,
+                $context
+            );
+        } finally {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        $media = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $context)->get($mediaId);
+        $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        static::assertTrue($this->getPublicFilesystem()->has($path));
+    }
+
+    public function testPersistFileToMediaDoesNotAddSuffixOnReplacement(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -161,7 +202,7 @@ class FileSaverTest extends TestCase
         self::assertStringEndsWith($png->getFileName(), $updatedMedia->getFileName());
     }
 
-    public function test_persistFileToMedia_addsSuffixIfFileNameIsInUse(): void
+    public function testPersistFileToMediaAddsSuffixIfFileNameIsInUse(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -201,7 +242,7 @@ class FileSaverTest extends TestCase
         self::assertStringEndsWith($png->getFileName() . ' (1)', $newMedia->getFileName());
     }
 
-    public function test_persistFileToMedia_worksWithMoreThan255Characters(): void
+    public function testPersistFileToMediaWorksWithMoreThan255Characters(): void
     {
         $longFileName = '';
         while (strlen($longFileName) < 512) {
@@ -237,7 +278,7 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updated)));
     }
 
-    public function test_renameMedia_throwsExceptionIfMediaDoesNotExist(): void
+    public function testRenameMediaThrowsExceptionIfMediaDoesNotExist(): void
     {
         static::expectException(MediaNotFoundException::class);
 
@@ -245,7 +286,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver->renameMedia(Uuid::uuid4()->getHex(), 'new file destination', $context);
     }
 
-    public function test_renameMedia_throwsExceptionIfMediaHasNoFileAttached()
+    public function testRenameMediaThrowsExceptionIfMediaHasNoFileAttached()
     {
         static::expectException(MissingFileException::class);
 
@@ -262,7 +303,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver->renameMedia($id, 'new destination', $context);
     }
 
-    public function test_renameMedia_throwsExceptionIfFileNameAlreadyExists(): void
+    public function testRenameMediaThrowsExceptionIfFileNameAlreadyExists(): void
     {
         static::expectException(DuplicatedMediaFileNameException::class);
 
@@ -276,7 +317,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver->renameMedia($txt->getId(), $png->getFileName(), $context);
     }
 
-    public function test_renameMedia_doesSkipIfOldFileNameEqualsNewOne(): void
+    public function testRenameMediaDoesSkipIfOldFileNameEqualsNewOne(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -291,7 +332,7 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
     }
 
-    public function test_renameMedia_renamesOldFileAndThumbnails(): void
+    public function testRenameMediaRenamesOldFileAndThumbnails(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -324,7 +365,7 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeThumbnailUrl($updatedMedia, 100, 100)));
     }
 
-    public function test_renameMedia_makesRollbackOnFailure(): void
+    public function testRenameMediaMakesRollbackOnFailure(): void
     {
         static::expectException(CouldNotRenameFileException::class);
 

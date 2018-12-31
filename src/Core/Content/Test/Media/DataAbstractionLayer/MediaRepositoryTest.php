@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepository;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
@@ -157,5 +158,59 @@ class MediaRepositoryTest extends TestCase
 
         static::assertFalse($this->getPublicFilesystem()->has($firstPath));
         static::assertTrue($this->getPublicFilesystem()->has($secondPath));
+    }
+
+    public function testDeleteForUnusedIds()
+    {
+        $firstId = Uuid::uuid4()->getHex();
+
+        $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
+
+        static::assertNull($event->getEventByDefinition(MediaDefinition::class));
+    }
+
+    public function testDeleteForMediaWithoutFile()
+    {
+        $firstId = Uuid::uuid4()->getHex();
+
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->mediaRepository->create([
+            [
+                'id' => $firstId,
+                'name' => 'test media',
+            ],
+        ],
+            $this->context
+        );
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
+
+        $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
+
+        static::assertCount(1, $event->getEventByDefinition(MediaDefinition::class)->getIds());
+        static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);
+    }
+
+    public function testDeleteWithAlreadyDeletedFile()
+    {
+        $firstId = Uuid::uuid4()->getHex();
+
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->mediaRepository->create([
+            [
+                'id' => $firstId,
+                'name' => 'test media',
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+                'fileName' => $firstId . '-' . (new \DateTime())->getTimestamp(),
+            ],
+        ],
+            $this->context
+        );
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
+
+        $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
+
+        static::assertCount(1, $event->getEventByDefinition(MediaDefinition::class)->getIds());
+        static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);
     }
 }

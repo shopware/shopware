@@ -67,14 +67,14 @@ class FileNameValidatorTest extends TestCase
         return $c;
     }
 
-    public function test_validateFileName_throwsExceptionIfFileNameIsEmpty()
+    public function testValidateFileNameThrowsExceptionIfFileNameIsEmpty()
     {
         self::expectException(EmptyMediaFilenameException::class);
         $validator = new FileNameValidator();
         $validator->validateFileName('');
     }
 
-    public function test_validateFileName_throwsIfFileNameIsOnlyDots()
+    public function testValidateFileNameThrowsIfFileNameIsOnlyDots()
     {
         self::expectException(IllegalFileNameException::class);
         self::expectExceptionMessage('Filename must not start with a "." (dot).');
@@ -83,7 +83,7 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName('..');
     }
 
-    public function test_validateFileName_ThrowsIfFileNameStartsWithDot()
+    public function testValidateFileNameThrowsIfFileNameStartsWithDot()
     {
         self::expectException(IllegalFileNameException::class);
         self::expectExceptionMessage('Filename must not start with a "." (dot).');
@@ -92,7 +92,7 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName('.hidden file');
     }
 
-    public function test_validateFileName_ThrowsIfFileNameEndsWithDot()
+    public function testValidateFileNameThrowsIfFileNameEndsWithDot()
     {
         self::expectException(IllegalFileNameException::class);
         self::expectExceptionMessage('Filename must not end with a "." (dot).');
@@ -104,7 +104,7 @@ class FileNameValidatorTest extends TestCase
     /**
      * @dataProvider restrictedCharacters
      */
-    public function test_validateFileName_throwsIfRestrictedCharacterIsPresent($input)
+    public function testValidateFileNameThrowsIfRestrictedCharacterIsPresent($input)
     {
         self::expectException(IllegalFileNameException::class);
         self::expectExceptionMessage("Filename must not contain \"$input\"");
@@ -116,7 +116,7 @@ class FileNameValidatorTest extends TestCase
     /**
      * @dataProvider ntfsInternals
      */
-    public function test_validateFileName_throwsIfFileNameIsNtfsInternal($input)
+    public function testValidateFileNameThrowsIfFileNameIsNtfsInternal($input)
     {
         self::expectException(IllegalFileNameException::class);
         self::expectExceptionMessage('Filename must not contain "$"');
@@ -128,7 +128,7 @@ class FileNameValidatorTest extends TestCase
     /**
      * @dataProvider controlCharacters
      */
-    public function test_validateFileName_throwsExceptionIfControlCharacterIsPresent($input)
+    public function testValidateFileNameThrowsExceptionIfControlCharacterIsPresent($input)
     {
         self::expectException(IllegalFileNameException::class);
         self::expectExceptionMessage(
@@ -142,7 +142,7 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName($input);
     }
 
-    public function test_validateFileName_throwsExceptionIfFileNameEndsWithSpaces()
+    public function testValidateFileNameThrowsExceptionIfFileNameEndsWithSpaces()
     {
         self::expectException(IllegalFileNameException::class);
         self::expectExceptionMessage('Filename must not end with spaces');

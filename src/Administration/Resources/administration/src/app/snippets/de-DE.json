@@ -61,11 +61,21 @@
       "titleModal": "Medien löschen",
       "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Möchtest Du diese {count} Medien wirklich löschen?",
       "buttonDelete": "Löschen",
-      "buttonAbort": "Abbrechen",
-      "notificationSuccessSingle": "File \"{mediaName}\" erfolgreich gelöscht",
+      "buttonCancel": "Abbrechen",
+      "notificationSuccessSingle": "Datei \"{mediaName}\" erfolgreich gelöscht",
       "notificationErrorSingle": "Fehler beim Löschen von \"{mediaName}\"",
       "notificationSuccessOverall": "Dateien erfolgreich gelöscht",
       "notificationErrorOverall": "Die Dateien konnten nicht gelöscht werden"
+    },
+    "sw-media-modal-dissolve": {
+      "titleModal": "Ordner auflösen",
+      "dissolveMessage":"Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
+      "buttonDissolve": "Auflösen",
+      "buttonCancel": "Abbrechen",
+      "notificationSuccessSingle": "Datei \"{folderName}\" erfolgreich aufgelöst",
+      "notificationErrorSingle": "Fehler beim Auflösen von \"{folderName}\"",
+      "notificationSuccessOverall": "Dateien erfolgreich aufgelöst",
+      "notificationErrorOverall": "Die Dateien konnten nicht aufgelöst werden"
     },
     "sw-media-modal-replace": {
       "titleModal": "Medien ersetzen",

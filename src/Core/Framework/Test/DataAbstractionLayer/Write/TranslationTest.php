@@ -18,12 +18,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Exception\MissingTranslationLanguageException;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
@@ -723,6 +725,29 @@ class TranslationTest extends TestCase
 
         static::assertNotNull($affected->getEventByDefinition(ProductMediaDefinition::class));
         static::assertNotNull($affected->getEventByDefinition(MediaDefinition::class));
+    }
+
+    public function testMissingTranslationLanguageViolation(): void
+    {
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $cat = [
+            'name' => 'foo',
+            'translations' => [
+                ['name' => 'translation without a language or languageId'],
+            ],
+        ];
+        /* @var WriteStackException|null $exception */
+        $exception = null;
+        try {
+            $categoryRepository->create([$cat], $this->context);
+        } catch (WriteStackException $e) {
+            $exception = $e;
+        }
+
+        static::assertInstanceOf(WriteStackException::class, $exception);
+        $innerExceptions = $exception->getExceptions();
+        static::assertInstanceOf(MissingTranslationLanguageException::class, $innerExceptions[0]);
     }
 
     private function addLanguage($id, $rootLanguageId = null): void

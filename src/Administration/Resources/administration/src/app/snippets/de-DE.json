@@ -771,6 +771,8 @@
         "more": "Mehr",
         "preview": "Vorschau",
         "metadata": "Metadaten",
+        "altText": "Alt Text",
+        "titleField": "Titel",
         "titleMissingFile": "Datei nicht gefunden",
         "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen.",
         "usage": "Wird verwendet in",

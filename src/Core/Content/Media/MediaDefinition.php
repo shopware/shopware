@@ -66,7 +66,7 @@ class MediaDefinition extends EntityDefinition
             (new ObjectField('media_type', 'mediaType'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslatedField('description'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('alt'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('title'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('url', 'url'))->setFlags(new Deferred()),
 

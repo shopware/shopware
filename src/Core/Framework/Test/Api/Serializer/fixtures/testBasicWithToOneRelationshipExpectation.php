@@ -13,7 +13,7 @@ return [
             'createdAt' => '2012-08-31T00:00:00+00:00',
             'updatedAt' => '2017-11-21T11:25:34+00:00',
             'title' => '2',
-            'description' => null,
+            'alt' => null,
             'url' => '',
             'hasFile' => false,
             'fileName' => null,

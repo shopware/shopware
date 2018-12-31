@@ -769,6 +769,8 @@
         "more": "More",
         "preview": "Preview",
         "metadata": "Meta data",
+        "altText": "Alt text",
+        "titleField": "Title",
         "titleMissingFile": "File not found",
         "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder.",
         "usage": "Used in",

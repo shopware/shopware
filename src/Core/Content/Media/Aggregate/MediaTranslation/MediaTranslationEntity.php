@@ -26,7 +26,7 @@ class MediaTranslationEntity extends Entity
     /**
      * @var string|null
      */
-    protected $description;
+    protected $alt;
 
     /**
      * @var MediaEntity|null
@@ -98,14 +98,14 @@ class MediaTranslationEntity extends Entity
         $this->title = $title;
     }
 
-    public function getDescription(): ?string
+    public function getAlt(): ?string
     {
-        return $this->description;
+        return $this->alt;
     }
 
-    public function setDescription(?string $description): void
+    public function setAlt(?string $alt): void
     {
-        $this->description = $description;
+        $this->alt = $alt;
     }
 
     public function getMedia(): ?MediaEntity

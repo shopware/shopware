@@ -11,14 +11,36 @@ class IntField extends Field implements StorageAware
      */
     private $storageName;
 
-    public function __construct(string $storageName, string $propertyName)
+    /**
+     * @var int|null
+     */
+    private $minValue;
+
+    /**
+     * @var int|null
+     */
+    private $maxValue;
+
+    public function __construct(string $storageName, string $propertyName, ?int $minValue = null, ?int $maxValue = null)
     {
         $this->storageName = $storageName;
+        $this->minValue = $minValue;
+        $this->maxValue = $maxValue;
         parent::__construct($propertyName);
     }
 
     public function getStorageName(): string
     {
         return $this->storageName;
+    }
+
+    public function getMinValue(): ?int
+    {
+        return $this->minValue;
+    }
+
+    public function getMaxValue(): ?int
+    {
+        return $this->maxValue;
     }
 }

@@ -6,7 +6,9 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -77,6 +79,30 @@ class ConstraintBuilder
     public function isLengthLessThanOrEqual(int $maxLength): self
     {
         $this->addConstraint(new Length(['max' => $maxLength]));
+
+        return $this;
+    }
+
+    /**
+     * @param int $value
+     *
+     * @return ConstraintBuilder
+     */
+    public function isGreaterThanOrEqual(int $value): self
+    {
+        $this->addConstraint(new GreaterThanOrEqual($value));
+
+        return $this;
+    }
+
+    /**
+     * @param int $value
+     *
+     * @return ConstraintBuilder
+     */
+    public function isLessThanOrEqual(int $value): self
+    {
+        $this->addConstraint(new LessThanOrEqual($value));
 
         return $this;
     }

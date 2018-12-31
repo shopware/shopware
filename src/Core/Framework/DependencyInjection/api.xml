@@ -196,5 +196,10 @@
             <tag name="controller.argument_value_resolver" priority="50"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Api\Route\ApiRouteLoader">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <tag name="routing.loader"/>
+        </service>
     </services>
 </container>

@@ -14,6 +14,7 @@ const MixinFactory = require('src/core/factory/mixin.factory').default;
 const FilterFactory = require('src/core/factory/filter.factory').default;
 const DirectiveFactory = require('src/core/factory/directive.factory').default;
 const LocaleFactory = require('src/core/factory/locale.factory').default;
+const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
 const FeatureConfig = require('src/core/feature-config').default;
 
 const utils = require('src/core/service/util.service').default;
@@ -52,6 +53,9 @@ application
     })
     .addFactory('locale', () => {
         return LocaleFactory;
+    })
+    .addFactory('apiService', () => {
+        return ApiServiceFactory;
     });
 
 module.exports = {
@@ -169,5 +173,15 @@ module.exports = {
      * @memberOf module:Shopware
      * @type {module:core/feature-config}
      */
-    FeatureConfig: FeatureConfig
+    FeatureConfig: FeatureConfig,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    ApiService: {
+        register: ApiServiceFactory.register,
+        getByName: ApiServiceFactory.getByName,
+        getRegistry: ApiServiceFactory.getRegistry
+    }
 };

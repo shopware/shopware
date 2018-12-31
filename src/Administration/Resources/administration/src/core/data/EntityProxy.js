@@ -4,7 +4,7 @@ import { deepCopyObject, hasOwnProperty, getArrayChanges, getObjectDiff } from '
 import { required } from 'src/core/service/validation.service';
 import type from 'src/core/service/utils/types.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import ApiService from 'src/core/service/api/api.service';
+import ApiService from 'src/core/service/api.service';
 import AssociationStore from './AssociationStore';
 
 /**

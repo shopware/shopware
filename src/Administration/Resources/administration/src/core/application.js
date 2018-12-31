@@ -341,10 +341,11 @@ class ApplicationBootstrapper {
                 return this;
             }
 
+            const serviceContainer = this.getContainer('service');
             this.applicationRoot = view.createInstance(
                 '#app',
                 router,
-                this.getContainer('service')
+                serviceContainer
             );
 
             return this;
@@ -355,7 +356,7 @@ class ApplicationBootstrapper {
             this.applicationRoot = view.createInstance(
                 '#app',
                 router,
-                this.getContainer('service'),
+                this.getContainer('service')
             );
 
             this.applicationRoot.initError = error;

@@ -7,15 +7,18 @@ import initializers from 'src/app/init';
 /** Services */
 import MenuService from 'src/app/service/menu.service';
 import LoginService from 'src/core/service/login.service';
-import apiServices from 'src/core/service/api';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
 import MediaUploadService from 'src/core/service/media-upload.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import 'src/app/decorator/condition-type-data-provider';
+import apiServices from 'src/core/service/api';
 
 /** Import global styles */
 import 'src/app/assets/less/all.less';
+
+const factoryContainer = Application.getContainer('factory');
+const apiServiceFactory = factoryContainer.apiService;
 
 // Add initializers
 Object.keys(initializers).forEach((key) => {
@@ -26,7 +29,6 @@ Object.keys(initializers).forEach((key) => {
 // Add service providers
 Application
     .addServiceProvider('menuService', () => {
-        const factoryContainer = Application.getContainer('factory');
         return MenuService(factoryContainer.module);
     })
     .addServiceProvider('loginService', () => {
@@ -47,12 +49,15 @@ Application
         return RuleConditionService();
     });
 
-// Add api service providers
+// Add custom api service providers
 Object.keys(apiServices).forEach((key) => {
-    const ServiceFactoryClass = apiServices[key];
+    const serviceContainer = Application.getContainer('service');
+    const initContainer = Application.getContainer('init');
+    const ApiService = apiServices[key].service;
+    const service = new ApiService(initContainer.httpClient, serviceContainer.loginService);
+    apiServiceFactory.register(key, service);
 
-    Application.addServiceProvider(key, (container) => {
-        const initContainer = Application.getContainer('init');
-        return new ServiceFactoryClass(initContainer.httpClient, container.loginService);
+    Application.addServiceProvider(key, () => {
+        return service;
     });
 });

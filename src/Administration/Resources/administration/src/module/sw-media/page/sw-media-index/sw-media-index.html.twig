@@ -3,9 +3,10 @@
 
         {% block sw_media_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :placeholder="$tc('sw-media.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-media.general.mainMenuItemGeneral')"
-                               @search="this.onSearch">
+                <sw-search-bar
+                    :placeholder="$tc('sw-media.general.placeholderSearchBar')"
+                    :searchType="$tc('sw-media.general.mainMenuItemGeneral')"
+                    @search="this.onSearch">
                 </sw-search-bar>
             </template>
         {% endblock %}
@@ -16,42 +17,37 @@
                      class="sw-media-index__navigation"
                      v-if="next1207">
 
-                     {% block sw_media_index_bread_crumb_navigation_icon %}
-                        <sw-icon class="sw-media-index__navigation-breadcrumb"
-                                 name="folder-breadcums-dropdown"
-                                 size="32px"
-                                 multicolor>
-                        </sw-icon>
-                    {% endblock %}
+                    <template v-if="parentFolder">
+                         {% block sw_media_index_bread_crumb_navigation_icon %}
+                            <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
+                                <sw-icon class="sw-media-index__navigation-breadcrumb"
+                                         name="folder-breadcums-dropdown"
+                                         size="32px"
+                                         multicolor>
+                                </sw-icon>
+                            </router-link>
+                        {% endblock %}
 
-                    {% block sw_media_index_bread_crumb_navigation_parent%}
-                        <span v-if="parentFolder" class="sw-media-index__navigation-parent">
+                        {% block sw_media_index_bread_crumb_navigation_parent%}
                             <sw-icon name="small-arrow-medium-right" class="sw-media-index__navigation-breadcrumb"></sw-icon>
-                            <router-link :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
+                            <router-link class="sw-media-index__navigation-label"
+                                         :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
                                 {{ this.parentFolderName }}
                             </router-link>
-                        </span>
-                    {% endblock %}
-
-                    {% block sw_media_index_bread_crumb_navigation_current%}
-                        <span class="sw-media-index__navigation-current">
-                            <sw-icon name="small-arrow-medium-right" class="sw-media-index__navigation-breadcrumb"></sw-icon>
-                            {{ this.currentFolderName }}
-                        </span>
-                    {% endblock %}
+                        {% endblock %}
+                    </template>
                 </div>
             {% endblock %}
 
             {% block sw_media_index_smart_bar_header %}
                 <h2 slot="smart-bar-header">
                     {% block sw_media_index_smart_bar_heading %}
-                        {{ $tc('sw-media.smart-bar.smartBarHeader') }}
+                        {{ this.currentFolderName }}
                     {% endblock %}
                 </h2>
             {% endblock %}
 
             <template slot="smart-bar-actions">
-
                 {% block sw_media_index_smart_bar_media_upload %}
                     <sw-media-upload
                         variant="compact"
@@ -59,7 +55,6 @@
                         @media-upload-success="onUploadFinished">
                     </sw-media-upload>
                 {% endblock %}
-
             </template>
         {% endblock %}
 

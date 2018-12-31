@@ -816,7 +816,7 @@
       "labelSortByDataTypeAsc": "Data type, ascending",
       "labelSortByDataTypeDsc": "Data type, descending",
       "labelLoadMore": "load {count} more files",
-      "rootFolderName": "Unsorted Media"
+      "rootFolderName": "Media"
     }
   },
   "sw-settings": {

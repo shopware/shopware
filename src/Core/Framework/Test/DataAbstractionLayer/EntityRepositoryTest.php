@@ -359,6 +359,52 @@ class EntityRepositoryTest extends TestCase
         static::assertSame($old->getManufacturerId(), $new->getManufacturerId());
     }
 
+    public function testCloneWithUnknownId()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'price' => ['gross' => 15, 'net' => 10],
+            'manufacturer' => ['id' => $id, 'name' => 'test'],
+            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+        ];
+
+        $repository = $this->createRepository(ProductDefinition::class);
+        $context = Context::createDefaultContext();
+
+        $repository->create([$data], $context);
+
+        $result = $repository->clone($id, $context);
+
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+
+        $written = $result->getEventByDefinition(ProductDefinition::class);
+
+        static::assertCount(1, $written->getIds());
+        $newId = $result->getEventByDefinition(ProductDefinition::class)->getIds();
+        $newId = array_shift($newId);
+        static::assertNotEquals($id, $newId);
+
+        $entities = $repository->read(new ReadCriteria([$id, $newId]), $context);
+
+        static::assertCount(2, $entities);
+        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->has($newId));
+
+        $old = $entities->get($id);
+        $new = $entities->get($newId);
+
+        static::assertInstanceOf(ProductEntity::class, $old);
+        static::assertInstanceOf(ProductEntity::class, $new);
+
+        /** @var ProductEntity $old */
+        /** @var ProductEntity $new */
+        static::assertSame($old->getName(), $new->getName());
+        static::assertSame($old->getTaxId(), $new->getTaxId());
+        static::assertSame($old->getManufacturerId(), $new->getManufacturerId());
+    }
+
     public function testCloneWithOneToMany()
     {
         $ruleA = Uuid::uuid4()->getHex();

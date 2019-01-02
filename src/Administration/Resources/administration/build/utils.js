@@ -282,15 +282,19 @@ exports.cssLoaders = function (options) {
     };
 
     // generate loader string to be used with extract text plugin
-    function generateLoaders(loader) {
+    function generateLoaders(loader, loaderOptions) {
         const loaders = [ MiniCssExtractPlugin.loader, cssLoader ];
         if (loader) {
             loaders.push({
+                loader: loader + '-loader',
+                options: Object.assign({}, loaderOptions, {
+                    sourceMap: options.sourceMap
+                })
                 loader: loader + '-loader'
             });
         }
 
-        return [ 'vue-style-loader' ].concat(loaders)
+        return [ 'vue-style-loader' ].concat(loaders);
     }
 
     // http://vuejs.github.io/vue-loader/en/configurations/extract-css.html

@@ -10,6 +10,7 @@
     </template>
 </sw-field>
 <sw-condition-value multi
+                    :id="condition.id"
                     :store="getSalesChannelStore()"
                     class="field--value is--secondary"
                     v-model="condition.value.salesChannelIds">

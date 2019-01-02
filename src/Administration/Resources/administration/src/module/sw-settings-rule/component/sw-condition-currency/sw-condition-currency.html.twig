@@ -9,7 +9,8 @@
         </option>
     </template>
 </sw-field>
-<sw-condition-value multi
+<sw-condition-value :id="condition.id"
+                    multi
                     :store="getCurrencyStore()"
                     class="field--value is--secondary"
                     v-model="condition.value.currencyIds">

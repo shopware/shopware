@@ -1,5 +1,6 @@
 {% block sw_condition_fields %}
 <sw-select :store="getProductStore()"
+           :id="condition.id"
            class="sw-condition-group__field is--secondary"
            v-model="condition.value.id">
 </sw-select>

@@ -10,7 +10,8 @@
     </template>
 </sw-field>
 <sw-condition-value multi
-          class="field--value is--secondary"
-          v-model="condition.value.zipCodes">
+                    :id="condition.id"
+                    class="field--value is--secondary"
+                    v-model="condition.value.zipCodes">
 </sw-condition-value>
 {% endblock %}

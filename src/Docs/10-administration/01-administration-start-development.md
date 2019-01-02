@@ -232,7 +232,7 @@ Now you can import the component inside the `main.js` file:
 ```
 // administration/main.js
 
-import 'src/extension/sw-dashboard-index';
+import './src/extension/sw-dashboard-index';
 ```
 *importing the new component*
 
@@ -259,7 +259,7 @@ In order to build the CSS and JavaScript for production environments you need to
     <script type="text/javascript" src="{{ asset('bundles/swagadministrationexample/static/js/SwagAdministrationExample.js') }}"></script>
 {% endblock %}
 ```
-*include JavaScript and CSS files fpr production build*
+*include JavaScript and CSS files for production build*
 
 ### Build administration files
 

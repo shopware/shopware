@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Rule\Collector\ConditionCollector;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
@@ -24,9 +25,15 @@ class RuleValidator implements WriteCommandValidatorInterface
      */
     private $validator;
 
-    public function __construct(ValidatorInterface $validator)
+    /**
+     * @var ConditionCollector
+     */
+    private $conditionCollector;
+
+    public function __construct(ValidatorInterface $validator, ConditionCollector $conditionCollector)
     {
         $this->validator = $validator;
+        $this->conditionCollector = $conditionCollector;
     }
 
     /**
@@ -84,7 +91,7 @@ class RuleValidator implements WriteCommandValidatorInterface
 
     private function isRule(?string $type): bool
     {
-        if (!$type || !class_exists($type)) {
+        if (!$type || !class_exists($type) || !in_array($type, $this->conditionCollector->collect())) {
             return false;
         }
 

@@ -1,5 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
-import template from './sw-condition-or-container.html.twig';
+import { Component } from 'src/core/shopware';
 import './sw-condition-or-container.less';
 
 /**
@@ -10,74 +9,19 @@ import './sw-condition-or-container.less';
  * @component-example
  * <sw-condition-or-container :condition="condition"></sw-condition-or-container>
  */
-Component.register('sw-condition-or-container', {
-    template,
-
-    inject: ['ruleConditionService'],
-    mixins: [
-        Mixin.getByName('validation'),
-        Mixin.getByName('notification')
-    ],
-
-    /**
-     * All additional passed attributes are bound explicit to the correct child element.
-     */
-    inheritAttrs: false,
-
-    props: {
-        condition: {
-            type: Object,
-            required: false,
-            default() {
-                return {};
-            }
-        },
-        conditionAssociations: {
-            type: Object,
-            required: true
-        },
-        level: {
-            type: Number,
-            required: true,
-            default() {
-                return 1;
-            }
+Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
+    computed: {
+        conjunction() {
+            return this.$tc('global.sw-condition-group.condition.or').toUpperCase();
         }
     },
-
-    mounted() {
-        if (!this.condition.children.length) {
-            this.onAddOrClick();
-        }
-    },
-
     methods: {
-        getComponent(type) {
-            return this.ruleConditionService.getByType(type).component;
-        },
-        onAddOrClick() {
-            const child = Object.assign(
-                this.conditionAssociations.create(),
-                { type: 'placeholder' }
-            );
-            this.condition.children.push(child);
-        },
         onAddChildClick() {
             const condition = Object.assign(
                 this.conditionAssociations.create(),
                 { type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule' }
             );
             this.condition.children.push(condition);
-        },
-        onDeleteAll() {
-            for (let i = this.condition.children.length; i > 0; i -= 1) {
-                this.conditionAssociations.remove(this.condition.children.pop());
-            }
-            this.$emit('delete-condition', this.condition);
-        },
-        onDeleteCondition(condition) {
-            this.conditionAssociations.remove(condition);
-            this.condition.children.splice(this.condition.children.indexOf(condition), 1);
         }
     }
 });

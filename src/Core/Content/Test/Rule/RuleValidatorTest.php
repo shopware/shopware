@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\Rule\Collector\CollectConditionEvent;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -46,6 +48,7 @@ class RuleValidatorTest extends TestCase
 
     protected function setUp()
     {
+        $this->getContainer()->get('event_dispatcher')->addSubscriber(new TestConditionCollector());
         $this->context = Context::createDefaultContext();
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
@@ -468,5 +471,23 @@ class MockIntRule extends Rule
         return [
             'property' => [new NotBlank(), new Type('int')],
         ];
+    }
+}
+
+class TestConditionCollector implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            CollectConditionEvent::NAME => 'addConditions',
+        ];
+    }
+
+    public function addConditions(CollectConditionEvent $event): void
+    {
+        $event->addClasses(
+            MockOptionalStringArrayRule::class,
+            MockIntRule::class
+        );
     }
 }

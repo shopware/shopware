@@ -4,7 +4,6 @@ Component.extend('sw-condition-value', 'sw-select', {
     methods: {
         loadSelections() {
             this.isLoading = true;
-            console.log('loadSelection', this.value);
             if (this.multi) {
                 if (!this.value) {
                     return;

@@ -280,7 +280,23 @@
         </service>
 
         <!-- Feature Flags -->
-       <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
+        <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
 
+        <!-- Rule -->
+        <service id="Shopware\Core\Framework\Rule\Collector\ConditionCollector" public="true">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerConditionCollector">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartConditionCollector">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\FrameworkConditionCollector">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

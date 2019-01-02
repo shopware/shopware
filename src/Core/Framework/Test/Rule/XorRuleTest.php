@@ -9,13 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Rule\Container\XOrRule;
+use Shopware\Core\Framework\Rule\Container\XorRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
 
-class XOrRuleTest extends TestCase
+class XorRuleTest extends TestCase
 {
     use KernelTestBehaviour,
         DatabaseTransactionBehaviour;
@@ -47,7 +47,7 @@ class XOrRuleTest extends TestCase
         try {
             $this->conditionRepository->create([
                 [
-                    'type' => XOrRule::class,
+                    'type' => XorRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'rules' => ['Rule'],
@@ -60,7 +60,7 @@ class XOrRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(XOrRule::class, $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertStringStartsWith(XorRule::class, $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertStringEndsWith(' (rules)', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value "Rule" should be of type Shopware\Core\Framework\Rule\Rule.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -79,7 +79,7 @@ class XOrRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => XOrRule::class,
+                'type' => XorRule::class,
                 'ruleId' => $ruleId,
             ],
         ], $this->context);
@@ -99,11 +99,11 @@ class XOrRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => XOrRule::class,
+                'type' => XorRule::class,
                 'ruleId' => $ruleId,
                 'children' => [
                     [
-                        'type' => XOrRule::class,
+                        'type' => XorRule::class,
                         'ruleId' => $ruleId,
                     ],
                 ],
@@ -113,6 +113,6 @@ class XOrRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
         /** @var RuleEntity $ruleStruct */
         $ruleStruct = $this->ruleRepository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
-        static::assertEquals(new AndRule([new XOrRule([new XOrRule()])]), $ruleStruct->getPayload());
+        static::assertEquals(new AndRule([new XorRule([new XorRule()])]), $ruleStruct->getPayload());
     }
 }

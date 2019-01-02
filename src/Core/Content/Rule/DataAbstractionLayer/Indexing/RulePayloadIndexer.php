@@ -10,19 +10,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Rule\Collector\ConditionCollector;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\Serializer;
 
-class RulePayloadIndexer implements IndexerInterface
+class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 {
     /**
      * @var Connection
@@ -50,6 +56,16 @@ class RulePayloadIndexer implements IndexerInterface
     private $serializer;
 
     /**
+     * @var ConditionCollector
+     */
+    private $conditionCollector;
+
+    /**
+     * @var string[]|null
+     */
+    private $availableConditionClasses;
+
+    /**
      * @var CacheItemPoolInterface
      */
     private $cache;
@@ -60,6 +76,7 @@ class RulePayloadIndexer implements IndexerInterface
         EventIdExtractor $eventIdExtractor,
         RepositoryInterface $ruleRepository,
         Serializer $serializer,
+        ConditionCollector $conditionCollector,
         CacheItemPoolInterface $cache
     ) {
         $this->connection = $connection;
@@ -67,7 +84,15 @@ class RulePayloadIndexer implements IndexerInterface
         $this->eventIdExtractor = $eventIdExtractor;
         $this->ruleRepository = $ruleRepository;
         $this->serializer = $serializer;
+        $this->conditionCollector = $conditionCollector;
         $this->cache = $cache;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            '/** TODO **/' => 'refreshPlugin',
+        ];
     }
 
     public function index(\DateTime $timestamp): void
@@ -81,9 +106,8 @@ class RulePayloadIndexer implements IndexerInterface
             new ProgressStartedEvent('Start indexing rules', $iterator->getTotal())
         );
 
-        /** @var EntitySearchResult $ids */
-        while ($ids = $iterator->fetch()) {
-            $this->update($ids->getIds());
+        while ($ids = $iterator->fetchIds()) {
+            $this->update($ids);
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
                 new ProgressAdvancedEvent(\count($ids))
@@ -100,6 +124,24 @@ class RulePayloadIndexer implements IndexerInterface
     {
         $ids = $this->eventIdExtractor->getRuleIds($event);
         $this->update($ids);
+    }
+
+    public function refreshPlugin(Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new MultiFilter(
+                MultiFilter::CONNECTION_OR, [
+                    new NotFilter(
+                        NotFilter::CONNECTION_AND,
+                        [new EqualsAnyFilter('rule.conditions.type', $this->conditionCollector->collect())]
+                    ),
+                    new EqualsFilter('rule.inactive', true),
+                ]
+            )
+        );
+
+        $this->update($this->ruleRepository->searchIds($criteria, $context)->getIds());
     }
 
     private function createIterator(Context $context): RepositoryIterator
@@ -126,26 +168,35 @@ class RulePayloadIndexer implements IndexerInterface
         );
 
         $rules = FetchModeHelper::group($conditions);
+        $this->availableConditionClasses = $this->conditionCollector->collect();
 
         foreach ($rules as $id => $rule) {
-            $nested = $this->buildNested($rule, null);
+            $inactive = false;
+            $serialized = null;
+            try {
+                $nested = $this->buildNested($rule, null);
 
-            //ensure the root rule is an AndRule
-            if (\count($nested) !== 1 || !$nested[0] instanceof AndRule) {
-                $nested = new AndRule($nested);
-            } else {
-                $nested = array_shift($nested);
+                //ensure the root rule is an AndRule
+                if (\count($nested) !== 1 || !$nested[0] instanceof AndRule) {
+                    $nested = new AndRule($nested);
+                } else {
+                    $nested = array_shift($nested);
+                }
+
+                $serialized = $this->serializer->serialize($nested, 'json');
+            } catch (ConditionClassNotFound $exception) {
+                $inactive = true;
+            } finally {
+                $this->connection->createQueryBuilder()
+                    ->update('rule')
+                    ->set('payload', ':serialize')
+                    ->set('inactive', ':inactive')
+                    ->where('id = :id')
+                    ->setParameter('id', $id)
+                    ->setParameter('serialize', $serialized)
+                    ->setParameter('inactive', (int) $inactive)
+                    ->execute();
             }
-
-            $serialized = $this->serializer->serialize($nested, 'json');
-
-            $this->connection->createQueryBuilder()
-                ->update('rule')
-                ->set('payload', ':serialize')
-                ->where('id = :id')
-                ->setParameter('id', $id)
-                ->setParameter('serialize', $serialized)
-                ->execute();
         }
     }
 
@@ -155,6 +206,10 @@ class RulePayloadIndexer implements IndexerInterface
         foreach ($rules as $rule) {
             if ($rule['parent_id'] !== $parentId) {
                 continue;
+            }
+
+            if (!in_array($rule['type'], $this->availableConditionClasses) || !class_exists($rule['type'])) {
+                throw new ConditionClassNotFound($rule['type']);
             }
 
             $object = new $rule['type']();

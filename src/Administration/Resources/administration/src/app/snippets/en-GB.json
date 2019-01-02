@@ -210,7 +210,9 @@
         "not-found": {
           "label": "Condition was not found",
           "error-message": "The conditiontype {type} was not found. The condition got the following field: {fields} | The conditiontype {type} was not found. The condition got the following fields: {fields}"
-        }
+        },
+        "addSubCondition": "Add subcondition",
+        "deleteConditions": "Delete all"
       }
     },
     "sw-product-image": {

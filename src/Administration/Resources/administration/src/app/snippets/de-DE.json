@@ -210,7 +210,9 @@
         "not-found": {
           "label": "Die Bedingung konnte nicht gefunden werden",
           "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung hat folgendes Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung hat folgende Felder: {fields}"
-        }
+        },
+        "addSubCondition": "Unterbedingung hinzufügen",
+        "deleteConditions": "Alle löschen"
       }
     },
     "sw-product-image": {

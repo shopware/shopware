@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Exception\MissingRootTranslationException;
 use Shopware\Core\System\Exception\MissingSystemTranslationException;
+use Shopware\Core\System\Exception\MissingTranslationLanguageException;
 
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 {
@@ -80,15 +81,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             unset($value[$identifier]);
         }
 
-        // move root translations before child translations
-        $context = $parameters->getContext();
-        uksort($value, function ($a, $b) use ($context) {
-            $aIsRoot = $context->isRootLanguage($a);
-            $bIsRoot = $context->isRootLanguage($b);
-
-            return $bIsRoot <=> $aIsRoot;
-        });
-
         $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 
         return $this->map($field, $data, $parameters, $existence);
@@ -108,31 +100,45 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
         }
 
-        $isNumeric = array_keys($value) === range(0, \count($value) - 1);
-
-        $languageIds = [];
+        $translations = [];
         foreach ($value as $keyValue => $subResources) {
             if (!\is_array($subResources)) {
                 throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
             }
-
             $languageId = $keyValue;
-            if ($isNumeric) {
+            if (is_numeric($languageId) && $languageId >= 0 && $languageId < count($value)) {
                 // languageId is a property of $subResources. Also see formats above
-                $languageId = $subResources[$field->getReferenceField()];
+                if (isset($subResources[$field->getReferenceField()])) {
+                    $languageId = $subResources[$field->getReferenceField()];
+                } elseif (isset($subResources['language']['id'])) {
+                    $languageId = $subResources['language']['id'];
+                } else {
+                    throw new MissingTranslationLanguageException($parameters->getPath() . '/' . $key . '/' . $keyValue);
+                }
             } elseif ($field->getReferenceField()) {
                 // the key is the language id, also write it into $subResources
                 $subResources[$field->getReferenceField()] = $languageId;
             }
-            $languageIds[] = $languageId;
+            $translations[$languageId] = $subResources;
+        }
 
+        // move root translations before child translations
+        $context = $parameters->getContext();
+        uksort($translations, function ($a, $b) use ($context) {
+            $aIsRoot = $context->isRootLanguage($a);
+            $bIsRoot = $context->isRootLanguage($b);
+
+            return $bIsRoot <=> $aIsRoot;
+        });
+
+        foreach ($translations as $languageId => $translation) {
             $clonedParams = $parameters->cloneForSubresource(
                 $field->getReferenceClass(),
                 $parameters->getPath() . '/' . $key . '/' . $languageId
             );
             $clonedParams->setCurrentWriteLanguageId($languageId);
 
-            $this->writeExtractor->extract($subResources, $clonedParams);
+            $this->writeExtractor->extract($translation, $clonedParams);
         }
 
         // the validation is only required for new entities
@@ -140,6 +146,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             return;
         }
 
+        $languageIds = array_keys($translations);
         // the translation in the system language is always required for new entities
         if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;

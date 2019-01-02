@@ -79,7 +79,7 @@ module.exports = {
                 include: includeDirectories,
                 options: {
                     presets: [[
-                        resolve('node_modules/babel-preset-env'), {
+                        '@babel/preset-env', {
                             modules: false,
                             targets: {
                                 node: "current"

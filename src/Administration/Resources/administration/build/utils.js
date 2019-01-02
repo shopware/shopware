@@ -276,21 +276,17 @@ exports.cssLoaders = function (options) {
     const cssLoader = {
         loader: 'css-loader',
         options: {
-            minimize: process.env.NODE_ENV === 'production',
             sourceMap: options.sourceMap,
             url: false
         }
     };
 
     // generate loader string to be used with extract text plugin
-    function generateLoaders(loader, loaderOptions) {
+    function generateLoaders(loader) {
         const loaders = [ MiniCssExtractPlugin.loader, cssLoader ];
         if (loader) {
             loaders.push({
-                loader: loader + '-loader',
-                options: Object.assign({}, loaderOptions, {
-                    sourceMap: options.sourceMap
-                })
+                loader: loader + '-loader'
             });
         }
 

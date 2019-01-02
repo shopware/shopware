@@ -44,14 +44,14 @@ namespace %s {
 EOD;
 
     private const TEMPLATE_JS = <<<'EOD'
+export const %s = '%s';
+
 export default {
     %s,
     if%s,
     if%sCall,
     %s
 };
-
-export const %s = '%s';
 
 export function %s() {
     return Shopware.FeatureConfig.isActive('%s');
@@ -76,12 +76,11 @@ EOD;
     public function exportPhp(string $namespace, string $featureName, string $destinationPath): string
     {
         $constantName = $this->getEnvironmentName($featureName);
-        $lowerCamelCaseName = $this->toLowerCamelCase($featureName);
+        $lowerCamelCaseName = $this->toLowerCammelCase($featureName);
         $upperCamelCase = ucfirst($lowerCamelCaseName);
         $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.php";
 
-        $contents = sprintf(
-            self::TEMPLATE_PHP,
+        $contents = sprintf(self::TEMPLATE_PHP,
             $namespace,
             $lowerCamelCaseName,
             $constantName,
@@ -103,19 +102,18 @@ EOD;
 
     public function exportJs(string $featureName, string $destinationPath): string
     {
-        $lowerCamelCaseName = $this->toLowerCamelCase($featureName);
+        $lowerCamelCaseName = $this->toLowerCammelCase($featureName);
         $upperCamelCase = ucfirst($lowerCamelCaseName);
-        $capitalName = strtoupper($lowerCamelCaseName);
+        $capitablame = strtoupper($lowerCamelCaseName);
         $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.js";
 
-        $contents = sprintf(
-            self::TEMPLATE_JS,
+        $contents = sprintf(self::TEMPLATE_JS,
+            $capitablame,
+            $lowerCamelCaseName,
             $lowerCamelCaseName,
             $upperCamelCase,
             $upperCamelCase,
-            $capitalName,
-            $capitalName,
-            $lowerCamelCaseName,
+            $capitablame,
             $lowerCamelCaseName,
             $lowerCamelCaseName,
             $upperCamelCase,
@@ -131,17 +129,17 @@ EOD;
 
     public function getEnvironmentName(string $string): string
     {
-        return 'FEATURE_' . str_replace(' ', '_', strtoupper(trim(preg_replace('/[^\da-z]/i', ' ', $string))));
+        return 'FEATURE_' . str_replace(' ', '_', trim(strtoupper(preg_replace('/[^\da-z]/i', ' ', $string))));
     }
 
-    private function toLowerCamelCase(string $string): string
+    private function toLowerCammelCase(string $string): string
     {
         $cleanedFeatureName = strtolower(preg_replace('/[^\da-z]/i', ' ', $string));
 
         $parts = explode(' ', $cleanedFeatureName);
 
-        $camelCasedName = implode('', array_map('ucfirst', $parts));
+        $cammelCasedName = implode('', array_map('ucfirst', $parts));
 
-        return lcfirst($camelCasedName);
+        return lcfirst($cammelCasedName);
     }
 }

@@ -179,7 +179,7 @@
         "billingZipCodeRule": "Rechnung PLZ",
         "customerGroupRule": "Kundengruppe",
         "customerNumberRule": "Kundennummer",
-        "differentAddressesRule": "Abweichende Adresse",
+        "differentAddressesRule": "Abweichende Adressen",
         "isNewCustomerRule": "Neuer Kunde",
         "lastNameRule": "Kunden Nachname",
         "shippingCountryRule": "Lieferland",
@@ -209,7 +209,7 @@
         "placeholder-warning": "Bitte wähle eine Bedingung aus",
         "not-found": {
           "label": "Die Bedingung konnte nicht gefunden werden",
-          "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung hat folgendes Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung hat folgende Felder: {fields}"
+          "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields}| Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
         },
         "addSubCondition": "Unterbedingung hinzufügen",
         "deleteConditions": "Alle löschen"

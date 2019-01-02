@@ -209,7 +209,7 @@
         "placeholder-warning": "Please choose a condition",
         "not-found": {
           "label": "Condition was not found",
-          "error-message": "The conditiontype {type} was not found. The condition got the following field: {fields} | The conditiontype {type} was not found. The condition got the following fields: {fields}"
+          "error-message": "The conditiontype {type} was not found. The condition includes the field: {fields} | The conditiontype {type} was not found. The conditions include the fields: {fields}"
         },
         "addSubCondition": "Add subcondition",
         "deleteConditions": "Delete all"

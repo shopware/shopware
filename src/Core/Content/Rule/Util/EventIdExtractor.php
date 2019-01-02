@@ -5,20 +5,9 @@ namespace Shopware\Core\Content\Rule\Util;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 class EventIdExtractor
 {
-    /**
-     * @var RepositoryInterface
-     */
-    private $ruleRepository;
-
-    public function __construct(RepositoryInterface $ruleRepository)
-    {
-        $this->ruleRepository = $ruleRepository;
-    }
-
     public function getRuleIds(EntityWrittenContainerEvent $generic): array
     {
         $ids = [];

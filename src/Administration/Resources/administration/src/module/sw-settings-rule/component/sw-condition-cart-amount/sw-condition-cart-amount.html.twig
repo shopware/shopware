@@ -4,7 +4,7 @@
           v-model="condition.value.operator"
           class="field--operator">
     <template slot="options">
-        <option v-for="(operator, identifier) in operators" :value="operator.identifier">
+        <option v-for="operator in operators" :value="operator.identifier">
             {{ $tc(operator.label) }}
         </option>
     </template>

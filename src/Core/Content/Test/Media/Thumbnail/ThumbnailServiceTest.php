@@ -69,7 +69,7 @@ class ThumbnailServiceTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
-        $this->thumbnailService->createThumbnailsForNewFile(
+        $this->thumbnailService->updateThumbnailsAfterUpload(
             $media,
             $this->context
         );
@@ -112,7 +112,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPngWithFolder();
 
         $this->expectException(FileNotFoundException::class);
-        $this->thumbnailService->createThumbnailsForNewFile(
+        $this->thumbnailService->updateThumbnailsAfterUpload(
             $media,
             $this->context
         );
@@ -127,7 +127,7 @@ class ThumbnailServiceTest extends TestCase
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
         $this->expectException(FileTypeNotSupportedException::class);
-        $this->thumbnailService->createThumbnailsForNewFile(
+        $this->thumbnailService->updateThumbnailsAfterUpload(
             $media,
             $this->context
         );
@@ -141,7 +141,7 @@ class ThumbnailServiceTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
 
-        $this->thumbnailService->createThumbnailsForNewFile(
+        $this->thumbnailService->updateThumbnailsAfterUpload(
             $media,
             $this->context
         );
@@ -225,7 +225,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPng();
         $media->setMediaType(new DocumentType());
 
-        static::assertEquals(0, $this->thumbnailService->createThumbnailsForNewFile(
+        static::assertEquals(0, $this->thumbnailService->updateThumbnailsAfterUpload(
             $media,
             $this->context
         ));
@@ -237,7 +237,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPng();
         $media->getMediaType()->addFlag(ImageType::VECTOR_GRAPHIC);
 
-        static::assertEquals(0, $this->thumbnailService->createThumbnailsForNewFile(
+        static::assertEquals(0, $this->thumbnailService->updateThumbnailsAfterUpload(
             $media,
             $this->context
         ));
@@ -249,7 +249,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPng();
         $media->getMediaType()->addFlag(ImageType::ANIMATED);
 
-        static::assertEquals(0, $this->thumbnailService->createThumbnailsForNewFile(
+        static::assertEquals(0, $this->thumbnailService->updateThumbnailsAfterUpload(
             $media,
             $this->context
         ));

@@ -67,7 +67,7 @@ class ThumbnailService
      * @throws FileNotFoundException
      * @throws ThumbnailCouldNotBeSavedException
      */
-    public function createThumbnailsForNewFile(MediaEntity $media, Context $context): int
+    public function updateThumbnailsAfterUpload(MediaEntity $media, Context $context): int
     {
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
             return 0;

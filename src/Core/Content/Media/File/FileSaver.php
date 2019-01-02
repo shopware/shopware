@@ -104,7 +104,7 @@ class FileSaver
         $media = $this->updateMediaEntity($mediaFile, $destination, $currentMedia, $rawMetadata, $mediaType, $context);
         $this->saveFileToMediaDir($mediaFile, $media);
 
-        $this->thumbnailService->createThumbnailsForNewFile($media, $context);
+        $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
     }
 
     /**

@@ -73,7 +73,7 @@ class GenerateThumbnailsCommand extends Command
                 'l',
                 InputOption::VALUE_REQUIRED,
                 'Maximum number of entities to create thumbnails',
-                '100'
+                false
             )
             ->addOption(
                 'folder-name',
@@ -111,18 +111,33 @@ class GenerateThumbnailsCommand extends Command
 
     private function initializeCommand(InputInterface $input, Context $context)
     {
-        $this->limit = $this->getLimitSizeFromInput($input);
         $this->folderFilter = $this->getFolderIdsFromInput($input, $context);
+        $this->limit = $this->getLimitSizeFromInput($input, $context);
     }
 
-    private function getLimitSizeFromInput(InputInterface $input): int
+    private function getLimitSizeFromInput(InputInterface $input, Context $context): int
     {
         $rawInput = $input->getOption('limit');
+
+        if ($rawInput === false) {
+            return $this->getAvailableMediaEntitiesCount($context);
+        }
+
         if (!is_numeric($rawInput)) {
             throw new \UnexpectedValueException('Limit size must be numeric');
         }
 
         return (int) $rawInput;
+    }
+
+    private function getAvailableMediaEntitiesCount(Context $context): int
+    {
+        $criteria = $this->createCriteria();
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $searchResult = $this->mediaRepository->search($criteria, $context);
+
+        return $searchResult->getTotal();
     }
 
     private function getFolderIdsFromInput(InputInterface $input, Context $context)
@@ -152,6 +167,7 @@ class GenerateThumbnailsCommand extends Command
     private function generateThumbnails($context): array
     {
         $criteria = $this->createCriteria();
+        $criteria->setLimit(min($this->limit, 50));
 
         $generated = 0;
         $skipped = 0;
@@ -178,7 +194,6 @@ class GenerateThumbnailsCommand extends Command
     private function createCriteria(): Criteria
     {
         $criteria = new Criteria();
-        $criteria->setLimit(min($this->limit, 50));
         $criteria->setOffset(0);
         $criteria->addFilter(new EqualsFilter('media.mediaFolder.configuration.createThumbnails', true));
 

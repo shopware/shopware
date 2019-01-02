@@ -47,9 +47,18 @@ class IntFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(IntField::class, $field);
         }
         if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isInt()
-                ->getConstraints();
+            $constraintBuilder = $this->constraintBuilder
+                ->isInt();
+
+            if ($field->getMinValue() !== null) {
+                $constraintBuilder->isGreaterThanOrEqual($field->getMinValue());
+            }
+
+            if ($field->getMaxValue() !== null) {
+                $constraintBuilder->isLessThanOrEqual($field->getMaxValue());
+            }
+
+            $constraints = $constraintBuilder->getConstraints();
 
             $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
         }

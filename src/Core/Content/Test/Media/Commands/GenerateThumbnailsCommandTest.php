@@ -88,7 +88,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput('-l 2');
+        $input = new StringInput('-b 2');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,7 +37,7 @@ class GenerateThumbnailsCommand extends Command
     /**
      * @var int
      */
-    private $limit;
+    private $batchSize;
 
     /**
      * @var Filter | null
@@ -69,11 +70,11 @@ class GenerateThumbnailsCommand extends Command
             ->setName('media:generate-thumbnails')
             ->setDescription('Generates the thumbnails for media entities')
             ->addOption(
-                'limit',
-                'l',
+                'batch-size',
+                'b',
                 InputOption::VALUE_REQUIRED,
-                'Maximum number of entities to create thumbnails',
-                false
+                'Number of entities per iteration',
+                '50'
             )
             ->addOption(
                 'folder-name',
@@ -94,10 +95,13 @@ class GenerateThumbnailsCommand extends Command
 
         $this->initializeCommand($input, $context);
 
-        $this->io->comment(sprintf('Generating Thumbnails for a maximum of %d files. This may take some time...', $this->limit));
-        $this->io->progressStart($this->limit);
+        $mediaIterator = new RepositoryIterator($this->mediaRepository, $context, $this->createCriteria());
 
-        $result = $this->generateThumbnails($context);
+        $totalMediaCount = $mediaIterator->getTotal();
+        $this->io->comment(sprintf('Generating Thumbnails for %d files. This may take some time...', $totalMediaCount));
+        $this->io->progressStart($totalMediaCount);
+
+        $result = $this->generateThumbnails($mediaIterator, $context);
 
         $this->io->progressFinish();
         $this->io->table(
@@ -111,36 +115,22 @@ class GenerateThumbnailsCommand extends Command
 
     private function initializeCommand(InputInterface $input, Context $context)
     {
-        $this->folderFilter = $this->getFolderIdsFromInput($input, $context);
-        $this->limit = $this->getLimitSizeFromInput($input, $context);
+        $this->folderFilter = $this->getFolderFilterFromInput($input, $context);
+        $this->batchSize = $this->getBatchSizeFromInput($input);
     }
 
-    private function getLimitSizeFromInput(InputInterface $input, Context $context): int
+    private function getBatchSizeFromInput(InputInterface $input): int
     {
-        $rawInput = $input->getOption('limit');
-
-        if ($rawInput === false) {
-            return $this->getAvailableMediaEntitiesCount($context);
-        }
+        $rawInput = $input->getOption('batch-size');
 
         if (!is_numeric($rawInput)) {
-            throw new \UnexpectedValueException('Limit size must be numeric');
+            throw new \UnexpectedValueException('Batch size must be numeric');
         }
 
         return (int) $rawInput;
     }
 
-    private function getAvailableMediaEntitiesCount(Context $context): int
-    {
-        $criteria = $this->createCriteria();
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-        $searchResult = $this->mediaRepository->search($criteria, $context);
-
-        return $searchResult->getTotal();
-    }
-
-    private function getFolderIdsFromInput(InputInterface $input, Context $context)
+    private function getFolderFilterFromInput(InputInterface $input, Context $context)
     {
         $rawInput = $input->getOption('folder-name');
         if (!$rawInput) {
@@ -164,16 +154,12 @@ class GenerateThumbnailsCommand extends Command
         return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());
     }
 
-    private function generateThumbnails($context): array
+    private function generateThumbnails(RepositoryIterator $iterator, Context $context): array
     {
-        $criteria = $this->createCriteria();
-        $criteria->setLimit(min($this->limit, 50));
-
         $generated = 0;
         $skipped = 0;
 
-        do {
-            $result = $this->mediaRepository->search($criteria, $context);
+        while (($result = $iterator->fetch()) !== null) {
             foreach ($result->getEntities() as $media) {
                 if ($this->thumbnailService->updateThumbnails($media, $context) > 0) {
                     ++$generated;
@@ -182,8 +168,7 @@ class GenerateThumbnailsCommand extends Command
                 }
             }
             $this->io->progressAdvance($result->count());
-            $criteria->setOffset($criteria->getOffset() + $criteria->getLimit());
-        } while ($result->count() > 0 && $criteria->getOffset() < $this->limit);
+        }
 
         return [
             'generated' => $generated,
@@ -195,6 +180,7 @@ class GenerateThumbnailsCommand extends Command
     {
         $criteria = new Criteria();
         $criteria->setOffset(0);
+        $criteria->setLimit($this->batchSize);
         $criteria->addFilter(new EqualsFilter('media.mediaFolder.configuration.createThumbnails', true));
 
         if ($this->folderFilter) {

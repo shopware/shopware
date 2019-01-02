@@ -869,7 +869,10 @@
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Textbausteine",
-      "placeholderSearchBar": "Finde Textbausteine (Name, Inhalt, Bereich)"
+      "searchBarTitleSets": "Textbaustein-Sets",
+      "placeholderSearchBarSets": "Finde Textbaustein-Sets (Name, Basisdatei)",
+      "searchBarTitleSnippets": "Textbausteine",
+      "placeholderSearchBarSnippets": "Finde Textbausteine (Name, Inhalt, Bereich)"
     },
     "detail": {
       "buttonCancel": "Abbrechen",
@@ -893,7 +896,7 @@
     "list": {
       "title": "Textbausteine verwalten & bearbeiten",
       "cardTitle" : "Testbaustein-Sets",
-      "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle Sets aus, dessen Textbausteine du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst du hier Textbaustein-Sets importieren, neue Anlegen und bestehende als CSV-Datei exportieren.",
+      "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle Sets aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst Du hier Textbaustein-Sets importieren, neue anlegen und bestehende als CSV-Datei exportieren.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "buttonImport": "Import",

@@ -1,5 +1,14 @@
 {% block sw_settings_snippet_set_list %}
     <sw-page class="sw-settings-snippet-set-list">
+        {% block sw_settings_snippet_set_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSets')"
+                               :searchType="$tc('sw-settings-snippet.general.searchBarTitleSets')"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
         {% block sw_settings_snippet_set_list_smart_bar_header %}
             <template slot="smart-bar-header">
                 {% block sw_settings_snippet_set_list_smart_bar_header_title %}
@@ -58,8 +67,11 @@
                             <sw-grid ref="snippetSetList"
                                      slot="grid"
                                      :items="snippetSets"
+                                     :sortDirection="sortDirection"
+                                     :sortBy="sortBy"
                                      @inline-edit-finish="onInlineEditSave"
                                      @inline-edit-cancel="onInlineEditCancel"
+                                     @sort-column="onSortColumn"
                                      table>
                                 {% block sw_settings_snippet_set_list_card_list_grid_template %}
                                     <template slot="columns" slot-scope="{ item }">
@@ -68,7 +80,8 @@
                                                             class="sw-settings-snippet-set__column-name"
                                                             :label="$tc('sw-settings-snippet.list.columnName')"
                                                             dataIndex="name"
-                                                            editable>
+                                                            editable
+                                                            sortable>
                                                 {{ item.name }}
                                                 {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
                                                     <sw-field type="text"
@@ -84,7 +97,8 @@
                                             <sw-grid-column flex="1fr"
                                                             class="sw-settings-snippet-set-file__column-changed-at"
                                                             :label="$tc('sw-settings-snippet.list.columnChangedAt')"
-                                                            dataIndex="baseFile">
+                                                            dataIndex="baseFile"
+                                                            sortable>
                                                 {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
                                                     <div v-if="item.updatedAt">{{ item.updatedAt | date }}</div>
                                                     <div v-else="item.createdAt">{{ item.createdAt | date }}</div>
@@ -96,7 +110,8 @@
                                             <sw-grid-column flex="1fr"
                                                             class="sw-settings-snippet-set-file__column-base-file"
                                                             :label="$tc('sw-settings-snippet.list.columnBaseFile')"
-                                                            dataIndex="baseFile">
+                                                            dataIndex="baseFile"
+                                                            sortable>
                                                 {{ item.baseFile }}
                                             </sw-grid-column>
                                         {% endblock %}

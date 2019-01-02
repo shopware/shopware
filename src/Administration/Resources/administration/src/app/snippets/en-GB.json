@@ -948,7 +948,7 @@
       "messageSaveSuccess": "The rule {name} was saved.",
       "titleSaveError": "Rule",
       "ruleCard": "Condition",
-      "messageSaveError": "An error occurred while saving the Rule {name}."
+      "messageSaveError": "An error occurred while saving the rule {name}."
     }
   },
   "sw-settings-tax": {

@@ -845,4 +845,42 @@ EOF;
         static::assertEquals($insertData[1]['name'], $data[1]['attributes']['name']);
         static::assertEquals($insertData[1]['name'], $data[1]['meta']['viewData']['name']);
     }
+
+    public function testCloneEntity()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test tax clone',
+            'taxRate' => 15,
+        ];
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id);
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $tax = json_decode($response->getContent(), true);
+        static::assertArrayHasKey('data', $tax);
+        static::assertEquals($id, $tax['data']['id']);
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/clone/tax/' . $id, [], [], [], json_encode($data));
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertArrayHasKey('id', $data);
+        static::assertNotEquals($id, $data['id']);
+
+        $newId = $data['id'];
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $newId);
+        $response = $this->getClient()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(15, $data['data']['attributes']['taxRate']);
+    }
 }

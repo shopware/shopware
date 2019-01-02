@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
@@ -104,6 +105,28 @@ class ApiController extends AbstractController
         $result = json_decode(json_encode($result), true);
 
         return new JsonResponse(JsonType::format($result));
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"})
+     */
+    public function clone(Request $request, Context $context, string $entity, string $id)
+    {
+        $definition = $this->definitionRegistry->get($entity);
+
+        $repository = $this->getRepository($definition, $request);
+
+        $eventContainer = $repository->clone($id, $context);
+
+        $event = $eventContainer->getEventByDefinition($definition);
+        if (!$event) {
+            throw new NoEntityClonedException($entity, $id);
+        }
+
+        $ids = $event->getIds();
+        $newId = array_shift($ids);
+
+        return new JsonResponse(['id' => $newId]);
     }
 
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response

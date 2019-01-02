@@ -1,4 +1,3 @@
-import { Filter } from 'src/core/shopware';
 import template from './sw-product-image.html.twig';
 import './sw-product-image.scss';
 
@@ -16,7 +15,6 @@ export default {
 
     props: {
         item: {
-            type: Object,
             required: true
         },
 
@@ -41,8 +39,11 @@ export default {
             };
         },
 
-        mediaNameFilter() {
-            return Filter.getByName('mediaName');
+        mediaItem() {
+            if (typeof this.item === 'string') {
+                return this.item;
+            }
+            return this.item.media;
         }
     }
 };

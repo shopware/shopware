@@ -78,7 +78,7 @@
                                 <div v-else-if="mediaItem" class="sw-manufacturer-detail__image-pane" :class="logoFieldClasses">
                                     {% block sw_manufacturer_detail_logo %}
                                         <sw-media-preview class="sw-manufacturer-detail__logo"
-                                                          :item="mediaItem"
+                                                          :source="mediaItem"
                                                           :transparency="false">
                                         </sw-media-preview>
                                     {% endblock %}

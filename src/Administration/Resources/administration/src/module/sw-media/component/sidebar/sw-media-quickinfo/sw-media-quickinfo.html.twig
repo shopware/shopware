@@ -79,7 +79,7 @@
                 {% block sw_media_quickinfo_preview_content %}
                     <div slot="content">
                         {% block sw_media_quickinfo_preview_item %}
-                            <sw-media-preview class="sw-media-quickinfo__media-preview" :item="item" :showControls="true" :useThumbnails="false">
+                            <sw-media-preview class="sw-media-quickinfo__media-preview" :source="item.id" :showControls="true" :useThumbnails="false">
                             </sw-media-preview>
                         {% endblock %}
                     </div>

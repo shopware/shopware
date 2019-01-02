@@ -36,24 +36,15 @@ class ProductPageObject extends GeneralPageObject {
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible('.sw-media-preview__item')
-            .getAttribute('.sw-media-preview__item', 'src', function (result) {
-                this.assert.ok(result.value);
-                this.assert.equal(result.value, imagePath);
-            });
+            .checkNotification('File has been saved successfully', false)
+            .click(this.elements.alertClose)
+            .expect.element('.sw-alert__message').to.have.text.not.equals('File has been saved successfully').before(500);
 
         this.browser
             .click(this.elements.productSaveAction)
-            .checkNotification('1 of 1 files saved', false)
-            .click(this.elements.alertClose)
-            .expect.element('.sw-alert__message').to.have.text.not.equals('1 of 1 files saved').before(500);
-
-        this.browser
             .checkNotification(`Product "${productName}" has been saved successfully`, false)
             .click(this.elements.alertClose)
             .expect.element('.sw-alert__message').to.have.text.not.equals(`Product "${productName}" has been saved successfully`).before(500);
-
-        this.browser
-            .checkNotification('File has been saved successfully');
     }
 
     deleteProduct(productName) {

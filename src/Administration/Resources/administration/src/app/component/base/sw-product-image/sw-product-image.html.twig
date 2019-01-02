@@ -3,8 +3,8 @@
     <template v-if="!isPlaceholder">
         {% block sw_product_image_preview %}
             <sw-media-preview class="sw-product-image__image"
-                              :item="item"
-                              v-tooltip.bottom="{ message: mediaNameFilter(item, item.fileName) }">
+                              :source="item.mediaId"
+                              :hideTooltip="false">
             </sw-media-preview>
         {% endblock %}
         <sw-context-button class="sw-product-image__context-button">

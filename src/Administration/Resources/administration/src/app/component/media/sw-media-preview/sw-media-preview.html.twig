@@ -1,19 +1,19 @@
 {% block sw_media_preview %}
-    <div class="sw-media-preview" :class="mediaPreviewClasses">
+    <div class="sw-media-preview" :class="mediaPreviewClasses" v-tooltip.bottom="{ message: mediaNameFilter(trueSource, trueSource.fileName), disabled: hideTooltip }">
         {% block sw_media_preview_file_type_check %}
-            <template v-if="checkForFileTypeImage">
+            <template v-if="mimeTypeGroup === 'image'">
                 {% block sw_media_preview_file_type_image %}
-                    <img :src="urlFromItem" :alt="item.fileName" class="sw-media-preview__item" :class="transparencyClass">
+                    <img :src="previewUrl" :alt="alt" class="sw-media-preview__item" :class="transparencyClass">
                 {% endblock %}
             </template>
 
-            <template v-else-if="checkForFileTypeVideo">
+            <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
                 {% block sw_media_preview_file_type_video %}
                     <video :controls="showControls"
                            :autoplay="autoplay"
                            controlsList="nodownload"
                            class="sw-media-preview__item">
-                        <source :src="item.url" :type="item.mimeType">
+                        <source :src="previewUrl" :type="mimeType">
                         {{ $tc('global.sw-media-preview.fallbackVideoTagSupport') }}
                     </video>
                     <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">
@@ -22,7 +22,7 @@
                 {% endblock %}
             </template>
 
-            <template v-else-if="checkForFileTypeAudio">
+            <template v-else-if="isPlayable && mimeTypeGroup === 'audio'">
                 {% block sw_media_preview_file_type_audio %}
                     <sw-icon name="file-thumbnail-mp3"
                              class="sw-media-preview__item"
@@ -33,7 +33,7 @@
                            :autoplay="autoplay"
                            controlsList="nodownload"
                            class="sw-media-preview__item sw-media-preview__item--audio">
-                        <source :src="item.url" :type="item.mimeType">
+                        <source :src="previewUrl" :type="mimeType">
                         {{ $tc('global.sw-media-preview.fallbackAudioTagSupport') }}
                     </audio>
                     <button class="sw-media-preview__play-button" v-if="!showControls" @click="onPlayClick">

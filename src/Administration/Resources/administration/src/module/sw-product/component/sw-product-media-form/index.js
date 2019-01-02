@@ -1,5 +1,4 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import { fileReader } from 'src/core/service/util.service';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
@@ -47,6 +46,10 @@ Component.register('sw-product-media-form', {
             return this.product.getAssociation('media');
         },
 
+        uploadStore() {
+            return State.getStore('upload');
+        },
+
         mediaStore() {
             return State.getStore('media');
         },
@@ -88,7 +91,7 @@ Component.register('sw-product-media-form', {
 
         onBeforeDestroy() {
             this.unsavedEntities.forEach((entity) => {
-                entity.delete();
+                this.uploadStore.removeUpload(entity.taskId);
             });
         },
 
@@ -117,32 +120,21 @@ Component.register('sw-product-media-form', {
             };
         },
 
-        onUploadsAdded({ data }) {
-            data.forEach((upload) => {
-                const productMedia = this.buildProductMedia(upload.entity);
+        onUploadsAdded({ uploadTag, data }) {
+            if (data.length === 0) {
+                return;
+            }
 
-                this.unsavedEntities.push(productMedia);
-                this.unsavedEntities.push(upload.entity);
-
-                this.product.media.push(productMedia);
-                if (upload.src instanceof File) {
-                    if (upload.entity.isLocal) {
-                        upload.entity.fileName = upload.src.name;
-                        upload.entity.mimeType = upload.src.type;
-                    }
-
-                    fileReader.readAsDataURL(upload.src).then((dataURL) => {
-                        this.addImageToPreview(dataURL, productMedia);
+            this.product.isLoading = true;
+            this.mediaStore.sync().then(() => {
+                this.uploadStore.runUploads(uploadTag).then(() => {
+                    data.forEach((upload) => {
+                        if (!upload.entity.isDeleted) {
+                            this.product.media.push(this.buildProductMedia(upload.entity));
+                            this.product.isLoading = false;
+                        }
                     });
-                } else if (upload.src instanceof URL) {
-                    if (upload.entity.isLocal) {
-                        upload.entity.fileName = upload.src.pathname.split('/').pop();
-                        upload.entity.mimeType = 'image/*';
-                    }
-
-                    upload.entity.url = upload.src.href;
-                    productMedia.isLoading = false;
-                }
+                });
             });
         },
 
@@ -150,10 +142,13 @@ Component.register('sw-product-media-form', {
             this.$root.$emit('sw-product-media-form-open-sidebar');
         },
 
+        getKey(media) {
+            return media.id;
+        },
+
         buildProductMedia(mediaEntity) {
             const productMedia = this.productMediaStore.create();
-            productMedia.isLoading = true;
-            productMedia.catalogId = this.product.catalogId;
+            productMedia.mediaId = mediaEntity.id;
 
             if (this.product.media.length === 0) {
                 productMedia.position = 0;
@@ -162,10 +157,6 @@ Component.register('sw-product-media-form', {
                 productMedia.position = this.product.media.length + 1;
             }
 
-            productMedia.media = mediaEntity;
-            productMedia.mediaId = mediaEntity.id;
-
-            delete mediaEntity.user;
             return productMedia;
         },
 
@@ -193,17 +184,9 @@ Component.register('sw-product-media-form', {
         },
 
         successfulUpload(mediaEntity) {
-            const productMedia = this.mediaItems.find((e) => {
-                return e.mediaId === mediaEntity.id;
+            this.mediaStore.getByIdAsync(mediaEntity.id).then(() => {
+                this.$forceUpdate();
             });
-            if (productMedia.isLocal) {
-                delete productMedia.media.user;
-                this.product.save();
-            } else {
-                this.productMediaStore.getByIdAsync(productMedia.id);
-            }
-
-            this.unsavedEntities = [];
         },
 
         onMediaReplaced(mediaEntity) {
@@ -224,7 +207,14 @@ Component.register('sw-product-media-form', {
         },
 
         onUploadFailed(mediaEntity) {
-            this.removeFile(mediaEntity.id);
+            const toRemove = this.product.media.find((productMedia) => {
+                return productMedia.mediaId === mediaEntity.id;
+            });
+
+            if (toRemove) {
+                this.removeFile(toRemove);
+            }
+            this.product.isLoading = false;
         },
 
         getImageDimensions(img, size) {
@@ -241,12 +231,13 @@ Component.register('sw-product-media-form', {
             };
         },
 
-        removeFile(key) {
+        removeFile(mediaItem) {
+            const key = mediaItem.id;
             const item = this.product.media.find((e) => {
-                return e.mediaId === key;
+                return e.id === key;
             });
 
-            this.product.media = this.product.media.filter((e) => e.mediaId !== key);
+            this.product.media = this.product.media.filter((e) => e.id !== key && e !== key);
             if (this.isCover(item)) {
                 if (this.product.media.length === 0) {
                     this.product.coverId = null;
@@ -255,7 +246,17 @@ Component.register('sw-product-media-form', {
                 }
             }
 
-            item.delete();
+            const upload = this.unsavedEntities.find((e) => {
+                return e.productMediaId === key;
+            });
+
+            if (upload) {
+                this.uploadStore.removeUpload(upload.taskId);
+            }
+
+            if (typeof item !== 'string') {
+                item.delete();
+            }
         },
 
         isCover(productMedia) {

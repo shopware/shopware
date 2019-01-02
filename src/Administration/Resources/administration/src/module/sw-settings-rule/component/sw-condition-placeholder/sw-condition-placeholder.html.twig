@@ -1,0 +1,40 @@
+{% block sw_condition_group %}
+<div class="sw-condition-placeholder">
+    {% block sw_condition_group_field_condition %}
+    <div class="field--condition">
+        {% block sw_condition_group_field_condition_select %}
+        <select name="name"
+                class="sw-condition-group__field"
+                v-model="condition.type">
+            {% block sw_condition_group_field_condition_select_option %}
+            <option v-for="(innerCondition, innerConditionType) in ruleConditionService.getConditions()"
+                    :selected="innerConditionType === condition.type"
+                    :value="innerConditionType">
+                {{ $tc(getLabel(innerConditionType)) }}
+            </option>
+            {% endblock %}
+        </select>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_condition_fields %}
+    <slot name="condition-fields">
+        <sw-field type="text" class="field--value"
+                  :placeholder="$tc('global.sw-condition-group.condition.placeholder-warning')"
+                  :disabled="true">
+        </sw-field>
+    </slot>
+    {% endblock %}
+
+    {% block sw_condition_group_field_actions %}
+    <div class="field--actions">
+        <sw-context-button>
+            <sw-context-menu-item @click="$emit('delete-condition', condition)" variant="danger">
+                {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

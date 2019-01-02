@@ -5,6 +5,7 @@ import template from './sw-settings-rule-detail.html.twig';
 Component.register('sw-settings-rule-detail', {
     template,
 
+    inject: ['ruleConditionService'],
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -13,7 +14,8 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             duplicate: false,
-            nestedConditions: []
+            nestedConditions: [],
+            conditionAssociations: {}
         };
     },
 
@@ -43,7 +45,8 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule.id = conditionId;
-            this.rule.getAssociation('conditions').getList({
+            this.conditionAssociations = this.rule.getAssociation('conditions');
+            this.conditionAssociations.getList({
                 page: 1,
                 limit: 500
             }).then(() => {

@@ -1,0 +1,20 @@
+<div class="condition-and-container" :class="level % 2 ? 'background--white' : 'background--gray'">
+    <div class="condition-title">{{ $tc('global.sw-condition-group.condition.andRule') }}</div>
+    <div class="condition-content">
+        <div v-for="(child, index) in condition.children"
+             :key="index">
+            <div v-if="index" class="spacer">UND</div>
+            <component v-bind:is="getComponent(child.type)"
+                       :condition="child"
+                       :conditionAssociations="conditionAssociations"
+                       :level="level + 1"
+                        @delete-condition="onDeleteCondition">
+            </component>
+        </div>
+        <div class="condition-buttons">
+            <sw-button @click="onAddAndClick">UND</sw-button>
+            <sw-button @click="onAddChildClick">Unterbedingung</sw-button>
+            <sw-button @click="onDeleteAll">Alle löschen</sw-button>
+        </div>
+    </div>
+</div>

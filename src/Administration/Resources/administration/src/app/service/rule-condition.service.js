@@ -6,14 +6,19 @@
  * @returns {Object}
  */
 export default function createConditionService() {
-    const $store = {};
+    const $store = {
+        placeholder: {
+            component: 'sw-condition-placeholder',
+            label: 'global.sw-condition-group.condition.placeholder'
+        }
+    };
     const operators = {
         lowerThanEquals: {
             identifier: '<=',
             label: 'global.sw-condition-group.operator.lowerThanEquals'
         },
         equals: {
-            identifier: '==',
+            identifier: '=',
             label: 'global.sw-condition-group.operator.equals'
         },
         greaterThanEquals: {
@@ -78,7 +83,8 @@ export default function createConditionService() {
         addCondition,
         getConditions,
         operatorSets,
-        operators
+        operators,
+        getPlaceholder
     };
 
     function getByType(type) {
@@ -91,5 +97,9 @@ export default function createConditionService() {
 
     function getConditions() {
         return $store;
+    }
+
+    function getPlaceholder() {
+        return getByType('placeholder');
     }
 }

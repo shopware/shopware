@@ -1,0 +1,18 @@
+{% block sw_condition_fields %}
+<sw-field type="select"
+          name="operator"
+          v-model="condition.value.operator"
+          class="field--operator">
+    <template slot="options">
+        <option v-for="(operator, identifier) in operators" :value="operator.identifier">
+            {{ $tc(operator.label) }}
+        </option>
+    </template>
+</sw-field>
+<sw-field id="count"
+          type="number"
+          step="1"
+          class="field--value is--secondary"
+          v-model="condition.value.count">
+</sw-field>
+{% endblock %}

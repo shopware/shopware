@@ -1,372 +1,128 @@
 import { Application } from 'src/core/shopware';
+import 'src/module/sw-settings-rule/component/sw-condition-billing-country';
+import 'src/module/sw-settings-rule/component/sw-condition-billing-street';
+import 'src/module/sw-settings-rule/component/sw-condition-billing-zip-code';
+import 'src/module/sw-settings-rule/component/sw-condition-cart-amount';
+import 'src/module/sw-settings-rule/component/sw-condition-currency';
+import 'src/module/sw-settings-rule/component/sw-condition-customer-group';
+import 'src/module/sw-settings-rule/component/sw-condition-customer-number';
+import 'src/module/sw-settings-rule/component/sw-condition-date-range';
+import 'src/module/sw-settings-rule/component/sw-condition-different-addresses';
+import 'src/module/sw-settings-rule/component/sw-condition-goods-count';
+import 'src/module/sw-settings-rule/component/sw-condition-goods-price';
+import 'src/module/sw-settings-rule/component/sw-condition-is-new-customer';
+import 'src/module/sw-settings-rule/component/sw-condition-last-name';
+import 'src/module/sw-settings-rule/component/sw-condition-line-item';
+import 'src/module/sw-settings-rule/component/sw-condition-line-item-of-type';
+import 'src/module/sw-settings-rule/component/sw-condition-line-item-total-price';
+import 'src/module/sw-settings-rule/component/sw-condition-line-item-unit-price';
+import 'src/module/sw-settings-rule/component/sw-condition-line-item-with-quantity';
+import 'src/module/sw-settings-rule/component/sw-condition-line-items-in-cart';
+import 'src/module/sw-settings-rule/component/sw-condition-sales-channel';
+import 'src/module/sw-settings-rule/component/sw-condition-shipping-country';
+import 'src/module/sw-settings-rule/component/sw-condition-shipping-street';
+import 'src/module/sw-settings-rule/component/sw-condition-shipping-zip-code';
 
 Application.addServiceProviderDecorator('ruleConditionService', (ruleConditionService) => {
     ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\DateRangeRule', {
-        label: 'global.sw-condition-group.condition.dateRangeRule.label',
-        fields: {
-            fromDate: {
-                mode: 'static',
-                type: 'datetime'
-            },
-            toDate: {
-                mode: 'static',
-                type: 'datetime'
-            },
-            useTime: {
-                mode: 'static',
-                label: 'global.sw-condition-group.condition.dateRangeRule.useTime',
-                type: 'select',
-                values: {
-                    true: {
-                        label: 'global.sw-condition-group.condition.yes'
-                    },
-                    false: {
-                        label: 'global.sw-condition-group.condition.no'
-                    }
-                }
-            }
-        }
+        component: 'sw-condition-date-range',
+        label: 'global.sw-condition-group.condition.dateRangeRule.label'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\SalesChannelRule', {
-        label: 'global.sw-condition-group.condition.salesChannelRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            salesChannelIds: {
-                mode: 'store',
-                type: 'multiselect',
-                store: 'sales_channel'
-            }
-        }
+        component: 'sw-condition-sales-channel',
+        label: 'global.sw-condition-group.condition.salesChannelRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\CurrencyRule', {
-        label: 'global.sw-condition-group.condition.currencyRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            currencyIds: {
-                mode: 'store',
-                type: 'multiselect',
-                store: 'currency'
-            }
-        }
+        component: 'sw-condition-currency',
+        label: 'global.sw-condition-group.condition.currencyRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\BillingCountryRule', {
-        label: 'global.sw-condition-group.condition.billingCountryRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            countryIds: {
-                mode: 'store',
-                type: 'multiselect',
-                store: 'country'
-            }
-        }
+        component: 'sw-condition-billing-country',
+        label: 'global.sw-condition-group.condition.billingCountryRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\BillingStreetRule', {
-        label: 'global.sw-condition-group.condition.billingStreetRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.string
-            },
-            streetName: {
-                mode: 'free',
-                type: 'text'
-            }
-        }
+        component: 'sw-condition-billing-street',
+        label: 'global.sw-condition-group.condition.billingStreetRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\BillingZipCodeRule', {
-        label: 'global.sw-condition-group.condition.billingZipCodeRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            zipCodes: {
-                mode: 'free',
-                type: 'tags'
-            }
-        }
+        component: 'sw-condition-billing-zip-code',
+        label: 'global.sw-condition-group.condition.billingZipCodeRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\CustomerGroupRule', {
-        label: 'global.sw-condition-group.condition.customerGroupRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            customerGroupIds: {
-                mode: 'store',
-                type: 'multiselect',
-                store: 'customer_group'
-            }
-        }
+        component: 'sw-condition-customer-group',
+        label: 'global.sw-condition-group.condition.customerGroupRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\CustomerNumberRule', {
-        label: 'global.sw-condition-group.condition.customerNumberRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            customerNumbers: {
-                mode: 'free',
-                type: 'tags'
-            }
-        }
+        component: 'sw-condition-customer-number',
+        label: 'global.sw-condition-group.condition.customerNumberRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\DifferentAddressRule', {
-        label: 'global.sw-condition-group.condition.differentAddressRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.bool
-            },
-            value: {
-                mode: 'static',
-                type: 'select',
-                values: {
-                    true: {
-                        label: 'global.sw-condition-group.condition.yes'
-                    },
-                    false: {
-                        label: 'global.sw-condition-group.condition.no'
-                    }
-                }
-            }
-        }
+    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\DifferentAddressesRule', {
+        component: 'sw-condition-different-addresses',
+        label: 'global.sw-condition-group.condition.differentAddressesRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\IsNewCustomerRule', {
-        label: 'global.sw-condition-group.condition.isNewCustomerRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.bool
-            },
-            value: {
-                mode: 'static',
-                type: 'select',
-                values: {
-                    true: {
-                        label: 'global.sw-condition-group.condition.yes'
-                    },
-                    false: {
-                        label: 'global.sw-condition-group.condition.no'
-                    }
-                }
-            }
-        }
+        component: 'sw-condition-is-new-customer',
+        label: 'global.sw-condition-group.condition.isNewCustomerRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\LastNameRule', {
-        label: 'global.sw-condition-group.condition.lastNameRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.string
-            },
-            lastName: {
-                mode: 'free',
-                type: 'text'
-            }
-        }
+        component: 'sw-condition-last-name',
+        label: 'global.sw-condition-group.condition.lastNameRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\ShippingCountryRule', {
-        label: 'global.sw-condition-group.condition.shippingCountryRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            countryIds: {
-                mode: 'store',
-                type: 'multiselect',
-                store: 'country'
-            }
-        }
+        component: 'sw-condition-shipping-country',
+        label: 'global.sw-condition-group.condition.shippingCountryRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\ShippingStreetRule', {
-        label: 'global.sw-condition-group.condition.shippingStreetRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.string
-            },
-            streetName: {
-                mode: 'free',
-                type: 'text'
-            }
-        }
+        component: 'sw-condition-shipping-street',
+        label: 'global.sw-condition-group.condition.shippingStreetRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\ShippingZipCodeRule', {
-        label: 'global.sw-condition-group.condition.shippingZipCodeRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            zipCodes: {
-                mode: 'free',
-                type: 'tags'
-            }
-        }
+        component: 'sw-condition-shipping-zip-code',
+        label: 'global.sw-condition-group.condition.shippingZipCodeRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\CartAmountRule', {
-        label: 'global.sw-condition-group.condition.cartAmountRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.number
-            },
-            amount: {
-                mode: 'free',
-                type: 'decimal'
-            }
-        }
+        component: 'sw-condition-cart-amount',
+        label: 'global.sw-condition-group.condition.cartAmountRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsCountRule', {
-        label: 'global.sw-condition-group.condition.goodsCountRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.number
-            },
-            count: {
-                mode: 'free',
-                type: 'int'
-            }
-        }
+        component: 'sw-condition-goods-count',
+        label: 'global.sw-condition-group.condition.goodsCountRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsPriceRule', {
-        label: 'global.sw-condition-group.condition.goodsPriceRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.number
-            },
-            amount: {
-                mode: 'free',
-                type: 'decimal'
-            }
-        }
+        component: 'sw-condition-goods-price',
+        label: 'global.sw-condition-group.condition.goodsPriceRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemOfTypeRule', {
-        label: 'global.sw-condition-group.condition.lineItemOfTypeRule.label',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.string
-            },
-            lineItemType: {
-                mode: 'static',
-                type: 'select',
-                values: { /* todo add possible line item types */
-                    product: {
-                        label: 'global.sw-condition-group.condition.lineItemOfTypeRule.product'
-                    }
-                }
-            }
-        }
+        component: 'sw-condition-line-item-of-type',
+        label: 'global.sw-condition-group.condition.lineItemOfTypeRule.label'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemRule', {
-        label: 'global.sw-condition-group.condition.lineItemRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            identifiers: {
-                mode: 'store',
-                type: 'multiselect',
-                store: 'product' // todo add correct store
-            }
-        }
+        component: 'sw-condition-line-item',
+        label: 'global.sw-condition-group.condition.lineItemRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemsInCartRule', {
-        label: 'global.sw-condition-group.condition.lineItemsInCartRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.multiStore
-            },
-            identifiers: {
-                mode: 'store',
-                type: 'multiselect',
-                store: 'product' // todo add correct store
-            }
-        }
+        component: 'sw-condition-line-items-in-cart',
+        label: 'global.sw-condition-group.condition.lineItemsInCartRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemTotalPriceRule', {
-        label: 'global.sw-condition-group.condition.lineItemTotalPriceRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.number
-            },
-            amount: {
-                mode: 'free',
-                type: 'decimal'
-            }
-        }
+        component: 'sw-condition-line-item-total-price',
+        label: 'global.sw-condition-group.condition.lineItemTotalPriceRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemUnitPriceRule', {
-        label: 'global.sw-condition-group.condition.lineItemUnitPriceRule',
-        fields: {
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.number
-            },
-            amount: {
-                mode: 'free',
-                type: 'decimal'
-            }
-        }
+        component: 'sw-condition-line-item-unit-price',
+        label: 'global.sw-condition-group.condition.lineItemUnitPriceRule'
     });
     ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemWithQuantityRule', {
-        label: 'global.sw-condition-group.condition.lineItemWithQuantityRule',
-        fields: {
-            id: {
-                mode: 'store',
-                type: 'select',
-                store: 'product' // todo add correct store
-            },
-            operator: {
-                mode: 'static',
-                type: 'select',
-                values: ruleConditionService.operatorSets.number
-            },
-            quantity: {
-                mode: 'free',
-                type: 'int'
-            }
-        }
+        component: 'sw-condition-line-item-with-quantity',
+        label: 'global.sw-condition-group.condition.lineItemWithQuantityRule'
+    });
+    ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\Container\\AndRule', {
+        component: 'sw-condition-and-container',
+        label: 'global.sw-condition-group.condition.andRule'
+    });
+    ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\Container\\OrRule', {
+        component: 'sw-condition-or-container',
+        label: 'global.sw-condition-group.condition.orRule'
     });
     return ruleConditionService;
 });

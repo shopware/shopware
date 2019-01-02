@@ -61,18 +61,12 @@
 
                 {% block sw_settings_rule_detail_conditions_card %}
                     <sw-card :large="true" :title="$tc('sw-settings-rule.detail.ruleCard')">
-                        <sw-container grid="1fr" gap="0px">
-
-                            {# @todo add nested conditions with twig blocks #}
-
-                            <sw-field type="hidden" v-model="rule.conditions"></sw-field>
-
-                            <div v-for="condition in nestedConditions.children">
-                                <sw-condition-group :condition="condition">
-                                </sw-condition-group>
-                            </div>
-
-                        </sw-container>
+                        <component v-if="nestedConditions"
+                                   is="sw-condition-and-container"
+                                   :condition="nestedConditions[0]"
+                                   :conditionAssociations="conditionAssociations"
+                                   :level="0">
+                        </component>
                     </sw-card>
                 {% endblock %}
             </sw-card-view>

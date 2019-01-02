@@ -171,6 +171,7 @@
           "label":  "Datumsbereich",
           "useTime": "Zeit verwenden"
         },
+        "placeholder": "Platzhalter",
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
         "billingCountryRule": "Rechnungsland",
@@ -178,7 +179,7 @@
         "billingZipCodeRule": "Rechnung PLZ",
         "customerGroupRule": "Kundengruppe",
         "customerNumberRule": "Kundennummer",
-        "differentAddressRule": "Abweichende Adresse",
+        "differentAddressesRule": "Abweichende Adresse",
         "isNewCustomerRule": "Neuer Kunde",
         "lastNameRule": "Kunden Nachname",
         "shippingCountryRule": "Lieferland",
@@ -196,10 +197,19 @@
         "lineItemUnitPriceRule": "Artikel Preis",
         "lineItemTotalPriceRule": "Artikel Gesamtpreis",
         "lineItemWithQuantityRule": "Artikel mit Anzahl",
+        "andRule": "Und Container",
+        "orRule": "Oder Container",
         "yes": "Ja",
         "no": "Nein",
+        "and": "Und",
+        "or": "Oder",
         "field": {
           "valuePlaceholder": "Wert..."
+        },
+        "placeholder-warning": "Bitte wähle eine Bedingung aus",
+        "not-found": {
+          "label": "Die Bedingung konnte nicht gefunden werden",
+          "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung hat folgendes Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung hat folgende Felder: {fields}"
         }
       }
     },

@@ -1,0 +1,10 @@
+{% block sw_condition_fields %}
+<sw-field type="text"
+          class="field--operator" :placeholder="$tc(operator.label)"
+          disabled="true">
+</sw-field>
+<sw-field type="checkbox"
+          class="field--value is--secondary"
+          v-model="condition.value.isDifferent">
+</sw-field>
+{% endblock %}

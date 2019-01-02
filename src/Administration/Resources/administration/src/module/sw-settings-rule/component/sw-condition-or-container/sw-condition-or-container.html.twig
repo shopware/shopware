@@ -1,0 +1,22 @@
+<div class="condition-and-container" :class="level % 2 ? 'background--white' : 'background--gray'">
+    <div class="condition-layout">
+        <div class="condition-title">{{ $tc('global.sw-condition-group.condition.orRule') }}</div>
+        <div class="condition-content">
+            <div v-for="(child, index) in condition.children"
+                 :key="index">
+                <div v-if="index" class="condition-or-ruler">Oder</div>
+                <component v-bind:is="getComponent(child.type)"
+                           :condition="child"
+                           :conditionAssociations="conditionAssociations"
+                           :level="level + 1"
+                           @delete-condition="onDeleteCondition">
+                </component>
+            </div>
+            <div class="condition-buttons">
+                <sw-button @click="onAddOrClick">Oder</sw-button>
+                <sw-button @click="onAddChildClick">Unterbedingung</sw-button>
+                <sw-button @click="onDeleteAll">Alle löschen</sw-button>
+            </div>
+        </div>
+    </div>
+</div>

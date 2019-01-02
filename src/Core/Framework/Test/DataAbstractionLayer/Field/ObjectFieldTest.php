@@ -112,7 +112,7 @@ EOF;
 
         static::assertCount(1, $data);
         static::assertEquals($id->getBytes(), $data[0]['id']);
-        static::assertEquals('{"_class":"Shopware\\\\Core\\\\Framework\\\\Pricing\\\\Price","net":10,"gross":20,"linked":false,"extensions":[]}', $data[0]['data']);
+        static::assertEquals('{"_class":"Shopware\\\\Core\\\\Framework\\\\Pricing\\\\Price","net":10.0,"gross":20.0,"linked":false,"extensions":[]}', $data[0]['data']);
     }
 
     public function testWriteUtf8(): void

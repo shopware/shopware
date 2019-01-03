@@ -15,7 +15,7 @@ module.exports = {
             .fillField('input[name=sw-field--newPassword]', 'sicheresPasswort1234')
             .fillField('input[name=sw-field--newPasswordConfirm]', 'sicheresPasswort1234')
             .click('.sw-button--primary')
-            .checkNotification('Profile information have been saved successfully.')
+            .checkNotification('Profile information has been saved successfully.')
             .waitForElementVisible('.sw-admin-menu__user-name')
             .assert.containsText('.sw-admin-menu__user-name', 'Super Richie');
     },

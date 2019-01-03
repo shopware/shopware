@@ -8,6 +8,10 @@
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">
             <tag name="shopware.entity.definition" entity="plugin"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Helper\PaymentMethodHelper" public="true">
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+        </service>
     </services>
 </container>                
-                

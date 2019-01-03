@@ -1,28 +1,35 @@
 {% block sw_condition_container %}
-    <div class="condition-or-container"
-         :class="{
-            'background--white': level % 2 !== 0,
-            'background--gray': level % 2 === 0
-         }">
-        <div class="condition-content">
-            <div v-for="(child, index) in condition.children"
-                 :key="index">
-                <div v-if="index"
-                     class="spacer spacer--or">
-                    {{ $tc('global.sw-condition.condition.or') }}
-                </div>
-                <component v-bind:is="getComponent(child.type)"
-                           :condition="child"
-                           :conditionAssociations="conditionAssociations"
-                           :level="level + 1"
-                           @delete-condition="onDeleteCondition">
-                </component>
+<div class="condition-or-container"
+     :class="level % 2 ? 'background--gray' : 'background--white'">
+    {% block sw_condition_container_content %}
+    <div class="condition-content">
+        {% block sw_condition_container_children %}
+        <div v-for="(child, index) in condition.children"
+             :key="index">
+            {% block sw_condition_container_children_spacer %}
+            <div v-if="index"
+                 class="spacer spacer--or">
+                {{ $tc('global.sw-condition.condition.or') }}
             </div>
-            <div v-if="level !== 0" class="condition-buttons">
-                <sw-button class="condition-buttons--and" @click="onAddAndClick">{{ $tc('global.sw-condition.condition.or') }}</sw-button>
-                <sw-button class="condition-buttons--sub" @click="onAddChildClick">{{ $tc('global.sw-condition.condition.subCondition') }}</sw-button>
-                <sw-button class="condition-buttons--delete" @click="onDeleteAll">{{ $tc('global.sw-condition.condition.deleteConditions') }}</sw-button>
-            </div>
+            {% endblock %}
+            {% block sw_condition_container_children_component %}
+            <component v-bind:is="getComponent(child.type)"
+                       :condition="child"
+                       :conditionAssociations="conditionAssociations"
+                       :level="level + 1"
+                       @delete-condition="onDeleteCondition">
+            </component>
+            {% endblock %}
         </div>
+        {% endblock %}
+        {% block sw_condition_container_actions %}
+        <div v-if="level !== 0" class="condition-buttons">
+            <sw-button class="condition-buttons--or" @click="onAddAndClick">{{ $tc('global.sw-condition.condition.or') }}</sw-button>
+            <sw-button class="condition-buttons--sub" @click="onAddChildClick">{{ $tc('global.sw-condition.condition.subCondition') }}</sw-button>
+            <sw-button class="condition-buttons--delete" @click="onDeleteAll">{{ $tc('global.sw-condition.condition.deleteConditions') }}</sw-button>
+        </div>
+        {% endblock %}
     </div>
+    {% endblock %}
+</div>
 {% endblock %}

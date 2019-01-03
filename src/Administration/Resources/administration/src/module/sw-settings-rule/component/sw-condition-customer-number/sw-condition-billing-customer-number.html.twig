@@ -1,17 +1,21 @@
 {% block sw_condition_fields %}
-<sw-field type="select"
-          name="operator"
-          v-model="condition.value.operator"
-          class="field--operator">
-    <template slot="options">
-        <option v-for="operator in operators" :value="operator.identifier">
-            {{ $tc(operator.label) }}
-        </option>
-    </template>
-</sw-field>
-<sw-condition-value multi
-                    :id="condition.id"
-                    class="field--value is--secondary"
-                    v-model="condition.value.customerNumbers">
-</sw-condition-value>
+    {% block sw_condition_fields_operator %}
+        <sw-field type="select"
+                  name="operator"
+                  v-model="condition.value.operator"
+                  class="field--operator">
+            <template slot="options">
+                <option v-for="operator in operators" :value="operator.identifier">
+                    {{ $tc(operator.label) }}
+                </option>
+            </template>
+        </sw-field>
+    {% endblock %}
+    {% block sw_condition_fields_value %}
+        <sw-condition-value multi
+                            :id="condition.id"
+                            class="field--value is--secondary"
+                            v-model="condition.value.customerNumbers">
+        </sw-condition-value>
+    {% endblock %}
 {% endblock %}

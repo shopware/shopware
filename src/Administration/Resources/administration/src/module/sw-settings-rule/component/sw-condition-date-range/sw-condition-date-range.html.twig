@@ -1,18 +1,20 @@
 {% block sw_condition_fields %}
-<sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
-          name="fromDate"
-          v-model="condition.value.fromDate"
-          class="field--value">
-</sw-field>
-<sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
-          name="toDate"
-          v-model="condition.value.toDate"
-          class="field--value">
-</sw-field>
-<sw-field type="checkbox"
-          name="useTime"
-          :label="$tc('global.sw-condition.condition.dateRangeRule.useTime')"
-          v-model="condition.value.useTime"
-          class="field--use-time">
-</sw-field>
+    {% block sw_condition_fields_value %}
+        <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
+                  name="fromDate"
+                  v-model="condition.value.fromDate"
+                  class="field--value">
+        </sw-field>
+        <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
+                  name="toDate"
+                  v-model="condition.value.toDate"
+                  class="field--value">
+        </sw-field>
+        <sw-field type="checkbox"
+                  name="useTime"
+                  :label="$tc('global.sw-condition.condition.dateRangeRule.useTime')"
+                  v-model="condition.value.useTime"
+                  class="field--use-time">
+        </sw-field>
+    {% endblock %}
 {% endblock %}

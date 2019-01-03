@@ -1,11 +1,13 @@
 {% block sw_condition_fields %}
-<sw-field type="text"
-          class="field--value"
-          :placeholder="$tc('global.sw-condition.condition.not-found.label')"
-          :disabled="true">
-    <template slot="suffix">
-        <sw-help-text :text="errorMessage" :width="200" tooltipPosition="top">
-        </sw-help-text>
-    </template>
-</sw-field>
+    {% block sw_condition_fields_value %}
+        <sw-field type="text"
+                  class="field--value"
+                  :placeholder="$tc('global.sw-condition.condition.not-found.label')"
+                  :disabled="true">
+            <template slot="suffix">
+                <sw-help-text :text="errorMessage" :width="200" tooltipPosition="top">
+                </sw-help-text>
+            </template>
+        </sw-field>
+    {% endblock %}
 {% endblock %}

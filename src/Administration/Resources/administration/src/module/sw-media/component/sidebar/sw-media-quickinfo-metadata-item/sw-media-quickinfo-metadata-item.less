@@ -3,22 +3,15 @@
 
 @sw-metadata-item-caption-color: @color-gutenberg;
 
-.sw-media-quickinfo-metadata-item {
-    display: grid;
-    grid-template-columns: 50% 50%;
-    grid-auto-rows: 40px;
+.sw-media-quickinfo-metadata-item__term {
+    font-size: @font-size-small;
+    color: @sw-metadata-item-caption-color;
+}
 
-    > dt {
-        color: @sw-metadata-item-caption-color;
-        font-weight: bold;
-    }
+.sw-media-quickinfo-metadata-item__description {
+    font-size: @font-size-small;
 
-    > dd {
+    &.is--truncated {
         .truncate();
-
-        &:before {
-            content: attr(data-last-content);
-            float: right;
-        }
     }
 }

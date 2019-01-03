@@ -251,6 +251,7 @@
                             <sw-button v-if="displayActionButtons"
                                        class="sw-field--inline__button sw-field--inline__button--cancel"
                                        square
+                                       size="small"
                                        @click="cancelSubmit">
                                 {% block sw_field_inline_cancel_submit_button_icon %}
                                     <sw-icon small name="small-default-x-line-small"></sw-icon>
@@ -260,6 +261,7 @@
                             <sw-button v-if="displayActionButtons"
                                        class="sw-field--inline__button sw-field--inline__button--submit"
                                        square
+                                       size="small"
                                        variant="primary"
                                        @click="submitValue">
                                 {% block sw_field_inline_submit_button_icon %}

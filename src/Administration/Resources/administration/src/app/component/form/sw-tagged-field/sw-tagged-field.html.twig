@@ -1,0 +1,89 @@
+{% block sw_tagged_field %}
+    <div class="sw-tagged-field"
+         :class="taggedClasses"
+         tabindex="0">
+        {% block sw_tagged_field_label %}
+            <label v-if="label" :for="id" class="sw-tagged-field__label">{{ label }}</label>
+        {% endblock %}
+
+        {% block sw_tagged_field_inner %}
+            <div class="sw-tagged-field__inner">
+                <transition-group name="sw-tagged-field-mangify"
+                                  tag="ul"
+                                  class="sw-tagged-field__tags"
+                                  mode="out-in">
+                    {% block sw_tagged_field_tag_item %}
+                        <li class="sw-tagged-field__tag-item"
+                            v-for="(tag, index) in tags"
+                            :key="index"
+                            :data-id="index"
+                            @click="$emit('sw-tagged-field-tag-clicked', { tag, index })">
+
+                            {% block sw_tagged_field_tag_item_inner %}
+                                {% block sw_tagged_field_tag_text_holder %}
+                                    <slot name="tag" :item="tag">
+                                        <span v-if="!editTags[index]" class="sw_tagged_field__tag-text">
+                                            {% block sw_tagged_field__tag_text %}
+                                                {{ tag }}
+                                            {% endblock %}
+                                        </span>
+                                        <span contenteditable="true"
+                                              class="sw-tagged-field__edit-text"
+                                              v-model="editTags[index]"
+                                              @keydown="performModifyTag(index, $event)"
+                                              :ref="`input${index}`"
+                                              v-else>
+                                            {{ editTags[index] }}
+                                    </slot>
+                                {% endblock %}
+
+                                {% block sw_tagged_field_tag_dismiss %}
+                                    <button class="sw-tagged-field__tag-dismiss"
+                                            :title="$tc('global.sw-tagged-field.buttonDismiss')"
+                                            @click.prevent.stop="dismissTag(index)"
+                                            v-if="!editTags[index]">
+                                        {% block sw_tagged_field_tag_dismiss_icon %}
+                                            <sw-icon name="small-default-x-line-medium">
+                                            </sw-icon>
+                                        {% endblock %}
+                                    </button>
+                                    <button class="sw-tagged-field__tag-revert"
+                                            :title="$tc('global.sw-tagged-field.buttonDismiss')"
+                                            @click.prevent.stop="revertTag(index)"
+                                            v-else>
+                                        {% block sw_tagged_field_tag_undo_icon %}
+                                            <sw-icon name="text-editor-undo">
+                                            </sw-icon>
+                                        {% endblock %}
+                                    </button>
+                                {% endblock %}
+                            {% endblock %}
+                        </li>
+                    {% endblock %}
+
+                    {% block sw_tagged_field_item_input %}
+                        <li class="sw-tagged-field__tag-item-input" key="tagInput">
+                            {% block sw_tagged_field_input %}
+                                <input ref="newTagInput"
+                                       class="sw-tagged-field__input"
+                                       type="text"
+                                       :placeholder="placeholder"
+                                       v-model="newTag"
+                                       @keydown="performAddTag"
+                                       @keydown.delete="dismissLastTag">
+                            {% endblock %}
+                        </li>
+                    {% endblock %}
+                </transition-group>
+
+                {% block sw_tagged_field_indicators %}
+                    <div class="sw-tagged-field__indicators">
+                        {% block sw_tagged_field_indicators_helptext %}
+                            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,18 +1,13 @@
 {% block sw_condition_container %}
-    <div class="condition-and-container"
-         :class="{
-            'first-container': level === 0,
-            'background--white': level % 2 === 0,
-            'background--gray': level % 2 !== 0
-         }">
+    <div class="sw-condition-and-container" :class="`${containerRowClass} ${firstContainer}`">
         {% block sw_condition_container_content %}
-            <div class="condition-content">
+            <div class="sw-condition-and-container__condition-content">
                 {% block sw_condition_container_children %}
                     <div v-for="(child, index) in condition.children"
                          :key="index">
                         {% block sw_condition_container_children_spacer %}
                             <div v-if="index"
-                                 class="spacer spacer--and">
+                                 class="condition-content__spacer--and">
                                 {{ $tc('global.sw-condition.condition.and') }}
                             </div>
                         {% endblock %}
@@ -27,10 +22,16 @@
                     </div>
                 {% endblock %}
                 {% block sw_condition_container_actions %}
-                    <div v-if="level !== 0" class="condition-buttons">
-                        <sw-button class="condition-buttons--and" @click="onAddAndClick">{{ $tc('global.sw-condition.condition.and') }}</sw-button>
-                        <sw-button class="condition-buttons--sub" @click="onAddChildClick">{{ $tc('global.sw-condition.condition.subCondition') }}</sw-button>
-                        <sw-button class="condition-buttons--delete" @click="onDeleteAll">{{ $tc('global.sw-condition.condition.deleteConditions') }}</sw-button>
+                    <div v-if="level !== 0" class="sw-condition-and-container__actions">
+                        <sw-button class="sw-condition-and-container__actions--and" @click="onAddAndClick">
+                            {{ $tc('global.sw-condition.condition.and') }}
+                        </sw-button>
+                        <sw-button class="sw-condition-and-container__actions--sub" @click="onAddChildClick">
+                            {{ $tc('global.sw-condition.condition.subCondition') }}
+                        </sw-button>
+                        <sw-button class="sw-condition-and-container__actions--delete" @click="onDeleteAll">
+                            {{ $tc('global.sw-condition.condition.deleteConditions') }}
+                        </sw-button>
                     </div>
                 {% endblock %}
             </div>

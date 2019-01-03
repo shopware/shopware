@@ -1,36 +1,36 @@
 @import "~less/variables";
 
-.condition-and-container {
-    &.background--white {
+.sw-condition-and-container {
+    &.is--odd {
         background-color: @color-white;
     }
 
-    &.background--gray {
+    &.is--even {
         background-color: @color-light-gray;
     }
 
-    .condition-content {
+    .sw-condition-and-container__condition-content {
         padding: 20px;
     }
 
-    .spacer--and {
+    .condition-content__spacer--and {
         padding: 10px 0;
         margin-left: 0;
         font-weight: bold;
     }
 
-    &.first-container > .condition-content {
+    &.sw-condition-and-container__first-container > .sw-condition-and-container__condition-content {
         padding: 0;
     }
 
-    .condition-buttons {
+    .sw-condition-and-container__actions {
         margin-top: 20px;
 
-        .condition-buttons--and {
+        .sw-condition-and-container__actions--and {
             margin-right: 10px;
         }
 
-        .condition-buttons--delete {
+        .sw-condition-and-container__actions--delete {
             float: right;
         }
     }

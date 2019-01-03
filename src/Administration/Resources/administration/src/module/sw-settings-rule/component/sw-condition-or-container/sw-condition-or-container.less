@@ -1,32 +1,32 @@
 @import "~less/variables";
 
-.condition-or-container {
-    .condition-content {
+.sw-condition-or-container {
+    &.is--odd {
+        background-color: @color-white;
+    }
+
+    &.is--even {
+        background-color: @color-light-gray;
+    }
+
+    .sw-condition-or-container__condition-content {
         padding: 20px;
     }
 
-    .spacer--or {
+    .condition-content__spacer--or {
         padding: 10px 0;
         margin-left: -10px;
         font-weight: bold;
     }
 
-    &.background--white {
-        background-color: @color-white;
-    }
-
-    &.background--gray {
-        background-color: @color-light-gray;
-    }
-
-    .condition-buttons {
+    .sw-condition-or-container__actions {
         margin-top: 20px;
 
-        .condition-buttons--or {
+        .sw-condition-or-container__actions--or {
             margin-right: 10px;
         }
 
-        .condition-buttons--delete {
+        .sw-condition-or-container__actions--delete {
             float: right;
         }
     }

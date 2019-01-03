@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -332,7 +333,7 @@ class PluginManager
                 $data['refresh_date'] = $refreshDate->format(Defaults::DATE_FORMAT);
                 $this->connection->update('plugin', $data, ['name' => $pluginName]);
             } else {
-                $data['id'] = $pluginName;
+                $data['id'] = Uuid::uuid4()->getBytes();
                 $data['created_at'] = $refreshDate->format(Defaults::DATE_FORMAT);
                 $data['active'] = 0;
 

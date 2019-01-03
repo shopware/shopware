@@ -55,7 +55,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
 
             new BoolField('create_thumbnails', 'createThumbnails'),
             new BoolField('keep_aspect_ratio', 'keepAspectRatio'),
-            new IntField('thumbnail_quality', 'thumbnailQuality'),
+            new IntField('thumbnail_quality', 'thumbnailQuality', 0, 100),
 
             new OneToManyAssociationField(
                 'mediaFolders',

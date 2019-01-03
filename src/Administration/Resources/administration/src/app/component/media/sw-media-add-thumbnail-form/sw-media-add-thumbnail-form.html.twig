@@ -7,8 +7,8 @@
                     <sw-field class="sw-media-add-thumbnail-form__input-width"
                               type="number"
                               :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
-                              @input="onWidthChange"
-                              @change="onWidthChange"
+                              min="1"
+                              :validation="width > 0"
                               v-model="width">
                     </sw-field>
                 {% endblock %}
@@ -26,6 +26,8 @@
                     <sw-field class="sw-media-add-thumbnail-form__input-height"
                               type="number"
                               v-model="height"
+                              min="1"
+                              :validation="height > 0"
                               :disabled="isLocked">
                     </sw-field>
                 {% endblock %}
@@ -35,7 +37,7 @@
         {% block sw_media_add_thumbnail_add_button %}
             <sw-button variant="ghost"
                        @click="onAdd"
-                       :disabled="width === null || height === null">
+                       :disabled="width === null || height === null || width === 0 || height === 0">
                 {{ $tc('global.sw-media-add-thumbnail-form.labelAdd') }}
             </sw-button>
         {% endblock %}

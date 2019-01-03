@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Subscriber;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
+use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -65,7 +66,12 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $this->metadataLoader->updateMetadata($metadata);
+            try {
+                $this->metadataLoader->updateMetadata($metadata);
+            } catch (\Throwable $e) {
+                // don't fail the request because metadata cannot be loaded
+                $metadata->setType(new NoMetadata());
+            }
         }
     }
 

@@ -24,15 +24,17 @@ Component.register('sw-media-add-thumbnail-form', {
         }
     },
 
-    methods: {
-        onLockSwitch() {
-            this.isLocked = !this.isLocked;
-        },
-
-        onWidthChange(value) {
+    watch: {
+        width(value) {
             if (this.isLocked) {
                 this.height = value;
             }
+        }
+    },
+
+    methods: {
+        onLockSwitch() {
+            this.isLocked = !this.isLocked;
         },
 
         onAdd() {

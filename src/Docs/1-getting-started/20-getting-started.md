@@ -107,10 +107,9 @@ The platform usually assembles a context during the kernel boot so you don't hav
 If you need a generic context for writing unit tests you can use:
 
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Defaults;
 
 $context = Context::createDefaultContext();
 ``` 
@@ -124,7 +123,7 @@ and the `Shopware\Core\Framework\Api\Context\ContextValueResolver` will
 inject the right Context automatically.
 
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -157,7 +156,7 @@ To limit the number of results returned, you can use the `setOffset` and `setLim
 **Example:**
 
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -185,7 +184,7 @@ The `/search` endpoint supports complex searches. All operations of the
 `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` class are supported.
 The endpoint must be accessed via POST. The initial query would be expressed like this:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 $client = new \GuzzleHttp\Client();
 
@@ -234,7 +233,7 @@ Using query containers you are able to combine or negate filter options:
 
 Let's start with a simple filtered list of products and filter products which are not active:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -253,7 +252,7 @@ $result = $repository->search($criteria, $context);
 
 Filter only products which cost between € 100 and € 200:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -270,7 +269,7 @@ $criteria->addFilter(
 
 Next, only products are displayed where the manufacturer property `link` is defined:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -281,7 +280,7 @@ $criteria = new Criteria();
 $criteria->addFilter(
     new NotFilter(
         NotFilter::CONNECTION_AND,
-        new EqualsFilter('product.manufacturer.link', null)
+        [new EqualsFilter('product.manufacturer.link', null)]
     )
 );
 ```
@@ -289,7 +288,7 @@ $criteria->addFilter(
 Furthermore, only products with a minimum purchase amount of 1, 5 or 10 should be displayed:
 
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -303,7 +302,7 @@ $criteria->addFilter(
 
 And last but not least, only products that have the letter `A` in their name should be displayed:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -326,7 +325,7 @@ For more complex filtering, use the `/search` endpoint as mentioned above.
 In the first example of filtering, filters were made for products that have the active flag. 
 So a EqualsFilter must also be sent via the API:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\Client;
 
@@ -354,7 +353,7 @@ In the second example, the product list was filtered to a price range of € 100
 using a range query. With range query, you have to pass the corresponding operators
 like `greater than equals`, `less than` as `parameters`. Example:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\Client;
 
@@ -386,7 +385,7 @@ Subsequently, products were excluded whose manufacturer has no link defined.
 This was solved by using a negation. It works for the API as well by using a `NOT` query,
 which contains the other queries and negates them:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\Client;
 
@@ -419,7 +418,7 @@ $result = $client->post(
 The next step was to limit the list to products with a minimum purchase amount of 1, 5 or 10. 
 The `terms` query is used for this:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\Client;
 
@@ -451,7 +450,7 @@ $result = $client->post(
 And finally, let's filter products that have the letter `A` in their name.
 This is done by using `match` queries:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\Client;
 
@@ -492,7 +491,7 @@ Suppose you have to select 15 products on a system and we just got the Ids back 
 Now there are several ways to determine the data for these 15 products. 
 The following script shows two ways:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -533,7 +532,7 @@ If you increase the limit to 50 in the example above, the loop is **six times sl
 To read a specific list of products via the API, you should use the `/search` endpoint
 and restricting it to the corresponding Ids with a term query:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\Client;
 
@@ -579,7 +578,7 @@ The platform does not work with entity/model classes when writing data.
 Instead, the platform works with simple arrays. This has the advantage,
 that no read operation must take place before the data is written:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -607,7 +606,7 @@ and a new manufacturer will be created because they were not sent with a corresp
 
 To link an existing manufacturer or tax rate, you can simply supply the corresponding foreign key:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
@@ -631,7 +630,7 @@ $repository->upsert(
 In order to link an existing manufacturer or tax rate and to update it at the same time, 
 the corresponding foreign key must be sent along with the associated data array:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -666,7 +665,7 @@ These are reflected in the HTTP methods:
 All three functions have the same syntax. For update operations, it is not necessary to resend
 the entire entity. It is possible to send only the corresponding changeset.
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Struct\Uuid;
 use GuzzleHttp\Client;
@@ -755,7 +754,7 @@ The `defineFields` method returns a `FieldCollection` which facilitates working 
 Now you can fill the entity with fields. Let's start with simple fields:
  
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -791,7 +790,7 @@ Thus the entity now has the following properties to work with:
 Now let's add a primary key for the entity that allows to identify records of that entity 
 to delete or update them:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -825,11 +824,10 @@ the name of the translation table is `product_translation`.
 This table also has its own entity definition, but this is beyond the scope of this example.
 If a field should be translatable, use the `TranslatedField`:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 protected static function defineFields(): FieldCollection
 {
@@ -855,7 +853,7 @@ data consistency.
 To ensure that only existing manufacturer Ids can be stored, the data abstraction layer
 should do a cross-check. To enable this, you have to use the `FkField`.
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -891,12 +889,11 @@ produce many different products.
 
 The parameters of an association are described in the following example:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-
 
 protected static function defineFields(): FieldCollection
 {
@@ -947,7 +944,7 @@ to work with the entity.
 
 A simple entity class can look like this:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\System\Locale;
 
@@ -1040,7 +1037,7 @@ The repository classes of the core do not return arrays with entity classes but
 a type-aware collection class which contain all elements. These classes can 
 be iterated to easily handle all records:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -1062,7 +1059,7 @@ foreach ($products as $product) {
 In addition, the collections provide small helper functions allow an easy access to
 the collection's aggregated data:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
@@ -1121,7 +1118,7 @@ of the plugin. This folder contains the bootstrap file which must have the
 same name as the folder.
 The following example shows the basic structure of a plugin with the name "GettingStarted".
 ```php
-<?php
+<?php declare(strict_types=1);
 
 //sources of custom/plugins/GettingStarted/GettingStarted.php
 
@@ -1138,7 +1135,7 @@ system. Subsequently, further functions can be integrated into the bootstrap fil
 to react to certain actions in the system.
 For example, the actions when the plugin is installed, uninstalled, activated, deactivated or updated:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
@@ -1147,7 +1144,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin;
 
-public class GettingStarted extends Plugin
+class GettingStarted extends Plugin
 {
     public function install(InstallContext $context): void
     {
@@ -1178,17 +1175,17 @@ public class GettingStarted extends Plugin
 To install the plugin, run `bin/console plugin:update` to refresh the plugin list and
 `bin/console plugin:install --activate` to install and activate the plugin.
 
-Plugins can react to certain kernel events, such as when the DI container is rebuilt, 
-the kernel is booted, or bundles are registered:
+Plugins can react to certain kernel events, such as when the DI container is rebuilt or
+the kernel is booted:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 namespace GettingStarted;
 
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-public class GettingStarted extends Plugin
+class GettingStarted extends Plugin
 {
     public function boot()
     {
@@ -1199,11 +1196,6 @@ public class GettingStarted extends Plugin
     {
         parent::build($container);
     }
-    
-    public function registerBundles(): array
-    {
-        return parent::registerBundles();
-    }
 }
 ```
 
@@ -1213,7 +1205,7 @@ The central option to extend the platform are the
 In the platform, these are defined in XML. To integrate your own services.xml in your plugin, 
 the `build` function of the bootstrap file can be overwritten:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 namespace GettingStarted;
 
@@ -1222,7 +1214,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Config\FileLocator;
 
-public class GettingStarted extends Plugin
+class GettingStarted extends Plugin
 {
     public function build(ContainerBuilder $container): void
     {
@@ -1241,7 +1233,7 @@ the `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` is 
 The EntityExtension must define which entity should be extended. 
 Once this entity is accessed in the system, the extension can add more fields to the entity:
 ```php
-<?php
+<?php declare(strict_types=1);
 
 namespace GettingStarted\Content\Product;
 
@@ -1278,6 +1270,8 @@ This example adds another association named `promotion` to the `ProductDefinitio
 ### Writing plugins
 
 Here are some additional articles regarding plugins:
+
+[Plugin system](../60-plugin-system)
 
 [Payment plugins](../50-checkout/70-payment.md)
 

@@ -14,10 +14,10 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-class Plugin extends Bundle
+abstract class Plugin extends Bundle
 {
     /**
      * @var bool
@@ -34,19 +34,6 @@ class Plugin extends Bundle
         return $this->active;
     }
 
-    /**
-     * @return BundleInterface[]
-     */
-    public function registerBundles(): array
-    {
-        return [];
-    }
-
-    /**
-     * This method can be overridden
-     *
-     * @param InstallContext $context
-     */
     public function install(InstallContext $context)
     {
     }
@@ -55,11 +42,6 @@ class Plugin extends Bundle
     {
     }
 
-    /**
-     * This method can be overridden
-     *
-     * @param UpdateContext $context
-     */
     public function update(UpdateContext $context): void
     {
     }
@@ -68,29 +50,14 @@ class Plugin extends Bundle
     {
     }
 
-    /**
-     * This method can be overridden
-     *
-     * @param ActivateContext $context
-     */
     public function activate(ActivateContext $context)
     {
     }
 
-    /**
-     * This method can be overridden
-     *
-     * @param DeactivateContext $context
-     */
     public function deactivate(DeactivateContext $context)
     {
     }
 
-    /**
-     * This method can be overridden
-     *
-     * @param UninstallContext $context
-     */
     public function uninstall(UninstallContext $context)
     {
     }
@@ -121,32 +88,24 @@ class Plugin extends Bundle
 
     public function getContainerPrefix(): string
     {
-        return $this->camelCaseToUnderscore($this->getName());
+        return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param string           $key
-     */
     private function registerFilesystem(ContainerBuilder $container, string $key): void
     {
+        $containerPrefix = $this->getContainerPrefix();
         $parameterKey = sprintf('shopware.filesystem.%s', $key);
-        $serviceId = sprintf('%s.filesystem.%s', $this->getContainerPrefix(), $key);
+        $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $key);
 
         $filesystem = new Definition(
             PrefixFilesystem::class,
             [
                 new Reference($parameterKey),
-                'plugins/' . $this->getContainerPrefix(),
+                'plugins/' . $containerPrefix,
             ]
         );
 
         $container->setDefinition($serviceId, $filesystem);
-    }
-
-    private function camelCaseToUnderscore(string $string): string
-    {
-        return strtolower(ltrim(preg_replace('/[A-Z]/', '_$0', $string), '_'));
     }
 
     private function registerMigrationPath(ContainerBuilder $container): void

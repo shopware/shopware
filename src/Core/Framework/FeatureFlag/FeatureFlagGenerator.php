@@ -76,11 +76,12 @@ EOD;
     public function exportPhp(string $namespace, string $featureName, string $destinationPath): string
     {
         $constantName = $this->getEnvironmentName($featureName);
-        $lowerCamelCaseName = $this->toLowerCammelCase($featureName);
+        $lowerCamelCaseName = $this->toLowerCamelCase($featureName);
         $upperCamelCase = ucfirst($lowerCamelCaseName);
         $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.php";
 
-        $contents = sprintf(self::TEMPLATE_PHP,
+        $contents = sprintf(
+            self::TEMPLATE_PHP,
             $namespace,
             $lowerCamelCaseName,
             $constantName,
@@ -102,17 +103,18 @@ EOD;
 
     public function exportJs(string $featureName, string $destinationPath): string
     {
-        $lowerCamelCaseName = $this->toLowerCammelCase($featureName);
+        $lowerCamelCaseName = $this->toLowerCamelCase($featureName);
         $upperCamelCase = ucfirst($lowerCamelCaseName);
-        $capitablame = strtoupper($lowerCamelCaseName);
+        $capitalName = strtoupper($lowerCamelCaseName);
         $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.js";
 
-        $contents = sprintf(self::TEMPLATE_JS,
+        $contents = sprintf(
+            self::TEMPLATE_JS,
             $lowerCamelCaseName,
             $upperCamelCase,
             $upperCamelCase,
-            $capitablame,
-            $capitablame,
+            $capitalName,
+            $capitalName,
             $lowerCamelCaseName,
             $lowerCamelCaseName,
             $lowerCamelCaseName,
@@ -129,17 +131,17 @@ EOD;
 
     public function getEnvironmentName(string $string): string
     {
-        return 'FEATURE_' . str_replace(' ', '_', trim(strtoupper(preg_replace('/[^\da-z]/i', ' ', $string))));
+        return 'FEATURE_' . str_replace(' ', '_', strtoupper(trim(preg_replace('/[^\da-z]/i', ' ', $string))));
     }
 
-    private function toLowerCammelCase(string $string): string
+    private function toLowerCamelCase(string $string): string
     {
         $cleanedFeatureName = strtolower(preg_replace('/[^\da-z]/i', ' ', $string));
 
         $parts = explode(' ', $cleanedFeatureName);
 
-        $cammelCasedName = implode('', array_map('ucfirst', $parts));
+        $camelCasedName = implode('', array_map('ucfirst', $parts));
 
-        return lcfirst($cammelCasedName);
+        return lcfirst($camelCasedName);
     }
 }

@@ -97,7 +97,7 @@
     "karma-sinon-chai": "2.0.2",
     "karma-sourcemap-loader": "0.3.7",
     "karma-spec-reporter": "0.0.32",
-    "karma-webpack": "3.0.5",
+    "karma-webpack": "4.0.0-rc.5",
     "launch-editor-middleware": "2.2.1",
     "less": "3.9.0",
     "less-loader": "4.1.0",

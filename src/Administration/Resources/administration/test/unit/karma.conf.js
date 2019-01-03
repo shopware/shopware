@@ -3,7 +3,6 @@
 // we are also using it with karma-webpack
 //   https://github.com/webpack/karma-webpack
 const webpackConfig = require('../../build/webpack.test.conf');
-const process = require('process');
 const path = require('path');
 
 const artifactsPath = path.join(__dirname, '../../../../../../../../../build/artifacts');
@@ -12,7 +11,7 @@ module.exports = function (config) {
     config.set({
         // to run in additional browsers:
         // 1. install corresponding karma launcher
-        //    http://karma-runner.github.io/0.13/config/browsers.html
+        //    http://karma-runner.github.io/3.0/config/browsers.html
         // 2. add it to the `browsers` array below.
         browsers: ['ChromeHeadless'],
         browserNoActivityTimeout: 100000, // default 10,000ms
@@ -31,18 +30,7 @@ module.exports = function (config) {
         },
         webpack: webpackConfig,
         webpackMiddleware: {
-            noInfo: true
-        },
-        customLaunchers: {
-            ChromeHeadless: {
-                base: 'Chrome',
-                flags: [
-                    '--no-sandbox', // required to run without privileges in docker
-                    '--disable-gpu',
-                    '--headless',
-                    '--remote-debugging-port=9222'
-                ]
-            }
+            stats: 'errors-only'
         },
         coverageReporter: {
             dir: artifactsPath,

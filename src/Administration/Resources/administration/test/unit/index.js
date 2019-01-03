@@ -10,7 +10,7 @@ Vue.config.productionTip = false;
 const testsContext = require.context('./specs', true, /\.spec/);
 testsContext.keys().forEach(testsContext);
 
-// require all src files except main.js for coverage.
+// require all src files except main.js, shopware.js and common.js for coverage.
 // you can also change this to match only the subset of files that
 // you want coverage for.
 const srcContext = require.context('../../src/core', true, /(?<!main|shopware|common)\.js$/);

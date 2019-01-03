@@ -13,7 +13,7 @@ module.exports = function (config) {
         // 1. install corresponding karma launcher
         //    http://karma-runner.github.io/3.0/config/browsers.html
         // 2. add it to the `browsers` array below.
-        browsers: ['ChromeHeadless'],
+        browsers: ['headlessChrome'],
         browserNoActivityTimeout: 100000, // default 10,000ms
         browserDisconnectTolerance: 5, // default 0
         retryLimit: 5, // default 2
@@ -22,6 +22,17 @@ module.exports = function (config) {
         files: [
             './index.js'
         ],
+        customLaunchers: {
+            headlessChrome: {
+                base: 'Chrome',
+                flags: [
+                    '--no-sandbox', // required to run without privileges in docker
+                    '--disable-gpu',
+                    '--headless',
+                    '--remote-debugging-port=9222'
+                ]
+            }
+        },
         client: {
             captureConsole: (process.env.TESTING_ENV === 'watch')
         },

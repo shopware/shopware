@@ -1,21 +1,24 @@
 @import "~less/variables";
 
-@sw-condition-group-color-primary: #6E8A97;
-@sw-condition-group-color-primary-text: @color-white;
+@sw-condition-base-color-primary: #6E8A97;
+@sw-condition-base-color-primary-text: @color-white;
 
-@sw-condition-group-color-secondary: @color-white;
-@sw-condition-group-color-secondary-text: #4D6989;
+@sw-condition-base-color-background: @color-white;
 
-@sw-condition-group-color-border: #D6DDE5;
-@sw-condition-group-font-size: 14px;
+@sw-condition-base-color-secondary: @color-white;
+@sw-condition-base-color-secondary-text: #4D6989;
 
-@sw-condition-group-z-index-value: 10000;
-@sw-condition-group-z-index-operator: 10050;
-@sw-condition-group-z-index-condition: 10100;
+@sw-condition-base-color-border: #D6DDE5;
+@sw-condition-base-font-size: 14px;
 
-.sw-condition-placeholder {
+@sw-condition-base-z-index-value: 100;
+@sw-condition-base-z-index-operator: 150;
+@sw-condition-base-z-index-condition: 200;
+
+.sw-condition-base {
   width: 100%;
   display: flex;
+  background-color: @sw-condition-base-color-background;
 
   &:after {
     content: '';
@@ -35,9 +38,9 @@
     }
 
     &.field--condition {
-      background: @sw-condition-group-color-primary;
-      color: @sw-condition-group-color-primary-text;
-      z-index: @sw-condition-group-z-index-condition;
+      background: @sw-condition-base-color-primary;
+      color: @sw-condition-base-color-primary-text;
+      z-index: @sw-condition-base-z-index-condition;
       width: 25%;
       border-top-left-radius: 3px;
       border-bottom-left-radius: 3px;
@@ -49,7 +52,7 @@
         top: 1px;
         width: 10px;
         height: 25px;
-        background: @sw-condition-group-color-primary;
+        background: @sw-condition-base-color-primary;
         transform: rotate(-20deg);
         border-bottom-right-radius: 3px;
       }
@@ -61,7 +64,7 @@
         bottom: 1px;
         width: 10px;
         height: 25px;
-        background: @sw-condition-group-color-primary;
+        background: @sw-condition-base-color-primary;
         border-top-right-radius: 3px;
         transform: rotate(20deg);
       }
@@ -69,10 +72,10 @@
 
     &.field--operator {
       width: 150px;
-      border-top: 1px solid @sw-condition-group-color-border;
-      border-bottom: 1px solid @sw-condition-group-color-border;
+      border-top: 1px solid @sw-condition-base-color-border;
+      border-bottom: 1px solid @sw-condition-base-color-border;
       margin-left: -10px;
-      z-index: @sw-condition-group-z-index-operator;
+      z-index: @sw-condition-base-z-index-operator;
       padding-left: 30px;
 
       &:before {
@@ -82,7 +85,7 @@
         top: -1px;
         width: 1px;
         height: 23px;
-        background: @sw-condition-group-color-border;
+        background: @sw-condition-base-color-border;
         transform: rotate(-20deg);
       }
 
@@ -93,22 +96,22 @@
         bottom: -1px;
         width: 1px;
         height: 23px;
-        background: @sw-condition-group-color-border;
+        background: @sw-condition-base-color-border;
         transform: rotate(20deg);
       }
     }
 
     &.field--value {
       flex-grow: 1;
-      border-top: 1px solid @sw-condition-group-color-border;
-      border-bottom: 1px solid @sw-condition-group-color-border;
-      z-index: @sw-condition-group-z-index-value;
+      border-top: 1px solid @sw-condition-base-color-border;
+      border-bottom: 1px solid @sw-condition-base-color-border;
+      z-index: @sw-condition-base-z-index-value;
       padding-left: 20px;
     }
 
     &.field--actions {
       width: 6%;
-      border: 1px solid @sw-condition-group-color-border;
+      border: 1px solid @sw-condition-base-color-border;
       border-top-right-radius: 3px;
       border-bottom-right-radius: 3px;
       line-height: 45px;
@@ -125,27 +128,27 @@
         box-shadow: none;
         border: 0 none;
         padding: 7px 0;
-        background: @color-white;
+        background: @sw-condition-base-color-background;
         height: 42px;
       }
     }
   }
 
-  .sw-condition-group__field {
+  .sw-condition-base__field {
      border: 0;
      background: none;
-     color: @sw-condition-group-color-primary-text;
-     font-size: @sw-condition-group-font-size;
+     color: @sw-condition-base-color-primary-text;
+     font-size: @sw-condition-base-font-size;
      padding: 0;
      margin: 0;
      width: 100%;
 
      &.is--primary {
-       color: @sw-condition-group-color-primary-text;
+       color: @sw-condition-base-color-primary-text;
      }
 
      &.is--secondary {
-       color: @sw-condition-group-color-secondary-text;
+       color: @sw-condition-base-color-secondary-text;
      }
 
      &:active,

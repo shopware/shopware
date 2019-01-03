@@ -9,7 +9,7 @@ import template from './sw-condition-billing-street.html.twig';
  * @component-example
  * <sw-condition-billing-street :condition="condition"></sw-condition-billing-street>
  */
-Component.extend('sw-condition-billing-street', 'sw-condition-placeholder', {
+Component.extend('sw-condition-billing-street', 'sw-condition-base', {
     template,
 
     computed: {

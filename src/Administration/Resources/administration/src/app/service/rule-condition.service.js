@@ -8,42 +8,42 @@
 export default function createConditionService() {
     const $store = {
         placeholder: {
-            component: 'sw-condition-placeholder',
-            label: 'global.sw-condition-group.condition.placeholder'
+            component: 'sw-condition-base',
+            label: 'global.sw-condition.condition.base'
         }
     };
     const operators = {
         lowerThanEquals: {
             identifier: '<=',
-            label: 'global.sw-condition-group.operator.lowerThanEquals'
+            label: 'global.sw-condition.operator.lowerThanEquals'
         },
         equals: {
             identifier: '=',
-            label: 'global.sw-condition-group.operator.equals'
+            label: 'global.sw-condition.operator.equals'
         },
         greaterThanEquals: {
             identifier: '>=',
-            label: 'global.sw-condition-group.operator.greaterThanEquals'
+            label: 'global.sw-condition.operator.greaterThanEquals'
         },
         lowerThan: {
             identifier: '<',
-            label: 'global.sw-condition-group.operator.lower'
+            label: 'global.sw-condition.operator.lower'
         },
         greaterThan: {
             identifier: '>',
-            label: 'global.sw-condition-group.operator.greater'
+            label: 'global.sw-condition.operator.greater'
         },
         notEquals: {
             identifier: '!=',
-            label: 'global.sw-condition-group.operator.notEquals'
+            label: 'global.sw-condition.operator.notEquals'
         },
         isOneOf: {
             identifier: '=',
-            label: 'global.sw-condition-group.operator.isOneOf'
+            label: 'global.sw-condition.operator.isOneOf'
         },
         isNoneOf: {
             identifier: '!=',
-            label: 'global.sw-condition-group.operator.isNoneOf'
+            label: 'global.sw-condition.operator.isNoneOf'
         }
     };
     const operatorSets = {

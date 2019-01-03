@@ -1,8 +1,33 @@
-.condition-and-container {
-  .condition-content {
-    padding-left: 20px;
-  }
-  .spacer {
-    margin-left: -10px;
-  }
+@import "~less/variables";
+
+.condition-or-container {
+    .condition-content {
+        padding: 20px;
+    }
+
+    .spacer--or {
+        padding: 10px 0;
+        margin-left: -10px;
+        font-weight: bold;
+    }
+
+    &.background--white {
+        background-color: @color-white;
+    }
+
+    &.background--gray {
+        background-color: @color-light-gray;
+    }
+
+    .condition-buttons {
+        margin-top: 20px;
+
+        .condition-buttons--and {
+            margin-right: 10px;
+        }
+
+        .condition-buttons--delete {
+            float: right;
+        }
+    }
 }

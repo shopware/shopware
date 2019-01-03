@@ -9,7 +9,7 @@ import template from './sw-condition-billing-customer-number.html.twig';
  * @component-example
  * <sw-condition-customer-number :condition="condition"></sw-condition-customer-number>
  */
-Component.extend('sw-condition-customer-number', 'sw-condition-placeholder', {
+Component.extend('sw-condition-customer-number', 'sw-condition-base', {
     template,
 
     computed: {

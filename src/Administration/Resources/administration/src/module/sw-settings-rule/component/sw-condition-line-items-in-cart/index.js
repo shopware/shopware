@@ -9,7 +9,7 @@ import template from './sw-condition-line-items-in-cart.html.twig';
  * @component-example
  * <sw-condition-line-items-in-cart :condition="condition"></sw-condition-line-items-in-cart>
  */
-Component.extend('sw-condition-line-items-in-cart', 'sw-condition-placeholder', {
+Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
     template,
 
     computed: {

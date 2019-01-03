@@ -9,7 +9,7 @@ import template from './sw-condition-line-item-of-type.html.twig';
  * @component-example
  * <sw-condition-line-item-of-type :condition="condition"></sw-condition-line-item-of-type>
  */
-Component.extend('sw-condition-line-item-of-type', 'sw-condition-placeholder', {
+Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
     template,
 
     computed: {
@@ -20,7 +20,7 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-placeholder', {
             return {
                 // TODO: Add line item types
                 product: {
-                    label: 'global.sw-condition-group.condition.lineItemOfTypeRule.product'
+                    label: 'global.sw-condition.condition.lineItemOfTypeRule.product'
                 }
             };
         },

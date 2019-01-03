@@ -9,7 +9,7 @@ import template from './sw-condition-shipping-country.html.twig';
  * @component-example
  * <sw-condition-shipping-country :condition="condition"></sw-condition-shipping-country>
  */
-Component.extend('sw-condition-shipping-country', 'sw-condition-placeholder', {
+Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
     template,
 
     computed: {

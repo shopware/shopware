@@ -9,7 +9,7 @@ import template from './sw-condition-line-item.html.twig';
  * @component-example
  * <sw-condition-line-item :condition="condition"></sw-condition-line-item>
  */
-Component.extend('sw-condition-line-item', 'sw-condition-placeholder', {
+Component.extend('sw-condition-line-item', 'sw-condition-base', {
     template,
 
     computed: {

@@ -24,12 +24,6 @@ Component.register('sw-condition-and-container', {
      */
     inheritAttrs: false,
 
-    computed: {
-        conjunction() {
-            return this.$tc('global.sw-condition-group.condition.and').toUpperCase();
-        }
-    },
-
     props: {
         condition: {
             type: Object,

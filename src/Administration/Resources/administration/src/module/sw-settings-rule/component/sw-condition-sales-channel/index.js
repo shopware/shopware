@@ -9,7 +9,7 @@ import template from './sw-condition-sales-channel.html.twig';
  * @component-example
  * <sw-condition-sales-channel :condition="condition"></sw-condition-sales-channel>
  */
-Component.extend('sw-condition-sales-channel', 'sw-condition-placeholder', {
+Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
     template,
 
     computed: {

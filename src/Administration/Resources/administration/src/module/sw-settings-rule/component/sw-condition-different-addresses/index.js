@@ -9,7 +9,7 @@ import template from './sw-condition-different-addresses.html.twig';
  * @component-example
  * <sw-condition-different-addresses :condition="condition"></sw-condition-different-address>
  */
-Component.extend('sw-condition-different-addresses', 'sw-condition-placeholder', {
+Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
     template,
 
     computed: {

@@ -9,7 +9,7 @@ import template from './sw-condition-line-item-unit-price.html.twig';
  * @component-example
  * <sw-condition-line-item-unit-price :condition="condition"></sw-condition-line-item-unit-price>
  */
-Component.extend('sw-condition-line-item-unit-price', 'sw-condition-placeholder', {
+Component.extend('sw-condition-line-item-unit-price', 'sw-condition-base', {
     template,
 
     computed: {

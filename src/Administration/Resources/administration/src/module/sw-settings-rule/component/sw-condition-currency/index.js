@@ -9,7 +9,7 @@ import template from './sw-condition-currency.html.twig';
  * @component-example
  * <sw-condition-currency :condition="condition"></sw-condition-currency>
  */
-Component.extend('sw-condition-currency', 'sw-condition-placeholder', {
+Component.extend('sw-condition-currency', 'sw-condition-base', {
     template,
 
     computed: {

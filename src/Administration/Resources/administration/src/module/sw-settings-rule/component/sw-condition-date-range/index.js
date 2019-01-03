@@ -9,7 +9,7 @@ import template from './sw-condition-date-range.html.twig';
  * @component-example
  * <sw-condition-date-range :condition="condition"></sw-condition-date-range>
  */
-Component.extend('sw-condition-date-range', 'sw-condition-placeholder', {
+Component.extend('sw-condition-date-range', 'sw-condition-base', {
     template,
 
     computed: {

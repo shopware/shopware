@@ -9,7 +9,7 @@ import template from './sw-condition-goods-count.html.twig';
  * @component-example
  * <sw-condition-goods-count :condition="condition"></sw-condition-goods-count>
  */
-Component.extend('sw-condition-goods-count', 'sw-condition-placeholder', {
+Component.extend('sw-condition-goods-count', 'sw-condition-base', {
     template,
 
     computed: {

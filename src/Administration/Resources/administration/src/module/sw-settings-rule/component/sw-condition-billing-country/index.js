@@ -9,7 +9,7 @@ import template from './sw-condition-billing-country.html.twig';
  * @component-example
  * <sw-condition-billing-country :condition="condition"></sw-condition-billing-country>
  */
-Component.extend('sw-condition-billing-country', 'sw-condition-placeholder', {
+Component.extend('sw-condition-billing-country', 'sw-condition-base', {
     template,
 
     computed: {

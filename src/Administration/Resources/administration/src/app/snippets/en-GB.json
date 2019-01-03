@@ -155,7 +155,7 @@
       "typeLabelOrder": "Order",
       "typeLabelMedia": "Media"
     },
-    "sw-condition-group": {
+    "sw-condition": {
       "operator": {
         "lowerThanEquals": "Lower than",
         "equals": "Equals",
@@ -171,7 +171,7 @@
           "label": "Date range",
           "useTime": "use time"
         },
-        "placeholder": "Placeholder",
+        "base": "Placeholder",
         "salesChannelRule": "sales channel",
         "currencyRule": "currency",
         "billingCountryRule": "billing country",
@@ -211,7 +211,7 @@
           "label": "Condition was not found",
           "error-message": "The conditiontype {type} was not found. The condition includes the field: {fields} | The conditiontype {type} was not found. The conditions include the fields: {fields}"
         },
-        "addSubCondition": "Add subcondition",
+        "subCondition": "subcondition",
         "deleteConditions": "Delete all"
       }
     },

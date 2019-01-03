@@ -9,7 +9,7 @@ import template from './sw-condition-customer-group.html.twig';
  * @component-example
  * <sw-condition-customer-group :condition="condition"></sw-condition-and-container>
  */
-Component.extend('sw-condition-customer-group', 'sw-condition-placeholder', {
+Component.extend('sw-condition-customer-group', 'sw-condition-base', {
     template,
 
     computed: {

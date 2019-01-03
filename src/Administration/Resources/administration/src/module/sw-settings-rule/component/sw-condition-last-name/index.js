@@ -9,7 +9,7 @@ import template from './sw-condition-last-name.html.twig';
  * @component-example
  * <sw-condition-last-name :condition="condition"></sw-condition-last-name>
  */
-Component.extend('sw-condition-last-name', 'sw-condition-placeholder', {
+Component.extend('sw-condition-last-name', 'sw-condition-base', {
     template,
 
     computed: {

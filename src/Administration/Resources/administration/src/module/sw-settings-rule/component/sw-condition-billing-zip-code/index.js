@@ -9,7 +9,7 @@ import template from './sw-condition-billing-zip-code.html.twig';
  * @component-example
  * <sw-condition-billing-zip-code :condition="condition"></sw-condition-billing-zip-code>
  */
-Component.extend('sw-condition-billing-zip-code', 'sw-condition-placeholder', {
+Component.extend('sw-condition-billing-zip-code', 'sw-condition-base', {
     template,
 
     computed: {

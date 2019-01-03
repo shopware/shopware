@@ -155,7 +155,7 @@
       "typeLabelOrder": "Bestellung",
       "typeLabelMedia": "Medium"
     },
-    "sw-condition-group": {
+    "sw-condition": {
       "operator": {
         "lowerThanEquals": "Kleiner gleich",
         "equals": "Gleich",
@@ -171,7 +171,7 @@
           "label":  "Datumsbereich",
           "useTime": "Zeit verwenden"
         },
-        "placeholder": "Platzhalter",
+        "base": "Platzhalter",
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
         "billingCountryRule": "Rechnungsland",
@@ -211,7 +211,7 @@
           "label": "Die Bedingung konnte nicht gefunden werden",
           "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields}| Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
         },
-        "addSubCondition": "Unterbedingung hinzufügen",
+        "subCondition": "Unterbedingung",
         "deleteConditions": "Alle löschen"
       }
     },

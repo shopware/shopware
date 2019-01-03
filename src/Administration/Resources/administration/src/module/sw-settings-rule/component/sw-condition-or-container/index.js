@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import template from './sw-condition-or-container.html.twig';
 import './sw-condition-or-container.less';
 
 /**
@@ -10,11 +11,8 @@ import './sw-condition-or-container.less';
  * <sw-condition-or-container :condition="condition"></sw-condition-or-container>
  */
 Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
-    computed: {
-        conjunction() {
-            return this.$tc('global.sw-condition-group.condition.or').toUpperCase();
-        }
-    },
+    template,
+
     methods: {
         onAddChildClick() {
             const condition = Object.assign(

@@ -1,19 +1,41 @@
 @import "~less/variables";
 
 .condition-and-container {
-  .condition-content {
-    padding-left: 20px;
-  }
+    &.background--white {
+        background-color: @color-white;
+    }
 
-  .spacer {
-    padding: 10px 0;
-  }
-}
+    &.background--gray {
+        background-color: @color-light-gray;
+    }
 
-.background--white {
-  background-color: @color-white;
-}
+    .condition-content {
+        padding: 20px;
+    }
 
-.background--gray {
-  background-color: @color-light-gray;
+    .spacer--and {
+        padding: 10px 0;
+        margin-left: 0;
+        font-weight: bold;
+    }
+
+    &.first-container {
+        background-color: transparent;
+    }
+
+    &.first-container > .condition-content {
+        padding: 0;
+    }
+
+    .condition-buttons {
+        margin-top: 20px;
+
+        .condition-buttons--and {
+            margin-right: 10px;
+        }
+
+        .condition-buttons--delete {
+            float: right;
+        }
+    }
 }

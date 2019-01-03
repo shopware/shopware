@@ -39,6 +39,7 @@ import './form/sw-select-option';
 import './form/sw-text-editor';
 import './form/sw-condition-value';
 import './form/sw-tagged-field';
+import './form/sw-label';
 
 import './tree/sw-tree';
 import './tree/sw-tree-item';

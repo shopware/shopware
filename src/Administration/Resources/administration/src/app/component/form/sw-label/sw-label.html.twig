@@ -1,0 +1,30 @@
+{% block sw_label %}
+    <li class="sw-label"
+        @click.stop="$emit('selected')">
+        {% block sw_label_text_holder %}
+            <slot name="sw_label_text_holder">
+                <span class="sw-label__selection-text">
+                    {% block sw_label_text %}
+                        <slot>
+                        </slot>
+                    {% endblock %}
+                </span>
+            </slot>
+        {% endblock %}
+
+        {% block sw_label_dismiss %}
+            <slot name="sw-label__dismiss">
+                <button class="sw-label__dismiss"
+                        :title="$tc('global.sw-label.buttonDismiss')"
+                        @click.prevent.stop="$emit('dismiss')">
+                    {% block sw_select_selection_dismiss_icon %}
+                        <slot name="sw-label__dismiss-icon">
+                            <sw-icon name="small-default-x-line-medium">
+                            </sw-icon>
+                        </slot>
+                    {% endblock %}
+                </button>
+            </slot>
+        {% endblock %}
+    </li>
+{% endblock %}

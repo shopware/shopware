@@ -25,35 +25,23 @@
                                           mode="out-in">
 
                             {% block sw_select_selection_item %}
-                                <li class="sw-select__selection-item"
-                                    :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
-                                    @click.stop="changeDefaultItemId(selection.id)"
-                                    v-for="selection in selections"
-                                    :key="selection.id"
-                                    :data-id="selection.id">
-
-                                    {% block sw_select_selection_text_holder %}
-                                        <slot name="selected_options" :item="selection">
-                                            <span class="sw-select__selection-text">
-                                                {% block sw_select_selection_text %}
-                                                    {{ selection.name }}
-                                                {% endblock %}
-                                            </span>
-                                        </slot>
-                                    {% endblock %}
-
-                                    {% block sw_select_selection_dismiss %}
-                                        <button class="sw-select__selection-dismiss"
-                                                :title="$tc('global.sw-select.buttonDismiss')"
-                                                @click.prevent.stop="onDismissSelection(selection.id)">
-                                            {% block sw_select_selection_dismiss_icon %}
-                                                <sw-icon name="small-default-x-line-medium"
-                                                         :class="{ 'is--default': (selection.id === defaultItemId) }">
-                                                </sw-icon>
-                                            {% endblock %}
-                                        </button>
-                                    {% endblock %}
-                                </li>
+                                <sw-label :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
+                                          v-for="selection in selections"
+                                          :key="selection.id"
+                                          :data-id="selection.id"
+                                          @selected="changeDefaultItemId(selection.id)"
+                                          @dismiss="onDismissSelection(selection.id)">
+                                    <template>
+                                        {% block sw_select_selection_item_text %}
+                                            {{ selection.name }}
+                                        {% endblock %}
+                                    </template>
+                                    <template slot="sw-label__dismiss-icon">
+                                        <sw-icon name="small-default-x-line-medium"
+                                                 :class="{ 'sw-select__item-is--default': (selection.id === defaultItemId) }">
+                                        </sw-icon>
+                                    </template>
+                                </sw-label>
                             {% endblock %}
 
                             {% block sw_select_list_item_input %}

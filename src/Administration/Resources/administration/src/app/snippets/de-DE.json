@@ -141,7 +141,9 @@
       "labelLoadMore": "Mehr laden"
     },
     "sw-select": {
-      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
+    },
+    "sw-label": {
       "buttonDismiss": "Entfernen"
     },
     "sw-search-bar": {

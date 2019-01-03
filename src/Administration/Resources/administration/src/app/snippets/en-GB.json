@@ -141,7 +141,9 @@
       "labelLoadMore": "Load more items"
     },
     "sw-select": {
-      "messageNoResults": "No results found for \"{term}\".",
+      "messageNoResults": "No results found for \"{term}\"."
+    },
+    "sw-label": {
       "buttonDismiss": "Dismiss"
     },
     "sw-search-bar": {

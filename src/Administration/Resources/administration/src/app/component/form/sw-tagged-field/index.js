@@ -97,19 +97,14 @@ Component.register('sw-tagged-field', {
             });
         },
 
-        revertTag(index) {
-            this.editTags[index] = false;
-            this.$forceUpdate();
-        },
-
         performModifyTag(index, event) {
-            this.editTags[index] = this.$refs[`input${index}`][0].innerText;
+            this.editTags[index] = this.$refs[`input${index}`][0].innerText.trim();
             if (this.disabled || (event && this.noTriggerKey(event))) {
                 return;
             }
 
             this.tags[index] = this.editTags[index];
-            this.editTags[index] = false;
+            delete this.editTags[index];
             this.$forceUpdate();
             this.emitChanges();
             this.$refs.newTagInput.focus();
@@ -128,6 +123,12 @@ Component.register('sw-tagged-field', {
         },
 
         dismissTag(index) {
+            if (this.editTags[index]) {
+                this.editTags[index] = undefined;
+                this.$forceUpdate();
+                return;
+            }
+
             this.tags.splice(index, 1);
 
             this.emitChanges();

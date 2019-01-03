@@ -3,6 +3,9 @@ require('babel-register')({
     ignore: [/node_modules/]
 });
 
+const EventEmitter = require('events');
+EventEmitter.defaultMaxListeners = 100;
+
 const fs = require('fs');
 const process = require('process');
 const path = require('path');

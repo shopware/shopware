@@ -68,7 +68,7 @@
             {% endblock %}
 
             {% block sw_condition_group_field_condition_type_int %}
-                <sw-field type="number" step="1" v-model="condition.value[fieldName]" v-else-if="field.type === 'int'+y">
+                <sw-field type="number" step="1" v-model="condition.value[fieldName]" v-else-if="field.type === 'int'">
                 </sw-field>
             {% endblock %}
 

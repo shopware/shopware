@@ -80,7 +80,7 @@ export function getObjectDiff(a, b) {
 
         const changes = getObjectDiff(a[key], b[key]);
 
-        if (Object.keys(changes).length > 0) {
+        if (Object.keys(changes).length > 0 || (!(changes instanceof Object) && changes)) {
             return { ...acc, [key]: changes };
         }
 

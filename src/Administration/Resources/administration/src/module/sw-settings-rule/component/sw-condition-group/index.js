@@ -61,7 +61,10 @@ Component.register('sw-condition-group', {
             this.condition.type = event.target.value;
             this.conditionFields = this.ruleConditionService.getByType(this.condition.type).fields;
             Object.keys(this.condition.value).forEach((key) => {
-                delete this.condition.value[key];
+                if (!(key in this.conditionFields)) {
+                    delete this.condition.original.value[key];
+                    delete this.condition.value[key];
+                }
             });
             this.$forceUpdate();
         }

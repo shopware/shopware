@@ -317,6 +317,10 @@ Component.register('sw-media-index', {
             });
         },
 
+        onMediaFoldersDissolved() {
+            this.getList();
+        },
+
         getRootFolder() {
             const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
             root.name = this.$tc('sw-media.index.rootFolderName');

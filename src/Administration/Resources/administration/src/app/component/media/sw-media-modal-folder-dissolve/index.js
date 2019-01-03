@@ -1,24 +1,26 @@
-import { Component, Mixin, Filter } from 'src/core/shopware';
-import template from './sw-media-modal-delete.html.twig';
-import './sw-media-modal-delete.less';
+import { Component, Mixin } from 'src/core/shopware';
+import template from './sw-media-modal-folder-dissolve.html.twig';
+import './sw-media-modal-folder-dissolve.less';
 
 /**
  * @status ready
- * @description The <u>sw-media-modal-delete</u> component is used to validate the delete action.
+ * @description The <u>sw-media-modal-folder-dissolve</u> component is used to validate the dissolve folder action.
  * @example-type code-only
  * @component-example
- * <sw-media-modal-delete :itemsToDelete="[items]">
- * </sw-media-modal-delete>
+ * <sw-media-modal-folder-dissolve :itemsToDissolve="[items]">
+ * </sw-media-modal-folder-dissolve>
  */
-Component.register('sw-media-modal-delete', {
+Component.register('sw-media-modal-folder-dissolve', {
     template,
+
+    inject: ['mediaFolderService'],
 
     mixins: [
         Mixin.getByName('notification')
     ],
 
     props: {
-        itemsToDelete: {
+        itemsToDissolve: {
             required: true,
             type: Array,
             validator(value) {
@@ -27,29 +29,24 @@ Component.register('sw-media-modal-delete', {
         }
     },
 
-    computed: {
-        mediaNameFilter() {
-            return Filter.getByName('mediaName');
-        }
-    },
-
     methods: {
-        closeDeleteModal(originalDomEvent) {
-            this.$emit('sw-media-modal-delete-close', { originalDomEvent });
+        closeDissolveModal(originalDomEvent) {
+            this.$emit('sw-media-modal-folder-dissolve-close', { originalDomEvent });
         },
 
-        deleteSelection() {
-            const deletePromises = [];
+        dissolveSelection() {
+            const dissolvePromises = [];
             const notificationMessageSuccess = this.$tc('global.sw-media-modal-delete.notificationSuccessOverall');
             const notificationMessageError = this.$tc('global.sw-media-modal-delete.notificationErrorOverall');
 
-            this.itemsToDelete.forEach((item) => {
+            this.itemsToDissolve.forEach((item) => {
                 const messages = this._getNotificationMessages(item);
                 item.isLoading = true;
 
-                deletePromises.push(
-                    item.delete(true).then(() => {
+                dissolvePromises.push(
+                    this.mediaFolderService.dissolveFolder(item.id).then(() => {
                         item.isLoading = false;
+                        item.remove();
                         this.createNotificationSuccess({
                             message: messages.successMessage
                         });
@@ -64,8 +61,8 @@ Component.register('sw-media-modal-delete', {
             });
 
             this.$emit(
-                'sw-media-modal-delete-items-deleted',
-                Promise.all(deletePromises).then((ids) => {
+                'sw-media-modal-folder-dissolve-items-dissolved',
+                Promise.all(dissolvePromises).then((ids) => {
                     this.createNotificationSuccess({
                         message: notificationMessageSuccess
                     });
@@ -81,14 +78,14 @@ Component.register('sw-media-modal-delete', {
         _getNotificationMessages(item) {
             return {
                 successMessage: this.$tc(
-                    'global.sw-media-modal-delete.notificationSuccessSingle',
+                    'global.sw-media-modal-folder-dissolve.notificationSuccessSingle',
                     1,
-                    { mediaName: this.mediaNameFilter(item) }
+                    { folderName: item.name }
                 ),
                 errorMessage: this.$tc(
-                    'global.sw-media-modal-delete.notificationErrorSingle',
+                    'global.sw-media-modal-folder-dissolve.notificationErrorSingle',
                     1,
-                    { mediaName: this.mediaNameFilter(item) }
+                    { folderName: item.name }
                 )
             };
         }

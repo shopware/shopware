@@ -2,6 +2,7 @@
     <div class="sw-media-quickinfo-multiple">
         {% block sw_media_quickinfo_multiple_quickactions %}
             <sw-media-collapse
+                v-if="!(hasFolder && hasMedia)"
                 class="sw-media-quickinfo-multiple__collapse"
                 :title="$tc('sw-media.sidebar.quickinfo.actions')"
                 :expandOnLoading="true">
@@ -23,6 +24,18 @@
                                     {% block sw_media_quickinfo_multiple_quickactions_delete_label %}
                                         {{ $tc('sw-media.sidebar.quickinfo.delete') }}
                                     {% endblock %}
+                                </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_folder_quickactions_dissolve %}
+                                <li v-if="!hasMedia"
+                                    class="sw-media-quickinfo-multiple__quickaction quickaction--dissolve"
+                                    @click="emitOpenFolderDissolve">
+                                    <sw-icon small
+                                             name="default-web-loading-star"
+                                             class="sw-media-quickinfo-multiple__quickactions-icon">
+                                    </sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.dissolve') }}
                                 </li>
                             {% endblock %}
                         </ul>

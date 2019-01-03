@@ -43,7 +43,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
 
         return [
             'createThumbnails' => true,
-            'keepProportions' => true,
+            'keepAspectRatio' => true,
             'thumbnailQuality' => 80,
         ];
     }

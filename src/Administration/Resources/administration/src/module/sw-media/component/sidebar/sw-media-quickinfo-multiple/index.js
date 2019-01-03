@@ -10,11 +10,6 @@ Component.register('sw-media-quickinfo-multiple', {
         items: {
             required: false,
             type: Array
-        },
-
-        hasFolder: {
-            required: true,
-            type: Boolean
         }
     },
 
@@ -35,12 +30,28 @@ Component.register('sw-media-quickinfo-multiple', {
             return `${this.$tc('sw-media.sidebar.metadata.fileCount', this.items.length, { count: this.items.length })}, 
                     ${this.$tc('sw-media.sidebar.metadata.totalSize')}: 
                     ${this.getFileSize}`;
+        },
+
+        hasFolder() {
+            return this.items.some((item) => {
+                return item.entityName === 'media_folder';
+            });
+        },
+
+        hasMedia() {
+            return this.items.some((item) => {
+                return item.entityName === 'media';
+            });
         }
     },
 
     methods: {
         emitOpenModalDelete() {
             this.$emit('sw-media-quickinfo-open-modal-delete');
+        },
+
+        emitOpenFolderDissolve() {
+            this.$emit('sw-media-quickinfo-open-folder-dissolve');
         }
     }
 });

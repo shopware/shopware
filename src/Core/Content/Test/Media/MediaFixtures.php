@@ -133,7 +133,7 @@ trait MediaFixtures
                     'useParentConfiguration' => false,
                     'configuration' => [
                         'createThumbnails' => true,
-                        'keepProportions' => true,
+                        'keepAspectRatio' => true,
                         'thumbnailQuality' => 80,
                         'mediaThumbnailSizes' => [
                             [
@@ -163,7 +163,7 @@ trait MediaFixtures
                     'useParentConfiguration' => false,
                     'configuration' => [
                         'createThumbnails' => true,
-                        'keepProportions' => true,
+                        'keepAspectRatio' => true,
                         'thumbnailQuality' => 80,
                         'mediaThumbnailSizes' => [
                             [

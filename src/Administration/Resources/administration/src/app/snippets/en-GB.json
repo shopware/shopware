@@ -49,7 +49,8 @@
       "labelContextMenuDelete": "Delete",
       "labelContextMenuRename": "Rename",
       "labelContextMenuShowMedia": "Show media",
-      "labelContextMenuShowSettings": "Settings"
+      "labelContextMenuShowSettings": "Settings",
+      "labelContextMenuDissolve": "Dissolve"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
@@ -72,7 +73,7 @@
       "notificationSuccessOverall": "Files have been deleted successfully",
       "notificationErrorOverall": "Error deleting files"
     },
-    "sw-media-modal-dissolve": {
+    "sw-media-modal-folder-dissolve": {
       "titleModal": "Dissolve folder",
       "dissolveMessage":"Are you sure you want to dissolve \"{folderName}\" ? | Are you sure you want to dissolve {count} folders?",
       "buttonDissolve": "Dissolve",
@@ -774,7 +775,8 @@
       "actions": {
         "quickInfo": "Quick info",
         "delete": "Delete",
-        "settings": "Settings"
+        "settings": "Settings",
+        "dissolve": "Dissolve"
       },
       "quickinfo": {
         "actions": "Actions",

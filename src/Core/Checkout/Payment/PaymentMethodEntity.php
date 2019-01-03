@@ -46,16 +46,6 @@ class PaymentMethodEntity extends Entity
     protected $class;
 
     /**
-     * @var string|null
-     */
-    protected $table;
-
-    /**
-     * @var bool
-     */
-    protected $hide;
-
-    /**
      * @var float|null
      */
     protected $percentageSurcharge;
@@ -79,36 +69,6 @@ class PaymentMethodEntity extends Entity
      * @var bool
      */
     protected $active;
-
-    /**
-     * @var bool
-     */
-    protected $allowEsd;
-
-    /**
-     * @var string|null
-     */
-    protected $usedIframe;
-
-    /**
-     * @var bool
-     */
-    protected $hideProspect;
-
-    /**
-     * @var string|null
-     */
-    protected $action;
-
-    /**
-     * @var int|null
-     */
-    protected $source;
-
-    /**
-     * @var bool
-     */
-    protected $mobileInactive;
 
     /**
      * @var string|null
@@ -220,26 +180,6 @@ class PaymentMethodEntity extends Entity
         $this->class = $class;
     }
 
-    public function getTable(): ?string
-    {
-        return $this->table;
-    }
-
-    public function setTable(?string $table): void
-    {
-        $this->table = $table;
-    }
-
-    public function getHide(): bool
-    {
-        return $this->hide;
-    }
-
-    public function setHide(bool $hide): void
-    {
-        $this->hide = $hide;
-    }
-
     public function getPercentageSurcharge(): ?float
     {
         return $this->percentageSurcharge;
@@ -288,66 +228,6 @@ class PaymentMethodEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
-    }
-
-    public function getAllowEsd(): bool
-    {
-        return $this->allowEsd;
-    }
-
-    public function setAllowEsd(bool $allowEsd): void
-    {
-        $this->allowEsd = $allowEsd;
-    }
-
-    public function getUsedIframe(): ?string
-    {
-        return $this->usedIframe;
-    }
-
-    public function setUsedIframe(?string $usedIframe): void
-    {
-        $this->usedIframe = $usedIframe;
-    }
-
-    public function getHideProspect(): bool
-    {
-        return $this->hideProspect;
-    }
-
-    public function setHideProspect(bool $hideProspect): void
-    {
-        $this->hideProspect = $hideProspect;
-    }
-
-    public function getAction(): ?string
-    {
-        return $this->action;
-    }
-
-    public function setAction(?string $action): void
-    {
-        $this->action = $action;
-    }
-
-    public function getSource(): ?int
-    {
-        return $this->source;
-    }
-
-    public function setSource(?int $source): void
-    {
-        $this->source = $source;
-    }
-
-    public function getMobileInactive(): bool
-    {
-        return $this->mobileInactive;
-    }
-
-    public function setMobileInactive(bool $mobileInactive): void
-    {
-        $this->mobileInactive = $mobileInactive;
     }
 
     public function getRiskRules(): ?string

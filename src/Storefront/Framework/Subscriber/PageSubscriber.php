@@ -19,8 +19,6 @@ class PageSubscriber implements EventSubscriberInterface
     public function transformRequest(PageRequestEvent $event): void
     {
         $request = $event->getRequest();
-        $transformed = $event->getPageRequest();
-
-        $transformed->setHttpRequest($request);
+        $pageRequest = $event->getPageRequest();
     }
 }

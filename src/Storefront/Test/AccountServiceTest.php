@@ -6,19 +6,19 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerAccountExistsException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Account\Exception\CustomerNotFoundException;
-use Shopware\Storefront\Account\Page\AccountService;
-use Shopware\Storefront\Account\Page\RegistrationRequest;
+use Shopware\Storefront\Action\AccountRegistration\RegistrationRequest;
+use Shopware\Storefront\Exception\AccountLogin\CustomerNotFoundException;
 
 class AccountServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var AccountService
+     * @var \Shopware\Core\Checkout\Customer\Storefront\AccountService
      */
     private $accountService;
 

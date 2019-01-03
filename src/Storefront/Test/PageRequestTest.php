@@ -5,13 +5,13 @@ namespace Shopware\Storefront\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
+use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Account\Page\AccountService;
-use Shopware\Storefront\Account\Page\EmailSaveRequest;
+use Shopware\Storefront\Action\AccountEmail\EmailSaveRequest;
 
 class PageRequestTest extends TestCase
 {

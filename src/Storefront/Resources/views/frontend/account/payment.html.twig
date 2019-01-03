@@ -34,7 +34,7 @@
 
                             {# Payment fieldset #}
                             {% block frontend_account_payment_form_content %}
-                                {% include '@Storefront/frontend/register/payment_fieldset.html.twig' with {'paymentMethods': paymentMethods.paymentMethods}%}
+                                {% include '@Storefront/frontend/register/payment_fieldset.html.twig' with {'PaymentMethod': PaymentMethod.PaymentMethod}%}
                                 {#{include file='frontend/register/payment_fieldset.tpl' form_data=$sFormData error_flags=$sErrorFlag payment_means=$sPaymentMeans}#}
                             {% endblock %}
 

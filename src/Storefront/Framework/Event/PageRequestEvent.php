@@ -4,13 +4,13 @@ namespace Shopware\Storefront\Framework\Event;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Framework\Page\PageRequest;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
 
-class PageRequestEvent extends NestedEvent
+class PageRequestEvent extends Event
 {
-    public const NAME = 'page.request';
+    public const NAME = 'page.request.event';
 
     /**
      * @var Request

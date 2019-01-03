@@ -1,0 +1,4 @@
+Test <span id="js_content1"></span>
+<script>
+	document.getElementById('js_content1').innerHTML = 'content1';
+</script>

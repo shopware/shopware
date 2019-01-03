@@ -3,7 +3,7 @@
 namespace SwagExample\Decorator;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Storefront\Product\Controller\DetailController;
+use Shopware\Storefront\PageController\ProductController;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 class DetailControllerDecorator extends AbstractController
 {
     /**
-     * @var DetailController
+     * @var \Shopware\Storefront\PageController\ProductController
      */
     private $originalController;
 
-    public function __construct(DetailController $controller)
+    public function __construct(ProductController $controller)
     {
         $this->originalController = $controller;
     }

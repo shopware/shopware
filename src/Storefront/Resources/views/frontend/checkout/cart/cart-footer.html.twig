@@ -50,7 +50,7 @@
         {#{% endblock %}#}
 
         {#{* Shipping costs pre-calculation *}#}
-        {#{if $sBasket.content && !$cartInfo.userLoggedIn && !$sUserData.additional.user.id && {config name=basketShowCalculation}}#}
+        {#{if $sBasket.content && !$cartInfo.customerLoggedIn && !$sUserData.additional.user.id && {config name=basketShowCalculation}}#}
 
         {#{block name='frontend_checkout_shipping_costs_country_trigger'}#}
         {#<a href="#show-hide--shipping-costs" class="table--shipping-costs-trigger">#}

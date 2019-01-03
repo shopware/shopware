@@ -25,9 +25,16 @@
             <tag name="shopware.entity.definition" entity="customer_group_discount"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Storefront\AccountService">
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Storefront\Account\Page\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="order.repository"/>
             <call method="setContainer">

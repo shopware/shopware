@@ -16,6 +16,8 @@ abstract class StorefrontController extends AbstractController
 {
     /**
      * {@inheritdoc}
+     *
+     * @throws \Twig_Error_Loader
      */
     protected function renderStorefront($view, array $parameters = [], Response $response = null): Response
     {
@@ -27,15 +29,17 @@ abstract class StorefrontController extends AbstractController
     /**
      * @param string $view
      *
+     * @throws \Twig_Error_Loader
+     *
      * @return string
      */
     protected function resolveView(string $view): string
     {
         //remove static template inheritance prefix
         if (strpos($view, '@') === 0) {
-            $view = explode('/', $view);
-            array_shift($view);
-            $view = implode('/', $view);
+            $viewParts = explode('/', $view);
+            array_shift($viewParts);
+            $view = implode('/', $viewParts);
         }
 
         /** @var TemplateFinder $templateFinder */

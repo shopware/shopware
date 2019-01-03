@@ -6,7 +6,7 @@
 
     {block name='frontend_checkout_payment_content'}
         <div class="panel--body is--wide block-group">
-            {foreach $paymentMethods as $payment}
+            {foreach $PaymentMethod as $payment}
                 <div class="payment--method block{if $payment@last} method_last{else} method{/if}">
 
                     {* Radio Button *}

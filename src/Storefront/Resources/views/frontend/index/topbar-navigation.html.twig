@@ -11,7 +11,7 @@
                     <nav class="top-bar--navigation block" role="menubar">
 
                         {#{{ render(controller('Storefront/Content:Widget/Index:shopMenu')) }}#}
-{% sw_include "@Storefront/widgets/index/shop_menu.html.twig" %}
+{% sw_include "@Storefront/frontend/index/shop_menu.html.twig" %}
                         {# Article Compare #}
                         {% block frontend_index_navigation_inline %}
                             {% if shopware.config.compareshow %}
@@ -30,7 +30,7 @@
 
                                 {# Include of the widget #}
                                 {% block frontend_index_checkout_actions_service_menu_include %}
-                                    {% sw_include "@Storefront/widgets/index/menu.html.twig" with {"sGroup": shopware.menu.gLeft} %}
+                                    {% sw_include "@Storefront/frontend/index/menu.html.twig" with {"sGroup": shopware.menu.gLeft} %}
                                 {% endblock %}
                             </div>
                         {% endblock %}

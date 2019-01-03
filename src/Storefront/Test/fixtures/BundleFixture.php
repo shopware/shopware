@@ -68,7 +68,7 @@ class BundleFixture implements BundleInterface
      *
      * @param string $name
      */
-    public function setName($name)
+    public function setName($name): void
     {
         $this->name = $name;
     }
@@ -109,7 +109,7 @@ class BundleFixture implements BundleInterface
      *
      * @param string $path
      */
-    public function setPath($path)
+    public function setPath($path): void
     {
         $this->path = $path;
     }

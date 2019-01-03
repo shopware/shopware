@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Framework\Controller\ErrorController;
+use Shopware\Storefront\PageController\ErrorController;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -28,7 +28,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $router;
 
     /**
-     * @var ErrorController
+     * @var \Shopware\Storefront\PageController\ErrorController
      */
     private $errorController;
 
@@ -39,7 +39,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->errorController = $errorController;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => [

@@ -1,0 +1,60 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Page\AccountOverview;
+
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Context;
+use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\HttpFoundation\Request;
+
+class AccountOverviewPageRequestEvent extends Event
+{
+    public const NAME = 'accountoverview.page.request.event';
+
+    /**
+     * @var CheckoutContext
+     */
+    protected $context;
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * @var AccountOverviewPageRequest
+     */
+    protected $accountoverviewPageRequest;
+
+    public function __construct(Request $request, CheckoutContext $context, AccountOverviewPageRequest $accountoverviewPageRequest)
+    {
+        $this->context = $context;
+        $this->request = $request;
+        $this->accountoverviewPageRequest = $accountoverviewPageRequest;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context->getContext();
+    }
+
+    public function getCheckoutContext(): CheckoutContext
+    {
+        return $this->context;
+    }
+
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
+    public function getAccountOverviewPageRequest(): AccountOverviewPageRequest
+    {
+        return $this->accountoverviewPageRequest;
+    }
+}

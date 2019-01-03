@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:hx="http://purl.org/NET/hinclude">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>HInclude Tests</title>
+	<link type="text/css" rel="stylesheet" href="http://mnot.net/style.css">
+	<script type="text/javascript" src="hinclude.js"></script>
+</head>
+<body>
+
+<h1>hinclude.js test page</h1>
+
+<h2 id="h">Basic Include</h2>
+
+<p id="a" name="a"><hx:include src="partial1_with_js" ></hx:include></p>
+
+<hr />
+
+<p id="b" name="b"><hx:include src="partial2_with_js" evaljs="true"></hx:include></p>
+
+</body>
+</html>

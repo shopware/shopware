@@ -1,0 +1,28 @@
+{
+  "name": "Hinclude",
+  "version": "1.2.0",
+  "author": "Mark Nottingham <mnot@mnot.net>",
+  "description": "Declarative client-side inclusion for the Web",
+  "contributors": [
+    {
+      "name": "Fabio Fabbrucci",
+      "email": "fabio.fabbrucci@gmail.com"
+    }
+  ],
+  "dependencies" : {
+    "copyfiles": "^0.2.1",
+    "jslint"   :  "*"
+  },
+  "devDependencies": {
+    "simplehttpserver": "^0.1.1"
+  },
+  "engines": {
+    "node": ">= 0.6.0"
+  },
+  "scripts": {
+    "copy": "copyfiles hinclude.js test/assets/",
+    "server": "simplehttpserver -p $PORT test/assets",
+    "test": "npm run copy; cd test; make test_port=$PORT",
+    "test_killall": "npm test; killall node"
+  }
+}

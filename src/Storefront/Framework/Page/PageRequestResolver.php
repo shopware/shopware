@@ -33,7 +33,7 @@ class PageRequestResolver implements ArgumentValueResolverInterface
         return $argument->getType() === PageRequest::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument)
+    public function resolve(Request $request, ArgumentMetadata $argument): ?\Generator
     {
         $pageRequest = new PageRequest();
 

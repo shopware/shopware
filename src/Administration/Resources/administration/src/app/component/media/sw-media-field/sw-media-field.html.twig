@@ -21,27 +21,35 @@
         {% block sw_media_field_media_picker %}
             <transition name="sw-media-picker-down">
                 <div v-if="showPicker" class="sw-media-field__expanded-content" :style="pickerClasses">
-                    <div class="sw-media-field__actions_bar">
-                        <sw-button class="sw-media-field__action-button" @click="toggleUploadField">
-                            <sw-icon class="sw-media-field__icon-add" name="default-basic-plus-line" small></sw-icon>
-                            {{ toggleButtonLabel }}
-                        </sw-button>
+                    {% block sw_media_field_action_bar %}
+                        <div class="sw-media-field__actions_bar">
+                            {% block sw_media_field_action_bar_button_toggle %}
+                                <sw-button class="sw-media-field__action-button" @click="toggleUploadField">
+                                    <sw-icon class="sw-media-field__icon-add" name="default-basic-plus-line" small></sw-icon>
+                                    {{ toggleButtonLabel }}
+                                </sw-button>
+                            {% endblock %}
 
-                        <sw-button v-if="mediaId" class="sw-media-field__action-button is--remove" @click="removeLink">
-                            <sw-icon class="sw-media-field__icon-remove" name="small-default-x-circle" small>
-                            </sw-icon>
-                            {{ $tc('global.sw-media-field.labelUnlink') }}
-                        </sw-button>
-                    </div>
+                            {% block sw_media_field_action_bar_button_unlink %}
+                                <sw-button v-if="mediaId" class="sw-media-field__action-button is--remove" @click="removeLink">
+                                    <sw-icon class="sw-media-field__icon-remove" name="small-default-x-circle" small>
+                                    </sw-icon>
+                                    {{ $tc('global.sw-media-field.labelUnlink') }}
+                                </sw-button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
 
-                    <sw-media-upload
-                        v-if="showUploadField"
-                        variant="regular"
-                        :allowMultiSelect="false"
-                        catption="Upload File"
-                        @new-uploads-added="uploadNewFile"
-                        @media-upload-success="exposeNewId">
-                    </sw-media-upload>
+                    {% block sw_media_field_upload_component %}
+                        <sw-media-upload
+                            v-if="showUploadField"
+                            variant="regular"
+                            :allowMultiSelect="false"
+                            catption="Upload File"
+                            @new-uploads-added="uploadNewFile"
+                            @media-upload-success="exposeNewId">
+                        </sw-media-upload>
+                    {% endblock %}
 
                     <div v-else class="sw-media-field__media-selection">
                         {% block sw_media_field_search_field %}
@@ -49,12 +57,15 @@
                         {% endblock %}
 
                         {% block sw_media_field_media_list %}
-                            <sw-loader class="sw-media-field__picker-loader" v-if="isLoadingSuggestions"></sw-loader>
+                            <sw-loader v-if="isLoadingSuggestions" class="sw-media-field__picker-loader" ></sw-loader>
 
-                            <ul v-else>
-                                <li v-for="suggestion in suggestedItems">
+                            <ul v-else  class="sw-media-field__suggestion-list">
+                                <li v-for="suggestion in suggestedItems"
+                                    :key="suggestion.id"
+                                    class="sw-media-field__suggestion-list-entry">
                                     {% block sw_media_field_suggestion_preview %}
-                                        <sw-media-media-item class="sw-media-field-media__list-item"
+                                        <sw-media-media-item
+                                            class="sw-media-field-media__list-item"
                                             :item="suggestion"
                                             :isList="true"
                                             :showContextMenuButton="false"

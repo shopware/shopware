@@ -66,14 +66,20 @@
             margin-top: 5px;
             line-height: 20px;
             width: 25px;
+            z-index: 1;
 
-            .sw-icon {
-                color: @sw-field-color-text;
+            svg {
+                vertical-align: sub;
             }
         }
 
-        .sw-field--inline__submit {
+        .sw-field--inline__button--cancel {
+            color: @sw-field-color-text;
             right: 29px;
+        }
+
+        .sw-field--inline__button--submit {
+            color: @color-white;
         }
     }
 

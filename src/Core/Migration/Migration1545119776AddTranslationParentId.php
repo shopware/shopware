@@ -77,7 +77,8 @@ class Migration1545119776AddTranslationParentId extends MigrationStep
             ADD CONSTRAINT `fk.%s.language_id`
               FOREIGN KEY (`language_id`, `language_parent_id`)
               REFERENCES `language` (`id`, `parent_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-            ADD FOREIGN KEY `fk.%s.language_parent_id` (%s, language_parent_id)
+            ADD CONSTRAINT `fk.%s.language_parent_id` 
+              FOREIGN KEY (%s, language_parent_id)
               REFERENCES %s (%s, language_id) ON DELETE CASCADE ON UPDATE NO ACTION',
             $tableName,
             $this->getTableKeyAlias($tableName),

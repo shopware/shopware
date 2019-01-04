@@ -60,6 +60,10 @@ Component.register('sw-settings-rule-detail', {
 
                     this.rule.id = ruleId;
                 }
+
+                this.$nextTick(() => {
+                    this.$refs.mainContainer.$emit('finish-loading', this.nestedConditions);
+                });
             });
         },
 

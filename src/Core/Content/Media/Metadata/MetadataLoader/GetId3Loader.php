@@ -36,11 +36,11 @@ class GetId3Loader implements MetadataLoaderInterface
     {
         if ($metadataType instanceof ImageMetadata) {
             if (isset($rawMetadata['video']['resolution_x'])) {
-                $metadataType->setHeight($rawMetadata['video']['resolution_x']);
+                $metadataType->setHeight((int) $rawMetadata['video']['resolution_x']);
             }
 
             if (isset($rawMetadata['video']['resolution_y'])) {
-                $metadataType->setWidth($rawMetadata['video']['resolution_y']);
+                $metadataType->setWidth((int) $rawMetadata['video']['resolution_y']);
             }
         }
 

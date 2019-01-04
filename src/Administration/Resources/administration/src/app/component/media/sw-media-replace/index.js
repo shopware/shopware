@@ -25,7 +25,7 @@ Component.extend('sw-media-replace', 'sw-media-upload', {
 
     methods: {
         getMediaEntityForUpload() {
-            return this.itemToReplace;
+            return Promise.resolve(this.itemToReplace);
         },
 
         cleanUpFailure(mediaEntity, message) {

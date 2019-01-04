@@ -17,7 +17,7 @@ class MediaPageObject {
         this.browser
             .openMainMenuEntry('#/sw/media/index', 'Media')
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-media span.collapsible-text', 'Media')
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]')
+            .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]');
     }
 }
 

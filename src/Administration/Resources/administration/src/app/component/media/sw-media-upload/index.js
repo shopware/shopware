@@ -1,5 +1,7 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import util, { fileReader } from 'src/core/service/util.service';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { next1207 } from 'src/flag/feature_next1207';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.less';
 
@@ -59,6 +61,15 @@ Component.register('sw-media-upload', {
             required: false,
             type: HTMLElement,
             default: null
+        },
+
+        defaultFolder: {
+            required: false,
+            type: String,
+            validator(value) {
+                return value.length > 0;
+            },
+            default: null
         }
     },
 
@@ -67,7 +78,8 @@ Component.register('sw-media-upload', {
             multiSelect: this.allowMultiSelect,
             showUrlInput: false,
             previewMediaEntity: null,
-            isDragActive: false
+            isDragActive: false,
+            defaultFolderPromise: Promise.resolve(null)
         };
     },
 
@@ -78,6 +90,18 @@ Component.register('sw-media-upload', {
 
         uploadStore() {
             return State.getStore('upload');
+        },
+
+        defaultFolderStore() {
+            return State.getStore('media_default_folder');
+        },
+
+        folderStore() {
+            return State.getStore('media_folder');
+        },
+
+        folderConfigurationStore() {
+            return State.getStore('media_folder_configuration');
         },
 
         showPreview() {
@@ -105,6 +129,10 @@ Component.register('sw-media-upload', {
         }
     },
 
+    created() {
+        this.onCreated();
+    },
+
     mounted() {
         this.onMounted();
     },
@@ -114,6 +142,21 @@ Component.register('sw-media-upload', {
     },
 
     methods: {
+        onCreated() {
+            if (this.defaultFolder !== null) {
+                this.defaultFolderPromise = this.defaultFolderStore.getList({
+                    limit: 1,
+                    criteria: CriteriaFactory.equals('entity', this.defaultFolder)
+                }).then((response) => {
+                    if (response.total !== 1) {
+                        return null;
+                    }
+
+                    return response.items[0];
+                });
+            }
+        },
+
         onMounted() {
             if (this.$refs.dropzone) {
                 ['dragover', 'drop'].forEach((event) => {
@@ -198,16 +241,18 @@ Component.register('sw-media-upload', {
                 this.createPreviewFromUrl(url);
             }
 
-            const mediaEntity = this.getMediaEntityForUpload();
-            this.uploadStore.addUpload(
-                this.uploadTag,
-                this.buildUrlUpload(
-                    url,
-                    fileExtension,
-                    mediaEntity
-                )
-            );
-            this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url }] });
+            this.getMediaEntityForUpload().then((mediaEntity) => {
+                this.uploadStore.addUpload(
+                    this.uploadTag,
+                    this.buildUrlUpload(
+                        url,
+                        fileExtension,
+                        mediaEntity
+                    )
+                );
+
+                this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url }] });
+            });
 
             this.closeUrlModal();
         },
@@ -242,19 +287,71 @@ Component.register('sw-media-upload', {
             }
 
             const data = [];
-            newMediaFiles.forEach((file) => {
-                const mediaEntity = this.getMediaEntityForUpload();
-                this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
-                data.push({
-                    entity: mediaEntity,
-                    src: file
+
+            const p = newMediaFiles.reduce((promise, file) => {
+                return promise.then(() => {
+                    return this.getMediaEntityForUpload().then((mediaEntity) => {
+                        this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
+                        data.push({
+                            entity: mediaEntity,
+                            src: file
+                        });
+                    });
                 });
+            }, Promise.resolve());
+
+            p.then(() => {
+                this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data });
             });
-            this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data });
         },
 
         getMediaEntityForUpload() {
-            return this.mediaItemStore.create();
+            const mediaItem = this.mediaItemStore.create();
+            if (this.defaultFolder !== null && next1207()) {
+                return this.getDefaultFolderId().then((folderId) => {
+                    mediaItem.mediaFolderId = folderId;
+
+                    return mediaItem;
+                });
+            }
+
+            return Promise.resolve(mediaItem);
+        },
+
+        getDefaultFolderId() {
+            return this.defaultFolderPromise.then((defaultFolder) => {
+                if (defaultFolder === null) {
+                    return Promise.resolve(null);
+                }
+
+                if (defaultFolder.folderId === null) {
+                    const folder = this.createFolder(defaultFolder);
+                    defaultFolder.folderId = folder.id;
+
+                    return folder.save().then(() => {
+                        return defaultFolder.folderId;
+                    });
+                }
+
+                return Promise.resolve(defaultFolder.folderId);
+            });
+        },
+
+        createFolder(defaultFolder) {
+            const folder = this.folderStore.create();
+            const entityNameIdentifier = `global.entities.${defaultFolder.entity}`;
+            folder.name = `${this.$tc(entityNameIdentifier)} ${this.$tc('global.entities.media', 2)}`;
+            const configuration = this.folderConfigurationStore.create();
+            configuration.createThumbnails = true;
+            configuration.keepProportions = true;
+            configuration.thumbnailQuality = 80;
+            folder.configuration = configuration;
+            folder.useParentConfiguration = false;
+
+            folder.getAssociation('defaultFolder').add(defaultFolder);
+            folder.defaultFolder.push(defaultFolder);
+
+            return folder;
         },
 
         buildFileUpload(file, mediaEntity) {

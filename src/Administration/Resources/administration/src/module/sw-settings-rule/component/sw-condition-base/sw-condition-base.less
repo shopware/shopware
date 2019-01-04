@@ -16,144 +16,144 @@
 @sw-condition-base-z-index-condition: 200;
 
 .sw-condition-base {
-  width: 100%;
-  display: flex;
-  background-color: @sw-condition-base-color-background;
+    width: 100%;
+    display: flex;
+    background-color: @sw-condition-base-color-background;
 
-  &:after {
-    content: '';
-    display: block;
-    clear: both;
-  }
-
-  > div {
-    position: relative;
-    line-height: 40px;
-    padding: 0 15px;
-    height: 44px;
-    width: 33%;
-
-    &.sw-field {
-      margin-bottom: 0;
-    }
-
-    &.field--condition {
-      background: @sw-condition-base-color-primary;
-      color: @sw-condition-base-color-primary-text;
-      z-index: @sw-condition-base-z-index-condition;
-      width: 25%;
-      border-top-left-radius: 3px;
-      border-bottom-left-radius: 3px;
-
-      &:before {
+    &:after {
         content: '';
-        position: absolute;
-        right: -5px;
-        top: 1px;
-        width: 10px;
-        height: 25px;
-        background: @sw-condition-base-color-primary;
-        transform: rotate(-20deg);
-        border-bottom-right-radius: 3px;
-      }
-
-      &:after {
-        content: '';
-        position: absolute;
-        right: -5px;
-        bottom: 1px;
-        width: 10px;
-        height: 25px;
-        background: @sw-condition-base-color-primary;
-        border-top-right-radius: 3px;
-        transform: rotate(20deg);
-      }
+        display: block;
+        clear: both;
     }
 
-    &.field--operator {
-      width: 150px;
-      border-top: 1px solid @sw-condition-base-color-border;
-      border-bottom: 1px solid @sw-condition-base-color-border;
-      margin-left: -10px;
-      z-index: @sw-condition-base-z-index-operator;
-      padding-left: 30px;
+    > div {
+        position: relative;
+        line-height: 40px;
+        padding: 0 15px;
+        height: 44px;
+        width: 33%;
 
-      &:before {
-        content: '';
-        position: absolute;
-        right: -5px;
-        top: -1px;
-        width: 1px;
-        height: 23px;
-        background: @sw-condition-base-color-border;
-        transform: rotate(-20deg);
-      }
+        &.sw-field {
+            margin-bottom: 0;
+        }
 
-      &:after {
-        content: '';
-        position: absolute;
-        right: -5px;
-        bottom: -1px;
-        width: 1px;
-        height: 23px;
-        background: @sw-condition-base-color-border;
-        transform: rotate(20deg);
-      }
+        &.field--condition {
+            background: @sw-condition-base-color-primary;
+            color: @sw-condition-base-color-primary-text;
+            z-index: @sw-condition-base-z-index-condition;
+            width: 25%;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+
+            &:before {
+                content: '';
+                position: absolute;
+                right: -5px;
+                top: 1px;
+                width: 10px;
+                height: 25px;
+                background: @sw-condition-base-color-primary;
+                transform: rotate(-20deg);
+                border-bottom-right-radius: 3px;
+            }
+
+            &:after {
+                content: '';
+                position: absolute;
+                right: -5px;
+                bottom: 1px;
+                width: 10px;
+                height: 25px;
+                background: @sw-condition-base-color-primary;
+                border-top-right-radius: 3px;
+                transform: rotate(20deg);
+            }
+        }
+
+        &.field--operator {
+            width: 150px;
+            border-top: 1px solid @sw-condition-base-color-border;
+            border-bottom: 1px solid @sw-condition-base-color-border;
+            margin-left: -10px;
+            z-index: @sw-condition-base-z-index-operator;
+            padding-left: 30px;
+
+            &:before {
+                content: '';
+                position: absolute;
+                right: -5px;
+                top: -1px;
+                width: 1px;
+                height: 23px;
+                background: @sw-condition-base-color-border;
+                transform: rotate(-20deg);
+            }
+
+            &:after {
+                content: '';
+                position: absolute;
+                right: -5px;
+                bottom: -1px;
+                width: 1px;
+                height: 23px;
+                background: @sw-condition-base-color-border;
+                transform: rotate(20deg);
+            }
+        }
+
+        &.field--value {
+            flex-grow: 1;
+            border-top: 1px solid @sw-condition-base-color-border;
+            border-bottom: 1px solid @sw-condition-base-color-border;
+            z-index: @sw-condition-base-z-index-value;
+            padding-left: 20px;
+        }
+
+        &.field--actions {
+            width: 6%;
+            border: 1px solid @sw-condition-base-color-border;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            line-height: 45px;
+            text-align: left;
+        }
+
+        .sw-select__inner {
+            border: none;
+        }
+
+        .sw-field__input {
+            input, select {
+                outline: none;
+                box-shadow: none;
+                border: 0 none;
+                padding: 7px 0;
+                background: @sw-condition-base-color-background;
+                height: 42px;
+            }
+        }
     }
 
-    &.field--value {
-      flex-grow: 1;
-      border-top: 1px solid @sw-condition-base-color-border;
-      border-bottom: 1px solid @sw-condition-base-color-border;
-      z-index: @sw-condition-base-z-index-value;
-      padding-left: 20px;
+    .sw-condition-base__field {
+        border: 0;
+        background: none;
+        color: @sw-condition-base-color-primary-text;
+        font-size: @sw-condition-base-font-size;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+
+        &.is--primary {
+            color: @sw-condition-base-color-primary-text;
+        }
+
+        &.is--secondary {
+            color: @sw-condition-base-color-secondary-text;
+        }
+
+        &:active,
+        &:focus {
+            outline: none;
+        }
     }
-
-    &.field--actions {
-      width: 6%;
-      border: 1px solid @sw-condition-base-color-border;
-      border-top-right-radius: 3px;
-      border-bottom-right-radius: 3px;
-      line-height: 45px;
-      text-align: left;
-    }
-
-    .sw-select__inner {
-      border: none;
-    }
-
-    .sw-field__input {
-      input, select {
-        outline: none;
-        box-shadow: none;
-        border: 0 none;
-        padding: 7px 0;
-        background: @sw-condition-base-color-background;
-        height: 42px;
-      }
-    }
-  }
-
-  .sw-condition-base__field {
-     border: 0;
-     background: none;
-     color: @sw-condition-base-color-primary-text;
-     font-size: @sw-condition-base-font-size;
-     padding: 0;
-     margin: 0;
-     width: 100%;
-
-     &.is--primary {
-       color: @sw-condition-base-color-primary-text;
-     }
-
-     &.is--secondary {
-       color: @sw-condition-base-color-secondary-text;
-     }
-
-     &:active,
-     &:focus {
-       outline: none;
-     }
-   }
 }

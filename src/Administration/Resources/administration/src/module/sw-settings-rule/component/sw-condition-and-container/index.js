@@ -47,7 +47,7 @@ Component.register('sw-condition-and-container', {
 
     computed: {
         containerRowClass() {
-            return this.level % 2 ? 'container-condition-level__is--even' : 'container-condition-level__is--odd';
+            return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
         },
         firstContainer() {
             return this.level === 0 ? 'sw-condition-and-container__first-container' : '';
@@ -60,7 +60,7 @@ Component.register('sw-condition-and-container', {
         }
 
         if (!this.condition.children.length) {
-            this.onAddAndClick();
+            this.createPlaceholder();
         }
     },
 
@@ -74,6 +74,9 @@ Component.register('sw-condition-and-container', {
             return condition.component;
         },
         onAddAndClick() {
+            this.createPlaceholder();
+        },
+        createPlaceholder() {
             const child = Object.assign(
                 this.conditionAssociations.create(),
                 { type: 'placeholder' }

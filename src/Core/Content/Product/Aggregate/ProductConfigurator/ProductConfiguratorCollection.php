@@ -84,20 +84,6 @@ class ProductConfiguratorCollection extends EntityCollection
         return null;
     }
 
-    public function sortByGroup(): void
-    {
-        $this->sort(function (ProductConfiguratorEntity $a, ProductConfiguratorEntity $b) {
-            $groupA = $a->getOption()->getGroup();
-            $groupB = $b->getOption()->getGroup();
-
-            if ($groupA->getPosition() === $groupB->getPosition()) {
-                return $groupA->getName() <=> $groupB->getName();
-            }
-
-            return $groupA->getPosition() <=> $groupB->getPosition();
-        });
-    }
-
     protected function getExpectedClass(): string
     {
         return ProductConfiguratorEntity::class;

@@ -40,7 +40,7 @@ class ConfigurationGroupOptionEntity extends Entity
     protected $mediaId;
 
     /**
-     * @var ConfigurationGroupEntity
+     * @var ConfigurationGroupEntity|null
      */
     protected $group;
 
@@ -144,12 +144,12 @@ class ConfigurationGroupOptionEntity extends Entity
         $this->mediaId = $mediaId;
     }
 
-    public function getGroup(): ConfigurationGroupEntity
+    public function getGroup(): ?ConfigurationGroupEntity
     {
         return $this->group;
     }
 
-    public function setGroup(ConfigurationGroupEntity $group): void
+    public function setGroup(?ConfigurationGroupEntity $group): void
     {
         $this->group = $group;
     }

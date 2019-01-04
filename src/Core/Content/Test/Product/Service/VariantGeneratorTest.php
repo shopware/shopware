@@ -99,9 +99,6 @@ class VariantGeneratorTest extends TestCase
             return \in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
 
-        static::assertEquals('test blue', $blue->getName());
-        static::assertEquals('test red', $red->getName());
-
         static::assertInstanceOf(ProductEntity::class, $red);
         static::assertInstanceOf(ProductEntity::class, $blue);
 
@@ -180,19 +177,15 @@ class VariantGeneratorTest extends TestCase
         /** @var ProductCollection $filtered */
         $filtered = $variants->filterByVariationIds([$redId, $bigId]);
         static::assertCount(1, $filtered);
-        static::assertEquals('test red big', $filtered->first()->getName());
 
         $filtered = $variants->filterByVariationIds([$blueId, $bigId]);
         static::assertCount(1, $filtered);
-        static::assertEquals('test blue big', $filtered->first()->getName());
 
         $filtered = $variants->filterByVariationIds([$redId, $smallId]);
         static::assertCount(1, $filtered);
-        static::assertEquals('test red small', $filtered->first()->getName());
 
         $filtered = $variants->filterByVariationIds([$blueId, $smallId]);
         static::assertCount(1, $filtered);
-        static::assertEquals('test blue small', $filtered->first()->getName());
 
         foreach ($variants as $variant) {
             static::assertEquals($id, $variant->getParentId());

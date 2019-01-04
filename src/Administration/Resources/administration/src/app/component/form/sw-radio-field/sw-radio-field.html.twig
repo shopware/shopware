@@ -1,0 +1,21 @@
+{% block sw_text_field_input %}
+    <div v-if="options.length" class="sw-field__radio-group">
+        {% block sw_radio_field_options %}
+            <div class="sw-field__radio-option" v-for="(option, index) in options">
+                <div class="sw-field__radio-input">
+                    <input type="radio"
+                           :name="displayName"
+                           :id="`${displayName}-${index}`"
+                           :value="option.value"
+                           :disabled="disabled ? 'disabled' : false"
+                           :checked="currentValue === option.value ? 'checked' : false"
+                           @change="onChange"
+                           v-model="currentValue" />
+                    <div class="sw-field__radio-state"></div>
+                </div>
+
+                <label :for="`${displayName}-${index}`">{{ option.name }}</label>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -7,7 +7,7 @@
                     <sw-field class="sw-media-add-thumbnail-form__input-width"
                               type="number"
                               :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
-                              min="1"
+                              :min="1"
                               :validation="width > 0"
                               v-model="width">
                     </sw-field>
@@ -26,7 +26,7 @@
                     <sw-field class="sw-media-add-thumbnail-form__input-height"
                               type="number"
                               v-model="height"
-                              min="1"
+                              :min="1"
                               :validation="height > 0"
                               :disabled="isLocked">
                     </sw-field>

@@ -1,0 +1,37 @@
+{% block sw_text_field_input %}
+    <div class="sw-field__select">
+        {% block sw_field_input_select_field %}
+            <select :id="id"
+                    :name="displayName"
+                    :disabled="disabled"
+                    :class="{ 'is--placeholder': currentValue === null }"
+                    @input="onInput"
+                    v-if="($slots.default && $slots.default.length > 0) || (options && options.length > 0)"
+                    v-bind="$attrs"
+                    :value="value">
+
+                {% block sw_field_input_select_field_placeholder_option %}
+                    <option class="sw-field__placeholder-option" v-if="placeholder"
+                            :value="null">{{ placeholder }}</option>
+                {% endblock %}
+
+                {% block sw_field_input_select_field_options %}
+                    <slot v-if="!options"></slot>
+
+                    <option v-else v-for="option in options" :value="option.id">{{ option.name }}</option>
+                {% endblock %}
+
+            </select>
+        {% endblock %}
+
+        {% block sw_field_input_select_field_load_placeholder %}
+            <div class="sw-field__select-load-placeholder" v-else>
+                <sw-loader size="20px"></sw-loader>
+            </div>
+        {% endblock %}
+
+        {% block sw_field_input_select_field_icon %}
+            <sw-icon name="small-arrow-medium-down" small decorative></sw-icon>
+        {% endblock %}
+    </div>
+{% endblock %}

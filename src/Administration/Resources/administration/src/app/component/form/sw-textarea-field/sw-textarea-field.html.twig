@@ -1,0 +1,11 @@
+{% block sw_text_field_input %}
+    <textarea :id="id"
+              :name="displayName"
+              :placeholder="placeholder"
+              :disabled="disabled ? 'disabled' : false"
+              @change="onChange"
+              @input="onInput"
+              :value="value"
+              v-bind="$attrs">
+    </textarea>
+{% endblock %}

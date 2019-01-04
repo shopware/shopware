@@ -1,0 +1,27 @@
+{% block sw_text_field_input %}
+    <div class="sw-field__input">
+        {% block sw_number_input %}
+            <input :id="id"
+                   type="text"
+                   :min="min"
+                   :max="max"
+                   :step="step"
+                   :validation="validation"
+                   :name="displayName"
+                   :placeholder="placeholder"
+                   @input="onInput"
+                   @keydown.up="increaseNumberByStep"
+                   @keydown.down="decreaseNumberByStep"
+                   @change="onChange"
+                   v-model="currentValue"/>
+        {% endblock %}
+
+        {% block sw_number_suffix %}
+            <sw-field-suffix v-if="suffix.length > 0" :suffix="suffix"></sw-field-suffix>
+        {% endblock %}
+
+        {% block sw_text_error %}
+            <sw-error-field v-if="hasError" :errorMessage="errorMessage" :formError="formError"></sw-error-field>
+        {% endblock %}
+    </div>
+{% endblock %}

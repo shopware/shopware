@@ -27,10 +27,6 @@ export default {
     },
 
     computed: {
-        additionalAttributes() {
-            return Object.assign({}, this.$attrs, { type: 'text' });
-        },
-
         confirmFieldClasses() {
             return {
                 'sw-confirm-field--compact': this.compact,

@@ -1,0 +1,37 @@
+{% block sw_text_field %}
+    <div class="sw-field" :class="fieldClasses">
+        {% block sw_text_field_label %}
+            <label v-if="label" :for="id">
+                <slot name="label">{{ label }}</slot>
+            </label>
+        {% endblock %}
+        {% block sw_text_field_input %}
+            <div class="sw-field__input">
+                <input type=text
+                       :id="id"
+                       ref="textfield"
+                       :name="displayName"
+                       :placeholder="placeholder"
+                       :disabled="disabled ? 'disabled' : false"
+                       @change="onChange"
+                       @input="onInput"
+                       v-on="additionalEventListeners"
+                       :value="currentValue"/>
+
+
+                {% block sw_text_field_copyable %}
+                    <sw-field-copyable v-if="copyAble"
+                                       :displayName="displayName"></sw-field-copyable>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_text_field_helptext %}
+            <sw-field-helptext v-if="helpText" :helpText="helpText" :id="id"></sw-field-helptext>
+        {% endblock %}
+
+        {% block sw_text_field_error %}
+            <sw-field-error v-if="hasError" :errorMessage="errorMessage" :formError="formError"></sw-field-error>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,9 +1,10 @@
 import Picker from 'vanilla-picker';
-import template from './sw-color-picker.html.twig';
-import './sw-color-picker.scss';
+import template from './sw-colorpicker.html.twig';
+import './sw-colorpicker.scss';
 
 export default {
-    name: 'sw-color-picker',
+    name: 'sw-colorpicker',
+    extendsFrom: 'sw-text-field',
     template,
 
     props: {
@@ -72,7 +73,7 @@ export default {
     methods: {
         mountedComponent() {
             this.colorPicker = new Picker({
-                parent: this.$el.querySelector('.sw-color-picker__trigger'),
+                parent: this.$el.querySelector('.sw-colorpicker__trigger'),
                 onClose: this.onClose,
                 onOpen: this.onOpen
             });
@@ -96,7 +97,7 @@ export default {
                 this.colorPicker.hide();
             } else {
                 this.open = true;
-                this.$emit('sw-color-picker-open');
+                this.$emit('sw-colorpicker-open');
             }
         },
 

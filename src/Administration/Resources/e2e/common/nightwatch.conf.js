@@ -1,5 +1,4 @@
 const process = require('process');
-const seleniumServer = require('selenium-server');
 const chromedriver = require('chromedriver');
 
 const chromeOptions = [

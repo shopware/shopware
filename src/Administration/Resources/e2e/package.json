@@ -24,8 +24,7 @@
     "eslint-plugin-node": "8.0.0",
     "eslint-plugin-standard": "4.0.0",
     "lodash": "4.17.11",
-    "nightwatch": "1.0.18",
-    "selenium-server": "3.141.59"
+    "nightwatch": "1.0.18"
   },
   "engines": {
     "node": ">= 8.10.0",

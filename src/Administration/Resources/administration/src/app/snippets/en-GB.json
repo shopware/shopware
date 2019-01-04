@@ -867,7 +867,10 @@
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Snippets",
-      "placeholderSearchBar": "Find snippets (name, content, section)"
+      "searchBarTitleSets": "Snippet sets",
+      "placeholderSearchBarSets": "Find snippet sets (name, base file)",
+      "searchBarTitleSnippets": "Snippets",
+      "placeholderSearchBarSnippets": "Find snippets (name, content, section)"
     },
     "detail": {
       "buttonCancel": "Cancel",

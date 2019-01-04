@@ -149,6 +149,11 @@
             <argument>%kernel.plugin_dir%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Command\RefreshMigrationCommand">
+            <tag name="console.command"/>
+        </service>
+
+
         <service id="Shopware\Core\Framework\Command\MigrationCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>

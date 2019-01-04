@@ -41,19 +41,18 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Plugin\Payment\PaymentStatus;
-use Plugin\Payment\Resource\PaymentResource;
-use Plugin\Payment\Struct\Payment\RelatedResources\RelatedResource;
-use Plugin\Service\PaymentBuilderInterface;
+use SwagPayPal\PayPal\Payment\PaymentBuilderInterface;
+use SwagPayPal\PayPal\PaymentStatus;
+use SwagPayPal\PayPal\Resource\PaymentResource;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class CustomPaymentHandler implements PaymentHandlerInterface
+class PayPalPayment implements PaymentHandlerInterface
 {
     /**
      * @var RepositoryInterface
      */
-    private $transactionRepository;
+    private $orderTransactionRepo;
 
     /**
      * @var PaymentResource
@@ -66,11 +65,11 @@ class CustomPaymentHandler implements PaymentHandlerInterface
     private $paymentBuilder;
 
     public function __construct(
-        RepositoryInterface $transactionRepository,
+        RepositoryInterface $orderTransactionRepo,
         PaymentResource $paymentResource,
         PaymentBuilderInterface $paymentBuilder
     ) {
-        $this->transactionRepository = $transactionRepository;
+        $this->orderTransactionRepo = $orderTransactionRepo;
         $this->paymentResource = $paymentResource;
         $this->paymentBuilder = $paymentBuilder;
     }
@@ -91,7 +90,7 @@ class CustomPaymentHandler implements PaymentHandlerInterface
                 'id' => $transactionId,
                 'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_FAILED,
             ];
-            $this->transactionRepository->update([$transaction], $context);
+            $this->orderTransactionRepo->update([$transaction], $context);
 
             return;
         }
@@ -100,11 +99,7 @@ class CustomPaymentHandler implements PaymentHandlerInterface
         $paymentId = $request->get('paymentId');
         $response = $this->paymentResource->execute($payerId, $paymentId, $context);
 
-        /** @var RelatedResource $responseSale */
-        $responseSale = $response->getTransactions()->getRelatedResources()->getResources()[0];
-
-        // apply the payment status if its completed by PayPal
-        $paymentState = $responseSale->getState();
+        $paymentState = $this->getPaymentState($response);
 
         if ($paymentState === PaymentStatus::PAYMENT_COMPLETED) {
             $transaction = [
@@ -118,7 +113,7 @@ class CustomPaymentHandler implements PaymentHandlerInterface
             ];
         }
 
-        $this->transactionRepository->update([$transaction], $context);
+        $this->orderTransactionRepo->update([$transaction], $context);
     }
 }
 ```

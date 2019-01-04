@@ -202,6 +202,26 @@ class ApiService {
     }
 
     /**
+     * Clones an existing entity
+     *
+     * @param {Number} id
+     * @returns {Promise<T>}
+     */
+    clone(id) {
+        if (!id) {
+            return Promise.reject(new Error('Missing required argument: id'));
+        }
+
+        return this.httpClient
+            .post(`/_action/clone/${this.apiEndpoint}/${id}`, null, {
+                headers: this.getBasicHeaders()
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
      * Returns the URI to the API endpoint
      *
      * @param {String|Number} [id]

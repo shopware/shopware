@@ -13,26 +13,15 @@
                                   class="sw-tagged-field__tags"
                                   mode="out-in">
                     {% block sw_tagged_field_tag_items %}
-                        <sw-label v-for="(tag, index) in tags"
-                                  :key="index"
-                                  @dismiss="dismissTag(index)"
-                                  @selected="$emit('sw-tagged-field-tag-clicked', { tag, index })">
-                            <template v-if="!editTags[index]">
-                                {{ tag }}
-                            </template>
-                            <template v-else slot="sw_label_text_holder">
-                                <span contenteditable="true"
-                                      class="sw-tagged-field__edit-text"
-                                      @keydown="performModifyTag(index, $event)"
-                                      :ref="`input${index}`">
-                                    {{ editTags[index] }}
-                                </span>
-                            </template>
-                            <template v-if="editTags[index]" slot="sw-label__dismiss-icon">
-                                <sw-icon name="text-editor-undo">
-                                </sw-icon>
-                            </template>
-                        </sw-label>
+                        <li v-for="(tag, index) in tags"
+                            :key="index">
+                            <sw-label dismissAble
+                                      @dismiss="dismissTag(index)">
+                                <template>
+                                        {{ tag.content }}
+                                </template>
+                            </sw-label>
+                        </li>
                     {% endblock %}
 
                     {% block sw_tagged_field_item_input %}

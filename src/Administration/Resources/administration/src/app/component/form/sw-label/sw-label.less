@@ -9,7 +9,7 @@
   position: relative;
   margin-right: 6px;
   margin-bottom: 6px;
-  padding: 4px 40px 4px 12px;
+  padding: 4px 12px 4px 12px;
   line-height: 22px;
   font-size: 13px;
   background: @sw-label-item-color-background;
@@ -22,29 +22,33 @@
   &:hover {
     background: darken(@sw-label-item-color-background, 3%);
   }
-}
 
-.sw-label__dismiss {
-  display: inline-block;
-  position: absolute;
-  width: 35px;
-  height: 100%;
-  padding: 4px 10px;
-  right: 0;
-  top: 0;
-  color: @sw-label-item-color-text;
-  font-size: 14px;
-  text-align: center;
-  background: 0 none;
-  border: 0 none;
-  cursor: pointer;
-  text-decoration: none;
-  line-height: 0;
-  font-weight: bold;
-  outline: none;
+  &.is--dismiss-able {
+    padding-right: 40px;
+  }
 
-  .sw-icon {
-    width: 12px;
-    height: 12px;
+  .sw-label__dismiss {
+    display: inline-block;
+    position: absolute;
+    width: 35px;
+    height: 100%;
+    padding: 4px 10px;
+    right: 0;
+    top: 0;
+    color: @sw-label-item-color-text;
+    font-size: 14px;
+    text-align: center;
+    background: 0 none;
+    border: 0 none;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 0;
+    font-weight: bold;
+    outline: none;
+
+    .sw-icon {
+      width: 12px;
+      height: 12px;
+    }
   }
 }

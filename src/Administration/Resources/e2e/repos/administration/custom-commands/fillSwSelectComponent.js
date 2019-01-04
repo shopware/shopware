@@ -1,7 +1,7 @@
 const swSelectInputCssSelector = '.sw-select__input-single';
 const swMultiSelectInputCssSelector = '.sw-select__input';
 const swMultiSelectItemCssSelector = '.sw-label';
-const swSelectedItemCssSelector = '.sw-label__text';
+const swSelectedItemCssSelector = '.sw-select__selection-item';
 const swMultiSelectRemoveItemCssSelector = '.sw-label__dismiss';
 const swSelectResultsCssSelector = '.sw-select__results';
 const swSelectLoaderCssSelector = '.sw-select__indicators .sw-loader';

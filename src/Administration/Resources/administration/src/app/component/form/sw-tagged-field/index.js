@@ -8,7 +8,7 @@ import './sw-tagged-field.less';
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-tagged-field label="Label" addOnKey="[13, ',']" v-model="array">
+ * <sw-tagged-field label="Label" :addOnKey="[13, ',']" v-model="array">
  * </sw-tagged-field>
  */
 Component.register('sw-tagged-field', {
@@ -53,8 +53,7 @@ Component.register('sw-tagged-field', {
         return {
             newTag: '',
             hasError: false,
-            tags: [],
-            editTags: []
+            tags: []
         };
     },
 
@@ -80,36 +79,6 @@ Component.register('sw-tagged-field', {
             this.addEventListeners();
         },
 
-        addEventListeners() {
-            this.$on('sw-tagged-field-tag-clicked', this.editTag);
-        },
-
-        editTag({ tag, index }) {
-            if (this.editTags[index]) {
-                this.$refs[`input${index}`][0].focus();
-                return;
-            }
-
-            this.editTags[index] = tag;
-            this.$forceUpdate();
-            this.$nextTick(() => {
-                this.$refs[`input${index}`][0].focus();
-            });
-        },
-
-        performModifyTag(index, event) {
-            this.editTags[index] = this.$refs[`input${index}`][0].innerText.trim();
-            if (this.disabled || (event && this.noTriggerKey(event))) {
-                return;
-            }
-
-            this.tags[index] = this.editTags[index];
-            delete this.editTags[index];
-            this.$forceUpdate();
-            this.emitChanges();
-            this.$refs.newTagInput.focus();
-        },
-
         dismissLastTag() {
             if (this.newTag.length > 0) {
                 return;
@@ -123,12 +92,6 @@ Component.register('sw-tagged-field', {
         },
 
         dismissTag(index) {
-            if (this.editTags[index]) {
-                this.editTags[index] = undefined;
-                this.$forceUpdate();
-                return;
-            }
-
             this.tags.splice(index, 1);
 
             this.emitChanges();
@@ -139,7 +102,6 @@ Component.register('sw-tagged-field', {
         },
 
         performAddTag(event) {
-            // If the input is disabled or the function was invoked by no trigger key → stop
             if (this.disabled || (event && this.noTriggerKey(event))) {
                 return;
             }
@@ -151,7 +113,7 @@ Component.register('sw-tagged-field', {
             this.tags.push(this.newTag);
             this.newTag = '';
         },
-        // Decides whether the input keyCode is one, which is allowed to modify/add tags
+
         noTriggerKey(event) {
             const triggerKey = this.addOnKey.indexOf(event.keyCode) !== -1
                 || this.addOnKey.indexOf(event.key) !== -1;

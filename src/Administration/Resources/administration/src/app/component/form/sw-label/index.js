@@ -12,5 +12,13 @@ import template from './sw-label.html.twig';
  * </sw-label>
  */
 Component.register('sw-label', {
-    template
+    template,
+
+    props: {
+        dismissAble: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    }
 });

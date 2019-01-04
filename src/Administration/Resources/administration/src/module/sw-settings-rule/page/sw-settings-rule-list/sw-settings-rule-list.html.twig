@@ -137,6 +137,19 @@
                                                 </sw-grid-column>
                                             {% endblock %}
 
+                                            {% block sw_settings_rule_list_columns_active %}
+                                                <sw-grid-column flex="minmax(150px, 200px)"
+                                                            class="sw-settings-rule-list__column-active"
+                                                            :label="$tc('sw-settings-rule.list.columnStatus')"
+                                                            dataIndex="inactive"
+                                                            sortable>
+                                                    {% block sw_settings_rule_list_columns_active_label %}
+                                                        <span v-if="item.inactive" class="sw-settings-rule-list-inactive">{{ $tc('sw-settings-rule.list.inactive') }}</span>
+                                                        <span v-else>{{ $tc('sw-settings-rule.list.active') }}</span>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
                                             {% block sw_settings_rule_list_columns_actions %}
                                                 <sw-grid-column flex="minmax(100px, 100px)"
                                                                 align="center">

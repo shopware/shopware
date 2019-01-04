@@ -940,6 +940,7 @@
       "columnDescription": "Description",
       "columnDateCreated": "Creation date",
       "columnPriority": "Priority",
+      "columnStatus": "Status",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -950,7 +951,9 @@
       "modalTitleBulkDelete": "Delete Rules",
       "textBulkDeleteConfirm": "Do you really want to delete the selected rules?",
       "titleSidebarItemRefresh": "Refresh",
-      "titleSidebarBulkTrash": "Delete rules"
+      "titleSidebarBulkTrash": "Delete rules",
+      "active": "Active",
+      "inactive": "Inactive"
     },
     "detail": {
       "textHeadline": "New rule",

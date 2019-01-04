@@ -942,6 +942,7 @@
       "columnDescription": "Beschreibung",
       "columnDateCreated": "Erstelldatum",
       "columnPriority": "Priorität",
+      "columnStatus": "Status",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
@@ -952,7 +953,9 @@
       "modalTitleBulkDelete": "Regeln löschen",
       "textBulkDeleteConfirm": "Möchtest Du die ausgewählten Regeln wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "titleSidebarBulkTrash": "Regeln löschen"
+      "titleSidebarBulkTrash": "Regeln löschen",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
     },
     "detail": {
       "textHeadline": "Neue Regel",

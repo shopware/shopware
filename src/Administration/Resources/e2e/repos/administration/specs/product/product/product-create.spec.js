@@ -66,9 +66,9 @@ module.exports = {
             .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button', '.sw-grid-row:first-child')
             .waitForElementVisible('.sw-product-detail-base')
             .waitForElementVisible('.sw-media-preview__item')
-            .waitForElementPresent('.sw-product-category-form .sw-select__selection-text')
+            .waitForElementPresent('.sw-product-category-form .sw-label__text')
             .assert.containsText('.ql-editor', 'My very first description')
-            .assert.containsText('.sw-product-category-form .sw-select__selection-text', 'MainCategory')
+            .assert.containsText('.sw-product-category-form .sw-label__text', 'MainCategory')
             .click('a.smart-bar__back-btn');
     },
     after: (browser) => {

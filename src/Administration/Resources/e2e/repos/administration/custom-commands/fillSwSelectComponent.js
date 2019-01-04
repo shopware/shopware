@@ -1,8 +1,8 @@
 const swSelectInputCssSelector = '.sw-select__input-single';
 const swMultiSelectInputCssSelector = '.sw-select__input';
-const swMultiSelectItemCssSelector = '.sw-select__selection-item';
-const swSelectedItemCssSelector = '.sw-select__selection-text';
-const swMultiSelectRemoveItemCssSelector = '.sw-select__selection-dismiss';
+const swMultiSelectItemCssSelector = '.sw-label';
+const swSelectedItemCssSelector = '.sw-label__text';
+const swMultiSelectRemoveItemCssSelector = '.sw-label__dismiss';
 const swSelectResultsCssSelector = '.sw-select__results';
 const swSelectLoaderCssSelector = '.sw-select__indicators .sw-loader';
 const swSelectPlaceholderCssSelector = '.sw-select__placeholder';

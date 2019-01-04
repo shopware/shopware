@@ -17,6 +17,7 @@
             <argument type="service" id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="serializer"/>
+            <argument type="service" id="shopware.cache"/>
 
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Content\Rule\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -48,18 +49,25 @@ class RulePayloadIndexer implements IndexerInterface
      */
     private $serializer;
 
+    /**
+     * @var CacheItemPoolInterface
+     */
+    private $cache;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         RepositoryInterface $ruleRepository,
-        Serializer $serializer
+        Serializer $serializer,
+        CacheItemPoolInterface $cache
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->ruleRepository = $ruleRepository;
         $this->serializer = $serializer;
+        $this->cache = $cache;
     }
 
     public function index(\DateTime $timestamp): void
@@ -103,6 +111,10 @@ class RulePayloadIndexer implements IndexerInterface
     {
         if (empty($ids)) {
             return;
+        }
+
+        if ($this->cache->hasItem('rules_key')) {
+            $this->cache->deleteItem('rules_key');
         }
 
         $bytes = array_values(array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids));

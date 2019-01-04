@@ -14,10 +14,13 @@ Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
     template,
 
     methods: {
-        onAddChildClick() {
+        onAddChildClick(parentId) {
             const condition = Object.assign(
                 this.conditionAssociations.create(),
-                { type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule' }
+                {
+                    type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                    parentId: parentId
+                }
             );
             this.condition.children.push(condition);
         }

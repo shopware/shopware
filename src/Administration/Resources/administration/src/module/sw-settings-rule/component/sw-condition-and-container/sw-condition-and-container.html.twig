@@ -1,5 +1,5 @@
 {% block sw_condition_container %}
-    <div class="sw-condition-and-container" :class="`${containerRowClass} ${firstContainer}`">
+    <div class="sw-condition-and-container" :class="`${containerRowClass}`">
         {% block sw_condition_container_content %}
             <div class="sw-condition-and-container__condition-content">
                 {% block sw_condition_container_children %}
@@ -23,10 +23,10 @@
                 {% endblock %}
                 {% block sw_condition_container_actions %}
                     <div class="sw-condition-and-container__actions">
-                        <sw-button class="sw-condition-and-container__actions--and" @click="onAddAndClick">
+                        <sw-button class="sw-condition-and-container__actions--and" @click="onAddAndClick(condition.id)">
                             {{ $tc('global.sw-condition.condition.and') }}
                         </sw-button>
-                        <sw-button class="sw-condition-and-container__actions--sub" @click="onAddChildClick">
+                        <sw-button class="sw-condition-and-container__actions--sub" @click="onAddChildClick(condition.id)">
                             {{ $tc('global.sw-condition.condition.subCondition') }}
                         </sw-button>
                         <sw-button class="sw-condition-and-container__actions--delete" @click="onDeleteAll">

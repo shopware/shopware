@@ -40,6 +40,16 @@ Component.register('sw-condition-base', {
         }
     },
 
+    data() {
+        return {
+            conditionFields: {}
+        };
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
     mounted() {
         this.mountComponent();
     },
@@ -65,6 +75,24 @@ Component.register('sw-condition-base', {
         },
         getLabel(type) {
             return this.ruleConditionService.getByType(type).label;
+        },
+        createdComponent() {
+            if (!this.condition.value) {
+                this.condition.value = {};
+            }
+            const conditionType = this.condition.type;
+            this.conditionFields = this.ruleConditionService.getByType(conditionType).fields;
+        },
+        handleConditionChange(event) {
+            this.condition.type = event.target.value;
+            this.conditionFields = this.ruleConditionService.getByType(this.condition.type).fields;
+            Object.keys(this.condition.value).forEach((key) => {
+                if (!(key in this.conditionFields)) {
+                    delete this.condition.original.value[key];
+                    delete this.condition.value[key];
+                }
+            });
+            this.$forceUpdate();
         }
     }
 });

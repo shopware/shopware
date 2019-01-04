@@ -1,6 +1,7 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-settings-rule-detail.html.twig';
+import './sw-settings-rule-detail.less';
 
 Component.register('sw-settings-rule-detail', {
     template,
@@ -14,7 +15,7 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             duplicate: false,
-            nestedConditions: [],
+            nestedConditions: {},
             conditionAssociations: {}
         };
     },

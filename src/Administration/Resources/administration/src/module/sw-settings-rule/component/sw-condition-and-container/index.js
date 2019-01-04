@@ -48,15 +48,13 @@ Component.register('sw-condition-and-container', {
     computed: {
         containerRowClass() {
             return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
-        },
-        firstContainer() {
-            return this.level === 0 ? 'sw-condition-and-container__first-container' : '';
         }
     },
 
     mounted() {
         if (typeof this.condition.children === 'undefined') {
             this.condition.children = [];
+            return;
         }
 
         if (!this.condition.children.length) {
@@ -73,20 +71,26 @@ Component.register('sw-condition-and-container', {
 
             return condition.component;
         },
-        onAddAndClick() {
-            this.createPlaceholder();
+        onAddAndClick(parentId) {
+            this.createPlaceholder(parentId);
         },
-        createPlaceholder() {
+        createPlaceholder(parentId) {
             const child = Object.assign(
                 this.conditionAssociations.create(),
-                { type: 'placeholder' }
+                {
+                    type: 'placeholder',
+                    parentId: parentId
+                }
             );
             this.condition.children.push(child);
         },
-        onAddChildClick() {
+        onAddChildClick(parentId) {
             const condition = Object.assign(
                 this.conditionAssociations.create(),
-                { type: 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule' }
+                {
+                    type: 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
+                    parentId: parentId
+                }
             );
             this.condition.children.push(condition);
         },
@@ -97,7 +101,7 @@ Component.register('sw-condition-and-container', {
             this.$emit('delete-condition', this.condition);
         },
         onDeleteCondition(condition) {
-            this.conditionAssociations.remove(condition);
+            condition.isDeleted = true;
             this.condition.children.splice(this.condition.children.indexOf(condition), 1);
         }
     }

@@ -520,7 +520,7 @@
       "labelHeight": "Height",
       "labelLength": "Length",
       "labelWeight": "Weight",
-      "labelMinPurchase": "Minimal order quantity",
+      "labelMinPurchase": "Minimum order quantity",
       "labelMaxPurchase": "Maximum order quantity",
       "labelEan": "EAN",
       "labelManufacturerNumber": "Manufacturer number",
@@ -535,7 +535,7 @@
       "placeholderLength": "e.g. 100",
       "placeholderWeight": "e.g. 0,4",
       "placeholderStock": "Enter quantity in stock",
-      "placeholderMinPurchase": "Minimal purchase",
+      "placeholderMinPurchase": "Minimum purchase",
       "placeholderMaxPurchase": "Maximum purchase",
       "placeholderEan": "Enter EAN number",
       "placeholderManufacturerNumber": "Enter manufacturer number"
@@ -800,7 +800,7 @@
     },
     "index": {
       "buttonCreateFolder": "Add new Folder",
-      "messageEmpty": "You don't have uploaded any media yet",
+      "messageEmpty": "You haven't uploaded any media yet",
       "labelSort": "Sort by:",
       "labelPresentation": "Presentation:",
       "labelPresentationSmall": "Small preview",
@@ -1014,12 +1014,12 @@
       "placeholderPleaseSelect": "Please select",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "tooltipLanguageNotChoosable": "You cannot use a language which inherits already.",
+      "tooltipLanguageNotChoosable": "You cannot use a language which is already inheriting from another language.",
       "tooltipLocaleNotChoosable": "You can only select locales which are not in use already.",
       "textAlertChangeParent": "Changing the parent language can lead to inconsistencies in your translations.",
       "titleAlertChangeParent": "Be aware",
       "textLocaleIsInUse": "This locale is already in use.",
-      "textLanguageHasParent": "This language already inherits."
+      "textLanguageHasParent": "This language is already inheriting from another language."
     }
   },
   "sw-settings-payment": {
@@ -1145,7 +1145,7 @@
       "notificationPasswordErrorTitle": "Password error",
       "notificationPasswordErrorMessage": "Invalid password.",
       "notificationSaveSuccessTitle": "Your profile",
-      "notificationSaveSuccessMessage": "Profile information have been saved successfully."
+      "notificationSaveSuccessMessage": "Profile information has been saved successfully."
     }
   },
   "sw-error": {

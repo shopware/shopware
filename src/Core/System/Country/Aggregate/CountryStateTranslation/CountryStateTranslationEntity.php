@@ -2,21 +2,15 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
-use Shopware\Core\System\Language\LanguageEntity;
 
-class CountryStateTranslationEntity extends Entity
+class CountryStateTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $countryStateId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -28,41 +22,6 @@ class CountryStateTranslationEntity extends Entity
      */
     protected $countryState;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getCountryStateId(): string
     {
         return $this->countryStateId;
@@ -71,16 +30,6 @@ class CountryStateTranslationEntity extends Entity
     public function setCountryStateId(string $countryStateId): void
     {
         $this->countryStateId = $countryStateId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string
@@ -101,15 +50,5 @@ class CountryStateTranslationEntity extends Entity
     public function setCountryState(CountryStateEntity $countryState): void
     {
         $this->countryState = $countryState;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

@@ -2,21 +2,15 @@
 
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\Language\LanguageEntity;
 
-class CurrencyTranslationEntity extends Entity
+class CurrencyTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $currencyId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -32,41 +26,6 @@ class CurrencyTranslationEntity extends Entity
      */
     protected $currency;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getCurrencyId(): string
     {
         return $this->currencyId;
@@ -75,16 +34,6 @@ class CurrencyTranslationEntity extends Entity
     public function setCurrencyId(string $currencyId): void
     {
         $this->currencyId = $currencyId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getShortName(): ?string
@@ -115,15 +64,5 @@ class CurrencyTranslationEntity extends Entity
     public function setCurrency(CurrencyEntity $currency): void
     {
         $this->currency = $currency;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

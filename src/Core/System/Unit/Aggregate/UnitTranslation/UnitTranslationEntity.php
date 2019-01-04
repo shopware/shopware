@@ -2,21 +2,15 @@
 
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
-class UnitTranslationEntity extends Entity
+class UnitTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $unitId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -33,41 +27,6 @@ class UnitTranslationEntity extends Entity
      */
     protected $unit;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getUnitId(): string
     {
         return $this->unitId;
@@ -76,16 +35,6 @@ class UnitTranslationEntity extends Entity
     public function setUnitId(string $unitId): void
     {
         $this->unitId = $unitId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getShortCode(): ?string
@@ -116,15 +65,5 @@ class UnitTranslationEntity extends Entity
     public function setUnit(UnitEntity $unit): void
     {
         $this->unit = $unit;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

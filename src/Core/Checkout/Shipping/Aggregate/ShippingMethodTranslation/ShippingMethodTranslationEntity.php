@@ -3,20 +3,14 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class ShippingMethodTranslationEntity extends Entity
+class ShippingMethodTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $shippingMethodId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -38,41 +32,6 @@ class ShippingMethodTranslationEntity extends Entity
      */
     protected $shippingMethod;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getShippingMethodId(): string
     {
         return $this->shippingMethodId;
@@ -81,16 +40,6 @@ class ShippingMethodTranslationEntity extends Entity
     public function setShippingMethodId(string $shippingMethodId): void
     {
         $this->shippingMethodId = $shippingMethodId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string
@@ -131,15 +80,5 @@ class ShippingMethodTranslationEntity extends Entity
     public function setShippingMethod(ShippingMethodEntity $shippingMethod): void
     {
         $this->shippingMethod = $shippingMethod;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

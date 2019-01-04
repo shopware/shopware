@@ -4,20 +4,14 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 
 use Shopware\Core\Content\Catalog\CatalogEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class ProductManufacturerTranslationEntity extends Entity
+class ProductManufacturerTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $productManufacturerId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var int
@@ -55,54 +49,9 @@ class ProductManufacturerTranslationEntity extends Entity
     protected $productManufacturer;
 
     /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
      * @var CatalogEntity|null
      */
     protected $catalog;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
-    }
 
     public function getProductManufacturerId(): string
     {
@@ -112,16 +61,6 @@ class ProductManufacturerTranslationEntity extends Entity
     public function setProductManufacturerId(string $productManufacturerId): void
     {
         $this->productManufacturerId = $productManufacturerId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string

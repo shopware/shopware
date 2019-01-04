@@ -3,10 +3,9 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class OrderTransactionStateTranslationEntity extends Entity
+class OrderTransactionStateTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
@@ -14,54 +13,14 @@ class OrderTransactionStateTranslationEntity extends Entity
     protected $orderTransactionStateId;
 
     /**
-     * @var string
-     */
-    protected $languageId;
-
-    /**
      * @var string|null
      */
     protected $description;
 
     /**
-     * @var LanguageEntity
-     */
-    protected $language;
-
-    /**
      * @var OrderTransactionStateEntity
      */
     protected $orderTransactionState;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
 
     public function getOrderTransactionStateId(): string
     {
@@ -73,16 +32,6 @@ class OrderTransactionStateTranslationEntity extends Entity
         $this->orderTransactionStateId = $orderTransactionStateId;
     }
 
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -91,16 +40,6 @@ class OrderTransactionStateTranslationEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getLanguage(): LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 
     public function getOrderTransactionState(): OrderTransactionStateEntity

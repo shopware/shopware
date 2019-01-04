@@ -3,20 +3,14 @@
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation;
 
 use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class ConfigurationGroupTranslationEntity extends Entity
+class ConfigurationGroupTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $configurationGroupId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -28,41 +22,6 @@ class ConfigurationGroupTranslationEntity extends Entity
      */
     protected $configurationGroup;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getConfigurationGroupId(): string
     {
         return $this->configurationGroupId;
@@ -71,16 +30,6 @@ class ConfigurationGroupTranslationEntity extends Entity
     public function setConfigurationGroupId(string $configurationGroupId): void
     {
         $this->configurationGroupId = $configurationGroupId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string
@@ -101,15 +50,5 @@ class ConfigurationGroupTranslationEntity extends Entity
     public function setConfigurationGroup(ConfigurationGroupEntity $configurationGroup): void
     {
         $this->configurationGroup = $configurationGroup;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

@@ -8,7 +8,6 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
@@ -105,11 +104,7 @@ class FileSaver
         $media = $this->updateMediaEntity($mediaFile, $destination, $currentMedia, $rawMetadata, $mediaType, $context);
         $this->saveFileToMediaDir($mediaFile, $media);
 
-        try {
-            $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
-        } catch (FileTypeNotSupportedException $e) {
-            //ignore wrong filetype
-        }
+        $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
     }
 
     /**

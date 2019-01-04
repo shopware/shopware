@@ -25,7 +25,6 @@ trait MediaFixtures
      */
     public function initializeMediaFixtures(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
         $thumbnailSize150Id = Uuid::uuid4()->getHex();
         $thumbnailSize300Id = Uuid::uuid4()->getHex();
 
@@ -62,7 +61,7 @@ trait MediaFixtures
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
-                'fileName' => 'jpgFileWithExtensionAndCatalog',
+                'fileName' => 'jpgFileWithExtension',
                 'fileSize' => 1024,
                 'mediaType' => new ImageType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
@@ -71,7 +70,7 @@ trait MediaFixtures
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'application/pdf',
                 'fileExtension' => 'pdf',
-                'fileName' => 'pdfFileWithExtensionAndCatalog',
+                'fileName' => 'pdfFileWithExtension',
                 'fileSize' => 1024,
                 'mediaType' => new DocumentType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
@@ -110,7 +109,7 @@ trait MediaFixtures
                 ],
             ],
             'MediaWithManufacturer' => [
-                'id' => $mediaId,
+                'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithManufacturer',
@@ -118,7 +117,6 @@ trait MediaFixtures
                     [
                         'id' => Uuid::uuid4()->getHex(),
                         'name' => 'manufacturer',
-                        'mediaId' => $mediaId,
                     ],
                 ],
             ],
@@ -126,7 +124,7 @@ trait MediaFixtures
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
-                'fileName' => 'pngFileWithExtension',
+                'fileName' => 'pngFileWithExtensionAndFolder',
                 'fileSize' => 1024,
                 'mediaType' => new ImageType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
@@ -156,7 +154,7 @@ trait MediaFixtures
                 'id' => Uuid::uuid4()->getHex(),
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
-                'fileName' => 'jpgFileWithExtensionAndCatalog',
+                'fileName' => 'jpgFileWithExtensionAndFolder',
                 'fileSize' => 1024,
                 'mediaType' => new ImageType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),

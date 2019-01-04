@@ -30,7 +30,7 @@ class DeleteNotUsedMediaCommand extends Command
     {
         $this
             ->setName('media:delete-unused')
-            ->setDescription('deletes all media files that are never used')
+            ->setDescription('Deletes all media files that are never used')
         ;
     }
 

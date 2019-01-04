@@ -52,7 +52,7 @@ class GenerateMediaTypesCommand extends Command
     {
         $this
             ->setName('media:generate-media-types')
-            ->setDescription('generates the media type for all media entities')
+            ->setDescription('Generates the media type for all media entities')
             ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
         ;
     }

@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -32,26 +35,30 @@ class GenerateThumbnailsCommand extends Command
     private $mediaRepository;
 
     /**
-     * @var int int
-     */
-    private $generatedCounter;
-
-    /**
-     * @var int int
-     */
-    private $skippedCounter;
-
-    /**
      * @var int
      */
     private $batchSize;
 
-    public function __construct(ThumbnailService $thumbnailService, EntityRepository $mediaRepository)
-    {
+    /**
+     * @var Filter | null
+     */
+    private $folderFilter;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $mediaFolderRepository;
+
+    public function __construct(
+        ThumbnailService $thumbnailService,
+        EntityRepository $mediaRepository,
+        RepositoryInterface $mediaFolderRepository
+    ) {
         parent::__construct();
 
         $this->thumbnailService = $thumbnailService;
         $this->mediaRepository = $mediaRepository;
+        $this->mediaFolderRepository = $mediaFolderRepository;
     }
 
     /**
@@ -61,8 +68,20 @@ class GenerateThumbnailsCommand extends Command
     {
         $this
             ->setName('media:generate-thumbnails')
-            ->setDescription('generates the thumbnails for all media entities')
-            ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
+            ->setDescription('Generates the thumbnails for media entities')
+            ->addOption(
+                'batch-size',
+                'b',
+                InputOption::VALUE_REQUIRED,
+                'Number of entities per iteration',
+                '50'
+            )
+            ->addOption(
+                'folder-name',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'An optional folder name to create thumbnails'
+            )
         ;
     }
 
@@ -71,84 +90,104 @@ class GenerateThumbnailsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->generatedCounter = 0;
-        $this->skippedCounter = 0;
-
         $this->io = new SymfonyStyle($input, $output);
-
         $context = Context::createDefaultContext();
-        $this->batchSize = $this->validateBatchSize($input);
 
-        $this->io->comment('Starting to generate Thumbnails. This may take some time...');
-        $this->io->progressStart($this->getMediaCount($context));
+        $this->initializeCommand($input, $context);
 
-        $this->generateThumbnails($context);
+        $mediaIterator = new RepositoryIterator($this->mediaRepository, $context, $this->createCriteria());
+
+        $totalMediaCount = $mediaIterator->getTotal();
+        $this->io->comment(sprintf('Generating Thumbnails for %d files. This may take some time...', $totalMediaCount));
+        $this->io->progressStart($totalMediaCount);
+
+        $result = $this->generateThumbnails($mediaIterator, $context);
 
         $this->io->progressFinish();
         $this->io->table(
             ['Action', 'Number of Media Entities'],
             [
-                ['Generated', $this->generatedCounter],
-                ['Skipped', $this->skippedCounter],
+                ['Generated', $result['generated']],
+                ['Skipped', $result['skipped']],
             ]
         );
     }
 
-    private function validateBatchSize(InputInterface $input): int
+    private function initializeCommand(InputInterface $input, Context $context)
     {
-        $batchSize = $input->getOption('batch-size');
-        if (!$batchSize) {
-            return 100;
-        }
-
-        if (!is_numeric($batchSize)) {
-            throw new \Exception('BatchSize is not numeric');
-        }
-
-        return (int) $batchSize;
+        $this->folderFilter = $this->getFolderFilterFromInput($input, $context);
+        $this->batchSize = $this->getBatchSizeFromInput($input);
     }
 
-    private function getMediaCount(Context $context): int
+    private function getBatchSizeFromInput(InputInterface $input): int
     {
-        $criteria = new Criteria();
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-        $criteria->setLimit(0);
-        $result = $this->mediaRepository->search($criteria, $context);
+        $rawInput = $input->getOption('batch-size');
 
-        return $result->getTotal();
+        if (!is_numeric($rawInput)) {
+            throw new \UnexpectedValueException('Batch size must be numeric');
+        }
+
+        return (int) $rawInput;
     }
 
-    private function generateThumbnails($context): void
+    private function getFolderFilterFromInput(InputInterface $input, Context $context)
     {
-        $criteria = $this->createCriteria();
+        $rawInput = $input->getOption('folder-name');
+        if (!$rawInput) {
+            return null;
+        }
 
-        do {
-            $result = $this->mediaRepository->search($criteria, $context);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('name', $rawInput));
+
+        $searchResult = $this->mediaFolderRepository->search($criteria, $context);
+
+        if ($searchResult->getTotal() === 0) {
+            throw new \UnexpectedValueException(
+                sprintf(
+                    'Could not find a folder with the name: "%s"',
+                    $rawInput
+                )
+            );
+        }
+
+        return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());
+    }
+
+    private function generateThumbnails(RepositoryIterator $iterator, Context $context): array
+    {
+        $generated = 0;
+        $skipped = 0;
+
+        while (($result = $iterator->fetch()) !== null) {
             foreach ($result->getEntities() as $media) {
-                $this->generateThumbnail($context, $media);
+                if ($this->thumbnailService->updateThumbnails($media, $context) > 0) {
+                    ++$generated;
+                } else {
+                    ++$skipped;
+                }
             }
             $this->io->progressAdvance($result->count());
-            $criteria->setOffset($criteria->getOffset() + $this->batchSize);
-        } while ($result->getTotal() > $this->batchSize);
-    }
-
-    private function generateThumbnail(Context $context, MediaEntity $media): void
-    {
-        try {
-            $this->thumbnailService->deleteThumbnails($media, $context);
-            $this->thumbnailService->generateThumbnails($media, $context);
-
-            ++$this->generatedCounter;
-        } catch (FileTypeNotSupportedException $e) {
-            ++$this->skippedCounter;
         }
+
+        return [
+            'generated' => $generated,
+            'skipped' => $skipped,
+        ];
     }
 
     private function createCriteria(): Criteria
     {
         $criteria = new Criteria();
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+        $criteria->setOffset(0);
         $criteria->setLimit($this->batchSize);
+        $criteria->addFilter(new EqualsFilter('media.mediaFolder.configuration.createThumbnails', true));
+
+        if ($this->folderFilter) {
+            $criteria->addFilter($this->folderFilter);
+        }
+
+        $criteria->addAssociation('media.mediaFolder');
 
         return $criteria;
     }

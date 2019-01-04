@@ -50,7 +50,7 @@ module.exports = {
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/customer/create"]')
             .click('.smart-bar__actions a[href="#/sw/customer/create"]')
             .waitForElementVisible('.sw-customer-base-form')
-            .fillSelectField('select[name=sw-field--customer-salesChannelId]', '1st Epic Sales Channel');
+            .fillSelectField('select[name=sw-field--customer-salesChannelId]', '1st Epic Sales Channel', false);
     },
     after: (browser) => {
         browser.end();

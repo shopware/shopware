@@ -42,7 +42,7 @@ module.exports = {
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
-            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'MAN-U-FACTURE');
+            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'MAN-U-FACTURE', false);
     },
     after: (browser) => {
         browser.end();

@@ -34,6 +34,8 @@ module.exports = {
         exec(`${process.env.PROJECT_ROOT}psh.phar e2e:restore-db`).then(() => {
             console.log('• ✓ - Done with reset');
             done();
+        }).catch((err) => {
+            console.error(err);
         });
     }
 };

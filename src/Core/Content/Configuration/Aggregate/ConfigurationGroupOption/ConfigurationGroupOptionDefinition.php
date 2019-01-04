@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 
 class ConfigurationGroupOptionDefinition extends EntityDefinition
 {
@@ -59,12 +60,14 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('configuration_group_id', 'groupId', ConfigurationGroupDefinition::class))->addFlags(new Required()),
-            new TranslatedField('name'),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            new TranslatedField('position'),
             new StringField('color_hex_code', 'colorHexCode'),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, true),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
+            new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, false),
             (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_group_option_id', false, 'id'))->addFlags(new CascadeDelete()),

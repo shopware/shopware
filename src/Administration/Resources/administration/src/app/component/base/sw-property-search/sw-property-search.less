@@ -1,0 +1,35 @@
+@import "~less/variables";
+
+.sw-property-search .sw-property-search__tree_selection {
+    width: 100%;
+}
+
+.sw-property-search.overlay .sw-property-search__tree_selection {
+    position: absolute;
+    z-index: 1000;
+    border: 1px solid @color-steam-cloud;
+    border-radius: 4px;
+    background-color: @color-white;
+    box-shadow: 0 3px 6px 0 lighten(@color-steam-cloud, 30%);
+}
+
+.sw-property-search .sw-property-search__search_selection {
+    width: 100%;
+}
+
+.sw-property-search.overlay .sw-property-search__search_selection {
+    position: absolute;
+    z-index: 1000;
+    border: 1px solid @color-steam-cloud;
+    border-radius: 4px;
+    background-color: @color-white;
+    box-shadow: 0 3px 6px 0 lighten(@color-steam-cloud, 30%);
+}
+
+.sw-property-search .sw-property-search__search-field {
+    margin-bottom: 0;
+}
+
+.sw-property-search .sw-property-search__tree_selection .sw-property-search__tree_selection__group_grid {
+    border-right: 1px solid @color-steam-cloud;
+}

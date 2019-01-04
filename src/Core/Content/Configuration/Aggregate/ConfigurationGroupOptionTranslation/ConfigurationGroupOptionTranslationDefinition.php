@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
 class ConfigurationGroupOptionTranslationDefinition extends EntityTranslationDefinition
@@ -30,10 +32,19 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityTranslationDef
         return ConfigurationGroupOptionDefinition::class;
     }
 
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        $defaults = parent::getDefaults($existence);
+        $defaults['position'] = 1;
+
+        return $defaults;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
+            new IntField('position', 'position'),
         ]);
     }
 }

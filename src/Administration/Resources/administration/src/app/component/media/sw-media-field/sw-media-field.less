@@ -13,9 +13,28 @@
 @sw-media-field-color-picker-toggle:              @color-shopware-blue;
 @sw-media-field-color-unlink:                     @color-crimson;
 
+.sw-grid__cell-content {
+    .sw-media-field {
+        margin-bottom: 0px;
+    }
+    .sw-media-field-picker .sw-simple-search-field {
+        margin-bottom: 15px;
+    }
+}
+
 .sw-media-field {
     position: relative;
     margin-bottom: 22px;
+
+    .sw-media-base-item .sw-media-base-item__preview-container {
+        border: none;
+    }
+
+    .sw-media-field__input .sw-media-base-item.is--list {
+        padding: 2px 2px 2px 7px;
+        border: none;
+        margin-bottom: 0;
+    }
 
     .sw-media-field__label {
         display: block;
@@ -49,17 +68,6 @@
 
         &.is--active {
             border: 1px solid @sw-media-field-border-color-input-active;
-        }
-
-        .sw-media-preview {
-            position: relative;
-
-            .sw-media-preview__item {
-                width: 100%;
-                height: auto;
-                max-width: none;
-                max-height: none;
-            }
         }
     }
 

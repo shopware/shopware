@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -22,6 +23,11 @@ class ConfigurationGroupOptionEntity extends Entity
      * @var string|null
      */
     protected $name;
+
+    /**
+     * @var int
+     */
+    protected $position;
 
     /**
      * @var string|null
@@ -72,6 +78,11 @@ class ConfigurationGroupOptionEntity extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var MediaEntity|null
+     */
+    protected $media;
 
     public function getCreatedAt(): \DateTime
     {
@@ -191,5 +202,25 @@ class ConfigurationGroupOptionEntity extends Entity
     public function setProductVariations(ProductCollection $productVariations): void
     {
         $this->productVariations = $productVariations;
+    }
+
+    public function getMedia(): ?MediaEntity
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?MediaEntity $media): void
+    {
+        $this->media = $media;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

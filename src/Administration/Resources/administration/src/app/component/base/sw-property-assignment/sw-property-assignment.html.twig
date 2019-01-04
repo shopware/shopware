@@ -1,0 +1,18 @@
+<div class="sw-property-assignment">
+
+    <sw-property-search ref="searchField" :collapsible="false" :overlay="false" :options="options" @sw-property-search-option-selected="onSelectOption"/>
+
+    <sw-grid class="sw-property-assignment__grid" ref="grid" :selectable="false" :items="groups" :isFullpage="false" table>
+        <template slot="columns" slot-scope="{ item }">
+            <sw-grid-column flex="200px" dataIndex="group.name" label="Eigenschaft">
+                {{ item.group.name }}
+            </sw-grid-column>
+
+            <sw-grid-column dataIndex="options" label="Optionen" flex="minmax(100px, 1fr)" class="sw-property-assignment__grid_option_column">
+                <div class="sw-property-assignment__grid_option_item" v-for="(option, index) in item.options" :key="option.id">
+                    <span class="sw-property-assignment__grid_option_item_value">{{ option.name }}</span><span class="sw-property-assignment__grid_option_item_delete" @click="deleteOption(option)"><sw-icon name="default-basic-x-line" size="14" /></span>
+                </div>
+            </sw-grid-column>
+        </template>
+    </sw-grid>
+</div>

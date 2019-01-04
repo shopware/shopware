@@ -11,7 +11,8 @@ Mixin.register('listing', {
             total: 0,
             sortBy: null,
             sortDirection: 'ASC',
-            term: ''
+            term: '',
+            disableRouteParams: false
         };
     },
 
@@ -30,13 +31,6 @@ Mixin.register('listing', {
         }
     },
 
-    watch: {
-        '$route.query.page'() {
-            this.getDataFromRoute();
-            this.getList();
-        }
-    },
-
     created() {
         this.getDataFromRoute();
         this.updateRoute();
@@ -45,6 +39,10 @@ Mixin.register('listing', {
 
     methods: {
         getDataFromRoute() {
+            if (this.disableRouteParams) {
+                return {};
+            }
+
             const params = this.$route.query;
 
             this.page = parseInt(params.page, 10) || this.page;
@@ -71,6 +69,10 @@ Mixin.register('listing', {
         },
 
         updateRoute() {
+            if (this.disableRouteParams) {
+                return;
+            }
+
             const params = this.getListingParams();
 
             if (params.criteria) {
@@ -81,6 +83,10 @@ Mixin.register('listing', {
             const previousParams = this.$route.query;
             let pageHasChanged = parseInt(previousParams.page, 10) !== params.page;
 
+            if (!params.term) {
+                delete previousParams.term;
+            }
+
             // Don't push another item onto the stack, if the component has not been mounted yet, to prevent duplicate
             // items that effectively load the same list
             if (typeof this.$el === 'undefined') {
@@ -89,7 +95,7 @@ Mixin.register('listing', {
 
             const route = {
                 name: this.routeName,
-                query: { ...this.$route.query, ...params }
+                query: { ...previousParams, ...params }
             };
 
             if (pageHasChanged) {

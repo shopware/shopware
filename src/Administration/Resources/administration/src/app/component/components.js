@@ -5,6 +5,8 @@ import './base/sw-button';
 import './base/sw-button-group';
 import './base/sw-icon';
 import './base/sw-product-image';
+import './base/sw-property-assignment';
+import './base/sw-property-search';
 import './base/sw-simple-search-field';
 import './base/sw-alert';
 import './base/sw-avatar';

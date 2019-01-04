@@ -180,6 +180,17 @@ export default class EntityStore {
     }
 
     /**
+     * Check if the given id exists
+     *
+     * @memberOf module:core/data/EntityStore
+     * @param {string} id
+     * @return {boolean}
+     */
+    hasId(id) {
+        return this.store[id] !== undefined;
+    }
+
+    /**
      * Removes an entity from the store.
      *
      * @memberOf module:core/data/EntityStore

@@ -151,9 +151,10 @@ export default class EntityProxy {
      * @param {Object} data
      * @param {Boolean} [removeAssociationKeysFromData=true]
      * @param {Boolean} [populateAssociations=false]
+     * @param {Boolean} [keepChanges=true]
      * @return {void}
      */
-    setData(data, removeAssociationKeysFromData = true, populateAssociations = false) {
+    setData(data, removeAssociationKeysFromData = true, populateAssociations = false, keepChanges = true) {
         const associatedProps = this.associatedEntityPropNames;
 
         if (populateAssociations === true) {
@@ -168,7 +169,15 @@ export default class EntityProxy {
             });
         }
 
-        this.draft = data;
+        // always keep local changes, even if data is reloaded from server
+        let draft = data;
+        if (keepChanges === true) {
+            const changes = this.getChanges();
+
+            draft = Object.assign({}, data, changes);
+        }
+
+        this.draft = draft;
         this.original = data;
         this.isLocal = false;
     }

@@ -18,6 +18,11 @@ class ConfigurationGroupTranslationEntity extends TranslationEntity
     protected $name;
 
     /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
      * @var ConfigurationGroupEntity|null
      */
     protected $configurationGroup;
@@ -50,5 +55,15 @@ class ConfigurationGroupTranslationEntity extends TranslationEntity
     public function setConfigurationGroup(ConfigurationGroupEntity $configurationGroup): void
     {
         $this->configurationGroup = $configurationGroup;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 }

@@ -1,0 +1,70 @@
+<sw-card :isLoading="group.isLoading" class="sw-configuration-option-list">
+    <div class="sw-configuration-option-list__toolbar">
+
+        <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
+            <sw-simple-search-field @searchTermChanged="onSearch" v-model="term" />
+
+            <sw-button :disabled="deleteButtonDisabled" @click="onDeleteOptions" square size="small" class="sw-configuration-option-list__delete-button">
+                <sw-icon name="default-action-trash" size="14" color="#DE294C" />
+            </sw-button>
+
+            <sw-button :disabled="group.isLoading" @click="onAddOption(group)" size="small" class="sw-configuration-option-list__add-button">
+                {{ $tc('sw-configuration.detail.addOption') }}
+            </sw-button>
+        </sw-container>
+    </div>
+
+    <sw-grid v-if="options.length || term" class="sw-configuration-option-list__grid" ref="grid" :items="options" :isFullpage="false" table selectable @inline-edit-cancel="onInlineEditCancel" @sw-grid-select-item="selectionChanged" >
+        <template slot="columns" slot-scope="{ item }">
+
+            <sw-grid-column dataIndex="name" editable truncate flex="minmax(150px, 1fr)" :label="$tc('sw-configuration.detail.labelOptionName')">
+                {{ item.name }}
+                <sw-field type="text" slot="inline-edit" v-model="item.name" />
+            </sw-grid-column>
+
+            <sw-grid-column dataIndex="mediaId" flex="250px" :label="$tc('sw-configuration.detail.labelOptionMedia')" class="media-column">
+                <sw-media-field v-model="item.mediaId"></sw-media-field>
+            </sw-grid-column>
+
+            <sw-grid-column dataIndex="colorHexCode" editable flex="100px" :label="$tc('sw-configuration.detail.labelOptionColor')">
+                {{ item.colorHexCode }}
+                <sw-field type="text" slot="inline-edit" v-model="item.colorHexCode" />
+            </sw-grid-column>
+
+            <sw-grid-column dataIndex="position" editable flex="100px" :label="$tc('sw-configuration.detail.labelOptionPosition')">
+                {{ item.position }}
+                <sw-field type="number" slot="inline-edit" v-model="item.position" step="1" pattern="[0-9]" />
+            </sw-grid-column>
+
+            <sw-grid-column flex="minmax(100px, 100px)" align="center">
+                <sw-context-button>
+                    <sw-context-menu-item @click="onOptionEdit(item)" v-if="item.isDeleted" disabled>
+                        {{ $tc('sw-configuration.detail.contextMenuOptionView') }}
+                    </sw-context-menu-item>
+
+                    <sw-context-menu-item @click="onOptionEdit(item)" v-else>
+                        {{ $tc('sw-configuration.detail.contextMenuOptionView') }}
+                    </sw-context-menu-item>
+
+                    <sw-context-menu-item variant="success" @click="onOptionResetDelete(item)" v-if="item.isDeleted">
+                        {{ $tc('sw-configuration.detail.contextMenuOptionResetDelete') }}
+                    </sw-context-menu-item>
+
+                    <sw-context-menu-item variant="danger" @click="onOptionDelete(item)" v-else>
+                        {{ $tc('sw-configuration.detail.contextMenuOptionDelete') }}
+                    </sw-context-menu-item>
+                </sw-context-button>
+            </sw-grid-column>
+        </template>
+
+        <template slot="pagination">
+            <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="onPageChange" :steps="[10]" />
+        </template>
+    </sw-grid>
+
+    <sw-empty-state v-else-if="!group.isLoading && !total" :title="$tc('sw-configuration.detail.messageOptionsEmpty')"></sw-empty-state>
+
+    <sw-configuration-option-detail v-if="currentOption" :currentOption="currentOption" @save-option-edit="onSaveOption" @cancel-option-edit="onCancelOption" />
+
+    <sw-loader v-if="isLoading"></sw-loader>
+</sw-card>

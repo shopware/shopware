@@ -4,7 +4,13 @@
             <label v-if="label" class="sw-media-field__label">{{ label }}</label>
             <div class="sw-media-field__input" :class="mediaFieldClasses">
                 {% block sw_media_field_preview %}
-                    <sw-media-preview v-if="mediaEntity" :item="mediaEntity"></sw-media-preview>
+                    <sw-media-media-item class="sw-media-field-media__list-item"
+                                         v-if="mediaEntity"
+                                         :item="mediaEntity"
+                                         :isList="true"
+                                         :showContextMenuButton="false"
+                                         @sw-media-item-clicked="mediaItemChanged(suggestion.id)">
+                    </sw-media-media-item>
                     <div v-else class="sw-media-field__empty-preview"></div>
                 {% endblock %}
 

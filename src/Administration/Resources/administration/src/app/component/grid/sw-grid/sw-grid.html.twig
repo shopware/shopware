@@ -58,7 +58,7 @@
                                                      :item="item"
                                                      :index="index"
                                                      @inline-edit-finish="onInlineEditFinish"
-                                                     :class="{ 'is--selected': isSelected(item.id) }">
+                                                     :class="{ 'is--selected': isSelected(item.id), 'is--deleted': item.isDeleted, 'is--new': item.isLocal}">
 
                                             {% block sw_grid_body_item_selectable %}
                                                 <div class="sw-grid-column" v-if="selectable">

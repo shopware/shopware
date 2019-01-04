@@ -27,6 +27,21 @@ class ConfigurationGroupEntity extends Entity
     protected $comparable;
 
     /**
+     * @var string
+     */
+    protected $displayType;
+
+    /**
+     * @var string
+     */
+    protected $sortingType;
+
+    /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
      * @var int
      */
     protected $position;
@@ -129,5 +144,35 @@ class ConfigurationGroupEntity extends Entity
     public function setTranslations(ConfigurationGroupTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getDisplayType(): string
+    {
+        return $this->displayType;
+    }
+
+    public function setDisplayType(string $displayType): void
+    {
+        $this->displayType = $displayType;
+    }
+
+    public function getSortingType(): string
+    {
+        return $this->sortingType;
+    }
+
+    public function setSortingType(string $sortingType): void
+    {
+        $this->sortingType = $sortingType;
     }
 }

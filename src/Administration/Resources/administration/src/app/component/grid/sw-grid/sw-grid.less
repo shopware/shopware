@@ -3,6 +3,8 @@
 @sw-grid-item-color-border:               @color-steam-cloud;
 @sw-grid-item-color-background:           @color-light-gray;
 @sw-grid-item-even-color-background:      @color-white;
+@sw-grid-item-color-background-deleted:   @color-crimson;
+@sw-grid-item-color-background-new:       @color-emerald;
 @sw-grid-item-active-color-border:        @color-shopware-blue;
 @sw-grid-item-active-color-background:    @color-cadet-blue;
 @sw-grid-item-active-color-text:          @color-black;
@@ -43,6 +45,14 @@
 
             &.is--selected {
                 background-color: @sw-grid-item-active-color-background;
+            }
+
+            &.is--deleted {
+                background-color: lighten(@sw-grid-item-color-background-deleted, 45%);
+            }
+
+            &.is--new {
+                background-color: lighten(@sw-grid-item-color-background-new, 45%);
             }
         }
 

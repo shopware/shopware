@@ -1,0 +1,21 @@
+<sw-page class="sw-configuration-detail">
+    <template slot="smart-bar-header">
+        <h2 v-if="group.name">{{ group.name }}</h2>
+        <h2 v-else>{{ $tc('sw-configuration.detail.textHeadline') }}</h2>
+    </template>
+
+    <template slot="smart-bar-actions">
+            <sw-button :disabled="group.isLoading" :routerLink="{ name: 'sw.configuration.index' }">
+                {{ $tc('sw-configuration.detail.buttonCancel') }}
+            </sw-button>
+
+            <sw-button variant="primary" class="sw-configuration-detail__save-action" :disabled="group.isLoading" @click.prevent="onSave">
+                {{ $tc('sw-configuration.detail.buttonSave') }}
+            </sw-button>
+    </template>
+
+    <sw-card-view slot="content" sidebar>
+        <sw-configuration-detail-base :group="group" />
+        <sw-configuration-option-list :group="group" ref="optionListing" v-if="group.sortingType" />
+    </sw-card-view>
+</sw-page>

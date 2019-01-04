@@ -1,0 +1,20 @@
+<sw-modal @closeModal="onCancel" :title="currentOption.name ? currentOption.name : $tc('sw-configuration.detail.textOptionHeadline')">
+
+    <sw-field v-model="currentOption.name" type="text" validation="required" :label="$tc('sw-configuration.detail.labelOptionName')" :placeholder="$tc('sw-configuration.detail.placeholderOptionName')" />
+
+    <sw-field v-model="currentOption.position" type="number" step="1" pattern="[0-9]" :label="$tc('sw-configuration.detail.labelOptionPosition')" />
+
+    <sw-field v-model="currentOption.colorHexCode" type="text" :label="$tc('sw-configuration.detail.labelOptionColor')" />
+
+    <sw-media-field v-model="currentOption.mediaId"></sw-media-field>
+
+    <template slot="modal-footer">
+        <sw-button size="small" @click="onCancel">
+            {{ $tc('sw-configuration.detail.buttonCancel') }}
+        </sw-button>
+
+        <sw-button variant="primary" size="small" @click="onSave">
+            {{ $tc('sw-configuration.detail.buttonApply') }}
+        </sw-button>
+    </template>
+</sw-modal>

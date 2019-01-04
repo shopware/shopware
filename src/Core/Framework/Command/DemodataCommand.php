@@ -150,6 +150,11 @@ class DemodataCommand extends Command
     /**
      * @var EntityRepositoryInterface
      */
+    private $configurationGroupRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $defaultFolderRepository;
 
     public function __construct(
@@ -165,6 +170,7 @@ class DemodataCommand extends Command
         EntityRepositoryInterface $categoryRepository,
         EntityRepositoryInterface $taxRepository,
         EntityRepositoryInterface $defaultFolderRepository,
+        EntityRepositoryInterface $configurationGroupRepository,
         string $kernelEnv,
         string $projectDir
     ) {
@@ -183,6 +189,7 @@ class DemodataCommand extends Command
         $this->mediaUpdater = $mediaUpdater;
         $this->kernelEnv = $kernelEnv;
         $this->projectDir = $projectDir;
+        $this->configurationGroupRepository = $configurationGroupRepository;
         $this->defaultFolderRepository = $defaultFolderRepository;
     }
 
@@ -195,6 +202,7 @@ class DemodataCommand extends Command
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', 200);
         $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', 100);
+        $this->addOption('properties', '', InputOption::VALUE_REQUIRED, 'Property group count (option count rand(30-300)', 10);
 
         $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 0);
         $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables services for products', 1);
@@ -225,6 +233,8 @@ class DemodataCommand extends Command
         } catch (Exception $e) {
             $this->io->warning('Could not create default customer: ' . $e->getMessage());
         }
+
+        $this->createProperties((int) $input->getOption('properties'));
 
         $categories = $this->createCategory((int) $input->getOption('categories'));
 
@@ -473,6 +483,8 @@ class DemodataCommand extends Command
 
         $taxes = array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
 
+        $properties = $this->getProperties();
+
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $rules, $taxes);
 
@@ -499,11 +511,17 @@ class DemodataCommand extends Command
 
             if ($isConfigurator) {
                 $product['configurators'] = $this->buildProductConfigurator($configurator);
-
-                $product['datasheet'] = array_map(function ($config) {
-                    return ['id' => $config['optionId']];
-                }, $product['configurators']);
             }
+
+            $productProperties = \array_slice(
+                $properties,
+                random_int(0, count($properties) - 20),
+                random_int(10, 30)
+            );
+
+            $product['datasheet'] = array_map(function ($config) {
+                return ['id' => $config];
+            }, $productProperties);
 
             if ($isConfigurator) {
                 $this->io->progressAdvance();
@@ -1130,5 +1148,60 @@ class DemodataCommand extends Command
         }
 
         return $mediaFolderId;
+    }
+
+    private function createProperties(int $count)
+    {
+        if ($count <= 0) {
+            return [];
+        }
+
+        $this->io->writeln("Generating {$count} property groups");
+
+        $this->io->progressStart($count);
+
+        $context = Context::createDefaultContext();
+
+        $optionIds = [];
+
+        for ($i = 0; $i <= $count; ++$i) {
+            $options = [];
+
+            $x = random_int(20, 100);
+
+            for ($i2 = 0; $i2 <= $x; ++$i2) {
+                $id = Uuid::uuid4()->getHex();
+                $optionIds[] = $id;
+                $options[] = ['id' => $id, 'name' => $this->faker->colorName];
+            }
+
+            $this->configurationGroupRepository->create(
+                [
+                    [
+                        'id' => Uuid::uuid4()->getHex(),
+                        'name' => $this->faker->word,
+                        'options' => $options,
+                        'description' => $this->faker->text,
+                        'sorting_type' => 'numeric',
+                        'display_type' => 'text'
+                    ],
+                ],
+                $context
+            );
+
+            $this->io->progressAdvance(1);
+        }
+        $this->io->progressFinish();
+        return $optionIds;
+    }
+
+    private function getProperties()
+    {
+        $options = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM configuration_group_option LIMIT 5000');
+        if (!empty($options)) {
+            return array_column($options, 'id');
+        }
+
+        return $this->createProperties(10);
     }
 }

@@ -627,6 +627,7 @@
       "buttonSave": "Speichern",
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise",
+      "tabProperties": "Eigenschaften",
       "titleSaveSuccess": "Produkte",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
@@ -1235,5 +1236,63 @@
       "messagePlaceholder": "Es ist ein Fehler aufgetreten und die Seite konnte nicht geladen werden",
       "textLink": "Zurück"
     }
+  },
+  "sw-configuration": {
+    "general": {
+      "placeholderSearchBar": "Durchsuche alle Eigenschaften",
+      "mainMenuItemGeneral": "Eigenschaften",
+      "descriptionTextModule": "Verwaltung von Eigenschaften"
+    },
+    "list": {
+      "textConfigurations": "Eigenschaften",
+      "buttonAddConfiguration": "Hinzufügen",
+      "columnName": "Eigenschaft",
+      "columnOptions":"Eigenschaft Optionen",
+      "contextMenuView": "Bearbeiten",
+      "contextMenuDelete":"Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "messageEmpty": "Noch keine Eigenschaften",
+      "columnDescription": "Beschreibung",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "modalTitleDelete": "Eigenschaften",
+      "textDeleteConfirm": "Möchtest Du die Eigenschaft \"{name}\" wirklich löschen?"
+    },
+    "detail": {
+      "mediaDisplayType": "Bild",
+      "textDisplayType": "Text",
+      "colorDisplayType":  "Farbe",
+      "numericSortingType": "Numerisch",
+      "alphanumericSortingType": "Alphanumerisch",
+      "positionSortingType": "Individuell",
+      "cardTitleGroupInfo": "Basis Information",
+      "labelName": "Name",
+      "placeholderName": "Namen eingeben",
+      "labelDisplayType": "Darstellung",
+      "labelSortingType": "Sortierung",
+      "labelOptionName": "Name",
+      "labelOptionColor": "Farbe",
+      "labelOptionMedia": "Bild",
+      "placeholderOptionName": "Name eingeben",
+      "labelOptionPosition": "Position",
+      "addMediaCaption": "Bild verwenden",
+      "buttonApply": "Übernehmen",
+      "contextMenuOptionView": "Editieren",
+      "contextMenuOptionDelete": "Löschen",
+      "textHeadline": "Neue Eigenschaft",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "labelDescription": "Beschreibung",
+      "placeholderOptionSearch": "Suche nach Optionen",
+      "addOption": "Neue hinzufügen",
+      "contextMenuOptionResetDelete": "Wiederherstellen",
+      "textOptionHeadline": "Neue Option",
+      "titleSaveSuccess": "Eigenschaft",
+      "messageSaveSuccess": "Eigenschaft erfolgreich gespeichert",
+      "messageOptionsEmpty": "Noch keine Optionen"
+    }
+  },
+  "sw-property-search": {
+    "selected": "ausgewählt"
   }
 }

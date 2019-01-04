@@ -1,0 +1,29 @@
+@import "~less/variables";
+
+.sw-property-assignment__grid_option_item {
+    padding: 10px 10px;
+    background: @color-light-gray;
+    margin-right: 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.sw-property-assignment__grid_option_item_value {
+    margin-right: 10px;
+}
+
+.sw-property-assignment .sw-property-assignment__grid_option_column {
+    overflow: scroll;
+    .sw-grid__cell-content {
+        display: block;
+    }
+}
+
+.sw-property-assignment__grid_option_item_delete {
+    cursor: pointer;
+    &:hover {
+        color: @color-shopware-blue;
+    }
+}
+

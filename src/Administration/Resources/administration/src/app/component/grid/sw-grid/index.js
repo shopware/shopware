@@ -165,6 +165,11 @@ Component.register('sw-grid', {
             });
         },
 
+        onInlineEditFinish(item) {
+            this.editing = null;
+            this.$emit('inline-edit-finish', item);
+        },
+
         registerInlineEditingEvents() {
             this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
             this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
@@ -178,11 +183,6 @@ Component.register('sw-grid', {
             this.editing = id;
         },
 
-        onInlineEditFinish(item) {
-            this.editing = null;
-            this.$emit('inline-edit-finish', item);
-        },
-
         disableActiveInlineEditing() {
             this.editing = null;
         },
@@ -190,11 +190,11 @@ Component.register('sw-grid', {
         selectAll(selected) {
             this.selection = {};
 
-            if (selected) {
-                this.items.forEach((item) => {
-                    this.selection[item.id] = item;
-                });
-            }
+            this.items.forEach((item) => {
+                if (this.isSelected(item.id) !== selected) {
+                    this.selectItem(selected, item);
+                }
+            });
 
             this.allSelectedChecked = selected;
             this.$emit('sw-grid-select-all', this.selection);

@@ -3,22 +3,16 @@
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class PaymentMethodTranslationEntity extends Entity
+class PaymentMethodTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;
     /**
      * @var string
      */
     protected $paymentMethodId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -31,44 +25,9 @@ class PaymentMethodTranslationEntity extends Entity
     protected $additionalDescription;
 
     /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
      * @var PaymentMethodEntity
      */
     protected $paymentMethod;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
 
     public function getPaymentMethodId(): string
     {
@@ -78,16 +37,6 @@ class PaymentMethodTranslationEntity extends Entity
     public function setPaymentMethodId(string $paymentMethodId): void
     {
         $this->paymentMethodId = $paymentMethodId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string
@@ -118,15 +67,5 @@ class PaymentMethodTranslationEntity extends Entity
     public function setPaymentMethod(PaymentMethodEntity $paymentMethod): void
     {
         $this->paymentMethod = $paymentMethod;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

@@ -4,10 +4,10 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Core\Content\Catalog\CatalogEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 
-class CategoryTranslationEntity extends Entity
+class CategoryTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
@@ -18,11 +18,6 @@ class CategoryTranslationEntity extends Entity
      * @var int
      */
     protected $catalogId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -79,36 +74,6 @@ class CategoryTranslationEntity extends Entity
      */
     protected $catalog;
 
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getCategoryId(): string
     {
         return $this->categoryId;
@@ -117,16 +82,6 @@ class CategoryTranslationEntity extends Entity
     public function setCategoryId(string $categoryId): void
     {
         $this->categoryId = $categoryId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getLanguageParentId(): ?string
@@ -217,16 +172,6 @@ class CategoryTranslationEntity extends Entity
     public function setCategory(CategoryEntity $category): void
     {
         $this->category = $category;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 
     public function getCatalogId(): int

@@ -3,22 +3,16 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class DiscountSurchargeTranslationEntity extends Entity
+class DiscountSurchargeTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;
     /**
      * @var string
      */
     protected $discountSurchargeId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -30,41 +24,6 @@ class DiscountSurchargeTranslationEntity extends Entity
      */
     protected $discountSurcharge;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getDiscountSurchargeId(): string
     {
         return $this->discountSurchargeId;
@@ -73,16 +32,6 @@ class DiscountSurchargeTranslationEntity extends Entity
     public function setDiscountSurchargeId(string $discountSurchargeId): void
     {
         $this->discountSurchargeId = $discountSurchargeId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string
@@ -103,15 +52,5 @@ class DiscountSurchargeTranslationEntity extends Entity
     public function setDiscountSurcharge(DiscountSurchargeEntity $discountSurcharge): void
     {
         $this->discountSurcharge = $discountSurcharge;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

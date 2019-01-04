@@ -2,21 +2,15 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 
-class SalesChannelTypeTranslationEntity extends Entity
+class SalesChannelTypeTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $salesChannelTypeId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -39,24 +33,9 @@ class SalesChannelTypeTranslationEntity extends Entity
     protected $descriptionLong;
 
     /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
      * @var SalesChannelTypeEntity|null
      */
     protected $salesChannelType;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
 
     public function getSalesChannelTypeId(): string
     {
@@ -66,16 +45,6 @@ class SalesChannelTypeTranslationEntity extends Entity
     public function setSalesChannelTypeId(string $salesChannelTypeId): void
     {
         $this->salesChannelTypeId = $salesChannelTypeId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string
@@ -118,16 +87,6 @@ class SalesChannelTypeTranslationEntity extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
-    }
-
     public function getSalesChannelType(): ?SalesChannelTypeEntity
     {
         return $this->salesChannelType;
@@ -136,25 +95,5 @@ class SalesChannelTypeTranslationEntity extends Entity
     public function setSalesChannelType(SalesChannelTypeEntity $salesChannelType): void
     {
         $this->salesChannelType = $salesChannelType;
-    }
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 }

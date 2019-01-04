@@ -3,20 +3,14 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class OrderStateTranslationEntity extends Entity
+class OrderStateTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
      */
     protected $orderStateId;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -28,41 +22,6 @@ class OrderStateTranslationEntity extends Entity
      */
     protected $orderState;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getOrderStateId(): string
     {
         return $this->orderStateId;
@@ -71,16 +30,6 @@ class OrderStateTranslationEntity extends Entity
     public function setOrderStateId(string $orderStateId): void
     {
         $this->orderStateId = $orderStateId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getDescription(): ?string
@@ -101,15 +50,5 @@ class OrderStateTranslationEntity extends Entity
     public function setOrderState(OrderStateEntity $orderState): void
     {
         $this->orderState = $orderState;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageEntity $language): void
-    {
-        $this->language = $language;
     }
 }

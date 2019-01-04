@@ -57,6 +57,11 @@ class RuleEntity extends Entity
      */
     protected $conditions;
 
+    /**
+     * @var bool
+     */
+    protected $inactive;
+
     public function getName(): string
     {
         return $this->name;
@@ -145,5 +150,15 @@ class RuleEntity extends Entity
     public function setConditions(RuleConditionCollection $conditions): void
     {
         $this->conditions = $conditions;
+    }
+
+    public function isInactive(): bool
+    {
+        return $this->inactive;
+    }
+
+    public function setInactive(bool $inactive): void
+    {
+        $this->inactive = $inactive;
     }
 }

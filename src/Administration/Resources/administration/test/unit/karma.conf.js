@@ -56,6 +56,12 @@ module.exports = function (config) {
             useBrowserName: false,
             outputDir: artifactsPath,
             outputFile: 'administration.junit.xml'
+        },
+        proxies: {
+            '/api': {
+                target: `${process.env.APP_URL}/api`,
+                changeOrigin: true
+            }
         }
     });
 };

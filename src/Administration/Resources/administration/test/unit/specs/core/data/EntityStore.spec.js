@@ -197,7 +197,7 @@ describe('core/data/EntityStore.js', () => {
         entity.save().then(() => {
             const mediaService = Application.getContainer('service').mediaService;
 
-            const testUrl = `${process.env.BASE_PATH}/api/v1/_info/entity-schema.json`;
+            const testUrl = `${process.env.APP_URL}/api/v1/_info/entity-schema.json`;
 
             mediaService.uploadMediaFromUrl(entity.id, testUrl, 'json').then(() => {
                 store.getList({
@@ -231,7 +231,7 @@ describe('core/data/EntityStore.js', () => {
         entity.save().then(() => {
             const mediaService = Application.getContainer('service').mediaService;
 
-            const testUrl = `${process.env.BASE_PATH}/api/v1/_info/entity-schema.json`;
+            const testUrl = `${process.env.APP_URL}/api/v1/_info/entity-schema.json`;
 
             mediaService.uploadMediaFromUrl(entity.id, testUrl, '.json').then(() => {
                 store.getList({

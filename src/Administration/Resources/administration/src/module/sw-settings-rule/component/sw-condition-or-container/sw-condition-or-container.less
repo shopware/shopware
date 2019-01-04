@@ -1,12 +1,15 @@
 @import "~less/variables";
 
+@sw-condition-or-container-background-even: @color-white;
+@sw-condition-or-container-background-odd: @color-light-gray;
+
 .sw-condition-or-container {
-    &.is--odd {
-        background-color: @color-white;
+    &.container-condition-level__is--even {
+        background-color: @sw-condition-or-container-background-even;
     }
 
-    &.is--even {
-        background-color: @color-light-gray;
+    &.container-condition-level__is--odd {
+        background-color: @sw-condition-or-container-background-odd;
     }
 
     .sw-condition-or-container__condition-content {

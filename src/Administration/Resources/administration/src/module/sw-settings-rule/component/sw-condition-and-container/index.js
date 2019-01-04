@@ -47,7 +47,7 @@ Component.register('sw-condition-and-container', {
 
     computed: {
         containerRowClass() {
-            return this.level % 2 ? 'is--even' : 'is--odd';
+            return this.level % 2 ? 'container-condition-level__is--even' : 'container-condition-level__is--odd';
         },
         firstContainer() {
             return this.level === 0 ? 'sw-condition-and-container__first-container' : '';

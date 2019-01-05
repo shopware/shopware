@@ -25,8 +25,8 @@ class CustomerGroupRule extends Rule
 
     public function __construct()
     {
-        $this->operator = Rule::OPERATOR_EQ;
         parent::__construct();
+        $this->operator = self::OPERATOR_EQ;
     }
 
     public function match(RuleScope $scope): Match

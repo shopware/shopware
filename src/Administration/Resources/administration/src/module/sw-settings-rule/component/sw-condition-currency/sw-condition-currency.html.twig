@@ -3,7 +3,7 @@
         <sw-field type="select"
                   name="operator"
                   v-model="condition.value.operator"
-                  class="field--operator">
+                  class="field field--select has--arrow">
             <template slot="options">
                 <option v-for="operator in operators" :value="operator.identifier">
                     {{ $tc(operator.label) }}
@@ -15,7 +15,7 @@
         <sw-condition-value :id="condition.id"
                             multi
                             :store="getCurrencyStore()"
-                            class="field--value is--secondary"
+                            class="field field--main field--multi"
                             v-model="condition.value.currencyIds">
         </sw-condition-value>
     {% endblock %}

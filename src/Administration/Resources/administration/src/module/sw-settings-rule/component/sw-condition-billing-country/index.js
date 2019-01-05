@@ -18,6 +18,9 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'countryIds'];
+        },
+        conditionClass() {
+            return 'sw-condition-billing-country';
         }
     },
 

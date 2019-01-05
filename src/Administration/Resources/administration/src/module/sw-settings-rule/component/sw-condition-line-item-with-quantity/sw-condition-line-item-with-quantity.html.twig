@@ -2,7 +2,7 @@
     {% block sw_condition_fields_product %}
         <sw-select :store="getProductStore()"
                    :id="condition.id"
-                   class="sw-condition-base__field is--secondary"
+                   class="field sw-condition-line-item-with-quantity__id-select has--arrow"
                    v-model="condition.value.id">
         </sw-select>
     {% endblock %}
@@ -10,7 +10,7 @@
         <sw-field type="select"
                   name="operator"
                   v-model="condition.value.operator"
-                  class="field--operator">
+                  class="field field--select has--arrow">
             <template slot="options">
                 <option v-for="operator in operators" :value="operator.identifier">
                     {{ $tc(operator.label) }}
@@ -21,7 +21,7 @@
     {% block sw_condition_fields_value %}
         <sw-field type="number"
                   step="1"
-                  class="field--value is--secondary"
+                  class="field field--main"
                   v-model="condition.value.quantity">
         </sw-field>
     {% endblock %}

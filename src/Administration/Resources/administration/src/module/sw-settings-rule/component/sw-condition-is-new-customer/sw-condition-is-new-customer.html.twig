@@ -1,15 +1,15 @@
 {% block sw_condition_fields %}
     {% block sw_condition_fields_operator %}
         <sw-field type="text"
-                  class="field--operator"
+                  class="field field--select has--arrow"
                   :placeholder="$tc(operator.label)"
                   disabled="true">
         </sw-field>
     {% endblock %}
     {% block sw_condition_fields_value %}
-        <sw-field type="checkbox"
-                  class="field--value is--secondary"
-                  v-model="condition.value.isNew">
+        <sw-field type="switch"
+                  class="field field--main"
+                  v-model="condition.value.isNew" displayName="asdasd">
         </sw-field>
     {% endblock %}
 {% endblock %}

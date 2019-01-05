@@ -1,5 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-condition-line-item-with-quantity.html.twig';
+import './sw-condition-line-item-with-quantity.less';
 
 /**
  * @public
@@ -18,6 +19,9 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
         },
         fieldNames() {
             return ['id', 'operator', 'quantity'];
+        },
+        conditionClass() {
+            return 'sw-condition-line-item-with-quantity';
         }
     },
 

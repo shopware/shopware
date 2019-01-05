@@ -3,18 +3,18 @@
         <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
                   name="fromDate"
                   v-model="condition.value.fromDate"
-                  class="field--value">
+                  class="field field--main has--arrow">
         </sw-field>
         <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
                   name="toDate"
                   v-model="condition.value.toDate"
-                  class="field--value">
+                  class="field field--main has--arrow">
         </sw-field>
-        <sw-field type="checkbox"
+        <sw-field type="switch"
                   name="useTime"
                   :label="$tc('global.sw-condition.condition.dateRangeRule.useTime')"
                   v-model="condition.value.useTime"
-                  class="field--use-time">
+                  class="field field--switch">
         </sw-field>
     {% endblock %}
 {% endblock %}

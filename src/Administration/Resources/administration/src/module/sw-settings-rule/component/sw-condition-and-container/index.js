@@ -58,6 +58,8 @@ Component.register('sw-condition-and-container', {
 
     methods: {
         createComponent() {
+            this.condition.value = {};
+
             if (typeof this.condition.children === 'undefined') {
                 this.condition.children = [];
                 return;

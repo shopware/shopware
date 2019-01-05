@@ -1,7 +1,7 @@
 {% block sw_condition %}
-<div class="sw-condition-base">
+<div class="sw-condition-base" :class="conditionClass">
     {% block sw_condition_field_condition %}
-    <div class="field--condition">
+    <div class="field field--condition">
         {% block sw_condition_field_condition_select %}
         <select name="name"
                 class="sw-condition-base__field"
@@ -21,7 +21,7 @@
 
     {% block sw_condition_fields %}
     <slot name="condition-fields">
-        <sw-field type="text" class="field--value"
+        <sw-field type="text" class="field field--main"
                   :placeholder="$tc('global.sw-condition.condition.placeholder-warning')"
                   :disabled="true">
         </sw-field>
@@ -29,7 +29,7 @@
     {% endblock %}
 
     {% block sw_condition_field_actions %}
-    <div class="field--actions">
+    <div class="field field--actions">
         <sw-context-button>
             <sw-context-menu-item @click="$emit('delete-condition', condition)" variant="danger">
                 {{ $tc('sw-settings-rule.list.contextMenuDelete') }}

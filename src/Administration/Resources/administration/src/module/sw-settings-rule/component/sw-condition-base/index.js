@@ -37,6 +37,9 @@ Component.register('sw-condition-base', {
     computed: {
         fieldNames() {
             return [];
+        },
+        conditionClass() {
+            return '';
         }
     },
 

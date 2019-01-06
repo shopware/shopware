@@ -21,6 +21,11 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
         },
         conditionClass() {
             return 'sw-condition-billing-country';
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.isOneOf.identifier
+            };
         }
     },
 

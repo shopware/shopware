@@ -18,6 +18,11 @@ Component.extend('sw-condition-cart-amount', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'amount'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.equals.identifier
+            };
         }
     }
 });

@@ -15,6 +15,11 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
     computed: {
         fieldNames() {
             return ['fromDate', 'toDate', 'useTime'];
+        },
+        defaultValues() {
+            return {
+                useTime: false
+            };
         }
     }
 });

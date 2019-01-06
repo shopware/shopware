@@ -18,6 +18,11 @@ Component.extend('sw-condition-last-name', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'lastName'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.equals.identifier
+            };
         }
     }
 });

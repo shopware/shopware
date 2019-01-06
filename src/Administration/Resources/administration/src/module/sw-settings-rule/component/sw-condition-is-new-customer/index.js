@@ -18,6 +18,11 @@ Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
         },
         fieldNames() {
             return ['isNew'];
+        },
+        defaultValues() {
+            return {
+                isNew: true
+            };
         }
     }
 });

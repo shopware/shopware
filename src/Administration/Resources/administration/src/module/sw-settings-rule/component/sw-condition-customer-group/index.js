@@ -18,6 +18,11 @@ Component.extend('sw-condition-customer-group', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'customerGroupIds'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.isOneOf.identifier
+            };
         }
     },
 

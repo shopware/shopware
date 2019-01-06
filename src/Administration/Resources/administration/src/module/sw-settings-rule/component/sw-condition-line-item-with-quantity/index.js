@@ -22,6 +22,11 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
         },
         conditionClass() {
             return 'sw-condition-line-item-with-quantity';
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.equals.identifier
+            };
         }
     },
 

@@ -15,6 +15,11 @@ Component.extend('sw-condition-shipping-street', 'sw-condition-base', {
     computed: {
         operators() {
             return this.ruleConditionService.operatorSets.string;
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.equals.identifier
+            };
         }
     }
 });

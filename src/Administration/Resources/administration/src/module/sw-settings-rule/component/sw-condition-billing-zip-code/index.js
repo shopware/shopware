@@ -18,6 +18,11 @@ Component.extend('sw-condition-billing-zip-code', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'zipCodes'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.isOneOf.identifier
+            };
         }
     }
 });

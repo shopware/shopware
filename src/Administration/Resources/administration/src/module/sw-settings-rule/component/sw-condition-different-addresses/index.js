@@ -18,6 +18,11 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
         },
         fieldNames() {
             return ['isDifferent'];
+        },
+        defaultValues() {
+            return {
+                isDifferent: true
+            };
         }
     }
 });

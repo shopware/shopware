@@ -18,6 +18,11 @@ Component.extend('sw-condition-customer-number', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'customerNumbers'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.isOneOf.identifier
+            };
         }
     }
 });

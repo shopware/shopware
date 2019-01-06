@@ -5,8 +5,7 @@
         {% block sw_condition_field_condition_select %}
         <select name="name"
                 class="sw-condition-base__field"
-                v-model="condition.type"
-                @change="handleConditionChange">
+                v-model="condition.type">
             {% block sw_condition_field_condition_select_option %}
             <option v-for="(innerCondition, innerConditionType) in ruleConditionService.getConditions()"
                     :selected="innerConditionType === condition.type"

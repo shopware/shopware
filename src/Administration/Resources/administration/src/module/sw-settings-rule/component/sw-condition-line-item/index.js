@@ -18,6 +18,11 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'identifiers'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.isOneOf.identifier
+            };
         }
     },
 

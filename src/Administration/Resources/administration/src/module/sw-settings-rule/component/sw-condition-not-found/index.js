@@ -1,5 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-condition-not-found.html.twig';
+import './sw-condition-not-found.less';
 
 /**
  * @public
@@ -17,6 +18,9 @@ Component.extend('sw-condition-not-found', 'sw-condition-base', {
             return this.$tc('global.sw-condition.condition.not-found.error-message',
                 Object.keys(this.condition.value).length,
                 { type: this.condition.type, fields });
+        },
+        conditionClass() {
+            return 'sw-condition-not-found';
         }
     },
     methods: {

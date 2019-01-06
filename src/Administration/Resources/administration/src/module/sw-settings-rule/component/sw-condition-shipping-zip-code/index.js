@@ -15,6 +15,11 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
     computed: {
         operators() {
             return this.ruleConditionService.operatorSets.multiStore;
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.isOneOf.identifier
+            };
         }
     }
 });

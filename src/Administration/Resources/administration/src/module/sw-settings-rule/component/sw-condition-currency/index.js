@@ -18,6 +18,11 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'currencyIds'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.isOneOf.identifier
+            };
         }
     },
 

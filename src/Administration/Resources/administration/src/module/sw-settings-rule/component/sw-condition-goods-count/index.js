@@ -18,6 +18,11 @@ Component.extend('sw-condition-goods-count', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'count'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.equals.identifier
+            };
         }
     }
 });

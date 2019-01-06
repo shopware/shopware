@@ -40,6 +40,9 @@ Component.register('sw-condition-base', {
         },
         conditionClass() {
             return '';
+        },
+        defaultValues() {
+            return {};
         }
     },
 
@@ -51,6 +54,10 @@ Component.register('sw-condition-base', {
 
     created() {
         this.createdComponent();
+    },
+
+    beforeMount() {
+        this.applyDefaultValues();
     },
 
     mounted() {
@@ -83,19 +90,13 @@ Component.register('sw-condition-base', {
             if (!this.condition.value) {
                 this.condition.value = {};
             }
-            const conditionType = this.condition.type;
-            this.conditionFields = this.ruleConditionService.getByType(conditionType).fields;
         },
-        handleConditionChange(event) {
-            this.condition.type = event.target.value;
-            this.conditionFields = this.ruleConditionService.getByType(this.condition.type).fields;
-            Object.keys(this.condition.value).forEach((key) => {
-                if (!(key in this.conditionFields)) {
-                    delete this.condition.original.value[key];
-                    delete this.condition.value[key];
+        applyDefaultValues() {
+            Object.keys(this.defaultValues).forEach(key => {
+                if (typeof this.condition.value[key] === 'undefined') {
+                    this.condition.value[key] = this.defaultValues[key];
                 }
             });
-            this.$forceUpdate();
         }
     }
 });

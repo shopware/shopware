@@ -26,6 +26,11 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
         },
         fieldNames() {
             return ['operator', 'lineItemType'];
+        },
+        defaultValues() {
+            return {
+                operator: this.ruleConditionService.operators.equals.identifier
+            };
         }
     }
 });

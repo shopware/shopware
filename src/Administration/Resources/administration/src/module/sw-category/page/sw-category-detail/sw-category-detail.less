@@ -1,0 +1,23 @@
+@import "~less/variables";
+
+.sw-category-detail {
+
+    .sw-category-detail__active {
+        height: 45px;
+        border: 1px solid @color-steam-cloud;
+        border-radius: 4px;
+        margin-top: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+
+        .sw-field.sw-field--switch {
+            margin-bottom: -6px;
+        }
+    }
+
+    .sw-category-detail__subcategories.sw-field.sw-field--switch {
+        grid-template-columns: 24px 1fr;
+    }
+}

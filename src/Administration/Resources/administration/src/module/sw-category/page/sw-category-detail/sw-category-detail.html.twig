@@ -1,0 +1,40 @@
+{% block sw_category_detail %}
+    <sw-page class="sw-category-detail" v-if="category">
+
+        <template slot="smart-bar-header">
+            {% block sw_category_detail_smart_bar_header %}
+                <h2 v-if="!isLoading">{{ $tc('sw-category.general.headlineCategories') }}: {{ category.name }}</h2>
+            {% endblock %}
+        </template>
+
+        <template slot="smart-bar-actions">
+            {% block sw_category_detail_smart_bar_actions %}
+                <sw-button variant="primary" @click.prevent="onSave">
+                    Speichern
+                </sw-button>
+            {% endblock %}
+        </template>
+
+        {% block sw_category_detail_content %}
+            <sw-card-view slot="content" class="sw-category-detail__content">
+
+                <sw-card title="Kategorie Informationen" :isLoading="isLoading">
+                    <sw-container columns="1fr 186px" gap="32px">
+                        <sw-field label="Name" name="categoryName" v-model="category.name"></sw-field>
+
+                        <label class="sw-category-detail__active">
+                            <sw-field type="switch" label="Kategorie ist aktiv" name="categoryActive" v-model="category.active"></sw-field>
+                        </label>
+                    </sw-container>
+
+                    <sw-text-editor
+                        label="Beschreibung"
+                        name="description"
+                        v-model="category.cmsDescription">
+                    </sw-text-editor>
+                </sw-card>
+
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

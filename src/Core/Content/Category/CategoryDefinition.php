@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
@@ -67,6 +68,7 @@ class CategoryDefinition extends EntityDefinition
 
             new FkField('media_id', 'mediaId', MediaDefinition::class),
 
+            (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new Required()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
             new TreePathField('path', 'path'),
             new IntField('position', 'position'),
@@ -101,4 +103,14 @@ class CategoryDefinition extends EntityDefinition
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReadOnly()),
         ]);
     }
+
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        $defaults = parent::getDefaults($existence);
+        $defaults['displayNestedProducts'] = true;
+
+        return $defaults;
+    }
+
+
 }

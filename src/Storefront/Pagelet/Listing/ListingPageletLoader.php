@@ -3,7 +3,10 @@
 namespace Shopware\Storefront\Pagelet\Listing;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Event\ListingEvents;
@@ -23,15 +26,23 @@ class ListingPageletLoader
     private $eventDispatcher;
 
     /**
+<<<<<<< HEAD:src/Storefront/Pagelet/Listing/ListingPageletLoader.php
      * @var ContainerInterface
      */
     private $container;
+=======
+     * @var RepositoryInterface
+     */
+    private $categoryRepository;
+>>>>>>> NEXT-1454 - Implement category.display_nested_products:src/Storefront/Listing/PageLoader/ListingPageLoader.php
 
     public function __construct(
         StorefrontProductRepository $productRepository,
+        RepositoryInterface $categoryRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -40,6 +51,7 @@ class ListingPageletLoader
      */
     public function setContainer(ContainerInterface $container = null): void
     {
+<<<<<<< HEAD:src/Storefront/Pagelet/Listing/ListingPageletLoader.php
         $this->container = $container;
     }
 
@@ -52,9 +64,21 @@ class ListingPageletLoader
     public function load(ListingPageletRequest $request, CheckoutContext $context): ListingPageletStruct
     {
         /** @var ListingPageletRequest $request */
+=======
+        $category = $this->categoryRepository
+            ->read(new ReadCriteria([$request->getNavigationId()]), $context->getContext())
+            ->get($request->getNavigationId());
+
+>>>>>>> NEXT-1454 - Implement category.display_nested_products:src/Storefront/Listing/PageLoader/ListingPageLoader.php
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.active', true));
-        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $request->getNavigationId()));
+
+        /** @var CategoryEntity $category */
+        if ($category->getDisplayNestedProducts()) {
+            $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $request->getNavigationId()));
+        } else {
+            $criteria->addFilter(new EqualsFilter('product.categories.id', $request->getNavigationId()));
+        }
 
         $this->eventDispatcher->dispatch(
             ListingEvents::CRITERIA_CREATED,

@@ -8,6 +8,9 @@
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">
             <tag name="shopware.entity.definition" entity="plugin"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider">
+            <argument type="service" id="plugin.repository"/>
+        </service>
     </services>
-</container>                
-                
+</container>

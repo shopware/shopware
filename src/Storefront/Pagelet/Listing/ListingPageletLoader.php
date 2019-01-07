@@ -26,15 +26,9 @@ class ListingPageletLoader
     private $eventDispatcher;
 
     /**
-<<<<<<< HEAD:src/Storefront/Pagelet/Listing/ListingPageletLoader.php
-     * @var ContainerInterface
-     */
-    private $container;
-=======
      * @var RepositoryInterface
      */
     private $categoryRepository;
->>>>>>> NEXT-1454 - Implement category.display_nested_products:src/Storefront/Listing/PageLoader/ListingPageLoader.php
 
     public function __construct(
         StorefrontProductRepository $productRepository,
@@ -51,25 +45,10 @@ class ListingPageletLoader
      */
     public function setContainer(ContainerInterface $container = null): void
     {
-<<<<<<< HEAD:src/Storefront/Pagelet/Listing/ListingPageletLoader.php
-        $this->container = $container;
-    }
-
-    /**
-     * @param ListingPageletRequest $request
-     * @param CheckoutContext       $context
-     *
-     * @return ListingPageletStruct
-     */
-    public function load(ListingPageletRequest $request, CheckoutContext $context): ListingPageletStruct
-    {
-        /** @var ListingPageletRequest $request */
-=======
         $category = $this->categoryRepository
             ->read(new ReadCriteria([$request->getNavigationId()]), $context->getContext())
             ->get($request->getNavigationId());
 
->>>>>>> NEXT-1454 - Implement category.display_nested_products:src/Storefront/Listing/PageLoader/ListingPageLoader.php
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
@@ -91,10 +70,12 @@ class ListingPageletLoader
 
         $products = $this->productRepository->search($criteria, $context);
 
-        $page = new ListingPageletStruct();
-        $page->setNavigationId($request->getNavigationId());
-        $page->setProducts($products);
-        $page->setCriteria($criteria);
+        $page = new ListingPageStruct(
+            $request->getNavigationId(),
+            $category,
+            $products,
+            $criteria
+        );
 
         $page->setShowListing(true);
         $page->setProductBoxLayout('basic');

@@ -73,13 +73,13 @@
     border-top: 1px solid @sw-condition-base-color-border;
     border-bottom: 1px solid @sw-condition-base-color-border;
 
-    select {
+    .sw-field__select select {
       outline: none;
       box-shadow: none;
-      border: 0 !important;
+      border: 0;
       padding: 7px 0;
       background: @sw-condition-base-color-background;
-      height: 42px !important;
+      height: 42px;
     }
   }
 
@@ -119,7 +119,7 @@
     height: auto;
     padding: 0;
 
-    .sw-select__inner {
+    .sw-select__inner, .sw-tagged-field__inner {
       border: none;
       padding: 4px 45px 0 13px;
       min-height: 42px;
@@ -176,10 +176,19 @@
       padding: 7px 0;
       background: @sw-condition-base-color-background;
       height: 42px;
+    }
 
+    input {
       &:active,
       &:focus {
-        box-shadow: none !important;
+        box-shadow: none;
+      }
+    }
+
+    .sw-field__select select{
+      &:active,
+      &:focus {
+        box-shadow: none;
       }
     }
   }

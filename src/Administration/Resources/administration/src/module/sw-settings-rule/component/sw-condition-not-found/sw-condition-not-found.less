@@ -1,8 +1,29 @@
+@import "~less/variables";
+
+@sw-condition-not-found-color-error: @color-crimson;
+
 .sw-condition-not-found {
   .field--error.is--disabled {
     .sw-field__suffix {
       border: none;
       background: none;
     }
+  }
+
+  .field--condition {
+      background-color: @sw-condition-not-found-color-error;
+
+      &:before, &:after {
+        background-color: @sw-condition-not-found-color-error;
+      }
+  }
+
+  .field {
+    border-top-color: @sw-condition-not-found-color-error;
+    border-bottom-color: @sw-condition-not-found-color-error;
+  }
+
+  .field--actions {
+    border-color: @sw-condition-not-found-color-error;
   }
 }

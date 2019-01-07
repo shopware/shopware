@@ -56,7 +56,6 @@ class SalesChannelCreateCommand extends Command
             'id' => $id,
             'typeId' => $typeId ?? $this->getTypeId(),
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'configuration' => $this->getSalesChannelConfiguration($input, $output),
             'languageId' => $input->getOption('languageId'),
             'snippetSetId' => $input->getOption('snippetSetId'),
             'currencyId' => $input->getOption('currencyId'),
@@ -75,6 +74,7 @@ class SalesChannelCreateCommand extends Command
             'countries' => [['id' => $input->getOption('countryId')]],
             'name' => $input->getOption('name'),
         ];
+        $data = array_merge_recursive($data, $this->getSalesChannelConfiguration($input, $output));
 
         try {
             $this->salesChannelRepository->create([$data], Context::createDefaultContext());

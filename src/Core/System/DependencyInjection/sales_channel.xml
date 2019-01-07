@@ -25,6 +25,10 @@
             <tag name="shopware.entity.definition" entity="sales_channel_currency"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_domain"/>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_language"/>
         </service>

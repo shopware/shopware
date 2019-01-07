@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Snippet\Services\SnippetServiceInterface;
-use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\Exception\LogicException;
 use Symfony\Component\Translation\Formatter\ChoiceMessageFormatterInterface;
@@ -140,26 +140,21 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog): MessageCatalogueInterface
     {
         $request = $this->requestStack->getMasterRequest();
-        if (!$request || !$request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
+        if (!$request) {
             return $catalog;
         }
 
-        /** @var Context $context */
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        $snippetSetId = $request->attributes->get(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID) ?? Defaults::SNIPPET_BASE_SET_EN;
 
-        if (!$context->getSnippetSetId()) {
-            return $catalog;
+        if (array_key_exists($snippetSetId, $this->isCustomized)) {
+            return $this->isCustomized[$snippetSetId];
         }
 
-        if (array_key_exists($context->getSnippetSetId(), $this->isCustomized)) {
-            return $this->isCustomized[$context->getSnippetSetId()];
-        }
-
-        $cacheItem = $this->cache->getItem('translation.catalog.' . $context->getSnippetSetId());
+        $cacheItem = $this->cache->getItem('translation.catalog.' . $snippetSetId);
         if ($cacheItem->isHit()) {
             $snippets = $cacheItem->get();
         } else {
-            $snippets = $this->snippetService->getStorefrontSnippets($catalog, $context);
+            $snippets = $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId);
 
             $cacheItem->set($snippets);
             $this->cache->save($cacheItem);
@@ -168,6 +163,6 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
         $newCatalog = clone $catalog;
         $newCatalog->add($snippets);
 
-        return $this->isCustomized[$context->getSnippetSetId()] = $newCatalog;
+        return $this->isCustomized[$snippetSetId] = $newCatalog;
     }
 }

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Snippet\Services;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
@@ -101,9 +100,9 @@ class SnippetService implements SnippetServiceInterface
     /**
      * {@inheritdoc}
      */
-    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, Context $context): array
+    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array
     {
-        $locale = $this->getLocaleBySnippetSetId($context->getSnippetSetId());
+        $locale = $this->getLocaleBySnippetSetId($snippetSetId);
 
         $languageFiles = $this->languageFileCollection->getLanguageFilesByIso($locale);
         $fileSnippets = $catalog->all('messages');
@@ -122,7 +121,7 @@ class SnippetService implements SnippetServiceInterface
 
         $snippets = array_replace_recursive(
             $fileSnippets,
-            $this->fetchSnippetsFromDatabase($context)
+            $this->fetchSnippetsFromDatabase($snippetSetId)
         );
 
         return $snippets;
@@ -208,13 +207,13 @@ class SnippetService implements SnippetServiceInterface
         return $snippets;
     }
 
-    private function fetchSnippetsFromDatabase(Context $context): array
+    private function fetchSnippetsFromDatabase(string $snippetSetId): array
     {
         $snippets = $this->connection->createQueryBuilder()
             ->select(['snippet.translation_key', 'snippet.value'])
             ->from('snippet')
             ->where('snippet.snippet_set_id = :snippetSetId')
-            ->setParameter('snippetSetId', Uuid::fromHexToBytes($context->getSnippetSetId()))
+            ->setParameter('snippetSetId', Uuid::fromHexToBytes($snippetSetId))
             ->addGroupBy('snippet.translation_key')
             ->addGroupBy('snippet.id')
             ->execute()

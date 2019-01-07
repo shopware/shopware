@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Snippet\Services;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -17,9 +16,9 @@ interface SnippetServiceInterface
 
     /**
      * @param MessageCatalogueInterface $catalog
-     * @param Context                   $context
+     * @param string                    $snippetSetId
      *
      * @return array
      */
-    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, Context $context): array;
+    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array;
 }

@@ -301,6 +301,7 @@
 
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="language.repository"/>
             <tag name="console.command"/>
         </service>
 

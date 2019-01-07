@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Command;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\System\Command\SalesChannelCreateCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -10,6 +11,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
+    /**
+     * @var RepositoryInterface
+     */
+    private $languageRepository;
+
+    public function __construct(RepositoryInterface $salesChannelRepository, RepositoryInterface $languageRepository)
+    {
+        parent::__construct($salesChannelRepository);
+
+        $this->languageRepository = $languageRepository;
+    }
+
     protected function configure()
     {
         parent::configure();
@@ -28,7 +41,12 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
     {
         return [
             'domains' => [
-                ['url' => $input->getOption('url'), 'language' => $input->getOption('languageId')],
+                [
+                    'url' => $input->getOption('url'),
+                    'languageId' => $input->getOption('languageId'),
+                    'snippetSetId' => $input->getOption('snippetSetId'),
+                    'currencyId' => $input->getOption('currencyId'),
+                ],
             ],
         ];
     }

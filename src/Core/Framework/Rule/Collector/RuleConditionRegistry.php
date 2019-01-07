@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Collector;
 
-class ConditionCollector
+class RuleConditionRegistry
 {
     /**
      * @var iterable|RuleConditionCollectorInterface[]

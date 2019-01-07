@@ -954,8 +954,8 @@
       "textBulkDeleteConfirm": "Möchtest Du die ausgewählten Regeln wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarBulkTrash": "Regeln löschen",
-      "active": "Aktiv",
-      "inactive": "Inaktiv"
+      "valid": "Valide",
+      "invalid": "Invalide"
     },
     "detail": {
       "textHeadline": "Neue Regel",

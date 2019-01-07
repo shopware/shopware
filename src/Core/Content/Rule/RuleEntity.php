@@ -60,7 +60,7 @@ class RuleEntity extends Entity
     /**
      * @var bool
      */
-    protected $inactive;
+    protected $invalid;
 
     public function getName(): string
     {
@@ -152,13 +152,13 @@ class RuleEntity extends Entity
         $this->conditions = $conditions;
     }
 
-    public function isInactive(): bool
+    public function isInvalid(): bool
     {
-        return $this->inactive;
+        return $this->invalid;
     }
 
-    public function setInactive(bool $inactive): void
+    public function setInvalid(bool $invalid): void
     {
-        $this->inactive = $inactive;
+        $this->invalid = $invalid;
     }
 }

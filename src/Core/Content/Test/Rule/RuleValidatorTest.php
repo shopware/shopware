@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Rule\Collector\ConditionCollector;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionCollectorInterface;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -445,13 +445,13 @@ class RuleValidatorTest extends TestCase
 
     private function addMockCollections(RuleConditionCollectorInterface $collector)
     {
-        $registry = $this->getContainer()->get(ConditionCollector::class);
+        $registry = $this->getContainer()->get(RuleConditionRegistry::class);
 
         $collected = $registry->collect();
 
         $collected = array_merge($collected, $collector->getClasses());
 
-        $reflectionClass = new \ReflectionClass(ConditionCollector::class);
+        $reflectionClass = new \ReflectionClass(RuleConditionRegistry::class);
         $property = $reflectionClass->getProperty('classes');
         $property->setAccessible(true);
         $property->setValue($registry, $collected);

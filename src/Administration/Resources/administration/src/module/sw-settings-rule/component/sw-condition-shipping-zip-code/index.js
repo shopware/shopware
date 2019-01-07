@@ -16,6 +16,9 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
         operators() {
             return this.ruleConditionService.operatorSets.multiStore;
         },
+        fieldNames() {
+            return ['operator', 'zipCodes'];
+        },
         defaultValues() {
             return {
                 operator: this.ruleConditionService.operators.isOneOf.identifier

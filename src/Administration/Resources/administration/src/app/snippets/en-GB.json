@@ -952,8 +952,8 @@
       "textBulkDeleteConfirm": "Do you really want to delete the selected rules?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarBulkTrash": "Delete rules",
-      "active": "Active",
-      "inactive": "Inactive"
+      "valid": "Valid",
+      "invalid": "Invalid"
     },
     "detail": {
       "textHeadline": "New rule",

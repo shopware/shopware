@@ -46,7 +46,7 @@ class RuleDefinition extends EntityDefinition
             (new IntField('priority', 'priority'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
             (new ObjectField('payload', 'payload'))->setFlags(new ReadOnly()),
-            (new BoolField('inactive', 'inactive'))->setFlags(new ReadOnly()),
+            (new BoolField('invalid', 'invalid'))->setFlags(new ReadOnly()),
             new CreatedAtField(),
             new UpdatedAtField(),
 

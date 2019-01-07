@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Framework\Rule\Collector\RuleConditionCollectorInterface;
 
-class CustomerConditionCollector implements RuleConditionCollectorInterface
+class CustomerRuleConditionCollector implements RuleConditionCollectorInterface
 {
     public function getClasses(): array
     {

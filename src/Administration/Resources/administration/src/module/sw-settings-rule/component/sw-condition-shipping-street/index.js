@@ -16,6 +16,9 @@ Component.extend('sw-condition-shipping-street', 'sw-condition-base', {
         operators() {
             return this.ruleConditionService.operatorSets.string;
         },
+        fieldNames() {
+            return ['operator', 'streetName'];
+        },
         defaultValues() {
             return {
                 operator: this.ruleConditionService.operators.equals.identifier

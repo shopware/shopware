@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1546262017AddRuleInactiveFlag extends MigrationStep
+class Migration1546262017AddRuleInvalidFlag extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -14,7 +14,7 @@ class Migration1546262017AddRuleInactiveFlag extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('ALTER TABLE `rule` ADD `inactive` TINYINT(1) NULL;');
+        $connection->exec('ALTER TABLE `rule` ADD `invalid` TINYINT(1) NULL;');
     }
 
     public function updateDestructive(Connection $connection): void

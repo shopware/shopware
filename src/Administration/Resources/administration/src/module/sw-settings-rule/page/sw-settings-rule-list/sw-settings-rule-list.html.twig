@@ -139,15 +139,15 @@
 
                                             {% block sw_settings_rule_list_columns_active %}
                                                 <sw-grid-column flex="minmax(150px, 200px)"
-                                                            class="sw-settings-rule-list__column-active"
+                                                            class="sw-settings-rule-list__column-valid"
                                                             :label="$tc('sw-settings-rule.list.columnStatus')"
-                                                            dataIndex="inactive"
+                                                            dataIndex="invalid"
                                                             sortable>
                                                     {% block sw_settings_rule_list_columns_active_label %}
-                                                        <span v-if="item.inactive" class="sw-settings-rule-list-inactive">
-                                                            {{ $tc('sw-settings-rule.list.inactive') }}
+                                                        <span v-if="item.invalid" class="sw-settings-rule-list-invalid">
+                                                            {{ $tc('sw-settings-rule.list.invalid') }}
                                                         </span>
-                                                        <span v-else>{{ $tc('sw-settings-rule.list.active') }}</span>
+                                                        <span v-else>{{ $tc('sw-settings-rule.list.valid') }}</span>
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}

@@ -17,7 +17,7 @@
             <argument type="service" id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\Collector\ConditionCollector"/>
+            <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
             <argument type="service" id="shopware.cache"/>
 
             <tag name="shopware.dbal_indexing.indexer"/>
@@ -27,7 +27,7 @@
 
         <service id="Shopware\Core\Content\Rule\RuleValidator">
             <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\Collector\ConditionCollector"/>
+            <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
 
             <tag name="shopware.validator"/>
         </service>

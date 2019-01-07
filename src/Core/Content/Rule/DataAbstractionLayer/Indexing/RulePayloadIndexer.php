@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Rule\Collector\ConditionCollector;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
@@ -56,9 +56,9 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $serializer;
 
     /**
-     * @var ConditionCollector
+     * @var RuleConditionRegistry
      */
-    private $conditionCollector;
+    private $ruleConditionRegistry;
 
     /**
      * @var CacheItemPoolInterface
@@ -71,7 +71,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         EventIdExtractor $eventIdExtractor,
         RepositoryInterface $ruleRepository,
         Serializer $serializer,
-        ConditionCollector $conditionCollector,
+        RuleConditionRegistry $ruleConditionRegistry,
         CacheItemPoolInterface $cache
     ) {
         $this->connection = $connection;
@@ -79,7 +79,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $this->eventIdExtractor = $eventIdExtractor;
         $this->ruleRepository = $ruleRepository;
         $this->serializer = $serializer;
-        $this->conditionCollector = $conditionCollector;
+        $this->ruleConditionRegistry = $ruleConditionRegistry;
         $this->cache = $cache;
     }
 
@@ -129,9 +129,9 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 MultiFilter::CONNECTION_OR, [
                     new NotFilter(
                         NotFilter::CONNECTION_AND,
-                        [new EqualsAnyFilter('rule.conditions.type', $this->conditionCollector->collect())]
+                        [new EqualsAnyFilter('rule.conditions.type', $this->ruleConditionRegistry->collect())]
                     ),
-                    new EqualsFilter('rule.inactive', true),
+                    new EqualsFilter('rule.invalid', true),
                 ]
             )
         );
@@ -165,7 +165,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $rules = FetchModeHelper::group($conditions);
 
         foreach ($rules as $id => $rule) {
-            $inactive = false;
+            $invalid = false;
             $serialized = null;
             try {
                 $nested = $this->buildNested($rule, null);
@@ -179,16 +179,16 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
                 $serialized = $this->serializer->serialize($nested, 'json');
             } catch (ConditionClassNotFound $exception) {
-                $inactive = true;
+                $invalid = true;
             } finally {
                 $this->connection->createQueryBuilder()
                     ->update('rule')
                     ->set('payload', ':serialize')
-                    ->set('inactive', ':inactive')
+                    ->set('invalid', ':invalid')
                     ->where('id = :id')
                     ->setParameter('id', $id)
                     ->setParameter('serialize', $serialized)
-                    ->setParameter('inactive', (int) $inactive)
+                    ->setParameter('invalid', (int) $invalid)
                     ->execute();
             }
         }
@@ -202,7 +202,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 continue;
             }
 
-            if (!in_array($rule['type'], $this->conditionCollector->collect()) || !class_exists($rule['type'])) {
+            if (!in_array($rule['type'], $this->ruleConditionRegistry->collect()) || !class_exists($rule['type'])) {
                 throw new ConditionClassNotFound($rule['type']);
             }
 

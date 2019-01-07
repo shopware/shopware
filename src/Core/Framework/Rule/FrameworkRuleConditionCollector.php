@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Rule\Container\NotRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Container\XorRule;
 
-class FrameworkConditionCollector implements RuleConditionCollectorInterface
+class FrameworkRuleConditionCollector implements RuleConditionCollectorInterface
 {
     public function getClasses(): array
     {

@@ -131,7 +131,7 @@ class CheckoutRuleLoader
         /** @var RuleCollection $rules */
         $rules = $rules->getEntities();
         $this->rules = $rules;
-        $this->filterActiveRules();
+        $this->filterValidRules();
 
         $cacheItem->set(serialize($this->rules));
         $this->cache->save($cacheItem);
@@ -139,11 +139,11 @@ class CheckoutRuleLoader
         return $this->rules;
     }
 
-    private function filterActiveRules()
+    private function filterValidRules()
     {
         /** @var RuleEntity $rule */
         foreach ($this->rules as $key => $rule) {
-            if ($rule->isInactive()) {
+            if ($rule->isInvalid()) {
                 $this->rules->remove($key);
             }
         }

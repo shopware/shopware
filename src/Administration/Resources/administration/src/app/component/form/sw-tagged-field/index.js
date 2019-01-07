@@ -26,7 +26,8 @@ Component.register('sw-tagged-field', {
         },
         value: {
             type: Array,
-            required: true
+            required: false,
+            default: []
         },
         label: {
             type: String,
@@ -76,7 +77,6 @@ Component.register('sw-tagged-field', {
     methods: {
         createdComponent() {
             this.tags = this.value;
-            this.addEventListeners();
         },
 
         dismissLastTag() {
@@ -112,6 +112,7 @@ Component.register('sw-tagged-field', {
 
             this.tags.push(this.newTag);
             this.newTag = '';
+            this.emitChanges();
         },
 
         noTriggerKey(event) {

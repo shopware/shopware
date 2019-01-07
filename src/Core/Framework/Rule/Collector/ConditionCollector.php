@@ -2,18 +2,21 @@
 
 namespace Shopware\Core\Framework\Rule\Collector;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
 class ConditionCollector
 {
     /**
-     * @var EventDispatcherInterface
+     * @var iterable|RuleConditionCollectorInterface[]
      */
-    private $eventDispatcher;
+    private $taggedConditionCollectors;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    /**
+     * @var array
+     */
+    private $classes;
+
+    public function __construct(iterable $taggedConditionCollectors)
     {
-        $this->eventDispatcher = $eventDispatcher;
+        $this->taggedConditionCollectors = $taggedConditionCollectors;
     }
 
     /**
@@ -21,9 +24,15 @@ class ConditionCollector
      */
     public function collect(): array
     {
-        $event = new CollectConditionEvent();
-        $this->eventDispatcher->dispatch(CollectConditionEvent::NAME, $event);
+        if ($this->classes) {
+            return $this->classes;
+        }
 
-        return $event->getClasses();
+        $this->classes = [];
+        foreach ($this->taggedConditionCollectors as $collector) {
+            $this->classes = array_merge($this->classes, $collector->getClasses());
+        }
+
+        return $this->classes;
     }
 }

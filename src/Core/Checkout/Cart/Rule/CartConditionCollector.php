@@ -2,21 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Framework\Rule\Collector\CollectConditionEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionCollectorInterface;
 
-class CartConditionCollector implements EventSubscriberInterface
+class CartConditionCollector implements RuleConditionCollectorInterface
 {
-    public static function getSubscribedEvents()
+    public function getClasses(): array
     {
         return [
-            CollectConditionEvent::NAME => 'collectConditions',
-        ];
-    }
-
-    public function collectConditions(CollectConditionEvent $collectConditionEvent): void
-    {
-        $collectConditionEvent->addClasses(
             CartAmountRule::class,
             GoodsCountRule::class,
             GoodsPriceRule::class,
@@ -25,7 +17,7 @@ class CartConditionCollector implements EventSubscriberInterface
             LineItemsInCartRule::class,
             LineItemTotalPriceRule::class,
             LineItemUnitPriceRule::class,
-            LineItemWithQuantityRule::class
-        );
+            LineItemWithQuantityRule::class,
+        ];
     }
 }

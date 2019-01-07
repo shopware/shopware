@@ -61,11 +61,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $conditionCollector;
 
     /**
-     * @var string[]|null
-     */
-    private $availableConditionClasses;
-
-    /**
      * @var CacheItemPoolInterface
      */
     private $cache;
@@ -168,7 +163,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         );
 
         $rules = FetchModeHelper::group($conditions);
-        $this->availableConditionClasses = $this->conditionCollector->collect();
 
         foreach ($rules as $id => $rule) {
             $inactive = false;
@@ -208,7 +202,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 continue;
             }
 
-            if (!in_array($rule['type'], $this->availableConditionClasses) || !class_exists($rule['type'])) {
+            if (!in_array($rule['type'], $this->conditionCollector->collect()) || !class_exists($rule['type'])) {
                 throw new ConditionClassNotFound($rule['type']);
             }
 

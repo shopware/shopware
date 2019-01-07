@@ -8,7 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Rule\Collector\CollectConditionEvent;
+use Shopware\Core\Framework\Rule\Collector\ConditionCollector;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionCollectorInterface;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -48,11 +48,11 @@ class RuleValidatorTest extends TestCase
 
     protected function setUp()
     {
-        $this->getContainer()->get('event_dispatcher')->addSubscriber(new TestConditionCollector());
         $this->context = Context::createDefaultContext();
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->ruleValidator = $this->getContainer()->get(RuleValidator::class);
+        $this->addMockCollections(new TestConditionCollector());
     }
 
     public function testWriteRuleWithInconsistentSubChild(): void
@@ -442,6 +442,20 @@ class RuleValidatorTest extends TestCase
         $this->conditionRepository->create([$data], $this->context);
         static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
     }
+
+    private function addMockCollections(RuleConditionCollectorInterface $collector)
+    {
+        $registry = $this->getContainer()->get(ConditionCollector::class);
+
+        $collected = $registry->collect();
+
+        $collected = array_merge($collected, $collector->getClasses());
+
+        $reflectionClass = new \ReflectionClass(ConditionCollector::class);
+        $property = $reflectionClass->getProperty('classes');
+        $property->setAccessible(true);
+        $property->setValue($registry, $collected);
+    }
 }
 
 class MockOptionalStringArrayRule extends Rule
@@ -474,20 +488,13 @@ class MockIntRule extends Rule
     }
 }
 
-class TestConditionCollector implements EventSubscriberInterface
+class TestConditionCollector implements RuleConditionCollectorInterface
 {
-    public static function getSubscribedEvents()
+    public function getClasses(): array
     {
         return [
-            CollectConditionEvent::NAME => 'addConditions',
-        ];
-    }
-
-    public function addConditions(CollectConditionEvent $event): void
-    {
-        $event->addClasses(
             MockOptionalStringArrayRule::class,
-            MockIntRule::class
-        );
+            MockIntRule::class,
+        ];
     }
 }

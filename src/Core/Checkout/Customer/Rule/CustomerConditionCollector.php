@@ -2,21 +2,13 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
-use Shopware\Core\Framework\Rule\Collector\CollectConditionEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionCollectorInterface;
 
-class CustomerConditionCollector implements EventSubscriberInterface
+class CustomerConditionCollector implements RuleConditionCollectorInterface
 {
-    public static function getSubscribedEvents()
+    public function getClasses(): array
     {
         return [
-            CollectConditionEvent::NAME => 'collectConditions',
-        ];
-    }
-
-    public function collectConditions(CollectConditionEvent $collectConditionEvent): void
-    {
-        $collectConditionEvent->addClasses(
             BillingCountryRule::class,
             BillingStreetRule::class,
             BillingZipCodeRule::class,
@@ -27,7 +19,7 @@ class CustomerConditionCollector implements EventSubscriberInterface
             LastNameRule::class,
             ShippingCountryRule::class,
             ShippingStreetRule::class,
-            ShippingZipCodeRule::class
-        );
+            ShippingZipCodeRule::class,
+        ];
     }
 }

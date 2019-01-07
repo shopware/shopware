@@ -284,19 +284,19 @@
 
         <!-- Rule -->
         <service id="Shopware\Core\Framework\Rule\Collector\ConditionCollector" public="true">
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="tagged" tag="rule.condition_collector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerConditionCollector">
-            <tag name="kernel.event_subscriber"/>
+            <tag name="rule.condition_collector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\CartConditionCollector">
-            <tag name="kernel.event_subscriber"/>
+            <tag name="rule.condition_collector"/>
         </service>
 
         <service id="Shopware\Core\Framework\Rule\FrameworkConditionCollector">
-            <tag name="kernel.event_subscriber"/>
+            <tag name="rule.condition_collector"/>
         </service>
     </services>
 </container>

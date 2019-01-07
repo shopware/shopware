@@ -99,12 +99,15 @@ Component.register('sw-property-search', {
             this.loadOptions();
         },
 
-        onOptionSelect(params) {
+        onOptionSelect(selection, item, selected) {
             if (this.preventSelection) {
                 return;
             }
 
-            this.$emit('sw-property-search-option-selected', params);
+            this.$emit('sw-property-search-option-selected', {
+                item: item,
+                selected: selected
+            });
             this.addOptionCount();
         },
 

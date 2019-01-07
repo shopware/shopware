@@ -217,7 +217,7 @@ Component.register('sw-grid', {
             this.selection = selection;
 
             this.checkSelection();
-            this.$emit('sw-grid-select-item', this.selection);
+            this.$emit('sw-grid-select-item', this.selection, item, selected);
         },
 
         isSelected(itemId) {

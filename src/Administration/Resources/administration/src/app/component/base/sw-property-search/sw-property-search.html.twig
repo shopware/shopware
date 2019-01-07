@@ -19,7 +19,7 @@
                 </template>
             </sw-grid>
 
-            <sw-grid class="sw-property-search__tree_selection__option_grid" ref="optionGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-item-selected="onOptionSelect">
+            <sw-grid class="sw-property-search__tree_selection__option_grid" ref="optionGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
                 <template slot="columns" slot-scope="{ item }">
                     <sw-grid-column flex="200px" dataIndex="name">
                         {{ item.name }}

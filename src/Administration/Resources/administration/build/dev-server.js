@@ -9,7 +9,7 @@ const opn = require('opn');
 const express = require('express');
 const webpack = require('webpack');
 const openInEditor = require('launch-editor-middleware');
-
+const proxy = require('http-proxy-middleware');
 const utils = require('./utils');
 const webpackConfig = process.env.NODE_ENV === 'testing'
     ? require('./webpack.prod.conf')
@@ -84,6 +84,8 @@ staticPaths.forEach((paths) => {
 });
 
 const uri = 'http://' + host + ':' + port;
+
+app.use('/api', proxy({ target: process.argv[2], changeOrigin: true }));
 
 console.log('# Compiling Webpack configuration');
 console.log(`Environment: ${process.env.NODE_ENV}`);

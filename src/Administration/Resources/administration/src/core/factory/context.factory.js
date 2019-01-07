@@ -5,7 +5,7 @@
 export default function createContext(context) {
     const isDevMode = (process.env.NODE_ENV !== 'production');
     const installationPath = getInstallationPath(context, isDevMode);
-    const apiPath = getApiPath(installationPath, isDevMode);
+    const apiPath = `${installationPath}/api`;
 
     return {
         installationPath,
@@ -34,21 +34,6 @@ function getInstallationPath(context, isDevMode) {
     }
 
     return fullPath;
-}
-
-/**
- * Provides the full path to the API end point of the application
- *
- * @param {String} installationPath
- * @param {Boolean} isDevMode
- * @returns {string}
- */
-function getApiPath(installationPath, isDevMode) {
-    if (isDevMode) {
-        installationPath = process.env.BASE_PATH;
-    }
-
-    return `${installationPath}/api`;
 }
 
 /**

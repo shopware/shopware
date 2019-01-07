@@ -1,5 +1,4 @@
 const loginPage = require('administration/page-objects/sw-login.page-object.js');
-const beforeScenarioActions = require('administration/specs/before-scenario.js');
 
 module.exports = {
     '@tags': ['profile-edit','profile','edit'],
@@ -21,8 +20,6 @@ module.exports = {
     },
     'log out': (browser) => {
         const page = loginPage(browser);
-
-        beforeScenarioActions.hideToolbarIfVisible(browser);
         page.logout('Super Richie');
     },
     'log in user with updated credentials': (browser) => {

@@ -45,12 +45,13 @@ export default function initializeEntities(container) {
      */
     function registerApiService(entityName) {
         const serviceName = `${stringUtil.camelCase(entityName)}Service`;
+        const kebabServiceName = entityName.replace(/_/g, '-');
 
         if (apiServiceFactory.has(serviceName)) {
             return apiServiceFactory.getByName(serviceName);
         }
 
-        const apiService = new ApiService(httpClient, loginService, entityName);
+        const apiService = new ApiService(httpClient, loginService, kebabServiceName);
         apiServiceFactory.register(serviceName, apiService);
         application.addServiceProvider(serviceName, () => {
             return apiService;

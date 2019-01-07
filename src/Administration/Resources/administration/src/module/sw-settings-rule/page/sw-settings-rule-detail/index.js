@@ -72,7 +72,9 @@ Component.register('sw-settings-rule-detail', {
                 if (current.parentId === parentId) {
                     const children = this.buildNestedConditions(conditions, current.id);
                     children.forEach((child) => {
-                        current.children.push(child);
+                        if (current.children.indexOf(child) === -1) {
+                            current.children.push(child);
+                        }
                     });
 
                     accumulator.push(current);

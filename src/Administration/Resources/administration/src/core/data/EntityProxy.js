@@ -847,6 +847,6 @@ export default class EntityProxy {
      * @return {String}
      */
     get kebabEntityName() {
-        return this.entityName.replace('_', '-');
+        return this.entityName.replace(/_/g, '-');
     }
 }

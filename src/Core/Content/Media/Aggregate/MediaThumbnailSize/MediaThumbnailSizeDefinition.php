@@ -34,8 +34,8 @@ class MediaThumbnailSizeDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
-            (new IntField('width', 'width'))->setFlags(new Required()),
-            (new IntField('height', 'height'))->setFlags(new Required()),
+            (new IntField('width', 'width', 1))->setFlags(new Required()),
+            (new IntField('height', 'height', 1))->setFlags(new Required()),
 
             new ManyToManyAssociationField(
                 'mediaFolderConfigurations',

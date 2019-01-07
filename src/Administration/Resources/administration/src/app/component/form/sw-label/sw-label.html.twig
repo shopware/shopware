@@ -3,7 +3,7 @@
           :class="{'is--dismiss-able': dismissAble}"
           @click.stop="$emit('selected')">
         {% block sw_label_text_holder %}
-            <slot>{% block sw_label_text %}{% endblock %}</slot>
+            <slot>{% block sw_label_slot_default %}{% endblock %}</slot>
         {% endblock %}
 
         {% block sw_label_dismiss %}
@@ -12,7 +12,7 @@
                     :title="$tc('global.sw-label.buttonDismiss')"
                     @click.prevent.stop="$emit('dismiss')">
                 {% block sw_select_selection_dismiss_icon %}
-                    <slot name="dismiss_icon">
+                    <slot name="dismiss-icon">
                         <sw-icon name="small-default-x-line-medium">
                         </sw-icon>
                     </slot>

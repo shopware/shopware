@@ -1,5 +1,5 @@
 module.exports = {
-    '@tags': ['language-change','language','change'],
+    '@tags': ['language-change','language','change', 'admin-menu'],
     'open admin menu': (browser) => {
         browser
             .waitForElementVisible('.sw-admin-menu__navigation-link')

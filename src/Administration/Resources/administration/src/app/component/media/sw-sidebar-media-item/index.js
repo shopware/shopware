@@ -1,5 +1,5 @@
 import { Component, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.less';
 
@@ -20,10 +20,21 @@ import './sw-sidebar-media-item.less';
 Component.register('sw-sidebar-media-item', {
     template,
 
+    props: {
+        initialFolderId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
             isLoading: true,
+            mediaFolderId: this.initialFolderId,
+            mediaFolder: null,
             mediaItems: [],
+            subFolders: [],
             page: 1,
             limit: 25,
             total: 0,
@@ -32,12 +43,12 @@ Component.register('sw-sidebar-media-item', {
     },
 
     computed: {
-        catalogStore() {
-            return State.getStore('catalog');
-        },
-
         mediaStore() {
             return State.getStore('media');
+        },
+
+        mediaFolderStore() {
+            return State.getStore('media_folder');
         },
 
         showMore() {
@@ -50,8 +61,12 @@ Component.register('sw-sidebar-media-item', {
     },
 
     watch: {
-        catalogId(newCatalogId) {
-            this.catalogId = newCatalogId;
+        term() {
+            this.page = 1;
+            this.getList();
+        },
+
+        mediaFolderId() {
             this.initializeContent();
         }
     },
@@ -69,20 +84,29 @@ Component.register('sw-sidebar-media-item', {
             this.page = 1;
             this.term = '';
             this.mediaItems = [];
-
+            this.getFolder();
+            this.getSubFolders();
             this.getList();
         },
 
-        onSearchInput(searchTopic) {
-            this.doListSearch(searchTopic);
+        getFolder() {
+            if (!this.mediaFolderId) {
+                this.mediaFolder = null;
+                return;
+            }
+
+            this.mediaFolder = this.mediaFolderStore.getById(this.mediaFolderId);
         },
 
-        doListSearch: utils.debounce(function debouncedSearch(searchTopic) {
-            const searchTerm = searchTopic || '';
-            this.term = searchTerm.trim();
-            this.page = 1;
-            this.getList();
-        }, 400),
+        getSubFolders() {
+            return this.mediaFolderStore.getList({
+                page: 1,
+                limit: 50,
+                criteria: CriteriaFactory.equals('parentId', this.mediaFolderId)
+            }).then((response) => {
+                this.subFolders = response.items;
+            });
+        },
 
         handleMediaGridItemDelete() {
             const pages = this.page;
@@ -126,10 +150,11 @@ Component.register('sw-sidebar-media-item', {
         getListingParams() {
             const params = {
                 limit: this.limit,
-                page: this.page
+                page: this.page,
+                criteria: CriteriaFactory.equals('mediaFolderId', this.mediaFolderId)
             };
 
-            if (this.term && this.term.length) {
+            if (this.term) {
                 params.term = this.term;
             }
 
@@ -138,6 +163,10 @@ Component.register('sw-sidebar-media-item', {
 
         openContent() {
             this.$refs.sidebarItem.openContent();
+        },
+
+        onNavigateToFolder(folderId) {
+            this.mediaFolderId = folderId;
         }
     }
 });

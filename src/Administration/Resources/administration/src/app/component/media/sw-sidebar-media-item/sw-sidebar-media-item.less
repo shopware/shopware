@@ -1,59 +1,40 @@
 @import "~less/variables";
+@import "~less/mixins";
 
-@sw-sidebar-media-item-color-headline: @color-gutenberg;
-@sw-sidebar-media-item-headline-font-size: @font-size-large;
-@sw-sidebar-media-item-search-field-color: @color-light-gray;
-@sw-sidebar-media-item-search-field-focus-background: @color-white;
-@sw-sidebar-media-item-search-field-focus-border-color: @color-shopware-blue;
-@sw-sidebar-media-item-search-icon-color: @color-gutenberg;
+@sw-sidebar-media-item-font-size-folder-name: @font-size-large;
+@sw-sidebar-media-item-color-back-arrow: @color-steam-cloud;
 
 .sw-sidebar-media-item {
     .sw-sidebar-media-item__content {
         margin: 0 25px;
     }
 
+    .sw-sidebar-media-item__folder-navigation {
+        display: grid;
+        align-items: center;
+        grid-template-columns: auto 1fr;
+        grid-gap: 8px;
+        margin-bottom: 22px;
+    }
+
+    .sw-sidebar-media-item__headline-current-folder {
+        .truncate();
+        font-size: @sw-sidebar-media-item-font-size-folder-name;
+        font-weight: normal;
+        margin: 0;
+    }
+
+    .sw-sidebar-media-item__folder-navigation-back-arrow {
+        color: @sw-sidebar-media-item-color-back-arrow;
+        margin-right: 8px;
+    }
+
+    .sw-sidebar-media-item__navigation-back {
+        cursor: pointer;
+    }
+
     .sw-sidebar-media-item__load-more-button {
         margin-bottom: 10px;
-    }
-
-    .sw-sidebar-media-item__search-field {
-        position: relative;
-    }
-
-    .sw-sidebar-media-item__search-input {
-        input {
-            height: 40px;
-            padding: 0 20px 0 44px;
-            background-color: @sw-sidebar-media-item-search-field-color;
-            border-color: @sw-sidebar-media-item-search-field-color;
-            border-radius: 20px;
-
-            &:focus {
-                background-color: @sw-sidebar-media-item-search-field-focus-background;
-                border-color: @sw-sidebar-media-item-search-field-focus-border-color;
-            }
-        }
-    }
-
-    .sw-sidebar-media-item__search-icon {
-        position: absolute;
-        color: @sw-sidebar-media-item-search-icon-color;
-        left: 24px;
-        top: 12px;
-    }
-
-    .sw-sidebar-media-item__catalog-headline {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        align-items: center;
-        margin-bottom: 22px;
-        color: @sw-sidebar-media-item-color-headline;
-
-        h4 {
-            margin: 0;
-            font-weight: normal;
-            font-size: @sw-sidebar-media-item-headline-font-size;
-        }
     }
 
     .sw-sidebar-media-item__folder-thumbnail {

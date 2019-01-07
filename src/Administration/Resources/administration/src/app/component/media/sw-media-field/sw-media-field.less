@@ -10,6 +10,8 @@
 @sw-media-field-background-color-picker:          @color-white;
 @sw-media-field-background-color-list-item-hover: @color-cadet-blue;
 @sw-media-field-transition-result:                all ease-in-out .2s;
+@sw-media-field-color-picker-toggle:              @color-shopware-blue;
+@sw-media-field-color-unlink:                     @color-crimson;
 
 .sw-media-field {
     position: relative;
@@ -27,7 +29,7 @@
 
     .sw-media-field__input {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(175px, 1fr) auto;
         border: 1px solid @sw-media-field-border-color-input;
         border-radius: @sw-media-field-border-radius-input;
         overflow: hidden;
@@ -37,6 +39,12 @@
             border: none;
             border-left: 1px solid @sw-media-field-border-color-input;
             border-radius: 0 @sw-media-field-border-radius-input @sw-media-field-border-radius-input 0;
+            width: 45px;
+            padding: 0;
+
+            .sw-icon {
+                margin: auto;
+            }
         }
 
         &.is--active {
@@ -59,12 +67,11 @@
         background: @transparent-background-url;
     }
 
-    .sw-media-field-picker {
+    .sw-media-field__expanded-content {
         position: absolute;
         border: 1px solid @sw-media-field-border-color-picker;
         border-radius: @sw-media-field-border-radius-picker;
         padding: 30px;
-        min-width: 400px;
         background-color: @sw-media-field-background-color-picker;
         z-index: @z-index-context-menu;
 
@@ -79,6 +86,30 @@
         .sw-loader__container {
             transform: translate(-50%, 0%);
         }
+    }
+
+    .sw-media-field__actions_bar {
+        margin-bottom: 22px;
+    }
+
+    .sw-media-field__action-button {
+        border: none;
+        background: none;
+        padding: 0;
+        color: @sw-media-field-color-picker-toggle;
+
+        &.is--remove {
+            color: @sw-media-field-color-unlink;
+            float: right;
+        }
+    }
+
+    .sw-media-field__icon-add {
+        color: @sw-media-field-color-picker-toggle;
+    }
+
+    .sw-media-field__icon-remove {
+        color: @sw-media-field-color-unlink;
     }
 
     .sw-media-field__picker-loader {

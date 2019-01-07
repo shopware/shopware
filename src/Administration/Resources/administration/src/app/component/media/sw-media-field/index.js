@@ -32,10 +32,10 @@ Component.register('sw-media-field', {
 
     data() {
         return {
-            value: '',
+            searchTerm: '',
             mediaEntity: null,
             showPicker: false,
-            searchTerm: '',
+            showUploadField: false,
             suggestedItems: [],
             isLoadingSuggestions: false,
             pickerClasses: {}
@@ -62,10 +62,20 @@ Component.register('sw-media-field', {
             return State.getStore('media');
         },
 
+        uploadStore() {
+            return State.getStore('upload');
+        },
+
         mediaFieldClasses() {
             return {
                 'is--active': this.showPicker
             };
+        },
+
+        toggleButtonLabel() {
+            return this.showUploadField ?
+                this.$tc('global.sw-media-field.labelToggleSearchExisting') :
+                this.$tc('global.sw-media-field.labelToggleUploadNew');
         }
     },
 
@@ -111,6 +121,7 @@ Component.register('sw-media-field', {
             this.showPicker = !this.showPicker;
 
             if (this.showPicker) {
+                this.showUploadField = false;
                 this.computePickerPositionAndStyle();
                 this.fetchSuggestions();
             }
@@ -118,6 +129,10 @@ Component.register('sw-media-field', {
 
         mediaItemChanged(newMediaId) {
             this.$emit('mediaIdChanged', newMediaId);
+        },
+
+        removeLink() {
+            this.$emit('mediaIdChanged', null);
         },
 
         computePickerPositionAndStyle() {
@@ -131,6 +146,24 @@ Component.register('sw-media-field', {
                 width: '100%',
                 top: `${clientRect.height + 10}px`
             };
+        },
+
+        toggleUploadField() {
+            this.showUploadField = !this.showUploadField;
+        },
+
+        uploadNewFile({ uploadTag, data }) {
+            const uploadData = data.pop();
+
+            uploadData.entity.save().then(() => {
+                this.uploadStore.runUploads(uploadTag);
+            });
+        },
+
+        exposeNewId(uploadedEntity) {
+            this.$emit('mediaIdChanged', uploadedEntity.id);
+            this.showUploadField = false;
+            this.showPicker = false;
         }
     }
 });

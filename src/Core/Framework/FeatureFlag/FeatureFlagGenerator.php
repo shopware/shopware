@@ -44,14 +44,13 @@ namespace %s {
 EOD;
 
     private const TEMPLATE_JS = <<<'EOD'
+export const %s = '%s';
 export default {
     %s,
     if%s,
     if%sCall,
     %s
 };
-
-export const %s = '%s';
 
 export function %s() {
     return Shopware.FeatureConfig.isActive('%s');
@@ -110,12 +109,12 @@ EOD;
 
         $contents = sprintf(
             self::TEMPLATE_JS,
+            $capitalName,
+            $lowerCamelCaseName,
             $lowerCamelCaseName,
             $upperCamelCase,
             $upperCamelCase,
             $capitalName,
-            $capitalName,
-            $lowerCamelCaseName,
             $lowerCamelCaseName,
             $lowerCamelCaseName,
             $upperCamelCase,

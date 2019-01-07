@@ -1,16 +1,52 @@
 {
   "presets": [
-    ["env", {
-      "modules": false
-    }],
-    "stage-2"
+    [
+      "@babel/preset-env",
+      {
+        "modules": false
+      }
+    ]
   ],
-  "plugins": ["transform-runtime"],
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-syntax-dynamic-import",
+    "@babel/plugin-syntax-import-meta",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-json-strings",
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "legacy": true
+      }
+    ],
+    "@babel/plugin-proposal-function-sent",
+    "@babel/plugin-proposal-export-namespace-from",
+    "@babel/plugin-proposal-numeric-separator",
+    "@babel/plugin-proposal-throw-expressions"
+  ],
   "comments": false,
   "env": {
     "test": {
-      "presets": ["env", "stage-2"],
-      "plugins": [ "istanbul" ]
+      "presets": [
+        "@babel/preset-env"
+      ],
+      "plugins": [
+        "istanbul",
+        "@babel/plugin-syntax-dynamic-import",
+        "@babel/plugin-syntax-import-meta",
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-proposal-json-strings",
+        [
+          "@babel/plugin-proposal-decorators",
+          {
+            "legacy": true
+          }
+        ],
+        "@babel/plugin-proposal-function-sent",
+        "@babel/plugin-proposal-export-namespace-from",
+        "@babel/plugin-proposal-numeric-separator",
+        "@babel/plugin-proposal-throw-expressions"
+      ]
     }
   }
 }

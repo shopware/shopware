@@ -4,6 +4,7 @@
   "firstName": "Pep",
   "lastName": "Eroni",
   "email": "test@example.com",
+  "guest": true,
   "addresses": [
     {}
   ]

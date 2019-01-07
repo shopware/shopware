@@ -1,5 +1,4 @@
 const process = require('process');
-const seleniumServer = require('selenium-server');
 const chromedriver = require('chromedriver');
 
 const chromeOptions = [
@@ -18,21 +17,16 @@ if (process.env.NIGHTWATCH_HEADLESS === 'true') {
 module.exports = {
     output_folder: 'build/artifacts/e2e',
 
-    selenium: {
+    webdriver: {
         start_process: true,
-        server_path: seleniumServer.path,
-        host: '127.0.0.1',
-        port: 4444,
-        cli_args: {
-            'webdriver.chrome.driver': chromedriver.path
-        }
+        server_path: chromedriver.path,
+        port: 9515
     },
 
     test_settings: {
         default: {
             filter: '**/*.spec.js',
-            selenium_port: 4444,
-            selenium_host: 'localhost',
+
             screenshots: {
                 enabled: true,
                 on_failure: true,
@@ -53,11 +47,7 @@ module.exports = {
         docker: {
             filter: '**/*.spec.js',
             launch_url: 'http://docker.vm:8000/admin',
-            selenium_host: 'selenium',
-            selenium_port: 4444,
-            selenium: {
-                start_process: false
-            },
+
             screenshots: {
                 enabled: true,
                 on_failure: true,

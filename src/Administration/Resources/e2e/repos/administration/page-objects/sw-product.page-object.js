@@ -10,9 +10,9 @@ class ProductPageObject {
         this.browser
             .fillField('input[name=sw-field--product-name]', productName)
             .fillField('.ql-editor', 'My very first description', 'editor')
-            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
-            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
-            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
+            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG', false)
+            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue', false)
+            .fillSelectField('select[name=sw-field--product-taxId]', '19%', false)
             .fillField('input[name=sw-field--price-gross]', '99')
             .click('.sw-product-detail__save-action')
             .checkNotification(`Product "${productName}" has been saved successfully`);

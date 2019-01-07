@@ -1,11 +1,11 @@
+export const NEXT516 = 'next516';
+
 export default {
     next516,
     ifNext516,
     ifNext516Call,
     NEXT516
 };
-
-export const NEXT516 = 'next516';
 
 export function next516() {
     return Shopware.FeatureConfig.isActive('next516');

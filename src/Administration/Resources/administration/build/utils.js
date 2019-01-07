@@ -276,7 +276,6 @@ exports.cssLoaders = function (options) {
     const cssLoader = {
         loader: 'css-loader',
         options: {
-            minimize: process.env.NODE_ENV === 'production',
             sourceMap: options.sourceMap,
             url: false
         }
@@ -290,11 +289,12 @@ exports.cssLoaders = function (options) {
                 loader: loader + '-loader',
                 options: Object.assign({}, loaderOptions, {
                     sourceMap: options.sourceMap
-                })
+                }),
+                loader: loader + '-loader'
             });
         }
 
-        return [ 'vue-style-loader' ].concat(loaders)
+        return [ 'vue-style-loader' ].concat(loaders);
     }
 
     // http://vuejs.github.io/vue-loader/en/configurations/extract-css.html

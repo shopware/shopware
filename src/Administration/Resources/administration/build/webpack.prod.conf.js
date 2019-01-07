@@ -5,7 +5,7 @@ const config = require('../config');
 const merge = require('webpack-merge');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build');
 const env = process.env.NODE_ENV === 'testing'
@@ -30,11 +30,10 @@ const webpackConfig = merge(baseWebpackConfig, {
             minSize: 0
         },
         minimizer: [
-            new UglifyJsPlugin({
-                uglifyOptions: {
-                    compress: {
-                        warnings: false
-                    }
+            new TerserPlugin({
+                terserOptions: {
+                    ecma: 6,
+                    warnings: false
                 },
                 cache: true,
                 parallel: true,

@@ -254,8 +254,10 @@ class Tooltip {
  */
 Directive.register('tooltip', {
     bind: (el, { value, modifiers }) => {
+        let message = hasOwnProperty(value, 'message') ? value.message : value;
+        message = message ? message.trim() : '';
+
         const position = value.position || Object.keys(modifiers)[0];
-        const message = (hasOwnProperty(value, 'message')) ? value.message.trim() : value.trim();
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;
         const width = value.width;
@@ -280,7 +282,9 @@ Directive.register('tooltip', {
     },
 
     update: (el, { value, modifiers }) => {
-        const message = (hasOwnProperty(value, 'message')) ? value.message.trim() : value.trim();
+        let message = hasOwnProperty(value, 'message') ? value.message : value;
+        message = message ? message.trim() : '';
+
         const position = value.position || Object.keys(modifiers)[0];
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;

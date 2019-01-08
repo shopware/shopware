@@ -8,7 +8,7 @@
                         {% block sw_condition_container_children_spacer %}
                             <div v-if="index"
                                  class="condition-content__spacer--and">
-                                {{ $tc('global.sw-condition.condition.and') }}
+                                {{ $tc('global.sw-condition.condition.and').toUpperCase() }}
                             </div>
                         {% endblock %}
                         {% block sw_condition_container_children_component %}

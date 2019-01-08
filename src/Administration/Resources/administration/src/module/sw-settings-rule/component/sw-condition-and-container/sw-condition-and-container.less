@@ -1,7 +1,7 @@
 @import "~less/variables";
 
 @sw-condition-and-container-background-even: @color-white;
-@sw-condition-and-container-background-odd: @color-light-gray;
+@sw-condition-and-container-background-odd: #F0F2F5;
 
 .sw-condition-and-container {
     &.container-condition-level__is--even {
@@ -24,6 +24,21 @@
 
     .sw-condition-and-container__actions {
         margin-top: 20px;
+        .sw-button {
+            height: 32px;
+            border: 1px solid #D1D9E0;
+            border-radius: 4px;
+            padding: auto;
+        }
+
+
+        .sw-button__content {
+            color: #52667A;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 19px;
+            text-align: center;
+        }
 
         .sw-condition-and-container__actions--and {
             margin-right: 10px;

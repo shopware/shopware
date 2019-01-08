@@ -2,6 +2,7 @@
 var path = require('path');
 const process = require('process');
 const appPath = process.argv.slice(2)[0];
+const appEnv = process.env.APP_ENV;
 
 module.exports = {
     build: {
@@ -31,7 +32,7 @@ module.exports = {
         assetsSubDirectory: 'static',
         assetsPublicPath: '/',
         performanceHints: false,
-        openInEditor: true,
+        openInEditor: (appEnv === 'default'),
         editor: 'phpstorm',
         // CSS Sourcemaps off by default because relative paths are "buggy"
         // with this option, according to the CSS-Loader README

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -42,11 +44,10 @@ class RuleConditionDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
-            (new FkField('parent_id', 'parentId', self::class)),
+            new ParentFkField(self::class),
             new JsonField('value', 'value'),
-
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false, 'id'),
-            new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
+            new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),
         ]);
     }

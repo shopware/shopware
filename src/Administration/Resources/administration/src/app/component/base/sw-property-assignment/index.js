@@ -55,6 +55,9 @@ Component.register('sw-property-assignment', {
 
                 this.groupOptions(this.options);
 
+                this.$refs.searchField.addOptionCount();
+                this.$refs.searchField.refreshSelection();
+
                 return;
             }
 
@@ -63,9 +66,14 @@ Component.register('sw-property-assignment', {
         },
 
         deleteOption(option) {
-            option.delete();
+            if (option.isLocal) {
+                this.options.removeById(option.id);
+            } else {
+                option.delete();
+            }
             this.groupOptions(this.options);
             this.$refs.searchField.addOptionCount();
+            this.$refs.searchField.refreshSelection();
         },
 
         groupOptions(options) {

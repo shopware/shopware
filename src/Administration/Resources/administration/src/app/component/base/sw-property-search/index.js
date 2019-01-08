@@ -155,9 +155,11 @@ Component.register('sw-property-search', {
         },
 
         selectOptions(grid) {
+            grid.selectAll(false);
+
             this.preventSelection = true;
             this.options.forEach((option) => {
-                grid.selectItem(true, option);
+                grid.selectItem(!option.isDeleted, option);
             });
             this.preventSelection = false;
         },
@@ -243,6 +245,14 @@ Component.register('sw-property-search', {
                 this.optionTotal = response.total;
                 this.selectOptions(this.$refs.optionGrid);
             });
+        },
+
+        refreshSelection() {
+            if (this.displayTree) {
+                this.selectOptions(this.$refs.optionGrid);
+            } else if (this.displaySearch) {
+                this.selectOptions(this.$refs.optionSearchGrid);
+            }
         },
 
         addOptionCount() {

@@ -2,9 +2,9 @@
 
     <sw-field autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
 
-    <div class="sw-property-search__tree_selection" v-if="displayTree">
+    <div class="sw-property-search__tree-selection" v-if="displayTree">
         <sw-container columns="50% 50%">
-            <sw-grid class="sw-property-search__tree_selection__group_grid" ref="groupGrid" :items="groups" :isFullpage="false" table @sw-grid-select-item="onGroupSelect">
+            <sw-grid class="sw-property-search__tree-selection__group_grid" ref="groupGrid" :items="groups" :isFullpage="false" table @sw-grid-select-item="onGroupSelect">
                 <template slot="columns" slot-scope="{ item }">
                     <sw-grid-column flex="minmax(200px, 1fr)" dataIndex="name" label="">
                         {{ item.name }}
@@ -19,7 +19,7 @@
                 </template>
             </sw-grid>
 
-            <sw-grid class="sw-property-search__tree_selection__option_grid" ref="optionGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
+            <sw-grid class="sw-property-search__tree-selection__option_grid" ref="optionGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
                 <template slot="columns" slot-scope="{ item }">
                     <sw-grid-column flex="200px" dataIndex="name">
                         {{ item.name }}
@@ -33,8 +33,8 @@
         </sw-container>
     </div>
 
-    <div class="sw-property-search__search_selection" v-if="displaySearch">
-        <sw-grid class="sw-property-search__search_selection__option_grid" ref="optionSearchGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-item-selected="onOptionSelect">
+    <div class="sw-property-search__search-selection" v-if="displaySearch">
+        <sw-grid class="sw-property-search__search-selection__option_grid" ref="optionSearchGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-item-selected="onOptionSelect">
             <template slot="columns" slot-scope="{ item }">
                 <sw-grid-column flex="200px" dataIndex="name">
                     {{ item.group.name }} / {{ item.name }}

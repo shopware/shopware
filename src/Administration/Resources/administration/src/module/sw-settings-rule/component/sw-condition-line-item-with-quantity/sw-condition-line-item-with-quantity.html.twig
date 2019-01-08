@@ -1,0 +1,28 @@
+{% block sw_condition_fields %}
+    {% block sw_condition_fields_product %}
+        <sw-select :store="getProductStore()"
+                   :id="condition.id"
+                   class="field sw-condition-line-item-with-quantity__id-select has--arrow"
+                   v-model="condition.value.id">
+        </sw-select>
+    {% endblock %}
+    {% block sw_condition_fields_operator %}
+        <sw-field type="select"
+                  name="operator"
+                  v-model="condition.value.operator"
+                  class="field field--select has--arrow">
+            <template slot="options">
+                <option v-for="operator in operators" :value="operator.identifier">
+                    {{ $tc(operator.label) }}
+                </option>
+            </template>
+        </sw-field>
+    {% endblock %}
+    {% block sw_condition_fields_value %}
+        <sw-field type="number"
+                  step="1"
+                  class="field field--main"
+                  v-model="condition.value.quantity">
+        </sw-field>
+    {% endblock %}
+{% endblock %}

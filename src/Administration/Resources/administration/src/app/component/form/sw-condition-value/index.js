@@ -4,7 +4,6 @@ Component.extend('sw-condition-value', 'sw-select', {
     methods: {
         loadSelections() {
             this.isLoading = true;
-
             if (this.multi) {
                 if (!this.value) {
                     return;
@@ -24,8 +23,9 @@ Component.extend('sw-condition-value', 'sw-select', {
             }
         },
 
-        emitChanges() {
-            this.$emit('input', this.selections);
+        emitChanges(items) {
+            const itemIds = items.map((item) => item.id);
+            this.$emit('input', itemIds);
         }
     }
 });

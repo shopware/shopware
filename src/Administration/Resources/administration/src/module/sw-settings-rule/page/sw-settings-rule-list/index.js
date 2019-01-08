@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import './sw-settings-rule-list.less';
 import template from './sw-settings-rule-list.html.twig';
 
 Component.register('sw-settings-rule-list', {

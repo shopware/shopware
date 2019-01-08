@@ -6,39 +6,36 @@
  * @returns {Object}
  */
 export default function createConditionService() {
-    const $store = {};
+    const $store = {
+        placeholder: {
+            component: 'sw-condition-base',
+            label: 'global.sw-condition.condition.base'
+        }
+    };
     const operators = {
         lowerThanEquals: {
             identifier: '<=',
-            label: 'global.sw-condition-group.operator.lowerThanEquals'
+            label: 'global.sw-condition.operator.lowerThanEquals'
         },
         equals: {
-            identifier: '==',
-            label: 'global.sw-condition-group.operator.equals'
+            identifier: '=',
+            label: 'global.sw-condition.operator.equals'
         },
         greaterThanEquals: {
             identifier: '>=',
-            label: 'global.sw-condition-group.operator.greaterThanEquals'
-        },
-        lowerThan: {
-            identifier: '<',
-            label: 'global.sw-condition-group.operator.lower'
-        },
-        greaterThan: {
-            identifier: '>',
-            label: 'global.sw-condition-group.operator.greater'
+            label: 'global.sw-condition.operator.greaterThanEquals'
         },
         notEquals: {
             identifier: '!=',
-            label: 'global.sw-condition-group.operator.notEquals'
+            label: 'global.sw-condition.operator.notEquals'
         },
         isOneOf: {
             identifier: '=',
-            label: 'global.sw-condition-group.operator.isOneOf'
+            label: 'global.sw-condition.operator.isOneOf'
         },
         isNoneOf: {
             identifier: '!=',
-            label: 'global.sw-condition-group.operator.isNoneOf'
+            label: 'global.sw-condition.operator.isNoneOf'
         }
     };
     const operatorSets = {
@@ -66,8 +63,6 @@ export default function createConditionService() {
         number: [
             operators.equals,
             operators.greaterThanEquals,
-            operators.greaterThan,
-            operators.lowerThan,
             operators.lowerThanEquals,
             operators.notEquals
         ]
@@ -78,7 +73,8 @@ export default function createConditionService() {
         addCondition,
         getConditions,
         operatorSets,
-        operators
+        operators,
+        getPlaceholder
     };
 
     function getByType(type) {
@@ -91,5 +87,9 @@ export default function createConditionService() {
 
     function getConditions() {
         return $store;
+    }
+
+    function getPlaceholder() {
+        return getByType('placeholder');
     }
 }

@@ -6,9 +6,21 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\Type;
 
 class IsNewCustomerRule extends Rule
 {
+    /**
+     * @var bool
+     */
+    protected $isNew;
+
+    public function __construct()
+    {
+        $this->isNew = true;
+        parent::__construct();
+    }
+
     public function match(RuleScope $scope): Match
     {
         if (!$scope instanceof CheckoutRuleScope) {
@@ -24,14 +36,24 @@ class IsNewCustomerRule extends Rule
             return new Match(false, ['Never logged in']);
         }
 
-        return new Match(
-            $customer->getFirstLogin()->format('Y-m-d') === (new \DateTime())->format('Y-m-d'),
-            ['Customer is not new']
-        );
+        switch ($this->isNew) {
+            case true:
+                return new Match(
+                    $customer->getFirstLogin()->format('Y-m-d') === (new \DateTime())->format('Y-m-d'),
+                    ['Customer is not new']
+                );
+            case false:
+                return new Match(
+                    $customer->getFirstLogin()->format('Y-m-d') !== (new \DateTime())->format('Y-m-d'),
+                    ['Customer is new']
+                );
+        }
     }
 
     public static function getConstraints(): array
     {
-        return [];
+        return [
+            'isNew' => [new Type('bool')],
+        ];
     }
 }

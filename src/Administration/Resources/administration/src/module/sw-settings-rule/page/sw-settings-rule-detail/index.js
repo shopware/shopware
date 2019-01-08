@@ -1,10 +1,12 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-settings-rule-detail.html.twig';
+import './sw-settings-rule-detail.less';
 
 Component.register('sw-settings-rule-detail', {
     template,
 
+    inject: ['ruleConditionService'],
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -13,7 +15,8 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             duplicate: false,
-            nestedConditions: []
+            nestedConditions: {},
+            conditionAssociations: {}
         };
     },
 
@@ -43,7 +46,8 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule.id = conditionId;
-            this.rule.getAssociation('conditions').getList({
+            this.conditionAssociations = this.rule.getAssociation('conditions');
+            this.conditionAssociations.getList({
                 page: 1,
                 limit: 500
             }).then(() => {
@@ -56,6 +60,10 @@ Component.register('sw-settings-rule-detail', {
 
                     this.rule.id = ruleId;
                 }
+
+                this.$nextTick(() => {
+                    this.$refs.mainContainer.$emit('finish-loading', this.nestedConditions);
+                });
             });
         },
 
@@ -64,7 +72,9 @@ Component.register('sw-settings-rule-detail', {
                 if (current.parentId === parentId) {
                     const children = this.buildNestedConditions(conditions, current.id);
                     children.forEach((child) => {
-                        current.children.push(child);
+                        if (current.children.indexOf(child) === -1) {
+                            current.children.push(child);
+                        }
                     });
 
                     accumulator.push(current);

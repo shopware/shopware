@@ -155,7 +155,7 @@
       "typeLabelOrder": "Order",
       "typeLabelMedia": "Media"
     },
-    "sw-condition-group": {
+    "sw-condition": {
       "operator": {
         "lowerThanEquals": "Lower than",
         "equals": "Equals",
@@ -171,6 +171,7 @@
           "label": "Date range",
           "useTime": "use time"
         },
+        "base": "Placeholder",
         "salesChannelRule": "sales channel",
         "currencyRule": "currency",
         "billingCountryRule": "billing country",
@@ -178,7 +179,7 @@
         "billingZipCodeRule": "billing zip code",
         "customerGroupRule": "customer group",
         "customerNumberRule": "customer number",
-        "differentAddressRule": "different address",
+        "differentAddressesRule": "different addresses",
         "isNewCustomerRule": "is new customer",
         "lastNameRule": "last name",
         "shippingCountryRule": "shipping country",
@@ -196,11 +197,22 @@
         "lineItemUnitPriceRule": "line item unit price",
         "lineItemTotalPriceRule": "line item total price",
         "lineItemWithQuantityRule": "line item with quantity",
+        "andRule": "And container",
+        "orRule": "Or container",
         "yes": "yes",
         "no": "no",
+        "and": "and",
+        "or": "or",
         "field": {
           "valuePlaceholder": "Value..."
-        }
+        },
+        "placeholder-warning": "Please choose a condition",
+        "not-found": {
+          "label": "Condition was not found",
+          "error-message": "The conditiontype {type} was not found. The condition includes the field: {fields} | The conditiontype {type} was not found. The conditions include the fields: {fields}"
+        },
+        "subCondition": "subcondition",
+        "deleteConditions": "Delete all"
       }
     },
     "sw-product-image": {
@@ -928,6 +940,7 @@
       "columnDescription": "Description",
       "columnDateCreated": "Creation date",
       "columnPriority": "Priority",
+      "columnStatus": "Status",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -938,7 +951,9 @@
       "modalTitleBulkDelete": "Delete Rules",
       "textBulkDeleteConfirm": "Do you really want to delete the selected rules?",
       "titleSidebarItemRefresh": "Refresh",
-      "titleSidebarBulkTrash": "Delete rules"
+      "titleSidebarBulkTrash": "Delete rules",
+      "valid": "Valid",
+      "invalid": "Invalid"
     },
     "detail": {
       "textHeadline": "New rule",

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -130,11 +131,22 @@ class CheckoutRuleLoader
         /** @var RuleCollection $rules */
         $rules = $rules->getEntities();
         $this->rules = $rules;
+        $this->filterValidRules();
 
         $cacheItem->set(serialize($this->rules));
         $this->cache->save($cacheItem);
 
         return $this->rules;
+    }
+
+    private function filterValidRules()
+    {
+        /** @var RuleEntity $rule */
+        foreach ($this->rules as $key => $rule) {
+            if ($rule->isInvalid()) {
+                $this->rules->remove($key);
+            }
+        }
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

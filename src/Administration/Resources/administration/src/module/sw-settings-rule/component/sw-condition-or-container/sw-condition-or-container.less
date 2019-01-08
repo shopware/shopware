@@ -1,0 +1,36 @@
+@import "~less/variables";
+
+@sw-condition-or-container-background-even: @color-white;
+@sw-condition-or-container-background-odd: @color-light-gray;
+
+.sw-condition-or-container {
+    &.container-condition-level__is--even {
+        background-color: @sw-condition-or-container-background-even;
+    }
+
+    &.container-condition-level__is--odd {
+        background-color: @sw-condition-or-container-background-odd;
+    }
+
+    .sw-condition-or-container__condition-content {
+        padding: 20px;
+    }
+
+    .condition-content__spacer--or {
+        padding: 10px 0;
+        margin-left: -10px;
+        font-weight: bold;
+    }
+
+    .sw-condition-or-container__actions {
+        margin-top: 20px;
+
+        .sw-condition-or-container__actions--or {
+            margin-right: 10px;
+        }
+
+        .sw-condition-or-container__actions--delete {
+            float: right;
+        }
+    }
+}

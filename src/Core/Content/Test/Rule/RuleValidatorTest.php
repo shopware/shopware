@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionCollectorInterface;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -50,6 +52,7 @@ class RuleValidatorTest extends TestCase
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->ruleValidator = $this->getContainer()->get(RuleValidator::class);
+        $this->addMockCollections(new TestConditionCollector());
     }
 
     public function testWriteRuleWithInconsistentSubChild(): void
@@ -439,6 +442,20 @@ class RuleValidatorTest extends TestCase
         $this->conditionRepository->create([$data], $this->context);
         static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
     }
+
+    private function addMockCollections(RuleConditionCollectorInterface $collector)
+    {
+        $registry = $this->getContainer()->get(RuleConditionRegistry::class);
+
+        $collected = $registry->collect();
+
+        $collected = array_merge($collected, $collector->getClasses());
+
+        $reflectionClass = new \ReflectionClass(RuleConditionRegistry::class);
+        $property = $reflectionClass->getProperty('classes');
+        $property->setAccessible(true);
+        $property->setValue($registry, $collected);
+    }
 }
 
 class MockOptionalStringArrayRule extends Rule
@@ -467,6 +484,17 @@ class MockIntRule extends Rule
     {
         return [
             'property' => [new NotBlank(), new Type('int')],
+        ];
+    }
+}
+
+class TestConditionCollector implements RuleConditionCollectorInterface
+{
+    public function getClasses(): array
+    {
+        return [
+            MockOptionalStringArrayRule::class,
+            MockIntRule::class,
         ];
     }
 }

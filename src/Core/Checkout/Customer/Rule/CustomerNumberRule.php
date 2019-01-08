@@ -3,10 +3,12 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CustomerNumberRule extends Rule
@@ -15,6 +17,17 @@ class CustomerNumberRule extends Rule
      * @var string[]
      */
     protected $numbers;
+
+    /**
+     * @var string
+     */
+    protected $operator;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->operator = self::OPERATOR_EQ;
+    }
 
     public function match(RuleScope $scope): Match
     {
@@ -29,16 +42,27 @@ class CustomerNumberRule extends Rule
 
         $this->numbers = array_map('strtolower', $this->numbers);
 
-        return new Match(
-            \in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true),
-            ['Customer number not match']
-        );
+        switch ($this->operator) {
+            case self::OPERATOR_EQ:
+                return new Match(
+                    \in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true),
+                    ['Customer number not match']
+                );
+            case self::OPERATOR_NEQ:
+                return new Match(
+                    !\in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true),
+                    ['Customer number match']
+                );
+            default:
+                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+        }
     }
 
     public static function getConstraints(): array
     {
         return [
             'numbers' => [new NotBlank(), new ArrayOfType('string')],
+            'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
     }
 }

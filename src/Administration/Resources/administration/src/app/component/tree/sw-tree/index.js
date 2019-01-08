@@ -44,6 +44,12 @@ export default {
             default: 'childCount'
         },
 
+        searchable: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
         sortable: {
             type: Boolean,
             required: false,
@@ -79,6 +85,10 @@ export default {
         hasActionSlot() {
             return this.$slots && this.$slots.actions;
         }
+    },
+
+    created() {
+        console.log(this.treeItems);
     },
 
     methods: {
@@ -128,10 +138,12 @@ export default {
         startDrag(draggedComponent) {
             draggedComponent.opened = false;
             this.draggedItem = draggedComponent.item;
+            this.$emit('sw-tree-on-drag-start');
         },
 
         endDrag() {
             this.draggedItem = null;
+            this.$emit('sw-tree-on-drag-end');
         },
 
         moveDrag(droppedComponent) {

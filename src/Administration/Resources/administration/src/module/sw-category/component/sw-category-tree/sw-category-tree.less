@@ -1,0 +1,37 @@
+@import "~less/variables";
+
+.sw-category-tree.sw-tree {
+    background: @color-white;
+    border: none;
+    border-right: 1px solid @color-steam-cloud;
+    height: calc(100vh - 152px);
+    width: 400px;
+
+    .sw-tree__actions {
+        padding: 0 30px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border-bottom: 1px solid @color-steam-cloud;
+        height: 64px;
+        width: 100%;
+
+        .sw-category-tree-actions__headline {
+            color: @color-kashmir;
+            font-size: 18px;
+        }
+    }
+
+    .sw-tree__content {
+        padding: 24px 16px 0 16px;
+        max-height: unset;
+        min-height: unset;
+        height: ~"calc(100% - 64px)";
+    }
+
+    .tree-link {
+        cursor: pointer;
+        color: inherit;
+        text-decoration: inherit;
+    }
+}

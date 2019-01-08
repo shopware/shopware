@@ -64,6 +64,10 @@ export default {
             return (this.module !== null) ? this.module.color : '#d8dde6';
         },
 
+        hasAdditionalSlot() {
+            return !!this.$slots.additional;
+        },
+
         pageContainerClasses() {
             return {
                 'has--smart-bar': this.showSmartBar

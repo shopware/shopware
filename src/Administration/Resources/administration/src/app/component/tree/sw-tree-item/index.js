@@ -15,6 +15,12 @@ export default {
             default: {}
         },
 
+        active: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         sortable: {
             type: Boolean,
             required: false,
@@ -53,6 +59,7 @@ export default {
 
         styling() {
             return {
+                'is--active': this.active,
                 'is--dragging': this.isDragging,
                 'is--sortable': this.sortable,
                 'is--opened': this.opened,
@@ -97,7 +104,8 @@ export default {
         },
 
         onDragStart(event) {
-            if (this.isDragging || this.isLoading || !this.sortable) {
+            if (this.isDragging || this.isLoading || !this.sortable
+                || event.target.classList.contains('sw-tree-item__label')) {
                 return;
             }
 

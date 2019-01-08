@@ -119,5 +119,16 @@
     .sw-page__content {
         height: 100%;
         position: relative;
+
+        &.is--split {
+            display: grid;
+            grid-template-columns: min-content 1fr;
+        }
+
+        .content__wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
     }
 }

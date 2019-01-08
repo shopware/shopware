@@ -1,40 +1,54 @@
-{% block sw_category_detail %}
-    <sw-page class="sw-category-detail" v-if="category">
+{% block sw_category %}
+    <sw-page class="sw-category" :class="pageClasses">
 
         <template slot="smart-bar-header">
-            {% block sw_category_detail_smart_bar_header %}
-                <h2 v-if="!isLoading">{{ $tc('sw-category.general.headlineCategories') }}: {{ category.name }}</h2>
+            {% block sw_category_smart_bar_header %}
+                <h2 v-if="category && !isLoading">{{ category.name }}</h2>
+                <h2 v-else>{{ $tc('sw-category.general.headlineCategories') }}</h2>
             {% endblock %}
         </template>
 
         <template slot="smart-bar-actions">
-            {% block sw_category_detail_smart_bar_actions %}
-                <sw-button variant="primary" @click.prevent="onSave">
-                    Speichern
+            {% block sw_category_smart_bar_actions %}
+                <sw-button v-if="category" variant="primary" @click.prevent="onSave">
+                    {{ $tc('sw-category.general.buttonSafeCategory') }}
                 </sw-button>
             {% endblock %}
         </template>
 
-        {% block sw_category_detail_content %}
-            <sw-card-view slot="content" class="sw-category-detail__content">
+        <template slot="additional">
+            {% block sw_category_additional %}
+                <div class="sw-category__tree" v-if="!isMobileViewport || isMobileViewport && !category">
+                    <sw-category-tree
+                        v-if="categories"
+                        :categories="categories"
+                        @sw-category-on-save="onSaveCategories"
+                        @sw-category-on-refresh="onRefreshCategories"
+                        @sw-category-on-duplicate="onDuplicateCategory"
+                        @sw-category-on-reset-details="resetCategory"
+                    ></sw-category-tree>
+                </div>
+            {% endblock %}
+        </template>
 
-                <sw-card title="Kategorie Informationen" :isLoading="isLoading">
-                    <sw-container columns="1fr 186px" gap="32px">
-                        <sw-field label="Name" name="categoryName" v-model="category.name"></sw-field>
+        <template slot="content">
+            {% block sw_category_content %}
+                <div class="sw-category__content" v-if="!isMobileViewport || isMobileViewport && category">
+                    <sw-category-view
+                        v-if="category"
+                        :category="category"
+                        :mediaItem="mediaItem"
+                        :isLoading="isLoading"
+                        @sw-category-view-on-set-media="setMediaItem"
+                        @sw-category-view-on-upload-media="onUploadAdded"
+                    ></sw-category-view>
+                </div>
+            {% endblock %}
 
-                        <label class="sw-category-detail__active">
-                            <sw-field type="switch" label="Kategorie ist aktiv" name="categoryActive" v-model="category.active"></sw-field>
-                        </label>
-                    </sw-container>
+            {% block sw_category_loader %}
+                <sw-loader v-if="!categories"></sw-loader>
+            {% endblock %}
+        </template>
 
-                    <sw-text-editor
-                        label="Beschreibung"
-                        name="description"
-                        v-model="category.cmsDescription">
-                    </sw-text-editor>
-                </sw-card>
-
-            </sw-card-view>
-        {% endblock %}
     </sw-page>
 {% endblock %}

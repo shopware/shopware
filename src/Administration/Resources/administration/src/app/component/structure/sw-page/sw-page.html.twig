@@ -71,7 +71,10 @@
         {% endblock %}
 
         {% block sw_page_content %}
-            <div class="sw-page__content" ref="swPageContent">
+            <div class="sw-page__content" ref="swPageContent" :class="{ 'is--split' : hasAdditionalSlot }">
+                <slot name="additional">
+                    {% block sw_page_slot_additional %}{% endblock %}
+                </slot>
                 <slot name="content">
                     {% block sw_page_slot_content %}{% endblock %}
                 </slot>

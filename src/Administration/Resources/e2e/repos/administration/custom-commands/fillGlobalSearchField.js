@@ -7,11 +7,11 @@ const searchInputCssSelector = 'input.sw-search-bar__input';
  * @param {Boolean} [clearField=true]
  * @returns {exports}
  */
-exports.command = function fillGlobalSearchField(value, clearField = true) {
+exports.command = function fillGlobalSearchField(value, clearField = false) {
     this.waitForElementVisible(searchInputCssSelector);
 
     if (clearField) {
-        this.clearValue(searchInputCssSelector);
+        this.clearInputField(searchInputCssSelector);
     }
 
     this.setValue(searchInputCssSelector, [value, this.Keys.ENTER]);

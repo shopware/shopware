@@ -2178,7 +2178,7 @@ export interface NightwatchCustomCommands {
      * @param {String} selector
      * @param {String} value
      * @param {String} [type=input]
-     * @param {Boolean} [clearField=true]
+     * @param {Boolean} [clearField=false]
      */
     fillField(selector: string, value: string, type?: string, clearField?: boolean): this,
 
@@ -2193,9 +2193,8 @@ export interface NightwatchCustomCommands {
      *
      * @param {String} selector
      * @param {String} value
-     * @param {Boolean} [clearField=true]
      */
-    fillSelectField(selector: string, value: string, clearField?: boolean): this,
+    fillSelectField(selector: string, value: string): this,
 
     /**
      * Finds a form field in the Administration using the provided selector. The method uses that selector to find the element on the page and ticks it.
@@ -2319,6 +2318,14 @@ export interface NightwatchCustomCommands {
      * @param {String|null} [scope=null]
      */
     clickContextMenuItem(menuButtonSelector: string, menuOpenSelector: string, scope?: string | null): this,
+
+    /**
+     * Clears an input field and making sure that the field is in fact empty afterwards
+     *
+     * @param {String} selector
+     * @param {String} type
+     */
+    clearField(selector: string, type: string): this,
 }
 
 /* tslint:disable-next-line:no-empty-interface */

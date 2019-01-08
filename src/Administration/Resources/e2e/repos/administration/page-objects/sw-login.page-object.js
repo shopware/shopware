@@ -12,8 +12,8 @@ class LoginPageObject {
         this.browser
             .waitForElementVisible('.sw-login__form')
             .assert.urlContains('#/login')
-            .fillField(this.elements.usernameField, username)
-            .fillField(this.elements.passwordField, password)
+            .fillField(this.elements.usernameField, username, 'input', true)
+            .fillField(this.elements.passwordField, password, 'input', true)
             .waitForElementVisible(this.elements.submitButton)
             .click(this.elements.submitButton)
             .waitForElementNotPresent('.sw-loader');

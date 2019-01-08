@@ -84,9 +84,9 @@ class SalesChannelPageObject {
             .click('.sw-button--danger')
             .waitForElementVisible('.sw-modal')
             .assert.containsText(
-                '.sw-modal__body',
-                `Are you sure you want to delete this sales channel? ${salesChannelName}`
-            )
+            '.sw-modal__body',
+            `Are you sure you want to delete this sales channel? ${salesChannelName}`
+        )
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
             .getValue(this.elements.salesChannelMenuTitle, function checkValueNotPresent(result) {
@@ -127,7 +127,7 @@ class SalesChannelPageObject {
                 .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
                     this.assert.notEqual(secondResult, me.accessKeyId);
                 })
-                .fillField(me.elements.salesChannelNameInput, salesChannelName)
+                .fillField(me.elements.salesChannelNameInput, salesChannelName, 'input', true)
                 .waitForElementVisible('.sw-sales-channel-detail__save-action')
                 .click('.sw-sales-channel-detail__save-action')
                 .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);

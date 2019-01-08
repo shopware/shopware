@@ -8,11 +8,11 @@
  * @param {Boolean} [clearField=true]
  * @returns {exports}
  */
-exports.command = function fillField(selector, value, type = 'input', clearField = true) {
+exports.command = function fillField(selector, value, type = 'input', clearField = false) {
     this.waitForElementVisible(selector);
 
     if (clearField) {
-        this.clearValue(selector);
+        this.clearField(selector, type);
     }
 
     this.setValue(selector, value);

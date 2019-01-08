@@ -18,7 +18,7 @@ module.exports = {
             .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', global.FixtureService.basicFixture.name)
             .clickContextMenuItem('.sw-tax-list__edit-action', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
-            .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate')
+            .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate','input', true)
             .waitForElementPresent('.sw-settings-tax-detail__save-action')
             .click('.sw-settings-tax-detail__save-action')
             .checkNotification('Tax "Even higher tax rate" has been saved successfully.')

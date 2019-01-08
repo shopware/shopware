@@ -17,7 +17,7 @@ module.exports = {
             .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English')
             .clickContextMenuItem('.sw-language-list__edit-action', '.sw-context-button__button','.sw-grid-row:last-child')
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
-            .fillField('input[name=sw-field--language-name]', 'Very Philippine English')
+            .fillField('input[name=sw-field--language-name]', 'Very Philippine English','input', true)
             .waitForElementPresent('.sw-settings-language-detail__save-action')
             .click('.sw-settings-language-detail__save-action')
             .checkNotification('Language "Very Philippine English" has been saved successfully.')

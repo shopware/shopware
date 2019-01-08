@@ -21,7 +21,7 @@ module.exports = {
             .click('.sw_integration_list__edit-action')
             .waitForElementVisible('.sw-modal__title')
             .assert.containsText('.sw-modal__title', 'Integration')
-            .fillField('input[name=sw-field--currentIntegration-label]', 'Once again: Edits integration')
+            .fillField('input[name=sw-field--currentIntegration-label]', 'Once again: Edits integration','input', true)
             .click('.sw-integration-detail-modal__save-action')
             .checkNotification('Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');

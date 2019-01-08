@@ -24,7 +24,7 @@ module.exports = {
             .click('.sw-admin-menu__sales-channel-item:first-child')
             .waitForElementVisible('.smart-bar__header')
             .assert.containsText('.smart-bar__header h2', fixture.name)
-            .fillField('input[name=sw-field--salesChannel-name]', '2nd Epic Sales Channel at all')
+            .fillField('input[name=sw-field--salesChannel-name]', '2nd Epic Sales Channel at all','input', true)
             .waitForElementVisible('.sw-sales-channel-detail__save-action')
             .click('.sw-sales-channel-detail__save-action');
     },

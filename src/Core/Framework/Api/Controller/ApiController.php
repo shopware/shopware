@@ -112,6 +112,8 @@ class ApiController extends AbstractController
      */
     public function clone(Request $request, Context $context, string $entity, string $id)
     {
+        $entity = $this->urlToSnakeCase($entity);
+        
         $definition = $this->definitionRegistry->get($entity);
 
         $repository = $this->getRepository($definition, $request);

@@ -64,8 +64,10 @@ class Migration1545119776AddTranslationParentId extends MigrationStep
     {
         $drop = sprintf('
             ALTER TABLE `%s`
+            DROP INDEX `fk.%s.language_id`,
             DROP FOREIGN KEY `fk.%s.language_id`',
             $tableName,
+            $this->getTableKeyAlias($tableName),
             $this->getTableKeyAlias($tableName)
         );
         $connection->executeQuery($drop);

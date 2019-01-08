@@ -9,9 +9,8 @@
             <tag name="shopware.entity.definition" entity="plugin"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Plugin\Helper\PaymentMethodHelper" public="true">
+        <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider">
             <argument type="service" id="plugin.repository"/>
-            <argument type="service" id="payment_method.repository"/>
         </service>
     </services>
-</container>                
+</container>

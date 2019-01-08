@@ -55,6 +55,7 @@
                                         :allowMultiSelect="false"
                                         variant="regular"
                                         :caption="$tc('sw-manufacturer.detail.addLogoCaption')"
+                                        :defaultFolder="manufacturer.entityName"
                                         @new-uploads-added="onUploadAdded"
                                         @media-upload-success="setMediaItem"
                                         @sw-media-upload-open-sidebar="openMediaSidebar">

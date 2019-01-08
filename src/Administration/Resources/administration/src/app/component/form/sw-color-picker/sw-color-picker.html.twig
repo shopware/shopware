@@ -1,0 +1,29 @@
+{% block sw_color_picker %}
+    <div class="sw-color-picker" :class="fieldClasses">
+
+        <!-- Label -->
+        {% block sw_color_picker_label %}
+            <label class="sw-color-picker__label" v-if="label.length > 0">
+                {{ label }}
+            </label>
+        {% endblock %}
+
+        <!-- colorpicker -->
+        {% block sw_color_picker_field %}
+            <div class="sw-color-picker__field">
+
+                {% block sw_color_picker_preview %}
+                    <div class="sw-color-picker__preview" v-bind:style="{ background: color }"></div>
+                {% endblock %}
+
+                {% block sw_color_picker_trigger %}
+                    <div class="sw-color-picker__trigger">
+                        <sw-icon class="sw-color-picker__icon" name="default-tools-colorpicker"></sw-icon>
+                    </div>
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

@@ -34,6 +34,7 @@ import './grid/sw-pagination';
 
 import './form/sw-field';
 import './form/sw-price-field';
+import './form/sw-color-picker';
 import './form/sw-select';
 import './form/sw-select-option';
 import './form/sw-text-editor';

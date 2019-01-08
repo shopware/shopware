@@ -48,6 +48,7 @@
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Löschen",
       "labelContextMenuRename": "Umbenennen",
+      "labelContextMenuMove": "Verschieben",
       "labelContextMenuShowMedia": "Medien anzeigen",
       "labelContextMenuShowSettings": "Einstellungen",
       "labelContextMenuDissolve": "Auflösen"
@@ -75,13 +76,22 @@
     },
     "sw-media-modal-folder-dissolve": {
       "titleModal": "Ordner auflösen",
-      "dissolveMessage":"Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
+      "dissolveMessage": "Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
       "buttonDissolve": "Auflösen",
       "buttonCancel": "Abbrechen",
       "notificationSuccessSingle": "Ordner \"{folderName}\" erfolgreich aufgelöst",
       "notificationErrorSingle": "Fehler beim Auflösen von \"{folderName}\"",
       "notificationSuccessOverall": "Ordner erfolgreich aufgelöst",
       "notificationErrorOverall": "Die Ordner konnten nicht aufgelöst werden"
+    },
+    "sw-media-modal-move": {
+      "titleModal": "\"{mediaName}\" verschieben | {count} Objekte verschieben",
+      "buttonMove": "Verschieben",
+      "buttonAbort": "Abbrechen",
+      "notificationSuccessSingle": "\"{mediaName}\" erfolgreich verschoben",
+      "notificationErrorSingle": "Fehler beim verschieben von \"{mediaName}\"",
+      "notificationSuccessOverall": "Objekte erfolgreich verschoben.",
+      "notificationErrorOverall": "Fehler beim verschieben"
     },
     "sw-media-modal-replace": {
       "titleModal": "Medien ersetzen",

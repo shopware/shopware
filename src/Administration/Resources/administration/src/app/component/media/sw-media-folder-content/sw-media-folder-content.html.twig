@@ -1,0 +1,51 @@
+{% block sw_media_folder_content %}
+    <div class="sw-media-folder-content">
+        {% block sw_media_folder_content_folder_listing %}
+            <ul v-if="subFolders.length" class="sw-media-folder-content__folder-listing">
+                {% block sw_media_folder_content_list_item %}
+
+                    <li v-if="parentFolder !== null" class="sw-media-folder-content__list-item">
+                        <button class="sw-media-folder-content__button sw-media-folder-content__parent-folder"
+                                @click="emitInput(parentFolder)">
+                            {% block sw_media_folder_content_folder_icon %}
+                                <sw-icon class="sw-media-folder-content__folder-icon"
+                                         name="folder-thumbnail"
+                                         size="24px"
+                                         multicolor>
+                                </sw-icon>
+                            {% endblock %}
+                            {{ parentFolder.name }}
+                        </button>
+                    </li>
+
+                    <li v-for="folder in subFolders"
+                        :key="folder.id"
+                        class="sw-media-folder-content__list-item">
+
+                        {% block sw_media_folder_content_button_folder %}
+                            <button class="sw-media-folder-content__button sw-media-folder-content__folder-button"
+                                    v-bind:class="{'--selected': folder.id === selectedId}"
+                                    @click="emitInput(folder)">
+                                {% block sw_media_folder_content_folder_icon %}
+                                    <sw-icon class="sw-media-folder-content__folder-icon"
+                                             name="folder-thumbnail"
+                                             size="24px"
+                                             multicolor>
+                                    </sw-icon>
+                                {% endblock %}
+                                {{ folder.name }}
+                            </button>
+                                {% block sw_media_folder_content_switch_button %}
+                                    <sw-icon v-if="folder.childCount > 0"
+                                             class="sw-media-folder-content__switch-button"
+                                             name="small-arrow-small-right"
+                                             size="16px">
+                                    </sw-icon>
+                                {% endblock %}
+                        {% endblock %}
+                    </li>
+                {% endblock %}
+            </ul>
+        {% endblock %}
+    </div>
+{% endblock %}

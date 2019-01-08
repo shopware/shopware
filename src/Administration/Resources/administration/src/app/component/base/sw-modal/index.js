@@ -92,7 +92,7 @@ Component.register('sw-modal', {
         },
 
         closeModalOnClickOutside(domEvent) {
-            if (!this.$refs.dialog.contains(domEvent.target)) {
+            if (!this.$refs.dialog || !this.$refs.dialog.contains(domEvent.target)) {
                 this.closeModal();
             }
         },

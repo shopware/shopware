@@ -1,0 +1,69 @@
+{% block sw_media_modal_move %}
+    <sw-modal variant="default"
+              class="sw-media-modal-move"
+              @closeModal="closeMoveModal"
+              :title="$tc('global.sw-media-modal-move.titleModal', itemsToMove.length, { mediaName: this.mediaNameFilter(itemsToMove[0]), count: itemsToMove.length }) ">
+
+        {% block sw_media_modal_body %}
+            {% block sw_media_modal_move_breadcrumbs %}
+                <div class="sw-media-modal-move-folder-breadcrumbs">
+                    <sw-icon class="sw-media-modal-move__folder-icon"
+                             name="folder-thumbnail"
+                             size="16px"
+                             multicolor>
+                    </sw-icon>
+
+                    <button v-if="parentFolder && parentFolder.id !== targetFolder.id"
+                            class="sw-media-modal-move__breadcrumb-btn --parent"
+                            @click="selection(parentFolder)">
+                        <sw-icon class="sw-media-folder-content__switch-button"
+                                 name="small-arrow-small-right"
+                                 size="16px">
+                        </sw-icon>
+                        {{ parentFolder.name }}
+                    </button>
+
+                    <button v-if="displayFolder && displayFolder.id !== targetFolder.id"
+                            class="sw-media-modal-move__breadcrumb-btn"
+                            @click="selection(displayFolder)">
+                        <sw-icon class="sw-media-folder-content__switch-button"
+                                 name="small-arrow-small-right"
+                                 size="16px">
+                        </sw-icon>
+                        {{ displayFolder.name }}
+                    </button>
+
+                    <button v-if="targetFolder"
+                            class="sw-media-modal-move__breadcrumb-btn --target"
+                            @click="selection(targetFolder)">
+                        <sw-icon class="sw-media-folder-content__switch-button"
+                                 name="small-arrow-small-right"
+                                 size="16px">
+                        </sw-icon>
+                        {{ targetFolder.name }}
+                    </button>
+                </div>
+                {% endblock %}
+            <sw-media-folder-content :startFolderId="displayFolderId" :selectedId="targetFolderId" @selected="selection"></sw-media-folder-content>
+        {% endblock %}
+
+        {% block sw_media_modal_footer %}
+            <template slot="modal-footer">
+                {% block sw_media_modal_move_cancel_button %}
+                    <sw-button @click="closeMoveModal" size="small">
+                        {{ $tc('global.sw-media-modal-move.buttonAbort') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_media_modal_move_confirm_button %}
+                    <sw-button class="sw-media-modal-move__confirm"
+                               @click="moveSelection"
+                               size="small"
+                               variant="primary">
+                        {{ $tc('global.sw-media-modal-move.buttonMove') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

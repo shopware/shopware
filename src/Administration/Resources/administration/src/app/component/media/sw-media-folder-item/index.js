@@ -35,7 +35,8 @@ Component.register('sw-media-folder-item', {
     data() {
         return {
             showSettings: false,
-            showDissolveModal: false
+            showDissolveModal: false,
+            showMoveModal: false
         };
     },
 
@@ -143,6 +144,14 @@ Component.register('sw-media-folder-item', {
             dissolvePromise.then((ids) => {
                 this.$emit('sw-media-folder-item-dissolve', ids);
             });
+        },
+
+        openMoveModal() {
+            this.showMoveModal = true;
+        },
+
+        closeMoveModal() {
+            this.showMoveModal = false;
         }
     }
 });

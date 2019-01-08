@@ -48,6 +48,7 @@
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Delete",
       "labelContextMenuRename": "Rename",
+      "labelContextMenuMove": "Move",
       "labelContextMenuShowMedia": "Show media",
       "labelContextMenuShowSettings": "Settings",
       "labelContextMenuDissolve": "Dissolve"
@@ -82,6 +83,15 @@
       "notificationErrorSingle": "Error dissolving \"{folderName}\"",
       "notificationSuccessOverall": "Folders have been dissolved successfully",
       "notificationErrorOverall": "Error dissolving folders"
+    },
+    "sw-media-modal-move": {
+      "titleModal": "Move \"{mediaName}\" | Move {count} items",
+      "buttonMove": "Move",
+      "buttonAbort": "Cancel",
+      "notificationSuccessSingle": "File \"{mediaName}\" successfully Moved",
+      "notificationErrorSingle": "Error moving \"{mediaName}\"",
+      "notificationSuccessOverall": "Media item successfully moved.",
+      "notificationErrorOverall": "Error moving item"
     },
     "sw-media-modal-replace": {
       "titleModal": "Replace media files",

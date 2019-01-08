@@ -19,12 +19,6 @@ Component.register('sw-color-picker', {
             default: ''
         },
 
-        placeholder: {
-            type: String,
-            required: false,
-            default: ''
-        },
-
         disabled: {
             type: Boolean,
             required: false,
@@ -108,8 +102,8 @@ Component.register('sw-color-picker', {
 
         onClose(value) {
             this.open = false;
-            this.color = value.hex;
-            this.$emit('sw-color-picker-close', value.hex);
+            this.color = value.hex.substring(0, 7);
+            this.$emit('input', this.color);
         }
     }
 });

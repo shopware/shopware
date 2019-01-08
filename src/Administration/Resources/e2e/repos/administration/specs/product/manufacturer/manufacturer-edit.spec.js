@@ -1,16 +1,16 @@
-const manufacturerFixture = global.FixtureService.loadJson('manufacturer.json');
-
 module.exports = {
     '@tags': ['product', 'manufacturer-edit', 'manufacturer', 'edit'],
     before: (browser, done) => {
-        global.FixtureService.create('/v1/product-manufacturer', manufacturerFixture, 'manufacturer', done);
+        global.FixtureService.create('product-manufacturer').then(() => {
+            done();
+        });
     },
     'navigate to manufacturer module and look for manufacturer to be edited': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .assert.urlContains('#/sw/manufacturer/index')
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-grid-row:first-child', manufacturerFixture.name);
+            .assert.containsText('.sw-grid-row:first-child', global.FixtureService.basicFixture.name);
     },
     'open manufacturer details and change the given data': (browser) => {
         browser

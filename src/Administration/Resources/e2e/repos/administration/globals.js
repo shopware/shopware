@@ -29,13 +29,15 @@ module.exports = {
             done();
         });
     },
-    afterEach(done) {
+    afterEach(client, done) {
+        console.log();
         console.log("### Resetting database to clean state...");
         exec(`${process.env.PROJECT_ROOT}psh.phar e2e:restore-db`).then(() => {
-            console.log('• ✓ - Done with reset');
+            console.log('• ✓ - Successful');
             done();
         }).catch((err) => {
-            console.error(err);
+            console.log();
+            console.error('• ✖ - ', err);
         });
     }
 };

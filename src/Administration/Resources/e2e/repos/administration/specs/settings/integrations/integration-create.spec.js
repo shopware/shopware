@@ -1,5 +1,3 @@
-const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
-
 module.exports = {
     '@tags': ['integration-create','integration', 'create'],
     'open integration module': (browser) => {

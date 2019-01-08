@@ -1,9 +1,9 @@
-const countryFixture = global.FixtureService.loadJson('country.json');
-
 module.exports = {
     '@tags': ['setting', 'country-edit', 'country', 'edit'],
     before: (browser, done) => {
-        global.FixtureService.create('/v1/country', countryFixture, 'country', done);
+        global.FixtureService.create('country').then(() => {
+            done();
+        });
     },
     'open country module and look for country to be edited': (browser) => {
         browser
@@ -11,7 +11,7 @@ module.exports = {
             .waitForElementVisible('.sw-settings-country-list-grid')
             .waitForElementNotPresent('.sw-alert__message')
             .waitForElementVisible('.sw-country-list__column-name:first-child')
-            .assert.containsText('.sw-country-list__column-name:first-child',  countryFixture.name);
+            .assert.containsText('.sw-country-list__column-name:first-child',  global.FixtureService.basicFixture.name);
     },
     'edit country': (browser) => {
         browser

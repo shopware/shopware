@@ -1,10 +1,11 @@
 const productPage = require('administration/page-objects/sw-product.page-object.js');
-let categoryFixture = FixtureService.loadJson('category.json');
 
 module.exports = {
     '@tags': ['product-create', 'product', 'create', 'upload'],
     before: (browser, done) => {
-        FixtureService.create('/v1/category', categoryFixture, 'category', done);
+        global.FixtureService.create('category').then(() => {
+            done();
+        });
     },
     'open product listing': (browser) => {
         browser
@@ -29,9 +30,9 @@ module.exports = {
             .fillSwSelectComponent(
                 '.sw-product-detail__select-category',
                 {
-                    value: 'MainCategory',
+                    value: global.FixtureService.basicFixture.name,
                     isMulti: true,
-                    searchTerm: 'MainCategory'
+                    searchTerm: global.FixtureService.basicFixture.name
                 }
             )
             .click('.sw-product-detail__save-action')
@@ -68,7 +69,7 @@ module.exports = {
             .waitForElementVisible('.sw-media-preview__item')
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-item')
             .assert.containsText('.ql-editor', 'My very first description')
-            .assert.containsText('.sw-product-category-form .sw-select__selection-item', 'MainCategory')
+            .assert.containsText('.sw-product-category-form .sw-select__selection-text', global.FixtureService.basicFixture.name)
             .click('a.smart-bar__back-btn');
     },
     after: (browser) => {

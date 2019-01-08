@@ -93,9 +93,10 @@ export default class SalesChannelFixtureService extends FixtureService {
         }).then((finalChannelData) => {
             return this.apiClient.post('/v1/sales-channel?_response=true', finalChannelData);
         }).catch((err) => {
-            console.log('• ✖ - Error: ', err);
+            console.log('• ✖ - ', err);
         }).then((salesChannel) => {
-            console.log('• ✓ - Created: ', salesChannel.id);
+            console.log('• ✓ - ', salesChannel.id);
+            console.log();
         });
     }
 }

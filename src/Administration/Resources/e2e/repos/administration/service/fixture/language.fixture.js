@@ -29,11 +29,12 @@ export default class LanguageFixtureService extends FixtureService {
                 localeId: localeId,
             }, languageData);
         }).then((finalLanguageData) => {
-            return this.apiClient.post('/v1/language?response=true', finalLanguageData, userData);
+            return this.apiClient.post('/v1/language?_response=true', finalLanguageData, userData);
         }).catch((err) => {
-            console.log('• ✖ - Error: ', err);
-        }).then(() => {
-            console.log('• ✓ - Created language: ', languageData.name);
+            console.log('• ✖ - ', err);
+        }).then((language) => {
+            console.log('• ✓ - ', language.id);
+            console.log();
         });
     }
 }

@@ -1,11 +1,9 @@
-const integrationFixture = global.FixtureService.loadJson('integration.json');
-
 module.exports = {
-    '@tags': ['integration-edit','integration', 'edit'],
+    '@tags': ['integration-edit', 'integration', 'edit'],
     before: (browser, done) => {
-        global.FixtureService.create('/v1/integration', integrationFixture, 'integration', done);
-        integrationFixture.name='Edits integration';
-        integrationFixture.label='Edits integration';
+        global.IntegrationFixtureService.setIntegrationFixtures().then(() => {
+            done();
+        });
     },
     'open integration module and look for the integration to be edited': (browser) => {
         browser
@@ -13,7 +11,7 @@ module.exports = {
             .waitForElementVisible('.sw-integration-list__welcome-headline')
             .assert.containsText('.sw-integration-list__welcome-headline', 'Welcome to the integration management')
             .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', integrationFixture.name);
+            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', global.IntegrationFixtureService.integrationFixture.name);
     },
     'edit integration': (browser) => {
         browser

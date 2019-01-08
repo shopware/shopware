@@ -89,9 +89,10 @@ export default class CustomerFixtureService extends FixtureService {
         }).then((finalCustomerData) => {
             return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
         }).catch((err) => {
-            console.log('• ✖ - Error: ', err);
+            console.log('• ✖ - ', err);
         }).then((customer) => {
-            console.log(`• ✓ - Created: ${customer.id}`);
+            console.log(`• ✓ - ${customer.id}`);
+            console.log();
         });
     }
 }

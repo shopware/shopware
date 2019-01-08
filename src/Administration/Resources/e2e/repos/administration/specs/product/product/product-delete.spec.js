@@ -6,7 +6,7 @@ module.exports = {
     '@tags': ['product-delete', 'product', 'delete'],
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixtures(fixture).then(() => {
-            done()
+            done();
         });
     },
     'open product listing and look for the product to be deleted': (browser) => {

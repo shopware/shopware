@@ -7,6 +7,7 @@ const uuid = require('uuid/v4');
 export default class FixtureService {
     constructor() {
         this.apiClient = new AdminApiService(process.env.APP_URL);
+        this.basicFixture = "";
 
         // Automatic loading of fixtures
         glob.sync(path.join(__dirname, './fixture/*.js')).forEach((fileName) => {
@@ -14,13 +15,31 @@ export default class FixtureService {
         });
     }
 
-    create(url, fixtureData, type, done) {
+    setBasicFixture(json) {
+        this.basicFixture = this.loadJson(json);
+    }
+
+    create(type, userData = {}) {
         console.log(`### Set ${type} fixtures...`);
 
-        this.apiClient.post(url, fixtureData).then(() => {
-            console.log(`• ✓ - Created ${type}: ${fixtureData.name}`);
-            done();
-        });
+        this.setBasicFixture(`${type}.json`);
+        const finalRawData = this.mergeFixtureWithData(this.basicFixture, userData);
+
+        return this.apiClient.post(`/v1/${type}?response=true`, finalRawData)
+            .then(() => {
+                return this.apiClient.post(`/v1/search/${type}?response=true`, {
+                    filter: [{
+                        field: "name",
+                        type: "equals",
+                        value: finalRawData.name,
+                    }]
+                });
+            }).catch((err) => {
+                console.log('• ✖ - ', err);
+            }).then((data) => {
+                console.log(`• ✓ - ${data.id}`);
+                console.log();
+            });
     }
 
     createUuid() {
@@ -35,7 +54,7 @@ export default class FixtureService {
     loadJson(fileName) {
         try {
             return require(`administration/@fixtures/${fileName}`);
-        } catch(err) {
+        } catch (err) {
             console.log('• ✖ - Error: ', err);
         }
 

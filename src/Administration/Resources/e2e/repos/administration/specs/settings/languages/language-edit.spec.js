@@ -10,7 +10,7 @@ module.exports = {
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages')
             .waitForElementVisible('.sw-settings-language-list-grid')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English');
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', global.LanguageFixtureService.languageFixture.name);
     },
     'edit language': (browser) => {
         browser

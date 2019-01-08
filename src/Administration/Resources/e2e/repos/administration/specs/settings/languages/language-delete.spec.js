@@ -9,7 +9,7 @@ module.exports = {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages')
             .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English');
+            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', global.LanguageFixtureService.languageFixture.name);
     },
     'delete language': (browser) => {
         browser

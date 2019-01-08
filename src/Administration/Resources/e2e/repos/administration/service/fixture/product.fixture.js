@@ -55,9 +55,10 @@ export default class ProductFixture extends FixtureService {
         }).then((finalProductData) => {
             return this.apiClient.post('/v1/product?_response=true', finalProductData);
         }).catch((err) => {
-            console.log('• ✖ - Error: ', err);
+            console.log('• ✖ - ', err);
         }).then((product) => {
-            console.log('• ✓ - Created: ', product.id);
+            console.log('• ✓ - ', product.id);
+            console.log();
         });
     }
 }

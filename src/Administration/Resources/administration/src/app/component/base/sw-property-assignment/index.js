@@ -1,9 +1,16 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-property-assignment.html.twig';
-import './sw-property-assignment.html.less';
+import './sw-property-assignment.less';
 
 Component.register('sw-property-assignment', {
     template,
+
+    props: {
+        options: {
+            type: Object, // requires an Association store
+            required: true
+        }
+    },
 
     data() {
         return {
@@ -13,25 +20,18 @@ Component.register('sw-property-assignment', {
         };
     },
 
-    props: {
-        options: {
-            type: Object, // requires an Association store
-            required: true
-        }
-    },
-
     computed: {
         groupStore() {
             return State.getStore('configuration_group');
         }
     },
 
-    mounted() {
-        this.mountedComponent();
+    created() {
+        this.createdComponent();
     },
 
     methods: {
-        mountedComponent() {
+        createdComponent() {
             const params = { page: 1, limit: 500 };
 
             return this.options.getList(params).then(() => {

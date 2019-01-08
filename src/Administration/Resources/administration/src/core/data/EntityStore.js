@@ -42,7 +42,7 @@ export default class EntityStore {
      * @return {EntityProxy}
      */
     getById(id, force = false) {
-        if (this.store[id] && force !== true) {
+        if (this.hasId(id) && force !== true) {
             return this.store[id];
         }
 
@@ -100,7 +100,7 @@ export default class EntityStore {
 
             response.data.forEach((item) => {
                 const entity = this.create(item.id);
-                entity.setData(item, !keepAssociations, keepAssociations);
+                entity.setData(item, !keepAssociations, keepAssociations, keepAssociations);
                 items.push(entity);
             });
 
@@ -116,7 +116,7 @@ export default class EntityStore {
      * @return {EntityProxy}
      */
     create(id = utils.createId()) {
-        if (this.store[id]) {
+        if (this.hasId(id)) {
             return this.store[id];
         }
 
@@ -137,7 +137,7 @@ export default class EntityStore {
 
         this.store[newId] = new this.EntityClass(this.entityName, this.apiService, newId, this);
 
-        if (this.store[id]) {
+        if (this.hasId(id)) {
             const duplicateData = deepCopyObject(this.store[id].draft);
             duplicateData.id = newId;
 
@@ -198,7 +198,7 @@ export default class EntityStore {
      * @return {boolean}
      */
     remove(entity) {
-        if (!hasOwnProperty(entity, 'id') || !this.store[entity.id]) {
+        if (!hasOwnProperty(entity, 'id') || !this.hasId(entity.id)) {
             return false;
         }
 
@@ -214,7 +214,7 @@ export default class EntityStore {
      * @return {boolean}
      */
     removeById(id) {
-        if (!this.store[id]) {
+        if (!this.hasId(id)) {
             return false;
         }
 

@@ -1,9 +1,10 @@
+@import "~less/variables";
+
 .sw-configuration-option-list {
     height: 865px;
 
     .sw-empty-state {
-        height: 200px;
-        margin-top: 30px;
+        position: static
     }
 
     .media-column .sw-grid__cell-content {
@@ -15,14 +16,16 @@
     }
 
     .sw-configuration-option-list__toolbar {
-        background: #000;
         padding: 25px 35px;
-        background-color: #F9FAFB;
-        border-bottom: 1px solid #D8DDE6;
+        background-color: @color-light-gray;
+        border-bottom: 1px solid @color-steam-cloud;
 
         .sw-configuration-option-list__delete-button {
-            border-color: #DE294C;
+            border-color: @color-crimson;
 
+            .sw-icon {
+                color: @color-crimson;
+            }
             &.sw-button--disabled {
                 opacity: 0.2;
             }
@@ -33,11 +36,11 @@
         }
 
         .sw-simple-search-field .sw-simple-search-field__input {
-            margin-bottom: 0px;
+            margin-bottom: 0;
 
             input {
                 height: 32px;
-                background: #fff;
+                background: @color-white;
                 padding: 0 20px 0 56px;
             }
         }

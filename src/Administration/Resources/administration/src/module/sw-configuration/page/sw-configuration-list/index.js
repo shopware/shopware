@@ -10,7 +10,7 @@ Component.register('sw-configuration-list', {
 
     data() {
         return {
-            orders: [],
+            configurations: [],
             isLoading: false,
             showDeleteModal: false
         };
@@ -23,17 +23,6 @@ Component.register('sw-configuration-list', {
     },
 
     methods: {
-        onEdit(configuration) {
-            if (configuration && configuration.id) {
-                this.$router.push({
-                    name: 'sw.configuration.detail',
-                    params: {
-                        id: configuration.id
-                    }
-                });
-            }
-        },
-
         onDelete(id) {
             this.showDeleteModal = id;
         },
@@ -47,16 +36,6 @@ Component.register('sw-configuration-list', {
 
             return this.configurationStore.getById(id).delete(true).then(() => {
                 this.getList();
-            });
-        },
-
-        onInlineEditSave(configuration) {
-            this.isLoading = true;
-
-            configuration.save().then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
             });
         },
 

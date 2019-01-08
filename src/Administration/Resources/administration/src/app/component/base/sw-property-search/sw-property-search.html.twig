@@ -1,4 +1,4 @@
-<div class="sw-property-search" :class="{ overlay: overlay }">
+<div class="sw-property-search" :class="swPropertySearchClasses">
 
     <sw-field autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
 
@@ -11,7 +11,7 @@
                     </sw-grid-column>
 
                     <sw-grid-column flex="1fr" dataIndex="assignedOptions">
-                        <span v-if="item.optionCount > 0">{{ item.optionCount }} {{ $tc('sw-property-search.selected') }}</span>
+                        <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', item.optionCount, { count: item.optionCount }) }}</span>
                     </sw-grid-column>
                 </template>
                 <template slot="pagination">

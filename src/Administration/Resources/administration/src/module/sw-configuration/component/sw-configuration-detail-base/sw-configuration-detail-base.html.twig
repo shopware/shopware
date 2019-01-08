@@ -7,7 +7,7 @@
     <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
 
         <sw-field v-model="group.displayType" validation="required" type="select" :label="$tc('sw-configuration.detail.labelDisplayType')" >
-            <option slot="options" v-for="option in displayTypes" :value="option.value">{{ option.label }}</option>
+            <option slot="options" v-for="option in displayTypes" :value="option.value" :key="option.value">{{ option.label }}</option>
         </sw-field>
 
         <sw-field v-model="group.sortingType" validation="required" type="select" :label="$tc('sw-configuration.detail.labelSortingType')" >

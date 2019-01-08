@@ -26,10 +26,7 @@ Component.register('sw-configuration-option-list', {
     props: {
         group: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         }
     },
 
@@ -71,7 +68,6 @@ Component.register('sw-configuration-option-list', {
             this.term = value;
 
             this.page = 1;
-            this.updateRoute();
             this.getList();
         },
 
@@ -94,7 +90,7 @@ Component.register('sw-configuration-option-list', {
 
             this.options = [];
             return this.optionStore.getList(params, true).then((response) => {
-                this.total = response.total * 1;
+                this.total = response.total;
                 this.options = response.items;
                 this.isLoading = false;
 

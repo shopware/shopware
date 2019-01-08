@@ -8,8 +8,7 @@
                                          v-if="mediaEntity"
                                          :item="mediaEntity"
                                          :isList="true"
-                                         :showContextMenuButton="false"
-                                         @sw-media-item-clicked="mediaItemChanged(suggestion.id)">
+                                         :showContextMenuButton="false">
                     </sw-media-media-item>
                     <div v-else class="sw-media-field__empty-preview"></div>
                 {% endblock %}

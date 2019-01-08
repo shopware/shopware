@@ -5,7 +5,7 @@
             <sw-simple-search-field @searchTermChanged="onSearch" v-model="term" />
 
             <sw-button :disabled="deleteButtonDisabled" @click="onDeleteOptions" square size="small" class="sw-configuration-option-list__delete-button">
-                <sw-icon name="default-action-trash" size="14" color="#DE294C" />
+                <sw-icon name="default-action-trash" small />
             </sw-button>
 
             <sw-button :disabled="group.isLoading" @click="onAddOption(group)" size="small" class="sw-configuration-option-list__add-button">

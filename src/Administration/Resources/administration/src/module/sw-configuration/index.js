@@ -22,7 +22,8 @@ Module.register('sw-configuration', {
             components: {
                 default: 'sw-configuration-list'
             },
-            path: 'index'
+            path: 'index',
+            alias: '/'
         },
         detail: {
             component: 'sw-configuration-detail',

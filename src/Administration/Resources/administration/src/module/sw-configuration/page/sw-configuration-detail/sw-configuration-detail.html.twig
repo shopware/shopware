@@ -16,6 +16,6 @@
 
     <sw-card-view slot="content" sidebar>
         <sw-configuration-detail-base :group="group" />
-        <sw-configuration-option-list :group="group" ref="optionListing" v-if="group.sortingType" />
+        <sw-configuration-option-list v-if="group.sortingType" :group="group" ref="optionListing" />
     </sw-card-view>
 </sw-page>

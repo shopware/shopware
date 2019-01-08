@@ -149,7 +149,7 @@ class ConfigurationGroupOptionEntity extends Entity
         return $this->group;
     }
 
-    public function setGroup(?ConfigurationGroupEntity $group): void
+    public function setGroup(ConfigurationGroupEntity $group): void
     {
         $this->group = $group;
     }

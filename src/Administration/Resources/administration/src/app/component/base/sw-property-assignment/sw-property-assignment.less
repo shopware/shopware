@@ -1,12 +1,13 @@
 @import "~less/variables";
 
+@sw-property-assignment-background-color-options-item: @color-light-gray;
+
 .sw-property-assignment__grid_option_item {
-    padding: 10px 10px;
-    background: @color-light-gray;
-    margin-right: 10px;
-    border-radius: 4px;
+    padding: 10px;
+    background: @sw-property-assignment-background-color-options-item;
+    border-radius: @border-radius-default;
     display: inline-block;
-    margin-bottom: 10px;
+    margin: 0 10px 10px 0
 }
 
 .sw-property-assignment__grid_option_item_value {
@@ -14,7 +15,6 @@
 }
 
 .sw-property-assignment .sw-property-assignment__grid_option_column {
-    overflow: scroll;
     .sw-grid__cell-content {
         display: block;
     }

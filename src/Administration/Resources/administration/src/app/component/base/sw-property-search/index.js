@@ -6,22 +6,6 @@ import './sw-property-search.less';
 Component.register('sw-property-search', {
     template,
 
-    data() {
-        return {
-            groups: [],
-            groupOptions: [],
-            displayTree: false,
-            preventSelection: false,
-            displaySearch: false,
-            currentGroup: null,
-            searchTerm: '',
-            groupPage: 1,
-            optionPage: 1,
-            groupTotal: 1,
-            optionTotal: 1
-        };
-    },
-
     props: {
         collapsible: {
             type: Boolean,
@@ -42,7 +26,27 @@ Component.register('sw-property-search', {
         }
     },
 
+    data() {
+        return {
+            groups: [],
+            groupOptions: [],
+            displayTree: false,
+            preventSelection: false,
+            displaySearch: false,
+            currentGroup: null,
+            searchTerm: '',
+            groupPage: 1,
+            optionPage: 1,
+            groupTotal: 1,
+            optionTotal: 1
+        };
+    },
+
     computed: {
+        swPropertySearchClasses() {
+            return { overlay: this.overlay };
+        },
+
         groupStore() {
             return State.getStore('configuration_group');
         },
@@ -62,9 +66,6 @@ Component.register('sw-property-search', {
 
     methods: {
         createdComponent() {
-            this.groups = [];
-            this.groupOptions = [];
-
             if (this.collapsible) {
                 document.addEventListener('click', this.closeOnClickOutside);
                 document.addEventListener('keyup', this.closeOnClickOutside);
@@ -77,8 +78,8 @@ Component.register('sw-property-search', {
 
         destroyedComponent() {
             if (this.collapsible) {
-                document.addEventListener('click', this.closeOnClickOutside);
-                document.addEventListener('keyup', this.closeOnClickOutside);
+                document.removeEventListener('click', this.closeOnClickOutside);
+                document.removeEventListener('keyup', this.closeOnClickOutside);
             }
         },
 
@@ -104,10 +105,7 @@ Component.register('sw-property-search', {
                 return;
             }
 
-            this.$emit('sw-property-search-option-selected', {
-                item: item,
-                selected: selected
-            });
+            this.$emit('sw-property-search-option-selected', { item, selected });
             this.addOptionCount();
         },
 

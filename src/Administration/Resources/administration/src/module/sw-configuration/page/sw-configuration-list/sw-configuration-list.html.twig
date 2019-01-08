@@ -21,7 +21,7 @@
     <template slot="content">
         <div class="sw-configuration-list__content">
 
-            <sw-grid v-if="total || term" :items="configurations" :selectable="false" :isFullpage="true">
+            <sw-grid v-if="total || term" :items="configurations" :selectable="false" :isFullpage="true" :sidebar="true">
 
                 <template slot="columns" slot-scope="{ item }">
 

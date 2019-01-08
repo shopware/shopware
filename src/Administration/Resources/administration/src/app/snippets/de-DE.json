@@ -636,6 +636,9 @@
       "uploadCaption": "Dateien zum Hochladen hierhin ziehen",
       "errorNoImage": "\"{file}\" ist kein Bild",
       "errorMediaItemDuplicated": "Medium bereits verwendet"
+    },
+    "properties": {
+      "cardTitleProperties": "Eigenschaften"
     }
   },
   "sw-manufacturer": {
@@ -1293,6 +1296,10 @@
     }
   },
   "sw-property-search": {
-    "selected": "ausgewählt"
+    "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt"
+  },
+  "sw-property-assignment": {
+    "columnGroup": "Eigenschaft",
+    "columnOptions": "Optionen"
   }
 }

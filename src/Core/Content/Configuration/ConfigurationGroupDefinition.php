@@ -70,7 +70,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class, 'configuration_group_id'))->addFlags(new Required()),
+            (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class, 'configuration_group_id'))->addFlags(new Required(), new CascadeDelete()),
         ]);
     }
 }

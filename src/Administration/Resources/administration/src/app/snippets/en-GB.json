@@ -428,7 +428,6 @@
       "buttonCancel": "Cancel",
       "headlineNewCustomer": "New customer",
       "tabGeneral": "General",
-      "tabProperties": "Properties",
       "tabAddresses": "Addresses",
       "titleSaveSuccess": "Customer",
       "messageSaveSuccess": "Customer \"{name}\" has been saved successfully."
@@ -626,6 +625,7 @@
       "buttonSave": "Save",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
+      "tabProperties": "Properties",
       "titleSaveSuccess": "Products",
       "messageSaveSuccess": "Product \"{name}\" has been saved successfully.",
       "messageUploadSuccess": "{count} of {total} files saved."
@@ -634,6 +634,9 @@
       "uploadCaption": "Drop files here to upload them",
       "errorNoImage": "\"{file}\" is not an image",
       "errorMediaItemDuplicated": "Media item already assigned"
+    },
+    "properties": {
+      "cardTitleProperties": "Properties"
     }
   },
   "sw-manufacturer": {
@@ -1292,6 +1295,10 @@
     }
   },
   "sw-property-search": {
-    "selected": "selected"
+    "selected": "{count} option selected | {count} options selected"
+  },
+  "sw-property-assignment": {
+    "columnGroup": "Property",
+    "columnOptions": "Options"
   }
 }

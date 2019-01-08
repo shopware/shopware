@@ -154,7 +154,7 @@ export default class EntityProxy {
      * @param {Boolean} [keepChanges=true]
      * @return {void}
      */
-    setData(data, removeAssociationKeysFromData = true, populateAssociations = false, keepChanges = true) {
+    setData(data, removeAssociationKeysFromData = true, populateAssociations = false, keepChanges = false) {
         const associatedProps = this.associatedEntityPropNames;
 
         if (populateAssociations === true) {

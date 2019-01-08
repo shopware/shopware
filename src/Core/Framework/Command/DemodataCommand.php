@@ -515,7 +515,7 @@ class DemodataCommand extends Command
 
             $productProperties = \array_slice(
                 $properties,
-                random_int(0, count($properties) - 20),
+                random_int(0, max(0, count($properties) - 20)),
                 random_int(10, 30)
             );
 

@@ -9,11 +9,6 @@ Component.register('sw-product-detail-properties', {
             type: Object,
             required: true,
             default: {}
-        },
-        isLoading: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 

@@ -75,7 +75,7 @@ class Migration1545119776AddTranslationParentId extends MigrationStep
         $columnString = implode(', ', $pks);
         $addQuery = sprintf('
             ALTER TABLE `%s`
-            ADD COLUMN `language_parent_id` binary(16) NULL,
+            ADD COLUMN `language_parent_id` binary(16) NULL AFTER `language_id`,
             ADD CONSTRAINT `fk.%s.language_id`
               FOREIGN KEY (`language_id`, `language_parent_id`)
               REFERENCES `language` (`id`, `parent_id`) ON DELETE CASCADE ON UPDATE CASCADE,

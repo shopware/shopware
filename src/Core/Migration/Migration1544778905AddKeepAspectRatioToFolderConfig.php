@@ -16,7 +16,7 @@ class Migration1544778905AddKeepAspectRatioToFolderConfig extends MigrationStep
     {
         $connection->exec('
             ALTER TABLE `media_folder_configuration` 
-            ADD COLUMN `keep_aspect_ratio` TINYINT(1) DEFAULT \'1\';
+            ADD COLUMN `keep_aspect_ratio` TINYINT(1) DEFAULT \'1\' AFTER `thumbnail_quality`;
         ');
     }
 

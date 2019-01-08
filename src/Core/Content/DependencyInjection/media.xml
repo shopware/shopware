@@ -189,5 +189,10 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="media_folder.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\MoveMediaFolderService">
+            <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="media_folder_configuration.repository"/>
+        </service>
     </services>
 </container>

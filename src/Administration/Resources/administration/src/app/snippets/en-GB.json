@@ -51,7 +51,9 @@
       "labelContextMenuMove": "Move",
       "labelContextMenuShowMedia": "Show media",
       "labelContextMenuShowSettings": "Settings",
-      "labelContextMenuDissolve": "Dissolve"
+      "labelContextMenuDissolve": "Dissolve",
+      "notificationErrorBlankItemName": "The folder could not be saved. Please enter a name.",
+      "notificationRenamingError": "Error saving folder"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
@@ -61,7 +63,7 @@
       "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Media item has been renamed successfully.",
-      "notificationRenamingError": "Error renaming file",
+      "notificationRenamingError": "Error saving file",
       "labelUploading": "Uploading..."
     },
     "sw-media-modal-delete": {

@@ -110,16 +110,23 @@ Component.register('sw-media-folder-item', {
             return this.item.save().then(() => {
                 this.item.isLoading = false;
             }).catch(() => {
-                this.rejectRenaming();
+                this.rejectRenaming('error');
             });
         },
 
         rejectRenaming(cause) {
-            if (cause === 'empty-name') {
+            if (cause) {
+                let message = this.$tc('global.sw-media-folder-item.notificationRenamingError');
+
+                if (cause === 'empty-name') {
+                    message = this.$tc('global.sw-media-folder-item.notificationErrorBlankItemName');
+                }
+
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notificationErrorBlankItemName')
+                    message: message
                 });
             }
+
             if (this.item.isLocal === true) {
                 this.item.delete(true).then(() => {
                     this.$emit('sw-media-folder-item-delete', [this.item.id]);

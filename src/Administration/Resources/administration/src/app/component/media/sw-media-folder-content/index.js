@@ -30,16 +30,16 @@ Component.register('sw-media-folder-content', {
         };
     },
 
+    computed: {
+        mediaFolderStore() {
+            return State.getStore('media_folder');
+        }
+    },
+
     watch: {
         startFolderId() {
             this.getSubFolders(this.startFolderId);
             this.fetchParentFolder(this.startFolderId);
-        }
-    },
-
-    computed: {
-        mediaFolderStore() {
-            return State.getStore('media_folder');
         }
     },
 
@@ -64,13 +64,13 @@ Component.register('sw-media-folder-content', {
                         limit: 50
                     }
                 }
-            }).then((response) => {
+            }, true).then((response) => {
                 this.subFolders = response.items.filter(this.filterItems);
             });
         },
 
         getChildCount(folder) {
-            return folder.items.filter(this.filterItems).length;
+            return folder.children.filter(this.filterItems).length;
         },
 
         fetchParentFolder(folderId) {

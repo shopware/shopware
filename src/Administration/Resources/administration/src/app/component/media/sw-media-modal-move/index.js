@@ -23,15 +23,6 @@ Component.register('sw-media-modal-move', {
         Mixin.getByName('notification')
     ],
 
-    data() {
-        return {
-            targetFolder: null,
-            parentFolder: null,
-            displayFolder: null,
-            displayFolderId: this.parentFolderId
-        };
-    },
-
     props: {
         itemsToMove: {
             required: true,
@@ -39,15 +30,29 @@ Component.register('sw-media-modal-move', {
             validator(value) {
                 return (value.length > 0);
             }
+        }
+    },
+
+    data() {
+        return {
+            targetFolder: null,
+            parentFolder: null,
+            displayFolder: null,
+            displayFolderId: null
+        };
+    },
+
+    computed: {
+        mediaNameFilter() {
+            return (media) => { return media.name; };
         },
 
-        parentFolderId: {
-            required: false,
-            type: String,
-            default: null,
-            validator(value) {
-                return (value.length > 0);
-            }
+        mediaFolderStore() {
+            return State.getStore('media_folder');
+        },
+
+        targetFolderId() {
+            return this.targetFolder ? this.targetFolder.id : '';
         }
     },
 
@@ -58,33 +63,14 @@ Component.register('sw-media-modal-move', {
         }
     },
 
-    computed: {
-        mediaNameFilter() {
-            return (media) => { return media.name; };
-        },
-        mediaFolderStore() {
-            return State.getStore('media_folder');
-        },
-        targetFolderId() {
-            return this.targetFolder ? this.targetFolder.id : '';
-        }
-    },
-
     mounted() {
         this.onMountedComponent();
     },
 
     methods: {
         onMountedComponent() {
-            if (this.parentFolderId === null) {
-                this.displayFolder = { id: '', name: 'Medien' };
-                this.targetFolder = { id: '', name: 'Medien' };
-                return;
-            }
-            this.mediaFolderStore.getByIdAsync(this.parentFolderId).then((f) => {
-                this.displayFolder = f;
-                this.targetFolder = f;
-            });
+            this.displayFolder = { id: '', name: 'Medien' };
+            this.targetFolder = { id: '', name: 'Medien' };
         },
 
         closeMoveModal() {
@@ -92,8 +78,9 @@ Component.register('sw-media-modal-move', {
         },
 
         isNotPartOfItemsToMove(item) {
-            const ids = this.itemsToMove.map((i) => { return i.id; });
-            return !ids.includes(item.id);
+            return !this.itemsToMove.some((i) => {
+                return i.id === item.id;
+            });
         },
 
         updateParentFolder(child) {
@@ -108,8 +95,16 @@ Component.register('sw-media-modal-move', {
             }
         },
 
-        selection(folder) {
+        onSelection(folder) {
             this.targetFolder = folder;
+            // the children aren't always loaded
+            if (folder.children) {
+                if (folder.children.filter(this.isNotPartOfItemsToMove).length > 0) {
+                    this.displayFolder = folder;
+                }
+                return;
+            }
+
             if (folder.id === '' || folder.childCount > 0) {
                 this.displayFolder = folder;
             }

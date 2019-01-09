@@ -38,7 +38,7 @@
                                 </button>
                             {% endblock %}
                             {% block sw_media_folder_content_switch_button %}
-                                <sw-icon v-if="folder.childCount > 0"
+                                <sw-icon v-if="getChildCount(folder) > 0"
                                          class="sw-media-folder-content__switch-button"
                                          name="small-arrow-small-right"
                                          size="16px">

@@ -1,4 +1,5 @@
 @import "~less/variables";
+@import "~less/mixins";
 
 @sw-media-modal-move-breadcrumbs-hover-background-color:      @color-cadet-blue;
 @sw-media-modal-move-breadcrumbs-right-arrow-color:           @color-gutenberg;
@@ -20,6 +21,8 @@
         outline: none;
         padding: 8px 6px 8px 0;
         color: @sw-media-modal-move-breadcrumbs-default-color;
+        max-width: 400px;
+        .truncate();
 
         &:hover {
             background-color: @sw-media-modal-move-breadcrumbs-hover-background-color;

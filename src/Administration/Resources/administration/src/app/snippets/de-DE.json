@@ -52,9 +52,8 @@
       "labelContextMenuShowMedia": "Medien anzeigen",
       "labelContextMenuShowSettings": "Einstellungen",
       "labelContextMenuDissolve": "Auflösen",
-      "notificationErrorBlankItemName": "Der Ordner konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
-      "notificationErrorNameTooLong": "Der Ordner konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
-      "notificationRenamingError": "Der Ordner konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu."
+      "notificationErrorBlankItemName": "Der Ordner konnte nicht gespeichert werden. Bitte füge einen Ordnernamen hinzu.",
+      "notificationRenamingError": "Fehler beim Speichern des Ordners"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",

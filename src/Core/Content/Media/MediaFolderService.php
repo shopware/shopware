@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 
-class DissolveMediaFolderService
+class MediaFolderService
 {
     /**
      * @var RepositoryInterface
@@ -50,6 +50,52 @@ class DissolveMediaFolderService
         $this->moveMediaToParentFolder($folder, $context);
         $this->moveSubFoldersToParent($folder, $context);
         $this->mediaFolderRepo->delete([['id' => $folder->getId()]], $context);
+    }
+
+    public function move(string $folderToMoveId, string $targetFolderId, Context $context): void
+    {
+        $folders = $this->fetchFoldersFromRepo([$folderToMoveId, $targetFolderId], $context);
+        /** @var MediaFolderEntity $folderToMove */
+        $folderToMove = $folders->get($folderToMoveId);
+
+        if (!$folderToMove->getUseParentConfiguration()) {
+            $this->mediaFolderRepo->update([
+                [
+                    'id' => $folderToMoveId,
+                    'parentId' => $targetFolderId,
+                ],
+            ], $context);
+
+            return;
+        }
+        $newConfigId = $this->cloneConfiguration($folderToMove->getConfigurationId(), $context);
+
+        $updates = [
+            [
+                'id' => $folderToMoveId,
+                'parentId' => $targetFolderId,
+                'useParentConfiguration' => false,
+                'configurationId' => $newConfigId,
+            ],
+        ];
+        $updates = array_merge($updates, $this->updateSubFolder($folderToMoveId, $newConfigId, $context));
+
+        $this->mediaFolderRepo->update($updates, $context);
+    }
+
+    private function fetchFoldersFromRepo(
+        array $ids,
+        Context $context
+    ): MediaFolderCollection {
+        /** @var MediaFolderCollection $folders */
+        $folders = $this->mediaFolderRepo->read(new ReadCriteria($ids), $context);
+
+        if ($folders->count() !== 2) {
+            $missingFolders = array_diff($ids, $folders->getIds());
+            throw new MediaFolderNotFoundException(implode(', ', $missingFolders));
+        }
+
+        return $folders;
     }
 
     private function moveMediaToParentFolder(MediaFolderEntity $folder, Context $context): void
@@ -118,8 +164,7 @@ class DissolveMediaFolderService
             ],
         ];
         foreach ($subFolders as $folder) {
-            $configurationId = Uuid::uuid4()->getHex();
-            $this->mediaFolderConfigRepo->clone($config->getId(), $context, $configurationId);
+            $configurationId = $this->cloneConfiguration($config->getId(), $context);
 
             $payload[] = [
                 'id' => $folder->getId(),
@@ -127,7 +172,7 @@ class DissolveMediaFolderService
                 'configurationId' => $configurationId,
             ];
 
-            $payload = $this->updateSubFolder($folder->getId(), $configurationId, $payload, $context);
+            $payload = array_merge($payload, $this->updateSubFolder($folder->getId(), $configurationId, $context));
         }
 
         if (count($payload) > 0) {
@@ -138,7 +183,6 @@ class DissolveMediaFolderService
     private function updateSubFolder(
         string $parentId,
         string $configurationId,
-        array $payload,
         Context $context
     ): array {
         $criteria = new Criteria();
@@ -146,6 +190,7 @@ class DissolveMediaFolderService
         $criteria->addFilter(new EqualsFilter('useParentConfiguration', true));
         /** @var MediaFolderCollection $subFolders */
         $subFolders = $this->mediaFolderRepo->search($criteria, $context)->getEntities();
+        $payload = [];
 
         foreach ($subFolders as $subFolder) {
             $payload[] = [
@@ -153,7 +198,7 @@ class DissolveMediaFolderService
                 'configurationId' => $configurationId,
             ];
 
-            $payload = $this->updateSubFolder($subFolder->getId(), $configurationId, $payload, $context);
+            $payload = array_merge($payload, $this->updateSubFolder($subFolder->getId(), $configurationId, $context));
         }
 
         return $payload;
@@ -164,5 +209,13 @@ class DissolveMediaFolderService
         if ($folder->getUseParentConfiguration() === false) {
             $this->mediaFolderConfigRepo->delete([['id' => $folder->getConfigurationId()]], $context);
         }
+    }
+
+    private function cloneConfiguration(string $configId, Context $context): string
+    {
+        $newId = Uuid::uuid4()->getHex();
+        $this->mediaFolderConfigRepo->clone($configId, $context, $newId);
+
+        return $newId;
     }
 }

@@ -121,7 +121,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Api\MediaFolderController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Media\DissolveMediaFolderService"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaFolderService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -176,7 +176,7 @@
             <argument type="service" id="media_default_folder.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\DissolveMediaFolderService">
+        <service id="Shopware\Core\Content\Media\MediaFolderService">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="media_folder_configuration.repository"/>
@@ -188,11 +188,6 @@
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="media_folder.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Media\MoveMediaFolderService">
-            <argument type="service" id="media_folder.repository"/>
-            <argument type="service" id="media_folder_configuration.repository"/>
         </service>
     </services>
 </container>

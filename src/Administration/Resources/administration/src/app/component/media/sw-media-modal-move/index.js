@@ -37,14 +37,17 @@ Component.register('sw-media-modal-move', {
             required: true,
             type: Array,
             validator(value) {
-                return (value.length !== 0);
+                return (value.length > 0);
             }
         },
 
         parentFolderId: {
             required: false,
             type: String,
-            default: ''
+            default: null,
+            validator(value) {
+                return (value.length > 0);
+            }
         }
     },
 
@@ -73,7 +76,7 @@ Component.register('sw-media-modal-move', {
 
     methods: {
         onMountedComponent() {
-            if (this.parentFolderId === '') {
+            if (this.parentFolderId === null) {
                 this.displayFolder = { id: '', name: 'Medien' };
                 this.targetFolder = { id: '', name: 'Medien' };
                 return;

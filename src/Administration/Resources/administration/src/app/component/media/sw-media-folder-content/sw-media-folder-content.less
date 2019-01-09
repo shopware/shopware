@@ -4,14 +4,15 @@
 @sw-media-folder-content-border-color-listing:    @color-steam-cloud;
 @sw-media-folder-content-border-radius-listing:   @border-radius-default;
 @sw-media-folder-content-border-radius-list-item: @border-radius-default;
-@sw-media-folder-content-color-buttons:    @color-gutenberg;
-@sw-media-folder-content-parent-color:                @color-steam-cloud;
+@sw-media-folder-content-color-buttons:           @color-gutenberg;
+@sw-media-folder-content-parent-color:            @color-steam-cloud;
+@sw-media-folder-content-background-color:        @color-white;
 
 .sw-media-folder-content {
     .sw-media-folder-content__folder-listing {
         border: 1px solid @sw-media-folder-content-border-color-listing;
         border-radius: @sw-media-folder-content-border-radius-listing;
-        background-color: #fff;
+        background-color: @sw-media-folder-content-background-color;
         padding: 8px;
         list-style: none;
     }
@@ -32,7 +33,7 @@
             }
         }
 
-        & .--selected {
+        & .is--selected {
             background-color: @color-cadet-blue;
             color: @color-shopware-blue;
         }

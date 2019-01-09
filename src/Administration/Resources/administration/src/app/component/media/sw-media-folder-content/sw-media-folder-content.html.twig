@@ -23,25 +23,27 @@
                         class="sw-media-folder-content__list-item">
 
                         {% block sw_media_folder_content_button_folder %}
-                            <button class="sw-media-folder-content__button sw-media-folder-content__folder-button"
-                                    v-bind:class="{'--selected': folder.id === selectedId}"
-                                    @click="emitInput(folder)">
-                                {% block sw_media_folder_content_folder_icon %}
-                                    <sw-icon class="sw-media-folder-content__folder-icon"
-                                             name="folder-thumbnail"
-                                             size="24px"
-                                             multicolor>
-                                    </sw-icon>
-                                {% endblock %}
-                                {{ folder.name }}
-                            </button>
-                                {% block sw_media_folder_content_switch_button %}
-                                    <sw-icon v-if="folder.childCount > 0"
-                                             class="sw-media-folder-content__switch-button"
-                                             name="small-arrow-small-right"
-                                             size="16px">
-                                    </sw-icon>
-                                {% endblock %}
+                            {% block sw_media_folder_content_button_folder_button %}
+                                <button class="sw-media-folder-content__button sw-media-folder-content__folder-button"
+                                        :class="{'is--selected': folder.id === selectedId}"
+                                        @click="emitInput(folder)">
+                                    {% block sw_media_folder_content_folder_icon %}
+                                        <sw-icon class="sw-media-folder-content__folder-icon"
+                                                 name="folder-thumbnail"
+                                                 size="24px"
+                                                 multicolor>
+                                        </sw-icon>
+                                    {% endblock %}
+                                    {{ folder.name }}
+                                </button>
+                            {% endblock %}
+                            {% block sw_media_folder_content_switch_button %}
+                                <sw-icon v-if="folder.childCount > 0"
+                                         class="sw-media-folder-content__switch-button"
+                                         name="small-arrow-small-right"
+                                         size="16px">
+                                </sw-icon>
+                            {% endblock %}
                         {% endblock %}
                     </li>
                 {% endblock %}

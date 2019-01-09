@@ -6,7 +6,8 @@ Component.register('sw-media-folder-item', {
     template,
 
     mixins: [
-        Mixin.getByName('selectable-media-item')
+        Mixin.getByName('selectable-media-item'),
+        Mixin.getByName('notification')
     ],
 
     provide() {
@@ -108,10 +109,17 @@ Component.register('sw-media-folder-item', {
 
             return this.item.save().then(() => {
                 this.item.isLoading = false;
+            }).catch(() => {
+                this.rejectRenaming();
             });
         },
 
-        rejectRenaming() {
+        rejectRenaming(cause) {
+            if (cause === 'empty-name') {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-media-item.notificationErrorBlankItemName')
+                });
+            }
             if (this.item.isLocal === true) {
                 this.item.delete(true).then(() => {
                     this.$emit('sw-media-folder-item-delete', [this.item.id]);

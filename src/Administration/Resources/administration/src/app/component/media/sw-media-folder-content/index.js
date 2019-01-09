@@ -31,9 +31,9 @@ Component.register('sw-media-folder-content', {
     },
 
     watch: {
-        startFolderId(newId) {
-            this.getSubFolders(newId);
-            this.fetchParentFolder(newId);
+        startFolderId() {
+            this.getSubFolders(this.startFolderId);
+            this.fetchParentFolder(this.startFolderId);
         }
     },
 
@@ -57,10 +57,20 @@ Component.register('sw-media-folder-content', {
             this.mediaFolderStore.getList({
                 limit: 50,
                 sortBy: 'name',
-                criteria: CriteriaFactory.equals('parentId', parentId || null)
+                criteria: CriteriaFactory.equals('media_folder.parentId', parentId || null),
+                associations: {
+                    children: {
+                        page: 1,
+                        limit: 50
+                    }
+                }
             }).then((response) => {
                 this.subFolders = response.items.filter(this.filterItems);
             });
+        },
+
+        getChildCount(folder) {
+            return folder.items.filter(this.filterItems).length;
         },
 
         fetchParentFolder(folderId) {

@@ -89,7 +89,6 @@ Component.register('sw-field', {
             boundExpression: '',
             boundExpressionPath: [],
             showPassword: false,
-            displayActionButtons: false,
             formError: {},
             /** Array of white listed key codes from 0 to 9 including comma and period */
             whitelistNumberKeys: [44, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
@@ -269,32 +268,6 @@ Component.register('sw-field', {
 
         onTogglePasswordVisibility() {
             this.showPassword = !this.showPassword;
-        },
-
-        submitValue() {
-            this.$emit('sw-field-submit-value', this.currentValue);
-            this.removeActionButtons();
-        },
-
-        blurInline(event) {
-            if (event.relatedTarget && event.relatedTarget.classList.contains('sw-field--inline__button')) {
-                return;
-            }
-            this.cancelSubmit();
-        },
-
-        cancelSubmit() {
-            this.$emit('sw-field-cancel-submit');
-            this.currentValue = this.value;
-            this.removeActionButtons();
-        },
-
-        removeActionButtons() {
-            this.displayActionButtons = false;
-        },
-
-        showActionButtons() {
-            this.displayActionButtons = true;
         },
 
         copyToClipboard() {

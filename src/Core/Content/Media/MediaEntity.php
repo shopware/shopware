@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use DateTime;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
@@ -127,6 +128,11 @@ class MediaEntity extends Entity
      * @var bool
      */
     protected $hasFile = false;
+
+    /**
+     * @var ConfigurationGroupOptionCollection|null
+     */
+    protected $configurationGroupOptions;
 
     public function get(string $property)
     {
@@ -350,5 +356,15 @@ class MediaEntity extends Entity
     public function setMediaFolder(?MediaFolderEntity $mediaFolder): void
     {
         $this->mediaFolder = $mediaFolder;
+    }
+
+    public function getConfigurationGroupOptions(): ?ConfigurationGroupOptionCollection
+    {
+        return $this->configurationGroupOptions;
+    }
+
+    public function setConfigurationGroupOptions(ConfigurationGroupOptionCollection $configurationGroupOptions): void
+    {
+        $this->configurationGroupOptions = $configurationGroupOptions;
     }
 }

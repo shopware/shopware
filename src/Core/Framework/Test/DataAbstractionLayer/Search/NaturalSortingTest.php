@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class NatrualSortingTest extends TestCase
+class NaturalSortingTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -43,9 +43,9 @@ class NatrualSortingTest extends TestCase
         $data = [
             'id' => $groupId,
             'name' => 'Content',
-            'options' => array_map(function($name) {
+            'options' => array_map(function ($name) {
                 return ['name' => $name];
-            }, $naturalOrder)
+            }, $naturalOrder),
         ];
 
         $context = Context::createDefaultContext();
@@ -64,7 +64,7 @@ class NatrualSortingTest extends TestCase
         static::assertCount(\count($naturalOrder), $options);
 
         //extract names to compare them
-        $actual = $options->map(function(ConfigurationGroupOptionEntity $option) {
+        $actual = $options->map(function (ConfigurationGroupOptionEntity $option) {
             return $option->getName();
         });
 
@@ -76,7 +76,7 @@ class NatrualSortingTest extends TestCase
         $criteria->addSorting(new FieldSorting('configuration_group_option.name', FieldSorting::ASCENDING, true));
 
         $options = $this->optionRepository->search($criteria, $context);
-        $actual = $options->map(function(ConfigurationGroupOptionEntity $option) {
+        $actual = $options->map(function (ConfigurationGroupOptionEntity $option) {
             return $option->getName();
         });
 
@@ -88,14 +88,14 @@ class NatrualSortingTest extends TestCase
         return [
             [
                 ['1,0 liter', '2,0 liter', '3,0 liter', '4,0 liter', '10,0 liter'], //nat sorting
-                ['1,0 liter', '10,0 liter', '2,0 liter', '3,0 liter', '4,0 liter'] //none nat
+                ['1,0 liter', '10,0 liter', '2,0 liter', '3,0 liter', '4,0 liter'], //none nat
             ],
             [
                 ['1,0', '2,0', '3,0', '4,0', '10,0'], //nat sorting
                 ['1,0', '10,0', '2,0', '3,0', '4,0'], //none naturla
             ],
             [
-                ['1', '2', '3', '4', '5', '6','100', '1000', '2000', '3100'], //nat sorting
+                ['1', '2', '3', '4', '5', '6', '100', '1000', '2000', '3100'], //nat sorting
                 ['1', '100', '1000', '2', '2000', '3', '3100', '4', '5', '6'], //none naturla
             ],
             [
@@ -107,7 +107,7 @@ class NatrualSortingTest extends TestCase
                 ['test1', 'test10', 'test2', 'test3', 'test4'], //none naturla
             ],
             [
-                ['1', '10', '1.0', '1.1', '1.3', '1.5', '2.22222',], //nat sorting
+                ['1', '10', '1.0', '1.1', '1.3', '1.5', '2.22222'], //nat sorting
                 ['1', '1.0', '1.1', '1.3', '1.5', '10', '2.22222'], //none naturla
             ],
         ];

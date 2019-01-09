@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
@@ -79,6 +80,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id', true))->addFlags(new CascadeDelete()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),
+            new OneToManyAssociationField('configurationGroupOptions', ConfigurationGroupOptionDefinition::class, 'media_id', false),
         ]);
     }
 }

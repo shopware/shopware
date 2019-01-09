@@ -115,6 +115,12 @@ return [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/media-folder',
                     ],
                 ],
+                'configurationGroupOptions' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/configuration-group-options',
+                    ],
+                ],
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',

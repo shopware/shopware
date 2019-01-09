@@ -1183,7 +1183,7 @@ class DemodataCommand extends Command
                         'options' => $options,
                         'description' => $this->faker->text,
                         'sorting_type' => 'numeric',
-                        'display_type' => 'text'
+                        'display_type' => 'text',
                     ],
                 ],
                 $context
@@ -1192,6 +1192,7 @@ class DemodataCommand extends Command
             $this->io->progressAdvance(1);
         }
         $this->io->progressFinish();
+
         return $optionIds;
     }
 

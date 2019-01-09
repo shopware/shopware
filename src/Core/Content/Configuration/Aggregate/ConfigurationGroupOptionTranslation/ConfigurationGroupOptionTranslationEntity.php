@@ -18,6 +18,11 @@ class ConfigurationGroupOptionTranslationEntity extends TranslationEntity
     protected $name;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var ConfigurationGroupOptionEntity|null
      */
     protected $configurationGroupOption;
@@ -50,5 +55,15 @@ class ConfigurationGroupOptionTranslationEntity extends TranslationEntity
     public function setConfigurationGroupOption(ConfigurationGroupOptionEntity $configurationGroupOption): void
     {
         $this->configurationGroupOption = $configurationGroupOption;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

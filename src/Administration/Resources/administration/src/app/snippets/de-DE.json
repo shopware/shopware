@@ -1296,6 +1296,7 @@
     }
   },
   "sw-property-search": {
+    "placeholderSearch": "Suche nach Eigenschaften und Optionen",
     "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt"
   },
   "sw-property-assignment": {

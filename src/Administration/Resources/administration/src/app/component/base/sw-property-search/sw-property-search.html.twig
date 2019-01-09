@@ -1,48 +1,96 @@
-<div class="sw-property-search" :class="swPropertySearchClasses">
+{% block sw_property_search %}
+    <div class="sw-property-search" :class="swPropertySearchClasses">
 
-    <sw-field autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
+        {% block sw_property_search_field %}
+            <sw-field :placeholder="$tc('sw-property-search.placeholderSearch')"  autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
+        {% endblock %}
 
-    <div class="sw-property-search__tree-selection" v-if="displayTree">
-        <sw-container columns="50% 50%">
-            <sw-grid class="sw-property-search__tree-selection__group_grid" ref="groupGrid" :items="groups" :isFullpage="false" table @sw-grid-select-item="onGroupSelect">
-                <template slot="columns" slot-scope="{ item }">
-                    <sw-grid-column flex="minmax(200px, 1fr)" dataIndex="name" label="">
-                        {{ item.name }}
-                    </sw-grid-column>
+        {% block sw_property_search_tree %}
+            <div class="sw-property-search__tree-selection" v-if="displayTree">
 
-                    <sw-grid-column flex="1fr" dataIndex="assignedOptions">
-                        <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', item.optionCount, { count: item.optionCount }) }}</span>
-                    </sw-grid-column>
-                </template>
-                <template slot="pagination">
-                    <sw-pagination :page="groupPage" :limit="10" :total="groupTotal" :total-visible="7" @page-change="onGroupPageChange" :steps="[10]" />
-                </template>
-            </sw-grid>
+                {% block sw_property_search_tree_container %}
+                    <sw-container columns="50% 50%">
 
-            <sw-grid class="sw-property-search__tree-selection__option_grid" ref="optionGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
-                <template slot="columns" slot-scope="{ item }">
-                    <sw-grid-column flex="200px" dataIndex="name">
-                        {{ item.name }}
-                    </sw-grid-column>
-                </template>
-                <template slot="pagination">
-                    <sw-pagination :page="optionPage" :limit="10" :total="optionTotal" :total-visible="7" @page-change="onOptionPageChange" :steps="[10]" />
-                </template>
-            </sw-grid>
+                        {% block sw_property_search_tree_group_grid %}
+                            <sw-grid class="sw-property-search__tree-selection__group_grid" ref="groupGrid" :items="groups" :isFullpage="false" table @sw-grid-select-item="onGroupSelect">
 
-        </sw-container>
+                                {% block sw_property_search_tree_group_grid_columns %}
+                                    <template slot="columns" slot-scope="{ item }">
+
+                                        {% block sw_property_search_tree_group_grid_columns_name %}
+                                            <sw-grid-column flex="minmax(200px, 1fr)" dataIndex="name" label="">
+                                                {{ item.name }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_property_search_tree_group_grid_columns_options %}
+                                            <sw-grid-column flex="1fr" dataIndex="assignedOptions">
+                                                <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', item.optionCount, { count: item.optionCount }) }}</span>
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                    </template>
+                                {% endblock %}
+
+                                <template slot="pagination">
+                                    {% block sw_property_search_tree_group_grid_pagination %}
+                                        <sw-pagination :page="groupPage" :limit="10" :total="groupTotal" :total-visible="7" @page-change="onGroupPageChange" :steps="[10]" />
+                                    {% endblock %}
+                                </template>
+                            </sw-grid>
+                        {% endblock %}
+
+                        {% block sw_property_search_tree_option_grid %}
+                            <sw-grid class="sw-property-search__tree-selection__option_grid" ref="optionGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
+
+                                {% block sw_property_search_tree_option_grid_columns %}
+                                    <template slot="columns" slot-scope="{ item }">
+                                        {% block sw_property_search_tree_option_grid_columns_name %}
+                                            <sw-grid-column flex="200px" dataIndex="name">
+                                                {{ item.name }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
+                                <template slot="pagination">
+                                    {% block sw_property_search_tree_option_grid_pagination %}
+                                        <sw-pagination :page="optionPage" :limit="10" :total="optionTotal" :total-visible="7" @page-change="onOptionPageChange" :steps="[10]" />
+                                    {% endblock %}
+                                </template>
+
+                            </sw-grid>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_property_search_option_search %}
+            <div class="sw-property-search__search-selection" v-if="displaySearch">
+
+                {% block sw_property_search_option_search_grid %}
+                    <sw-grid class="sw-property-search__search-selection__option_grid" ref="optionSearchGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
+
+                        {% block sw_property_search_option_search_grid_columns %}
+                            <template slot="columns" slot-scope="{ item }">
+                                {% block sw_property_search_option_search_grid_columns_name %}
+                                    <sw-grid-column flex="200px" dataIndex="name">
+                                        {{ item.group.name }} / {{ item.name }}
+                                    </sw-grid-column>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        <template slot="pagination">
+                            {% block sw_property_search_option_search_grid_pagination %}
+                                <sw-pagination :page="optionPage" :limit="10" :total="optionTotal" :total-visible="7" @page-change="onOptionSearchPageChange" :steps="[10]" />
+                            {% endblock %}
+                        </template>
+                    </sw-grid>
+                {% endblock %}
+            </div>
+        {% endblock %}
     </div>
-
-    <div class="sw-property-search__search-selection" v-if="displaySearch">
-        <sw-grid class="sw-property-search__search-selection__option_grid" ref="optionSearchGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-item-selected="onOptionSelect">
-            <template slot="columns" slot-scope="{ item }">
-                <sw-grid-column flex="200px" dataIndex="name">
-                    {{ item.group.name }} / {{ item.name }}
-                </sw-grid-column>
-            </template>
-            <template slot="pagination">
-                <sw-pagination :page="optionPage" :limit="10" :total="optionTotal" :total-visible="7" @page-change="onOptionSearchPageChange" :steps="[10]" />
-            </template>
-        </sw-grid>
-    </div>
-</div>
+{% endblock %}

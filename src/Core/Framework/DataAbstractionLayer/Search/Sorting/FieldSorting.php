@@ -23,14 +23,13 @@ class FieldSorting extends Struct implements CriteriaPartInterface
     /**
      * @var bool
      */
-    private $naturalSorting;
+    protected $naturalSorting;
 
     public function __construct(
         string $field,
         string $direction = self::ASCENDING,
         bool $naturalSorting = false
-    )
-    {
+    ) {
         $this->field = $field;
         $this->direction = $direction;
         $this->naturalSorting = $naturalSorting;

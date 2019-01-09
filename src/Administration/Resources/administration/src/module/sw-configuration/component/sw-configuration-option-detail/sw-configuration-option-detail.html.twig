@@ -1,20 +1,35 @@
-<sw-modal @closeModal="onCancel" :title="currentOption.name ? currentOption.name : $tc('sw-configuration.detail.textOptionHeadline')">
+{% block sw_configuration_option_detail %}
+    <sw-modal @closeModal="onCancel" :title="currentOption.name ? currentOption.name : $tc('sw-configuration.detail.textOptionHeadline')">
+        {% block sw_configuration_option_detail_name %}
+            <sw-field v-model="currentOption.name" type="text" validation="required" :label="$tc('sw-configuration.detail.labelOptionName')" :placeholder="$tc('sw-configuration.detail.placeholderOptionName')" />
+        {% endblock %}
 
-    <sw-field v-model="currentOption.name" type="text" validation="required" :label="$tc('sw-configuration.detail.labelOptionName')" :placeholder="$tc('sw-configuration.detail.placeholderOptionName')" />
+        {% block sw_configuration_option_detail_position %}
+            <sw-field v-model="currentOption.position" type="number" step="1" pattern="[0-9]" :label="$tc('sw-configuration.detail.labelOptionPosition')" />
+        {% endblock %}
 
-    <sw-field v-model="currentOption.position" type="number" step="1" pattern="[0-9]" :label="$tc('sw-configuration.detail.labelOptionPosition')" />
+        {% block sw_configuration_option_detail_color %}
+            <sw-field v-model="currentOption.colorHexCode" type="text" :label="$tc('sw-configuration.detail.labelOptionColor')" />
+        {% endblock %}
 
-    <sw-field v-model="currentOption.colorHexCode" type="text" :label="$tc('sw-configuration.detail.labelOptionColor')" />
+        {% block sw_configuration_option_detail_media %}
+            <sw-media-field v-model="currentOption.mediaId"></sw-media-field>
+        {% endblock %}
 
-    <sw-media-field v-model="currentOption.mediaId"></sw-media-field>
+        {% block sw_configuration_option_detail_footer %}
+            <template slot="modal-footer">
+                {% block sw_configuration_option_detail_footer_cancel %}
+                    <sw-button size="small" @click="onCancel">
+                        {{ $tc('sw-configuration.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
 
-    <template slot="modal-footer">
-        <sw-button size="small" @click="onCancel">
-            {{ $tc('sw-configuration.detail.buttonCancel') }}
-        </sw-button>
-
-        <sw-button variant="primary" size="small" @click="onSave">
-            {{ $tc('sw-configuration.detail.buttonApply') }}
-        </sw-button>
-    </template>
-</sw-modal>
+                {% block sw_configuration_option_detail_footer_save %}
+                    <sw-button variant="primary" size="small" @click="onSave">
+                        {{ $tc('sw-configuration.detail.buttonApply') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

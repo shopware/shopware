@@ -1,18 +1,34 @@
-<div class="sw-property-assignment">
+{% block sw_property_assignment %}
+    <div class="sw-property-assignment">
 
-    <sw-property-search ref="searchField" :collapsible="false" :overlay="false" :options="options" @sw-property-search-option-selected="onSelectOption"/>
+        {% block sw_property_assignment_search_field %}
+            <sw-property-search ref="searchField" :collapsible="false" :overlay="false" :options="options" @sw-property-search-option-selected="onSelectOption"/>
+        {% endblock %}
 
-    <sw-grid class="sw-property-assignment__grid" :selectable="false" :items="groups" :isFullpage="false" table>
-        <template slot="columns" slot-scope="{ item }">
-            <sw-grid-column flex="200px" dataIndex="group.name" :label="$tc('sw-property-assignment.columnGroup')">
-                {{ item.group.name }}
-            </sw-grid-column>
+        {% block sw_property_assignment_grid %}
+            <sw-grid class="sw-property-assignment__grid" :selectable="false" :items="groups" :isFullpage="false" table>
 
-            <sw-grid-column dataIndex="options" :label="$tc('sw-property-assignment.columnOptions')" flex="minmax(100px, 1fr)" class="sw-property-assignment__grid_option_column">
-                <div v-for="(option, index) in item.options" :key="option.id" class="sw-property-assignment__grid_option_item">
-                    <span class="sw-property-assignment__grid_option_item_value">{{ option.name }}</span><span class="sw-property-assignment__grid_option_item_delete" @click="deleteOption(option)"><sw-icon name="default-basic-x-line" size="14" /></span>
-                </div>
-            </sw-grid-column>
-        </template>
-    </sw-grid>
-</div>
+                {% block sw_property_assignment_grid_columns %}
+                    <template slot="columns" slot-scope="{ item }">
+
+                        {% block sw_property_assignment_grid_columns_name %}
+                            <sw-grid-column flex="200px" dataIndex="group.name" :label="$tc('sw-property-assignment.columnGroup')">
+                                {{ item.group.name }}
+                            </sw-grid-column>
+                        {% endblock %}
+
+                        {% block sw_property_assignment_grid_columns_options %}
+                            <sw-grid-column dataIndex="options" :label="$tc('sw-property-assignment.columnOptions')" flex="minmax(100px, 1fr)" class="sw-property-assignment__grid_option_column">
+                                {% block sw_property_assignment_grid_columns_options_loop %}
+                                    <div v-for="(option, index) in item.options" :key="option.id" class="sw-property-assignment__grid_option_item">
+                                        <span class="sw-property-assignment__grid_option_item_value">{{ option.name }}</span><span class="sw-property-assignment__grid_option_item_delete" @click="deleteOption(option)"><sw-icon name="default-basic-x-line" size="14" /></span>
+                                    </div>
+                                {% endblock %}
+                            </sw-grid-column>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-grid>
+        {% endblock %}
+    </div>
+{% endblock %}

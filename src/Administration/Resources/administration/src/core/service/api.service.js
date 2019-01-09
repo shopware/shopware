@@ -35,21 +35,19 @@ class ApiService {
      * @param {Object} headers
      * @returns {Promise<T>}
      */
-    getList(
-        {
-            page = 1,
-            limit = 25,
-            sortBy,
-            sortDirection = 'asc',
-            sortings,
-            queries,
-            term,
-            criteria,
-            aggregations,
-            associations,
-            headers
-        }
-    ) {
+    getList({
+        page = 1,
+        limit = 25,
+        sortBy,
+        sortDirection = 'asc',
+        sortings,
+        queries,
+        term,
+        criteria,
+        aggregations,
+        associations,
+        headers
+    }) {
         const requestHeaders = this.getBasicHeaders(headers);
         const params = { page, limit };
 

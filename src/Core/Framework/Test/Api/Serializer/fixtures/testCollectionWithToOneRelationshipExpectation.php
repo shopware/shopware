@@ -71,6 +71,12 @@ return [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/media-folder',
                     ],
                 ],
+                'configurationGroupOptions' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/configuration-group-options',
+                    ],
+                ],
             ],
             'meta' => null,
         ],
@@ -138,6 +144,12 @@ return [
                     'data' => null,
                     'links' => [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/media-folder',
+                    ],
+                ],
+                'configurationGroupOptions' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/configuration-group-options',
                     ],
                 ],
             ],

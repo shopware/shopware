@@ -2326,6 +2326,15 @@ export interface NightwatchCustomCommands {
      * @param {String} type
      */
     clearField(selector: string, type: string): this,
+
+
+    /**
+     * Checks if an element is existent, without causing the test to fail
+     *
+     * @param {String} selector
+     * @param callback
+     */
+    checkIfElementExists(selector: string, callback: () => boolean): this,
 }
 
 /* tslint:disable-next-line:no-empty-interface */

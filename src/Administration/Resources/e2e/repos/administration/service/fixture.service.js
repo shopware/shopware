@@ -1,4 +1,5 @@
 const AdminApiService = require('./../service/admin-api.service');
+const LoggingHelper = require('../../../common/helper/cliOutputHelper');
 const _ = require('lodash');
 const glob = require('glob');
 const path = require('path');
@@ -7,6 +8,7 @@ const uuid = require('uuid/v4');
 export default class FixtureService {
     constructor() {
         this.apiClient = new AdminApiService(process.env.APP_URL);
+        this.loggingHelper = new LoggingHelper();
         this.basicFixture = "";
 
         // Automatic loading of fixtures
@@ -20,7 +22,7 @@ export default class FixtureService {
     }
 
     create(type, userData = {}) {
-        console.log(`### Set ${type} fixtures...`);
+        this.loggingHelper.createCliEntry(`Set ${type} fixtures...`, 'title');
 
         this.setBasicFixture(`${type}.json`);
         const finalRawData = this.mergeFixtureWithData(this.basicFixture, userData);
@@ -35,10 +37,9 @@ export default class FixtureService {
                     }]
                 });
             }).catch((err) => {
-                console.log('• ✖ - ', err);
+                this.loggingHelper.createCliEntry(err, 'error');
             }).then((data) => {
-                console.log(`• ✓ - ${data.id}`);
-                console.log();
+                this.loggingHelper.createCliEntry(data.id, 'success');
             });
     }
 

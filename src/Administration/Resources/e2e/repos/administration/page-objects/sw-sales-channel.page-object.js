@@ -84,9 +84,9 @@ class SalesChannelPageObject {
             .click('.sw-button--danger')
             .waitForElementVisible('.sw-modal')
             .assert.containsText(
-            '.sw-modal__body',
-            `Are you sure you want to delete this sales channel? ${salesChannelName}`
-        )
+                '.sw-modal__body',
+                `Are you sure you want to delete this sales channel? ${salesChannelName}`
+            )
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
             .getValue(this.elements.salesChannelMenuTitle, function checkValueNotPresent(result) {

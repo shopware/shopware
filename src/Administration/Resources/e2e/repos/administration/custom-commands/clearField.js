@@ -13,9 +13,8 @@ exports.command = function clearField(selector, type = 'input') {
         this.setValue(selector, ['', this.Keys.DELETE]);
     }
 
-
     if (type === 'editor') {
-        this.waitForElementPresent(`${selector} br`);
+        this.waitForElementPresent('.ql-blank');
     }
     else {
         this.expect.element(selector).to.have.value.that.equals('');

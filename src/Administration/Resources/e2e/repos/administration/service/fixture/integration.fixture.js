@@ -11,7 +11,7 @@ export default class IntegrationFixtureService extends FixtureService {
     }
 
     setIntegrationFixtures(userData) {
-        console.log('### Set integration fixtures...');
+        this.loggingHelper.createCliEntry('Set integration fixtures...', 'title');
 
         const finalRawData = this.mergeFixtureWithData(this.integrationFixture, userData);
 
@@ -25,10 +25,9 @@ export default class IntegrationFixtureService extends FixtureService {
                     }]
                 });
             }).catch((err) => {
-                console.log(err);
+                this.loggingHelper.createCliEntry(err, 'error');
             }).then((data) => {
-                console.log(`• ✓ - Created integration: ${data.id}`);
-                console.log();
+                this.loggingHelper.createCliEntry(data.id, 'success');
             });
     }
 }

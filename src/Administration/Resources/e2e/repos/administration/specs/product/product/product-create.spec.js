@@ -70,8 +70,8 @@ module.exports = {
             .waitForElementVisible('.sw-media-preview__item')
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-item')
             .assert.containsText('.ql-editor', 'My very first description')
-            .getLocationInView('.sw-product-detail__select-category')
-            .assert.containsText('.sw-product-category-form .sw-select__selection-text', global.FixtureService.basicFixture.name)
+            .getLocationInView('.sw-select__selection-item')
+            .assert.containsText('.sw-select__selection-item', global.FixtureService.basicFixture.name)
             .click('a.smart-bar__back-btn');
     },
     after: (browser) => {

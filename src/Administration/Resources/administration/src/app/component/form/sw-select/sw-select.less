@@ -91,58 +91,13 @@
         list-style: none;
     }
 
-    .sw-select__selection-item {
-        display: block;
-        position: relative;
-        margin-right: 6px;
-        margin-bottom: 6px;
-        padding: 4px 40px 4px 12px;
-        line-height: 22px;
-        font-size: 13px;
-        background: @sw-select-selection-item-color-background;
-        border-radius: @sw-select-border-radius;
-        color: @sw-select-selection-item-color-text;
-        flex-shrink: 0;
-        cursor: default;
-        border: 1px solid transparent;
-
-        &.is--clickAble {
-            cursor: pointer;
-        }
-
-        &:hover {
-            background: darken(@sw-select-selection-item-color-background, 3%);
-        }
+    .is--clickAble .sw-label {
+        cursor: pointer;
     }
 
-    .sw-select__selection-dismiss {
-        display: inline-block;
-        position: absolute;
-        width: 35px;
-        height: 100%;
-        padding: 4px 10px;
-        right: 0;
-        top: 0;
-        color: @sw-select-selection-item-color-text;
-        font-size: 14px;
-        text-align: center;
-        background: 0 none;
-        border: 0 none;
-        cursor: pointer;
-        text-decoration: none;
-        line-height: 0;
-        font-weight: bold;
-        outline: none;
-
-        .sw-icon {
-            width: 12px;
-            height: 12px;
-
-            &.is--default {
-                color: @sw-select-color-text-default-item;
-                border: none;
-            }
-        }
+    .sw-select__item-is--default {
+        color: @sw-select-color-text-default-item;
+        border: none;
     }
 
     .sw-select__selection-item-input {
@@ -247,7 +202,7 @@
         }
     }
 
-    .is--default {
+    .is--default .sw-label {
         background-color: @sw-select-color-background-default-item;
         color: @sw-select-color-text-default-item;
         border: 1px solid @sw-select-color-border-default-item;

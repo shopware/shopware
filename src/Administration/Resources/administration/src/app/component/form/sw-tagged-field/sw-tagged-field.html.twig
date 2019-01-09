@@ -1,0 +1,52 @@
+{% block sw_tagged_field %}
+    <div class="sw-tagged-field"
+         :class="taggedClasses"
+         tabindex="0">
+        {% block sw_tagged_field_label %}
+            <label v-if="label" :for="id" class="sw-tagged-field__label">{{ label }}</label>
+        {% endblock %}
+
+        {% block sw_tagged_field_inner %}
+            <div class="sw-tagged-field__inner">
+                <transition-group name="sw-tagged-field-mangify"
+                                  tag="ul"
+                                  class="sw-tagged-field__tags"
+                                  mode="out-in">
+                    {% block sw_tagged_field_tag_items %}
+                        <li v-for="(tag, index) in tags"
+                            :key="index">
+                            <sw-label dismissAble
+                                      @dismiss="dismissTag(index)">
+                                <template>
+                                        {{ tag }}
+                                </template>
+                            </sw-label>
+                        </li>
+                    {% endblock %}
+
+                    {% block sw_tagged_field_item_input %}
+                        <li class="sw-tagged-field__tag-item-input" key="tagInput">
+                            {% block sw_tagged_field_input %}
+                                <input ref="newTagInput"
+                                       class="sw-tagged-field__input"
+                                       type="text"
+                                       :placeholder="placeholder"
+                                       v-model="newTag"
+                                       @keydown="performAddTag"
+                                       @keydown.delete="dismissLastTag">
+                            {% endblock %}
+                        </li>
+                    {% endblock %}
+                </transition-group>
+
+                {% block sw_tagged_field_indicators %}
+                    <div class="sw-tagged-field__indicators">
+                        {% block sw_tagged_field_indicators_helptext %}
+                            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -537,6 +537,162 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $new->getCategoriesRo());
     }
 
+    public function testCloneWithChildren()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $child1 = Uuid::uuid4()->getHex();
+        $child2 = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $id,
+            'name' => 'parent',
+            'price' => ['gross' => 15, 'net' => 10],
+            'manufacturer' => ['id' => $id, 'name' => 'test'],
+            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+            'children' => [
+                ['id' => $child1],
+                ['id' => $child2],
+            ],
+        ];
+
+        $repo = $this->getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+
+        /* @var EntityRepository $repo */
+        $repo->create([$data], $context);
+
+        $newId = Uuid::uuid4()->getHex();
+
+        $repo->clone($id, $context, $newId);
+
+        $childrenIds = $this->getContainer()->get(Connection::class)
+            ->fetchAll(
+                'SELECT id FROM product WHERE parent_id IN (:ids)',
+                ['ids' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($newId)]],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+
+        static::assertCount(4, $childrenIds);
+
+        $readCriteria = new ReadCriteria([$newId]);
+        $readCriteria->addAssociation('product.children');
+        $product = $repo->read($readCriteria, $context)->get($newId);
+
+        /** @var ProductEntity $product */
+        static::assertCount(2, $product->getChildren());
+    }
+
+    public function testCloneWithNestedChildren()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $id,
+            'name' => 'test rule',
+            'priority' => 1,
+            'conditions' => [
+                [
+                    'type' => AndRule::class,
+                    'children' => [
+                        [
+                            'type' => AndRule::class,
+                            'children' => [
+                                [
+                                    'type' => AndRule::class,
+                                    'children' => [
+                                        [
+                                            'type' => AndRule::class,
+                                            'children' => [
+                                                [
+                                                    'type' => AndRule::class,
+                                                    'children' => [
+                                                        [
+                                                            'type' => AndRule::class,
+                                                            'children' => [
+                                                                [
+                                                                    'type' => AndRule::class,
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $repo = $this->getContainer()->get('rule.repository');
+
+        $context = Context::createDefaultContext();
+        $repo->create([$data], $context);
+
+        //check count of conditions
+        $conditions = $this->getContainer()->get(Connection::class)->fetchAll(
+            'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
+            ['id' => Uuid::fromHexToBytes($id)]
+        );
+        static::assertCount(7, $conditions);
+        $withParent = array_filter($conditions, function ($condition) { return $condition['parent_id'] !== null; });
+        static::assertCount(6, $withParent);
+
+        $newId = Uuid::uuid4()->getHex();
+        $repo->clone($id, $context, $newId);
+
+        //check that existing rule conditions are not touched
+        $conditions = $this->getContainer()->get(Connection::class)->fetchAll(
+            'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
+            ['id' => Uuid::fromHexToBytes($id)]
+        );
+
+        foreach ($conditions as &$condition) {
+            $condition['id'] = Uuid::fromBytesToHex($condition['id']);
+            if (!$condition['parent_id']) {
+                continue;
+            }
+            $condition['parent_id'] = Uuid::fromBytesToHex($condition['parent_id']);
+        }
+
+        static::assertCount(7, $conditions);
+
+        //check that existing rule conditions are not touched
+        $newConditions = $this->getContainer()->get(Connection::class)->fetchAll(
+            'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
+            ['id' => Uuid::fromHexToBytes($newId)]
+        );
+
+        foreach ($newConditions as &$condition) {
+            $condition['id'] = Uuid::fromBytesToHex($condition['id']);
+            if (!$condition['parent_id']) {
+                continue;
+            }
+            $condition['parent_id'] = Uuid::fromBytesToHex($condition['parent_id']);
+        }
+
+        static::assertCount(7, $newConditions);
+
+        $parentIds = array_column($conditions, 'parent_id');
+        $ids = array_column($conditions, 'id');
+
+        //check that parent ids and ids of all new conditions are new
+        foreach ($newConditions as $condition) {
+            static::assertNotContains($condition['id'], $ids);
+            static::assertNotContains($condition['id'], $parentIds);
+
+            if (!$condition['parent_id']) {
+                continue;
+            }
+            static::assertNotContains($condition['parent_id'], $ids);
+            static::assertNotContains($condition['parent_id'], $parentIds);
+        }
+    }
+
     protected function createRepository(string $definition): EntityRepository
     {
         return new EntityRepository(

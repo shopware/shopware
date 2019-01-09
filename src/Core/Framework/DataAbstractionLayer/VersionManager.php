@@ -6,10 +6,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
@@ -321,12 +324,7 @@ class VersionManager
     ): array {
         /** @var string|EntityDefinition $definition */
         $criteria = new ReadCriteria([$id]);
-
-        //add all cascade delete associations
-        $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
-        foreach ($cascades as $cascade) {
-            $criteria->addAssociation($definition::getEntityName() . '.' . $cascade->getPropertyName());
-        }
+        $this->addCloneAssociations($definition, $criteria);
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -339,7 +337,7 @@ class VersionManager
 
         $keepIds = $newId === $id;
 
-        $data = $this->filterPropertiesForClone($definition, $data, $keepIds);
+        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition);
         $data['id'] = $newId;
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -347,7 +345,7 @@ class VersionManager
         return $this->entityWriter->insert($definition, [$data], $versionContext);
     }
 
-    private function filterPropertiesForClone(string $definition, array $data, bool $keepIds): array
+    private function filterPropertiesForClone(string $definition, array $data, bool $keepIds, string $cloneId, string $cloneDefinition): array
     {
         $extensions = [];
         $payload = [];
@@ -381,7 +379,16 @@ class VersionManager
                 continue;
             }
 
+            if ($field instanceof ParentFkField && !$keepIds) {
+                continue;
+            }
+
             $value = $dataCursor[$field->getPropertyName()];
+
+            // remove reference of cloned entity in all sub entity routes. Appears in a parent-child nested data tree
+            if ($field instanceof FkField && !$keepIds && $value === $cloneId && $cloneDefinition === $field->getReferenceClass()) {
+                continue;
+            }
 
             if ($value === null) {
                 continue;
@@ -406,7 +413,7 @@ class VersionManager
             if ($field instanceof OneToManyAssociationField) {
                 $nested = [];
                 foreach ($value as $item) {
-                    $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $item, $keepIds);
+                    $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $item, $keepIds, $cloneId, $cloneDefinition);
 
                     if (!$keepIds) {
                         $nestedItem = $this->removePrimaryKey($field, $nestedItem);
@@ -572,5 +579,53 @@ class VersionManager
         }
 
         return $nestedItem;
+    }
+
+    private function addCloneAssociations(string $definition, Criteria $criteria, int $childCounter = 1): void
+    {
+        //add all cascade delete associations
+        /** @var string|EntityDefinition $definition */
+        $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
+
+        foreach ($cascades as $cascade) {
+            $nested = new Criteria();
+
+            $criteria->addAssociation($definition::getEntityName() . '.' . $cascade->getPropertyName(), $nested);
+
+            /** @var AssociationInterface $cascade */
+            if ($cascade instanceof ManyToManyAssociationField) {
+                continue;
+            }
+
+            //many to one shouldn't be cascaded
+            if ($cascade instanceof ManyToOneAssociationField) {
+                continue;
+            }
+
+            /** @var OneToManyAssociationField $cascade */
+            $reference = $cascade->getReferenceClass();
+
+            $childrenAware = $reference::getFields()->get('children') instanceof ChildrenAssociationField;
+
+            //first level of parent-child tree?
+            if ($childrenAware && $reference !== $definition) {
+                //where product.children.parentId IS NULL
+                $nested->addFilter(new EqualsFilter($reference::getEntityName() . '.parentId', null));
+            }
+
+            if ($cascade instanceof ChildrenAssociationField) {
+                //break endless loop
+                if ($childCounter >= 30) {
+                    continue;
+                }
+
+                ++$childCounter;
+                $this->addCloneAssociations($reference, $nested, $childCounter);
+
+                continue;
+            }
+
+            $this->addCloneAssociations($reference, $nested);
+        }
     }
 }

@@ -143,6 +143,17 @@ export default class EntityProxy {
         });
     }
 
+    clone() {
+        const proxy = new EntityProxy(this.entityName, this.apiService, this.id, this.store);
+        proxy.setData(this.draft, false);
+        proxy.isLocal = this.isLocal;
+        proxy.isDeleted = this.isDeleted;
+        proxy.errors = this.errors;
+        proxy.associations = this.associations;
+
+        return proxy;
+    }
+
     /**
      * Initializes data of the entity by setting the draft and original data.
      * This method is mostly used to set data which was loaded from the server.
@@ -377,18 +388,6 @@ export default class EntityProxy {
         }
 
         return this.store.remove(this);
-    }
-
-    /**
-     * Overrides the original entity with the given entity.
-     *
-     * @memberOf module:core/data/EntityProxy
-     * @param {EntityProxy} newEntity
-     * @return {void}
-     */
-    override(newEntity) {
-        this.setLocalData(newEntity);
-        this.id = newEntity.id;
     }
 
     /**

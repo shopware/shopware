@@ -167,15 +167,13 @@ Component.register('sw-media-modal-folder-settings', {
         onChangeInheritance(value) {
             if (value === true) {
                 const configuration = this.folder.configuration;
-                this.folder.configuration = this.parent.configuration;
+                this.folder.configuration = this.parent.configuration.clone();
                 configuration.delete(true);
 
                 return;
             }
 
-            this.folder.configuration.override(
-                this.mediaFolderConfigurationStore.duplicate(this.folder.configuration.id, true)
-            );
+            this.folder.configuration = this.mediaFolderConfigurationStore.duplicate(this.folder.configuration.id, true);
         },
 
         onClickSave() {
@@ -199,13 +197,10 @@ Component.register('sw-media-modal-folder-settings', {
 
             resetDefaultFolder()
                 .then(() => {
-                    return this.folder.save();
-                })
-                .then(() => {
                     return configuration.save();
                 })
                 .then(() => {
-                    return this.mediaFolderConfigurationStore.sync(true);
+                    return this.folder.save();
                 })
                 .then(() => {
                     this.createNotificationSuccess({

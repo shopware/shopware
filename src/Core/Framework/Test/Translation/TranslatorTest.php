@@ -8,7 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Framework\Snippet\SnippetDefinition;
 use Shopware\Core\Framework\SourceContext;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Translation\Translator;
@@ -138,6 +140,24 @@ class TranslatorTest extends TestCase
             [$this->getCatalog(['messages' => ['a' => 'a']], 'en_GB'), $context, ['a' => 'a']],
             [$this->getCatalog(['messages' => ['a' => 'a', 'b' => 'b']], 'en_GB'), $context, ['a' => 'a', 'b' => 'b']],
         ];
+    }
+
+    public function testDeleteSnippet(): void
+    {
+        $snippetRepository = $this->getContainer()->get('snippet.repository');
+        $snippet = [
+            'id' => Uuid::uuid4()->getHex(),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'setId' => Defaults::SNIPPET_BASE_SET_EN,
+            'translationKey' => 'foo',
+            'value' => 'bar',
+        ];
+
+        $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
+        static::assertEquals([$snippet['id']], $created->getIds());
+
+        $deleted = $snippetRepository->delete([['id' => $snippet['id']]], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
+        static::assertEquals([$snippet['id']], $deleted->getIds());
     }
 
     private function getCatalog(array $messages, string $local): MessageCatalogueInterface

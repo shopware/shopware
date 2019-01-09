@@ -210,6 +210,7 @@
 
         <service id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

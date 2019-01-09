@@ -17,7 +17,7 @@ Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
             return this.ruleConditionService.operatorSets.multiStore;
         },
         fieldNames() {
-            return ['operator', 'identifiers'];
+            return ['operator', 'countryIds'];
         },
         defaultValues() {
             return {

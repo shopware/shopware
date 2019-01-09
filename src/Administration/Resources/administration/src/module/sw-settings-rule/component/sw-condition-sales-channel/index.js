@@ -17,7 +17,7 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
             return this.ruleConditionService.operatorSets.multiStore;
         },
         fieldNames() {
-            return ['operator', 'identifiers'];
+            return ['operator', 'salesChannelIds'];
         },
         defaultValues() {
             return {

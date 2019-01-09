@@ -23,7 +23,8 @@ Component.register('sw-media-sidebar', {
             autoplay: false,
             showModalReplace: false,
             showModalDelete: false,
-            showFolderSettings: false
+            showFolderSettings: false,
+            showFolderDissolve: false
         };
     },
 
@@ -61,11 +62,9 @@ Component.register('sw-media-sidebar', {
         },
 
         hasFolder() {
-            const index = this.items.findIndex((item) => {
+            return this.items.some((item) => {
                 return item.entityName === 'media_folder';
             });
-
-            return index > -1;
         },
 
         showDeleteButton() {
@@ -110,6 +109,21 @@ Component.register('sw-media-sidebar', {
             this.closeModalDelete();
             deletePromise.then((ids) => {
                 this.$emit('sw-media-sidebar-items-delete', ids);
+            });
+        },
+
+        openFolderDissolve() {
+            this.showFolderDissolve = true;
+        },
+
+        closeFolderDissolve() {
+            this.showFolderDissolve = false;
+        },
+
+        onFolderDissolved(dissolvePromise) {
+            this.closeFolderDissolve();
+            dissolvePromise.then((ids) => {
+                this.$emit('sw-media-sidebar-folder-items-dissolved', ids);
             });
         }
     }

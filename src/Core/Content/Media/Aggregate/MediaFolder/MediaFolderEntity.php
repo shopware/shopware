@@ -173,7 +173,7 @@ class MediaFolderEntity extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function isUseParentConfiguration(): bool
+    public function getUseParentConfiguration(): bool
     {
         return $this->useParentConfiguration;
     }

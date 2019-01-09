@@ -235,13 +235,24 @@
                         {% block sw_media_quickinfo_folder_quickactions_content %}
                             <ul class="sw-media-quickinfo__collapse-content sw-media-quickinfo__two-columns">
                                 {% block sw_media_quickinfo_folder_quickactions_settings %}
-                                    <li class="sw-media-quickinfo__quickaction is--danger quickaction--settings"
+                                    <li class="sw-media-quickinfo__quickaction quickaction--settings"
                                         @click="emitOpenFolderSettings">
                                         <sw-icon small
                                                  name="default-action-settings"
                                                  class="sw-media-quickinfo__quickactions-icon">
                                         </sw-icon>
                                         {{ $tc('sw-media.sidebar.actions.settings') }}
+                                    </li>
+                                {% endblock %}
+
+                                {% block sw_media_quickinfo_folder_quickactions_dissolve %}
+                                    <li class="sw-media-quickinfo__quickaction quickaction--dissolve"
+                                        @click="emitOpenFolderDissolve">
+                                        <sw-icon small
+                                                 name="default-web-loading-star"
+                                                 class="sw-media-quickinfo__quickactions-icon">
+                                        </sw-icon>
+                                        {{ $tc('sw-media.sidebar.actions.dissolve') }}
                                     </li>
                                 {% endblock %}
                             </ul>

@@ -18,14 +18,15 @@
                                     :autoplay="autoplay"
                                     @sw-media-quickinfo-open-modal-replace="openModalReplace"
                                     @sw-media-quickinfo-open-modal-delete="openModalDelete"
-                                    @sw-media-quickinfo-open-folder-settings="openFolderSettings">
+                                    @sw-media-quickinfo-open-folder-settings="openFolderSettings"
+                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve">
                                 </sw-media-quickinfo>
 
                                 <sw-media-quickinfo-multiple
                                     v-else-if="isMultipleFile"
-                                    :hasFolder="hasFolder"
                                     :items="items"
-                                    @sw-media-quickinfo-open-modal-delete="openModalDelete">
+                                    @sw-media-quickinfo-open-modal-delete="openModalDelete"
+                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve">
                                 </sw-media-quickinfo-multiple>
                             </div>
                         {% endblock %}
@@ -68,6 +69,15 @@
                     @sw-media-modal-folder-settings-save="closeFolderSettings"
                     @sw-media-modal-folder-settings-close="closeFolderSettings">
             </sw-media-modal-folder-settings>
+        {% endblock %}
+
+        {% block sw_media_folder_dissolve_modal %}
+            <sw-media-modal-folder-dissolve
+                    v-if="showFolderDissolve"
+                    :itemsToDissolve="items"
+                    @sw-media-modal-folder-dissolve-items-dissolved="onFolderDissolved"
+                    @sw-media-modal-folder-dissolve-close="closeFolderDissolve">
+            </sw-media-modal-folder-dissolve>
         {% endblock %}
     </div>
 {% endblock %}

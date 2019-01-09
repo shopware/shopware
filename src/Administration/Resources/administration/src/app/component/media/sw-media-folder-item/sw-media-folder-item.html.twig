@@ -73,15 +73,15 @@
                                     </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_media_media_item_context_item_rename_item %}
-                                    <sw-context-menu-item @click="onStartRenaming">
-                                        {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
+                                {% block sw_media_media_item_context_item_dissolve %}
+                                    <sw-context-menu-item @click="openDissolveModal">
+                                        {{ $tc('global.sw-media-folder-item.labelContextMenuDissolve') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_media_media_item_context_item_delete %}
-                                    <sw-context-menu-item disabled variant="danger">
-                                        {{ $tc('global.sw-media-folder-item.labelContextMenuDelete') }}
+                                {% block sw_media_media_item_context_item_rename_item %}
+                                    <sw-context-menu-item @click="onStartRenaming">
+                                        {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
                             </div>
@@ -98,6 +98,15 @@
                 @sw-media-modal-folder-settings-save="closeSettings"
                 @sw-media-modal-folder-settings-close="closeSettings">
             </sw-media-modal-folder-settings>
+        {% endblock %}
+
+        {% block sw_media_folder_dissolve_modal %}
+            <sw-media-modal-folder-dissolve
+                    v-if="showDissolveModal"
+                    :itemsToDissolve="[item]"
+                    @sw-media-modal-folder-dissolve-items-dissolved="onFolderDissolved"
+                    @sw-media-modal-folder-dissolve-close="closeDissolveModal">
+            </sw-media-modal-folder-dissolve>
         {% endblock %}
     </div>
 {% endblock %}

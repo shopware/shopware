@@ -33,11 +33,6 @@ class MediaFolderDefinition extends EntityDefinition
         return 'media_folder';
     }
 
-    public static function isInheritanceAware(): bool
-    {
-        return true;
-    }
-
     public static function getCollectionClass(): string
     {
         return MediaFolderCollection::class;

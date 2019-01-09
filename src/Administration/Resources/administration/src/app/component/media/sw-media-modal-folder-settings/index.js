@@ -168,7 +168,7 @@ Component.register('sw-media-modal-folder-settings', {
             if (value === true) {
                 const configuration = this.folder.configuration;
                 this.folder.configuration = this.parent.configuration;
-                configuration.delete();
+                configuration.delete(true);
 
                 return;
             }

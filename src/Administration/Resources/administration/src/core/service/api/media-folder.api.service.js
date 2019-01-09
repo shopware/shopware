@@ -9,6 +9,20 @@ class MediaFolderApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'media-folder') {
         super(httpClient, loginService, apiEndpoint);
     }
+
+    dissolveFolder(id) {
+        const apiRoute = `/_action/${this.getApiBasePath(id)}/dissolve`;
+        return this.httpClient.post(
+            apiRoute,
+            '',
+            {
+                params: {},
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 export default MediaFolderApiService;

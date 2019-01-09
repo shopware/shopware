@@ -49,7 +49,8 @@
       "labelContextMenuDelete": "Löschen",
       "labelContextMenuRename": "Umbenennen",
       "labelContextMenuShowMedia": "Medien anzeigen",
-      "labelContextMenuShowSettings": "Einstellungen"
+      "labelContextMenuShowSettings": "Einstellungen",
+      "labelContextMenuDissolve": "Auflösen"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",
@@ -72,15 +73,15 @@
       "notificationSuccessOverall": "Dateien erfolgreich gelöscht",
       "notificationErrorOverall": "Die Dateien konnten nicht gelöscht werden"
     },
-    "sw-media-modal-dissolve": {
+    "sw-media-modal-folder-dissolve": {
       "titleModal": "Ordner auflösen",
       "dissolveMessage":"Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
       "buttonDissolve": "Auflösen",
       "buttonCancel": "Abbrechen",
-      "notificationSuccessSingle": "Datei \"{folderName}\" erfolgreich aufgelöst",
+      "notificationSuccessSingle": "Ordner \"{folderName}\" erfolgreich aufgelöst",
       "notificationErrorSingle": "Fehler beim Auflösen von \"{folderName}\"",
-      "notificationSuccessOverall": "Dateien erfolgreich aufgelöst",
-      "notificationErrorOverall": "Die Dateien konnten nicht aufgelöst werden"
+      "notificationSuccessOverall": "Ordner erfolgreich aufgelöst",
+      "notificationErrorOverall": "Die Ordner konnten nicht aufgelöst werden"
     },
     "sw-media-modal-replace": {
       "titleModal": "Medien ersetzen",
@@ -776,7 +777,8 @@
       "actions": {
         "quickInfo": "Information",
         "delete": "Löschen",
-        "settings": "Einstellungen"
+        "settings": "Einstellungen",
+        "dissolve": "Auflösen"
       },
       "quickinfo": {
         "actions": "Aktionen",

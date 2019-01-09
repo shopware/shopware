@@ -14,7 +14,6 @@ Component.register('sw-settings-rule-detail', {
     data() {
         return {
             rule: {},
-            duplicate: false,
             nestedConditions: {},
             conditionAssociations: {}
         };
@@ -36,30 +35,14 @@ Component.register('sw-settings-rule-detail', {
                 return;
             }
 
-            const ruleId = this.$route.params.id;
-            this.rule = this.ruleStore.getById(ruleId);
-            let conditionId = ruleId;
+            this.rule = this.ruleStore.getById(this.$route.params.id);
 
-            if (this.$route.params.parentId) {
-                this.duplicate = true;
-                conditionId = this.$route.params.parentId;
-            }
-
-            this.rule.id = conditionId;
             this.conditionAssociations = this.rule.getAssociation('conditions');
             this.conditionAssociations.getList({
                 page: 1,
                 limit: 500
             }).then(() => {
                 this.nestedConditions = this.buildNestedConditions(this.rule.conditions, null);
-                if (this.duplicate) {
-                    this.rule.conditions.forEach((condition) => {
-                        condition.id = null;
-                        condition.parentId = null;
-                    });
-
-                    this.rule.id = ruleId;
-                }
 
                 this.$nextTick(() => {
                     this.$refs.mainContainer.$emit('finish-loading', this.nestedConditions);
@@ -111,9 +94,6 @@ Component.register('sw-settings-rule-detail', {
                 'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
             );
 
-            if (this.duplicate) {
-                // todo change conditions for duplicate
-            }
             this.rule.conditions = [this.nestedConditions];
             this.removeOriginalConditionTypes(this.rule.conditions);
 

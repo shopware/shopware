@@ -8,11 +8,6 @@ Component.register('sw-media-quickinfo-metadata-item', {
         labelName: {
             required: true,
             type: String
-        },
-        truncated: {
-            required: false,
-            default: true,
-            type: Boolean
         }
     },
 
@@ -33,8 +28,7 @@ Component.register('sw-media-quickinfo-metadata-item', {
                 class: [
                     context.data.staticClass,
                     {
-                        'sw-media-quickinfo-metadata-item__description': true,
-                        'is--truncated': context.props.truncated
+                        'sw-media-quickinfo-metadata-item__description': true
                     }
                 ]
             },

@@ -102,18 +102,17 @@
                     {% block sw_media_quickinfo_metadata_content %}
                          <dl slot="content" class="sw-media-quickinfo__collapse-content sw-media-quickinfo__metadata-list">
                             {% block sw_media_quickinfo_metadata_content_base %}
-                                <sw-media-quickinfo-metadata-item
+                             <sw-media-quickinfo-metadata-item
                                     class="sw-media-quickinfo-metadata-name"
                                     :label-name="$tc('sw-media.sidebar.metadata.name')"
                                     :truncated="false">
 
-                                    <sw-field
-                                        class="sw-media-quickinfo__metadata-inline-field"
-                                        type="inline"
-                                        :value="item.fileName"
+                                    <sw-confirm-field
+                                        compact
                                         ref="inlineEditFieldName"
-                                        @sw-field-submit-value="onChangeFileName">
-                                    </sw-field>
+                                        :value="item.fileName"
+                                        @input="onChangeFileName">
+                                    </sw-confirm-field>
                                 </sw-media-quickinfo-metadata-item>
 
                                 <sw-media-quickinfo-metadata-item
@@ -127,13 +126,13 @@
                                     :label-name="$tc('sw-media.sidebar.metadata.altText')"
                                     :truncated="false">
 
-                                    <sw-field
-                                        class="sw-media-quickinfo__metadata-inline-field"
-                                        type="inline"
-                                        :value="item.alt"
+                                    <sw-confirm-field
+                                        compact
                                         ref="inlineEditFieldAlt"
-                                        @sw-field-submit-value="onSubmitAltText">
-                                    </sw-field>
+                                        :placeholder="$tc('sw-media.sidebar.metadata.altText')"
+                                        :value="item.alt"
+                                        @input="onSubmitAltText">
+                                    </sw-confirm-field>
                                 </sw-media-quickinfo-metadata-item>
 
                                 <sw-media-quickinfo-metadata-item
@@ -141,13 +140,13 @@
                                     :label-name="$tc('sw-media.sidebar.metadata.title')"
                                     :truncated="false">
 
-                                    <sw-field
-                                        class="sw-media-quickinfo__metadata-inline-field"
-                                        type="inline"
+                                    <sw-confirm-field
+                                        compact
                                         :value="item.title"
+                                        :placeholder="$tc('sw-media.sidebar.metadata.title')"
                                         ref="inlineEditFieldTitle"
-                                        @sw-field-submit-value="onSubmitTitle">
-                                    </sw-field>
+                                        @input="onSubmitTitle">
+                                    </sw-confirm-field>
                                 </sw-media-quickinfo-metadata-item>
 
                                 <sw-media-quickinfo-metadata-item
@@ -306,13 +305,12 @@
                                         :label-name="$tc('sw-media.sidebar.metadata.name')"
                                         :truncated="false">
 
-                                        <sw-field
-                                            class="sw-media-quickinfo__metadata-inline-field"
-                                            type="inline"
+                                        <sw-confirm-field
+                                            compact
                                             :value="item.name"
                                             ref="inlineEditFieldName"
-                                            @sw-field-submit-value="onChangeFolderName">
-                                        </sw-field>
+                                            @input="onChangeFolderName">
+                                        </sw-confirm-field>
                                     </sw-media-quickinfo-metadata-item>
 
                                     <sw-media-quickinfo-metadata-item

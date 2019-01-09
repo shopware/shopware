@@ -346,11 +346,13 @@ export default class EntityStore {
             }
         });
 
-        upsertPayload = [{
-            action: 'upsert',
-            entity: this.entityName,
-            payload: upsertPayload
-        }];
+        if (upsertPayload.length > 0) {
+            upsertPayload = [{
+                action: 'upsert',
+                entity: this.entityName,
+                payload: upsertPayload
+            }];
+        }
 
         return [...payload, ...upsertPayload];
     }

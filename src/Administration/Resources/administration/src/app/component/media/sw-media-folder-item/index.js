@@ -129,7 +129,7 @@ Component.register('sw-media-folder-item', {
 
             if (this.item.isLocal === true) {
                 this.item.delete(true).then(() => {
-                    this.$emit('sw-media-folder-item-delete', [this.item.id]);
+                    this.$emit('sw-media-folder-item-remove', [this.item.id]);
                 });
             }
         },
@@ -158,6 +158,13 @@ Component.register('sw-media-folder-item', {
             this.closeDissolveModal();
             dissolvePromise.then((ids) => {
                 this.$emit('sw-media-folder-item-dissolve', ids);
+            });
+        },
+
+        onFolderMoved(movePromise) {
+            this.closeMoveModal();
+            movePromise.then((ids) => {
+                this.$emit('sw-media-folder-item-remove', ids);
             });
         },
 

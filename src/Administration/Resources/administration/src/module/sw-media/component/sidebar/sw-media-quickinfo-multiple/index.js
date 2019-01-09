@@ -52,6 +52,10 @@ Component.register('sw-media-quickinfo-multiple', {
 
         emitOpenFolderDissolve() {
             this.$emit('sw-media-quickinfo-open-folder-dissolve');
+        },
+
+        emitOpenFolderMove() {
+            this.$emit('sw-media-quickinfo-open-folder-move');
         }
     }
 });

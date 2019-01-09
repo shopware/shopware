@@ -121,8 +121,8 @@
                 v-if="showMoveModal"
                 :itemsToMove="[item]"
                 @sw-media-modal-move-close="closeMoveModal"
-                @sw-media-modal-folder-settings-close="closeMoveModal">
-            </sw-media-modal-move>
+                @sw-media-modal-move-items-moved="onFolderMoved">
+        </sw-media-modal-move>
         {% endblock %}
     </div>
 {% endblock %}

@@ -790,7 +790,8 @@
         "quickInfo": "Quick info",
         "delete": "Delete",
         "settings": "Settings",
-        "dissolve": "Dissolve"
+        "dissolve": "Dissolve",
+        "move": "Move"
       },
       "quickinfo": {
         "actions": "Actions",

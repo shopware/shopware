@@ -91,9 +91,9 @@
       "buttonMove": "Verschieben",
       "buttonAbort": "Abbrechen",
       "notificationSuccessSingle": "\"{mediaName}\" erfolgreich verschoben",
-      "notificationErrorSingle": "Fehler beim verschieben von \"{mediaName}\"",
+      "notificationErrorSingle": "Fehler beim Verschieben von \"{mediaName}\"",
       "notificationSuccessOverall": "Objekte erfolgreich verschoben.",
-      "notificationErrorOverall": "Fehler beim verschieben"
+      "notificationErrorOverall": "Fehler beim Verschieben"
     },
     "sw-media-modal-replace": {
       "titleModal": "Medien ersetzen",
@@ -792,7 +792,8 @@
         "quickInfo": "Information",
         "delete": "Löschen",
         "settings": "Einstellungen",
-        "dissolve": "Auflösen"
+        "dissolve": "Auflösen",
+        "move": "Verschieben"
       },
       "quickinfo": {
         "actions": "Aktionen",

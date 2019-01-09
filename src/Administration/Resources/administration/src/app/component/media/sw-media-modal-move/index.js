@@ -13,6 +13,8 @@ import './sw-media-modal-move.less';
 Component.register('sw-media-modal-move', {
     template,
 
+    inject: ['mediaFolderService'],
+
     provide() {
         return {
             filterItems: this.isNotPartOfItemsToMove
@@ -51,6 +53,9 @@ Component.register('sw-media-modal-move', {
             return State.getStore('media_folder');
         },
 
+        mediaStore() {
+            return State.getStore('media');
+        },
         targetFolderId() {
             return this.targetFolder ? this.targetFolder.id : '';
         }
@@ -115,13 +120,14 @@ Component.register('sw-media-modal-move', {
             const NotificationMessageSuccess = this.$tc('global.sw-media-modal-move.notificationSuccessOverall');
             const NotificationMessageError = this.$tc('global.sw-media-modal-move.notificationErrorOverall');
 
-            this.itemsToMove.forEach((item) => {
+            this.itemsToMove.filter((item) => {
+                return item.entityName === 'media_folder';
+            }).forEach((item) => {
                 const messages = this._getNotificationMessages(item);
                 item.isLoading = true;
 
                 movePromises.push(
-                    // TODO implement Move
-                    Promise.resolve().then(() => {
+                    this.mediaFolderService.moveFolder(item.id, this.targetFolder.id).then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
                             message: messages.successMessage
@@ -135,6 +141,13 @@ Component.register('sw-media-modal-move', {
                     })
                 );
             });
+
+            this.itemsToMove.filter((item) => {
+                return item.entityName === 'media';
+            }).forEach((item) => {
+                item.mediaFolderId = this.targetFolder.id || null;
+            });
+            movePromises.push(this.mediaStore.sync());
 
             this.$emit(
                 'sw-media-modal-move-items-moved',

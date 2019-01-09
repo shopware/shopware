@@ -84,6 +84,10 @@ Component.register('sw-media-quickinfo', {
             this.$emit('sw-media-quickinfo-open-folder-dissolve');
         },
 
+        emitOpenFolderMove() {
+            this.$emit('sw-media-quickinfo-open-folder-move');
+        },
+
         onSubmitTitle(value) {
             this.item.title = value;
             this.item.save().catch(() => {

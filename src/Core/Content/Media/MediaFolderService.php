@@ -41,22 +41,21 @@ class MediaFolderService
 
     public function dissolve(string $folderId, Context $context): void
     {
-        $folder = $this->mediaFolderRepo->read(new ReadCriteria([$folderId]), $context)->get($folderId);
-
-        if ($folder === null) {
-            throw new MediaFolderNotFoundException($folderId);
-        }
+        $folder = $this->fetchFolder($folderId, $context);
 
         $this->moveMediaToParentFolder($folder, $context);
         $this->moveSubFoldersToParent($folder, $context);
         $this->mediaFolderRepo->delete([['id' => $folder->getId()]], $context);
     }
 
-    public function move(string $folderToMoveId, string $targetFolderId, Context $context): void
+    public function move(string $folderToMoveId, ?string $targetFolderId, Context $context): void
     {
-        $folders = $this->fetchFoldersFromRepo([$folderToMoveId, $targetFolderId], $context);
-        /** @var MediaFolderEntity $folderToMove */
-        $folderToMove = $folders->get($folderToMoveId);
+        $folderToMove = $this->fetchFolder($folderToMoveId, $context);
+
+        if ($targetFolderId) {
+            // ensure Folder exists
+            $this->fetchFolder($targetFolderId, $context);
+        }
 
         if (!$folderToMove->getUseParentConfiguration()) {
             $this->mediaFolderRepo->update([
@@ -68,6 +67,7 @@ class MediaFolderService
 
             return;
         }
+
         $newConfigId = $this->cloneConfiguration($folderToMove->getConfigurationId(), $context);
 
         $updates = [
@@ -81,21 +81,6 @@ class MediaFolderService
         $updates = array_merge($updates, $this->updateSubFolder($folderToMoveId, $newConfigId, $context));
 
         $this->mediaFolderRepo->update($updates, $context);
-    }
-
-    private function fetchFoldersFromRepo(
-        array $ids,
-        Context $context
-    ): MediaFolderCollection {
-        /** @var MediaFolderCollection $folders */
-        $folders = $this->mediaFolderRepo->read(new ReadCriteria($ids), $context);
-
-        if ($folders->count() !== 2) {
-            $missingFolders = array_diff($ids, $folders->getIds());
-            throw new MediaFolderNotFoundException(implode(', ', $missingFolders));
-        }
-
-        return $folders;
     }
 
     private function moveMediaToParentFolder(MediaFolderEntity $folder, Context $context): void
@@ -217,5 +202,16 @@ class MediaFolderService
         $this->mediaFolderConfigRepo->clone($configId, $context, $newId);
 
         return $newId;
+    }
+
+    private function fetchFolder(string $folderId, Context $context)
+    {
+        $folder = $this->mediaFolderRepo->read(new ReadCriteria([$folderId]), $context)->get($folderId);
+
+        if ($folder === null) {
+            throw new MediaFolderNotFoundException($folderId);
+        }
+
+        return $folder;
     }
 }

@@ -541,7 +541,6 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $new->getCategoriesRo());
     }
 
-<<<<<<< 263c1d4fdb4a935ac02c14cd7a6645fd0a208b53
     public function testCloneWithChildren()
     {
         $id = Uuid::uuid4()->getHex();
@@ -699,7 +698,7 @@ class EntityRepositoryTest extends TestCase
             static::assertNotContains($condition['parent_id'], $parentIds);
         }
     }
-    
+
     public function testReadPaginatedOneToManyChildrenAssociation()
     {
         $id = Uuid::uuid4()->getHex();

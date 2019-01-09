@@ -427,7 +427,6 @@ export default class EntityProxy {
     addError(error) {
         this.errors.push(error);
 
-
         State.getStore('error').addError({
             type: this.entityName,
             error

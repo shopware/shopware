@@ -19,8 +19,10 @@ Component.extend('sw-settings-rule-create', 'sw-settings-rule-detail', {
         },
 
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.settings.rule.detail', params: { id: this.rule.id } });
+            this.$super.onSave().then((success) => {
+                if (success) {
+                    this.$router.push({ name: 'sw.settings.rule.detail', params: { id: this.rule.id } });
+                }
             });
         }
     }

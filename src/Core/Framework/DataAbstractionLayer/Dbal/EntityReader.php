@@ -915,7 +915,7 @@ class EntityReader implements EntityReaderInterface
         //build query based on provided association criteria (sortings, search, filter)
         $query = $this->buildQueryByCriteria(new QueryBuilder($this->connection), $this->queryHelper, $this->parser, $association->getReferenceClass(), $fieldCriteria, $context);
 
-        $foreignKey = $definition::getEntityName() . '_id';
+        $foreignKey = $association->getReferenceField();
 
         //build sql accessor for foreign key field in reference table `customer_address.customer_id`
         $sqlAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceClass()::getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($foreignKey);
@@ -951,7 +951,7 @@ class EntityReader implements EntityReaderInterface
             $root,
             '(' . $query->getSQL() . ')',
             'child',
-            'child.' . $foreignKey . ' = ' . $root . '.id AND id_count <= :childCount'
+            'child.' . $foreignKey . ' = ' . $root . '.id AND id_count >= :offset AND id_count <= :limit'
         );
 
         //add group by to concat all association ids for each root
@@ -967,7 +967,13 @@ class EntityReader implements EntityReaderInterface
         );
 
         $wrapper->setParameter('rootIds', $bytes, Connection::PARAM_STR_ARRAY);
-        $wrapper->setParameter('childCount', $fieldCriteria->getLimit());
+
+        $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
+        $offset = ($fieldCriteria->getOffset() + 1);
+
+        $wrapper->setParameter('limit', $limit);
+        $wrapper->setParameter('offset', $offset);
+
         foreach ($query->getParameters() as $key => $value) {
             $type = $query->getParameterType($key);
             $wrapper->setParameter($key, $value, $type);

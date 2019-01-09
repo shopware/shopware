@@ -12,10 +12,8 @@
         </sw-field>
     {% endblock %}
     {% block sw_condition_fields_value %}
-        <sw-condition-value multi
-                            :id="condition.id"
-                            class="field field--multi field--main"
-                            v-model="condition.value.customerNumbers">
-        </sw-condition-value>
+        <sw-tagged-field class="field field--multi field--main"
+                         v-model="condition.value.numbers">
+        </sw-tagged-field>
     {% endblock %}
 {% endblock %}

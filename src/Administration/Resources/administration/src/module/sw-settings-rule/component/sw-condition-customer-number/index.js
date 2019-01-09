@@ -17,7 +17,7 @@ Component.extend('sw-condition-customer-number', 'sw-condition-base', {
             return this.ruleConditionService.operatorSets.multiStore;
         },
         fieldNames() {
-            return ['operator', 'customerNumbers'];
+            return ['operator', 'numbers'];
         },
         defaultValues() {
             return {

@@ -891,7 +891,8 @@
       "searchBarTitleSets": "Snippet sets",
       "placeholderSearchBarSets": "Find snippet sets (name, base file)",
       "searchBarTitleSnippets": "Snippets",
-      "placeholderSearchBarSnippets": "Find snippets (name, content, section)"
+      "placeholderSearchBarSnippets": "Find snippets (name, content, section)",
+      "copyName": "copy"
     },
     "detail": {
       "buttonCancel": "Cancel",
@@ -929,7 +930,13 @@
       "contextMenuClone": "Duplicate",
       "contextMenuDelete": "Delete",
       "modalTitleDelete": "Snippet Sets",
-      "textDeleteConfirm": "Are you sure you really want to delete the snippet set \"{name}\"?"
+      "buttonClone": "Copy",
+      "textDeleteConfirm": "Are you sure you really want to delete the snippet set \"{name}\"?",
+      "modalTitleClone": "Copy snippet set",
+      "textCloneConfirm": "Are you sure you want to copy the snippet set \"{name}\"?",
+      "cloneNoteTitle": "Create copy",
+      "cloneSuccessMessage": "Snippet set has been copied successfully.",
+      "errorMessage": "Error while copy a snippet set"
     }
   },
   "sw-settings-rule": {

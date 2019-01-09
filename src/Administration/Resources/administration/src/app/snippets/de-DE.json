@@ -893,7 +893,8 @@
       "searchBarTitleSets": "Textbaustein-Sets",
       "placeholderSearchBarSets": "Finde Textbaustein-Sets (Name, Basisdatei)",
       "searchBarTitleSnippets": "Textbausteine",
-      "placeholderSearchBarSnippets": "Finde Textbausteine (Name, Inhalt, Bereich)"
+      "placeholderSearchBarSnippets": "Finde Textbausteine (Name, Inhalt, Bereich)",
+      "copyName": "Kopie"
     },
     "detail": {
       "buttonCancel": "Abbrechen",
@@ -931,7 +932,13 @@
       "contextMenuClone": "Duplizieren",
       "contextMenuDelete": "Löschen",
       "modalTitleDelete": "Textbaustein-Sets",
-      "textDeleteConfirm": "Möchtest Du das Textbaustein-Set \"{name}\" wirklich löschen?"
+      "buttonClone": "Kopieren",
+      "textDeleteConfirm": "Möchtest Du das Textbaustein-Set \"{name}\" wirklich löschen?",
+      "modalTitleClone": "Textbaustein-Set kopieren",
+      "textCloneConfirm": "Möchtest Du von dem Textbaustein-Set \"{name}\" eine Kopie erstellen?",
+      "cloneNoteTitle": "Kopie erstellen",
+      "cloneSuccessMessage": "Die Kopie wurde erfolgreich erstellt.",
+      "errorMessage": "Die Kopie konnte nicht erstellt werden."
     }
   },
   "sw-settings-rule": {

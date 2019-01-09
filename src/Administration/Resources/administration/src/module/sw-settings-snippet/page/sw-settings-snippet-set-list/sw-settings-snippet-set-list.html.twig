@@ -128,7 +128,7 @@
                                                         {% endblock %}
 
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
-                                                            <sw-context-menu-item disabled>
+                                                        <sw-context-menu-item @click="onClone(item.id)">
                                                                 {{ $tc('sw-settings-snippet.list.contextMenuClone') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
@@ -169,6 +169,37 @@
                                                                        variant="primary"
                                                                        size="small">
                                                                 {{ $tc('sw-settings-snippet.list.buttonDelete') }}
+                                                            </sw-button>
+                                                        {% endblock %}
+                                                    </template>
+                                                {% endblock %}
+                                            </sw-modal>
+                                        {% endblock %}
+
+                                        {% block sw_settings_snippet_set_list_columns_clone_modal %}
+                                            <sw-modal v-if="showCloneModal === item.id"
+                                                      :title="$tc('sw-settings-snippet.list.modalTitleClone')"
+                                                      variant="small">
+                                                {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}
+                                                    <p class="sw-settings-snippet-set-list__confirm-delete-text">
+                                                        {{ $tc('sw-settings-snippet.list.textCloneConfirm', 0, { name: item.name }) }}
+                                                    </p>
+                                                {% endblock %}
+
+                                                {% block sw_settings_snippet_set_list_clone_modal_footer %}
+                                                    <template slot="modal-footer">
+                                                        {% block sw_settings_snippet_set_list_clone_modal_cancel %}
+                                                            <sw-button @click="closeCloneModal"
+                                                                       size="small">
+                                                                {{ $tc('sw-settings-snippet.list.buttonCancel') }}
+                                                            </sw-button>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_snippet_set_list_clone_modal_confirm %}
+                                                            <sw-button @click="onConfirmClone(item.id)"
+                                                                       variant="primary"
+                                                                       size="small">
+                                                                {{ $tc('sw-settings-snippet.list.buttonClone') }}
                                                             </sw-button>
                                                         {% endblock %}
                                                     </template>

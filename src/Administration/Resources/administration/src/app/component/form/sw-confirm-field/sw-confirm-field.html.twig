@@ -1,0 +1,34 @@
+{% block sw_confirm_field %}
+    <div class="sw-confirm-field" :class="confirmFieldClasses">
+        {% block sw_confirm_field_input_field %}
+            <sw-field v-model="draft" v-bind="additionalAttributes" @focus="showActionButtons" @blur="blurField"></sw-field>
+        {% endblock %}
+
+        {% block sw_confirm_field_button_list %}
+            <span class="sw-confirm-field__button-list" v-if="isEditing">
+                {% block sw_confirm_field_cancel_button %}
+                    <sw-button class="sw-confirm-field__button sw-confirm-field__button--cancel"
+                               square
+                               size="x-small"
+                               @click="cancelSubmit">
+                        {% block sw_field_inline_cancel_submit_button_icon %}
+                            <sw-icon small name="small-default-x-line-small"></sw-icon>
+                        {% endblock %}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_confirm_field_confirm_button %}
+                    <sw-button class="sw-confirm-field__button sw-confirm-field__button--submit"
+                               square
+                               size="x-small"
+                               variant="primary"
+                               @click="submitValue">
+                        {% block sw_field_inline_submit_button_icon %}
+                            <sw-icon small name="small-default-checkmark-line-small"></sw-icon>
+                        {% endblock %}
+                    </sw-button>
+                {% endblock %}
+            </span>
+        {% endblock %}
+    </div>
+{% endblock %}

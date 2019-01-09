@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
@@ -32,7 +32,7 @@ class PluginDeactivateCommand extends Command
         return $this->pluginManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('plugin:deactivate')
@@ -47,25 +47,20 @@ EOF
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
         $this->displayHeader($io);
+        $context = Context::createDefaultContext();
 
-        try {
-            $plugins = $this->parsePluginArgument($input->getArgument('plugins'));
-        } catch (PluginNotFoundException $e) {
-            $io->error($e->getMessage());
-
-            return 1;
-        }
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $context);
 
         $io->text(sprintf('Deactivating %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
-            if ($plugin->getInstallationDate() === null) {
+            if ($plugin->getInstalledAt() === null) {
                 $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getLabel()));
 
                 continue;
@@ -77,7 +72,7 @@ EOF
                 continue;
             }
 
-            $this->pluginManager->deactivatePlugin($plugin);
+            $this->pluginManager->deactivatePlugin($plugin, $context);
 
             $io->text(sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getLabel()));
         }

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,12 +24,12 @@ class PluginUpgradeCommand extends Command
         $this->pluginManager = $pluginManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('plugin:upgrade')
-            ->setDescription('Update a plugin.')
-            ->addArgument('plugin', InputArgument::REQUIRED, 'Name of the plugin to be updated.')
+            ->setDescription('Upgrades a plugin.')
+            ->addArgument('plugin', InputArgument::REQUIRED, 'Name of the plugin to be upgraded.')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> updates a plugin.
 EOF
@@ -39,21 +39,16 @@ EOF
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
+        $context = Context::createDefaultContext();
 
         $pluginName = $input->getArgument('plugin');
 
-        try {
-            $plugin = $this->pluginManager->getPluginByName($pluginName);
-        } catch (PluginNotFoundException $e) {
-            $io->error($e->getMessage());
+        $plugin = $this->pluginManager->getPluginByName($pluginName, $context);
 
-            return 1;
-        }
-
-        $this->pluginManager->updatePlugin($plugin);
+        $this->pluginManager->upgradePlugin($plugin, $context);
 
         $io->success(sprintf('Plugin "%s" has been updated successfully.', $pluginName));
     }

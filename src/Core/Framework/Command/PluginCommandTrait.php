@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Command;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -16,17 +18,17 @@ trait PluginCommandTrait
     }
 
     /**
-     * @param array $arguments
+     * @throws PluginNotFoundException
      *
-     * @return array
+     * @return PluginEntity[]
      */
-    public function parsePluginArgument(array $arguments): array
+    public function parsePluginArgument(array $arguments, Context $context): array
     {
         $plugins = array_unique($arguments);
         $pluginStructs = [];
 
         foreach ($plugins as $pluginName) {
-            $pluginStructs[$pluginName] = $this->getPluginManager()->getPluginByName($pluginName);
+            $pluginStructs[$pluginName] = $this->getPluginManager()->getPluginByName($pluginName, $context);
         }
 
         return $pluginStructs;

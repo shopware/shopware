@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language;
 
+use DateTime;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationCollection;
@@ -18,6 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Produ
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslationCollection;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\Framework\Snippet\SnippetCollection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
@@ -62,12 +64,12 @@ class LanguageEntity extends Entity
     protected $name;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $updatedAt;
 
@@ -231,6 +233,11 @@ class LanguageEntity extends Entity
      */
     protected $salesChannelDomains;
 
+    /**
+     * @var PluginTranslationCollection|null
+     */
+    protected $pluginTranslations;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -281,22 +288,22 @@ class LanguageEntity extends Entity
         $this->name = $name;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -596,7 +603,7 @@ class LanguageEntity extends Entity
         return $this->mediaFolderTranslations;
     }
 
-    public function setMediaFolderTranslations(?MediaFolderTranslationCollection $mediaFolderTranslations): void
+    public function setMediaFolderTranslations(MediaFolderTranslationCollection $mediaFolderTranslations): void
     {
         $this->mediaFolderTranslations = $mediaFolderTranslations;
     }
@@ -609,5 +616,15 @@ class LanguageEntity extends Entity
     public function setSalesChannelDomains(?SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
+    }
+
+    public function getPluginTranslations(): ?PluginTranslationCollection
+    {
+        return $this->pluginTranslations;
+    }
+
+    public function setPluginTranslations(PluginTranslationCollection $pluginTranslations): void
+    {
+        $this->pluginTranslations = $pluginTranslations;
     }
 }

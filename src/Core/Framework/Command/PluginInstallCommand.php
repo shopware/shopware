@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
@@ -33,7 +33,7 @@ class PluginInstallCommand extends Command
         return $this->pluginManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('plugin:install')
@@ -50,36 +50,31 @@ EOF
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
         $this->displayHeader($io);
+        $context = Context::createDefaultContext();
 
-        try {
-            $plugins = $this->parsePluginArgument($input->getArgument('plugins'));
-        } catch (PluginNotFoundException $e) {
-            $io->error($e->getMessage());
-
-            return 1;
-        }
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $context);
 
         $io->text(sprintf('Installing %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
-            if ($input->getOption('reinstall') && $plugin->getInstallationDate()) {
-                $this->pluginManager->uninstallPlugin($plugin);
+            if ($input->getOption('reinstall') && $plugin->getInstalledAt()) {
+                $this->pluginManager->uninstallPlugin($plugin, $context);
             }
 
-            if ($input->getOption('activate') && $plugin->getInstallationDate() && $plugin->getActive() === false) {
+            if ($input->getOption('activate') && $plugin->getInstalledAt() && $plugin->getActive() === false) {
                 $io->note(sprintf('Plugin "%s" is already installed. Activating.', $plugin->getName()));
-                $this->pluginManager->activatePlugin($plugin);
+                $this->pluginManager->activatePlugin($plugin, $context);
 
                 continue;
             }
 
-            if ($plugin->getInstallationDate()) {
+            if ($plugin->getInstalledAt()) {
                 $io->note(sprintf('Plugin "%s" is already installed. Skipping.', $plugin->getLabel()));
 
                 continue;
@@ -88,10 +83,10 @@ EOF
             $activationSuffix = '';
             $message = 'Plugin "%s" has been installed%s successfully.';
 
-            $this->pluginManager->installPlugin($plugin);
+            $this->pluginManager->installPlugin($plugin, $context);
 
             if ($input->getOption('activate')) {
-                $this->pluginManager->activatePlugin($plugin);
+                $this->pluginManager->activatePlugin($plugin, $context);
                 $activationSuffix = ' and activated';
             }
 

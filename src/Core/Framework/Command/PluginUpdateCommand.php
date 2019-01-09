@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Command;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginManager;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StringInput;
@@ -25,7 +27,7 @@ class PluginUpdateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('plugin:update')
@@ -36,12 +38,15 @@ class PluginUpdateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $this->pluginManager->updatePlugins();
+        $context = Context::createDefaultContext();
+        $this->pluginManager->updatePlugins($context);
 
         $listInput = new StringInput('plugin:list');
 
-        $this->getApplication()->doRun($listInput, $output);
+        /** @var Application $application */
+        $application = $this->getApplication();
+        $application->doRun($listInput, $output);
     }
 }

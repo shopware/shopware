@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Command;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
@@ -27,7 +29,7 @@ class PluginListCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('plugin:list')
@@ -39,46 +41,69 @@ class PluginListCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Plugin Manager');
+        $context = Context::createDefaultContext();
 
-        $plugins = $this->pluginManager->getPlugins();
+        $plugins = $this->pluginManager->getPlugins(new Criteria(), $context);
 
-        if ($filter = $input->getOption('filter')) {
+        $filter = $input->getOption('filter');
+        if ($filter) {
             $io->comment(sprintf('Filtering for: %s', $filter));
 
-            $plugins = array_filter($plugins, function (PluginEntity $plugin) use ($filter) {
-                return stripos($plugin->getName(), $filter) !== false || stripos($plugin->getLabel(), $filter) !== false;
+            $plugins = $plugins->filter(function (PluginEntity $plugin) use ($filter) {
+                return stripos($plugin->getName(), $filter) !== false
+                    || stripos($plugin->getLabel(), $filter) !== false;
             });
         }
 
         $pluginTable = [];
+        $active = $installed = $upgradeable = 0;
 
-        $active = $installed = 0;
-        $available = \count($plugins);
-
+        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
+            $pluginActive = $plugin->getActive();
+            $pluginInstalled = $plugin->getInstalledAt();
+            $pluginUpgradeable = $plugin->getUpgradeVersion();
+
             $pluginTable[] = [
                 $plugin->getName(),
                 $plugin->getLabel(),
                 $plugin->getVersion(),
+                $pluginUpgradeable,
                 $plugin->getAuthor(),
-                $plugin->getActive() ? 'Yes' : 'No',
-                $plugin->getInstallationDate() ? 'Yes' : 'No',
+                $pluginActive ? 'Yes' : 'No',
+                $pluginInstalled ? 'Yes' : 'No',
+                $pluginUpgradeable ? 'Yes' : 'No',
             ];
 
-            if ($plugin->getActive()) {
+            if ($pluginActive) {
                 ++$active;
             }
 
-            if ($plugin->getInstallationDate()) {
+            if ($pluginInstalled) {
                 ++$installed;
+            }
+
+            if ($pluginUpgradeable) {
+                ++$upgradeable;
             }
         }
 
-        $io->table(['Plugin', 'Label', 'Version', 'Author', 'Active', 'Installed'], $pluginTable);
-        $io->text(sprintf('%d plugins, %d installed, %d active', $available, $installed, $active));
+        $io->table(
+            ['Plugin', 'Label', 'Version', 'Upgrade version', 'Author', 'Active', 'Installed', 'Upgradeable'],
+            $pluginTable
+        );
+        $io->text(
+            sprintf(
+                '%d plugins, %d installed, %d active , %d upgradeable',
+                \count($plugins),
+                $installed,
+                $active,
+                $upgradeable
+            )
+        );
     }
 }

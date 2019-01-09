@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
@@ -33,7 +33,7 @@ class PluginUninstallCommand extends Command
         return $this->pluginManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('plugin:uninstall')
@@ -49,33 +49,28 @@ EOF
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
         $this->displayHeader($io);
+        $context = Context::createDefaultContext();
 
-        try {
-            $plugins = $this->parsePluginArgument($input->getArgument('plugins'));
-        } catch (PluginNotFoundException $e) {
-            $io->error($e->getMessage());
-
-            return 1;
-        }
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $context);
 
         $io->text(sprintf('Installing %d plugins:', \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
-        $removeUserdata = (bool) $input->getOption('remove-userdata');
+        $removeUserData = (bool) $input->getOption('remove-userdata');
 
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
-            if ($plugin->getInstallationDate() === null) {
+            if ($plugin->getInstalledAt() === null) {
                 $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getLabel()));
 
                 continue;
             }
 
-            $this->pluginManager->uninstallPlugin($plugin, $removeUserdata);
+            $this->pluginManager->uninstallPlugin($plugin, $context, $removeUserData);
 
             $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));
         }

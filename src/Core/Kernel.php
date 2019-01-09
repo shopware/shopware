@@ -223,7 +223,7 @@ class Kernel extends HttpKernel
     protected function initializePlugins(): void
     {
         $stmt = self::getConnection()->executeQuery(
-            'SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installation_date` IS NOT NULL'
+            'SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installed_at` IS NOT NULL'
         );
         $activePlugins = $stmt->fetchAll(FetchMode::COLUMN);
 

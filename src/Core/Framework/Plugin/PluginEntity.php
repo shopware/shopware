@@ -6,6 +6,7 @@ use DateTime;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslationCollection;
 
 class PluginEntity extends Entity
 {
@@ -17,69 +18,9 @@ class PluginEntity extends Entity
     protected $name;
 
     /**
-     * @var string
-     */
-    protected $label;
-
-    /**
      * @var bool
      */
     protected $active;
-
-    /**
-     * @var string
-     */
-    protected $version;
-
-    /**
-     * @var bool
-     */
-    protected $capabilityUpdate;
-
-    /**
-     * @var bool
-     */
-    protected $capabilityInstall;
-
-    /**
-     * @var bool
-     */
-    protected $capabilityEnable;
-
-    /**
-     * @var bool
-     */
-    protected $capabilitySecureUninstall;
-
-    /**
-     * @var string|null
-     */
-    protected $description;
-
-    /**
-     * @var string|null
-     */
-    protected $descriptionLong;
-
-    /**
-     * @var DateTime|null
-     */
-    protected $createdAt;
-
-    /**
-     * @var DateTime|null
-     */
-    protected $installationDate;
-
-    /**
-     * @var DateTime|null
-     */
-    protected $updateDate;
-
-    /**
-     * @var DateTime|null
-     */
-    protected $refreshDate;
 
     /**
      * @var string|null
@@ -97,44 +38,64 @@ class PluginEntity extends Entity
     protected $license;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $support;
+    protected $version;
 
     /**
      * @var string|null
      */
-    protected $changes;
-
-    /**
-     * @var string|null
-     */
-    protected $link;
-
-    /**
-     * @var string|null
-     */
-    protected $storeVersion;
+    protected $upgradeVersion;
 
     /**
      * @var DateTime|null
      */
-    protected $storeDate;
+    protected $installedAt;
+
+    /**
+     * @var DateTime|null
+     */
+    protected $upgradedAt;
+
+    /**
+     * @var string
+     */
+    protected $label;
 
     /**
      * @var string|null
      */
-    protected $updateSource;
+    protected $description;
 
     /**
      * @var string|null
      */
-    protected $updateVersion;
+    protected $manufacturerLink;
+
+    /**
+     * @var string|null
+     */
+    protected $supportLink;
+
+    /**
+     * @var array|null
+     */
+    protected $changelog;
+
+    /**
+     * @var DateTime|null
+     */
+    protected $createdAt;
 
     /**
      * @var DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var PluginTranslationCollection|null
+     */
+    protected $translations;
 
     /**
      * @var PaymentMethodCollection|null
@@ -151,16 +112,6 @@ class PluginEntity extends Entity
         $this->name = $name;
     }
 
-    public function getLabel(): string
-    {
-        return $this->label;
-    }
-
-    public function setLabel(string $label): void
-    {
-        $this->label = $label;
-    }
-
     public function getActive(): bool
     {
         return $this->active;
@@ -169,6 +120,36 @@ class PluginEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getAuthor(): ?string
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(string $author): void
+    {
+        $this->author = $author;
+    }
+
+    public function getCopyright(): ?string
+    {
+        return $this->copyright;
+    }
+
+    public function setCopyright(string $copyright): void
+    {
+        $this->copyright = $copyright;
+    }
+
+    public function getLicense(): ?string
+    {
+        return $this->license;
+    }
+
+    public function setLicense(string $license): void
+    {
+        $this->license = $license;
     }
 
     public function getVersion(): string
@@ -181,44 +162,44 @@ class PluginEntity extends Entity
         $this->version = $version;
     }
 
-    public function getCapabilityUpdate(): bool
+    public function getUpgradeVersion(): ?string
     {
-        return $this->capabilityUpdate;
+        return $this->upgradeVersion;
     }
 
-    public function setCapabilityUpdate(bool $capabilityUpdate): void
+    public function setUpgradeVersion(string $upgradeVersion): void
     {
-        $this->capabilityUpdate = $capabilityUpdate;
+        $this->upgradeVersion = $upgradeVersion;
     }
 
-    public function getCapabilityInstall(): bool
+    public function getInstalledAt(): ?DateTime
     {
-        return $this->capabilityInstall;
+        return $this->installedAt;
     }
 
-    public function setCapabilityInstall(bool $capabilityInstall): void
+    public function setInstalledAt(DateTime $installedAt): void
     {
-        $this->capabilityInstall = $capabilityInstall;
+        $this->installedAt = $installedAt;
     }
 
-    public function getCapabilityEnable(): bool
+    public function getUpgradedAt(): ?DateTime
     {
-        return $this->capabilityEnable;
+        return $this->upgradedAt;
     }
 
-    public function setCapabilityEnable(bool $capabilityEnable): void
+    public function setUpgradedAt(DateTime $upgradedAt): void
     {
-        $this->capabilityEnable = $capabilityEnable;
+        $this->upgradedAt = $upgradedAt;
     }
 
-    public function getCapabilitySecureUninstall(): bool
+    public function getLabel(): string
     {
-        return $this->capabilitySecureUninstall;
+        return $this->label;
     }
 
-    public function setCapabilitySecureUninstall(bool $capabilitySecureUninstall): void
+    public function setLabel(string $label): void
     {
-        $this->capabilitySecureUninstall = $capabilitySecureUninstall;
+        $this->label = $label;
     }
 
     public function getDescription(): ?string
@@ -226,19 +207,39 @@ class PluginEntity extends Entity
         return $this->description;
     }
 
-    public function setDescription(?string $description): void
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
 
-    public function getDescriptionLong(): ?string
+    public function getManufacturerLink(): ?string
     {
-        return $this->descriptionLong;
+        return $this->manufacturerLink;
     }
 
-    public function setDescriptionLong(?string $descriptionLong): void
+    public function setManufacturerLink(string $manufacturerLink): void
     {
-        $this->descriptionLong = $descriptionLong;
+        $this->manufacturerLink = $manufacturerLink;
+    }
+
+    public function getSupportLink(): ?string
+    {
+        return $this->supportLink;
+    }
+
+    public function setSupportLink(string $supportLink): void
+    {
+        $this->supportLink = $supportLink;
+    }
+
+    public function getChangelog(): ?array
+    {
+        return $this->changelog;
+    }
+
+    public function setChangelog(array $changelog): void
+    {
+        $this->changelog = $changelog;
     }
 
     public function getCreatedAt(): ?DateTime
@@ -251,136 +252,6 @@ class PluginEntity extends Entity
         $this->createdAt = $createdAt;
     }
 
-    public function getInstallationDate(): ?DateTime
-    {
-        return $this->installationDate;
-    }
-
-    public function setInstallationDate(?DateTime $installationDate): void
-    {
-        $this->installationDate = $installationDate;
-    }
-
-    public function getUpdateDate(): ?DateTime
-    {
-        return $this->updateDate;
-    }
-
-    public function setUpdateDate(?DateTime $updateDate): void
-    {
-        $this->updateDate = $updateDate;
-    }
-
-    public function getRefreshDate(): ?DateTime
-    {
-        return $this->refreshDate;
-    }
-
-    public function setRefreshDate(?DateTime $refreshDate): void
-    {
-        $this->refreshDate = $refreshDate;
-    }
-
-    public function getAuthor(): ?string
-    {
-        return $this->author;
-    }
-
-    public function setAuthor(?string $author): void
-    {
-        $this->author = $author;
-    }
-
-    public function getCopyright(): ?string
-    {
-        return $this->copyright;
-    }
-
-    public function setCopyright(?string $copyright): void
-    {
-        $this->copyright = $copyright;
-    }
-
-    public function getLicense(): ?string
-    {
-        return $this->license;
-    }
-
-    public function setLicense(?string $license): void
-    {
-        $this->license = $license;
-    }
-
-    public function getSupport(): ?string
-    {
-        return $this->support;
-    }
-
-    public function setSupport(?string $support): void
-    {
-        $this->support = $support;
-    }
-
-    public function getChanges(): ?string
-    {
-        return $this->changes;
-    }
-
-    public function setChanges(?string $changes): void
-    {
-        $this->changes = $changes;
-    }
-
-    public function getLink(): ?string
-    {
-        return $this->link;
-    }
-
-    public function setLink(?string $link): void
-    {
-        $this->link = $link;
-    }
-
-    public function getStoreVersion(): ?string
-    {
-        return $this->storeVersion;
-    }
-
-    public function setStoreVersion(?string $storeVersion): void
-    {
-        $this->storeVersion = $storeVersion;
-    }
-
-    public function getStoreDate(): ?DateTime
-    {
-        return $this->storeDate;
-    }
-
-    public function setStoreDate(?DateTime $storeDate): void
-    {
-        $this->storeDate = $storeDate;
-    }
-
-    public function getUpdateSource(): ?string
-    {
-        return $this->updateSource;
-    }
-
-    public function setUpdateSource(?string $updateSource): void
-    {
-        $this->updateSource = $updateSource;
-    }
-
-    public function getUpdateVersion(): ?string
-    {
-        return $this->updateVersion;
-    }
-
-    public function setUpdateVersion(?string $updateVersion): void
-    {
-        $this->updateVersion = $updateVersion;
-    }
-
     public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
@@ -389,6 +260,16 @@ class PluginEntity extends Entity
     public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getTranslations(): ?PluginTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(PluginTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 
     public function getPaymentMethods(): ?PaymentMethodCollection

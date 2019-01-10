@@ -87,17 +87,14 @@ Component.register('sw-settings-rule-list', {
         },
 
         onDuplicate(id) {
-            const newRule = this.ruleStore.duplicate(id);
-
-            this.$router.push(
-                {
-                    name: 'sw.settings.rule.detail',
-                    params: {
-                        id: newRule.id,
-                        parentId: id
+            this.ruleStore.apiService.clone(id).then((rule) => {
+                this.$router.push(
+                    {
+                        name: 'sw.settings.rule.detail',
+                        params: { id: rule.id }
                     }
-                }
-            );
+                );
+            });
         }
     }
 });

@@ -428,7 +428,7 @@ export default class EntityProxy {
      * @return {void}
      */
     addError(error) {
-        if (this.errors.map(obj => obj.id).includes(error.id)) {
+        if (error.id && this.errors.map(obj => obj.id).includes(error.id)) {
             return;
         }
 

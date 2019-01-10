@@ -1,4 +1,4 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.less';
 
@@ -10,12 +10,15 @@ Component.register('sw-settings-snippet-set-list', {
         Mixin.getByName('sw-settings-list')
     ],
 
+    inject: ['snippetSetService'],
+
     data() {
         return {
             isLoading: false,
             snippetSets: [],
             offset: 0,
-            showDeleteModal: false
+            showDeleteModal: false,
+            showCloneModal: false
         };
     },
 
@@ -29,12 +32,11 @@ Component.register('sw-settings-snippet-set-list', {
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
-            this.snippetSetStore.getList(params).then((response) => {
+
+            return this.snippetSetStore.getList(params).then((response) => {
                 this.total = response.total;
                 this.snippetSets = response.items;
                 this.isLoading = false;
-
-                return this.snippetSets;
             });
         },
 
@@ -65,16 +67,69 @@ Component.register('sw-settings-snippet-set-list', {
             this.showDeleteModal = id;
         },
 
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
             return this.snippetSetStore.getById(id).delete(true).then(() => {
                 this.getList();
             }).catch(this.onCloseDeleteModal());
+        },
+
+        onClone(id) {
+            this.showCloneModal = id;
+        },
+
+        closeCloneModal() {
+            this.showCloneModal = false;
+        },
+
+        onConfirmClone(id) {
+            this.snippetSetService.cloneSnippetSet(id).then(() => {
+                this.getList().then(() => {
+                    const set = this.findSnippetSet(id);
+                    if (!set) {
+                        return;
+                    }
+
+                    set.name = `${set.name} ${this.$tc('sw-settings-snippet.general.copyName')}`;
+                    set.save().then(() => {
+                        this.createCloneSuccessNote();
+                    }).catch(() => {
+                        set.delete().then(() => {
+                            this.createCloneErrorNote();
+                            this.getList();
+                        });
+                    });
+                });
+            }).catch(() => {
+                this.createCloneErrorNote();
+            }).finally(() => {
+                this.closeCloneModal();
+            });
+        },
+
+        createCloneErrorNote() {
+            this.createNotificationError({
+                title: this.$tc('sw-settings-snippet.list.cloneNoteTitle'),
+                message: this.$tc('sw-settings-snippet.list.errorMessage')
+            });
+        },
+
+        createCloneSuccessNote() {
+            this.createNotificationSuccess({
+                title: this.$tc('sw-settings-snippet.list.cloneNoteTitle'),
+                message: this.$tc('sw-settings-snippet.list.cloneSuccessMessage')
+            });
+        },
+
+        findSnippetSet(id) {
+            return this.snippetSets.find((element) => {
+                if (element.id === id) {
+                    return element;
+                }
+
+                return false;
+            });
         }
     }
 });

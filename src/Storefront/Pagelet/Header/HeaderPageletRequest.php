@@ -2,13 +2,14 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletRequest;
 use Shopware\Storefront\Pagelet\Currency\CurrencyPageletRequest;
 use Shopware\Storefront\Pagelet\Language\LanguagePageletRequest;
 use Shopware\Storefront\Pagelet\Navigation\NavigationPageletRequest;
 use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletRequest;
 
-trait HeaderPageletRequestTrait
+class HeaderPageletRequest extends Struct
 {
     /**
      * @var NavigationPageletRequest
@@ -34,6 +35,15 @@ trait HeaderPageletRequestTrait
      * @var LanguagePageletRequest
      */
     protected $languageRequest;
+
+    public function __construct()
+    {
+        $this->navigationRequest = new NavigationPageletRequest();
+        $this->cartInfoRequest = new CartInfoPageletRequest();
+        $this->shopmenuRequest = new ShopmenuPageletRequest();
+        $this->currencyRequest = new CurrencyPageletRequest();
+        $this->languageRequest = new LanguagePageletRequest();
+    }
 
     /**
      * @return NavigationPageletRequest

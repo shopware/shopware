@@ -17,6 +17,6 @@ class AccountAddressPageSubscriber implements EventSubscriberInterface
     public function transformRequest(AccountAddressPageRequestEvent $event): void
     {
         $accountaddressPageRequest = $event->getAccountAddressPageRequest();
-        $accountaddressPageRequest->getAddressRequest()->setAddressId($event->getRequest()->attributes->get('addressId'));
+        $accountaddressPageRequest->getAddressRequest()->setAddressId($event->getHttpRequest()->attributes->get('addressId'));
     }
 }

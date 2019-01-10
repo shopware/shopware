@@ -26,48 +26,20 @@ class AccountAddressPageRequestResolver extends PageRequestResolver
         return $argument->getType() === AccountAddressPageRequest::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
+    public function resolve(Request $httpRequest, ArgumentMetadata $argument): \Generator
     {
         $context = $this->requestStack
             ->getMasterRequest()
             ->attributes
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
-        $accountAddressPageRequest = new AccountAddressPageRequest();
+        $request = new AccountAddressPageRequest();
 
-        $navigationPageletRequest = new NavigationPageletRequest();
-        $event = new NavigationPageletRequestEvent($request, $context, $navigationPageletRequest);
-        $this->eventDispatcher->dispatch(NavigationPageletRequestEvent::NAME, $event);
-        $accountAddressPageRequest->setNavigationRequest($navigationPageletRequest);
+        $this->eventDispatcher->dispatch(
+            AccountAddressPageRequestEvent::NAME,
+            new AccountAddressPageRequestEvent($httpRequest, $context, $request)
+        );
 
-        $currencyPageletRequest = new CurrencyPageletRequest();
-        $event = new CurrencyPageletRequestEvent($request, $context, $currencyPageletRequest);
-        $this->eventDispatcher->dispatch(CurrencyPageletRequestEvent::NAME, $event);
-        $accountAddressPageRequest->setCurrencyRequest($currencyPageletRequest);
-
-        $cartInfoPageletRequest = new CartInfoPageletRequest();
-        $event = new CartInfoPageletRequestEvent($request, $context, $cartInfoPageletRequest);
-        $this->eventDispatcher->dispatch(CartInfoPageletRequestEvent::NAME, $event);
-        $accountAddressPageRequest->setCartInfoRequest($cartInfoPageletRequest);
-
-        $languagePageletRequest = new LanguagePageletRequest();
-        $event = new LanguagePageletRequestEvent($request, $context, $languagePageletRequest);
-        $this->eventDispatcher->dispatch(LanguagePageletRequestEvent::NAME, $event);
-        $accountAddressPageRequest->setLanguageRequest($languagePageletRequest);
-
-        $shopmenuPageletRequest = new ShopmenuPageletRequest();
-        $event = new ShopmenuPageletRequestEvent($request, $context, $shopmenuPageletRequest);
-        $this->eventDispatcher->dispatch(ShopmenuPageletRequestEvent::NAME, $event);
-        $accountAddressPageRequest->setShopmenuRequest($shopmenuPageletRequest);
-
-        $addressPageletRequest = new AddressPageletRequest();
-        $event = new AddressPageletRequestEvent($request, $context, $addressPageletRequest);
-        $this->eventDispatcher->dispatch(AddressPageletRequestEvent::NAME, $event);
-        $accountAddressPageRequest->setAddressRequest($addressPageletRequest);
-
-        $event = new AccountAddressPageRequestEvent($request, $context, $accountAddressPageRequest);
-        $this->eventDispatcher->dispatch(AccountAddressPageRequestEvent::NAME, $event);
-
-        yield $event->getAccountAddressPageRequest();
+        yield $request;
     }
 }

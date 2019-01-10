@@ -166,6 +166,14 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Currency\CurrencyPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Language\LanguagePageletLoader"/>
+        </service>
+
         <service id="Shopware\Storefront\Page\AccountLogin\AccountLoginPageLoader">
             <argument type="service" id="Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader" />
             <argument type="service" id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader" />

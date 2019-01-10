@@ -4,11 +4,8 @@ namespace Shopware\Storefront\Page\AccountAddress;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletLoader;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletLoader;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AccountAddressPageLoader
 {
@@ -18,44 +15,23 @@ class AccountAddressPageLoader
     private $accountAddressPageletLoader;
 
     /**
-     * @var NavigationPageletLoader
+     * @var HeaderPageletLoader
      */
-    private $navigationPageletLoader;
+    private $headerPageletLoader;
 
     /**
-     * @var CartInfoPageletLoader
+     * @var EventDispatcherInterface
      */
-    private $cartInfoPageletLoader;
-
-    /**
-     * @var ShopmenuPageletLoader
-     */
-    private $shopmenuPageletLoader;
-
-    /**
-     * @var LanguagePageletLoader
-     */
-    private $languagePageletLoader;
-
-    /**
-     * @var CurrencyPageletLoader
-     */
-    private $currencyPageletLoader;
+    private $eventDispatcher;
 
     public function __construct(
         AccountAddressPageletLoader $accountAddressPageletLoader,
-        NavigationPageletLoader $navigationPageletLoader,
-        CartInfoPageletLoader $cartInfoPageletLoader,
-        ShopmenuPageletLoader $shopmenuPageletLoader,
-        LanguagePageletLoader $languagePageletLoader,
-        CurrencyPageletLoader $currencyPageletLoader
+        HeaderPageletLoader $headerPageletLoader,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->accountAddressPageletLoader = $accountAddressPageletLoader;
-        $this->navigationPageletLoader = $navigationPageletLoader;
-        $this->cartInfoPageletLoader = $cartInfoPageletLoader;
-        $this->shopmenuPageletLoader = $shopmenuPageletLoader;
-        $this->languagePageletLoader = $languagePageletLoader;
-        $this->currencyPageletLoader = $currencyPageletLoader;
+        $this->headerPageletLoader = $headerPageletLoader;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -69,45 +45,17 @@ class AccountAddressPageLoader
     public function load(AccountAddressPageRequest $request, CheckoutContext $context): AccountAddressPageStruct
     {
         $page = new AccountAddressPageStruct();
-
-        $page->setCustomerAdressPage(
+        $page->setAccountAddress(
             $this->accountAddressPageletLoader->load($request->getAddressRequest(), $context)
         );
 
-        $page = $this->loadFrame($request, $context, $page);
-
-        return $page;
-    }
-
-    /**
-     * @param AccountAddressPageRequest $request
-     * @param CheckoutContext           $context
-     * @param AccountAddressPageStruct  $page
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return AccountAddressPageStruct
-     */
-    private function loadFrame(AccountAddressPageRequest $request, CheckoutContext $context, AccountAddressPageStruct $page): AccountAddressPageStruct
-    {
-        $page->setNavigation(
-            $this->navigationPageletLoader->load($request->getNavigationRequest(), $context)
+        $page->setHeader(
+            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
         );
 
-        $page->setCartInfo(
-            $this->cartInfoPageletLoader->load($request->getCartInfoRequest(), $context)
-        );
-
-        $page->setShopmenu(
-            $this->shopmenuPageletLoader->load($request->getShopmenuRequest(), $context)
-        );
-
-        $page->setLanguage(
-            $this->languagePageletLoader->load($request->getLanguageRequest(), $context)
-        );
-
-        $page->setCurrency(
-            $this->currencyPageletLoader->load($request->getCurrencyRequest(), $context)
+        $this->eventDispatcher->dispatch(
+            AccountAddressPageLoadedEvent::NAME,
+            new AccountAddressPageLoadedEvent($page, $context, $request)
         );
 
         return $page;

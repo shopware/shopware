@@ -5,12 +5,9 @@ namespace Shopware\Storefront\Page\AccountLogin;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\AccountLogin\LoginPageletRequest;
 use Shopware\Storefront\Pagelet\AccountRegistration\RegistrationPageletRequest;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestTrait;
 
 class LoginPageRequest extends Struct
 {
-    use HeaderPageletRequestTrait;
-
     /**
      * @var null|string
      */

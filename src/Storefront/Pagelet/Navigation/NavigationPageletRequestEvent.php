@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NavigationPageletRequestEvent extends NestedEvent
 {
-    public const NAME = 'navigation.pagelet.request.event';
+    public const NAME = 'navigation.pagelet.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +19,18 @@ class NavigationPageletRequestEvent extends NestedEvent
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var NavigationPageletRequest
      */
-    protected $navigationPageletRequest;
+    protected $pageletRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, NavigationPageletRequest $navigationPageletRequest)
+    public function __construct(Request $request, CheckoutContext $context, NavigationPageletRequest $pageletRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->navigationPageletRequest = $navigationPageletRequest;
+        $this->httpRequest = $request;
+        $this->pageletRequest = $pageletRequest;
     }
 
     public function getName(): string
@@ -48,13 +48,13 @@ class NavigationPageletRequestEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
-    public function getNavigationPageletRequest(): NavigationPageletRequest
+    public function getPageletRequest(): NavigationPageletRequest
     {
-        return $this->navigationPageletRequest;
+        return $this->pageletRequest;
     }
 }

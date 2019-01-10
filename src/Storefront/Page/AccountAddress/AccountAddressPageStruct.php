@@ -3,45 +3,43 @@
 namespace Shopware\Storefront\Page\AccountAddress;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletStruct;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletStruct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletStruct;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletStruct;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletStruct;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletStruct;
 
 class AccountAddressPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
-
     /**
      * @var AccountAddressPageletStruct
      */
-    protected $customerAdressPage;
+    protected $accountAddress;
 
-    public function __construct()
-    {
-        $this->customerAdressPage = new AccountAddressPageletStruct();
-        $this->language = new LanguagePageletStruct();
-        $this->cartInfo = new CartInfoPageletStruct();
-        $this->shopmenu = new ShopmenuPageletStruct();
-        $this->currency = new CurrencyPageletStruct();
-        $this->navigation = new NavigationPageletStruct();
-    }
+    /**
+     * @var HeaderPageletStruct
+     */
+    protected $header;
 
     /**
      * @return AccountAddressPageletStruct
      */
-    public function getCustomerAdressPage(): AccountAddressPageletStruct
+    public function getAccountAddress(): AccountAddressPageletStruct
     {
-        return $this->customerAdressPage;
+        return $this->accountAddress;
     }
 
     /**
-     * @param AccountAddressPageletStruct $customerAdressPage
+     * @param AccountAddressPageletStruct $accountAddress
      */
-    public function setCustomerAdressPage(AccountAddressPageletStruct $customerAdressPage): void
+    public function setAccountAddress(AccountAddressPageletStruct $accountAddress): void
     {
-        $this->customerAdressPage = $customerAdressPage;
+        $this->accountAddress = $accountAddress;
+    }
+
+    public function getHeader(): HeaderPageletStruct
+    {
+        return $this->header;
+    }
+
+    public function setHeader(HeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 }

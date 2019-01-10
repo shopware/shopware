@@ -26,6 +26,6 @@ class NavigationPageletRequestResolver extends PageRequestResolver
         $event = new NavigationPageletRequestEvent($request, $context, $pageRequest);
         $this->eventDispatcher->dispatch(NavigationPageletRequestEvent::NAME, $event);
 
-        yield $event->getNavigationPageletRequest();
+        yield $event->getPageletRequest();
     }
 }

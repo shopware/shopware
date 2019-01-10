@@ -4,12 +4,15 @@ namespace Shopware\Storefront\Page\AccountAddress;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\AccountAddress\AddressPageletRequestEvent;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountAddressPageRequestEvent extends Event
+class AccountAddressPageRequestEvent extends NestedEvent
 {
-    public const NAME = 'accountaddress.page.request.event';
+    public const NAME = 'account-address.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +22,26 @@ class AccountAddressPageRequestEvent extends Event
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var AccountAddressPageRequest
      */
-    protected $accountaddressPageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, AccountAddressPageRequest $accountaddressPageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, AccountAddressPageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->accountaddressPageRequest = $accountaddressPageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new HeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new AddressPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getAddressRequest())
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +59,13 @@ class AccountAddressPageRequestEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getAccountAddressPageRequest(): AccountAddressPageRequest
     {
-        return $this->accountaddressPageRequest;
+        return $this->pageRequest;
     }
 }

@@ -20,11 +20,11 @@ class NavigationSubscriber implements EventSubscriberInterface
 
     public function transformRequest(NavigationPageletRequestEvent $event): void
     {
-        $navigationPageletRequest = $event->getNavigationPageletRequest();
-        $navigationPageletRequest->setRoute($event->getRequest()->get(self::ROUTE_PARAMETER));
-        $navigationPageletRequest->setRouteParams($event->getRequest()->get(self::ROUTE_PARAMS_PARAMETER));
-        if (isset($event->getRequest()->get(self::ROUTE_PARAMS_PARAMETER, [])['id'])) {
-            $navigationPageletRequest->setNavigationId($event->getRequest()->get(self::ROUTE_PARAMS_PARAMETER)['id']);
+        $navigationPageletRequest = $event->getPageletRequest();
+        $navigationPageletRequest->setRoute($event->getHttpRequest()->get(self::ROUTE_PARAMETER));
+        $navigationPageletRequest->setRouteParams($event->getHttpRequest()->get(self::ROUTE_PARAMS_PARAMETER));
+        if (isset($event->getHttpRequest()->get(self::ROUTE_PARAMS_PARAMETER, [])['id'])) {
+            $navigationPageletRequest->setNavigationId($event->getHttpRequest()->get(self::ROUTE_PARAMS_PARAMETER)['id']);
         }
     }
 }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 class WriterTest extends TestCase
 {
@@ -648,6 +650,19 @@ class WriterTest extends TestCase
                 ['id' => $this->id, 'name' => $tooLongValue],
             ],
             $this->createWriteContext()
+        );
+    }
+
+    public function testInsertWithOnlyRequiredTranslated()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = ['id' => $id];
+
+        static::expectException(WriteTypeIntendException::class);
+        $this->getWriter()->update(
+            TaxDefinition::class,
+            [$data],
+            WriteContext::createFromContext(Context::createDefaultContext())
         );
     }
 

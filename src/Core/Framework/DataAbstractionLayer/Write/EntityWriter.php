@@ -82,38 +82,17 @@ class EntityWriter implements EntityWriterInterface
 
     public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
     {
-        $this->validateWriteInput($rawData);
-        $commandQueue = $this->buildCommandQueue($definition, $rawData, $writeContext);
-
-        $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
-
-        return $writeIdentifiers;
+        return $this->write($definition, $rawData, $writeContext);
     }
 
     public function insert(string $definition, array $rawData, WriteContext $writeContext): array
     {
-        $this->validateWriteInput($rawData);
-
-        $commandQueue = $this->buildCommandQueue($definition, $rawData, $writeContext);
-        $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
-        $commandQueue->ensureIs($definition, InsertCommand::class);
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
-
-        return $writeIdentifiers;
+        return $this->write($definition, $rawData, $writeContext, InsertCommand::class);
     }
 
     public function update(string $definition, array $rawData, WriteContext $writeContext): array
     {
-        $this->validateWriteInput($rawData);
-
-        $commandQueue = $this->buildCommandQueue($definition, $rawData, $writeContext);
-
-        $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
-        $commandQueue->ensureIs($definition, UpdateCommand::class);
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
-
-        return $writeIdentifiers;
+        return $this->write($definition, $rawData, $writeContext, UpdateCommand::class);
     }
 
     /**
@@ -123,6 +102,7 @@ class EntityWriter implements EntityWriterInterface
      *
      * @throws RestrictDeleteViolationException
      * @throws IncompletePrimaryKeyException
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException
      *
      * @return DeleteResult
      */
@@ -273,8 +253,14 @@ class EntityWriter implements EntityWriterInterface
         return $identifiers;
     }
 
-    private function buildCommandQueue(string $definition, array $rawData, WriteContext $writeContext): WriteCommandQueue
-    {
+    private function write(
+        string $definition,
+        array $rawData,
+        WriteContext $writeContext,
+        ?string $ensure = null
+    ): array {
+        $this->validateWriteInput($rawData);
+
         $extender = new FieldExtenderCollection();
         $extender->addExtender($this->defaultExtender);
 
@@ -289,9 +275,18 @@ class EntityWriter implements EntityWriterInterface
             $writeContext->resetPaths();
             $this->writeResource->extract($row, $parameters);
         }
+
+        /* @var string|EntityDefinition $definition */
+        if ($ensure) {
+            $commandQueue->ensureIs($definition, $ensure);
+        }
+
         $exceptionStack->tryToThrow();
 
-        return $commandQueue;
+        $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
+        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
+
+        return $writeIdentifiers;
     }
 
     private function validateWriteInput(array $data): void

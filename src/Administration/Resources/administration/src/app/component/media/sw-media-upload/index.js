@@ -122,6 +122,18 @@ Component.register('sw-media-upload', {
             return Object.keys(this.$listeners).includes('sw-media-upload-open-sidebar');
         },
 
+        openMediaSidebarClass() {
+            return {
+                'is--single-button': !this.hasOpenSidebarButtonListener
+            };
+        },
+
+        previewClass() {
+            return {
+                'has--preview': this.showPreview
+            };
+        },
+
         isDragActiveClass() {
             return {
                 'is--active': this.isDragActive

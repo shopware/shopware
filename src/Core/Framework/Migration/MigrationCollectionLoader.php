@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 
 class MigrationCollectionLoader
 {
+    public const SHOPWARE_CORE_MIGRATION_IDENTIFIER = 'Shopware\\Core\\Migration';
+
     /**
      * @var Connection
      */
@@ -23,7 +25,7 @@ class MigrationCollectionLoader
         $this->collection = $collection;
     }
 
-    public function syncMigrationCollection(): void
+    public function syncMigrationCollection(string $identifier = self::SHOPWARE_CORE_MIGRATION_IDENTIFIER): void
     {
         $migrations = $this->collection->getMigrationCollection();
 
@@ -31,7 +33,7 @@ class MigrationCollectionLoader
             return;
         }
 
-        $this->addMigrationsToTable($migrations);
+        $this->addMigrationsToTable($migrations, $identifier);
     }
 
     /**
@@ -45,14 +47,16 @@ class MigrationCollectionLoader
     /**
      * @param MigrationStep[] $migrations
      */
-    private function addMigrationsToTable(array $migrations): void
+    private function addMigrationsToTable(array $migrations, string $identifier): void
     {
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, true);
         foreach ($migrations as $className => $migration) {
-            $insertQuery->addInsert('migration', [
-                '`class`' => $className,
-                '`creation_timestamp`' => $migration->getCreationTimestamp(),
-            ]);
+            if (strpos($className, $identifier) !== false) {
+                $insertQuery->addInsert('migration', [
+                    '`class`' => $className,
+                    '`creation_timestamp`' => $migration->getCreationTimestamp(),
+                ]);
+            }
         }
         $insertQuery->execute();
     }

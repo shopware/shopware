@@ -12,6 +12,8 @@ class MigrationCollectorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid';
+
     /**
      * @var Connection
      */
@@ -47,7 +49,7 @@ class MigrationCollectorTest extends TestCase
     public function test_it_loads_the_valid_migrations(): void
     {
         $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
-        $this->loader->syncMigrationCollection();
+        $this->loader->syncMigrationCollection(self::MIGRATION_IDENTIFIER);
 
         $migrations = $this->getMigrations();
 

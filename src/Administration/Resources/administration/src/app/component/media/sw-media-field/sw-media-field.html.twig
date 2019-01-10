@@ -46,8 +46,8 @@
                             variant="regular"
                             :allowMultiSelect="false"
                             catption="Upload File"
-                            @new-uploads-added="uploadNewFile"
-                            @media-upload-success="exposeNewId">
+                            @sw-media-upload-new-uploads-added="uploadNewFile"
+                            @sw-media-upload-media-upload-success="exposeNewId">
                         </sw-media-upload>
                     {% endblock %}
 

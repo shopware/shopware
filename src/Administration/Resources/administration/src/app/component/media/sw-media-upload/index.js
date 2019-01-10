@@ -263,7 +263,8 @@ Component.register('sw-media-upload', {
                     )
                 );
 
-                this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url }] });
+                this.$emit('sw-media-upload-new-uploads-added',
+                    { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url }] });
             });
 
             this.closeUrlModal();
@@ -313,7 +314,7 @@ Component.register('sw-media-upload', {
             }, Promise.resolve());
 
             p.then(() => {
-                this.$emit('new-uploads-added', { uploadTag: this.uploadTag, data });
+                this.$emit('sw-media-upload-new-uploads-added', { uploadTag: this.uploadTag, data });
             });
         },
 
@@ -413,7 +414,7 @@ Component.register('sw-media-upload', {
         notifyMediaUpload(mediaEntity, message) {
             this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {
                 this.createNotificationSuccess({ message });
-                this.$emit('media-upload-success', media);
+                this.$emit('sw-media-upload-media-upload-success', media);
             });
         },
 

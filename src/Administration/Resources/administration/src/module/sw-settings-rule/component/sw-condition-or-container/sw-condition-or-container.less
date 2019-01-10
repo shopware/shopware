@@ -1,7 +1,10 @@
 @import "~less/variables";
 
 @sw-condition-or-container-background-even: @color-white;
-@sw-condition-or-container-background-odd: #F0F2F5;
+@sw-condition-or-container-background-odd: @color-solitude;
+@sw-condition-or-container-border: @color-light-slate-grey;
+@sw-condition-or-container-button-border: @color-pattens-blue;
+@sw-condition-or-container-button: @color-wedgewood;
 
 .sw-condition-or-container {
     &.container-condition-level__is--even {
@@ -27,7 +30,7 @@
         &:after {
             content: "";
             position: absolute;
-            border-top: 1px dashed #788A9B;
+            border-top: 1px dashed @sw-condition-or-container-border;
             top: 50%;
             width: 100%;
             margin-left: 15px;
@@ -39,12 +42,12 @@
 
         .sw-condition-or-container__actions--or {
             height: 32px;
-            border: 1px solid #D1D9E0;
+            border: 1px solid @sw-condition-or-container-button-border;
             border-radius: 4px;
             padding: auto;
 
             .sw-button__content {
-                color: #52667A;
+                color: @sw-condition-or-container-button;
                 font-size: 12px;
                 font-weight: 600;
                 line-height: 19px;
@@ -55,12 +58,12 @@
 
         .sw-condition-or-container__actions--sub {
             height: 32px;
-            border: 1px solid #D1D9E0;
+            border: 1px solid @sw-condition-or-container-button-border;
             border-radius: 4px;
             padding: auto;
 
             .sw-button__content {
-                color: #52667A;
+                color: @sw-condition-or-container-button;
                 font-size: 12px;
                 font-weight: 600;
                 line-height: 19px;

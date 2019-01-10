@@ -43,7 +43,7 @@ module.exports = {
         browser
             .clearValue('.sw-media-quickinfo-metadata-name input')
             .setValue('.sw-media-quickinfo-metadata-name input', 'new file name')
-            .click('.sw-media-quickinfo-metadata-name .sw-field--inline__button--submit')
+            .click('.sw-media-quickinfo-metadata-name .sw-confirm-field__button--submit')
             .waitForElementPresent('.sw-media-media-item:nth-of-type(1) .sw-media-base-item__loader')
             .waitForElementNotPresent('.sw-media-media-item:nth-of-type(1) .sw-media-base-item__loader')
             .assert.containsText('.sw-media-media-item:nth-of-type(1) .sw-media-base-item__name', 'new file name');

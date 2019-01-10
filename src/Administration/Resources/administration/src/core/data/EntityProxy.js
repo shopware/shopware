@@ -309,6 +309,9 @@ export default class EntityProxy {
             this.refreshAssociations(changedAssociations);
 
             return Promise.resolve(this.exposedData);
+        }).catch((exception) => {
+            this.isLoading = false;
+            return Promise.reject(this.handleException(exception));
         });
     }
 
@@ -425,6 +428,10 @@ export default class EntityProxy {
      * @return {void}
      */
     addError(error) {
+        if (this.errors.map(obj => obj.id).includes(error.id)) {
+            return;
+        }
+
         this.errors.push(error);
 
         State.getStore('error').addError({

@@ -56,25 +56,48 @@ Component.register('sw-confirm-field', {
             this.isEditing = false;
         },
 
-        showActionButtons() {
+        onStartEditing() {
             this.isEditing = true;
         },
 
-        submitValue() {
-            this.$emit('input', this.draft);
-            this.removeActionButtons();
-        },
-
-        blurField(event) {
-            if (event.relatedTarget && event.relatedTarget.classList.contains('sw-confirm-field__button')) {
+        onBlurField({ relatedTarget }) {
+            if (!!relatedTarget && relatedTarget.classList.contains('sw-confirm-field__button')) {
                 return;
             }
+
             this.cancelSubmit();
+            this.removeActionButtons();
         },
 
         cancelSubmit() {
             this.draft = this.value;
-            this.removeActionButtons();
+        },
+
+        onCancelFromKey({ target }) {
+            this.cancelSubmit();
+            target.blur();
+        },
+
+        onCancelSubmit() {
+            this.cancelSubmit();
+            this.isEditing = false;
+        },
+
+        submitValue() {
+            if (this.draft !== this.value) {
+                this.$emit('input', this.draft);
+            }
+        },
+
+        onSubmitFromKey({ target }) {
+            this.submitValue();
+            target.blur();
+            this.isEditing = false;
+        },
+
+        onSubmitValue() {
+            this.submitValue();
+            this.isEditing = false;
         }
     }
 });

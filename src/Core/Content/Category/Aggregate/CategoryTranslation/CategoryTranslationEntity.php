@@ -32,11 +32,6 @@ class CategoryTranslationEntity extends TranslationEntity
     /**
      * @var string|null
      */
-    protected $pathNames;
-
-    /**
-     * @var string|null
-     */
     protected $metaKeywords;
 
     /**
@@ -102,16 +97,6 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setName(?string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getPathNames(): ?string
-    {
-        return $this->pathNames;
-    }
-
-    public function setPathNames(?string $pathNames): void
-    {
-        $this->pathNames = $pathNames;
     }
 
     public function getMetaKeywords(): ?string

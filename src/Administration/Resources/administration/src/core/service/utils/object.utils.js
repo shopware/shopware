@@ -35,13 +35,7 @@ export function hasOwnProperty(scope, prop) {
  * @returns {Object}
  */
 export function deepCopyObject(copyObject = {}) {
-    // from https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance/44782052#44782052
-    return Object.assign(
-        Object.create(
-            Object.getPrototypeOf(copyObject)
-        ),
-        copyObject
-    );
+    return JSON.parse(JSON.stringify(copyObject));
 }
 
 /**

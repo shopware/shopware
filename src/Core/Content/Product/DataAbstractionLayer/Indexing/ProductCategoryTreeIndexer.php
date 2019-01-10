@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -11,8 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -27,11 +24,6 @@ class ProductCategoryTreeIndexer implements IndexerInterface
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
-
-    /**
-     * @var CategoryPathBuilder
-     */
-    private $pathBuilder;
 
     /**
      * @var EventIdExtractor
@@ -51,12 +43,10 @@ class ProductCategoryTreeIndexer implements IndexerInterface
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        CategoryPathBuilder $pathBuilder,
         EventIdExtractor $eventIdExtractor,
         RepositoryInterface $categoryRepository
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->pathBuilder = $pathBuilder;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
         $this->categoryRepository = $categoryRepository;
@@ -65,27 +55,6 @@ class ProductCategoryTreeIndexer implements IndexerInterface
     public function index(\DateTime $timestamp): void
     {
         $context = Context::createDefaultContext();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('category.parentId', null));
-
-        $categoryResult = $this->categoryRepository->searchIds($criteria, $context);
-
-        $this->eventDispatcher->dispatch(
-            ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start building category paths', $categoryResult->getTotal())
-        );
-
-        foreach ($categoryResult->getIds() as $categoryId) {
-            $this->pathBuilder->update($categoryId, $context);
-
-            $this->eventDispatcher->dispatch(ProgressAdvancedEvent::NAME, new ProgressAdvancedEvent());
-        }
-
-        $this->eventDispatcher->dispatch(
-            ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished building category paths')
-        );
 
         $query = $this->createIterator();
 

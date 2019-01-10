@@ -26,6 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -66,9 +68,9 @@ class CategoryDefinition extends EntityDefinition
             new FkField('media_id', 'mediaId', MediaDefinition::class),
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
-            new LongTextField('path', 'path'),
+            new TreePathField('path', 'path'),
             new IntField('position', 'position'),
-            new IntField('level', 'level'),
+            new TreeLevelField('level', 'level'),
             new StringField('template', 'template'),
             new BoolField('active', 'active'),
             new BoolField('is_blog', 'isBlog'),
@@ -84,7 +86,6 @@ class CategoryDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new TranslatedField('pathNames'),
             (new TranslatedField('metaKeywords'))->setFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             new TranslatedField('metaTitle'),
             new TranslatedField('metaDescription'),

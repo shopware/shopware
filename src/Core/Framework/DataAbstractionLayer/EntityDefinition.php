@@ -5,8 +5,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -166,6 +169,11 @@ abstract class EntityDefinition
         return static::getFields()->get('childCount') instanceof ChildCountField;
     }
 
+    public static function isParentAware(): bool
+    {
+        return static::getFields()->get('parent') instanceof ParentAssociationField;
+    }
+
     public static function isInheritanceAware(): bool
     {
         return false;
@@ -194,6 +202,16 @@ abstract class EntityDefinition
     public static function isWhitelistAware(): bool
     {
         return static::getFields()->has('whitelistIds');
+    }
+
+    public static function isTreeAware(): bool
+    {
+        return
+            static::isParentAware() &&
+            (static::getFields()->filterInstance(TreePathField::class)->count() > 0 ||
+            static::getFields()->filterInstance(TreeLevelField::class)->count() > 0)
+
+        ;
     }
 
     abstract protected static function defineFields(): FieldCollection;

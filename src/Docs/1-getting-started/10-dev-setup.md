@@ -11,6 +11,15 @@ The following development environment setups are shown:
 - Ubuntu 18.04 LTS
 - Ubuntu 18.04 LTS on Windows 10 with Windows Subsystem for Linux
 
+Notice: The following guide is not tested with docker running natively on Windows! 
+Please use a Linux subsystem instead. 
+
+It is also not tested with macOS. If you want to use macOS,
+it's recommended to set up a local webserver (e.g. apache) with mod_rewrite, a mysql server and
+PHP. There are good tutorials out there on how to set it up. After you have set up the local stack,
+just create a virtual host similar to this one: [vhost](#web-root). 
+You can use port 80 instead of 8080.
+
 It should be easy to setup different environments.
 
 
@@ -55,8 +64,12 @@ cd shopware-dev
 # fix permissions on $HOME/.composer and $HOME/.npm
 sudo chown $USER:$USER $HOME/.composer $HOME/.npm
 
+Notice: If you use macOS, use the following command:
+sudo chown "$USER":staff $HOME/.composer $HOME/.npm
+
+
 #append "shopware.test" to your etc/hosts file
-echo "127.0.0.1 shopware.test" | sudo tee --append /etc/hosts
+echo "127.0.0.1 shopware.test" | sudo tee -a /etc/hosts
 
 # ssh into the app container
 ./psh.phar docker:ssh
@@ -360,6 +373,10 @@ You can customize your setup by
 - if you run into composer memory limit errors: 
 <https://getcomposer.org/doc/articles/troubleshooting.md#memory-limit-errors>
 
+- if you get the following error when calling the storefront with a local setup (not docker): 
+  `Argument 1 passed to Shopware\\Storefront\\Content\\Controller\\Widget\\IndexController::shopMenuAction() must be an instance of Shopware\\Core\\Checkout\\CheckoutContext, null given`
+  it usually means that you haven't configured the vhost properly or the configured host doesn't
+  match with the host you are using to call the website
 
 [development]: https://github.com/shopware/development
 [core]: https://github.com/shopware/platform

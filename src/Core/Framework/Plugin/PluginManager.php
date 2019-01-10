@@ -437,7 +437,7 @@ class PluginManager
         }
 
         $this->migrationCollection->addDirectory($migrationPath, $pluginBootstrap->getMigrationNamespace());
-        $this->migrationLoader->syncMigrationCollection();
+        $this->migrationLoader->syncMigrationCollection($pluginBootstrap->getNamespace());
         iterator_to_array($this->migrationRunner->migrate());
     }
 

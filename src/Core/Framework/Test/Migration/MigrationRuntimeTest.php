@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 class MigrationRuntimeTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions';
 
     /**
      * @var Connection
@@ -45,7 +46,7 @@ class MigrationRuntimeTest extends TestCase
         ]);
         $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
 
-        $this->loader->syncMigrationCollection();
+        $this->loader->syncMigrationCollection('Shopware\Core\Framework\Test\Migration');
     }
 
     protected function tearDown()
@@ -239,7 +240,7 @@ class MigrationRuntimeTest extends TestCase
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',
             'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
         );
-        $this->loader->syncMigrationCollection();
+        $this->loader->syncMigrationCollection(self::MIGRATION_IDENTIFIER);
 
         try {
             $runner = $this->runner->migrate();
@@ -263,7 +264,7 @@ class MigrationRuntimeTest extends TestCase
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',
             'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
         );
-        $this->loader->syncMigrationCollection();
+        $this->loader->syncMigrationCollection(self::MIGRATION_IDENTIFIER);
 
         try {
             $runner = $this->runner->migrate();

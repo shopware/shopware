@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 class MigrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid';
 
     protected function tearDown()
     {
@@ -53,7 +54,7 @@ class MigrationControllerTest extends TestCase
 
         $url = sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
 
-        $client->request('POST', $url);
+        $client->request('POST', $url, ['identifier' => self::MIGRATION_IDENTIFIER]);
 
         self::assertSame(json_encode(['message' => 'migrations added to the database']), $client->getResponse()->getContent());
     }
@@ -90,7 +91,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController();
 
-        $controller->syncMigrations();
+        $controller->syncMigrations($this->getBaseRequest());
 
         self::assertSame(2, $this->getMigrationCount());
     }
@@ -101,7 +102,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController(true);
 
-        $controller->syncMigrations();
+        $controller->syncMigrations($this->getBaseRequest());
 
         $request = new Request();
 
@@ -120,7 +121,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController(true);
 
-        $controller->syncMigrations();
+        $controller->syncMigrations($this->getBaseRequest());
 
         $request = new Request();
 
@@ -145,7 +146,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController();
 
-        $controller->syncMigrations();
+        $controller->syncMigrations($this->getBaseRequest());
 
         $request = new Request();
 
@@ -175,5 +176,10 @@ class MigrationControllerTest extends TestCase
         }
 
         return (int) $query->execute()->fetchColumn();
+    }
+
+    private function getBaseRequest(): Request
+    {
+        return new Request([], ['identifier' => self::MIGRATION_IDENTIFIER]);
     }
 }

@@ -57,6 +57,7 @@ class MigrationCommand extends Command
     protected function configure()
     {
         $this->setName($this->getMigrationCommandName())
+            ->addArgument('identifier', InputArgument::OPTIONAL, 'identifier to determine which migrations to run', MigrationCollectionLoader::SHOPWARE_CORE_MIGRATION_IDENTIFIER)
             ->addArgument('until', InputArgument::OPTIONAL, 'timestamp cap for migrations')
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
@@ -72,7 +73,7 @@ class MigrationCommand extends Command
 
         $this->io->writeln('Get collection from directories');
 
-        $this->loader->syncMigrationCollection();
+        $this->loader->syncMigrationCollection($input->getArgument('identifier'));
 
         $this->io->writeln('migrate Migrations');
 

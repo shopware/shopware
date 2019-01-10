@@ -33,9 +33,9 @@ class MigrationController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/database/sync-migration", name="api.action.database.sync-migration", methods={"POST"})
      */
-    public function syncMigrations(): JsonResponse
+    public function syncMigrations(Request $request): JsonResponse
     {
-        $this->loader->syncMigrationCollection();
+        $this->loader->syncMigrationCollection($request->request->get('identifier', MigrationCollectionLoader::SHOPWARE_CORE_MIGRATION_IDENTIFIER));
 
         return new JsonResponse(['message' => 'migrations added to the database']);
     }

@@ -1,0 +1,78 @@
+@import "~less/variables";
+
+@sw-datepicker-color-border: @color-steam-cloud;
+@sw-datepicker-color-font: @color-gutenberg;
+@sw-datepicker-color-disabled-font: #B3BFCC;
+@sw-datepicker-color-hover: #e6e6e6;
+@sw-datepicker-color-selected: @color-shopware-blue;
+@sw-datepicker-color-text-selected: @color-white;
+
+.sw-datepicker {
+    .flatpickr-input {
+        height: 45px;
+    }
+}
+
+.flatpickr-calendar {
+    color: @sw-datepicker-color-font;
+    box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.3);
+    border: 1px solid @sw-datepicker-color-border;
+    border-radius: 4px;
+
+    &:before, &:after {
+        display: none;
+    }
+
+    .flatpickr-months {
+        padding-top: 8px;
+        padding-bottom: 16px;
+
+        .flatpickr-prev-month, .flatpickr-next-month {
+            top: 8px;
+        }
+    }
+
+    .flatpickr-weekday {
+        font-size: inherit;
+        color: inherit;
+        font-weight: 400;
+    }
+
+    .flatpickr-day {
+        color: @sw-datepicker-color-font;
+        border-radius: 4px;
+        margin-bottom: 6px;
+
+        &:hover {
+            background-color: @sw-datepicker-color-hover;
+        }
+
+        &.selected {
+            color: @sw-datepicker-color-text-selected;
+            background-color: @sw-datepicker-color-selected;
+        }
+
+        &.prevMonthDay, &.nextMonthDay {
+            color: @sw-datepicker-color-disabled-font;
+        }
+
+        &.today {
+            &:hover {
+                color: @sw-datepicker-color-font;
+            }
+
+            &.selected {
+                color: @sw-datepicker-color-text-selected;
+                background-color: @sw-datepicker-color-selected;
+            }
+        }
+
+        &.startRange {
+            border-radius: 4px 0 0 4px;
+        }
+
+        &.endRange {
+            border-radius: 0 4px 4px 0;
+        }
+    }
+}

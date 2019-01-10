@@ -80,6 +80,12 @@ Component.register('sw-field', {
             type: Boolean,
             required: false,
             default: true
+        },
+        datepickerConfig: {
+            type: Object,
+            default: () => {
+                return {};
+            }
         }
     },
 
@@ -99,6 +105,27 @@ Component.register('sw-field', {
     computed: {
         hasSuffix() {
             return this.suffix.length || !!this.$slots.suffix;
+        },
+
+        isTypeDate() {
+            return (this.type === 'date' ||
+                    this.type === 'date-local');
+        },
+
+        isTypeTime() {
+            return (this.type === 'time' ||
+                    this.type === 'time-local');
+        },
+
+        isTypeDateTime() {
+            return (this.type === 'datetime' ||
+                    this.type === 'datetime-local');
+        },
+
+        isTypeGenericDate() {
+            return (this.isTypeDate ||
+                    this.isTypeTime ||
+                    this.isTypeDateTime);
         },
 
         displayName() {
@@ -148,7 +175,7 @@ Component.register('sw-field', {
                 `sw-field--${this.type}`,
                 {
                     'has--error': !!this.hasErrorCls,
-                    'has--suffix': !!(this.hasSuffix || this.$props.copyAble),
+                    'has--suffix': !!(this.hasSuffix || this.$props.copyAble || this.isTypeGenericDate),
                     'is--disabled': !!this.$props.disabled
                 }];
         }
@@ -223,6 +250,10 @@ Component.register('sw-field', {
          * @returns {*}
          */
         getValueFromEvent(event) {
+            if (this.isTypeGenericDate) {
+                return this.convertValueType(event);
+            }
+
             let value = event.target.value;
 
             if (event.target.type === 'checkbox') {
@@ -240,6 +271,10 @@ Component.register('sw-field', {
          */
         convertValueType(value) {
             if (!value || typeof value === 'undefined' || value === null) {
+                if (this.isTypeGenericDate) {
+                    return '';
+                }
+
                 return null;
             }
 
@@ -332,6 +367,14 @@ Component.register('sw-field', {
             this.whitelistNumberKeys = this.whitelistNumberKeys.filter((code) => {
                 return code !== keyCode;
             });
+        },
+
+        onSuffixClick() {
+            if (!this.isTypeGenericDate) {
+                return;
+            }
+
+            this.$refs.swDatepicker.openDatepicker();
         }
     }
 });

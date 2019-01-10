@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 $ruleCollection = new RuleCollection();
 
 $rule = new RuleEntity();
-$rule->setId('f343a3c1-19cf-42a7-841a-a0ac5094908c');
+$rule->setId('f343a3c119cf42a7841aa0ac5094908c');
 $rule->setName('Test rule');
 $rule->setDescription('Test description');
 $rule->setPayload(new AndRule([new TrueRule(), new FalseRule()]));

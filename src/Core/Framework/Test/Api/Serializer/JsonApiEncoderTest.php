@@ -52,7 +52,7 @@ class JsonApiEncoderTest extends TestCase
     public function testEncodeStruct(): void
     {
         $struct = new MediaEntity();
-        $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
+        $struct->setId('1d23c1b015bf43fb97e89008cf42d6fe');
         $struct->setTitle('Manufacturer');
         $struct->setMimeType('image/png');
         $struct->setFileExtension('png');
@@ -64,7 +64,7 @@ class JsonApiEncoderTest extends TestCase
 
         $expected = [
             'data' => [
-                'id' => '1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
+                'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
                 'type' => 'media',
                 'attributes' => [
                     'title' => 'Manufacturer',
@@ -86,55 +86,55 @@ class JsonApiEncoderTest extends TestCase
                 ],
                 'meta' => null,
                 'links' => [
-                    'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
+                    'self' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe',
                 ],
                 'relationships' => [
                     'translations' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/translations',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/translations',
                         ],
                     ],
                     'user' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/user',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/user',
                         ],
                     ],
                     'categories' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/categories',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/categories',
                         ],
                     ],
                     'productManufacturers' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/product-manufacturers',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-manufacturers',
                         ],
                     ],
                     'productMedia' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/product-media',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media',
                         ],
                     ],
                     'thumbnails' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/thumbnails',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/thumbnails',
                         ],
                     ],
                     'mediaFolder' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/media-folder',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/media-folder',
                         ],
                     ],
                     'configurationGroupOptions' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/configuration-group-options',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
                         ],
                     ],
                 ],

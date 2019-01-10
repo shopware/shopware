@@ -3,7 +3,7 @@
 return [
     'data' => [
         [
-            'id' => 'f343a3c1-19cf-42a7-841a-a0ac5094908c',
+            'id' => 'f343a3c119cf42a7841aa0ac5094908c',
             'type' => 'rule',
             'attributes' => [
                 'name' => 'Test rule',
@@ -14,19 +14,19 @@ return [
                 'createdAt' => null,
                 'updatedAt' => null,
             ],
-            'links' => ['self' => '/api/rule/f343a3c1-19cf-42a7-841a-a0ac5094908c'],
+            'links' => ['self' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c'],
             'relationships' => [
                 'conditions' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c1-19cf-42a7-841a-a0ac5094908c/conditions'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/conditions'],
                 ],
                 'discountSurcharges' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c1-19cf-42a7-841a-a0ac5094908c/discount-surcharges'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-surcharges'],
                 ],
                 'productPriceRules' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c1-19cf-42a7-841a-a0ac5094908c/product-price-rules'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/product-price-rules'],
                 ],
             ],
             'meta' => [

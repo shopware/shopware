@@ -18,13 +18,13 @@ class RestrictDeleteViolation
      * Example:
      *      [Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition] => Array
      *          (
-     *              [0] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
-     *              [1] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
+     *              [0] => c708bb9dc2c34243b9fb1fd6a676f2fb
+     *              [1] => c708bb9dc2c34243b9fb1fd6a676f2fb
      *          )
      *      [Shopware\Core\Content\Product\ProductDefinition] => Array
      *          (
-     *              [0] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
-     *              [1] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
+     *              [0] => c708bb9dc2c34243b9fb1fd6a676f2fb
+     *              [1] => c708bb9dc2c34243b9fb1fd6a676f2fb
      *          )
      *
      * @var array[]

@@ -174,7 +174,7 @@ class OrderingProcessTest extends TestCase
                 [
                     'id' => $addressId,
                     'customerId' => $customerId,
-                    'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
+                    'countryId' => 'ffe61e1c99154f9597014a310ab5482d',
                     'salutation' => 'Herr',
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',

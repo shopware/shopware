@@ -630,6 +630,10 @@ class DefinitionValidator
 
         /** @var Column $column */
         foreach ($columns as $column) {
+            if ($this->isVersionIdFieldMappedByFkField($definition, $column)) {
+                continue;
+            }
+
             $field = $definition::getFields()->getByStorageName($column->getName());
 
             if ($field) {
@@ -811,5 +815,18 @@ class DefinitionValidator
     private function getAggregateNamespace(string $definition): string
     {
         return lcfirst(preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition));
+    }
+
+    private function isVersionIdFieldMappedByFkField(string $definition, Column $column): bool
+    {
+        $fkFieldName = preg_replace('/_version_id$/i', '_id', $column->getName());
+
+        $field = $definition::getFields()->getByStorageName($fkFieldName);
+
+        if ($field instanceof FkField) {
+            return true;
+        }
+
+        return false;
     }
 }

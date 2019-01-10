@@ -5,7 +5,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\System\User\UserEntity;
 
 $mediaCollection = new MediaCollection();
-$userId = '6f51622e-b381-4c75-ae02-63cece27ce72';
+$userId = '6f51622eb3814c75ae0263cece27ce72';
 
 $user = new UserEntity();
 $user->setId($userId);
@@ -19,7 +19,7 @@ $user->setLastLogin(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:1
 $user->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
 
 $media1 = new MediaEntity();
-$media1->setId('3e352be2-d858-46dd-9752-9c0f6b544870');
+$media1->setId('3e352be2d85846dd97529c0f6b544870');
 $media1->setUser($user);
 $media1->setUserId($userId);
 $media1->setMimeType('image/jpg');
@@ -30,7 +30,7 @@ $media1->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25
 $media1->setTitle('Lagerkorn-5,0klein');
 
 $media2 = new MediaEntity();
-$media2->setId('f1ad1d0c-0245-4a40-abf2-50f764d16248');
+$media2->setId('f1ad1d0c02454a40abf250f764d16248');
 $media2->setUser($user);
 $media2->setUserId($userId);
 $media2->setMimeType('image/jpg');

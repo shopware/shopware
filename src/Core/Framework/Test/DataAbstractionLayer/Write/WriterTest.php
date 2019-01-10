@@ -558,7 +558,7 @@ class WriterTest extends TestCase
                         Defaults::LANGUAGE_SYSTEM => '1ABC',
                         '2d905256e75149678dd5a32a81b94f1f' => '2ABC',
                     ],
-                    'description' => 'foo', // implicit FFA32A50-E2D0-4CF3-8389-A53F8D6CD594
+                    'description' => 'foo', // implicit FFA32A50E2D04CF38389A53F8D6CD594
                     'descriptionLong' => [
                         '2d905256e75149678dd5a32a81b94f1f' => '2CBA',
                     ],
@@ -597,7 +597,7 @@ class WriterTest extends TestCase
 //
 //        'GET /product/abc/translation/en' => [
 //            'productId' => 'abc',
-//            'languageId' => '2d905256-e751-4967-8dd5-a32a81b94f1f',
+//            'languageId' => '2d905256e75149678dd5a32a81b94f1f',
 //            'metaTitle' => 'bar',
 //            'name' => '',
 //            [...]

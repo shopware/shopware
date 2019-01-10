@@ -12,11 +12,6 @@ class AccountProfilePageletStruct extends PageletStruct
      */
     protected $customer;
 
-    public function __construct(CustomerEntity $customer = null)
-    {
-        $this->customer = $customer;
-    }
-
     /**
      * @return CustomerEntity
      */

@@ -5,14 +5,16 @@ namespace Shopware\Storefront\Page\Listing;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Storefront\Pagelet\Listing\ListingPageletStruct;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletLoadedEvent;
 
 class ListingPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'listing.page.loaded.event';
+    public const NAME = 'listing.page.loaded';
 
     /**
-     * @var ListingPageletStruct
+     * @var ListingPageStruct
      */
     protected $page;
 
@@ -26,11 +28,19 @@ class ListingPageLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(ListingPageletStruct $page, CheckoutContext $context, ListingPageRequest $request)
+    public function __construct(ListingPageStruct $page, CheckoutContext $context, ListingPageRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
         $this->request = $request;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
+            new ListingPageletLoadedEvent($this->page->getListing(), $this->context, $this->request->getListingRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,7 +58,7 @@ class ListingPageLoadedEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getPage(): ListingPageletStruct
+    public function getPage(): ListingPageStruct
     {
         return $this->page;
     }

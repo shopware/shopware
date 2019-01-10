@@ -1,17 +1,17 @@
 {% block frontend_detail_configurator_reset %}
     {% set break = false %}
-    {%  for configurator in productDetail.product.configurators if not break %}
+    {%  for configurator in page.productDetail.product.configurators if not break %}
         {% if configurator.user_selected %}
             {% block frontend_detail_configurator_reset_button %}
                 {# @var canonical \Shopware\Core\Api\Seo\Struct\SeoUrlEntity #}
                 {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
 
-                {% set url = path('frontend.detail.page', { id: productDetail.product.id }) %}
-                {% if productDetail.product.parentId %}
-                    {% set url = path('frontend.detail.page', { id: productDetail.product.parentId }) %}
+                {% set url = path('frontend.detail.page', { id: page.productDetail.product.id }) %}
+                {% if page.productDetail.product.parentId %}
+                    {% set url = path('frontend.detail.page', { id: page.productDetail.product.parentId }) %}
                 {% endif %}
 
-                {% set canonical = productDetail.product.extension('canonicalUrl') %}
+                {% set canonical = page.productDetail.product.extension('canonicalUrl') %}
                 {% if canonical  %}
                     {% set url = canonical.url %}
                 {% endif %}

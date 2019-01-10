@@ -4,16 +4,25 @@ namespace Shopware\Storefront\Page\AccountOrder;
 
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletRequest;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestTrait;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
 
 class AccountOrderPageRequest extends Struct
 {
-    use HeaderPageletRequestTrait;
-
     /**
      * @var AccountOrderPageletRequest
      */
     protected $accountOrderRequest;
+
+    /**
+     * @var ContentHeaderPageletRequest
+     */
+    protected $headerRequest;
+
+    public function __construct()
+    {
+        $this->accountOrderRequest = new AccountOrderPageletRequest();
+        $this->headerRequest = new ContentHeaderPageletRequest();
+    }
 
     /**
      * @return AccountOrderPageletRequest
@@ -23,11 +32,8 @@ class AccountOrderPageRequest extends Struct
         return $this->accountOrderRequest;
     }
 
-    /**
-     * @param AccountOrderPageletRequest $accountOrderRequest
-     */
-    public function setAccountOrderRequest(AccountOrderPageletRequest $accountOrderRequest): void
+    public function getHeaderRequest(): ContentHeaderPageletRequest
     {
-        $this->accountOrderRequest = $accountOrderRequest;
+        return $this->headerRequest;
     }
 }

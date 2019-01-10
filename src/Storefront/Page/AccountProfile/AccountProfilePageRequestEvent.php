@@ -4,12 +4,15 @@ namespace Shopware\Storefront\Page\AccountProfile;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletRequestEvent;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountProfilePageRequestEvent extends Event
+class AccountProfilePageRequestEvent extends NestedEvent
 {
-    public const NAME = 'accountprofile.page.request.event';
+    public const NAME = 'account-profile.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +22,26 @@ class AccountProfilePageRequestEvent extends Event
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var AccountProfilePageRequest
      */
-    protected $accountprofilePageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, AccountProfilePageRequest $accountprofilePageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, AccountProfilePageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->accountprofilePageRequest = $accountprofilePageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new AccountProfilePageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getAccountProfileRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +59,13 @@ class AccountProfilePageRequestEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getAccountProfilePageRequest(): AccountProfilePageRequest
     {
-        return $this->accountprofilePageRequest;
+        return $this->pageRequest;
     }
 }

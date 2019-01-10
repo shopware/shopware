@@ -3,51 +3,64 @@
 namespace Shopware\Storefront\Page\AccountLogin;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\AccountLogin\LoginPageletStruct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
+use Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletStruct;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 
 class AccountLoginPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
-
     /**
      * @var null|string
      */
     protected $redirectTo;
 
     /**
-     * @var LoginPageletStruct
+     * @var AccountLoginPageletStruct
      */
-    protected $login;
+    protected $accountLogin;
 
     /**
-     * @return LoginPageletStruct
+     * @var ContentHeaderPageletStruct
      */
-    public function getLogin(): LoginPageletStruct
+    protected $header;
+
+    /**
+     * @return AccountLoginPageletStruct
+     */
+    public function getAccountLogin(): AccountLoginPageletStruct
     {
-        return $this->login;
+        return $this->accountLogin;
     }
 
     /**
-     * @param LoginPageletStruct $login
+     * @param AccountLoginPageletStruct $accountLogin
      */
-    public function setLogin(LoginPageletStruct $login): void
+    public function setAccountLogin(AccountLoginPageletStruct $accountLogin): void
     {
-        $this->login = $login;
+        $this->accountLogin = $accountLogin;
+    }
+
+    public function getHeader(): ContentHeaderPageletStruct
+    {
+        return $this->header;
+    }
+
+    public function setHeader(ContentHeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 
     /**
-     * @return null|string
+     * @return string
      */
-    public function getRedirectTo(): ?string
+    public function getRedirectTo(): string
     {
-        return $this->redirectTo;
+        return $this->redirectTo ?: '';
     }
 
     /**
-     * @param null|string $redirectTo
+     * @param string $redirectTo
      */
-    public function setRedirectTo(?string $redirectTo): void
+    public function setRedirectTo(string $redirectTo): void
     {
         $this->redirectTo = $redirectTo;
     }

@@ -3,35 +3,20 @@
 namespace Shopware\Storefront\Page\ProductDetail;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletStruct;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletStruct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletStruct;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletStruct;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 use Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletStruct;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletStruct;
 
 class ProductDetailPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
-
     /**
      * @var ProductDetailPageletStruct
      */
     protected $productDetail;
 
     /**
-     * DetailPageStruct constructor.
+     * @var ContentHeaderPageletStruct
      */
-    public function __construct()
-    {
-        $this->productDetail = new ProductDetailPageletStruct();
-        $this->language = new LanguagePageletStruct();
-        $this->cartInfo = new CartInfoPageletStruct();
-        $this->shopmenu = new ShopmenuPageletStruct();
-        $this->currency = new CurrencyPageletStruct();
-        $this->navigation = new NavigationPageletStruct();
-    }
+    protected $header;
 
     /**
      * @return ProductDetailPageletStruct
@@ -47,5 +32,15 @@ class ProductDetailPageStruct extends Struct
     public function setProductDetail(ProductDetailPageletStruct $productDetail): void
     {
         $this->productDetail = $productDetail;
+    }
+
+    public function getHeader(): ContentHeaderPageletStruct
+    {
+        return $this->header;
+    }
+
+    public function setHeader(ContentHeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 }

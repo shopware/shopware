@@ -4,11 +4,8 @@ namespace Shopware\Storefront\Page\AccountOrder;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletLoader;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletLoader;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AccountOrderPageLoader
 {
@@ -18,51 +15,29 @@ class AccountOrderPageLoader
     private $accountOrderPageletLoader;
 
     /**
-     * @var NavigationPageletLoader
+     * @var ContentHeaderPageletLoader
      */
-    private $navigationPageletLoader;
+    private $headerPageletLoader;
 
     /**
-     * @var CartInfoPageletLoader
+     * @var EventDispatcherInterface
      */
-    private $cartInfoPageletLoader;
-
-    /**
-     * @var ShopmenuPageletLoader
-     */
-    private $shopmenuPageletLoader;
-
-    /**
-     * @var LanguagePageletLoader
-     */
-    private $languagePageletLoader;
-
-    /**
-     * @var CurrencyPageletLoader
-     */
-    private $currencyPageletLoader;
+    private $eventDispatcher;
 
     public function __construct(
         AccountOrderPageletLoader $accountOrderPageletLoader,
-        NavigationPageletLoader $navigationPageletLoader,
-        CartInfoPageletLoader $cartInfoPageletLoader,
-        ShopmenuPageletLoader $shopmenuPageletLoader,
-        LanguagePageletLoader $languagePageletLoader,
-        CurrencyPageletLoader $currencyPageletLoader
+        ContentHeaderPageletLoader $headerPageletLoader,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->accountOrderPageletLoader = $accountOrderPageletLoader;
-        $this->navigationPageletLoader = $navigationPageletLoader;
-        $this->cartInfoPageletLoader = $cartInfoPageletLoader;
-        $this->shopmenuPageletLoader = $shopmenuPageletLoader;
-        $this->languagePageletLoader = $languagePageletLoader;
-        $this->currencyPageletLoader = $currencyPageletLoader;
+        $this->headerPageletLoader = $headerPageletLoader;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
      * @param AccountOrderPageRequest $request
      * @param CheckoutContext         $context
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      * @throws \Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException
      *
      * @return AccountOrderPageStruct
@@ -70,45 +45,17 @@ class AccountOrderPageLoader
     public function load(AccountOrderPageRequest $request, CheckoutContext $context): AccountOrderPageStruct
     {
         $page = new AccountOrderPageStruct();
-
-        $page->setCustomerOrders(
+        $page->setAccountOrder(
             $this->accountOrderPageletLoader->load($request->getAccountOrderRequest(), $context)
         );
 
-        $page = $this->loadFrame($request, $context, $page);
-
-        return $page;
-    }
-
-    /**
-     * @param AccountOrderPageRequest $request
-     * @param CheckoutContext         $context
-     * @param AccountOrderPageStruct  $page
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return AccountOrderPageStruct
-     */
-    private function loadFrame(AccountOrderPageRequest $request, CheckoutContext $context, AccountOrderPageStruct $page): AccountOrderPageStruct
-    {
-        $page->setNavigation(
-            $this->navigationPageletLoader->load($request->getNavigationRequest(), $context)
+        $page->setHeader(
+            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
         );
 
-        $page->setCartInfo(
-            $this->cartInfoPageletLoader->load($request->getCartInfoRequest(), $context)
-        );
-
-        $page->setShopmenu(
-            $this->shopmenuPageletLoader->load($request->getShopmenuRequest(), $context)
-        );
-
-        $page->setLanguage(
-            $this->languagePageletLoader->load($request->getLanguageRequest(), $context)
-        );
-
-        $page->setCurrency(
-            $this->currencyPageletLoader->load($request->getCurrencyRequest(), $context)
+        $this->eventDispatcher->dispatch(
+            AccountOrderPageLoadedEvent::NAME,
+            new AccountOrderPageLoadedEvent($page, $context, $request)
         );
 
         return $page;

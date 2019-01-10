@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ShopmenuPageletRequestEvent extends NestedEvent
 {
-    public const NAME = 'content.shopmenu.pagelet.request.event';
+    public const NAME = 'shopmenu.pagelet.request.event';
 
     /**
      * @var Request
@@ -24,13 +24,13 @@ class ShopmenuPageletRequestEvent extends NestedEvent
     /**
      * @var ShopmenuPageletRequest
      */
-    private $shopmenuPageRequest;
+    private $shopmenuPageletRequest;
 
     public function __construct(Request $request, CheckoutContext $context, ShopmenuPageletRequest $shopmenuPageRequest)
     {
         $this->request = $request;
         $this->context = $context;
-        $this->shopmenuPageRequest = $shopmenuPageRequest;
+        $this->shopmenuPageletRequest = $shopmenuPageRequest;
     }
 
     public function getName(): string
@@ -53,8 +53,8 @@ class ShopmenuPageletRequestEvent extends NestedEvent
         return $this->request;
     }
 
-    public function getIndexPageRequest(): ShopmenuPageletRequest
+    public function getShopmenuPageletRequest(): ShopmenuPageletRequest
     {
-        return $this->shopmenuPageRequest;
+        return $this->shopmenuPageletRequest;
     }
 }

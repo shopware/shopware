@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Framework\Page\AggregationView\ListAggregation;
 use Shopware\Storefront\Framework\Page\AggregationView\ListItem;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -36,9 +37,9 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            \Shopware\Storefront\Event\ListingEvents::CRITERIA_CREATED => 'buildCriteria',
-            \Shopware\Storefront\Event\ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
-            \Shopware\Storefront\Event\ListingEvents::LISTING_PAGELET_REQUEST => 'transformRequest',
+            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
+            ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
+            ListingEvents::LISTING_PAGELET_REQUEST => 'transformRequest',
         ];
     }
 
@@ -93,6 +94,10 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
 
     public function buildPage(ListingPageletLoadedEvent $event): void
     {
+        if (!$event->getPage()->getProducts()) {
+            return;
+        }
+
         $result = $event->getPage()->getProducts()->getAggregations();
 
         if ($result->count() <= 0) {

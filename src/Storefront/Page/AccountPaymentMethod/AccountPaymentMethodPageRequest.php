@@ -4,16 +4,25 @@ namespace Shopware\Storefront\Page\AccountPaymentMethod;
 
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletRequest;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestTrait;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
 
 class AccountPaymentMethodPageRequest extends Struct
 {
-    use HeaderPageletRequestTrait;
-
     /**
      * @var AccountPaymentMethodPageletRequest
      */
     protected $accountPaymentMethodRequest;
+
+    /**
+     * @var ContentHeaderPageletRequest
+     */
+    protected $headerRequest;
+
+    public function __construct()
+    {
+        $this->accountPaymentMethodRequest = new AccountPaymentMethodPageletRequest();
+        $this->headerRequest = new ContentHeaderPageletRequest();
+    }
 
     /**
      * @return AccountPaymentMethodPageletRequest
@@ -23,11 +32,8 @@ class AccountPaymentMethodPageRequest extends Struct
         return $this->accountPaymentMethodRequest;
     }
 
-    /**
-     * @param AccountPaymentMethodPageletRequest $accountPaymentMethodRequest
-     */
-    public function setAccountPaymentMethodRequest(AccountPaymentMethodPageletRequest $accountPaymentMethodRequest): void
+    public function getHeaderRequest(): ContentHeaderPageletRequest
     {
-        $this->accountPaymentMethodRequest = $accountPaymentMethodRequest;
+        return $this->headerRequest;
     }
 }

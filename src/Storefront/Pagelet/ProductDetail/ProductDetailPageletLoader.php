@@ -62,8 +62,9 @@ class ProductDetailPageletLoader
         $this->container = $container;
     }
 
-    public function load(string $productId, ProductDetailPageletRequest $request, CheckoutContext $context): ProductDetailPageletStruct
+    public function load(ProductDetailPageletRequest $request, CheckoutContext $context): ProductDetailPageletStruct
     {
+        $productId = $request->getProductId();
         $parentId = $this->fetchParentId($productId, $context);
 
         $productId = $this->resolveProductId($productId, $parentId, $request, $context);
@@ -77,7 +78,8 @@ class ProductDetailPageletLoader
         /** @var StorefrontProductEntity $product */
         $product = $collection->get($productId);
 
-        $page = new ProductDetailPageletStruct($product);
+        $page = new ProductDetailPageletStruct();
+        $page->setProduct($product);
 
         $page->setConfigurator(
             $this->loadConfigurator($product, $context)

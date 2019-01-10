@@ -17,12 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Storefront\Action\AccountAddress\AddressSaveRequest;
-use Shopware\Storefront\Action\AccountEmail\EmailSaveRequest;
-use Shopware\Storefront\Action\AccountLogin\LoginRequest;
-use Shopware\Storefront\Action\AccountPassword\PasswordSaveRequest;
-use Shopware\Storefront\Action\AccountProfile\ProfileSaveRequest;
-use Shopware\Storefront\Action\AccountRegistration\RegistrationRequest;
+use Shopware\Storefront\Action\AccountAddress\AccountAddressSaveRequest;
+use Shopware\Storefront\Action\AccountEmail\AccountEmailSaveRequest;
+use Shopware\Storefront\Action\AccountLogin\AccountLoginRequest;
+use Shopware\Storefront\Action\AccountPassword\AccountPasswordSaveRequest;
+use Shopware\Storefront\Action\AccountProfile\AccountProfileSaveRequest;
+use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
 use Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException;
 use Shopware\Storefront\Exception\AccountLogin\CustomerNotFoundException;
 use Shopware\Storefront\Framework\Exception\BadCredentialsException;
@@ -117,7 +117,7 @@ class AccountService
         return $context->getCustomer();
     }
 
-    public function saveProfile(ProfileSaveRequest $profileSaveRequest, CheckoutContext $context): void
+    public function saveProfile(AccountProfileSaveRequest $profileSaveRequest, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -136,7 +136,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function savePassword(PasswordSaveRequest $passwordSaveRequest, CheckoutContext $context): void
+    public function savePassword(AccountPasswordSaveRequest $passwordSaveRequest, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -151,7 +151,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function saveEmail(EmailSaveRequest $emailSaveRequest, CheckoutContext $context): void
+    public function saveEmail(AccountEmailSaveRequest $emailSaveRequest, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -208,7 +208,7 @@ class AccountService
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException     */
-    public function saveAddress(AddressSaveRequest $addressSaveRequest, CheckoutContext $context): string
+    public function saveAddress(AccountAddressSaveRequest $addressSaveRequest, CheckoutContext $context): string
     {
         $this->validateCustomer($context);
 
@@ -296,7 +296,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function createNewCustomer(RegistrationRequest $registrationRequest, CheckoutContext $context): string
+    public function createNewCustomer(AccountRegistrationRequest $registrationRequest, CheckoutContext $context): string
     {
         $this->validateRegistrationRequest($registrationRequest, $context);
 
@@ -379,7 +379,7 @@ class AccountService
      * @throws BadCredentialsException
      * @throws UnauthorizedHttpException
      */
-    public function login(LoginRequest $loginRequest, CheckoutContext $context): string
+    public function login(AccountLoginRequest $loginRequest, CheckoutContext $context): string
     {
         if (empty($loginRequest->getUsername()) || empty($loginRequest->getPassword())) {
             throw new BadCredentialsException();
@@ -419,7 +419,7 @@ class AccountService
         );
     }
 
-    private function validateRegistrationRequest(RegistrationRequest $registrationRequest, CheckoutContext $context): void
+    private function validateRegistrationRequest(AccountRegistrationRequest $registrationRequest, CheckoutContext $context): void
     {
         if ($registrationRequest->getGuest()) {
             return;

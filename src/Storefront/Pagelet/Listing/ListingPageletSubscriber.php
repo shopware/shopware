@@ -15,6 +15,6 @@ class ListingPageletSubscriber implements EventSubscriberInterface
 
     public function transformRequest(ListingPageletRequestEvent $event): void
     {
-        $listingPageletRequest = $event->getListingPageletRequest();
+        //$listingPageletRequest = $event->getListingPageletRequest();
     }
 }

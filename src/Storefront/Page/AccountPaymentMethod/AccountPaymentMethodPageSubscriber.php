@@ -10,12 +10,13 @@ class AccountPaymentMethodPageSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AccountEvents::ACCOUNT_PAYMENT_METHOD_PAGE_REQUEST => 'transformRequest',
+            AccountEvents::ACCOUNTPAYMENTMETHOD_PAGE_REQUEST => 'transformRequest',
         ];
     }
 
     public function transformRequest(AccountPaymentMethodPageRequestEvent $event): void
     {
-        $accountPaymentMethodPageRequest = $event->getAccountPaymentMethodPageRequest();
+        //$accountPaymentMethodPageRequest = $event->getAccountPaymentMethodPageRequest();
+        //$accountPaymentMethodPageRequest->getAccountPaymentMethodRequest()->setxxx($event->getHttpRequest()->attributes->get('xxx'));
     }
 }

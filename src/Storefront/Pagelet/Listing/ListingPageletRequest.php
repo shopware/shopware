@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Pagelet\Listing;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-class ListingPageletRequest extends Struct
+class ListingPageletRequest extends Struct implements ListingPageletRequestInterface
 {
     /**
      * @var int

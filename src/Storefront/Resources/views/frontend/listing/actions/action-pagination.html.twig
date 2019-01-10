@@ -8,7 +8,7 @@
     {# @var listing \Shopware\Storefront\Page\Listing\ListingPageletStruct #}
     {# Pagination - Frist page #}
     {% block frontend_listing_actions_paging_first %}
-        {% if listing.currentPage > 1 %}
+        {% if page.listing.currentPage > 1 %}
             <a href="{{ baseUrl }}?p=1" title="{% trans %}frontend.listing.listing_actions.ListingLinkFirst{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
                 <i class="icon--arrow-left"></i>
                 <i class="icon--arrow-left"></i>
@@ -18,8 +18,8 @@
 
     {# Pagination - Previous page #}
     {% block frontend_listing_actions_paging_previous %}
-        {% if listing.currentPage > 1 %}
-            <a href="{{ baseUrl }}?p={{ listing.currentPage - 1 }}" title="{% trans %}frontend.listing.listing_actions.ListingLinkPrevious{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
+        {% if page.listing.currentPage > 1 %}
+            <a href="{{ baseUrl }}?p={{ page.listing.currentPage - 1 }}" title="{% trans %}frontend.listing.listing_actions.ListingLinkPrevious{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
                 <i class="icon--arrow-left"></i>
             </a>
         {% endif %}
@@ -27,15 +27,15 @@
 
     {# Pagination - current page #}
     {% block frontend_listing_actions_paging_numbers %}
-        {% if listing.pageCount > 1 %}
-            <a title="" class="paging--link is--active">{{ listing.currentPage }}</a>
+        {% if page.listing.pageCount > 1 %}
+            <a title="" class="paging--link is--active">{{ page.listing.currentPage }}</a>
         {% endif %}
     {% endblock %}
 
     {# Pagination - Next page #}
     {% block frontend_listing_actions_paging_next %}
-        {% if listing.currentPage < listing.pageCount %}
-            <a href="{{ baseUrl }}?p={{ listing.currentPage + 1 }}" title="{% trans %}frontend.listing.listing_actions.ListingLinkNext{% endtrans %}" class="paging--link paging--next" data-action-link="true">
+        {% if page.listing.currentPage < page.listing.pageCount %}
+            <a href="{{ baseUrl }}?p={{ page.listing.currentPage + 1 }}" title="{% trans %}frontend.listing.listing_actions.ListingLinkNext{% endtrans %}" class="paging--link paging--next" data-action-link="true">
                 <i class="icon--arrow-right"></i>
             </a>
         {% endif %}
@@ -43,8 +43,8 @@
 
     {# Pagination - Last page #}
     {% block frontend_listing_actions_paging_last %}
-        {% if listing.currentPage < listing.pageCount %}
-            <a href="{{ baseUrl }}?p={{ listing.pageCount }}" title="{% trans %}frontend.listing.listing_actions.ListingLinkLast{% endtrans %}" class="paging--link paging--next" data-action-link="true">
+        {% if page.listing.currentPage < page.listing.pageCount %}
+            <a href="{{ baseUrl }}?p={{ page.listing.pageCount }}" title="{% trans %}frontend.listing.listing_actions.ListingLinkLast{% endtrans %}" class="paging--link paging--next" data-action-link="true">
                 <i class="icon--arrow-right"></i>
                 <i class="icon--arrow-right"></i>
             </a>
@@ -53,9 +53,9 @@
 
     {# Pagination - Number of pages #}
     {% block frontend_listing_actions_count %}
-        {% if listing.pageCount > 1 and listing.criteria.totalCountMode != 2 %}
+        {% if page.listing.pageCount > 1 and page.listing.criteria.totalCountMode != 2 %}
             <span class="paging--display">
-                {% trans %}frontend.listing.listing_actions.ListingTextFrom{% endtrans %} <strong>{{ listing.pageCount }}</strong>
+                {% trans %}frontend.listing.listing_actions.ListingTextFrom{% endtrans %} <strong>{{ page.listing.pageCount }}</strong>
             </span>
         {% endif %}
     {% endblock %}

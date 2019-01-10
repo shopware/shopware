@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Storefront\Pagelet\CheckoutPaymentMethod\PaymentMethodPageletStruct;
 
 class AccountPaymentMethodPageletLoader
 {
@@ -21,13 +20,16 @@ class AccountPaymentMethodPageletLoader
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
-    public function load(AccountPaymentMethodPageletRequest $request, CheckoutContext $context): PaymentMethodPageletStruct
+    public function load(AccountPaymentMethodPageletRequest $request, CheckoutContext $context): AccountPaymentMethodPageletStruct
     {
         // todo@dr remove request, provide storefront context, provide calculated cart, use context rule system to validate
         $criteria = $this->createCriteria($request);
         $PaymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext());
 
-        return new PaymentMethodPageletStruct(new PaymentMethodCollection($PaymentMethod->getElements()));
+        $page = new AccountPaymentMethodPageletStruct();
+        $page->setPaymentMethod(new PaymentMethodCollection($PaymentMethod->getElements()));
+
+        return $page;
     }
 
     private function createCriteria(AccountPaymentMethodPageletRequest $request): Criteria

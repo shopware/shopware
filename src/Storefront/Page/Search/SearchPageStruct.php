@@ -3,31 +3,55 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletStruct;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletStruct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletStruct;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletStruct;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 use Shopware\Storefront\Pagelet\Search\SearchPageletStruct;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletStruct;
 
 class SearchPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
-
     /**
      * @var SearchPageletStruct
      */
     protected $listing;
 
+    /**
+     * @var SearchPageletStruct
+     */
+    protected $search;
+
+    /**
+     * @var ContentHeaderPageletStruct
+     */
+    protected $header;
+
     public function __construct()
     {
-        $this->listing = new SearchPageletStruct();
-        $this->language = new LanguagePageletStruct();
-        $this->cartInfo = new CartInfoPageletStruct();
-        $this->shopmenu = new ShopmenuPageletStruct();
-        $this->currency = new CurrencyPageletStruct();
-        $this->navigation = new NavigationPageletStruct();
+        $this->listing = &$this->search;
+    }
+
+    /**
+     * @return SearchPageletStruct
+     */
+    public function getSearch(): SearchPageletStruct
+    {
+        return $this->search;
+    }
+
+    /**
+     * @param SearchPageletStruct $search
+     */
+    public function setSearch(SearchPageletStruct $search): void
+    {
+        $this->search = $search;
+    }
+
+    public function getHeader(): ContentHeaderPageletStruct
+    {
+        return $this->header;
+    }
+
+    public function setHeader(ContentHeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 
     /**
@@ -36,13 +60,5 @@ class SearchPageStruct extends Struct
     public function getListing(): SearchPageletStruct
     {
         return $this->listing;
-    }
-
-    /**
-     * @param SearchPageletStruct $listing
-     */
-    public function setListing(SearchPageletStruct $listing): void
-    {
-        $this->listing = $listing;
     }
 }

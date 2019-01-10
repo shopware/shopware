@@ -184,12 +184,12 @@
         </service>
 
         <!-- Framework -->
-        <service id="Shopware\Core\Framework\Command\CreatePageletCommand">
+        <service id="Shopware\Storefront\Framework\Command\CreatePageletCommand">
             <tag name="console.command"/>
             <argument>%kernel.project_dir%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\CreatePageCommand">
+        <service id="Shopware\Storefront\Framework\Command\CreatePageCommand">
             <tag name="console.command"/>
             <argument>%kernel.project_dir%</argument>
         </service>

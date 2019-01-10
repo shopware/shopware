@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
+use Shopware\Storefront\Pagelet\Search\SearchPageletRequest;
 
 class PageCriteriaCreatedEvent extends NestedEvent
 {
@@ -23,7 +24,7 @@ class PageCriteriaCreatedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var ListingPageletRequest|SearchPageRequest
+     * @var ListingPageletRequest|SearchPageletRequest
      */
     protected $request;
 

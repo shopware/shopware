@@ -7,6 +7,11 @@ use Shopware\Core\Framework\Struct\Struct;
 class ProductDetailPageletRequest extends Struct
 {
     /**
+     * @var string
+     */
+    protected $productId;
+
+    /**
      * @var array
      */
     protected $group;
@@ -25,5 +30,21 @@ class ProductDetailPageletRequest extends Struct
     public function setGroup(array $group): void
     {
         $this->group = $group;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProductId(): string
+    {
+        return $this->productId;
+    }
+
+    /**
+     * @param string $productId
+     */
+    public function setProductId(string $productId): void
+    {
+        $this->productId = $productId;
     }
 }

@@ -3,45 +3,44 @@
 namespace Shopware\Storefront\Page\AccountOrder;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletStruct;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletStruct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletStruct;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletStruct;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletStruct;
+use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletStruct;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 
 class AccountOrderPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
+    /**
+     * @var AccountOrderPageletStruct
+     */
+    protected $accountOrder;
 
     /**
-     * @var CustomerOrderPageletStruct
+     * @var ContentHeaderPageletStruct
      */
-    protected $customerOrders;
+    protected $header;
 
-    public function __construct()
+    /**
+     * @return AccountOrderPageletStruct
+     */
+    public function getAccountOrder(): AccountOrderPageletStruct
     {
-        $this->customerOrders = new CustomerOrderPageletStruct();
-        $this->language = new LanguagePageletStruct();
-        $this->cartInfo = new CartInfoPageletStruct();
-        $this->shopmenu = new ShopmenuPageletStruct();
-        $this->currency = new CurrencyPageletStruct();
-        $this->navigation = new NavigationPageletStruct();
+        return $this->accountOrder;
     }
 
     /**
-     * @return CustomerOrderPageletStruct
+     * @param AccountOrderPageletStruct $accountOrder
      */
-    public function getCustomerOrders(): CustomerOrderPageletStruct
+    public function setAccountOrder(AccountOrderPageletStruct $accountOrder): void
     {
-        return $this->customerOrders;
+        $this->accountOrder = $accountOrder;
     }
 
-    /**
-     * @param CustomerOrderPageletStruct $customerOrders
-     */
-    public function setCustomerOrders(CustomerOrderPageletStruct $customerOrders): void
+    public function getHeader(): ContentHeaderPageletStruct
     {
-        $this->customerOrders = $customerOrders;
+        return $this->header;
+    }
+
+    public function setHeader(ContentHeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 }

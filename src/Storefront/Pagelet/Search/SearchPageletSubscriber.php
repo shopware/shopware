@@ -7,10 +7,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SearchPageletSubscriber implements EventSubscriberInterface
 {
-    public const SEARCH_TERM_PARAMETER = 'search';
-
-    public const ROUTE_PARAMS_PARAMETER = '_route_params';
-
     public static function getSubscribedEvents(): array
     {
         return [
@@ -20,7 +16,6 @@ class SearchPageletSubscriber implements EventSubscriberInterface
 
     public function transformRequest(SearchPageletRequestEvent $event): void
     {
-        $searchPageletRequest = $event->getSearchPageletRequest();
-        $searchPageletRequest->setSearchTerm($event->getRequest()->get(self::SEARCH_TERM_PARAMETER, ''));
+        //$searchPageletRequest = $event->getSearchPageletRequest();
     }
 }

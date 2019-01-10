@@ -3,14 +3,12 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletStruct;
 use Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletStruct;
 
 class ListingPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
-
     /**
      * @var ListingPageletStruct
      */
@@ -20,6 +18,11 @@ class ListingPageStruct extends Struct
      * @var NavigationSidebarPageletStruct
      */
     protected $navigationSidebar;
+
+    /**
+     * @var ContentHeaderPageletStruct
+     */
+    protected $header;
 
     /**
      * @return ListingPageletStruct
@@ -35,6 +38,16 @@ class ListingPageStruct extends Struct
     public function setListing(ListingPageletStruct $listing): void
     {
         $this->listing = $listing;
+    }
+
+    public function getHeader(): ContentHeaderPageletStruct
+    {
+        return $this->header;
+    }
+
+    public function setHeader(ContentHeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 
     /**

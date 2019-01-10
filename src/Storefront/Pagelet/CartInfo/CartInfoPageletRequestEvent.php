@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CartInfoPageletRequestEvent extends NestedEvent
 {
-    public const NAME = 'cartinfo.pagelet.request.event';
+    public const NAME = 'cart-info.pagelet.request.event';
 
     /**
      * @var Request
@@ -53,7 +53,7 @@ class CartInfoPageletRequestEvent extends NestedEvent
         return $this->request;
     }
 
-    public function getCartinfoPageletRequest(): CartInfoPageletRequest
+    public function getCartInfoPageletRequest(): CartInfoPageletRequest
     {
         return $this->cartInfoPageletRequest;
     }

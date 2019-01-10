@@ -5,8 +5,7 @@ namespace Shopware\Storefront\Pagelet\Search;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
 use Shopware\Storefront\Event\ListingEvents;
-use Shopware\Storefront\Page\Search\SearchPageRequest;
-use Shopware\Storefront\Page\Search\SearchPageRequestEvent;
+use Shopware\Storefront\Event\SearchEvents;
 use Shopware\Storefront\Pagelet\Listing\PageCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -28,11 +27,11 @@ class SearchTermSubscriber implements EventSubscriberInterface
     {
         return [
             ListingEvents::CRITERIA_CREATED => 'buildCriteria',
-            \Shopware\Storefront\Event\SearchEvents::SEARCH_PAGE_REQUEST => 'transformRequest',
+            SearchEvents::SEARCH_PAGELET_REQUEST => 'transformRequest',
         ];
     }
 
-    public function transformRequest(SearchPageRequestEvent $event): void
+    public function transformRequest(SearchPageletRequestEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -40,25 +39,25 @@ class SearchTermSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $page = $event->getSearchPageRequest();
+        $page = $event->getSearchPageletRequest();
 
-        $page->getSearchRequest()->setSearchTerm(
+        $page->setSearchTerm(
             trim((string) $request->query->get(self::TERM_PARAMETER))
         );
     }
 
     public function buildCriteria(PageCriteriaCreatedEvent $event): void
     {
-        /** @var SearchPageRequest $request */
+        /** @var SearchPageletRequest $request */
         $request = $event->getRequest();
 
-        if (!$event->getRequest() instanceof SearchPageRequest) {
+        if (!$event->getRequest() instanceof SearchPageletRequest) {
             return;
         }
 
         $this->searchBuilder->build(
             $event->getCriteria(),
-            $request->getSearchRequest()->getSearchTerm(),
+            $request->getSearchTerm(),
             ProductDefinition::class,
             $event->getContext()
         );

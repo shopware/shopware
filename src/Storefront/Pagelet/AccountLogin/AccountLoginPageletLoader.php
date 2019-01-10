@@ -25,13 +25,13 @@ class AccountLoginPageletLoader
     }
 
     /**
-     * @param LoginPageletRequest $request
-     * @param CheckoutContext     $context
+     * @param AccountLoginPageletRequest $request
+     * @param CheckoutContext            $context
      *
-     * @return LoginPageletStruct
+     * @return AccountLoginPageletStruct
      */
-    public function load(LoginPageletRequest $request, CheckoutContext $context): LoginPageletStruct
+    public function load(AccountLoginPageletRequest $request, CheckoutContext $context): AccountLoginPageletStruct
     {
-        return new LoginPageletStruct();
+        return new AccountLoginPageletStruct();
     }
 }

@@ -4,12 +4,19 @@ namespace Shopware\Storefront\Page\ProductDetail;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\HttpFoundation\Request;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
+use Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoadedEvent;
 
-class ProductDetailPageLoadedEvent extends Event
+class ProductDetailPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'detail.page.loaded.event';
+    public const NAME = 'product-detail.page.loaded';
+
+    /**
+     * @var ProductDetailPageStruct
+     */
+    protected $page;
 
     /**
      * @var CheckoutContext
@@ -17,20 +24,23 @@ class ProductDetailPageLoadedEvent extends Event
     protected $context;
 
     /**
-     * @var Request
+     * @var ProductDetailPageRequest
      */
     protected $request;
 
-    /**
-     * @var ProductDetailPageRequest
-     */
-    protected $productDetailPageRequest;
-
-    public function __construct(Request $request, CheckoutContext $context, ProductDetailPageRequest $detailPageRequest)
+    public function __construct(ProductDetailPageStruct $page, CheckoutContext $context, ProductDetailPageRequest $request)
     {
+        $this->page = $page;
         $this->context = $context;
         $this->request = $request;
-        $this->productDetailPageRequest = $detailPageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
+            new ProductDetailPageletLoadedEvent($this->page->getProductDetail(), $this->context, $this->request->getProductDetailRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +58,13 @@ class ProductDetailPageLoadedEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getPage(): ProductDetailPageStruct
     {
-        return $this->request;
+        return $this->page;
     }
 
-    public function getDetailPageRequest(): ProductDetailPageRequest
+    public function getRequest(): ProductDetailPageRequest
     {
-        return $this->productDetailPageRequest;
+        return $this->request;
     }
 }

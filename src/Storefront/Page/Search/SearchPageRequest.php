@@ -3,17 +3,26 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestTrait;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
 use Shopware\Storefront\Pagelet\Search\SearchPageletRequest;
 
 class SearchPageRequest extends Struct
 {
-    use HeaderPageletRequestTrait;
-
     /**
      * @var SearchPageletRequest
      */
     protected $searchRequest;
+
+    /**
+     * @var ContentHeaderPageletRequest
+     */
+    protected $headerRequest;
+
+    public function __construct()
+    {
+        $this->searchRequest = new SearchPageletRequest();
+        $this->headerRequest = new ContentHeaderPageletRequest();
+    }
 
     /**
      * @return SearchPageletRequest
@@ -23,11 +32,8 @@ class SearchPageRequest extends Struct
         return $this->searchRequest;
     }
 
-    /**
-     * @param SearchPageletRequest $searchRequest
-     */
-    public function setSearchRequest(SearchPageletRequest $searchRequest): void
+    public function getHeaderRequest(): ContentHeaderPageletRequest
     {
-        $this->searchRequest = $searchRequest;
+        return $this->headerRequest;
     }
 }

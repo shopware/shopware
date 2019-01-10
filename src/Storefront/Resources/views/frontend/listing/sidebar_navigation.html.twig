@@ -23,8 +23,8 @@
 
             {% block frontend_index_categories_left_entry %}
                 {# @var navigation \Shopware\Storefront\Navigation\Navigation #}
-                <li class="navigation--entry{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} has--sub-children{% endif %}" role="menuitem">
-                    <a class="navigation--link{% if navigation.isCategorySelected(category) %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} link--go-forward{% endif %}"
+                <li class="navigation--entry{% if category.id == navigation.activeCategory.id or category.id in navigation.activeCategory.path %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} has--sub-children{% endif %}" role="menuitem">
+                    <a class="navigation--link{% if category.id == navigation.activeCategory.id or category.id in navigation.activeCategory.path %} is--active{% endif %}{% if children %} has--sub-categories{% endif %}{% if children|length > 0 %} link--go-forward{% endif %}"
                        href="{{ url }}"
                        data-categoryId="{{ category.id }}"
                        data-fetchUrl="{url module=widgets controller=listing action=getCategory categoryId={$category.id}}"
@@ -49,4 +49,4 @@
     </ul>
 {% endmacro categories %}
 
-{{ menu.categories(navigation, navigation.tree) }}
+{{ menu.categories(page.navigationSidebar, page.navigationSidebar.tree) }}

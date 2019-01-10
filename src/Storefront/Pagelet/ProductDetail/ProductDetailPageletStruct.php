@@ -18,12 +18,6 @@ class ProductDetailPageletStruct extends PageletStruct
      */
     protected $configurator;
 
-    public function __construct(ProductEntity $product = null)
-    {
-        $this->product = $product;
-        $this->configurator = new ProductConfiguratorCollection();
-    }
-
     public function getConfigurator(): ProductConfiguratorCollection
     {
         return $this->configurator;

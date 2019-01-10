@@ -4,12 +4,15 @@ namespace Shopware\Storefront\Page\AccountOrder;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletRequestEvent;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountOrderPageRequestEvent extends Event
+class AccountOrderPageRequestEvent extends NestedEvent
 {
-    public const NAME = 'accountorder.page.request.event';
+    public const NAME = 'account-order.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +22,26 @@ class AccountOrderPageRequestEvent extends Event
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var AccountOrderPageRequest
      */
-    protected $accountorderPageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, AccountOrderPageRequest $accountorderPageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, AccountOrderPageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->accountorderPageRequest = $accountorderPageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new AccountOrderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getAccountOrderRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +59,13 @@ class AccountOrderPageRequestEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getAccountOrderPageRequest(): AccountOrderPageRequest
     {
-        return $this->accountorderPageRequest;
+        return $this->pageRequest;
     }
 }

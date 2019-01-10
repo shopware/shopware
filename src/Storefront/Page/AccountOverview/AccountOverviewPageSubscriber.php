@@ -16,6 +16,7 @@ class AccountOverviewPageSubscriber implements EventSubscriberInterface
 
     public function transformRequest(AccountOverviewPageRequestEvent $event): void
     {
-        $accountoverviewPageRequest = $event->getAccountOverviewPageRequest();
+        //$accountOverviewPageRequest = $event->getAccountOverviewPageRequest();
+        //$accountOverviewPageRequest->getAccountOverviewRequest()->setxxx($event->getHttpRequest()->attributes->get('xxx'));
     }
 }

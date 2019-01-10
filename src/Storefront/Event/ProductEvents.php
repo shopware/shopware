@@ -13,19 +13,19 @@ class ProductEvents
      *
      * @Event("ProductProductPageLoadedEvent")
      */
-    public const LOADED = ProductDetailPageLoadedEvent::NAME;
+    public const PRODUCTDETAIL_PAGE_LOADED = ProductDetailPageLoadedEvent::NAME;
 
     /**
      * Fired when a product page request comes in and transformed to the DetailRequest object
      *
      * @Event("ProductDetailPageRequestEvent")
      */
-    public const DETAIL_PAGE_REQUEST = ProductDetailPageRequestEvent::NAME;
+    public const PRODUCTDETAIL_PAGE_REQUEST = ProductDetailPageRequestEvent::NAME;
 
     /**
      * Fired when a product page request comes in and transformed to the DetailRequest object
      *
      * @Event("ProductDetailPageletRequestEvent")
      */
-    public const DETAIL_PAGELET_REQUEST = ProductDetailPageletRequestEvent::NAME;
+    public const PRODUCTDETAIL_PAGELET_REQUEST = ProductDetailPageletRequestEvent::NAME;
 }

@@ -60,35 +60,13 @@ class ListingPageletStruct extends PageletStruct
      */
     protected $navigationId;
 
-    public function __construct(
-        ?string $navigationId = '',
-        ?EntitySearchResult $products = null,
-        ?Criteria $criteria = null,
-        int $currentPage = 1,
-        int $pageCount = 1,
-        bool $showListing = true,
-        ?string $currentSorting = null,
-        string $productBoxLayout = 'basic',
-        ?AggregationViewCollection $aggregations = null,
-        ?ListingSortingCollection $sortings = null
-    ) {
-        $this->products = $products;
-        $this->criteria = $criteria;
-        $this->showListing = $showListing;
-        $this->currentPage = $currentPage;
-        $this->pageCount = $pageCount;
-        $this->currentSorting = $currentSorting;
-        $this->productBoxLayout = $productBoxLayout;
-
-        $aggregations = $aggregations ?? new AggregationViewCollection();
-        $sortings = $sortings ?? new ListingSortingCollection();
-
-        $this->aggregations = $aggregations;
-        $this->sortings = $sortings;
-        $this->navigationId = $navigationId;
+    public function __construct()
+    {
+        $this->aggregations = new AggregationViewCollection();
+        $this->sortings = new ListingSortingCollection();
     }
 
-    public function getProducts(): EntitySearchResult
+    public function getProducts(): ?EntitySearchResult
     {
         return $this->products;
     }
@@ -98,7 +76,7 @@ class ListingPageletStruct extends PageletStruct
         $this->products = $products;
     }
 
-    public function getCriteria(): Criteria
+    public function getCriteria(): ?Criteria
     {
         return $this->criteria;
     }

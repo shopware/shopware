@@ -4,12 +4,15 @@ namespace Shopware\Storefront\Page\ProductDetail;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
+use Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProductDetailPageRequestEvent extends Event
+class ProductDetailPageRequestEvent extends NestedEvent
 {
-    public const NAME = 'detail.page.request.event';
+    public const NAME = 'product-detail.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +22,26 @@ class ProductDetailPageRequestEvent extends Event
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var ProductDetailPageRequest
      */
-    protected $productDetailPageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, ProductDetailPageRequest $detailPageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, ProductDetailPageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->productDetailPageRequest = $detailPageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new ProductDetailPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getProductDetailRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +59,13 @@ class ProductDetailPageRequestEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
-    public function getDetailPageRequest(): ProductDetailPageRequest
+    public function getProductDetailPageRequest(): ProductDetailPageRequest
     {
-        return $this->productDetailPageRequest;
+        return $this->pageRequest;
     }
 }

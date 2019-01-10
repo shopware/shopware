@@ -3,7 +3,8 @@
 namespace Shopware\Storefront\Page\AccountAddress;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStruct;
+use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletStruct;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 
 class AccountAddressPageStruct extends Struct
 {
@@ -13,7 +14,7 @@ class AccountAddressPageStruct extends Struct
     protected $accountAddress;
 
     /**
-     * @var HeaderPageletStruct
+     * @var ContentHeaderPageletStruct
      */
     protected $header;
 
@@ -33,12 +34,12 @@ class AccountAddressPageStruct extends Struct
         $this->accountAddress = $accountAddress;
     }
 
-    public function getHeader(): HeaderPageletStruct
+    public function getHeader(): ContentHeaderPageletStruct
     {
         return $this->header;
     }
 
-    public function setHeader(HeaderPageletStruct $header): void
+    public function setHeader(ContentHeaderPageletStruct $header): void
     {
         $this->header = $header;
     }

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductDetailPageletRequestEvent extends NestedEvent
 {
-    public const NAME = 'detail.pagelet.request.event';
+    public const NAME = 'product-detail.pagelet.request.event';
 
     /**
      * @var CheckoutContext
@@ -19,7 +19,7 @@ class ProductDetailPageletRequestEvent extends NestedEvent
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var ProductDetailPageletRequest
@@ -29,7 +29,7 @@ class ProductDetailPageletRequestEvent extends NestedEvent
     public function __construct(Request $request, CheckoutContext $context, ProductDetailPageletRequest $detailPageletRequest)
     {
         $this->context = $context;
-        $this->request = $request;
+        $this->httpRequest = $request;
         $this->detailPageletRequest = $detailPageletRequest;
     }
 
@@ -48,9 +48,9 @@ class ProductDetailPageletRequestEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getDetailPageletRequest(): ProductDetailPageletRequest

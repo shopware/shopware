@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Action\AccountEmail\EmailSaveRequest;
+use Shopware\Storefront\Action\AccountEmail\AccountEmailSaveRequest;
 
 class PageRequestTest extends TestCase
 {
@@ -33,7 +33,7 @@ class PageRequestTest extends TestCase
 
         $extension = new MyCustomExtension('property value');
 
-        $pageRequest = new EmailSaveRequest();
+        $pageRequest = new AccountEmailSaveRequest();
         $pageRequest->addExtension('customExtension', $extension);
 
         $originalData = [[

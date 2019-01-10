@@ -4,12 +4,15 @@ namespace Shopware\Storefront\Page\AccountOverview;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletRequestEvent;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountOverviewPageRequestEvent extends Event
+class AccountOverviewPageRequestEvent extends NestedEvent
 {
-    public const NAME = 'accountoverview.page.request.event';
+    public const NAME = 'account-overview.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +22,26 @@ class AccountOverviewPageRequestEvent extends Event
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var AccountOverviewPageRequest
      */
-    protected $accountoverviewPageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, AccountOverviewPageRequest $accountoverviewPageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, AccountOverviewPageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->accountoverviewPageRequest = $accountoverviewPageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new AccountProfilePageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getAccountProfileRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +59,13 @@ class AccountOverviewPageRequestEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getAccountOverviewPageRequest(): AccountOverviewPageRequest
     {
-        return $this->accountoverviewPageRequest;
+        return $this->pageRequest;
     }
 }

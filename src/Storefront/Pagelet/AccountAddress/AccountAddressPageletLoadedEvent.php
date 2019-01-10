@@ -1,15 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Pagelet\AccountAddress;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Storefront\Page\AccountAddress\AccountAddressPageletStruct;
 
 class AccountAddressPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'account-address.pagelet.loaded';
+    public const NAME = 'account-address.pagelet.loaded.event';
 
     /**
      * @var AccountAddressPageletStruct
@@ -22,14 +21,14 @@ class AccountAddressPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var AddressPageletRequest
+     * @var AccountAddressPageletRequest
      */
     protected $request;
 
     public function __construct(
         AccountAddressPageletStruct $pagelet,
         CheckoutContext $context,
-        AddressPageletRequest $request
+        AccountAddressPageletRequest $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -56,7 +55,7 @@ class AccountAddressPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): AddressPageletRequest
+    public function getRequest(): AccountAddressPageletRequest
     {
         return $this->request;
     }

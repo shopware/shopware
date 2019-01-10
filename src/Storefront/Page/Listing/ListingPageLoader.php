@@ -3,40 +3,43 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletLoader;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletLoader;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader;
 use Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingPageLoader
 {
     /**
+     * @var ListingPageletLoader
+     */
+    private $listingPageletLoader;
+
+    /**
+     * @var NavigationSidebarPageletLoader
+     */
+    private $navigationSidebarPageletLoader;
+
+    /**
+     * @var ContentHeaderPageletLoader
+     */
+    private $headerPageletLoader;
+
+    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
     public function __construct(
+        ListingPageletLoader $listingPageletLoader,
+        NavigationSidebarPageletLoader $navigationSidebarPageletLoader,
+        ContentHeaderPageletLoader $headerPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
+        $this->listingPageletLoader = $listingPageletLoader;
+        $this->navigationSidebarPageletLoader = $navigationSidebarPageletLoader;
+        $this->headerPageletLoader = $headerPageletLoader;
         $this->eventDispatcher = $eventDispatcher;
-    }
-
-    /**
-     * @param ContainerInterface|null $container
-     */
-    public function setContainer(ContainerInterface $container = null): void
-    {
-        $this->container = $container;
     }
 
     /**
@@ -50,47 +53,21 @@ class ListingPageLoader
     public function load(ListingPageRequest $request, CheckoutContext $context): ListingPageStruct
     {
         $page = new ListingPageStruct();
-
-        /** @var ListingPageletLoader $listingLoader */
-        $listingLoader = $this->container->get(ListingPageletLoader::class);
         $page->setListing(
-            $listingLoader->load($request->getListingRequest(), $context)
+            $this->listingPageletLoader->load($request->getListingRequest(), $context)
         );
 
-        /** @var NavigationSidebarPageletLoader $navigationSidebarLoader */
-        $navigationSidebarLoader = $this->container->get(NavigationSidebarPageletLoader::class);
         $page->setNavigationSidebar(
-            $navigationSidebarLoader->load($request->getNavigationSidebarRequest(), $context)
+            $this->navigationSidebarPageletLoader->load($request->getNavigationSidebarRequest(), $context)
         );
 
-        /** @var NavigationPageletLoader $navigationLoader */
-        $navigationLoader = $this->container->get(NavigationPageletLoader::class);
-        $page->setNavigation(
-            $navigationLoader->load($request->getNavigationRequest(), $context)
+        $page->setHeader(
+            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
         );
 
-        /** @var CartInfoPageletLoader $cartinfoLoader */
-        $cartinfoLoader = $this->container->get(CartInfoPageletLoader::class);
-        $page->setCartInfo(
-            $cartinfoLoader->load($request->getCartInfoRequest(), $context)
-        );
-
-        /** @var ShopmenuPageletLoader $shopmenuLoader */
-        $shopmenuLoader = $this->container->get(ShopmenuPageletLoader::class);
-        $page->setShopmenu(
-            $shopmenuLoader->load($request->getShopmenuRequest(), $context)
-        );
-
-        /** @var LanguagePageletLoader $languageLoader */
-        $languageLoader = $this->container->get(LanguagePageletLoader::class);
-        $page->setLanguage(
-            $languageLoader->load($request->getLanguageRequest(), $context)
-        );
-
-        /** @var CurrencyPageletLoader $currencyLoader */
-        $currencyLoader = $this->container->get(CurrencyPageletLoader::class);
-        $page->setCurrency(
-            $currencyLoader->load($request->getCurrencyRequest(), $context)
+        $this->eventDispatcher->dispatch(
+            ListingPageLoadedEvent::NAME,
+            new ListingPageLoadedEvent($page, $context, $request)
         );
 
         return $page;

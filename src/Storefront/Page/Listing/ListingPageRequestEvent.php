@@ -5,11 +5,15 @@ namespace Shopware\Storefront\Page\Listing;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletRequestEvent;
+use Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageRequestEvent extends NestedEvent
 {
-    public const NAME = 'listing.page.request.event';
+    public const NAME = 'listing.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +23,27 @@ class ListingPageRequestEvent extends NestedEvent
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var ListingPageRequest
      */
-    protected $listingPageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, ListingPageRequest $listingPageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, ListingPageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->listingPageRequest = $listingPageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new NavigationSidebarPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getNavigationSidebarRequest()),
+            new ListingPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getListingRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +61,13 @@ class ListingPageRequestEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getListingPageRequest(): ListingPageRequest
     {
-        return $this->listingPageRequest;
+        return $this->pageRequest;
     }
 }

@@ -27,7 +27,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            \Shopware\Storefront\Event\ListingEvents::CRITERIA_CREATED => 'buildCriteria',
+            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
             ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
             ListingEvents::LISTING_PAGELET_REQUEST => 'transformRequest',
         ];
@@ -82,6 +82,10 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
     public function buildPage(ListingPageletLoadedEvent $event): void
     {
         $page = $event->getPage();
+
+        if (!$page->getProducts()) {
+            return;
+        }
 
         $result = $page->getProducts()->getAggregations();
 

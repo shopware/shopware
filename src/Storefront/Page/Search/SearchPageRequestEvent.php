@@ -4,12 +4,15 @@ namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
+use Shopware\Storefront\Pagelet\Search\SearchPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class SearchPageRequestEvent extends Event
+class SearchPageRequestEvent extends NestedEvent
 {
-    public const NAME = 'search.page.request.event';
+    public const NAME = 'search.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +22,26 @@ class SearchPageRequestEvent extends Event
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var SearchPageRequest
      */
-    protected $searchPageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, SearchPageRequest $searchPageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, SearchPageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->searchPageRequest = $searchPageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new SearchPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getSearchRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +59,13 @@ class SearchPageRequestEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getSearchPageRequest(): SearchPageRequest
     {
-        return $this->searchPageRequest;
+        return $this->pageRequest;
     }
 }

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccountOrderPageletRequestEvent extends NestedEvent
 {
-    public const NAME = 'accountorder.pagelet.request.event';
+    public const NAME = 'account-order.pagelet.request.event';
 
     /**
      * @var CheckoutContext

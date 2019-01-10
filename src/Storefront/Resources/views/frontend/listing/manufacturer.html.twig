@@ -35,7 +35,7 @@
             {#data-ajaxUrl="{url module="widgets" controller="Listing" action="ajaxListing" sSupplier=$manufacturer->getId()}"#}
             data-loadPreviousSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadPrevious{% endtrans %}"
             data-loadMoreSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadMore{% endtrans %}"
-            data-categoryId="{{ listing.navigationId }}"
+            data-categoryId="{{ page.listing.navigationId }}"
             data-pages="{{ pages }}"
             data-threshold="{{ theme.infiniteThreshold }}"{% endif %}>
 

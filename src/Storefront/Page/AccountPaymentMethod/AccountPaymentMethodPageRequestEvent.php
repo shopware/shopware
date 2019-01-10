@@ -4,12 +4,15 @@ namespace Shopware\Storefront\Page\AccountPaymentMethod;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\EventDispatcher\Event;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletRequestEvent;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountPaymentMethodPageRequestEvent extends Event
+class AccountPaymentMethodPageRequestEvent extends NestedEvent
 {
-    public const NAME = 'accountPaymentMethod.page.request.event';
+    public const NAME = 'account-paymentmethod.page.request';
 
     /**
      * @var CheckoutContext
@@ -19,18 +22,26 @@ class AccountPaymentMethodPageRequestEvent extends Event
     /**
      * @var Request
      */
-    protected $request;
+    protected $httpRequest;
 
     /**
      * @var AccountPaymentMethodPageRequest
      */
-    protected $accountPaymentMethodPageRequest;
+    protected $pageRequest;
 
-    public function __construct(Request $request, CheckoutContext $context, AccountPaymentMethodPageRequest $accountPaymentMethodPageRequest)
+    public function __construct(Request $httpRequest, CheckoutContext $context, AccountPaymentMethodPageRequest $pageRequest)
     {
         $this->context = $context;
-        $this->request = $request;
-        $this->accountPaymentMethodPageRequest = $accountPaymentMethodPageRequest;
+        $this->httpRequest = $httpRequest;
+        $this->pageRequest = $pageRequest;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        return new NestedEventCollection([
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new AccountPaymentMethodPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getAccountPaymentMethodRequest()),
+        ]);
     }
 
     public function getName(): string
@@ -48,13 +59,13 @@ class AccountPaymentMethodPageRequestEvent extends Event
         return $this->context;
     }
 
-    public function getRequest(): Request
+    public function getHttpRequest(): Request
     {
-        return $this->request;
+        return $this->httpRequest;
     }
 
     public function getAccountPaymentMethodPageRequest(): AccountPaymentMethodPageRequest
     {
-        return $this->accountPaymentMethodPageRequest;
+        return $this->pageRequest;
     }
 }

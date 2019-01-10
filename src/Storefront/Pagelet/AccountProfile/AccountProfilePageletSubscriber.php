@@ -16,6 +16,6 @@ class AccountProfilePageletSubscriber implements EventSubscriberInterface
 
     public function transformRequest(AccountProfilePageletRequestEvent $event): void
     {
-        $accountprofilePageletRequest = $event->getAccountProfilePageletRequest();
+        //$accountprofilePageletRequest = $event->getAccountProfilePageletRequest();
     }
 }

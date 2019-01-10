@@ -16,6 +16,7 @@ class AccountProfilePageSubscriber implements EventSubscriberInterface
 
     public function transformRequest(AccountProfilePageRequestEvent $event): void
     {
-        $accountprofilePageRequest = $event->getAccountProfilePageRequest();
+        //$accountProfilePageRequest = $event->getAccountProfilePageRequest();
+        //$accountProfilePageRequest->getAccountProfileRequest()->setxxx($event->getHttpRequest()->attributes->get('xxx'));
     }
 }

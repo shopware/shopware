@@ -4,17 +4,17 @@ namespace Shopware\Storefront\Event;
 
 use Shopware\Storefront\Page\AccountAddress\AccountAddressPageLoadedEvent;
 use Shopware\Storefront\Page\AccountAddress\AccountAddressPageRequestEvent;
-use Shopware\Storefront\Page\AccountLogin\LoginPageRequestEvent;
+use Shopware\Storefront\Page\AccountLogin\AccountLoginPageRequestEvent;
 use Shopware\Storefront\Page\AccountOrder\AccountOrderPageRequestEvent;
 use Shopware\Storefront\Page\AccountOverview\AccountOverviewPageRequestEvent;
 use Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageRequestEvent;
 use Shopware\Storefront\Page\AccountProfile\AccountProfilePageRequestEvent;
-use Shopware\Storefront\Pagelet\AccountAddress\AddressPageletRequestEvent;
-use Shopware\Storefront\Pagelet\AccountLogin\LoginPageletRequestEvent;
+use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletRequestEvent;
+use Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletRequestEvent;
 use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletRequestEvent;
 use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletRequestEvent;
 use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletRequestEvent;
-use Shopware\Storefront\Pagelet\AccountRegistration\RegistrationPageletRequestEvent;
+use Shopware\Storefront\Pagelet\AccountRegistration\AccountRegistrationPageletRequestEvent;
 
 class AccountEvents
 {
@@ -44,14 +44,14 @@ class AccountEvents
      *
      * @Event("AccountPaymentMethodPageRequestEvent")
      */
-    public const ACCOUNT_PAYMENT_METHOD_PAGE_REQUEST = AccountPaymentMethodPageRequestEvent::NAME;
+    public const ACCOUNTPAYMENTMETHOD_PAGE_REQUEST = AccountPaymentMethodPageRequestEvent::NAME;
 
     /**
      * Fired when a AccountPaymentMethod pagelet request comes in and transformed to the AccountPaymentMethodPageletRequest object
      *
      * @Event("AccountPaymentMethodPageletRequestEvent")
      */
-    public const ACCOUNT_PAYMENT_METHOD_PAGELET_REQUEST = AccountPaymentMethodPageletRequestEvent::NAME;
+    public const ACCOUNTPAYMENTMETHOD_PAGELET_REQUEST = AccountPaymentMethodPageletRequestEvent::NAME;
 
     /**
      * Fired when a AccountProfile page request comes in and transformed to the AccountProfilePageRequest object
@@ -84,28 +84,28 @@ class AccountEvents
     /**
      * Fired when a Address pagelet request comes in and transformed to the AddressPageletRequest object
      *
-     * @Event("DetailPageletRequestEvent")
+     * @Event("AccountAddressPageletRequestEvent")
      */
-    public const ADDRESS_PAGELET_REQUEST = AddressPageletRequestEvent::NAME;
+    public const ADDRESS_PAGELET_REQUEST = AccountAddressPageletRequestEvent::NAME;
 
     /**
      * Fired when a Login page request comes in and transformed to the LoginPageRequest object
      *
-     * @Event("LoginPageRequestEvent")
+     * @Event("AccountLoginPageRequestEvent")
      */
-    public const LOGIN_PAGE_REQUEST = LoginPageRequestEvent::NAME;
+    public const ACCOUNTLOGIN_PAGE_REQUEST = AccountLoginPageRequestEvent::NAME;
 
     /**
      * Fired when a login pagelet request comes in and transformed to the LoginPageletRequest object
      *
-     * @Event("LoginPageletRequestEvent")
+     * @Event("AccountLoginPageletRequestEvent")
      */
-    public const LOGIN_PAGELET_REQUEST = LoginPageletRequestEvent::NAME;
+    public const ACCOUNTLOGIN_PAGELET_REQUEST = AccountLoginPageletRequestEvent::NAME;
 
     /**
      * Fired when a registration pagelet request comes in and transformed to the RegistrationPageletRequest object
      *
-     * @Event("RegistrationPageletRequestEvent")
+     * @Event("AccountRegistrationPageletRequestEvent")
      */
-    public const REGISTRATION_PAGELET_REQUEST = RegistrationPageletRequestEvent::NAME;
+    public const ACCOUNTREGISTRATION_PAGELET_REQUEST = AccountRegistrationPageletRequestEvent::NAME;
 }

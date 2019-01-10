@@ -15,30 +15,30 @@ class ListingEvents
     /**
      * Dispatched as soon as the search has been executed and the data is assigned to the view
      *
-     * @Event("Shopware\Storefront\Listing\Event\ListingPageLoadedEvent")
+     * @Event("ListingPageLoadedEvent")
      */
     public const LOADED = ListingPageLoadedEvent::NAME;
 
     /**
      * Dispatched as soon as the search has been executed and the data is assigned to the view
      *
-     * @Event("Shopware\Storefront\Listing\Event\ListingPageLoadedEvent")
+     * @Event("ListingPageLoadedEvent")
      */
     public const LISTING_PAGELET_LOADED = ListingPageletLoadedEvent::NAME;
 
     /**
      * Fired when a Criteria object is created for a product list in the storefront.
      *
-     * @Event("Shopware\Storefront\Listing\Listing\Event\PageCriteriaCreatedEvent")
+     * @Event("PageCriteriaCreatedEvent")
      */
     public const CRITERIA_CREATED = PageCriteriaCreatedEvent::NAME;
 
     /**
      * Fired when a listing page request comes in and transformed to the ListingRequest object
      *
-     * @Event("Shopware\Storefront\Listing\Event\ListingPageRequestEvent")
+     * @Event("ListingPageRequestEvent")
      */
-    public const REQUEST = ListingPageRequestEvent::NAME;
+    public const LISTING_PAGE_REQUEST = ListingPageRequestEvent::NAME;
 
     /**
      * Fired when a Navigation pagelet request comes in and transformed to the NavigationPageletRequest object
@@ -50,14 +50,14 @@ class ListingEvents
     /**
      * Fired when a Navigation sidebar pagelet request comes in and transformed to the NavigationSidebarPageletRequest object
      *
-     * @Event("Shopware\Storefront\Listing\Event\NavigationSidebarPageletRequestEvent")
+     * @Event("NavigationSidebarPageletRequestEvent")
      */
     public const NAVIGATIONSIDEBAR_PAGELET_REQUEST = NavigationSidebarPageletRequestEvent::NAME;
 
     /**
      * Fired when a Listing pagelet request comes in and transformed to the ListingPageletRequest object
      *
-     * @Event("Shopware\Storefront\Listing\Event\ListingPageletRequestEvent")
+     * @Event("ListingPageletRequestEvent")
      */
     public const LISTING_PAGELET_REQUEST = ListingPageletRequestEvent::NAME;
 }

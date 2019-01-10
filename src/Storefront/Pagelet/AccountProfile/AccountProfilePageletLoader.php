@@ -32,6 +32,9 @@ class AccountProfilePageletLoader
      */
     public function load(AccountProfilePageletRequest $request, CheckoutContext $context): AccountProfilePageletStruct
     {
-        return new AccountProfilePageletStruct($context->getCustomer());
+        $page = new AccountProfilePageletStruct();
+        $page->setCustomer($context->getCustomer());
+
+        return $page;
     }
 }

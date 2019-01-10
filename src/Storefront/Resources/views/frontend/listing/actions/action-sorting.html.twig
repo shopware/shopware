@@ -25,10 +25,10 @@
 
 
                 {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
-                {% for sorting in listing.sortings %}
+                {% for sorting in page.listing.sortings %}
                     {# @var sorting \Shopware\Core\System\Listing\ListingSortingEntity #}
                     {% block frontend_listing_actions_sort_field_release %}
-                        <option value="{{ sorting.uniqueKey }}"{% if listing.currentSorting == sorting.uniqueKey %} selected="selected"{% endif %}>{{ sorting.label }}</option>
+                        <option value="{{ sorting.uniqueKey }}"{% if page.listing.currentSorting == sorting.uniqueKey %} selected="selected"{% endif %}>{{ sorting.label }}</option>
                     {% endblock %}
                 {% endfor %}
 

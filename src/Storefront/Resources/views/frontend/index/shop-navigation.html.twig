@@ -32,10 +32,10 @@
         {% block frontend_index_checkout_actions %}
             {# Include of the cart #}
             {% block frontend_index_checkout_actions_include %}
-{% if cartInfo.deferred %}
-    {{ render_hinclude(controller('Storefront/Checkout:Widget/Checkout:info'), {'default': 'Loading...'}) }}
+{% if page.header.cartInfo.defered %}
+    {{ render_hinclude(controller('Storefront:CheckoutPagelet:info'), {'default': 'Loading...'}) }}
 {% else %}
-    {% sw_include "@Storefront/frontend/checkout/info.html.twig" %}
+    {% sw_include "@Storefront/frontend/checkout/info.html.twig" with {'cartInfo' : header.cartInfo} %}
 {% endif %}
 {% endblock %}
 {% endblock %}

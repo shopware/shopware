@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Pagelet\Listing;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Storefront\Event\ListingEvents;
+use Shopware\Storefront\Event\SearchEvents;
+use Shopware\Storefront\Pagelet\Search\SearchPageletRequestEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PaginationSubscriber implements EventSubscriberInterface
@@ -17,12 +19,13 @@ class PaginationSubscriber implements EventSubscriberInterface
     {
         return [
             ListingEvents::CRITERIA_CREATED => 'buildCriteria',
-            \Shopware\Storefront\Event\ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
-            \Shopware\Storefront\Event\ListingEvents::LISTING_PAGELET_REQUEST => 'transformRequest',
+            ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
+            ListingEvents::LISTING_PAGELET_REQUEST => 'transformListingRequest',
+            SearchEvents::SEARCH_PAGELET_REQUEST => 'transformSearchRequest',
         ];
     }
 
-    public function transformRequest(ListingPageletRequestEvent $event): void
+    public function transformListingRequest(ListingPageletRequestEvent $event): void
     {
         $page = $event->getRequest()->query->getInt(self::PAGE_PARAMETER);
         if ($page <= 0) {
@@ -30,10 +33,18 @@ class PaginationSubscriber implements EventSubscriberInterface
         }
 
         $listingPageletRequest = $event->getListingPageletRequest();
-        $listingPageletRequest->setPage($page);
-        $listingPageletRequest->setLimit(
-            $event->getRequest()->query->getInt(self::LIMIT_PARAMETER, 20)
-        );
+        $this->transformToRequest($event, $listingPageletRequest, $page);
+    }
+
+    public function transformSearchRequest(SearchPageletRequestEvent $event): void
+    {
+        $page = $event->getRequest()->query->getInt(self::PAGE_PARAMETER);
+        if ($page <= 0) {
+            $page = 1;
+        }
+
+        $listingPageletRequest = $event->getSearchPageletRequest();
+        $this->transformToRequest($event, $listingPageletRequest, $page);
     }
 
     public function buildCriteria(PageCriteriaCreatedEvent $event): void
@@ -53,6 +64,9 @@ class PaginationSubscriber implements EventSubscriberInterface
     public function buildPage(ListingPageletLoadedEvent $event): void
     {
         $page = $event->getPage();
+        if (!$page->getCriteria()) {
+            return;
+        }
         $criteria = $page->getCriteria();
 
         $currentPage = (int) (($criteria->getOffset() + $criteria->getLimit()) / $criteria->getLimit());
@@ -71,5 +85,18 @@ class PaginationSubscriber implements EventSubscriberInterface
         }
 
         return $pageCount + $currentPage;
+    }
+
+    /**
+     * @param ListingPageletRequestEventInterface $event
+     * @param ListingPageletRequestInterface      $listingPageletRequest
+     * @param int                                 $page
+     */
+    private function transformToRequest(ListingPageletRequestEventInterface $event, ListingPageletRequestInterface $listingPageletRequest, $page): void
+    {
+        $listingPageletRequest->setPage($page);
+        $listingPageletRequest->setLimit(
+            $event->getRequest()->query->getInt(self::LIMIT_PARAMETER, 20)
+        );
     }
 }

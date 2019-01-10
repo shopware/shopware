@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Pagelet\CartInfo;
 
@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\NestedEvent;
 
 class CartInfoPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'cart-info.pagelet.loaded';
+    public const NAME = 'cart-info.pagelet.loaded.event';
 
     /**
      * @var CartInfoPageletStruct

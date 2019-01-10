@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Pagelet\Shopmenu;
 
@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\NestedEvent;
 
 class ShopmenuPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'shopmenu.pagelet.loaded';
+    public const NAME = 'shopmenu.pagelet.loaded.event';
 
     /**
      * @var ShopmenuPageletStruct

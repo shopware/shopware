@@ -12,13 +12,14 @@ class ProductDetailPageletSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ProductEvents::DETAIL_PAGELET_REQUEST => 'transformRequest',
+            ProductEvents::PRODUCTDETAIL_PAGELET_REQUEST => 'transformRequest',
         ];
     }
 
     public function transformRequest(ProductDetailPageletRequestEvent $event): void
     {
         $detailPageletRequest = $event->getDetailPageletRequest();
-        $detailPageletRequest->setGroup($event->getRequest()->get(self::GROUP_PARAMETER, []));
+        $detailPageletRequest->setProductId($event->getHttpRequest()->attributes->get('id'));
+        $detailPageletRequest->setGroup($event->getHttpRequest()->get(self::GROUP_PARAMETER, []));
     }
 }

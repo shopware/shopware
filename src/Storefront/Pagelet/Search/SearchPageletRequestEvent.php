@@ -5,9 +5,11 @@ namespace Shopware\Storefront\Pagelet\Search;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletRequestEventInterface;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletRequestInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class SearchPageletRequestEvent extends NestedEvent
+class SearchPageletRequestEvent extends NestedEvent implements ListingPageletRequestEventInterface
 {
     public const NAME = 'search.pagelet.request.event';
 
@@ -54,6 +56,11 @@ class SearchPageletRequestEvent extends NestedEvent
     }
 
     public function getSearchPageletRequest(): SearchPageletRequest
+    {
+        return $this->searchPageletRequest;
+    }
+
+    public function getListingPageletRequest(): ListingPageletRequestInterface
     {
         return $this->searchPageletRequest;
     }

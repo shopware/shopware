@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class ListingPageletRequestEvent extends NestedEvent
+class ListingPageletRequestEvent extends NestedEvent implements ListingPageletRequestEventInterface
 {
     public const NAME = 'listing.pagelet.request.event';
 
@@ -53,7 +53,7 @@ class ListingPageletRequestEvent extends NestedEvent
         return $this->request;
     }
 
-    public function getListingPageletRequest(): ListingPageletRequest
+    public function getListingPageletRequest(): ListingPageletRequestInterface
     {
         return $this->listingPageletRequest;
     }

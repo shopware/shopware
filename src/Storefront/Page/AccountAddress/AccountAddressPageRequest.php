@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Page\AccountAddress;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\AccountAddress\AddressPageletRequest;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequest;
+use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletRequest;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
 
 class AccountAddressPageRequest extends Struct
 {
@@ -14,27 +14,27 @@ class AccountAddressPageRequest extends Struct
     protected $redirectTo;
 
     /**
-     * @var AddressPageletRequest
+     * @var AccountAddressPageletRequest
      */
-    protected $addressRequest;
+    protected $accountAddressRequest;
 
     /**
-     * @var HeaderPageletRequest
+     * @var ContentHeaderPageletRequest
      */
     protected $headerRequest;
 
     public function __construct()
     {
-        $this->addressRequest = new AddressPageletRequest();
-        $this->headerRequest = new HeaderPageletRequest();
+        $this->accountAddressRequest = new AccountAddressPageletRequest();
+        $this->headerRequest = new ContentHeaderPageletRequest();
     }
 
     /**
-     * @return AddressPageletRequest
+     * @return AccountAddressPageletRequest
      */
-    public function getAddressRequest(): AddressPageletRequest
+    public function getAccountAddressRequest(): AccountAddressPageletRequest
     {
-        return $this->addressRequest;
+        return $this->accountAddressRequest;
     }
 
     /**
@@ -53,7 +53,7 @@ class AccountAddressPageRequest extends Struct
         $this->redirectTo = $redirectTo;
     }
 
-    public function getHeaderRequest(): HeaderPageletRequest
+    public function getHeaderRequest(): ContentHeaderPageletRequest
     {
         return $this->headerRequest;
     }

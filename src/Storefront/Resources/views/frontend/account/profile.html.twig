@@ -74,7 +74,7 @@
                                                    name="profile[title]"
                                                    type="text"
                                                    placeholder="{% trans %}frontend.account.personal_fieldset.RegisterPlaceholderTitle{% endtrans %}"
-                                                   value="{{ formData.profile.title|default(profile.customer.title)|escape }}"
+                                                   value="{{ formData.profile.title|default(page.profile.customer.title)|escape }}"
                                                    class="profile--field{% if errorFlags.title %} has--error{% endif %}" />
                                         </div>
                                     {% endif %}
@@ -89,7 +89,7 @@
                                                required="required"
                                                aria-required="true"
                                                placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderFirstname{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
-                                               value="{{ formData.profile.firstName|default(profile.customer.firstName)|escape }}" class="profile--field is--required{% if errorFlags.firstName %} has--error{% endif %}"
+                                               value="{{ formData.profile.firstName|default(page.profile.customer.firstName)|escape }}" class="profile--field is--required{% if errorFlags.firstName %} has--error{% endif %}"
                                         />
                                     </div>
                                 {% endblock %}
@@ -103,7 +103,7 @@
                                                required="required"
                                                aria-required="true"
                                                placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderLastname{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
-                                               value="{{ formData.profile.lastName|default(profile.customer.lastName)|escape }}"
+                                               value="{{ formData.profile.lastName|default(page.profile.customer.lastName)|escape }}"
                                                class="profile--field is--required{% if errorFlags.lastName %} has--error{% endif %}"
                                         />
                                     </div>
@@ -128,7 +128,7 @@
                                                         </option>
 
                                                         {% for day in 1..31 %}
-                                                            <option value="{{ day }}" {% if day == formData.profile.birthday.day|default(profile.customer.birthday|date('j')) %} selected{% endif %}>{{ day }}</option>
+                                                            <option value="{{ day }}" {% if day == formData.profile.birthday.day|default(page.profile.customer.birthday|date('j')) %} selected{% endif %}>{{ day }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -145,7 +145,7 @@
                                                         </option>
 
                                                         {% for month in 1..12 %}
-                                                            <option value="{{ month }}" {% if month == formData.profile.birthday.month|default(profile.customer.birthday|date('n')) %}selected{% endif %}>{{ month }}</option>
+                                                            <option value="{{ month }}" {% if month == formData.profile.birthday.month|default(page.profile.customer.birthday|date('n')) %}selected{% endif %}>{{ month }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -162,7 +162,7 @@
                                                         </option>
 
                                                         {% for year in 'now'|date('Y')..'now - 120 years'|date('Y') %}
-                                                            <option value="{{ year }}" {% if year == formData.profile.birthday.year|default(profile.customer.birthday|date('Y')) %}selected{% endif %}>{{ year }}</option>
+                                                            <option value="{{ year }}" {% if year == formData.profile.birthday.year|default(page.profile.customer.birthday|date('Y')) %}selected{% endif %}>{{ year }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>

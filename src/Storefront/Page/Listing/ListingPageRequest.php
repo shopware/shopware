@@ -3,14 +3,12 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestTrait;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletRequest;
 use Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletRequest;
 
 class ListingPageRequest extends Struct
 {
-    use HeaderPageletRequestTrait;
-
     /**
      * @var ListingPageletRequest
      */
@@ -22,6 +20,18 @@ class ListingPageRequest extends Struct
     protected $navigationSidebarRequest;
 
     /**
+     * @var ContentHeaderPageletRequest
+     */
+    protected $headerRequest;
+
+    public function __construct()
+    {
+        $this->listingRequest = new ListingPageletRequest();
+        $this->navigationSidebarRequest = new NavigationSidebarPageletRequest();
+        $this->headerRequest = new ContentHeaderPageletRequest();
+    }
+
+    /**
      * @return ListingPageletRequest
      */
     public function getListingRequest(): ListingPageletRequest
@@ -29,12 +39,9 @@ class ListingPageRequest extends Struct
         return $this->listingRequest;
     }
 
-    /**
-     * @param ListingPageletRequest $listingRequest
-     */
-    public function setListingRequest(ListingPageletRequest $listingRequest): void
+    public function getHeaderRequest(): ContentHeaderPageletRequest
     {
-        $this->listingRequest = $listingRequest;
+        return $this->headerRequest;
     }
 
     /**

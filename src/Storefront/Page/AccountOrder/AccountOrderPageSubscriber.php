@@ -16,6 +16,7 @@ class AccountOrderPageSubscriber implements EventSubscriberInterface
 
     public function transformRequest(AccountOrderPageRequestEvent $event): void
     {
-        $accountorderPageRequest = $event->getAccountOrderPageRequest();
+        //$accountOrderPageRequest = $event->getAccountOrderPageRequest();
+        //$accountOrderPageRequest->getAccountOrderRequest()->setxxx($event->getHttpRequest()->attributes->get('xxx'));
     }
 }

@@ -57,7 +57,7 @@ class ListingPageletLoader
         $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $request->getNavigationId()));
 
         $this->eventDispatcher->dispatch(
-            \Shopware\Storefront\Event\ListingEvents::CRITERIA_CREATED,
+            ListingEvents::CRITERIA_CREATED,
             new PageCriteriaCreatedEvent($criteria, $context, $request)
         );
 
@@ -67,15 +67,13 @@ class ListingPageletLoader
 
         $products = $this->productRepository->search($criteria, $context);
 
-        $page = new ListingPageletStruct($request->getNavigationId(), $products, $criteria);
+        $page = new ListingPageletStruct();
+        $page->setNavigationId($request->getNavigationId());
+        $page->setProducts($products);
+        $page->setCriteria($criteria);
 
         $page->setShowListing(true);
         $page->setProductBoxLayout('basic');
-
-        $this->eventDispatcher->dispatch(
-            ListingEvents::LISTING_PAGELET_LOADED,
-            new ListingPageletLoadedEvent($page, $context, $request)
-        );
 
         return $page;
     }

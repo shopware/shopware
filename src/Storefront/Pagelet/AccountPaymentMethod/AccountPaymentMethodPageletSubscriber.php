@@ -10,12 +10,12 @@ class AccountPaymentMethodPageletSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AccountEvents::ACCOUNT_PAYMENT_METHOD_PAGELET_REQUEST => 'transformRequest',
+            AccountEvents::ACCOUNTPAYMENTMETHOD_PAGELET_REQUEST => 'transformRequest',
         ];
     }
 
     public function transformRequest(AccountPaymentMethodPageletRequestEvent $event): void
     {
-        $accountPaymentMethodPageletRequest = $event->getAccountPaymentMethodPageletRequest();
+        //$accountPaymentMethodPageletRequest = $event->getAccountPaymentMethodPageletRequest();
     }
 }

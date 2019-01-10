@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Pagelet\ProductDetail;
 
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Page\PageRequestResolver;
-use Shopware\Storefront\Page\ProductDetail\ProductDetailPageRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
@@ -25,7 +24,7 @@ class ProductDetailPageletRequestResolver extends PageRequestResolver
         $detailPageletRequest = new ProductDetailPageletRequest();
 
         $event = new ProductDetailPageletRequestEvent($request, $context, $detailPageletRequest);
-        $this->eventDispatcher->dispatch(ProductDetailPageRequestEvent::NAME, $event);
+        $this->eventDispatcher->dispatch(ProductDetailPageletRequestEvent::NAME, $event);
 
         yield $event->getDetailPageletRequest();
     }

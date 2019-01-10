@@ -6,25 +6,27 @@ use Shopware\Storefront\Framework\Page\PageletStruct;
 
 class CartInfoPageletStruct extends PageletStruct
 {
+    protected $defered = true;
+
     /**
      * @var int
      */
-    protected $cartQuantity;
+    protected $cartQuantity = 0;
 
     /**
      * @var float
      */
-    protected $cartAmount;
+    protected $cartAmount = 0.00;
 
     /**
      * @var int
      */
-    protected $notesQuantity;
+    protected $notesQuantity = 0;
 
     /**
      * @var bool
      */
-    protected $customerLoggedIn;
+    protected $customerLoggedIn = false;
 
     /**
      * @return int

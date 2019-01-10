@@ -15,12 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Action\AccountAddress\AddressSaveRequest;
-use Shopware\Storefront\Action\AccountEmail\EmailSaveRequest;
-use Shopware\Storefront\Action\AccountLogin\LoginRequest;
-use Shopware\Storefront\Action\AccountPassword\PasswordSaveRequest;
-use Shopware\Storefront\Action\AccountProfile\ProfileSaveRequest;
-use Shopware\Storefront\Action\AccountRegistration\RegistrationRequest;
+use Shopware\Storefront\Action\AccountAddress\AccountAddressSaveRequest;
+use Shopware\Storefront\Action\AccountEmail\AccountEmailSaveRequest;
+use Shopware\Storefront\Action\AccountLogin\AccountLoginRequest;
+use Shopware\Storefront\Action\AccountPassword\AccountPasswordSaveRequest;
+use Shopware\Storefront\Action\AccountProfile\AccountProfileSaveRequest;
+use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
 use Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -78,7 +78,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function login(Request $request, CheckoutContext $context): JsonResponse
     {
-        $loginRequest = new LoginRequest();
+        $loginRequest = new AccountLoginRequest();
         $loginRequest->assign($request->request->all());
 
         $token = $this->accountService->login($loginRequest, $context);
@@ -146,7 +146,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function register(Request $request, CheckoutContext $context): JsonResponse
     {
-        $registrationRequest = new RegistrationRequest();
+        $registrationRequest = new AccountRegistrationRequest();
 
         $registrationRequest->assign($request->request->all());
         $registrationRequest->setGuest($request->request->getBoolean('guest'));
@@ -171,7 +171,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function saveEmail(Request $request, CheckoutContext $context): JsonResponse
     {
-        $emailSaveRequest = new EmailSaveRequest();
+        $emailSaveRequest = new AccountEmailSaveRequest();
         $emailSaveRequest->assign($request->request->all());
 
         $this->accountService->saveEmail($emailSaveRequest, $context);
@@ -198,7 +198,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function savePassword(Request $request, CheckoutContext $context): JsonResponse
     {
-        $passwordSaveRequest = new PasswordSaveRequest();
+        $passwordSaveRequest = new AccountPasswordSaveRequest();
         $passwordSaveRequest->assign($request->request->all());
 
         if (empty($passwordSaveRequest->getPassword())) {
@@ -229,7 +229,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function saveProfile(Request $request, CheckoutContext $context): JsonResponse
     {
-        $profileSaveRequest = new ProfileSaveRequest();
+        $profileSaveRequest = new AccountProfileSaveRequest();
         $profileSaveRequest->assign($request->request->all());
 
         $this->accountService->saveProfile($profileSaveRequest, $context);
@@ -331,7 +331,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function createAddress(Request $request, CheckoutContext $context): JsonResponse
     {
-        $addressSaveRequest = new AddressSaveRequest();
+        $addressSaveRequest = new AccountAddressSaveRequest();
         $addressSaveRequest->assign($request->request->all());
 
         $addressId = $this->accountService->saveAddress($addressSaveRequest, $context);

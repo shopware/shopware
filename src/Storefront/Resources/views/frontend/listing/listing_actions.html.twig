@@ -4,12 +4,12 @@
 
     {% set class = 'listing--actions is--rounded' %}
 
-    {% if navigation.activeCategory.hideSortings or sortings|length == 0 %}
+    {% if page.navigation.activeCategory.hideSortings or sortings|length == 0 %}
         {% set class = class ~ " without-sortings" %}
     {% endif %}
 
     {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
-    {% if theme.sidebarFilter or listing.aggregations|length == 0 %}
+    {% if theme.sidebarFilter or page.listing.aggregations|length == 0 %}
         {% set class = class ~ " without-facets" %}
     {% endif %}
 
@@ -40,7 +40,7 @@
 
         {# Listing pagination #}
         {% block frontend_listing_actions_paging %}
-            {% if listing.pageCount > 1 %}
+            {% if page.listing.pageCount > 1 %}
                 {% sw_include '@Storefront/frontend/listing/actions/action-pagination.html.twig' %}
             {% endif %}
         {% endblock %}

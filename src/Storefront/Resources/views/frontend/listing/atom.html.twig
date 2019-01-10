@@ -4,8 +4,8 @@
 <author>
     <name>{{ shopware.config.shopName }}</name>
 </author>
-<title>{% block frontend_listing_atom_title %}{{ navigation.activeCategory.description }}{% endblock %} }</title>
-<id>{{ navigation.activeCategory.rssFeed }}</id>
+<title>{% block frontend_listing_atom_title %}{{ page.navigation.activeCategory.description }}{% endblock %} }</title>
+<id>{{ page.navigation.activeCategory.rssFeed }}</id>
 <updated>{{ "now"|date('ATOM') }}</updated>
 {% for product in products %}
     {% block frontend_listing_atom_entry %}

@@ -18,7 +18,7 @@
 
 {% block frontend_detail_actions_voucher %}
     {% if shopware.config.showTellAFriend %}
-        <a href="{{ productDetail.product.linkTellAFriend }}" rel="nofollow" title="{{ frontend.detail.actions.DetailLinkVoucher | trans | escape }}" class="action--link link--tell-a-friend">
+        <a href="{{ page.productDetail.product.linkTellAFriend }}" rel="nofollow" title="{{ frontend.detail.actions.DetailLinkVoucher | trans | escape }}" class="action--link link--tell-a-friend">
             <i class="icon--comment"></i> {% trans %}frontend.detail.actions.DetailLinkVoucherShort{% endtrans %}
         </a>
     {% endif %}

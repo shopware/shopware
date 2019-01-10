@@ -6,7 +6,7 @@
 
 {% block frontend_index_content_left %}
     {# @var page \Shopware\Storefront\Page\Listing\ListingPageStruct #}
-    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId': listing.navigationId }) %}
+    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId': page.listing.navigationId }) %}
 
     {% sw_include '@Storefront/frontend/listing/sidebar.html.twig' %}
 {% endblock %}
@@ -17,19 +17,19 @@
     {% set emotionViewports = {0: 'xl', 1: 'l', 2: 'm', 3: 's', 4: 'xs'} %}
 
     {# Count of available product pages #}
-    {% set pages = listing.pageCount %}
+    {% set pages = page.listing.pageCount %}
 
     {# Layout for the product boxes #}
     {% set productBoxLayout = 'basic' %}
 
-    {% if navigation.activeCategory.productBoxLayout != null and navigation.activeCategory.productBoxLayout != 'extend' %}
-        {% set productBoxLayout = navigation.activeCategory.productBoxLayout %}
+    {% if page.navigation.activeCategory.productBoxLayout != null and page.navigation.activeCategory.productBoxLayout != 'extend' %}
+        {% set productBoxLayout = page.navigation.activeCategory.productBoxLayout %}
     {% endif %}
 
-    {% set baseParameters = { categoryId: listing.navigationId } %}
+    {% set baseParameters = { categoryId: page.listing.navigationId } %}
 
     {# @var page \Shopware\Storefront\Page\Listing\ListingPageStruct #}
-    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId' : listing.navigationId }) %}
+    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId' : page.listing.navigationId }) %}
 
     <div class="content listing--content">
 

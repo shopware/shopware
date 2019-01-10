@@ -4,45 +4,43 @@ namespace Shopware\Storefront\Page\AccountOverview;
 
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletStruct;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletStruct;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletStruct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletStruct;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletStruct;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletStruct;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 
 class AccountOverviewPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
-
     /**
      * @var AccountProfilePageletStruct
      */
-    protected $profile;
+    protected $accountProfile;
 
-    public function __construct()
-    {
-        $this->profile = new AccountProfilePageletStruct();
-        $this->language = new LanguagePageletStruct();
-        $this->cartInfo = new CartInfoPageletStruct();
-        $this->shopmenu = new ShopmenuPageletStruct();
-        $this->currency = new CurrencyPageletStruct();
-        $this->navigation = new NavigationPageletStruct();
-    }
+    /**
+     * @var ContentHeaderPageletStruct
+     */
+    protected $header;
 
     /**
      * @return AccountProfilePageletStruct
      */
-    public function getProfile(): AccountProfilePageletStruct
+    public function getAccountProfile(): AccountProfilePageletStruct
     {
-        return $this->profile;
+        return $this->accountProfile;
     }
 
     /**
-     * @param AccountProfilePageletStruct $customer
+     * @param AccountProfilePageletStruct $accountProfile
      */
-    public function setProfile(AccountProfilePageletStruct $customer): void
+    public function setAccountProfile(AccountProfilePageletStruct $accountProfile): void
     {
-        $this->profile = $customer;
+        $this->accountProfile = $accountProfile;
+    }
+
+    public function getHeader(): ContentHeaderPageletStruct
+    {
+        return $this->header;
+    }
+
+    public function setHeader(ContentHeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 }

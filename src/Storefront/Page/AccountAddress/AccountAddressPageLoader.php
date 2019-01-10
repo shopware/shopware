@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\AccountAddress;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AccountAddressPageLoader
@@ -15,7 +15,7 @@ class AccountAddressPageLoader
     private $accountAddressPageletLoader;
 
     /**
-     * @var HeaderPageletLoader
+     * @var ContentHeaderPageletLoader
      */
     private $headerPageletLoader;
 
@@ -26,7 +26,7 @@ class AccountAddressPageLoader
 
     public function __construct(
         AccountAddressPageletLoader $accountAddressPageletLoader,
-        HeaderPageletLoader $headerPageletLoader,
+        ContentHeaderPageletLoader $headerPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->accountAddressPageletLoader = $accountAddressPageletLoader;
@@ -38,15 +38,13 @@ class AccountAddressPageLoader
      * @param AccountAddressPageRequest $request
      * @param CheckoutContext           $context
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
      * @return AccountAddressPageStruct
      */
     public function load(AccountAddressPageRequest $request, CheckoutContext $context): AccountAddressPageStruct
     {
         $page = new AccountAddressPageStruct();
         $page->setAccountAddress(
-            $this->accountAddressPageletLoader->load($request->getAddressRequest(), $context)
+            $this->accountAddressPageletLoader->load($request->getAccountAddressRequest(), $context)
         );
 
         $page->setHeader(

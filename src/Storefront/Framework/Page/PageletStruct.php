@@ -9,21 +9,21 @@ class PageletStruct extends Struct
     /**
      * @var bool
      */
-    protected $deferred = false;
+    protected $defered = false;
 
     /**
      * @return bool
      */
-    public function isDeferred(): bool
+    public function isDefered(): bool
     {
-        return $this->deferred;
+        return $this->defered;
     }
 
     /**
-     * @param bool $deferred
+     * @param bool $defered
      */
-    public function setDeferred(bool $deferred): void
+    public function setDefered(bool $defered): void
     {
-        $this->deferred = $deferred;
+        $this->defered = $defered;
     }
 }

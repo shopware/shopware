@@ -3,46 +3,44 @@
 namespace Shopware\Storefront\Page\AccountPaymentMethod;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletStruct;
-use Shopware\Storefront\Pagelet\CheckoutPaymentMethod\PaymentMethodPageletStruct;
-use Shopware\Storefront\Pagelet\Currency\CurrencyPageletStruct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletStructTrait;
-use Shopware\Storefront\Pagelet\Language\LanguagePageletStruct;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletStruct;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletStruct;
+use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletStruct;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 
 class AccountPaymentMethodPageStruct extends Struct
 {
-    use HeaderPageletStructTrait;
+    /**
+     * @var AccountPaymentMethodPageletStruct
+     */
+    protected $accountPaymentMethod;
 
     /**
-     * @var PaymentMethodPageletStruct
+     * @var ContentHeaderPageletStruct
      */
-    protected $PaymentMethod;
+    protected $header;
 
-    public function __construct()
+    /**
+     * @return AccountPaymentMethodPageletStruct
+     */
+    public function getAccountPaymentMethod(): AccountPaymentMethodPageletStruct
     {
-        $this->PaymentMethod = new PaymentMethodPageletStruct();
-        $this->language = new LanguagePageletStruct();
-        $this->cartInfo = new CartInfoPageletStruct();
-        $this->shopmenu = new ShopmenuPageletStruct();
-        $this->currency = new CurrencyPageletStruct();
-        $this->navigation = new NavigationPageletStruct();
+        return $this->accountPaymentMethod;
     }
 
     /**
-     * @return PaymentMethodPageletStruct
+     * @param AccountPaymentMethodPageletStruct $accountPaymentMethod
      */
-    public function getPaymentMethod(): PaymentMethodPageletStruct
+    public function setAccountPaymentMethod(AccountPaymentMethodPageletStruct $accountPaymentMethod): void
     {
-        return $this->PaymentMethod;
+        $this->accountPaymentMethod = $accountPaymentMethod;
     }
 
-    /**
-     * @param PaymentMethodPageletStruct $PaymentMethod
-     */
-    public function setPaymentMethod(PaymentMethodPageletStruct $PaymentMethod): void
+    public function getHeader(): ContentHeaderPageletStruct
     {
-        $this->PaymentMethod = $PaymentMethod;
+        return $this->header;
+    }
+
+    public function setHeader(ContentHeaderPageletStruct $header): void
+    {
+        $this->header = $header;
     }
 }

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Storefront\Page\AccountOrder\CustomerOrderPageletStruct;
 
 class AccountOrderPageletLoader
 {
@@ -29,27 +28,28 @@ class AccountOrderPageletLoader
      *
      * @throws CustomerNotLoggedInException
      *
-     * @return \Shopware\Storefront\Page\AccountOrder\CustomerOrderPageletStruct
+     * @return \Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletStruct
      */
-    public function load(AccountOrderPageletRequest $request, CheckoutContext $context): CustomerOrderPageletStruct
+    public function load(AccountOrderPageletRequest $request, CheckoutContext $context): AccountOrderPageletStruct
     {
         $limit = $request->getLimit();
-        $page = $request->getPage();
+        $pageNumber = $request->getPage();
 
         $customer = $context->getCustomer();
         if ($customer === null) {
             throw new CustomerNotLoggedInException();
         }
 
-        $criteria = $this->createCriteria($customer->getId(), $limit, $page);
+        $criteria = $this->createCriteria($customer->getId(), $limit, $pageNumber);
         $orders = $this->orderRepository->search($criteria, $context->getContext());
 
-        return new CustomerOrderPageletStruct(
-            $orders,
-            $criteria,
-            $page,
-            $this->getPageCount($orders, $criteria, $page)
-        );
+        $page = new AccountOrderPageletStruct();
+        $page->setOrders($orders);
+        $page->setCriteria($criteria);
+        $page->setCurrentPage($pageNumber);
+        $page->setPageCount($this->getPageCount($orders, $criteria, $pageNumber));
+
+        return $page;
     }
 
     private function createCriteria(string $customerId, int $limit, int $page): Criteria

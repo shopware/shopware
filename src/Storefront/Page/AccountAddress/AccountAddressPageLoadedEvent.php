@@ -7,11 +7,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
 
 class AccountAddressPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'account-address.pagelet.loaded';
+    public const NAME = 'account-address.page.loaded';
 
     /**
      * @var AccountAddressPageStruct
@@ -38,8 +38,8 @@ class AccountAddressPageLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         return new NestedEventCollection([
-            new HeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
-            new AccountAddressPageletLoadedEvent($this->page->getAccountAddress(), $this->context, $this->request->getAddressRequest())
+            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
+            new AccountAddressPageletLoadedEvent($this->page->getAccountAddress(), $this->context, $this->request->getAccountAddressRequest()),
         ]);
     }
 

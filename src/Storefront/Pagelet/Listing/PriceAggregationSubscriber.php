@@ -24,9 +24,9 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            \Shopware\Storefront\Event\ListingEvents::CRITERIA_CREATED => 'buildCriteria',
+            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
             ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
-            \Shopware\Storefront\Event\ListingEvents::LISTING_PAGELET_REQUEST => 'transformRequest',
+            ListingEvents::LISTING_PAGELET_REQUEST => 'transformRequest',
         ];
     }
 
@@ -77,7 +77,9 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
     public function buildPage(ListingPageletLoadedEvent $event): void
     {
         $searchResult = $event->getPage()->getProducts();
-
+        if (!$searchResult) {
+            return;
+        }
         $result = $searchResult->getAggregations();
 
         if ($result->count() <= 0) {

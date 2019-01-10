@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Pagelet\AccountAddress\AddressPageletRequestEvent;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestEvent;
+use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletRequestEvent;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 class AccountAddressPageRequestEvent extends NestedEvent
@@ -39,8 +39,8 @@ class AccountAddressPageRequestEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         return new NestedEventCollection([
-            new HeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
-            new AddressPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getAddressRequest())
+            new ContentHeaderPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getHeaderRequest()),
+            new AccountAddressPageletRequestEvent($this->httpRequest, $this->context, $this->pageRequest->getAccountAddressRequest()),
         ]);
     }
 

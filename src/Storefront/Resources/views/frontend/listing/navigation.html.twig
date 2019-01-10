@@ -14,7 +14,7 @@
 
             {% block frontend_index_navigation_categories_top_before %}{% endblock %}
 
-            {% for treeItem in navigation.tree %}
+            {% for treeItem in page.header.navigation.tree %}
                 {% set category = treeItem.category %}
 
                 {% block frontend_index_navigation_categories_top_entry %}
@@ -26,7 +26,7 @@
                             {% set url = url('frontend.listing.page', { 'id': category.id }) %}
                         {% endif %}
 
-                        {% set isActive = (category.id in navigation.activeCategory.path or category.id == navigation.activeCategory.id) %}
+                        {% set isActive = (category.id in header.navigation.activeCategory.path or category.id == header.navigation.activeCategory.id) %}
 
                         <li class="navigation--entry{% if isActive %} is--active{% endif %}" role="menuitem">
 

@@ -3,37 +3,42 @@
 namespace Shopware\Storefront\Page\ProductDetail;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestTrait;
+use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
 use Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletRequest;
 
 class ProductDetailPageRequest extends Struct
 {
-    use HeaderPageletRequestTrait;
-
     /**
      * @var bool
      */
-    protected $xmlHttpRequest = false;
-
+    protected $xmlHttpRequest;
     /**
      * @var ProductDetailPageletRequest
      */
-    protected $detailRequest;
+    protected $productDetailRequest;
+
+    /**
+     * @var ContentHeaderPageletRequest
+     */
+    protected $headerRequest;
+
+    public function __construct()
+    {
+        $this->productDetailRequest = new ProductDetailPageletRequest();
+        $this->headerRequest = new ContentHeaderPageletRequest();
+    }
 
     /**
      * @return ProductDetailPageletRequest
      */
-    public function getDetailRequest(): ProductDetailPageletRequest
+    public function getProductDetailRequest(): ProductDetailPageletRequest
     {
-        return $this->detailRequest;
+        return $this->productDetailRequest;
     }
 
-    /**
-     * @param ProductDetailPageletRequest $detailRequest
-     */
-    public function setDetailRequest(ProductDetailPageletRequest $detailRequest): void
+    public function getHeaderRequest(): ContentHeaderPageletRequest
     {
-        $this->detailRequest = $detailRequest;
+        return $this->headerRequest;
     }
 
     /**
@@ -47,7 +52,7 @@ class ProductDetailPageRequest extends Struct
     /**
      * @param bool $xmlHttpRequest
      */
-    public function setxmlHttpRequest(bool $xmlHttpRequest): void
+    public function setXmlHttpRequest(bool $xmlHttpRequest): void
     {
         $this->xmlHttpRequest = $xmlHttpRequest;
     }

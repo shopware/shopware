@@ -30,6 +30,7 @@
                 {% block sw_settings_rule_detail_content_card %}
                     <sw-card :large="true" :title="$tc('sw-settings-rule.detail.titleCard')">
                         <sw-container grid="1fr 1fr" gap="0px 30px">
+                            <sw-container columns="2fr 1fr" gap="0px 32px">
                             {% block sw_settings_rule_detail_content_card_field_label %}
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-rule.detail.labelName')"
@@ -39,20 +40,20 @@
                                 </sw-field>
                             {% endblock %}
 
+                            {% block sw_settings_rule_detail_content_card_field_priority %}
+                            <sw-field type="number"
+                                      :label="$tc('sw-settings-rule.detail.labelPriority')"
+                                      :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
+                                      validation="required"
+                                      v-model="rule.priority">
+                            </sw-field>
+                            {% endblock %}
+                            </sw-container>
                             {% block sw_settings_rule_detail_content_card_field_description %}
                                 <sw-field type="textarea"
                                           :label="$tc('sw-settings-rule.detail.labelDescription')"
                                           :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
                                           v-model="rule.description">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_settings_rule_detail_content_card_field_priority %}
-                                <sw-field type="number"
-                                          :label="$tc('sw-settings-rule.detail.labelPriority')"
-                                          :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
-                                          validation="required"
-                                          v-model="rule.priority">
                                 </sw-field>
                             {% endblock %}
                         </sw-container>

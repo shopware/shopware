@@ -13,7 +13,8 @@ Component.register('sw-settings-rule-list', {
         return {
             rules: [],
             showDeleteModal: false,
-            isLoading: false
+            isLoading: false,
+            entityName: 'rule'
         };
     },
 

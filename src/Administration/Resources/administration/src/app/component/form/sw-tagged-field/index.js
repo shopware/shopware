@@ -27,7 +27,7 @@ Component.register('sw-tagged-field', {
         value: {
             type: Array,
             required: false,
-            default: []
+            default: () => []
         },
         label: {
             type: String,

@@ -43,9 +43,11 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithMissingParameters()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemWithQuantityRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
@@ -56,11 +58,10 @@ class LineItemWithQuantityRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(2, $exception->getViolations());
-                static::assertStringStartsWith(LineItemWithQuantityRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (id)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].id', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertStringEndsWith(' (quantity)', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].quantity', $exception->getViolations()->get(1)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(1)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
@@ -93,9 +94,11 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithMissingQuantity()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemWithQuantityRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -110,8 +113,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemWithQuantityRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (quantity)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].quantity', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -120,9 +122,11 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithMissingId()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemWithQuantityRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -137,8 +141,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemWithQuantityRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (id)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].id', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -147,9 +150,11 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithInvalidTypeId()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemWithQuantityRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -165,8 +170,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemWithQuantityRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (id)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].id', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type string.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -174,9 +178,11 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithInvalidIdUuidFormat()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemWithQuantityRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -192,8 +198,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemWithQuantityRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (id)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].id', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The string "12345" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -201,9 +206,11 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithStringQuantity()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemWithQuantityRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -219,8 +226,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemWithQuantityRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (quantity)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].quantity', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('ba785a8c-82cb-4283-967c-3cf342181b40', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should be of type int.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -293,9 +299,11 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithInvalidOperator()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemWithQuantityRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -311,8 +319,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemWithQuantityRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (operator)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].operator', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('8e179f1b-97aa-4560-a02f-2a8b42e49df7', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(0)->getMessage());
             }

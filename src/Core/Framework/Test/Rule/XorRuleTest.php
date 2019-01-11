@@ -44,9 +44,11 @@ class XorRuleTest extends TestCase
 
     public function testValidateWithInvalidRulesType()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => XorRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -60,8 +62,7 @@ class XorRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(XorRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (rules)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].rules', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value "Rule" should be of type Shopware\Core\Framework\Rule\Rule.', $exception->getViolations()->get(0)->getMessage());
             }
         }

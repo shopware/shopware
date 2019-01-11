@@ -90,7 +90,7 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId . ' (property)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].property', $exception->getViolations()->get(0)->getPropertyPath());
             }
         }
 
@@ -127,7 +127,7 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId . ' (property)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].property', $exception->getViolations()->get(0)->getPropertyPath());
             }
         }
 
@@ -166,9 +166,9 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(2, $exception->getViolations());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId1 . ' (property)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId1 . '].property', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId2 . ' (property)', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId2 . '].property', $exception->getViolations()->get(1)->getPropertyPath());
             }
         }
 
@@ -208,7 +208,7 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId . ' (property)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].property', $exception->getViolations()->get(0)->getPropertyPath());
             }
         }
         $result = $this->ruleRepository->read(new ReadCriteria([$ruleId, $ruleId2]), $this->context);
@@ -253,9 +253,9 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(2, $exception->getViolations());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId1 . ' (property)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId1 . '].property', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId2 . ' (property)', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId2 . '].property', $exception->getViolations()->get(1)->getPropertyPath());
             }
         }
 
@@ -299,7 +299,7 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId2 . ' (property)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId2 . '].property', $exception->getViolations()->get(0)->getPropertyPath());
             }
         }
 
@@ -341,7 +341,7 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId . ' (property)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].property', $exception->getViolations()->get(0)->getPropertyPath());
             }
         }
 
@@ -381,7 +381,7 @@ class RuleValidatorTest extends TestCase
                 static::assertInstanceOf(ConstraintViolationException::class, $exception);
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('The property "invalidProp" is not allowed.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('Shopware\Core\Content\Test\Rule\MockIntRule::' . $conditionId . ' (invalidProp)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].invalidProp', $exception->getViolations()->get(0)->getPropertyPath());
             }
         }
 

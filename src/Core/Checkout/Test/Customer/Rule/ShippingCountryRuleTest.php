@@ -43,9 +43,11 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithMissingParameters()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => ShippingCountryRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
@@ -56,8 +58,7 @@ class ShippingCountryRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(ShippingCountryRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (countryIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -89,9 +90,11 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithMissingCountryIds()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => ShippingCountryRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -105,8 +108,7 @@ class ShippingCountryRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(ShippingCountryRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (countryIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -115,9 +117,11 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithEmptyCountryIds()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => ShippingCountryRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -132,8 +136,7 @@ class ShippingCountryRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(ShippingCountryRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (countryIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -142,9 +145,11 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithInvalidCountryIdsUuid()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => ShippingCountryRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -159,8 +164,7 @@ class ShippingCountryRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(3, $exception->getViolations());
-                static::assertStringStartsWith(ShippingCountryRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (countryIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions[' . $conditionId . '].countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "INVALID-UUID" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
                 static::assertSame('The value "1" is not a valid uuid.', $exception->getViolations()->get(1)->getMessage());
                 static::assertSame('The value "3" is not a valid uuid.', $exception->getViolations()->get(2)->getMessage());
@@ -210,10 +214,12 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithInvalidOperators()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         foreach ([Rule::OPERATOR_LTE, Rule::OPERATOR_GTE, 'Invalid'] as $operator) {
             try {
                 $this->conditionRepository->create([
                     [
+                        'id' => $conditionId,
                         'type' => ShippingCountryRule::class,
                         'ruleId' => Uuid::uuid4()->getHex(),
                         'value' => [
@@ -228,8 +234,7 @@ class ShippingCountryRuleTest extends TestCase
                 /** @var ConstraintViolationException $exception */
                 foreach ($stackException->getExceptions() as $exception) {
                     static::assertCount(1, $exception->getViolations());
-                    static::assertStringStartsWith(ShippingCountryRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                    static::assertStringEndsWith(' (operator)', $exception->getViolations()->get(0)->getPropertyPath());
+                    static::assertSame('/conditions[' . $conditionId . '].operator', $exception->getViolations()->get(0)->getPropertyPath());
                     static::assertSame('8e179f1b-97aa-4560-a02f-2a8b42e49df7', $exception->getViolations()->get(0)->getCode());
                     static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(0)->getMessage());
                 }

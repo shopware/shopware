@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.less';
 
@@ -43,19 +43,23 @@ Component.register('sw-condition-base', {
         },
         defaultValues() {
             return {};
+        },
+        errorStore() {
+            return State.getStore('error');
         }
     },
 
     data() {
         return {
-            conditionFields: {}
+            formErrors: {},
+            hasErrors: false,
+            rulePageComponent: undefined
         };
     },
 
     created() {
         this.createdComponent();
     },
-
     beforeMount() {
         this.applyDefaultValues();
     },
@@ -65,6 +69,10 @@ Component.register('sw-condition-base', {
     },
 
     methods: {
+        checkErrors() {
+            const values = Object.values(this.formErrors);
+            this.hasErrors = values.length && values.filter(error => error.detail.length > 0).length;
+        },
         mountComponent() {
             if (!this.condition.value) {
                 this.condition.value = {};
@@ -82,6 +90,21 @@ Component.register('sw-condition-base', {
                     this.condition.value[fieldName] = undefined;
                 }
             });
+
+            const fieldNames = this.fieldNames;
+            fieldNames.push('type');
+
+            fieldNames.forEach(fieldName => {
+                const boundExpression = `rule.conditions[${this.condition.id}].${fieldName}`;
+                this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
+
+                this.$watch(`condition.value.${fieldName}`, () => {
+                    if (this.formErrors[fieldName].detail) {
+                        this.errorStore.deleteError(this.formErrors[fieldName]);
+                        this.checkErrors();
+                    }
+                });
+            });
         },
         getLabel(type) {
             return this.ruleConditionService.getByType(type).label;
@@ -89,6 +112,21 @@ Component.register('sw-condition-base', {
         createdComponent() {
             if (!this.condition.value) {
                 this.condition.value = {};
+            }
+
+            let parent = this.$parent;
+
+            while (parent) {
+                if (['sw-settings-rule-create', 'sw-settings-rule-detail'].includes(parent.$options.name)) {
+                    this.rulePageComponent = parent;
+                    break;
+                }
+
+                parent = parent.$parent;
+            }
+
+            if (this.rulePageComponent) {
+                this.rulePageComponent.$on('on-save-rule', () => { this.checkErrors(); });
             }
         },
         applyDefaultValues() {

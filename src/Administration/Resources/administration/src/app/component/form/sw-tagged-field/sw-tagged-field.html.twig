@@ -14,7 +14,7 @@
                                   mode="out-in">
                     {% block sw_tagged_field_tag_items %}
                         <li v-for="(tag, index) in tags"
-                            :key="index">
+                            :key="tag + index">
                             <sw-label dismissAble
                                       @dismiss="dismissTag(index)">
                                 <template>
@@ -27,7 +27,7 @@
                     {% block sw_tagged_field_item_input %}
                         <li class="sw-tagged-field__tag-item-input" key="tagInput">
                             {% block sw_tagged_field_input %}
-                                <input ref="newTagInput"
+                                <input :id="id"
                                        class="sw-tagged-field__input"
                                        type="text"
                                        :placeholder="placeholder"

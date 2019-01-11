@@ -13,10 +13,15 @@
 
 @sw-condition-base-z-index-arrow: 100;
 
+@sw-condition-base-color-error: @color-crimson;
+
 .sw-condition-base {
-  width: 100%;
-  display: flex;
   background: none;
+
+  .sw-condition-base__container {
+    display: flex;
+    width: 100%;
+  }
 
   .field {
     background-color: @sw-condition-base-color-background;
@@ -214,5 +219,42 @@
     padding: 0;
     margin: 0;
     width: 100%;
+  }
+
+  &.has--error .sw-condition-base__container {
+     .sw-field__suffix {
+          border: none;
+          background: none;
+          padding-top: 11px;
+          padding-bottom: 0;
+      }
+
+      .field--condition {
+          background-color: @sw-condition-base-color-error;
+
+          &:before, &:after {
+              background-color: @sw-condition-base-color-error;
+          }
+      }
+
+      .field {
+          border-top-color: @sw-condition-base-color-error;
+          border-bottom-color: @sw-condition-base-color-error;
+      }
+
+      .has--arrow {
+        &:before, &:after {
+          background-color: @sw-condition-base-color-error;
+        }
+      }
+
+      .field--actions {
+         border-color: @sw-condition-base-color-error;
+      }
+  }
+
+  .sw-condition-base__error-container {
+    display: block;
+    color: @sw-condition-base-color-error;
   }
 }

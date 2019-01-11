@@ -2,7 +2,10 @@
   "name": "shopware/platform",
   "type": "library",
   "description": "The Shopware e-commerce core",
-  "keywords": ["framework", "shopware"],
+  "keywords": [
+    "framework",
+    "shopware"
+  ],
   "homepage": "https://www.shopware.com",
   "license": [
     "AGPL-3.0",
@@ -68,7 +71,8 @@
     "phpoffice/phpword": "0.15.0",
     "smalot/pdfparser": "0.13.2",
     "james-heinrich/getid3": "1.9.16",
-    "enqueue/messenger-adapter": "0.2.0"
+    "enqueue/messenger-adapter": "0.2.0",
+    "composer/composer": "1.8.0"
   },
   "require-dev": {
     "ext-tokenizer": "*",
@@ -85,7 +89,7 @@
     "johnkary/phpunit-speedtrap": "3.0.0",
     "league/flysystem-memory": "1.0.1"
   },
-  "conflicts": {
+  "conflict": {
     "symfony/symfony": "*"
   },
   "autoload": {

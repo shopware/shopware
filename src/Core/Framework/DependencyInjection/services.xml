@@ -57,12 +57,7 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="language.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
-
-        <service id="Shopware\Core\Framework\Plugin\RequirementValidator">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\Command\PluginUpdateCommand">

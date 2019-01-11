@@ -16,5 +16,7 @@
         <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider">
             <argument type="service" id="plugin.repository"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
     </services>
 </container>

@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Command;
 
+use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,7 +43,7 @@ class PluginUpdateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $context = Context::createDefaultContext();
-        $this->pluginManager->updatePlugins($context);
+        $this->pluginManager->updatePlugins($context, new ConsoleIO($input, $output, new HelperSet()));
 
         $listInput = new StringInput('plugin:list');
 

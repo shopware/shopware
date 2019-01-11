@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Composer\IO\IOInterface;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -23,7 +23,9 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
@@ -75,6 +77,11 @@ class PluginManager
      */
     private $languageRepo;
 
+    /**
+     * @var ComposerPackageProvider
+     */
+    private $composerPackageProvider;
+
     public function __construct(
         string $pluginPath,
         Kernel $kernel,
@@ -84,7 +91,8 @@ class PluginManager
         MigrationCollection $migrationCollection,
         MigrationRuntime $migrationRunner,
         RepositoryInterface $pluginRepo,
-        RepositoryInterface $languageRepo
+        RepositoryInterface $languageRepo,
+        ComposerPackageProvider $composerPackageProvider
     ) {
         $this->pluginPath = $pluginPath;
         $this->kernel = $kernel;
@@ -95,6 +103,7 @@ class PluginManager
         $this->migrationRunner = $migrationRunner;
         $this->pluginRepo = $pluginRepo;
         $this->languageRepo = $languageRepo;
+        $this->composerPackageProvider = $composerPackageProvider;
     }
 
     /**
@@ -286,7 +295,7 @@ class PluginManager
         return $deactivateContext;
     }
 
-    public function updatePlugins(Context $shopwareContext): void
+    public function updatePlugins(Context $shopwareContext, IOInterface $composerIO): void
     {
         $finder = new Finder();
         $filesystemPlugins = $finder->directories()->depth(0)->in($this->pluginPath)->getIterator();
@@ -294,56 +303,51 @@ class PluginManager
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
 
         $plugins = [];
-
         foreach ($filesystemPlugins as $plugin) {
             $pluginName = $plugin->getFilename();
             $pluginPath = $plugin->getPathname();
 
-            $info = $this->parsePluginInfo($pluginPath);
+            $info = $this->composerPackageProvider->getPluginInformation($pluginPath, $composerIO);
+            $pluginVersion = $info->getVersion();
+            /** @var array $extra */
+            $extra = $info->getExtra();
+
+            $authors = null;
+            $composerAuthors = $info->getAuthors();
+            if ($composerAuthors !== null) {
+                $authorNames = array_column($info->getAuthors(), 'name');
+                $authors = implode(', ', $authorNames);
+            }
+            $license = $info->getLicense();
 
             $pluginData = [
                 'name' => $pluginName,
-                'author' => $info['author'],
-                'copyright' => $info['copyright'],
-                'license' => $info['license'],
-                'version' => $info['version'],
+                'author' => $authors,
+                'copyright' => $extra['copyright'] ?? null,
+                'license' => implode(', ', $license),
+                'version' => $pluginVersion,
             ];
 
-            foreach ($info['label'] as $locale => $labelTranslation) {
-                $languageIds = $this->getLanguageIdsForLocale($locale, $shopwareContext);
-                if (count($languageIds) === 0) {
-                    continue;
-                }
-
-                foreach ($languageIds as $languageId) {
-                    $pluginData['translations'][$languageId]['label'] = $labelTranslation;
-                }
-            }
-
-            foreach ($info['description'] as $locale => $descriptionTranslation) {
-                $languageIds = $this->getLanguageIdsForLocale($locale, $shopwareContext);
-                if (count($languageIds) === 0) {
-                    continue;
-                }
-
-                foreach ($languageIds as $languageId) {
-                    $pluginData['translations'][$languageId]['description'] = $descriptionTranslation;
-                }
-            }
+            $pluginData = $this->getTranslation($extra, $pluginData, 'label', 'label', $shopwareContext);
+            $pluginData = $this->getTranslation($extra, $pluginData, 'description', 'description', $shopwareContext);
+            $pluginData = $this->getTranslation($extra, $pluginData, 'manufacturerLink', 'manufacturerLink', $shopwareContext);
+            $pluginData = $this->getTranslation($extra, $pluginData, 'supportLink', 'supportLink', $shopwareContext);
 
             /** @var PluginEntity $currentPluginEntity */
             $currentPluginEntity = $installedPlugins->filterByProperty('name', $pluginName)->first();
             if ($currentPluginEntity !== null) {
-                $pluginData['id'] = $currentPluginEntity->getId();
+                $currentPluginId = $currentPluginEntity->getId();
+                $pluginData['id'] = $currentPluginId;
 
-                if ($this->hasInfoNewerVersion($info['version'], $currentPluginEntity->getVersion())) {
-                    $pluginData['version'] = $currentPluginEntity->getVersion();
-                    $pluginData['upgradeVersion'] = $info['version'];
+                $currentPluginVersion = $currentPluginEntity->getVersion();
+                if ($this->hasInfoNewerVersion($pluginVersion, $currentPluginVersion)) {
+                    $pluginData['version'] = $currentPluginVersion;
+                    $pluginData['upgradeVersion'] = $pluginVersion;
                 } else {
                     $pluginData['upgradeVersion'] = null;
                 }
 
-                $installedPlugins->remove($currentPluginEntity->getId());
+                $installedPlugins->remove($currentPluginId);
             }
 
             $plugins[] = $pluginData;
@@ -354,7 +358,11 @@ class PluginManager
         // delete plugins, which are in storage but not in filesystem anymore
         $deletePluginIds = $installedPlugins->getIds();
         if (\count($deletePluginIds) !== 0) {
-            $this->pluginRepo->delete($installedPlugins->getIds(), $shopwareContext);
+            $deletePlugins = [];
+            foreach ($deletePluginIds as $deletePluginId) {
+                $deletePlugins[] = ['id' => $deletePluginId];
+            }
+            $this->pluginRepo->delete($deletePlugins, $shopwareContext);
         }
     }
 
@@ -364,18 +372,6 @@ class PluginManager
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         return $pluginCollection;
-    }
-
-    private function parsePluginInfo(string $pluginPath): array
-    {
-        $pluginInfoPath = $pluginPath . '/plugin.xml';
-        $info = [];
-
-        if (is_file($pluginInfoPath)) {
-            $info = (new XmlPluginInfoReader())->read($pluginInfoPath);
-        }
-
-        return $info;
     }
 
     private function hasInfoNewerVersion(string $upgradeVersion, string $currentVersion): bool
@@ -395,7 +391,11 @@ class PluginManager
 
     private function runMigrations(Plugin $pluginBaseClass): void
     {
-        $migrationPath = $pluginBaseClass->getPath() . str_replace($pluginBaseClass->getNamespace(), '', str_replace('\\', '/', $pluginBaseClass->getMigrationNamespace()));
+        $migrationPath = $pluginBaseClass->getPath() . str_replace(
+            $pluginBaseClass->getNamespace(),
+            '',
+            str_replace('\\', '/', $pluginBaseClass->getMigrationNamespace())
+        );
 
         if (!is_dir($migrationPath)) {
             return;
@@ -414,17 +414,39 @@ class PluginManager
         $this->connection->executeQuery('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
-    private function getLanguageIdsForLocale(string $locale, Context $context): array
+    private function getTranslation(
+        array $composerExtra,
+        array $pluginData,
+        string $composerProperty,
+        string $pluginField,
+        Context $shopwareContext
+    ): array {
+        foreach ($composerExtra[$composerProperty] ?? [] as $locale => $labelTranslation) {
+            $languageId = $this->getLanguageIdForLocale($locale, $shopwareContext);
+            if ($languageId === '') {
+                continue;
+            }
+
+            $pluginData['translations'][$languageId][$pluginField] = $labelTranslation;
+        }
+
+        return $pluginData;
+    }
+
+    private function getLanguageIdForLocale(string $locale, Context $context): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new ContainsFilter('language.translationCode.code', $locale));
+        $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
         $result = $this->languageRepo->search($criteria, $context);
 
         if ($result->getTotal() === 0) {
-            return [];
+            return '';
         }
 
-        return array_keys($result->getIds());
+        /** @var LanguageEntity $languageEntity */
+        $languageEntity = $result->getEntities()->first();
+
+        return $languageEntity->getId();
     }
 
     private function updatePlugin(array $pluginData, Context $context): void

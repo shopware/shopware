@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import utils from 'src/core/service/util.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.less';
 
@@ -71,14 +72,42 @@ Component.register('sw-settings-rule-detail', {
             }
 
             if (nestedConditions.length === 1
-                && nestedConditions[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule') {
+                && nestedConditions[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule') {
+                if (nestedConditions[0].children.length > 0) {
+                    return nestedConditions[0];
+                }
+
+                nestedConditions[0].children = [
+                    Object.assign(
+                        this.conditionAssociations.create(),
+                        {
+                            type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                            parentId: nestedConditions[0].id
+                        }
+                    )
+                ];
+
                 return nestedConditions[0];
             }
 
-            return {
-                type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
-                children: nestedConditions
-            };
+            const rootId = utils.createId();
+
+            return Object.assign(
+                this.conditionAssociations.create(rootId),
+                {
+                    type: 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
+                    children: [
+                        Object.assign(
+                            this.conditionAssociations.create(),
+                            {
+                                type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                                parentId: rootId,
+                                children: nestedConditions
+                            }
+                        )
+                    ]
+                }
+            );
         },
 
         onSave() {
@@ -122,7 +151,7 @@ Component.register('sw-settings-rule-detail', {
                 }
 
                 const changes = Object.keys(condition.getChanges()).length;
-                if (changes) {
+                if (changes && condition.isDeleted !== true) {
                     condition.original.type = '';
                     condition.original.value = {};
                 }

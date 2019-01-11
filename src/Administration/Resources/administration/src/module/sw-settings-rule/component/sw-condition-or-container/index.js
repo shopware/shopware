@@ -14,15 +14,31 @@ Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
     template,
 
     methods: {
-        onAddChildClick(parentId) {
+        onAddChildClick() {
             const condition = Object.assign(
                 this.conditionAssociations.create(),
                 {
                     type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
-                    parentId: parentId
+                    parentId: this.condition.id
                 }
             );
             this.condition.children.push(condition);
+        },
+        onAddAndClick() {
+            if (this.level === 0) {
+                this.onAddChildClick();
+            } else {
+                this.$super.onAddAndClick();
+            }
+        },
+        onDeleteAll() {
+            this.$super.onDeleteAll();
+
+            if (this.level === 0) {
+                this.$nextTick(() => {
+                    this.onAddChildClick();
+                });
+            }
         }
     }
 });

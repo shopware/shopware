@@ -63,7 +63,7 @@
                 {% block sw_settings_rule_detail_conditions_card %}
                     <sw-card class="sw-settings-rule-detail__condition_container" :large="true" :title="$tc('sw-settings-rule.detail.ruleCard')">
                         <component v-if="nestedConditions"
-                                   is="sw-condition-and-container"
+                                   is="sw-condition-or-container"
                                    :condition="nestedConditions"
                                    :conditionAssociations="conditionAssociations"
                                    :level="0"

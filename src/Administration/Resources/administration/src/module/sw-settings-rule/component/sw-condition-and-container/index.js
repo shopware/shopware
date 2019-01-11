@@ -66,7 +66,7 @@ Component.register('sw-condition-and-container', {
             }
 
             if (!this.condition.children.length) {
-                this.createPlaceholder(this.condition.id);
+                this.createPlaceholder();
             }
         },
         onFinishLoading() {
@@ -80,38 +80,64 @@ Component.register('sw-condition-and-container', {
 
             return condition.component;
         },
-        onAddAndClick(parentId) {
-            this.createPlaceholder(parentId);
+        onAddAndClick() {
+            this.createPlaceholder();
         },
-        createPlaceholder(parentId) {
+        createPlaceholder() {
             const child = Object.assign(
                 this.conditionAssociations.create(),
                 {
                     type: 'placeholder',
-                    parentId: parentId
+                    parentId: this.condition.id
                 }
             );
             this.condition.children.push(child);
         },
-        onAddChildClick(parentId) {
+        onAddChildClick() {
             const condition = Object.assign(
                 this.conditionAssociations.create(),
                 {
                     type: 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
-                    parentId: parentId
+                    parentId: this.condition.id
                 }
             );
             this.condition.children.push(condition);
         },
         onDeleteAll() {
-            for (let i = this.condition.children.length; i > 0; i -= 1) {
-                this.condition.children.pop().delete();
+            if (this.level === 0) {
+                this.condition.children.forEach((child) => {
+                    child.delete();
+                    this.deleteChildren(child.children);
+                });
+            } else {
+                this.deleteChildren(this.condition.children);
             }
+
+            this.condition.children = [];
+
             this.$emit('delete-condition', this.condition);
+        },
+        deleteChildren(children) {
+            children.forEach((child) => {
+                if (child.children.length > 0) {
+                    this.deleteChildren(child.children);
+                }
+                child.remove();
+            });
         },
         onDeleteCondition(condition) {
             condition.delete();
             this.condition.children.splice(this.condition.children.indexOf(condition), 1);
+
+            if (this.condition.children.length <= 0) {
+                this.$nextTick(() => {
+                    if (this.level === 0) {
+                        this.onAddChildClick();
+                    } else {
+                        this.createPlaceholder();
+                    }
+                });
+            }
         }
     }
 });

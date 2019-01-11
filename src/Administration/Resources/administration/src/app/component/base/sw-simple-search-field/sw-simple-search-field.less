@@ -10,15 +10,15 @@
 
     .sw-simple-search-field__input {
         input {
-            height: 40px;
             padding: 0 20px 0 44px;
         }
     }
 
-    .sw-simple-search-field__search-icon {
+    .sw-simple-search-field__search-icon, .sw-icon {
         position: absolute;
         color: @sw-simple-search-field-search-icon-color;
         left: 24px;
-        top: 12px;
+        top: 50%;
+        transform: translate(0, -50%);
     }
 }

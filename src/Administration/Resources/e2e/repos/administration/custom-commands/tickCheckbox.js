@@ -8,8 +8,8 @@
 exports.command = function tickCheckbox(selector, value) {
     this.waitForElementPresent(selector);
 
-    this.click(selector);
-    this.expect.element(selector).to.have.value.that.equals(value);
+    this.click(selector)
+        .expect.element(selector).to.have.value.that.equals(value);
 
     return this;
 };

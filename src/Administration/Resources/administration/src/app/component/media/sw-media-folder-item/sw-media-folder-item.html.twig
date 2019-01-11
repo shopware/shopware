@@ -71,25 +71,25 @@
                                 {% endblock %}
 
                                 {% block sw_media_folder_item_context_item_show_media %}
-                                    <sw-context-menu-item @click="navigateToFolder">
+                                    <sw-context-menu-item class="sw-media-context-item__show-media-action" @click="navigateToFolder">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_media_folder_item_context_item_show_settings %}
-                                    <sw-context-menu-item @click="openSettings">
+                                    <sw-context-menu-item class="sw-media-context-item__open-settings-action" @click="openSettings">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuShowSettings') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_media_folder_item_context_item_dissolve %}
-                                    <sw-context-menu-item @click="openDissolveModal">
+                                    <sw-context-menu-item class="sw-media-context-item__dissolve-media-action" @click="openDissolveModal">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuDissolve') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_media_folder_item_context_item_rename_item %}
-                                    <sw-context-menu-item @click="onStartRenaming">
+                                    <sw-context-menu-item class="sw-media-context-item__rename-media-action" @click="onStartRenaming">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

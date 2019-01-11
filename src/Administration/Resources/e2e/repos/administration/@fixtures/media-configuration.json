@@ -1,0 +1,8 @@
+{
+  "name": "Fold it",
+  "createThumbnails": true,
+  "keepAspectRatio": true,
+  "thumbnailQuality": 80,
+  "mediaThumbnailSizes": {},
+  "mediaFolders": {}
+}

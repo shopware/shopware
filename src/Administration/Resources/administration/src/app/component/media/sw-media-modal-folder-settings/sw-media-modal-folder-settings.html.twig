@@ -8,13 +8,13 @@
             <sw-tabs variant="minimal" defaultItem="settings">
                 <template slot-scope="{ active }">
                     {% block sw_media_modal_folder_settings_tab_item_settings %}
-                        <sw-tabs-item name="settings" :active="active" variant="minimal">
+                        <sw-tabs-item class="sw-media-folder-settings__settings-tab" name="settings" :active="active" variant="minimal">
                             {{ $tc('global.sw-media-modal-folder-settings.labelSettings') }}
                         </sw-tabs-item>
                     {% endblock %}
 
                     {% block sw_media_modal_folder_settings_tab_item_thumbnails %}
-                        <sw-tabs-item name="thumbnails" :active="active" variant="minimal">
+                        <sw-tabs-item class="sw-media-folder-settings__thumbnails-tab" name="thumbnails" :active="active" variant="minimal">
                             {{ $tc('global.sw-media-modal-folder-settings.labelThumbnails') }}
                         </sw-tabs-item>
                     {% endblock %}
@@ -123,11 +123,12 @@
                                                 <ul class="sw-media-modal-folder-settings__thumbnails-list" :class="thumbnailListClass">
 
                                                     {% block sw_media_modal_folder_settings_thumbnail_size %}
-                                                        <li v-for="size in thumbnailSizes">
+                                                        <li v-for="size in thumbnailSizes" class="sw-media-modal-folder-settings__thumbnail-size-entry">
 
                                                             {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
                                                                 <sw-field type="switch"
                                                                           :value="isThumbnailSizeActive(size)"
+                                                                          name="thumbnail-size-active"
                                                                           :label="size | thumbnailSize"
                                                                           :disabled="notEditable"
                                                                           @change="onChangeThumbnailSize($event, size)">

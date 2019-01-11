@@ -15,6 +15,7 @@ const env = process.env.NIGHTWATCH_ENV;
 const repoPath = `${__dirname}/repos`;
 
 // Add additional path to the node module path resolver.
+require('app-module-path').addPath(`${__dirname}/common`);
 require('app-module-path').addPath(`${repoPath}`);
 
 // Get all directories from the `repo` directory

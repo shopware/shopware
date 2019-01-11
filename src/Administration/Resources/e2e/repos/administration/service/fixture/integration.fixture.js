@@ -11,7 +11,8 @@ export default class IntegrationFixtureService extends FixtureService {
     }
 
     setIntegrationFixtures(userData) {
-        this.loggingHelper.createCliEntry('Set integration fixtures...', 'title');
+        global.logger.lineBreak();
+        global.logger.title('Set integration fixtures...');
 
         const finalRawData = this.mergeFixtureWithData(this.integrationFixture, userData);
 
@@ -25,9 +26,11 @@ export default class IntegrationFixtureService extends FixtureService {
                     }]
                 });
             }).catch((err) => {
-                this.loggingHelper.createCliEntry(err, 'error');
+                global.logger.error(err);
+                global.logger.lineBreak();
             }).then((data) => {
-                this.loggingHelper.createCliEntry(data.id, 'success');
+                global.logger.success(data.id);
+                global.logger.lineBreak();
             });
     }
 }

@@ -1,4 +1,5 @@
 // Register flags and fixtures globally so we have to import them one time
+require('./../../common/helper/cliOutputHelper');
 require('./flags.js');
 require('./service/fixture.service');
 
@@ -8,6 +9,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 module.exports = {
+
     waitForConditionTimeout: 30000,
     asyncHookTimeout: 30000,
 
@@ -25,7 +27,6 @@ module.exports = {
                 beforeScenarioActions.login(browser, 'admin', 'shopware', done);
             }
             beforeScenarioActions.hideToolbarIfVisible(browser);
-
             done();
         });
     },
@@ -33,11 +34,10 @@ module.exports = {
         console.log();
         console.log("### Resetting database to clean state...");
         exec(`${process.env.PROJECT_ROOT}psh.phar e2e:restore-db`).then(() => {
-            console.log('• ✓ - Successful');
+            global.logger.log('success', 'Successful');
             done();
         }).catch((err) => {
-            console.log();
-            console.error('• ✖ - ', err);
+            global.logger.log('error', err);
         });
     }
 };

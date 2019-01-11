@@ -13,7 +13,8 @@ module.exports = {
     },
     hideToolbarIfVisible: (browser) => {
         browser.checkIfElementExists(symfonyToolbarButtonSelector, (result) => {
-            if(result) {
+            if (result.value) {
+                global.logger.error(`Element "${symfonyToolbarButtonSelector}" was detected and will be collapsed.`);
                 browser.click(symfonyToolbarButtonSelector).waitForElementNotVisible(symfonyToolbarButtonSelector);
             }
         });

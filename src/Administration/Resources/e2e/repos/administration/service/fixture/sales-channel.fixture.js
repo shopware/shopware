@@ -12,7 +12,8 @@ export default class SalesChannelFixtureService extends FixtureService {
     }
 
     setSalesChannelFixture(userData) {
-        this.loggingHelper.createCliEntry('Set sales channel fixtures...', 'title');
+        global.logger.lineBreak();
+        global.logger.title('Set sales channel fixtures...');
 
         const jsonData = this.salesChannelFixture;
 
@@ -93,9 +94,11 @@ export default class SalesChannelFixtureService extends FixtureService {
         }).then((finalChannelData) => {
             return this.apiClient.post('/v1/sales-channel?_response=true', finalChannelData);
         }).catch((err) => {
-            this.loggingHelper.createCliEntry(err, 'error');
+            global.logger.error(err);
+            global.logger.lineBreak();
         }).then((data) => {
-            this.loggingHelper.createCliEntry(data.id, 'success');
+            global.logger.success(data.id,);
+            global.logger.lineBreak();
         });
     }
 }

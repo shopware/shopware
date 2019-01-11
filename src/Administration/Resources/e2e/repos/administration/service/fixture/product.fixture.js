@@ -12,7 +12,8 @@ export default class ProductFixture extends FixtureService {
     }
 
     setProductFixtures(userData) {
-        this.loggingHelper.createCliEntry('Set product fixtures...', 'title');
+        global.logger.lineBreak();
+        global.logger.title('Set product fixtures...');
 
         const productData = this.productFixture;
 
@@ -55,9 +56,11 @@ export default class ProductFixture extends FixtureService {
         }).then((finalProductData) => {
             return this.apiClient.post('/v1/product?_response=true', finalProductData);
         }).catch((err) => {
-            this.loggingHelper.createCliEntry(err, 'error');
+            global.logger.error(err);
+            global.logger.lineBreak();
         }).then((data) => {
-            this.loggingHelper.createCliEntry(data.id, 'success');
+            global.logger.success(data.id);
+            global.logger.lineBreak();
         });
     }
 }

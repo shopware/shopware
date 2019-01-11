@@ -9,10 +9,10 @@ class ProductPageObject {
     createBasicProduct(productName) {
         this.browser
             .fillField('input[name=sw-field--product-name]', productName)
-            .fillField('.ql-editor', 'My very first description', 'editor')
-            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG', false)
-            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue', false)
-            .fillSelectField('select[name=sw-field--product-taxId]', '19%', false)
+            .fillField('.ql-editor', 'My very first description', false, 'editor')
+            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
+            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
+            .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
             .click('.sw-product-detail__save-action')
             .checkNotification(`Product "${productName}" has been saved successfully`);
@@ -27,9 +27,8 @@ class ProductPageObject {
             .click('.sw-media-upload__switch-mode')
             .waitForElementVisible('.sw-media-url-form__url-input')
             .fillField('input[name=sw-field--url]', imagePath)
-            .waitForElementNotPresent('input[name=sw-field--extensionFromInput]')
-            .waitForElementNotPresent('.sw-alert--info')
             .click('.sw-media-url-form__submit-button')
+            .waitForElementNotPresent('input[name=sw-field--url]')
             .getAttribute('.sw-media-preview > img', 'src', function (result) {
                 this.assert.ok(result.value);
                 this.assert.equal(result.value, imagePath);

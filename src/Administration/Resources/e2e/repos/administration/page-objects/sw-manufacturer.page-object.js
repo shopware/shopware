@@ -8,7 +8,7 @@ class ManufacturerPageObject {
             .assert.containsText('.smart-bar__header', 'New manufacturer')
             .fillField('input[name=name]', manufacturerName)
             .fillField('input[name=link]', 'https://www.google.com/doodles')
-            .fillField('.ql-editor', 'De-scribe THIS!', 'editor')
+            .fillField('.ql-editor', 'De-scribe THIS!', false, 'editor')
             .click('.sw-button--primary')
             .checkNotification(`Manufacturer "${manufacturerName}" has been saved successfully.`);
     }
@@ -33,7 +33,7 @@ class ManufacturerPageObject {
         this.browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
+            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText(
                 '.sw-modal__body',

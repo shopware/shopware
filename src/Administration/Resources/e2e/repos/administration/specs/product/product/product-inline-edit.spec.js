@@ -21,7 +21,7 @@ module.exports = {
     'edit product name via inline editing and verify change': (browser) => {
         browser
             .moveToElement('.sw-grid-row:first-child', 5, 5).doubleClick()
-            .fillField('input[name=sw-field--item-name]', 'Second one', 'input', true)
+            .fillField('input[name=sw-field--item-name]', 'Second one', true)
             .waitForElementVisible('.is--inline-editing .sw-button--primary')
             .click('.is--inline-editing .sw-button--primary')
             .waitForElementNotPresent('.is--inline-editing ')

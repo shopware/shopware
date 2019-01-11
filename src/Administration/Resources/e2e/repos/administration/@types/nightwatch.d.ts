@@ -2177,10 +2177,10 @@ export interface NightwatchCustomCommands {
      *
      * @param {String} selector
      * @param {String} value
-     * @param {String} [type=input]
      * @param {Boolean} [clearField=false]
+     * @param {String} [type=input]
      */
-    fillField(selector: string, value: string, type?: string, clearField?: boolean): this,
+    fillField(selector: string, value: string, clearField?: boolean, type?: string): this,
 
     /**
      * Finds a form field in the Administration using the provided label. The method uses a CSS selector to find the element on the page,
@@ -2284,7 +2284,7 @@ export interface NightwatchCustomCommands {
      * ```
      *
      * @param {String} value
-     * @param {Boolean} [clearField=true]
+     * @param {Boolean} [clearField=false]
      */
     fillGlobalSearchField(value: string, clearField?: boolean): this,
 

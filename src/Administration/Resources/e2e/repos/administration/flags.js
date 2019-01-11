@@ -6,7 +6,6 @@ global.flags = {
     getCache
 };
 
-const LoggingHelper = require('../../common/helper/cliOutputHelper');
 const path = require('path');
 const fs = require('fs');
 const process = require('process');
@@ -153,10 +152,10 @@ function getCache() {
  * @returns {void}
  */
 function renderAvailableFlags($cache) {
-    const loggingHelper = new LoggingHelper();
-    loggingHelper.createCliEntry('Available feature flags', 'title');
+    global.logger.lineBreak();
+    global.logger.title('Available feature flags' );
 
     $cache.forEach((value, key) => {
-        loggingHelper.createCliEntry(`• ${value ? '✓' : '✖'} - ${key}`);
+        global.logger[(value ? 'success' : 'error')](key);
     });
 }

@@ -4,11 +4,11 @@
  *
  * @param {String} selector
  * @param {String} value
- * @param {String} [type=input]
  * @param {Boolean} [clearField=true]
+ * @param {String} [type=input]
  * @returns {exports}
  */
-exports.command = function fillField(selector, value, type = 'input', clearField = false) {
+exports.command = function fillField(selector, value, clearField = false, type = 'input') {
     this.waitForElementVisible(selector);
 
     if (clearField) {

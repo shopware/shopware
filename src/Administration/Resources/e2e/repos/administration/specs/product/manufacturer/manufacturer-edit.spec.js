@@ -23,9 +23,9 @@ module.exports = {
             .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.smart-bar__header h2:not(.sw-manufacturer-detail__empty-title)')
             .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
-            .fillField('input[name=name]', 'Minnie\'s Haberdashery', 'input', true)
-            .fillField('input[name=link]', 'https://google.com/doodles', 'input', true)
-            .fillField('.ql-editor', 'A wonderfully changed description', 'editor', true)
+            .fillField('input[name=name]', 'Minnie\'s Haberdashery', true)
+            .fillField('input[name=link]', 'https://google.com/doodles', true)
+            .fillField('.ql-editor', 'A wonderfully changed description', true, 'editor')
             .click('.sw-manufacturer-detail__save-action')
             .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
             .click('.sw-button__content');

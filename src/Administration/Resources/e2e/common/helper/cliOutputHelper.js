@@ -1,17 +1,33 @@
-export default class CliOutputHelper {
-    createCliEntry(message, type) {
-        if (type === 'success') {
-            console.log(`• ✓ - ${message}`);
-            console.log();
-        } else if (type === 'error') {
-            console.log(`• ✖ - ${message}`);
-            console.log();
-        } else if (type === 'title') {
-            console.log();
-            console.log(`### ${message}`);
-        }
-        else {
-            console.log(message)
-        }
+global.logger = {
+    log: createLog,
+    success: createSuccessEntry,
+    error: createErrorEntry,
+    title: createTitle,
+    lineBreak: createNewLine
+};
+
+function createSuccessEntry(messages) {
+    createLog('success', messages);
+}
+
+function createErrorEntry(messages) {
+    createLog('error', messages);
+}
+
+function createTitle(messages) {
+    createLog('title', messages);
+}
+function createNewLine() {
+    createLog();
+}
+
+function createLog(type, ...message) {
+    let symbol = (type === 'success') ? '• ✓' : '';
+    symbol = (type === 'error') ? '• ✖' : symbol;
+
+    if (type === 'title') {
+        symbol = '###';
     }
+    message.unshift(`${symbol}`);
+    console.log.apply(this, message);
 }

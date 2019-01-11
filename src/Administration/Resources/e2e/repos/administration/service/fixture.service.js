@@ -1,5 +1,4 @@
 const AdminApiService = require('./../service/admin-api.service');
-const LoggingHelper = require('../../../common/helper/cliOutputHelper');
 const _ = require('lodash');
 const glob = require('glob');
 const path = require('path');
@@ -8,8 +7,7 @@ const uuid = require('uuid/v4');
 export default class FixtureService {
     constructor() {
         this.apiClient = new AdminApiService(process.env.APP_URL);
-        this.loggingHelper = new LoggingHelper();
-        this.basicFixture = "";
+        this.basicFixture = '';
 
         // Automatic loading of fixtures
         glob.sync(path.join(__dirname, './fixture/*.js')).forEach((fileName) => {
@@ -22,7 +20,8 @@ export default class FixtureService {
     }
 
     create(type, userData = {}) {
-        this.loggingHelper.createCliEntry(`Set ${type} fixtures...`, 'title');
+        global.logger.lineBreak();
+        global.logger.title(`Set ${type} fixtures...`);
 
         this.setBasicFixture(`${type}.json`);
         const finalRawData = this.mergeFixtureWithData(this.basicFixture, userData);
@@ -37,9 +36,11 @@ export default class FixtureService {
                     }]
                 });
             }).catch((err) => {
-                this.loggingHelper.createCliEntry(err, 'error');
+                global.logger.error(err);
+                global.logger.lineBreak();
             }).then((data) => {
-                this.loggingHelper.createCliEntry(data.id, 'success');
+                global.logger.success(data.id);
+                global.logger.lineBreak();
             });
     }
 
@@ -56,7 +57,7 @@ export default class FixtureService {
         try {
             return require(`administration/@fixtures/${fileName}`);
         } catch (err) {
-            console.log('• ✖ - Error: ', err);
+            global.logger.error(err);
         }
 
     }

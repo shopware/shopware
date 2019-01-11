@@ -18,7 +18,7 @@ module.exports = {
             .clickContextMenuItem('.sw-currency-list__edit-action', '.sw-context-button__button', '.sw-grid-row:last-child')
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .clearValue('input[name=sw-field--currency-name]')
-            .fillField('input[name=sw-field--currency-name]', 'Yen but true','input', true)
+            .fillField('input[name=sw-field--currency-name]', 'Yen but true', true)
             .waitForElementPresent('.sw-settings-currency-detail__save-action')
             .click('.sw-settings-currency-detail__save-action')
             .checkNotification('Currency "Yen but true" has been saved successfully.')

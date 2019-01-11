@@ -17,7 +17,8 @@ export default class CustomerFixtureService extends FixtureService {
     }
 
     setCustomerFixture(userData) {
-        this.loggingHelper.createCliEntry('Set customer fixtures...', 'title');
+        global.logger.lineBreak();
+        global.logger.title('Set customer fixtures...');
 
         const customerJson = this.customerFixture;
         const customerAddressJson = this.customerAddressFixture;
@@ -89,9 +90,11 @@ export default class CustomerFixtureService extends FixtureService {
         }).then((finalCustomerData) => {
             return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
         }).catch((err) => {
-            this.loggingHelper.createCliEntry(err, 'error');
+            global.logger.error(err);
+            global.logger.lineBreak();
         }).then((data) => {
-            this.loggingHelper.createCliEntry(data.id, 'success');
+            global.logger.success(data.id);
+            global.logger.lineBreak();
         });
     }
 }

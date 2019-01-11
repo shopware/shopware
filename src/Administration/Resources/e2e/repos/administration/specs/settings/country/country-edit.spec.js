@@ -18,7 +18,7 @@ module.exports = {
             .clickContextMenuItem('.sw-country-list__edit-action', '.sw-context-button__button', '.sw-grid-row:first-child')
             .waitForElementVisible('.sw-settings-country-detail .sw-card__content')
             .assert.containsText('.sw-card__title', 'Settings')
-            .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2','input', true)
+            .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2', true)
             .click('.sw-settings-country-detail__save-action')
             .checkNotification('Country "1.Niemandsland x2" has been saved successfully.')
             .assert.urlContains('#/sw/settings/country/detail');

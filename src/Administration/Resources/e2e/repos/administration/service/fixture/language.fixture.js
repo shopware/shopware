@@ -11,7 +11,8 @@ export default class LanguageFixtureService extends FixtureService {
     }
 
     setLanguageFixtures(userData) {
-        this.loggingHelper.createCliEntry('Set language fixtures...', 'title');
+        global.logger.lineBreak();
+        global.logger.title('Set language fixtures...');
         let localeId = '';
 
         const languageData = this.languageFixture;
@@ -31,9 +32,11 @@ export default class LanguageFixtureService extends FixtureService {
         }).then((finalLanguageData) => {
             return this.apiClient.post('/v1/language?_response=true', finalLanguageData, userData);
         }).catch((err) => {
-            this.loggingHelper.createCliEntry(err, 'error');
+            global.logger.error(err);
+            global.logger.lineBreak();
         }).then((data) => {
-            this.loggingHelper.createCliEntry(data.id, 'success');
+            global.logger.success(data.id);
+            global.logger.lineBreak();
         });
     }
 }

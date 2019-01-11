@@ -93,17 +93,6 @@
                                v-if="!next1387 || !isStoreFront">
                     </sw-select>
                 {% endblock %}
-
-                {% block sw_sales_channel_detail_base_general_input_catalogs %}
-                    <sw-select id="catalogIds"
-                               multi
-                               class="sw-sales-channel-detail__select-catalogues"
-                               :label="$tc('sw-sales-channel.detail.labelInputCatalogs')"
-                               :associationStore="catalogAssociationStore"
-                               :store="catalogStore"
-                               entityName="catalog">
-                    </sw-select>
-                {% endblock %}
             </sw-card>
         {% endblock %}
 

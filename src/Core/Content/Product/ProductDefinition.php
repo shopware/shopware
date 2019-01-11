@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -18,7 +17,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDef
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -101,7 +99,6 @@ class ProductDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            new CatalogField(),
 
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
@@ -196,7 +193,6 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete()),
-            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }
 }

@@ -417,11 +417,6 @@ class EntityReader implements EntityReaderInterface
             $versionCondition = ' AND #alias#.' . $versionField . ' = #root#.version_id';
         }
 
-        $catalogCondition = '';
-        if ($mapping::isCatalogAware() && $definition::isCatalogAware()) {
-            $catalogCondition = ' AND #alias#.catalog_id = #root#.catalog_id';
-        }
-
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
         if ($field->is(Inherited::class)) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
@@ -445,7 +440,6 @@ class EntityReader implements EntityReaderInterface
                   FROM #mapping_table# #alias#
                   WHERE #alias#.#mapping_local_column# = #source#' .
                   $versionCondition .
-                  $catalogCondition .
                   ' ) as #property#'
             )
         );

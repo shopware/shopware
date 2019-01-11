@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
-use Shopware\Core\Content\Catalog\CatalogEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -13,11 +12,6 @@ class CategoryTranslationEntity extends TranslationEntity
      * @var string
      */
     protected $categoryId;
-
-    /**
-     * @var int
-     */
-    protected $catalogId;
 
     /**
      * @var string|null
@@ -63,11 +57,6 @@ class CategoryTranslationEntity extends TranslationEntity
      * @var LanguageEntity|null
      */
     protected $language;
-
-    /**
-     * @var CatalogEntity|null
-     */
-    protected $catalog;
 
     /**
      * @var array|null
@@ -162,26 +151,6 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setCategory(CategoryEntity $category): void
     {
         $this->category = $category;
-    }
-
-    public function getCatalogId(): int
-    {
-        return $this->catalogId;
-    }
-
-    public function setCatalogId(int $catalogId): void
-    {
-        $this->catalogId = $catalogId;
-    }
-
-    public function getCatalog(): ?CatalogEntity
-    {
-        return $this->catalog;
-    }
-
-    public function setCatalog(CatalogEntity $catalog): void
-    {
-        $this->catalog = $catalog;
     }
 
     public function getAttributes(): ?array

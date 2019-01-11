@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
@@ -220,7 +219,7 @@ class EntityDefinitionQueryHelper
 
     /**
      * Creates the basic root query for the provided entity definition and application context.
-     * It considers the current context version and the catalog restrictions.
+     * It considers the current context version.
      */
     public function getBaseQuery(QueryBuilder $query, string $definition, Context $context): QueryBuilder
     {
@@ -259,15 +258,6 @@ class EntityDefinitionQueryHelper
 
             $query->andWhere(self::escape($table) . '.`' . $versionIdField->getStorageName() . '` = :version');
             $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
-        }
-
-        if ($definition::isCatalogAware() && $context->getCatalogIds() !== null) {
-            $catalogIds = array_map(function (string $catalogId) {
-                return Uuid::fromHexToBytes($catalogId);
-            }, $context->getCatalogIds());
-
-            $query->andWhere(self::escape($table) . '.`catalog_id` IN (:catalogIds)');
-            $query->setParameter('catalogIds', $catalogIds, Connection::PARAM_STR_ARRAY);
         }
 
         $this->addRuleCondition($query, $definition, $context);

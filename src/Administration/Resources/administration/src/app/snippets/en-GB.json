@@ -260,7 +260,6 @@
     },
     "entities": {
       "cart": "Cart | Carts",
-      "catalog": "Catalog | Catalogues",
       "category": "Category | Categories",
       "country": "Country | Countries",
       "currency": "Currency | Currencies",
@@ -450,43 +449,6 @@
       "messageSaveSuccess": "Customer \"{name}\" has been saved successfully."
     }
   },
-  "sw-catalog": {
-    "general": {
-      "mainMenuItemIndex": "Catalogues",
-      "mainMenuItemList": "Overview",
-      "mainMenuItemCreate": "Create catalogue",
-      "headlineCatalogs": "Catalogues",
-      "introHeadlineCatalogs": "Welcome to the catalogue management",
-      "introDescriptionCatalogs": "All information is stored in catalogues, e.g. products, pages or media. A catalogue's contents are structured in categories. You can use a catalogue to publish distinct content in various sales channels. By this you can work with a multitude of catalogues and manage a variety of assortments.",
-      "buttonCreateCatalog": "Create catalogue"
-    },
-    "list": {
-      "columnLabelName": "Name",
-      "columnLabelActions": "Actions",
-      "actionLabelEdit": "Edit catalogue"
-    },
-    "detail": {
-      "buttonAbortLabel": "Abort",
-      "buttonSaveLabel": "Save",
-      "introHeadlineDetail": "Catalogue content",
-      "introDescriptionDetail": "This is an overview of your catalogue \"{name}\". <br>Here you can edit the catalogue's categories or publish it in different sales channels.",
-      "labelOverviewProducts": "Products",
-      "labelOverviewCategories": "Categories",
-      "labelOverviewPages": "Pages",
-      "labelOverviewMedia": "Media",
-      "cardTitleProperties": "Properties",
-      "cardTitleCategories": "Categories",
-      "fieldLabelName": "Catalogue name",
-      "fieldPlaceholderAddCategory": "Add category",
-      "buttonAddCategory": "Add",
-      "contextButtonEditCategory": "Edit",
-      "contextButtonDeleteCategory": "Delete",
-      "contextButtonAddChildCategory": "New child category"
-    },
-    "create": {
-      "headlineNewCatalog": "New catalogue"
-    }
-  },
   "sw-category": {
     "general": {
       "mainMenuItemIndex": "Categories",
@@ -567,11 +529,8 @@
       "placeholderManufacturer": "Enter product manufacturer"
     },
     "categoryForm": {
-      "labelCatalog": "Catalogue",
       "labelCategory": "Category",
-      "placeholderCatalog": "Select product catalogue",
-      "placeholderCategory": "Type to search for categories",
-      "optionDefaultCatalog": "Default catalogue"
+      "placeholderCategory": "Type to search for categories"
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -861,9 +820,9 @@
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Currencies",
       "labelInputLanguages": "Languages",
-      "labelInputCatalogs": "Catalogues",
+      "labelInputCategories": "Categories",
       "titleOptionsCard": "Options",
-      "textDeleteInfo": "Careful, you are about to delete this sales channel permanently. The sales channel will no longer be available in your Shopware administration if you proceed. However, deleting the sales channel will not affect existing orders and catalogues.",
+      "textDeleteInfo": "Careful, you are about to delete this sales channel permanently. The sales channel will no longer be available in your Shopware administration if you proceed. However, deleting the sales channel will not affect existing orders and categories.",
       "buttonDelete": "Delete sales channel",
       "deleteModalTitle": "Delete sales channel",
       "textConfirmDelete": "Are you sure you want to delete this sales channel?",
@@ -871,6 +830,7 @@
       "buttonConfirmDelete": "Delete",
       "textHeadline": "New sales channel",
       "placeholderName": "Enter sales channel name...",
+      "placeholderInputCategories": "Add Categories",
       "titleDomains": "Domains",
       "labelInputCurrency": "Currency",
       "labelInputLanguage": "Language",
@@ -948,7 +908,6 @@
       "labelPresentationSmall": "Small preview",
       "labelPresentationMedium": "Regular preview",
       "labelPresentationLarge": "Large preview",
-      "labelCatalog": "Selected catalog:",
       "labelSortByNameAsc": "Name, ascending",
       "labelSortByNameDsc": "Name, descending",
       "labelSortBySizeAsc": "Size, ascending",

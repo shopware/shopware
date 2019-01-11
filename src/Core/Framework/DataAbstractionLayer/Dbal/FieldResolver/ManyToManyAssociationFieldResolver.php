@@ -83,11 +83,6 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             $versionJoinCondition = ' AND #alias#.`version_id` = #mapping#.' . $versionField;
         }
 
-        $catalogJoinCondition = '';
-        if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
-            $catalogJoinCondition = ' AND #root#.`catalog_id` = #alias#.`catalog_id`';
-        }
-
         $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
         if ($field->is(ReverseInherited::class)) {
             /** @var ReverseInherited $flag */
@@ -118,7 +113,6 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
                 array_values($parameters),
                 '#mapping#.#source_column# = #alias#.#reference_column# ' .
                 $versionJoinCondition .
-                $catalogJoinCondition .
                 $ruleCondition
             )
         );

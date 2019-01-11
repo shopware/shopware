@@ -42,14 +42,6 @@ Component.register('sw-sales-channel-detail-base', {
             return this.showSecretAccessKey ? 'text' : 'password';
         },
 
-        catalogStore() {
-            return State.getStore('catalog');
-        },
-
-        catalogAssociationStore() {
-            return this.salesChannel.getAssociation('catalogs');
-        },
-
         countryStore() {
             return State.getStore('country');
         },

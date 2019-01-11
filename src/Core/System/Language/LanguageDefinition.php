@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerG
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
-use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
@@ -92,7 +91,6 @@ class LanguageDefinition extends EntityDefinition
             new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'language_id', false, 'id'),
             (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'language_id', false))->addFlags(new RestrictDelete()),
 
-            (new OneToManyAssociationField('catalogTranslations', CatalogTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('countryStateTranslations', CountryStateTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('countryTranslations', CountryTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),

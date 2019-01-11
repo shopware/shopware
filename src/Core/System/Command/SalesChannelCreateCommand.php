@@ -66,7 +66,6 @@ class SalesChannelCreateCommand extends Command
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $input->getOption('countryId'),
             'countryVersionId' => Defaults::LIVE_VERSION,
-            'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => $input->getOption('currencyId')]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'shippingMethods' => [['id' => $input->getOption('shippingMethodId')]],

@@ -19,7 +19,6 @@ class Migration1536240664ProductTranslation extends MigrationStep
               `product_id` binary(16) NOT NULL,
               `product_version_id` binary(16) NOT NULL,
               `language_id` binary(16) NOT NULL,
-              `catalog_id` binary(16) NOT NULL,
               `additional_text` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
               `keywords` mediumtext COLLATE utf8mb4_unicode_ci NULL,
@@ -31,8 +30,7 @@ class Migration1536240664ProductTranslation extends MigrationStep
               `updated_at` datetime(3),
               PRIMARY KEY (`product_id`, `language_id`, `product_version_id`),
               CONSTRAINT `fk.product_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_translation.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_translation.catalog_id` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+              CONSTRAINT `fk.product_translation.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

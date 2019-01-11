@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Content\Catalog\CatalogCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\CountryCollection;
@@ -64,11 +63,6 @@ class SalesChannelEntity extends Entity
      * @var string
      */
     protected $accessKey;
-
-    /**
-     * @var CatalogCollection|null
-     */
-    protected $catalogs;
 
     /**
      * @var CurrencyCollection|null
@@ -248,16 +242,6 @@ class SalesChannelEntity extends Entity
     public function setAccessKey(string $accessKey): void
     {
         $this->accessKey = $accessKey;
-    }
-
-    public function getCatalogs(): ?CatalogCollection
-    {
-        return $this->catalogs;
-    }
-
-    public function setCatalogs(CatalogCollection $catalogs): void
-    {
-        $this->catalogs = $catalogs;
     }
 
     public function getCurrencies(): ?CurrencyCollection

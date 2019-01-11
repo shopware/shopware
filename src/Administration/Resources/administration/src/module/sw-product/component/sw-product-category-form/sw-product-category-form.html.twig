@@ -1,35 +1,17 @@
 {% block sw_product_category_form %}
     <div class="sw-product-category-form">
 
-        {% block sw_product_category_form_content %}
-            {% block sw_product_category_form_catalog_field %}
-                <sw-field type="select"
-                          :label="$tc('sw-product.categoryForm.labelCatalog')"
-                          :placeholder="$tc('sw-product.categoryForm.placeholderCatalog')"
-                          validation="required"
-                          @change="onChangeCatalog"
-                          v-model="product.catalogId">
-                    <option v-for="catalog in catalogs"
-                            :value="catalog.id">
-                        {{ catalog.meta.viewData.name }}
-                    </option>
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_product_category_form_category_field %}
-                <sw-select id="categories"
-                           multi
-                           class="sw-product-detail__select-category"
-                           ref="multiSelectCategories"
-                           :label="$tc('sw-product.categoryForm.labelCategory')"
-                           :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
-                           :associationStore="categoryAssociationStore"
-                           :store="categoryStore"
-                           :criteria="criteria"
-                           :disabled="!hasCriteria"
-                           v-model="product.categories">
-                </sw-select>
-            {% endblock %}
+        {% block sw_product_category_form_category_field %}
+            <sw-select id="categories"
+                       multi
+                       class="sw-product-detail__select-category"
+                       ref="multiSelectCategories"
+                       :label="$tc('sw-product.categoryForm.labelCategory')"
+                       :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
+                       :associationStore="categoryAssociationStore"
+                       :store="categoryStore"
+                       v-model="product.categories">
+            </sw-select>
         {% endblock %}
     </div>
 {% endblock %}

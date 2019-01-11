@@ -59,11 +59,6 @@ class SearchKeywordIndexer implements IndexerInterface
     private $languageRepository;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $catalogRepository;
-
-    /**
      * @var DefinitionRegistry
      */
     private $registry;
@@ -80,15 +75,13 @@ class SearchKeywordIndexer implements IndexerInterface
         EventDispatcherInterface $eventDispatcher,
         SearchAnalyzerRegistry $analyzerRegistry,
         IndexTableOperator $indexTableOperator,
-        EntityRepositoryInterface $languageRepository,
-        EntityRepositoryInterface $catalogRepository
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->analyzerRegistry = $analyzerRegistry;
         $this->indexTableOperator = $indexTableOperator;
         $this->languageRepository = $languageRepository;
-        $this->catalogRepository = $catalogRepository;
         $this->container = $container;
         $this->registry = $registry;
     }
@@ -112,7 +105,6 @@ class SearchKeywordIndexer implements IndexerInterface
         $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD INDEX (`entity_id`)');
 
         $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
-        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
         $sourceContext = new SourceContext();
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
@@ -121,7 +113,6 @@ class SearchKeywordIndexer implements IndexerInterface
         foreach ($languages as $language) {
             $context = new Context(
                 $sourceContext,
-                $catalogIds->getIds(),
                 [],
                 Defaults::CURRENCY,
                 [$language->getId(), $language->getParent(), Defaults::LANGUAGE_SYSTEM],

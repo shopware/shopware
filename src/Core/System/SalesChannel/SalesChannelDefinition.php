@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -27,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
@@ -75,7 +73,6 @@ class SalesChannelDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->addFlags(new Required()),
-            new ManyToManyAssociationField('catalogs', CatalogDefinition::class, SalesChannelCatalogDefinition::class, true, 'sales_channel_id', 'catalog_id'),
             new ManyToManyAssociationField('currencies', CurrencyDefinition::class, SalesChannelCurrencyDefinition::class, false, 'sales_channel_id', 'currency_id'),
             new ManyToManyAssociationField('languages', LanguageDefinition::class, SalesChannelLanguageDefinition::class, false, 'sales_channel_id', 'language_id'),
             new ManyToManyAssociationField('countries', CountryDefinition::class, SalesChannelCountryDefinition::class, false, 'sales_channel_id', 'country_id'),

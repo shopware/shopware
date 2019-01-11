@@ -19,7 +19,6 @@ class ProductPageObject extends GeneralPageObject {
             .fillField('input[name=sw-field--product-name]', productName)
             .fillField('.ql-editor', 'My very first description', false, 'editor')
             .fillSelectField('select[name=sw-field--product-manufacturerId]', 'shopware AG')
-            .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
             .click(this.elements.productSaveAction)

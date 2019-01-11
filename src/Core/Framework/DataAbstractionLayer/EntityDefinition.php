@@ -197,11 +197,6 @@ abstract class EntityDefinition
         return static::getFields()->has('versionId');
     }
 
-    public static function isCatalogAware(): bool
-    {
-        return static::getFields()->has('catalogId');
-    }
-
     public static function getDeleteProtectionKey(): ?string
     {
         return null;

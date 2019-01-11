@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 class Migration1549455345AddAttributes extends MigrationStep
 {
     private const ENTITIES = [
-        'catalog_translation',
         'category_translation',
         'cms_block',
         'cms_page_translation',

@@ -260,7 +260,6 @@
     },
     "entities": {
       "cart": "Warenkorb | Warenkörbe",
-      "catalog": "Katalog | Kataloge",
       "category": "Kategorie | Kategorien",
       "country": "Land | Länder",
       "currency": "Währung | Währungen",
@@ -450,43 +449,6 @@
       "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gespeichert."
     }
   },
-  "sw-catalog": {
-    "general": {
-      "mainMenuItemIndex": "Kataloge",
-      "mainMenuItemList": "Übersicht",
-      "mainMenuItemCreate": "Katalog anlegen",
-      "headlineCatalogs": "Kataloge",
-      "introHeadlineCatalogs": "Willkommen in der Katalogverwaltung",
-      "introDescriptionCatalogs": "Alle Informationen, wie Produkte, Seiten oder Medien werden in Katalogen abgelegt. Alle Daten eines Kataloges können in Kategorien strukturiert werden. Du kannst einen Katalog dazu benutzen, um Deine Produkte und Inhalte auf einem oder mehreren Verkaufskanälen auszuspielen. Du kannst außerdem Kataloge anlegen, um z.B. neue Sortimente besser verwalten zu können.",
-      "buttonCreateCatalog": "Katalog anlegen"
-    },
-    "list": {
-      "columnLabelName": "Name",
-      "columnLabelActions": "Aktionen",
-      "actionLabelEdit": "Katalog bearbeiten"
-    },
-    "detail": {
-      "buttonAbortLabel": "Abbrechen",
-      "buttonSaveLabel": "Speichern",
-      "introHeadlineDetail": "Kataloginhalt",
-      "introDescriptionDetail": "Dies ist die Übersicht Deines Kataloges \"{name}\". <br>Hier kannst Du die Kategorien des Kataloges bearbeiten und den Katalog auf weiteren Verkaufskanälen ausspielen.",
-      "labelOverviewProducts": "Produkte",
-      "labelOverviewCategories": "Kategorien",
-      "labelOverviewPages": "Seiten",
-      "labelOverviewMedia": "Medien",
-      "cardTitleProperties": "Eigenschaften",
-      "cardTitleCategories": "Kategorien",
-      "fieldLabelName": "Katalogname",
-      "fieldPlaceholderAddCategory": "Kategorie hinzufügen",
-      "buttonAddCategory": "Hinzufügen",
-      "contextButtonEditCategory": "Bearbeiten",
-      "contextButtonDeleteCategory": "Löschen",
-      "contextButtonAddChildCategory": "Neue Unterkategorie"
-    },
-    "create": {
-      "headlineNewCatalog": "Neuer Katalog"
-    }
-  },
   "sw-category": {
     "general": {
       "mainMenuItemIndex": "Kategorien",
@@ -567,11 +529,8 @@
       "placeholderManufacturer": "Gib einen Produkthersteller ein..."
     },
     "categoryForm": {
-      "labelCatalog": "Katalog",
       "labelCategory": "Kategorie",
-      "placeholderCatalog": "Wähle einen Produktkatalog aus...",
-      "placeholderCategory": "Tippe, um Kategorien zu suchen...",
-      "optionDefaultCatalog": "Standardkatalog"
+      "placeholderCategory": "Tippe, um Kategorien zu suchen..."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
@@ -863,7 +822,7 @@
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Währungen",
       "labelInputLanguages": "Sprachen",
-      "labelInputCatalogs": "Kataloge",
+      "labelInputCategories": "Kategorien",
       "titleOptionsCard": "Optionen",
       "textDeleteInfo": "Achtung: Hiermit löschst Du diesen Verkaufskanal vollständig! Der Verkaufskanal wird danach nicht mehr in der Shopware Administration verfügbar sein und kann auch nicht wiederhergestellt werden. Alle vorhandenen Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden durch diese Aktion nicht verändert.",
       "buttonDelete": "Verkaufskanal löschen",
@@ -873,6 +832,7 @@
       "buttonConfirmDelete": "Löschen",
       "textHeadline": "Neuer Verkaufskanal",
       "placeholderName": "Gib einen Namen für den Verkaufskanal ein...",
+      "placeholderInputCategories": "Kategorien hinzufügen",
       "titleDomains": "Domänen",
       "labelInputCurrency": "Währung",
       "labelInputLanguage": "Sprache",
@@ -950,7 +910,6 @@
       "labelPresentationSmall": "Kleine Vorschau",
       "labelPresentationMedium": "Normale Vorschau",
       "labelPresentationLarge": "Große Vorschau",
-      "labelCatalog": "Ausgewählter Katalog:",
       "labelSortByNameAsc": "Name aufsteigend",
       "labelSortByNameDsc": "Name absteigend",
       "labelSortBySizeAsc": "Größe aufsteigend",

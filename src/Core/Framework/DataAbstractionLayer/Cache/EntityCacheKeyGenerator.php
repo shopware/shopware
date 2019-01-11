@@ -255,7 +255,6 @@ class EntityCacheKeyGenerator
     {
         return md5(json_encode([
             $context->getLanguageIdChain(),
-            $context->getCatalogIds(),
             $context->getVersionId(),
             $context->getCurrencyFactor(),
             $context->getRules(),

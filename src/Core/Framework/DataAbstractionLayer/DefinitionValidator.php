@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
-use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
@@ -468,15 +467,6 @@ class DefinitionValidator
             }
         )->first();
 
-        if (!$reverseSide && $definition !== CatalogDefinition::class) {
-            $associationViolations[$definition][] = sprintf(
-                'Association %s.%s has no reverse association in definition %s',
-                $definition::getEntityName(),
-                $association->getPropertyName(),
-                $association->getReferenceClass()
-            );
-        }
-
         $foreignKey = $reference::getFields()->getByStorageName($association->getReferenceField());
 
         if (!$foreignKey instanceof FkField) {
@@ -536,7 +526,7 @@ class DefinitionValidator
         }
 
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware()) {
+        if ($definition::isVersionAware() && $reference::isVersionAware()) {
             $versionField = $mapping::getFields()->filter(function (Field $field) use ($definition) {
                 return $field instanceof ReferenceVersionField && $field->getVersionReference() === $definition;
             })->first();
@@ -549,7 +539,7 @@ class DefinitionValidator
                 return $field instanceof ReferenceVersionField && $field->getVersionReference() === $reference;
             })->first();
 
-            if ($reference::isVersionAware() && !$referenceVersionField) {
+            if (!$referenceVersionField) {
                 $violations[$mapping][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $reference, $mapping);
             }
         }

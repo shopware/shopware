@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
-use Shopware\Core\Content\Catalog\CatalogEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
@@ -12,11 +11,6 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
      * @var string
      */
     protected $productManufacturerId;
-
-    /**
-     * @var int
-     */
-    protected $catalogId;
 
     /**
      * @var string|null
@@ -47,11 +41,6 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
      * @var ProductManufacturerEntity|null
      */
     protected $productManufacturer;
-
-    /**
-     * @var CatalogEntity|null
-     */
-    protected $catalog;
 
     /**
      * @var array|null
@@ -126,26 +115,6 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     public function setProductManufacturer(ProductManufacturerEntity $productManufacturer): void
     {
         $this->productManufacturer = $productManufacturer;
-    }
-
-    public function getCatalogId(): int
-    {
-        return $this->catalogId;
-    }
-
-    public function setCatalogId(int $catalogId): void
-    {
-        $this->catalogId = $catalogId;
-    }
-
-    public function getCatalog(): ?CatalogEntity
-    {
-        return $this->catalog;
-    }
-
-    public function setCatalog(CatalogEntity $catalog): void
-    {
-        $this->catalog = $catalog;
     }
 
     public function getAttributes(): ?array

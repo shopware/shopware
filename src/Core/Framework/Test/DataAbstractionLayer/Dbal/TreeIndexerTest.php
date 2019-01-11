@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\TreeIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -291,7 +290,6 @@ class TreeIndexerTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
-            'catalogId' => Defaults::CATALOG,
             'name' => 'Category ',
         ];
 

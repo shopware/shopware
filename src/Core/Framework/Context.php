@@ -24,11 +24,6 @@ class Context extends Struct
     protected $sourceContext;
 
     /**
-     * @var array|null
-     */
-    protected $catalogIds;
-
-    /**
      * @var string
      */
     protected $currencyId;
@@ -55,7 +50,6 @@ class Context extends Struct
 
     public function __construct(
         SourceContext $sourceContext,
-        ?array $catalogIds = [Defaults::CATALOG],
         array $rules = [],
         string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
@@ -63,7 +57,6 @@ class Context extends Struct
         float $currencyFactor = 1.0
     ) {
         $this->sourceContext = $sourceContext;
-        $this->catalogIds = $catalogIds;
         $this->rules = $rules;
         $this->currencyId = $currencyId;
 
@@ -99,11 +92,6 @@ class Context extends Struct
         return $this->languageIdChain[0];
     }
 
-    public function getCatalogIds(): ?array
-    {
-        return $this->catalogIds;
-    }
-
     public function getCurrencyId(): string
     {
         return $this->currencyId;
@@ -128,33 +116,10 @@ class Context extends Struct
     {
         $context = new self(
             $this->sourceContext,
-            $this->catalogIds,
             $this->rules,
             $this->currencyId,
             $this->languageIdChain,
             $versionId,
-            $this->currencyFactor
-        );
-
-        foreach ($this->getExtensions() as $key => $extension) {
-            $context->addExtension($key, $extension);
-        }
-        $context->getWriteProtection()->allow(
-            ...$this->getWriteProtection()->all()
-        );
-
-        return $context;
-    }
-
-    public function createWithCatalogIds(array $catalogIds): self
-    {
-        $context = new self(
-            $this->sourceContext,
-            $catalogIds,
-            $this->rules,
-            $this->currencyId,
-            $this->languageIdChain,
-            $this->versionId,
             $this->currencyFactor
         );
 

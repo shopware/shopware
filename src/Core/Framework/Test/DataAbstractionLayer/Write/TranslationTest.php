@@ -485,7 +485,7 @@ class TranslationTest extends TestCase
         static::assertEquals('system', $catSystem->getViewData()->getName());
         static::assertCount(1, $catSystem->getTranslations());
 
-        $deDeContext = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
+        $deDeContext = new Context(new SourceContext(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
         /** @var CategoryEntity $catDeDe */
         $catDeDe = $categoryRepository->search(new Criteria([$category['id']]), $deDeContext)->first();
 
@@ -761,7 +761,7 @@ class TranslationTest extends TestCase
 
         // validate german translations
 
-        $germanContext = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
+        $germanContext = new Context(new SourceContext(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
         $searchResult = $slotRepository->search(new Criteria($ids), $germanContext);
 
         /** @var CmsSlotEntity $slot */

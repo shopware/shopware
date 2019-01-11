@@ -230,13 +230,10 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
           sales_channel.language_id as sales_channel_default_language_id,
           sales_channel.currency_id as sales_channel_currency_id,
           currency.factor as sales_channel_currency_factor,
-          GROUP_CONCAT(LOWER(HEX(sales_channel_catalog.catalog_id))) as sales_channel_catalog_ids,
           GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids
         FROM sales_channel
             INNER JOIN currency 
                 ON sales_channel.currency_id = currency.id
-            LEFT JOIN sales_channel_catalog 
-                ON sales_channel.id = sales_channel_catalog.sales_channel_id
             LEFT JOIN sales_channel_language
                 ON sales_channel_language.sales_channel_id = sales_channel.id
         WHERE sales_channel.id = :id
@@ -249,8 +246,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $sourceContext = new SourceContext($origin);
         $sourceContext->setSalesChannelId($salesChannelId);
 
-        $catalogIds = $data['sales_channel_catalog_ids'] ? explode(',', $data['sales_channel_catalog_ids']) : null;
-
         //explode all available languages for the provided sales channel
         $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : null;
         $languageIds = array_keys(array_flip($languageIds));
@@ -262,7 +257,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
         return new Context(
             $sourceContext,
-            $catalogIds,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
             $languageChain,

@@ -411,7 +411,6 @@ class ProductRepositoryTest extends TestCase
 
         $context = new Context(
             $sourceContext,
-            [Defaults::CATALOG],
             [$ruleA]
         );
 
@@ -1774,7 +1773,7 @@ class ProductRepositoryTest extends TestCase
         $sourceContext = new SourceContext('cli');
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
-        return new Context($sourceContext, [Defaults::CATALOG], $ruleIds);
+        return new Context($sourceContext, $ruleIds);
     }
 }
 

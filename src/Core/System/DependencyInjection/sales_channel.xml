@@ -13,10 +13,6 @@
             <tag name="shopware.entity.definition" entity="sales_channel_translation"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_catalog"/>
-        </service>
-
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_country"/>
         </service>

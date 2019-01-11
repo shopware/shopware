@@ -92,7 +92,6 @@
             <argument type="service" id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IndexTableOperator"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="catalog.repository"/>
             <tag name="shopware.dbal_indexing.indexer" priority="200"/>
         </service>
 
@@ -417,15 +416,6 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="sales_channel_catalog.repository" public="true">
-            <argument>Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCatalog\SalesChannelCatalogDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="sales_channel_currency.repository" public="true">
             <argument>Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
@@ -636,24 +626,6 @@
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="language.repository" public="true">
             <argument>Shopware\Core\System\Language\LanguageDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="catalog.repository" public="true">
-            <argument>Shopware\Core\Content\Catalog\CatalogDefinition</argument>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="catalog_translation.repository" public="true">
-            <argument>Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
@@ -1183,11 +1155,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer">
             <argument type="service"  id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
-            <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CatalogFieldSerializer">
             <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>
         </service>

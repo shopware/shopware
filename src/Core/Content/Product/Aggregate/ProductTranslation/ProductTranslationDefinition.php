@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
-use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -51,8 +48,6 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
 
-            new CatalogField(),
-            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
             new AttributesField(),
         ]);
     }

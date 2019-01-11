@@ -48,7 +48,8 @@ class IntFieldSerializer implements FieldSerializerInterface
         }
         if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
             $constraintBuilder = $this->constraintBuilder
-                ->isInt();
+                ->isInt()
+                ->isNotBlank();
 
             if ($field->getMinValue() !== null) {
                 $constraintBuilder->isGreaterThanOrEqual($field->getMinValue());

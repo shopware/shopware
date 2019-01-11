@@ -21,5 +21,50 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
                 useTime: false
             };
         }
+    },
+
+    watch: {
+        'condition.value.useTime': {
+            handler() {
+                this.$set(this.datepickerConfig, 'enableTime', !!this.condition.value.useTime);
+            }
+        },
+        fromDate: {
+            handler(newValue) {
+                this.condition.value.fromDate = this.convertValueToAtom(newValue);
+            }
+        },
+        toDate: {
+            handler(newValue) {
+                this.condition.value.toDate = this.convertValueToAtom(newValue);
+            }
+        }
+    },
+
+    data() {
+        return {
+            datepickerConfig: {},
+            fromDate: this.condition.value.fromDate,
+            toDate: this.condition.value.toDate
+        };
+    },
+
+    methods: {
+        convertValueToAtom(value) {
+            let date = new Date(value);
+            date = new Date(Date.UTC(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                date.getHours(),
+                date.getMinutes(),
+                date.getSeconds()
+            ));
+
+            let dateString = date.toISOString();
+            dateString = dateString.substring(0, dateString.length - 5);
+            dateString += '+00:00';
+            return dateString;
+        }
     }
 });

@@ -37,12 +37,12 @@ Component.register('sw-button', {
             type: String,
             required: false,
             default: '',
-            validValues: ['small', 'large'],
+            validValues: ['x-small', 'small', 'large'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['small', 'large'].includes(value);
+                return ['x-small', 'small', 'large'].includes(value);
             }
         },
         square: {

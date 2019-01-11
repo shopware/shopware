@@ -83,6 +83,10 @@
             color: @sw-button-primary-color-text;
         }
 
+        &.sw-button--x-small {
+            line-height: 20px;
+        }
+
         &.sw-button--small {
             line-height: 28px;
         }
@@ -113,6 +117,10 @@
 
         .sw-icon {
             color: @sw-button-contrast-color-text;
+        }
+
+        &.sw-button--x-small {
+            line-height: 20px;
         }
 
         &.sw-button--small {
@@ -146,6 +154,10 @@
 
         .sw-icon {
             color: @sw-button-danger-color-text;
+        }
+
+        &.sw-button--x-small {
+            line-height: 20px;
         }
 
         &.sw-button--small {
@@ -200,6 +212,17 @@
     &.sw-button--block {
         display: block;
         width: 100%;
+    }
+
+    &.sw-button--x-small {
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 12px;
+        line-height: 18px;
+
+        &.sw-button--square {
+            width: 24px;
+        }
     }
 
     &.sw-button--small {

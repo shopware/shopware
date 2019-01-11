@@ -60,6 +60,12 @@ module.exports = {
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
 
         mediaPage.openMediaFolder();
+
+        if (flags.isActive('next1207')) {
+            // move into manufacturer media folder
+            browser.clickContextMenuItem('.sw-context-menu-item','.sw-context-button__button');
+        }
+
         mediaPage.deleteImage();
         browser.waitForElementNotPresent('.sw-media-index__catalog-grid .sw-media-grid__content-cell');
     },

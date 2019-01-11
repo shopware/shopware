@@ -32,6 +32,7 @@ import './grid/sw-grid-column';
 import './grid/sw-grid-row';
 import './grid/sw-pagination';
 
+import './form/sw-confirm-field';
 import './form/sw-field';
 import './form/sw-price-field';
 import './form/sw-color-picker';

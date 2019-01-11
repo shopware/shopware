@@ -233,40 +233,6 @@
                     </template>
                 {% endblock %}
 
-                <!-- Inline edit -->
-                {% block sw_field_input_inline %}
-                    <template v-else-if="type === 'inline'">
-                        <input ref="textfield"
-                               :type="type"
-                               :id="id"
-                               :name="displayName"
-                               :placeholder="placeholder"
-                               :value="currentValue"
-                               :disabled="disabled"
-                               @blur="blurInline"
-                               @input="onInput"
-                               @change="onChange"
-                               @keypress="onKeyPress"
-                               @focus="showActionButtons"
-                               v-bind="$attrs"
-                               v-on="additionalEventListeners">
-
-                        {% block sw_field_action_buttons %}
-                            <sw-button v-if="displayActionButtons" square class="sw-field--inline__button" @click="cancelSubmit">
-                                {% block sw_field_inline_cancel_submit_button_icon %}
-                                    <sw-icon small name="small-default-x-line-medium"></sw-icon>
-                                {% endblock %}
-                            </sw-button>
-
-                            <sw-button v-if="displayActionButtons" square class="sw-field--inline__button sw-field--inline__submit" @click="submitValue">
-                                {% block sw_field_inline_submit_button_icon %}
-                                    <sw-icon small name="small-default-checkmark-line-medium"></sw-icon>
-                                {% endblock %}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-
                 <!-- Default Input -->
                 {% block sw_field_input_default %}
                     <input v-else

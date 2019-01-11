@@ -16,12 +16,6 @@ Component.register('sw-confirm-field', {
             type: Boolean,
             required: false,
             default: false
-        },
-
-        vanish: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 

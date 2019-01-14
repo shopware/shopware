@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="config">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="sw-field" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="label" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="helpText" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="copyable" type="xs:boolean" minOccurs="0"/>
+                            <xs:element name="disabled" type="xs:boolean" minOccurs="0"/>
+                        </xs:sequence>
+                        <xs:attribute name="type" type="type" default="text"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="text"/>
+            <xs:enumeration value="textarea"/>
+            <xs:enumeration value="combo"/>
+            <xs:enumeration value="select"/>
+            <xs:enumeration value="radio"/>
+            <xs:enumeration value="checkbox"/>
+            <xs:enumeration value="switch"/>
+            <xs:enumeration value="boolean"/>
+            <xs:enumeration value="password"/>
+            <xs:enumeration value="inline"/>
+            <xs:enumeration value="date"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="translatableString">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="lang" type="languageCode" default="en_GB"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="languageCode">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z]{2}_[A-Z]{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

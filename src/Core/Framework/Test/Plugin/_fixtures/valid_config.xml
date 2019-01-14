@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../Plugin/Schema/config.xsd">
+    <sw-field>
+        <label>Salutation</label>
+        <label lang="de_DE">Begrüßung</label>
+        <helpText>The salutation shown in every eMail</helpText>
+        <helpText lang="de_DE">Die Begrüßung in jeder eMail</helpText>
+    </sw-field>
+
+    <sw-field type="textarea">
+        <label>eMail body</label>
+        <label lang="de_DE">eMail Inhalt</label>
+        <copyable>true</copyable>
+    </sw-field>
+</config>

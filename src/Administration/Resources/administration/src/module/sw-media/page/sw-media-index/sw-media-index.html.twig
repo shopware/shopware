@@ -186,7 +186,7 @@
                                                         :showSelectionIndicator="isListSelect"
                                                         :isList="false"
                                                         @sw-media-media-item-delete="onMediaGridItemsDeleted"
-                                                        @sw-media-folder-item-delete="onMediaFoldersDeleted"
+                                                        @sw-media-folder-item-remove="onMediaFoldersRemoved"
                                                         @sw-media-folder-item-dissolve="onMediaFoldersDissolved"
                                                         v-on="mediaItemSelectionHandler">
                                                         <template v-if="gridItem.entityName === 'media'">
@@ -232,6 +232,7 @@
                             :items="selectedItems"
                             @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
                             @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
+                            @sw-media-sidebar-items-moved="onMediaMoved"
                             ref="mediaSidebar">
                         </sw-media-sidebar>
                     </div>

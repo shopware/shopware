@@ -6,7 +6,8 @@ Component.register('sw-media-folder-item', {
     template,
 
     mixins: [
-        Mixin.getByName('selectable-media-item')
+        Mixin.getByName('selectable-media-item'),
+        Mixin.getByName('notification')
     ],
 
     provide() {
@@ -35,7 +36,8 @@ Component.register('sw-media-folder-item', {
     data() {
         return {
             showSettings: false,
-            showDissolveModal: false
+            showDissolveModal: false,
+            showMoveModal: false
         };
     },
 
@@ -107,13 +109,27 @@ Component.register('sw-media-folder-item', {
 
             return this.item.save().then(() => {
                 this.item.isLoading = false;
+            }).catch(() => {
+                this.rejectRenaming('error');
             });
         },
 
-        rejectRenaming() {
+        rejectRenaming(cause) {
+            if (cause) {
+                let message = this.$tc('global.sw-media-folder-item.notificationRenamingError');
+
+                if (cause === 'empty-name') {
+                    message = this.$tc('global.sw-media-folder-item.notificationErrorBlankItemName');
+                }
+
+                this.createNotificationError({
+                    message: message
+                });
+            }
+
             if (this.item.isLocal === true) {
                 this.item.delete(true).then(() => {
-                    this.$emit('sw-media-folder-item-delete', [this.item.id]);
+                    this.$emit('sw-media-folder-item-remove', [this.item.id]);
                 });
             }
         },
@@ -143,6 +159,21 @@ Component.register('sw-media-folder-item', {
             dissolvePromise.then((ids) => {
                 this.$emit('sw-media-folder-item-dissolve', ids);
             });
+        },
+
+        onFolderMoved(movePromise) {
+            this.closeMoveModal();
+            movePromise.then((ids) => {
+                this.$emit('sw-media-folder-item-remove', ids);
+            });
+        },
+
+        openMoveModal() {
+            this.showMoveModal = true;
+        },
+
+        closeMoveModal() {
+            this.showMoveModal = false;
         }
     }
 });

@@ -311,13 +311,17 @@ Component.register('sw-media-index', {
             this.subFolders.unshift(newFolder);
         },
 
-        onMediaFoldersDeleted(ids) {
+        onMediaFoldersRemoved(ids) {
             this.subFolders = this.subFolders.filter((folder) => {
                 return !ids.includes(folder.id);
             });
         },
 
         onMediaFoldersDissolved() {
+            this.getList();
+        },
+
+        onMediaMoved() {
             this.getList();
         },
 

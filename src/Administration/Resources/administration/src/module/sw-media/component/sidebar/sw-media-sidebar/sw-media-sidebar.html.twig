@@ -19,14 +19,16 @@
                                     @sw-media-quickinfo-open-modal-replace="openModalReplace"
                                     @sw-media-quickinfo-open-modal-delete="openModalDelete"
                                     @sw-media-quickinfo-open-folder-settings="openFolderSettings"
-                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve">
+                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve"
+                                    @sw-media-quickinfo-open-folder-move="openModalMove">
                                 </sw-media-quickinfo>
 
                                 <sw-media-quickinfo-multiple
                                     v-else-if="isMultipleFile"
                                     :items="items"
                                     @sw-media-quickinfo-open-modal-delete="openModalDelete"
-                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve">
+                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve"
+                                    @sw-media-quickinfo-open-folder-move="openModalMove">
                                 </sw-media-quickinfo-multiple>
                             </div>
                         {% endblock %}
@@ -71,13 +73,22 @@
             </sw-media-modal-folder-settings>
         {% endblock %}
 
-        {% block sw_media_folder_dissolve_modal %}
+        {% block sw_media_sidebar_folder_dissolve_modal %}
             <sw-media-modal-folder-dissolve
                     v-if="showFolderDissolve"
                     :itemsToDissolve="items"
                     @sw-media-modal-folder-dissolve-items-dissolved="onFolderDissolved"
                     @sw-media-modal-folder-dissolve-close="closeFolderDissolve">
             </sw-media-modal-folder-dissolve>
+        {% endblock %}
+
+        {% block sw_media_sidebar_folder_move_modal %}
+            <sw-media-modal-move
+                    v-if="showModalMove"
+                    :itemsToMove="items"
+                    @sw-media-modal-move-close="closeModalMove"
+                    @sw-media-modal-move-items-moved="onFolderMoved">
+            </sw-media-modal-move>
         {% endblock %}
     </div>
 {% endblock %}

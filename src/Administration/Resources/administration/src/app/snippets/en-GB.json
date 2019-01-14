@@ -48,9 +48,12 @@
     "sw-media-folder-item": {
       "labelContextMenuDelete": "Delete",
       "labelContextMenuRename": "Rename",
+      "labelContextMenuMove": "Move",
       "labelContextMenuShowMedia": "Show media",
       "labelContextMenuShowSettings": "Settings",
-      "labelContextMenuDissolve": "Dissolve"
+      "labelContextMenuDissolve": "Dissolve",
+      "notificationErrorBlankItemName": "The folder could not be saved. Please enter a name.",
+      "notificationRenamingError": "Error saving folder"
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
@@ -60,7 +63,7 @@
       "labelContextMenuDetail": "Details",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Media item has been renamed successfully.",
-      "notificationRenamingError": "Error renaming file",
+      "notificationRenamingError": "Error saving file",
       "labelUploading": "Uploading..."
     },
     "sw-media-modal-delete": {
@@ -82,6 +85,15 @@
       "notificationErrorSingle": "Error dissolving \"{folderName}\"",
       "notificationSuccessOverall": "Folders have been dissolved successfully",
       "notificationErrorOverall": "Error dissolving folders"
+    },
+    "sw-media-modal-move": {
+      "titleModal": "Move \"{mediaName}\" | Move {count} items",
+      "buttonMove": "Move",
+      "buttonAbort": "Cancel",
+      "notificationSuccessSingle": "File \"{mediaName}\" successfully Moved",
+      "notificationErrorSingle": "Error moving \"{mediaName}\"",
+      "notificationSuccessOverall": "Media item successfully moved.",
+      "notificationErrorOverall": "Error moving item"
     },
     "sw-media-modal-replace": {
       "titleModal": "Replace media files",
@@ -778,7 +790,8 @@
         "quickInfo": "Quick info",
         "delete": "Delete",
         "settings": "Settings",
-        "dissolve": "Dissolve"
+        "dissolve": "Dissolve",
+        "move": "Move"
       },
       "quickinfo": {
         "actions": "Actions",

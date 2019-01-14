@@ -67,6 +67,11 @@ class MediaFolderEntity extends Entity
      */
     protected $useParentConfiguration;
 
+    /**
+     * @var MediaFolderCollection|null
+     */
+    protected $children;
+
     public function getName(): string
     {
         return $this->name;
@@ -181,5 +186,15 @@ class MediaFolderEntity extends Entity
     public function setUseParentConfiguration(bool $useParentConfiguration): void
     {
         $this->useParentConfiguration = $useParentConfiguration;
+    }
+
+    public function getChildren(): ?MediaFolderCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(?MediaFolderCollection $children): void
+    {
+        $this->children = $children;
     }
 }

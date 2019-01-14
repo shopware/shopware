@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
@@ -21,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -639,7 +643,9 @@ class EntityRepositoryTest extends TestCase
             ['id' => Uuid::fromHexToBytes($id)]
         );
         static::assertCount(7, $conditions);
-        $withParent = array_filter($conditions, function ($condition) { return $condition['parent_id'] !== null; });
+        $withParent = array_filter($conditions, function ($condition) {
+            return $condition['parent_id'] !== null;
+        });
         static::assertCount(6, $withParent);
 
         $newId = Uuid::uuid4()->getHex();
@@ -690,6 +696,69 @@ class EntityRepositoryTest extends TestCase
             }
             static::assertNotContains($condition['parent_id'], $ids);
             static::assertNotContains($condition['parent_id'], $parentIds);
+        }
+    }
+
+    public function testReadPaginatedOneToManyChildrenAssociation()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $id,
+            'name' => 'default folder',
+            'configuration' => [
+                'id' => $id,
+                'createThumbnails' => true,
+            ],
+            'children' => [
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+                ['name' => 'test', 'configurationId' => $id],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $repository = $this->getContainer()->get('media_folder.repository');
+
+        $eventContainer = $repository->create([$data], $context);
+
+        $event = $eventContainer->getEventByDefinition(MediaFolderDefinition::class);
+        static::assertInstanceOf(EntityWrittenEvent::class, $event);
+        static::assertCount(12, $event->getIds());
+
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('media_folder.children', new PaginationCriteria(2, 0));
+
+        $folder = $repository->read($criteria, $context)->get($id);
+
+        /** @var MediaFolderEntity $folder */
+        static::assertInstanceOf(MediaFolderEntity::class, $folder);
+        static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
+        static::assertCount(2, $folder->getChildren());
+
+        $firstIds = $folder->getChildren()->getIds();
+
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('media_folder.children', new PaginationCriteria(3, 2));
+
+        $folder = $repository->read($criteria, $context)->get($id);
+
+        /** @var MediaFolderEntity $folder */
+        static::assertInstanceOf(MediaFolderEntity::class, $folder);
+        static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
+        static::assertCount(3, $folder->getChildren());
+
+        $secondIds = $folder->getChildren()->getIds();
+        foreach ($firstIds as $id) {
+            static::assertNotContains($id, $secondIds);
         }
     }
 

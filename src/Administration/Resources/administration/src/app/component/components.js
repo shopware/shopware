@@ -77,3 +77,5 @@ import './media/sw-sidebar-media-item';
 import './media/sw-media-add-thumbnail-form';
 import './media/sw-media-modal-folder-settings';
 import './media/sw-media-modal-folder-dissolve';
+import './media/sw-media-modal-move';
+import './media/sw-media-folder-content';

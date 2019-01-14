@@ -211,4 +211,51 @@ class MediaFolderControllerTest extends TestCase
         $folder = $this->mediaFolderRepo->read(new ReadCriteria([$folderId]), $this->context)->get($folderId);
         static::assertEquals($targetId, $folder->getParentId());
     }
+
+    public function testMoveToRoot(): void
+    {
+        $folderId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::uuid4()->getHex();
+        $this->mediaFolderRepo->create([
+            [
+                'id' => $parentId,
+                'name' => 'test',
+                'useParentConfiguration' => false,
+                'configuration' => [
+                    'createThumbnails' => true,
+                    'keepAspectRatio' => true,
+                    'thumbnailQuality' => 80,
+                ],
+            ],
+            [
+                'id' => $folderId,
+                'parentId' => $parentId,
+                'name' => 'target',
+                'useParentConfiguration' => false,
+                'configuration' => [
+                    'createThumbnails' => true,
+                    'keepAspectRatio' => true,
+                    'thumbnailQuality' => 80,
+                ],
+            ],
+        ], $this->context);
+
+        $url = sprintf(
+            '/api/v%s/_action/media-folder/%s/move',
+            PlatformRequest::API_VERSION,
+            $folderId
+        );
+
+        $this->getClient()->request(
+            'POST',
+            $url
+        );
+        $response = $this->getClient()->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEmpty($response->getContent());
+
+        $folder = $this->mediaFolderRepo->read(new ReadCriteria([$folderId]), $this->context)->get($folderId);
+        static::assertNull($folder->getParentId());
+    }
 }

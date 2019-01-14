@@ -416,6 +416,49 @@ class MediaFolderServiceTest extends TestCase
         static::assertEquals($targetFolderId, $movedFolder->getParentId());
     }
 
+    public function testMoveMediaFolderToRoot()
+    {
+        $parentFolderId = Uuid::uuid4()->getHex();
+        $folderToMoveId = Uuid::uuid4()->getHex();
+
+        $fixtures = $this->genFolders(
+            [
+                'id' => $parentFolderId,
+                'configuration' => $this->genMediaFolderConfig(
+                    [
+                        'thumbnailQuality' => 79,
+                        'createThumbnails' => true,
+                        'keepAspectRatio' => false,
+                    ]
+                ),
+            ],
+            $this->genFolders(
+                [
+                    'id' => $folderToMoveId,
+                    'useParentConfiguration' => true,
+                ]
+            )
+        );
+
+        $this->mediaFolderRepo->create($fixtures, $this->context);
+
+        $preMoveConfig = $this->getSingleFolderFromRepo($parentFolderId)
+            ->getConfiguration();
+
+        $this->mediaFolderService->move($folderToMoveId, null, $this->context);
+
+        /** @var MediaFolderEntity $movedFolder */
+        $movedFolder = $this->getSingleFolderFromRepo($folderToMoveId);
+        static::assertNull($movedFolder->getParentId());
+
+        $movedFolderConfig = $movedFolder->getConfiguration();
+
+        static::assertFalse($movedFolder->getUseParentConfiguration());
+
+        static::assertNotEquals($preMoveConfig->getId(), $movedFolderConfig->getId());
+        $this->assertConfigValuesEqual($preMoveConfig, $movedFolderConfig);
+    }
+
     public function testMoveMediaFolderWithInheritance()
     {
         $parentFolderId = Uuid::uuid4()->getHex();
@@ -451,6 +494,7 @@ class MediaFolderServiceTest extends TestCase
 
         /** @var MediaFolderEntity $movedFolder */
         $movedFolder = $this->getSingleFolderFromRepo($folderToMoveId);
+        static::assertEquals($targetFolderId, $movedFolder->getParentId());
 
         $movedFolderConfig = $movedFolder->getConfiguration();
 
@@ -507,8 +551,10 @@ class MediaFolderServiceTest extends TestCase
 
         $postMoveSubFolders = $this->getCollectionFromRepo($subFolderIds);
 
-        $postMoveParentConfig = $this->getSingleFolderFromRepo($folderToMoveId)
-            ->getConfiguration();
+        $postMoveParent = $this->getSingleFolderFromRepo($folderToMoveId);
+        static::assertEquals($targetFolderId, $postMoveParent->getParentId());
+
+        $postMoveParentConfig = $postMoveParent->getConfiguration();
 
         $postMoveUnInheritedConfig = $postMoveSubFolders
             ->get($subFolderWithoutInheritanceId)

@@ -278,6 +278,17 @@
                                 </li>
                             {% endblock %}
 
+                            {% block sw_media_quickinfo_folder_quickactions_move %}
+                                <li class="sw-media-quickinfo__quickaction quickaction--move"
+                                    @click="emitOpenFolderMove">
+                                    <sw-icon small
+                                             name="default-action-move-file"
+                                             class="sw-media-quickinfo__quickactions-icon">
+                                    </sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.move') }}
+                                </li>
+                            {% endblock %}
+
                             {% block sw_media_quickinfo_folder_quickactions_dissolve %}
                                 <li class="sw-media-quickinfo__quickaction quickaction--dissolve"
                                     @click="emitOpenFolderDissolve">

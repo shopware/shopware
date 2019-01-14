@@ -24,7 +24,8 @@ Component.register('sw-media-sidebar', {
             showModalReplace: false,
             showModalDelete: false,
             showFolderSettings: false,
-            showFolderDissolve: false
+            showFolderDissolve: false,
+            showModalMove: false
         };
     },
 
@@ -120,10 +121,25 @@ Component.register('sw-media-sidebar', {
             this.showFolderDissolve = false;
         },
 
+        openModalMove() {
+            this.showModalMove = true;
+        },
+
+        closeModalMove() {
+            this.showModalMove = false;
+        },
+
         onFolderDissolved(dissolvePromise) {
             this.closeFolderDissolve();
             dissolvePromise.then((ids) => {
                 this.$emit('sw-media-sidebar-folder-items-dissolved', ids);
+            });
+        },
+
+        onFolderMoved(movePromise) {
+            this.closeModalMove();
+            movePromise.then((ids) => {
+                this.$emit('sw-media-sidebar-items-moved', ids);
             });
         }
     }

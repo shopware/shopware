@@ -2,7 +2,6 @@
     <div class="sw-media-quickinfo-multiple">
         {% block sw_media_quickinfo_multiple_quickactions %}
             <sw-media-collapse
-                v-if="!(hasFolder && hasMedia)"
                 class="sw-media-quickinfo-multiple__collapse"
                 :title="$tc('sw-media.sidebar.quickinfo.actions')"
                 :expandOnLoading="true">
@@ -10,6 +9,17 @@
                 <template slot="content">
                     {% block sw_media_quickinfo_multiple_quickactions_content %}
                         <ul class="sw-media-quickinfo-multiple__collapse-content sw-media-quickinfo-multiple__two-columns">
+                            {% block sw_media_quickinfo_multiple_quickactions_move %}
+                                <li class="sw-media-quickinfo-multiple__quickaction quickaction--move"
+                                    @click="emitOpenFolderMove">
+                                    <sw-icon small
+                                             name="default-action-move-file"
+                                             class="sw-media-quickinfo-multiple__quickactions-icon">
+                                    </sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.move') }}
+                                </li>
+                            {% endblock %}
+
                             {% block sw_media_quickinfo_multiple_quickactions_delete %}
                                 <li v-if="!hasFolder"
                                     class="sw-media-quickinfo-multiple__quickaction is--danger"

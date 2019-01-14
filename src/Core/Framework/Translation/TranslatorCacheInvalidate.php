@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Translation;
 
+use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
@@ -16,9 +17,15 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
      */
     private $cache;
 
-    public function __construct(CacheItemPoolInterface $cache)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(CacheItemPoolInterface $cache, Connection $connection)
     {
         $this->cache = $cache;
+        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents()
@@ -32,22 +39,37 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
 
     public function invalidate(EntityWrittenEvent $event): void
     {
-        $snippetSetIds = [];
-        if ($event->getDefinition() === SnippetDefinition::class) {
-            foreach ($event->getPayload() as $snippet) {
-                $snippetSetIds[] = $snippet['setId'];
-            }
-        } elseif ($event->getDefinition() === SnippetSetDefinition::class) {
-            $snippetSetIds = $event->getIds();
+        if ($event->getDefinition() === SnippetSetDefinition::class) {
+            $this->clearCache($event->getIds());
+
+            return;
         }
+
+        if ($event->getDefinition() === SnippetDefinition::class) {
+            $snippetIds = $event->getIds();
+
+            $rows = $this->connection->fetchAll(
+                'SELECT LOWER(HEX(snippet_set_id)) id FROM snippet WHERE HEX(id) IN (:ids)',
+                ['ids' => $snippetIds],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+            $setIds = [];
+            foreach ($rows as ['id' => $id]) {
+                $setIds[] = $id;
+            }
+
+            $this->clearCache($setIds);
+
+            return;
+        }
+    }
+
+    private function clearCache(array $snippetSetIds): void
+    {
         $snippetSetIds = array_unique($snippetSetIds);
 
         foreach ($snippetSetIds as $id) {
-            $cacheItem = $this->cache->getItem('translation.catalog.' . $id);
-            if (!$cacheItem->isHit()) {
-                continue;
-            }
-            $this->cache->deleteItem($cacheItem->getKey());
+            $this->cache->deleteItem('translation.catalog.' . $id);
         }
     }
 }

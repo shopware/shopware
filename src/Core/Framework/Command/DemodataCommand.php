@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -37,6 +38,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Faker\Commerce;
@@ -54,6 +56,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
+use function Flag\next1207;
 
 class DemodataCommand extends Command
 {
@@ -144,6 +147,11 @@ class DemodataCommand extends Command
      */
     private $projectDir;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $defaultFolderRepository;
+
     public function __construct(
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
@@ -156,6 +164,7 @@ class DemodataCommand extends Command
         RepositoryInterface $ruleRepository,
         RepositoryInterface $categoryRepository,
         RepositoryInterface $taxRepository,
+        RepositoryInterface $defaultFolderRepository,
         string $kernelEnv,
         string $projectDir
     ) {
@@ -174,6 +183,7 @@ class DemodataCommand extends Command
         $this->mediaUpdater = $mediaUpdater;
         $this->kernelEnv = $kernelEnv;
         $this->projectDir = $projectDir;
+        $this->defaultFolderRepository = $defaultFolderRepository;
     }
 
     protected function configure(): void
@@ -455,6 +465,12 @@ class DemodataCommand extends Command
             $productImages = [];
         };
 
+        $mediaFolderId = null;
+
+        if (next1207()) {
+            $mediaFolderId = $this->getOrCreateDefaultFolder($context);
+        }
+
         $taxes = array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
 
         for ($i = 0; $i < $count; ++$i) {
@@ -467,6 +483,7 @@ class DemodataCommand extends Command
                     'media' => [
                         'id' => $mediaId,
                         'name' => 'Product image of ' . $product['name'],
+                        'mediaFolderId' => $mediaFolderId,
                     ],
                 ];
 
@@ -1076,5 +1093,40 @@ class DemodataCommand extends Command
         ));
 
         return $files[random_int(0, \count($files) - 1)];
+    }
+
+    private function getOrCreateDefaultFolder(Context $context): ?string
+    {
+        $mediaFolderId = null;
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('entity', 'product'));
+        $criteria->setLimit(1);
+
+        $defaultFolders = $this->defaultFolderRepository->search($criteria, $context);
+
+        if ($defaultFolders->count() > 0) {
+            /** @var MediaDefaultFolderEntity $defaultFolder */
+            $defaultFolder = $defaultFolders->first();
+
+            if ($defaultFolder->getFolderId()) {
+                return $defaultFolder->getFolderId();
+            }
+
+            $mediaFolderId = Uuid::uuid4()->getHex();
+            $this->defaultFolderRepository->upsert([
+                [
+                    'id' => $defaultFolder->getId(),
+                    'folder' => [
+                        'id' => $mediaFolderId,
+                        'name' => 'Product Media',
+                        'useParentConfiguration' => false,
+                        'configuration' => [],
+                    ],
+                ],
+            ], $context);
+        }
+
+        return $mediaFolderId;
     }
 }

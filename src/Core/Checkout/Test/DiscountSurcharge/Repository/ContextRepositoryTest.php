@@ -81,7 +81,7 @@ class ContextRepositoryTest extends TestCase
         $currencyRule = (new CurrencyRule())->assign(['currencyIds' => [$currencyId, $currencyId2]]);
 
         static::assertEquals(
-            new AndRule([new OrRule([$currencyRule])]),
+            new AndRule([new AndRule([new OrRule([$currencyRule])])]),
             $rules->get($id)->getPayload()
         );
     }

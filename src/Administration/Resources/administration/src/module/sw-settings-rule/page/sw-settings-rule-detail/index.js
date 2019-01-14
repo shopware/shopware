@@ -81,7 +81,6 @@ Component.register('sw-settings-rule-detail', {
                     return nestedConditions[0];
                 }
 
-                console.log('fooaosfasgsdg');
                 nestedConditions[0].children = [
                     this.createCondition(
                         'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',

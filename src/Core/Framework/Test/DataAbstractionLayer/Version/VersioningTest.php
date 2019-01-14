@@ -307,6 +307,8 @@ class VersioningTest extends TestCase
 
     public function testICanVersionCalculatedFields()
     {
+        static::markTestSkipped('Fixed with next-1434');
+
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
         $id3 = Uuid::uuid4()->getHex();

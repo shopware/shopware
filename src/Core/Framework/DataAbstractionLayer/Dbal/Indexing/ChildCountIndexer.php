@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Struct\Uuid;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ChildCountIndexer implements IndexerInterface
@@ -36,14 +38,28 @@ class ChildCountIndexer implements IndexerInterface
      */
     private $definitionRegistry;
 
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
+
+    /**
+     * @var TagAwareAdapter
+     */
+    private $cache;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        DefinitionRegistry $definitionRegistry
+        DefinitionRegistry $definitionRegistry,
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        TagAwareAdapter $cache
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->definitionRegistry = $definitionRegistry;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->cache = $cache;
     }
 
     public function index(\DateTime $timestamp): void
@@ -69,7 +85,7 @@ class ChildCountIndexer implements IndexerInterface
                     return Uuid::fromBytesToHex($id);
                 }, $ids);
 
-                $this->updateChildCount($entityName, $ids, $definition::isVersionAware(), $context);
+                $this->updateChildCount($definition, $ids, $definition::isVersionAware(), $context);
 
                 $this->eventDispatcher->dispatch(
                     ProgressAdvancedEvent::NAME,
@@ -111,17 +127,19 @@ class ChildCountIndexer implements IndexerInterface
         $parentIds = $this->fetchParentIds($entityName, $ids, $event->getDefinition()::isVersionAware(), $context);
         $parentIds = array_keys(array_flip(array_filter(array_merge($entityParents, $parentIds))));
 
-        $this->updateChildCount($entityName, $parentIds, $event->getDefinition()::isVersionAware(), $context);
+        $this->updateChildCount($event->getDefinition(), $parentIds, $event->getDefinition()::isVersionAware(), $context);
     }
 
-    private function updateChildCount(string $entityName, array $parentIds, bool $versionAware, Context $context): void
+    private function updateChildCount(string $definition, array $parentIds, bool $versionAware, Context $context): void
     {
+        /** @var string|EntityDefinition $definition */
+        $entityName = $definition::getEntityName();
         if (empty($parentIds)) {
             return;
         }
 
         $versionId = Uuid::fromStringToBytes($context->getVersionId());
-        $parentIds = array_map(function ($id) {
+        $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $parentIds);
 
@@ -149,7 +167,7 @@ class ChildCountIndexer implements IndexerInterface
             $sql
         );
 
-        $params = ['ids' => $parentIds];
+        $params = ['ids' => $bytes];
 
         if ($versionAware) {
             $params['version'] = $versionId;
@@ -160,6 +178,12 @@ class ChildCountIndexer implements IndexerInterface
             $params,
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
+
+        $tags = array_map(function ($id) use ($definition) {
+            return $this->cacheKeyGenerator->getEntityTag($id, $definition);
+        }, $parentIds);
+
+        $this->cache->invalidateTags($tags);
     }
 
     private function fetchParentIds(string $entityName, array $ids, bool $versionAware, Context $context): array

@@ -5,6 +5,31 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true"/>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\InvalidateCacheSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
+                 decoration-priority="1500">
+
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
+
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+        </service>
+
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry"/>
@@ -240,10 +265,12 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ChildCountIndexer">
+            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerRegistry">

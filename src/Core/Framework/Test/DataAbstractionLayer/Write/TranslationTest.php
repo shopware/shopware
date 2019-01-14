@@ -618,6 +618,8 @@ class TranslationTest extends TestCase
         $categoryEvents = $result->getEventByDefinition(LanguageDefinition::class);
         static::assertEquals([$id], $categoryEvents->getIds());
 
+        $this->getContainer()->get('shopware.cache')->clear();
+
         /** @var CategoryEntity $category */
         $category = $categoryRepository->read(new ReadCriteria([$catId]), $context)->first();
 

@@ -415,11 +415,13 @@ class AccountService
 
     private function validateRegistrationRequest(RegistrationRequest $registrationRequest, CheckoutContext $context): void
     {
-        if (!$registrationRequest->getGuest()) {
-            $customers = $this->getCustomersByEmail($registrationRequest->getEmail(), $context, false);
-            if ($customers->getTotal() > 0) {
-                throw new CustomerAccountExistsException($registrationRequest->getEmail());
-            }
+        if ($registrationRequest->getGuest()) {
+            return;
+        }
+
+        $customers = $this->getCustomersByEmail($registrationRequest->getEmail(), $context, false);
+        if ($customers->getTotal() > 0) {
+            throw new CustomerAccountExistsException($registrationRequest->getEmail());
         }
     }
 

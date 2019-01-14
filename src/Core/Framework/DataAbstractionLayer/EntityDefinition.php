@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -94,7 +95,15 @@ abstract class EntityDefinition
 
         $extensions = static::$extensions[static::class] ?? [];
         foreach ($extensions as $extension) {
-            $extension->extendFields($fields);
+            $new = new FieldCollection();
+
+            $extension->extendFields($new);
+
+            /** @var Field $field */
+            foreach ($new as $field) {
+                $field->addFlags(new Extension());
+                $fields->add($field);
+            }
         }
 
         static::$fields[static::class] = $fields;

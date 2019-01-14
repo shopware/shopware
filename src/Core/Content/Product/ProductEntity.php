@@ -351,6 +351,16 @@ class ProductEntity extends Entity
      */
     protected $coverId;
 
+    /**
+     * @var array
+     */
+    protected $blacklistIds;
+
+    /**
+     * @var array
+     */
+    protected $whitelistIds;
+
     public function __construct()
     {
         $this->priceRules = new ProductPriceRuleCollection();
@@ -1102,5 +1112,25 @@ class ProductEntity extends Entity
     public function setCoverId(string $coverId): void
     {
         $this->coverId = $coverId;
+    }
+
+    public function getBlacklistIds(): array
+    {
+        return $this->blacklistIds;
+    }
+
+    public function setBlacklistIds(array $blacklistIds): void
+    {
+        $this->blacklistIds = $blacklistIds;
+    }
+
+    public function getWhitelistIds(): array
+    {
+        return $this->whitelistIds;
+    }
+
+    public function setWhitelistIds(array $whitelistIds): void
+    {
+        $this->whitelistIds = $whitelistIds;
     }
 }

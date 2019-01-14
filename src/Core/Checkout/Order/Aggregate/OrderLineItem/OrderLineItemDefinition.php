@@ -59,6 +59,9 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class))->setFlags(new Required()),
 
+            new ParentFkField(self::class),
+            new ReferenceVersionField(self::class, 'parent_version_id'),
+
             (new StringField('identifier', 'identifier'))->setFlags(new Required()),
             (new IntField('quantity', 'quantity'))->setFlags(new Required()),
             (new StringField('label', 'label'))->setFlags(new Required()),
@@ -74,7 +77,6 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
             new StringField('description', 'description'),
-            new ParentFkField(self::class),
             new StringField('type', 'type'),
             new CreatedAtField(),
             new UpdatedAtField(),

@@ -12,7 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\Snippet\SnippetDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 
 class SnippetSetDefinition extends EntityDefinition
 {
@@ -41,6 +43,7 @@ class SnippetSetDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'snippet_set_id', false))->setFlags(new RestrictDelete()),
         ]);
     }
 }

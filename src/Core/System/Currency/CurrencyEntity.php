@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCol
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CurrencyEntity extends Entity
@@ -81,6 +82,11 @@ class CurrencyEntity extends Entity
      * @var ProductPriceRuleCollection|null
      */
     protected $productPriceRules;
+
+    /**
+     * @var SalesChannelDomainCollection|null
+     */
+    protected $salesChannelDomains;
 
     public function getFactor(): float
     {
@@ -220,5 +226,15 @@ class CurrencyEntity extends Entity
     public function setProductPriceRules(ProductPriceRuleCollection $productPriceRules): void
     {
         $this->productPriceRules = $productPriceRules;
+    }
+
+    public function getSalesChannelDomains(): ?SalesChannelDomainCollection
+    {
+        return $this->salesChannelDomains;
+    }
+
+    public function setSalesChannelDomains(?SalesChannelDomainCollection $salesChannelDomains): void
+    {
+        $this->salesChannelDomains = $salesChannelDomains;
     }
 }

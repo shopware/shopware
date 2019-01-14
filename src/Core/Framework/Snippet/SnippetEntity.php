@@ -60,17 +60,11 @@ class SnippetEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    /**
-     * @return string
-     */
     public function getSetId(): string
     {
         return $this->setId;
     }
 
-    /**
-     * @param string $setId
-     */
     public function setSetId(string $setId): void
     {
         $this->setId = $setId;

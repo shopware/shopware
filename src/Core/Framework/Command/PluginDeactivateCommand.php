@@ -3,6 +3,9 @@
 namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
@@ -46,6 +49,10 @@ EOF
 
     /**
      * {@inheritdoc}
+     *
+     * @throws PluginNotFoundException
+     * @throws PluginNotInstalledException
+     * @throws PluginNotActivatedException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {

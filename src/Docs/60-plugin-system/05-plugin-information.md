@@ -26,7 +26,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
         "installer-name": "SwagPayPal",
         "copyright": "(c) by shopware AG",
         "label": {
-            "de_DE": "PayPal Produkte für Shopware Schweiz",
+            "de_DE": "PayPal Produkte für Shopware",
             "en_GB": "PayPal Products for Shopware"
         },
         "description": {

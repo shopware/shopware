@@ -46,61 +46,6 @@
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
 
-        <!-- Pluginsystem -->
-        <service id="Shopware\Core\Framework\Plugin\PluginManager">
-            <argument>%kernel.plugin_dir%</argument>
-            <argument type="service" id="kernel"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="service_container"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument type="service" id="plugin.repository"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\PluginUpdateCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\PluginInstallCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\PluginActivateCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
-            <argument type="service" id="service_container"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\PluginUninstallCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\PluginUpgradeCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\PluginListCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Command\DemodataCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
@@ -154,7 +99,6 @@
         <service id="Shopware\Core\Framework\Command\RefreshMigrationCommand">
             <tag name="console.command"/>
         </service>
-
 
         <service id="Shopware\Core\Framework\Command\MigrationCommand">
             <tag name="console.command"/>

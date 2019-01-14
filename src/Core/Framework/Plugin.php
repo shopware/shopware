@@ -40,7 +40,7 @@ abstract class Plugin extends Bundle
         return $this->active;
     }
 
-    public function install(InstallContext $context)
+    public function install(InstallContext $context): void
     {
     }
 
@@ -56,19 +56,19 @@ abstract class Plugin extends Bundle
     {
     }
 
-    public function activate(ActivateContext $context)
+    public function activate(ActivateContext $context): void
     {
     }
 
-    public function deactivate(DeactivateContext $context)
+    public function deactivate(DeactivateContext $context): void
     {
     }
 
-    public function uninstall(UninstallContext $context)
+    public function uninstall(UninstallContext $context): void
     {
     }
 
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');

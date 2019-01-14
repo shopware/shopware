@@ -20,6 +20,16 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
@@ -28,6 +38,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 
 class PluginManager
@@ -82,6 +93,11 @@ class PluginManager
      */
     private $composerPackageProvider;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         string $pluginPath,
         Kernel $kernel,
@@ -92,7 +108,8 @@ class PluginManager
         MigrationRuntime $migrationRunner,
         RepositoryInterface $pluginRepo,
         RepositoryInterface $languageRepo,
-        ComposerPackageProvider $composerPackageProvider
+        ComposerPackageProvider $composerPackageProvider,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->pluginPath = $pluginPath;
         $this->kernel = $kernel;
@@ -104,198 +121,10 @@ class PluginManager
         $this->pluginRepo = $pluginRepo;
         $this->languageRepo = $languageRepo;
         $this->composerPackageProvider = $composerPackageProvider;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @throws PluginNotFoundException
-     */
-    public function getPluginByName(string $pluginName, Context $context): PluginEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $pluginName));
-
-        $pluginEntity = $this->getPlugins($criteria, $context)->first();
-        if ($pluginEntity === null) {
-            throw new PluginNotFoundException($pluginName);
-        }
-
-        return $pluginEntity;
-    }
-
-    public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
-    {
-        $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
-
-        $pluginVersion = $plugin->getVersion();
-        $installContext = new InstallContext(
-            $pluginBaseClass,
-            $shopwareContext,
-            Framework::VERSION,
-            $pluginVersion
-        );
-
-        if ($plugin->getInstalledAt()) {
-            return $installContext;
-        }
-
-        $pluginData['id'] = $plugin->getId();
-
-        // Makes sure the version is updated in the db after a re-installation
-        $upgradeVersion = $plugin->getUpgradeVersion();
-        if ($upgradeVersion !== null && $this->hasInfoNewerVersion($upgradeVersion, $pluginVersion)) {
-            $pluginData['version'] = $upgradeVersion;
-            $pluginData['upgradedAt'] = (new DateTime())->format(Defaults::DATE_FORMAT);
-        }
-
-        $pluginBaseClass->install($installContext);
-
-        $this->runMigrations($pluginBaseClass);
-
-        $pluginData['installedAt'] = (new DateTime())->format(Defaults::DATE_FORMAT);
-
-        $this->updatePlugin($pluginData, $shopwareContext);
-
-        $pluginBaseClass->postInstall($installContext);
-
-        return $installContext;
-    }
-
-    public function uninstallPlugin(
-        PluginEntity $plugin,
-        Context $shopwareContext,
-        bool $removeUserData = true
-    ): UninstallContext {
-        $pluginName = $plugin->getName();
-        if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($pluginName);
-        }
-
-        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
-
-        $uninstallContext = new UninstallContext(
-            $pluginBaseClass,
-            $shopwareContext,
-            Framework::VERSION,
-            $plugin->getVersion(),
-            !$removeUserData
-        );
-
-        $pluginBaseClass->uninstall($uninstallContext);
-
-        if ($removeUserData) {
-            $this->removeMigrations($pluginBaseClass);
-        }
-
-        $this->updatePlugin(
-            [
-                'id' => $plugin->getId(),
-                'active' => false,
-                'installedAt' => null,
-            ],
-            $shopwareContext
-        );
-
-        return $uninstallContext;
-    }
-
-    public function upgradePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
-    {
-        $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
-
-        $updateContext = new UpdateContext(
-            $pluginBaseClass,
-            $shopwareContext,
-            Framework::VERSION,
-            $plugin->getVersion(),
-            $plugin->getUpgradeVersion() ?? $plugin->getVersion()
-        );
-
-        $pluginBaseClass->update($updateContext);
-
-        $this->runMigrations($pluginBaseClass);
-
-        $this->updatePlugin(
-            [
-                'id' => $plugin->getId(),
-                'version' => $updateContext->getUpdatePluginVersion(),
-                'upgradeVersion' => null,
-                'upgradedAt' => (new DateTime())->format(Defaults::DATE_FORMAT),
-            ],
-            $shopwareContext
-        );
-
-        $pluginBaseClass->postUpdate($updateContext);
-
-        return $updateContext;
-    }
-
-    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext): ActivateContext
-    {
-        $pluginName = $plugin->getName();
-        if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($pluginName);
-        }
-
-        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
-
-        $activateContext = new ActivateContext(
-            $pluginBaseClass,
-            $shopwareContext,
-            Framework::VERSION,
-            $plugin->getVersion()
-        );
-
-        if ($plugin->getActive()) {
-            return $activateContext;
-        }
-
-        $pluginBaseClass->activate($activateContext);
-
-        $this->updatePlugin(
-            [
-                'id' => $plugin->getId(),
-                'active' => true,
-            ],
-            $shopwareContext
-        );
-
-        return $activateContext;
-    }
-
-    public function deactivatePlugin(PluginEntity $plugin, Context $shopwareContext): DeactivateContext
-    {
-        $pluginName = $plugin->getName();
-        if ($plugin->getInstalledAt() === null) {
-            throw new PluginNotInstalledException($pluginName);
-        }
-
-        if ($plugin->getActive() === false) {
-            throw new PluginNotActivatedException($pluginName);
-        }
-
-        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
-
-        $deactivateContext = new DeactivateContext(
-            $pluginBaseClass,
-            $shopwareContext,
-            Framework::VERSION,
-            $plugin->getVersion()
-        );
-
-        $pluginBaseClass->deactivate($deactivateContext);
-
-        $this->updatePlugin(
-            [
-                'id' => $plugin->getId(),
-                'active' => false,
-            ],
-            $shopwareContext
-        );
-
-        return $deactivateContext;
-    }
-
-    public function updatePlugins(Context $shopwareContext, IOInterface $composerIO): void
+    public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): void
     {
         $finder = new Finder();
         $filesystemPlugins = $finder->directories()->depth(0)->in($this->pluginPath)->getIterator();
@@ -366,7 +195,257 @@ class PluginManager
         }
     }
 
-    public function getPlugins(Criteria $criteria, Context $context): PluginCollection
+    /**
+     * @throws PluginNotFoundException
+     */
+    public function getPluginByName(string $pluginName, Context $context): PluginEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $pluginName));
+
+        $pluginEntity = $this->getPlugins($criteria, $context)->first();
+        if ($pluginEntity === null) {
+            throw new PluginNotFoundException($pluginName);
+        }
+
+        return $pluginEntity;
+    }
+
+    public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
+    {
+        $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
+
+        $pluginVersion = $plugin->getVersion();
+        $installContext = new InstallContext(
+            $pluginBaseClass,
+            $shopwareContext,
+            Framework::VERSION,
+            $pluginVersion
+        );
+
+        if ($plugin->getInstalledAt()) {
+            return $installContext;
+        }
+
+        $pluginData['id'] = $plugin->getId();
+
+        // Makes sure the version is updated in the db after a re-installation
+        $updateVersion = $plugin->getUpgradeVersion();
+        if ($updateVersion !== null && $this->hasInfoNewerVersion($updateVersion, $pluginVersion)) {
+            $pluginData['version'] = $updateVersion;
+            $pluginData['upgradeVersion'] = null;
+            $pluginData['upgradedAt'] = (new DateTime())->format(Defaults::DATE_FORMAT);
+        }
+
+        $this->eventDispatcher->dispatch(
+            PluginPreInstallEvent::NAME,
+            new PluginPreInstallEvent($plugin, $installContext)
+        );
+
+        $pluginBaseClass->install($installContext);
+
+        $this->runMigrations($pluginBaseClass);
+
+        $pluginData['installedAt'] = (new DateTime())->format(Defaults::DATE_FORMAT);
+
+        $this->updatePluginData($pluginData, $shopwareContext);
+
+        $pluginBaseClass->postInstall($installContext);
+
+        $this->eventDispatcher->dispatch(
+            PluginPostInstallEvent::NAME,
+            new PluginPostInstallEvent($plugin, $installContext)
+        );
+
+        return $installContext;
+    }
+
+    /**
+     * @throws PluginNotInstalledException
+     */
+    public function uninstallPlugin(
+        PluginEntity $plugin,
+        Context $shopwareContext,
+        bool $removeUserData = true
+    ): UninstallContext {
+        $pluginName = $plugin->getName();
+        if ($plugin->getInstalledAt() === null) {
+            throw new PluginNotInstalledException($pluginName);
+        }
+
+        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
+
+        $uninstallContext = new UninstallContext(
+            $pluginBaseClass,
+            $shopwareContext,
+            Framework::VERSION,
+            $plugin->getVersion(),
+            !$removeUserData
+        );
+
+        $this->eventDispatcher->dispatch(
+            PluginPreUninstallEvent::NAME,
+            new PluginPreUninstallEvent($plugin, $uninstallContext)
+        );
+
+        $pluginBaseClass->uninstall($uninstallContext);
+
+        if ($removeUserData) {
+            $this->removeMigrations($pluginBaseClass);
+        }
+
+        $this->updatePluginData(
+            [
+                'id' => $plugin->getId(),
+                'active' => false,
+                'installedAt' => null,
+            ],
+            $shopwareContext
+        );
+
+        $this->eventDispatcher->dispatch(
+            PluginPostUninstallEvent::NAME,
+            new PluginPostUninstallEvent($plugin, $uninstallContext)
+        );
+
+        return $uninstallContext;
+    }
+
+    public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
+    {
+        $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
+
+        $updateContext = new UpdateContext(
+            $pluginBaseClass,
+            $shopwareContext,
+            Framework::VERSION,
+            $plugin->getVersion(),
+            $plugin->getUpgradeVersion() ?? $plugin->getVersion()
+        );
+
+        $this->eventDispatcher->dispatch(
+            PluginPreUpdateEvent::NAME,
+            new PluginPreUpdateEvent($plugin, $updateContext)
+        );
+
+        $pluginBaseClass->update($updateContext);
+
+        $this->runMigrations($pluginBaseClass);
+
+        $this->updatePluginData(
+            [
+                'id' => $plugin->getId(),
+                'version' => $updateContext->getUpdatePluginVersion(),
+                'upgradeVersion' => null,
+                'upgradedAt' => (new DateTime())->format(Defaults::DATE_FORMAT),
+            ],
+            $shopwareContext
+        );
+
+        $pluginBaseClass->postUpdate($updateContext);
+
+        $this->eventDispatcher->dispatch(
+            PluginPostUpdateEvent::NAME,
+            new PluginPostUpdateEvent($plugin, $updateContext)
+        );
+
+        return $updateContext;
+    }
+
+    /**
+     * @throws PluginNotInstalledException
+     */
+    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext): ActivateContext
+    {
+        $pluginName = $plugin->getName();
+        if ($plugin->getInstalledAt() === null) {
+            throw new PluginNotInstalledException($pluginName);
+        }
+
+        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
+
+        $activateContext = new ActivateContext(
+            $pluginBaseClass,
+            $shopwareContext,
+            Framework::VERSION,
+            $plugin->getVersion()
+        );
+
+        if ($plugin->getActive()) {
+            return $activateContext;
+        }
+
+        $this->eventDispatcher->dispatch(
+            PluginPreActivateEvent::NAME,
+            new PluginPreActivateEvent($plugin, $activateContext)
+        );
+
+        $pluginBaseClass->activate($activateContext);
+
+        $this->updatePluginData(
+            [
+                'id' => $plugin->getId(),
+                'active' => true,
+            ],
+            $shopwareContext
+        );
+
+        $this->eventDispatcher->dispatch(
+            PluginPostActivateEvent::NAME,
+            new PluginPostActivateEvent($plugin, $activateContext)
+        );
+
+        return $activateContext;
+    }
+
+    /**
+     * @throws PluginNotInstalledException
+     * @throws PluginNotActivatedException
+     */
+    public function deactivatePlugin(PluginEntity $plugin, Context $shopwareContext): DeactivateContext
+    {
+        $pluginName = $plugin->getName();
+        if ($plugin->getInstalledAt() === null) {
+            throw new PluginNotInstalledException($pluginName);
+        }
+
+        if ($plugin->getActive() === false) {
+            throw new PluginNotActivatedException($pluginName);
+        }
+
+        $pluginBaseClass = $this->getPluginBaseClass($pluginName);
+
+        $deactivateContext = new DeactivateContext(
+            $pluginBaseClass,
+            $shopwareContext,
+            Framework::VERSION,
+            $plugin->getVersion()
+        );
+
+        $this->eventDispatcher->dispatch(
+            PluginPreDeactivateEvent::NAME,
+            new PluginPreDeactivateEvent($plugin, $deactivateContext)
+        );
+
+        $pluginBaseClass->deactivate($deactivateContext);
+
+        $this->updatePluginData(
+            [
+                'id' => $plugin->getId(),
+                'active' => false,
+            ],
+            $shopwareContext
+        );
+
+        $this->eventDispatcher->dispatch(
+            PluginPostDeactivateEvent::NAME,
+            new PluginPostDeactivateEvent($plugin, $deactivateContext)
+        );
+
+        return $deactivateContext;
+    }
+
+    private function getPlugins(Criteria $criteria, Context $context): PluginCollection
     {
         /** @var PluginCollection $pluginCollection */
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
@@ -374,9 +453,9 @@ class PluginManager
         return $pluginCollection;
     }
 
-    private function hasInfoNewerVersion(string $upgradeVersion, string $currentVersion): bool
+    private function hasInfoNewerVersion(string $updateVersion, string $currentVersion): bool
     {
-        return version_compare($upgradeVersion, $currentVersion, '>');
+        return version_compare($updateVersion, $currentVersion, '>');
     }
 
     private function getPluginBaseClass(string $pluginName): Plugin
@@ -444,12 +523,12 @@ class PluginManager
         }
 
         /** @var LanguageEntity $languageEntity */
-        $languageEntity = $result->getEntities()->first();
+        $languageEntity = $result->first();
 
         return $languageEntity->getId();
     }
 
-    private function updatePlugin(array $pluginData, Context $context): void
+    private function updatePluginData(array $pluginData, Context $context): void
     {
         $this->pluginRepo->update([$pluginData], $context);
     }

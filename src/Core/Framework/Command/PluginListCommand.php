@@ -3,9 +3,10 @@
 namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,15 +16,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class PluginListCommand extends Command
 {
     /**
-     * @var PluginManager
+     * @var RepositoryInterface
      */
-    private $pluginManager;
+    private $pluginRepo;
 
-    public function __construct(PluginManager $pluginManager)
+    public function __construct(RepositoryInterface $pluginRepo)
     {
         parent::__construct();
-
-        $this->pluginManager = $pluginManager;
+        $this->pluginRepo = $pluginRepo;
     }
 
     /**
@@ -47,7 +47,8 @@ class PluginListCommand extends Command
         $io->title('Plugin Manager');
         $context = Context::createDefaultContext();
 
-        $plugins = $this->pluginManager->getPlugins(new Criteria(), $context);
+        /** @var PluginCollection $plugins */
+        $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
         $filter = $input->getOption('filter');
         if ($filter) {

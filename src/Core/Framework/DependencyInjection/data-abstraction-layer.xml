@@ -293,6 +293,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
+            <argument type="service" id="service_container"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\InheritanceIndexer">
             <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -356,7 +362,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="plugin_translation.repository" public="true">
-            <argument>Shopware\Core\Framework\Plugin\Aggregate\PluginTranslationDefinition</argument>
+            <argument>Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>

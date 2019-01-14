@@ -121,10 +121,10 @@ This will display an overview table with the available plugins in you terminal:
 1 plugins, 0 installed, 0 active
 ```
 
-In case your plugin does not show up you can refresh the plugin list with the `update` command:
+In case your plugin does not show up you can refresh the plugin list with the `refresh` command:
 
 ```
-bin/console plugin:update
+bin/console plugin:refresh
 ```
 
 Finally you can install your plugin. The `--activate` argument also enables the new plugin so you can see the changes right away:

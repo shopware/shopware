@@ -9,10 +9,61 @@
             <tag name="shopware.entity.definition" entity="plugin"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Plugin\Aggregate\PluginTranslationDefinition">
+        <service id="Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition">
             <tag name="shopware.entity.definition" entity="plugin_translation"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\PluginManager">
+            <argument>%kernel.plugin_dir%</argument>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="service_container"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <!-- Commands -->
+        <service id="Shopware\Core\Framework\Command\PluginRefreshCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\PluginListCommand">
+            <argument type="service" id="plugin.repository"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\PluginInstallCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\PluginActivateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\PluginUpdateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\PluginUninstallCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager"/>
+            <tag name="console.command"/>
+        </service>
+
+        <!-- Helper -->
         <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider">
             <argument type="service" id="plugin.repository"/>
         </service>

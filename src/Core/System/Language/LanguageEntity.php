@@ -19,7 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Produ
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslationCollection;
+use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\Framework\Snippet\SnippetCollection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;

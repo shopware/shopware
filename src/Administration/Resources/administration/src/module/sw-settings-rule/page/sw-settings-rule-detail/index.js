@@ -102,7 +102,7 @@ Component.register('sw-settings-rule-detail', {
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
-                this.$root.$emit('on-save-rule');
+                this.$emit('on-save-rule');
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,

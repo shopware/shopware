@@ -216,7 +216,10 @@ class TreeIndexer implements IndexerInterface
         $result['parentCount'] = 1;
 
         if ($result['parent_id']) {
-            $result['parent'] = $this->loadParents($result['parent_id'], $definition, $result['parent_version_id']);
+            if ($definition::isVersionAware()) {
+                $versionId = $result['parent_version_id'];
+            }
+            $result['parent'] = $this->loadParents($result['parent_id'], $definition, $versionId);
             $result['parentCount'] = $result['parent']['parentCount'] + 1;
         }
 

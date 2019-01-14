@@ -48,41 +48,6 @@ class MediaFolderService
         $this->mediaFolderRepo->delete([['id' => $folder->getId()]], $context);
     }
 
-    public function move(string $folderToMoveId, ?string $targetFolderId, Context $context): void
-    {
-        $folderToMove = $this->fetchFolder($folderToMoveId, $context);
-
-        if ($targetFolderId) {
-            // ensure Folder exists
-            $this->fetchFolder($targetFolderId, $context);
-        }
-
-        if (!$folderToMove->getUseParentConfiguration()) {
-            $this->mediaFolderRepo->update([
-                [
-                    'id' => $folderToMoveId,
-                    'parentId' => $targetFolderId,
-                ],
-            ], $context);
-
-            return;
-        }
-
-        $newConfigId = $this->cloneConfiguration($folderToMove->getConfigurationId(), $context);
-
-        $updates = [
-            [
-                'id' => $folderToMoveId,
-                'parentId' => $targetFolderId,
-                'useParentConfiguration' => false,
-                'configurationId' => $newConfigId,
-            ],
-        ];
-        $updates = array_merge($updates, $this->updateSubFolder($folderToMoveId, $newConfigId, $context));
-
-        $this->mediaFolderRepo->update($updates, $context);
-    }
-
     private function moveMediaToParentFolder(MediaFolderEntity $folder, Context $context): void
     {
         $criteria = new Criteria();
@@ -116,13 +81,11 @@ class MediaFolderService
 
         $payload = [];
         foreach ($subFolders->getEntities() as $subFolder) {
-            $payload[] = [
+            $payload[$subFolder->getId()] = [
                 'id' => $subFolder->getId(),
                 'parentId' => $folder->getParentId(),
             ];
         }
-
-        $this->mediaFolderRepo->update($payload, $context);
 
         $subFolders = $subFolders->filterByProperty('useParentConfiguration', true);
 
@@ -131,59 +94,29 @@ class MediaFolderService
         }
 
         if ((!$folder->getUseParentConfiguration()) && count($subFolders) > 1) {
-            $this->duplicateFolderConfig($subFolders->getEntities(), $context);
+            $payload = $this->duplicateFolderConfig($subFolders->getEntities(), $payload, $context);
         }
+
+        $this->mediaFolderRepo->update(array_values($payload), $context);
     }
 
-    private function duplicateFolderConfig(MediaFolderCollection $subFolders, Context $context): void
-    {
+    private function duplicateFolderConfig(
+        MediaFolderCollection $subFolders,
+        array $payload,
+        Context $context
+    ): array {
         $subFolders = $subFolders->getElements();
         /** @var MediaFolderEntity $folder */
         $folder = array_shift($subFolders);
         $config = $folder->getConfiguration();
 
-        $payload = [
-            [
-                'id' => $folder->getId(),
-                'useParentConfiguration' => false,
-            ],
-        ];
+        $payload[$folder->getId()]['useParentConfiguration'] = false;
+
         foreach ($subFolders as $folder) {
             $configurationId = $this->cloneConfiguration($config->getId(), $context);
 
-            $payload[] = [
-                'id' => $folder->getId(),
-                'useParentConfiguration' => false,
-                'configurationId' => $configurationId,
-            ];
-
-            $payload = array_merge($payload, $this->updateSubFolder($folder->getId(), $configurationId, $context));
-        }
-
-        if (count($payload) > 0) {
-            $this->mediaFolderRepo->update($payload, $context);
-        }
-    }
-
-    private function updateSubFolder(
-        string $parentId,
-        string $configurationId,
-        Context $context
-    ): array {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('parentId', $parentId));
-        $criteria->addFilter(new EqualsFilter('useParentConfiguration', true));
-        /** @var MediaFolderCollection $subFolders */
-        $subFolders = $this->mediaFolderRepo->search($criteria, $context)->getEntities();
-        $payload = [];
-
-        foreach ($subFolders as $subFolder) {
-            $payload[] = [
-                'id' => $subFolder->getId(),
-                'configurationId' => $configurationId,
-            ];
-
-            $payload = array_merge($payload, $this->updateSubFolder($subFolder->getId(), $configurationId, $context));
+            $payload[$folder->getId()]['useParentConfiguration'] = false;
+            $payload[$folder->getId()]['configurationId'] = $configurationId;
         }
 
         return $payload;

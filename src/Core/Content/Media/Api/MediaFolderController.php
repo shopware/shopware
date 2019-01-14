@@ -31,18 +31,4 @@ class MediaFolderController extends AbstractController
 
         return new Response();
     }
-
-    /**
-     * @Route("/api/v{version}/_action/media-folder/{folderId}/move/{targetFolderId}",
-     *     defaults={"targetFolderId"=null},
-     *     name="api.action.media-folder.move", methods={"POST"})
-     *
-     * @return Response
-     */
-    public function move(string $folderId, ?string $targetFolderId, Context $context): Response
-    {
-        $this->dissolveFolderService->move($folderId, $targetFolderId, $context);
-
-        return new Response();
-    }
 }

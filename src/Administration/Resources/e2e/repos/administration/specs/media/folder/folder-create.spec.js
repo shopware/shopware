@@ -1,16 +1,15 @@
 const mediaPage = require('administration/page-objects/sw-media.page-object.js');
 
 module.exports = {
-    '@tags': ['media', 'folder', 'folder-create', 'create'],
-    '@disabled': !flags.isActive('next1207'),
+    '@tags': ['media', 'folder', 'folder-create', 'create', 'upload'],
+    '@disabled': !global.flags.isActive('next1207'),
     'open media listing': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/media/index', 'Media')
-            .assert.urlContains('#/sw/media/index');
+        const page = mediaPage(browser);
+        page.openMediaIndex();
     },
     'create new folder': (browser) => {
         const page = mediaPage(browser);
-        page.createFolder('Fold it');
+        page.createFolder(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'verify creation of the new folder and navigate': (browser) => {
         const page = mediaPage(browser);
@@ -20,11 +19,11 @@ module.exports = {
             .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
             .waitForElementVisible('.icon--folder-breadcums-parent')
             .waitForElementVisible('.smart-bar__header')
-            .expect.element('.smart-bar__header').to.have.text.that.equals('Fold it');
+            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'upload image to folder': (browser) => {
         const page = mediaPage(browser);
-        page.uploadImageViaURL();
+        page.uploadImageViaURL(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
     'navigate back and check if the image is assigned correctly': (browser) => {
         const page = mediaPage(browser);
@@ -43,7 +42,7 @@ module.exports = {
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-sidebar-navigation-item')
             .click('.sw-sidebar-navigation-item')
-            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Fold it');
+            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     after: (browser) => {
         browser.end();

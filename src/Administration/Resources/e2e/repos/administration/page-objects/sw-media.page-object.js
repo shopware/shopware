@@ -2,24 +2,27 @@ class MediaPageObject {
     constructor(browser) {
         this.browser = browser;
 
-        this.elements = {};
-
-        this.elements.previewItem = '.sw-media-preview__item';
-        this.elements.folderNameInput = 'input[name=media-item-name]';
-        this.elements.folderNameLabel = '.sw-media-base-item__name';
-        this.elements.showMediaAction = '.sw-media-context-item__show-media-action';
-        this.elements.showSettingsAction = '.sw-media-context-item__open-settings-action';
-        this.elements.saveSettingsAction = '.sw-media-modal-folder-settings__confirm';
+        this.elements = {
+            previewItem: '.sw-media-preview__item',
+            baseItem: '.sw-media-base-item',
+            folderNameInput: 'input[name=media-item-name]',
+            folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
+            mediaNameLabel: '.sw-media-media-item .sw-media-base-item__name',
+            showMediaAction: '.sw-media-context-item__show-media-action',
+            showSettingsAction: '.sw-media-context-item__open-settings-action',
+            saveSettingsAction: '.sw-media-modal-folder-settings__confirm'
+        };
     }
 
-    uploadImageViaURL() {
+    uploadImageViaURL(imgPath) {
         this.browser
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .waitForElementVisible('.sw-media-url-form')
-            .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
+            .fillField('input[name=sw-field--url]', imgPath)
             .click('.sw-modal__footer .sw-button--primary')
             .waitForElementVisible('.sw-alert--success')
-            .click('.sw-alert__close');
+            .click('.sw-alert__close')
+            .waitForElementVisible(this.elements.previewItem);
     }
 
     deleteImage() {
@@ -40,6 +43,8 @@ class MediaPageObject {
 
     openMediaModal(action) {
         this.browser
+            .waitForElementVisible(this.elements.previewItem)
+            .moveToElement(this.elements.previewItem, 5, 5)
             .clickContextMenuItem(action, '.sw-context-button__button')
             .waitForElementVisible('.sw-modal__title');
     }
@@ -50,7 +55,6 @@ class MediaPageObject {
             .click('.sw-media-index__create-folder-action')
             .waitForElementNotPresent('.sw-empty-state__title')
             .waitForElementVisible('.icon--folder-thumbnail')
-            .waitForElementVisible(`${this.elements.folderNameLabel}-field`)
             .fillField(this.elements.folderNameInput, name)
             .setValue(this.elements.folderNameInput, this.browser.Keys.ENTER)
             .waitForElementNotPresent('.sw-media-base-item__loader')
@@ -59,19 +63,34 @@ class MediaPageObject {
 
         if (child) {
             this.browser
-                .expect.element(`.sw-media-folder-item:last-child ${this.elements.folderNameLabel}`).to.have.text.that.equals(name);
+                .expect.element(`.sw-media-folder-item:last-child .sw-media-base-item__name`).to.have.text.that.equals(name);
         } else {
             this.browser.expect.element(this.elements.folderNameLabel).to.have.text.that.equals(name);
         }
-
-
     }
 
-    openFolderSettingsModal() {
+    setThumbnailSize(width, height) {
         this.browser
-            .clickContextMenuItem(this.elements.showSettingsAction, '.sw-context-button__button')
-            .waitForElementVisible('.sw-modal')
-            .waitForElementVisible('.sw-media-folder-settings__settings-tab');
+            .fillField('input[name=sw-field--width', width)
+            .waitForElementVisible('.sw-media-add-thumbnail-form__lock')
+            .waitForElementVisible('.sw-media-add-thumbnail-form__input-height.is--disabled');
+
+        if (height) {
+            this.browser
+                .click('.sw-media-add-thumbnail-form__lock')
+                .waitForElementNotPresent('.sw-media-add-thumbnail-form__input-height.is--disabled')
+                .fillField('input[name=sw-field--height]', height, true)
+                .waitForElementVisible('.sw-media-folder-settings__add-thumbnail-size-action')
+                .waitForElementNotPresent('.sw-media-folder-settings__add-thumbnail-size-action.is--disabled')
+                .click('.sw-media-folder-settings__add-thumbnail-size-action')
+                .waitForElementVisible('.sw-media-modal-folder-settings__thumbnail-size-entry')
+                .expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals(`${width}x${height}`);
+        } else {
+            this.browser
+                .click('.sw-media-folder-settings__add-thumbnail-size-action')
+                .waitForElementVisible('.sw-media-modal-folder-settings__thumbnail-size-entry')
+                .expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals(`${width}x${width}`);
+        }
     }
 }
 

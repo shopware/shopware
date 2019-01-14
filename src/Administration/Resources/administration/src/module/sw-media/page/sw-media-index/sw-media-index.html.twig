@@ -144,7 +144,7 @@
                                         {% endblock %}
 
                                         {% block sw_media_index_create_folder %}
-                                            <sw-button class="sw-media-index__create-folder-action" v-if="next1207" variant="ghost" size="small" @click="createFolder">
+                                            <sw-button v-if="next1207" class="sw-media-index__create-folder-action" variant="ghost" size="small" @click="createFolder">
                                                 {{ $tc('sw-media.index.buttonCreateFolder') }}
                                             </sw-button>
                                         {% endblock %}

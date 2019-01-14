@@ -29,10 +29,13 @@ class ProductPageObject {
             .fillField('input[name=sw-field--url]', imagePath)
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
-            .getAttribute('.sw-media-preview > img', 'src', function (result) {
+            .waitForElementVisible('.sw-media-preview__item')
+            .getAttribute('.sw-media-preview__item', 'src', function (result) {
                 this.assert.ok(result.value);
                 this.assert.equal(result.value, imagePath);
-            })
+            });
+
+        this.browser
             .click('.sw-product-detail__save-action')
             .checkNotification('1 of 1 files saved', false)
             .click('.sw-alert__close')

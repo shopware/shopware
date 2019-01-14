@@ -83,13 +83,13 @@
                                 {% endblock %}
 
                                 {% block sw_media_folder_item_context_item_dissolve %}
-                                    <sw-context-menu-item class="sw-media-context-item__dissolve-media-action" @click="openDissolveModal">
+                                    <sw-context-menu-item class="sw-media-context-item__dissolve-folder-action" @click="openDissolveModal">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuDissolve') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_media_folder_item_context_item_rename_item %}
-                                    <sw-context-menu-item class="sw-media-context-item__rename-media-action" @click="onStartRenaming">
+                                    <sw-context-menu-item class="sw-media-context-item__rename-folder-action" @click="onStartRenaming">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

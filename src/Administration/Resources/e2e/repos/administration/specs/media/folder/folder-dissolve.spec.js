@@ -7,11 +7,10 @@ module.exports = {
             done();
         });
     },
-    '@disabled': !flags.isActive('next1207'),
+    '@disabled': !global.flags.isActive('next1207'),
     'open media listing': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/media/index', 'Media')
-            .assert.urlContains('#/sw/media/index');
+        const page = mediaPage(browser);
+        page.openMediaIndex();
     },
     'verify creation of the new folder and navigate': (browser) => {
         const page = mediaPage(browser);
@@ -23,18 +22,24 @@ module.exports = {
             .waitForElementVisible('.smart-bar__header')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
-    'upload image to folder': (browser) => {
+    'upload image to folder and verify placement in folder': (browser) => {
         const page = mediaPage(browser);
-        page.uploadImageViaURL();
-    },
-    'dissolve folder': (browser) => {
-        const page = mediaPage(browser);
+        page.uploadImageViaURL(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
 
+        browser
+            .assert.containsText(page.elements.mediaNameLabel, 'sw-login-background.png')
+            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+    },
+    'navigate back to root folder': (browser) => {
+        const page = mediaPage(browser);
         browser
             .waitForElementVisible('.icon--folder-breadcums-dropdown')
             .click('.icon--folder-breadcums-dropdown')
-            .waitForElementNotPresent(page.elements.previewItem)
-            .clickContextMenuItem('.sw-media-context-item__dissolve-media-action', '.sw-context-button__button')
+            .waitForElementNotPresent(page.elements.previewItem);
+    },
+    'dissolve folder': (browser) => {
+        browser
+            .clickContextMenuItem('.sw-media-context-item__dissolve-folder-action', '.sw-context-button__button')
             .waitForElementVisible('.sw-modal')
             .assert.containsText('.sw-modal__body', `Are you sure you want to dissolve "${global.MediaFixtureService.mediaFolderFixture.name}" ?`)
             .waitForElementVisible('.sw-media-modal-folder-dissolve__confirm')
@@ -44,10 +49,10 @@ module.exports = {
             .useXpath()
             .waitForElementNotPresent(`//*[contains(text(), 'Folder ${global.MediaFixtureService.mediaFolderFixture.name} has been dissolved successfully')]`)
             .useCss()
-            .checkNotification('Files have been deleted successfully', false)
+            .checkNotification('Folders have been dissolved successfully', false)
             .click('.sw-alert__close')
             .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'Files have been deleted successfully')]`)
+            .waitForElementNotPresent(`//*[contains(text(), 'Folders have been dissolved successfully')]`)
             .useCss();
     },
     'verify if folder was removed and images persisted': (browser) => {
@@ -55,16 +60,11 @@ module.exports = {
 
         browser
             .waitForElementPresent(page.elements.previewItem)
-            .waitForElementVisible(page.elements.folderNameLabel)
-            .getValue(page.elements.folderNameLabel, function checkValueNotPresent(result) {
-                this.assert.notEqual(result, global.MediaFixtureService.mediaFolderFixture.name);
-            })
-            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('sw-login-background.png');
+            .waitForElementVisible(page.elements.mediaNameLabel)
+            .waitForElementNotPresent(page.elements.folderNameLabel)
+            .expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
     },
     after: (browser) => {
         browser.end();
     }
 };
-
-
-

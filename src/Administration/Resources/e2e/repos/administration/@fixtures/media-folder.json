@@ -1,4 +1,5 @@
 {
   "name": "Fold it",
-  "useParentConfiguration": false
+  "useParentConfiguration": false,
+  "configuration": {}
 }

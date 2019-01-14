@@ -71,19 +71,22 @@ Component.register('sw-settings-rule-detail', {
                 return nestedConditions;
             }
 
+            return this.checkRootContainer(nestedConditions);
+        },
+
+        checkRootContainer(nestedConditions) {
             if (nestedConditions.length === 1
                 && nestedConditions[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule') {
                 if (nestedConditions[0].children.length > 0) {
                     return nestedConditions[0];
                 }
 
+                console.log('fooaosfasgsdg');
                 nestedConditions[0].children = [
-                    Object.assign(
-                        this.conditionAssociations.create(),
-                        {
-                            type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
-                            parentId: nestedConditions[0].id
-                        }
+                    this.createCondition(
+                        'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                        utils.createId(),
+                        nestedConditions[0].id
                     )
                 ];
 
@@ -91,23 +94,38 @@ Component.register('sw-settings-rule-detail', {
             }
 
             const rootId = utils.createId();
-
-            return Object.assign(
-                this.conditionAssociations.create(rootId),
-                {
-                    type: 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
-                    children: [
-                        Object.assign(
-                            this.conditionAssociations.create(),
-                            {
-                                type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
-                                parentId: rootId,
-                                children: nestedConditions
-                            }
-                        )
-                    ]
-                }
+            const rootRole = this.createCondition(
+                'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
+                rootId,
+                null
             );
+
+            rootRole.children = [
+                this.createCondition(
+                    'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                    utils.createId(),
+                    rootId,
+                    nestedConditions
+                )
+            ];
+
+            return rootRole;
+        },
+
+        createCondition(type, conditionId, parentId = null, children) {
+            const conditionData = {
+                type: type,
+                parentId: parentId
+            };
+
+            if (children) {
+                children.forEach((child) => {
+                    child.parentId = conditionId;
+                });
+                conditionData.children = children;
+            }
+
+            return Object.assign(this.conditionAssociations.create(conditionId), conditionData);
         },
 
         onSave() {

@@ -24,9 +24,10 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
     },
 
     watch: {
-        'condition.value.useTime': {
-            handler() {
-                this.$set(this.datepickerConfig, 'enableTime', !!this.condition.value.useTime);
+        useTime: {
+            handler(newValue) {
+                this.condition.value.useTime = !!newValue;
+                this.$set(this.datepickerConfig, 'enableTime', this.condition.value.useTime);
             }
         },
         fromDate: {
@@ -45,7 +46,8 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
         return {
             datepickerConfig: {},
             fromDate: this.condition.value.fromDate,
-            toDate: this.condition.value.toDate
+            toDate: this.condition.value.toDate,
+            useTime: !!this.condition.value.useTime
         };
     },
 

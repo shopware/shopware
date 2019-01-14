@@ -227,7 +227,7 @@
           "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields}| Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
         },
         "subCondition": "Unterbedingung",
-        "deleteConditions": "Alle löschen"
+        "deleteConditions": "Alle entfernen"
       }
     },
     "sw-product-image": {

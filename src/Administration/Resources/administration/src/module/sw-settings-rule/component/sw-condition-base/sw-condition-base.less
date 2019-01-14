@@ -27,8 +27,9 @@
         background-color: @sw-condition-base-color-background;
         position: relative;
         line-height: 40px;
-        padding: 0 16px;
-        height: 44px;
+        padding-left: 6px;
+        height: 40px;
+        flex-shrink: 0;
         border-top: 1px solid @sw-condition-base-color-border;
         border-bottom: 1px solid @sw-condition-base-color-border;
     }
@@ -37,45 +38,8 @@
         margin-bottom: 0;
     }
 
-    .field--condition {
-        background: @sw-condition-base-color-primary;
-        color: @sw-condition-base-color-primary-text;
-        width: 168px;
-        height: 44px;
-        border-top: none;
-        border-bottom: none;
-        border-top-left-radius: 3px;
-        border-bottom-left-radius: 3px;
-
-        &:before {
-            content: '';
-            position: absolute;
-            right: -5px;
-            top: 1px;
-            width: 10px;
-            height: 25px;
-            background: @sw-condition-base-color-primary;
-            z-index: @sw-condition-base-z-index-arrow;
-            transform: rotate(-20deg);
-            border-bottom-right-radius: 3px;
-        }
-
-        &:after {
-            content: '';
-            position: absolute;
-            right: -5px;
-            bottom: 1px;
-            width: 10px;
-            height: 25px;
-            background: @sw-condition-base-color-primary;
-            z-index: @sw-condition-base-z-index-arrow;
-            border-top-right-radius: 3px;
-            transform: rotate(20deg);
-        }
-    }
-
     .field--select {
-        width: 196px;
+        width: 124px;
         border-top: 1px solid @sw-condition-base-color-border;
         border-bottom: 1px solid @sw-condition-base-color-border;
 
@@ -85,7 +49,56 @@
             border: 0;
             padding: 7px 0;
             background: @sw-condition-base-color-background;
-            height: 42px;
+            height: 38px;
+        }
+
+        &.field--condition {
+            background: @sw-condition-base-color-primary;
+            color: @sw-condition-base-color-primary-text;
+            width: 168px;
+            height: 40px;
+            border-top-color: @sw-condition-base-color-primary;
+            border-bottom-color: @sw-condition-base-color-primary;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+            padding-right: 8px;
+
+            .sw-field__select {
+                .sw-icon {
+                    color: @sw-condition-base-color-primary-text;
+                }
+
+                select {
+                    background: transparent;
+                    color: @sw-condition-base-color-primary-text;
+                }
+            }
+
+            &:before {
+                content: '';
+                position: absolute;
+                right: -5px;
+                top: 0;
+                width: 10px;
+                height: 23px;
+                background: @sw-condition-base-color-primary;
+                z-index: @sw-condition-base-z-index-arrow;
+                transform: rotate(-20deg);
+                border-bottom-right-radius: 3px;
+            }
+
+            &:after {
+                content: '';
+                position: absolute;
+                right: -5px;
+                bottom: 0;
+                width: 10px;
+                height: 23px;
+                background: @sw-condition-base-color-primary;
+                z-index: @sw-condition-base-z-index-arrow;
+                border-top-right-radius: 3px;
+                transform: rotate(20deg);
+            }
         }
     }
 
@@ -96,7 +109,7 @@
             right: -5px;
             top: -1px;
             width: 1px;
-            height: 23px;
+            height: 21px;
             background: @sw-condition-base-color-border;
             z-index: @sw-condition-base-z-index-arrow;
             transform: rotate(-20deg);
@@ -108,7 +121,7 @@
             right: -5px;
             bottom: -1px;
             width: 1px;
-            height: 23px;
+            height: 21px;
             background: @sw-condition-base-color-border;
             z-index: @sw-condition-base-z-index-arrow;
             transform: rotate(20deg);
@@ -127,8 +140,8 @@
 
     .field--main {
         flex-grow: 1;
+        flex-shrink: 1;
         padding-left: 20px;
-        width: 100%;
     }
 
     .field--multi {
@@ -137,8 +150,35 @@
 
         .sw-select__inner, .sw-tagged-field__inner {
             border: none;
-            padding: 4px 45px 0 13px;
-            min-height: 42px;
+            padding: 0 45px 0 13px;
+            min-height: 38px;
+
+            .sw-select__input, .sw-tagged-field__input {
+                margin-top: 7px;
+                margin-bottom: 7px;
+                padding: 0 8px;
+                line-height: 24px;
+            }
+
+            .sw-label {
+                font-size: 14px;
+                margin-top: 7px;
+                margin-bottom: 7px;
+                padding: 0 24px 0 8px;
+
+                .sw-label__dismiss {
+                    width: 24px;
+
+                    .sw-icon {
+                        height: 10px;
+                        width: 10px;
+                    }
+                }
+            }
+
+            .sw-select__selection-item-input, .sw-tagged-field__tag-item-input {
+                margin-bottom: 0;
+            }
         }
 
         &:before {
@@ -146,31 +186,29 @@
             position: absolute;
             width: 1px;
             left: 0;
-            top: 42px;
+            top: 38px;
             bottom: -1px;
             background-color: @sw-condition-base-color-border;
             z-index: @sw-condition-base-z-index-arrow;
         }
-
-        &:after {
-            content: '';
-            position: absolute;
-            width: 1px;
-            right: -1px;
-            top: 42px;
-            bottom: -1px;
-            background-color: @sw-condition-base-color-border;
-        }
     }
 
     .field--actions {
-        width: 44px;
+        width: 40px;
         border: 1px solid @sw-condition-base-color-border;
         border-top-right-radius: 3px;
         border-bottom-right-radius: 3px;
-        line-height: 45px;
+        line-height: 38px;
         text-align: left;
         padding: 0 0;
+        height: auto;
+        cursor: pointer;
+
+        .sw-context-button {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
     }
 
     .sw-field input:disabled {
@@ -178,7 +216,10 @@
     }
 
     .sw-field--switch {
+        padding-left: 20px;
         padding-top: 12px;
+        flex-shrink: 1;
+        flex-grow: 1;
     }
 
     .sw-select__inner {
@@ -190,9 +231,9 @@
             outline: none;
             box-shadow: none;
             border: 0 none;
-            padding: 7px 20px;
+            padding: 7px 0;
             background: @sw-condition-base-color-background;
-            height: 42px;
+            height: 38px;
         }
 
         input {
@@ -203,13 +244,28 @@
         }
 
         .sw-field__select select {
-            padding-left: 20px;
+            padding-left: 10px;
+            padding-right: 8px;
 
             &:active,
             &:focus {
                 box-shadow: none;
             }
         }
+    }
+
+    .sw-condition-base__field {
+        border: 0;
+        background: none;
+        color: @sw-condition-base-color-primary-text;
+        font-size: @sw-condition-base-font-size;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .sw-context-button .sw-context-button__button {
+        border: none;
     }
 
     .sw-condition-base__field {

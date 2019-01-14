@@ -1,15 +1,14 @@
 {% block sw_condition_fields %}
-    {% block sw_condition_fields_operator %}
-        <sw-field type="text"
-                  class="field field--select has--arrow"
-                  :placeholder="$tc(operator.label)"
-                  :disabled="true">
-        </sw-field>
-    {% endblock %}
     {% block sw_condition_fields_value %}
-        <sw-field type="switch"
-                  class="field field--main"
-                  v-model="condition.value.isNew">
+        <sw-field type="select"
+                  name="isNew"
+                  v-model="isNew"
+                  class="field field--select field--main">
+            <template slot="options">
+                <option v-for="item in selectValues" :value="item.value">
+                    {{ $tc(item.label) }}
+                </option>
+            </template>
         </sw-field>
     {% endblock %}
 {% endblock %}

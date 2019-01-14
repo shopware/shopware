@@ -57,6 +57,7 @@
     "symfony/twig-bundle": "4.1.7",
     "symfony/validator": "4.1.7",
     "symfony/yaml": "4.1.7",
+    "symfony/messenger": "4.1.7",
     "twig/extensions": "1.5.2",
     "twig/twig": "2.5.0",
     "voku/stop-words": "2.0.0",

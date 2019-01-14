@@ -16,7 +16,9 @@
                                        :condition="child"
                                        :conditionAssociations="conditionAssociations"
                                        :level="level + 1"
-                                       @delete-condition="onDeleteCondition">
+                                       @delete-condition="onDeleteCondition"
+                                       @create-before="createPlaceholderBefore"
+                                       @create-after="createPlaceholderAfter">
                             </component>
                         {% endblock %}
                     </div>

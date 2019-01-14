@@ -44,6 +44,11 @@ class RuleConditionEntity extends Entity
      */
     protected $parent;
 
+    /**
+     * @var int
+     */
+    protected $sort;
+
     public function getType(): string
     {
         return $this->type;
@@ -112,5 +117,15 @@ class RuleConditionEntity extends Entity
     public function setParent(?RuleConditionEntity $parent): void
     {
         $this->parent = $parent;
+    }
+
+    public function getSort(): int
+    {
+        return $this->sort;
+    }
+
+    public function setSort(int $sort): void
+    {
+        $this->sort = $sort;
     }
 }

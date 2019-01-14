@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
@@ -46,6 +47,7 @@ class RuleConditionDefinition extends EntityDefinition
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
             new ParentFkField(self::class),
             new JsonField('value', 'value'),
+            new IntField('sort', 'sort'),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false, 'id'),
             new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),

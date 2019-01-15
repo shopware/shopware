@@ -24,7 +24,6 @@ class LineItemRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -64,5 +63,10 @@ class LineItemRule extends Rule
             'identifiers' => [new NotBlank(), new ArrayOfUuid()],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'line_item';
     }
 }

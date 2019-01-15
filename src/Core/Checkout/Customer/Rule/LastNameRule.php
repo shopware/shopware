@@ -25,7 +25,6 @@ class LastNameRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -62,5 +61,10 @@ class LastNameRule extends Rule
             'lastName' => [new NotBlank(), new Type('string')],
             'operator' => [new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'last_name';
     }
 }

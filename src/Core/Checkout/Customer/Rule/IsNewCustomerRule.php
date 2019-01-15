@@ -18,7 +18,6 @@ class IsNewCustomerRule extends Rule
     public function __construct()
     {
         $this->isNew = true;
-        parent::__construct();
     }
 
     public function match(RuleScope $scope): Match
@@ -55,5 +54,10 @@ class IsNewCustomerRule extends Rule
         return [
             'isNew' => [new Type('bool')],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'is_new_customer';
     }
 }

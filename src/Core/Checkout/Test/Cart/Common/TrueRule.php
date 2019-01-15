@@ -18,4 +18,9 @@ class TrueRule extends Rule
     {
         return [];
     }
+
+    public static function getName(): string
+    {
+        return 'true';
+    }
 }

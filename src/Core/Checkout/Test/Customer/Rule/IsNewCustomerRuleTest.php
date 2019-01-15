@@ -50,7 +50,7 @@ class IsNewCustomerRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => IsNewCustomerRule::class,
+                'type' => IsNewCustomerRule::getName(),
                 'ruleId' => $ruleId,
             ],
         ], $this->context);

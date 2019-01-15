@@ -30,7 +30,6 @@ class LineItemWithQuantityRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -97,5 +96,10 @@ class LineItemWithQuantityRule extends Rule
             'quantity' => [new NotBlank(), new Type('int')],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_LTE, self::OPERATOR_GTE, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'line_item_with_quantity';
     }
 }

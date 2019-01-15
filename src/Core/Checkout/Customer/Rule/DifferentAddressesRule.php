@@ -18,7 +18,6 @@ class DifferentAddressesRule extends Rule
     public function __construct()
     {
         $this->isDifferent = true;
-        parent::__construct();
     }
 
     public function match(RuleScope $scope): Match
@@ -51,5 +50,10 @@ class DifferentAddressesRule extends Rule
         return [
             'isDifferent' => [new Type('bool')],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'different_addresses';
     }
 }

@@ -47,7 +47,7 @@ class LineItemOfTypeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemOfTypeRule::class,
+                    'type' => LineItemOfTypeRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class LineItemOfTypeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemOfTypeRule::class,
+                    'type' => LineItemOfTypeRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'lineItemType' => '',
@@ -98,7 +98,7 @@ class LineItemOfTypeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemOfTypeRule::class,
+                    'type' => LineItemOfTypeRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'lineItemType' => true,
@@ -130,7 +130,7 @@ class LineItemOfTypeRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => LineItemOfTypeRule::class,
+                'type' => LineItemOfTypeRule::getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'lineItemType' => 'Type',

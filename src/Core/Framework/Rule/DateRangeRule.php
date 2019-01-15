@@ -26,7 +26,6 @@ class DateRangeRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->useTime = false;
     }
 
@@ -56,5 +55,10 @@ class DateRangeRule extends Rule
             'toDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
             'useTime' => [new Type('bool')],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'date_range';
     }
 }

@@ -38,6 +38,11 @@ class NotRule extends Container
         );
     }
 
+    public static function getName(): string
+    {
+        return 'not_container';
+    }
+
     /**
      * Enforce that NOT only handles ONE child rule
      *

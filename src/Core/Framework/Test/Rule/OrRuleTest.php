@@ -49,7 +49,7 @@ class OrRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => OrRule::class,
+                    'type' => OrRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'rules' => ['Rule'],
@@ -80,7 +80,7 @@ class OrRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => OrRule::class,
+                'type' => OrRule::getName(),
                 'ruleId' => $ruleId,
             ],
         ], $this->context);
@@ -100,11 +100,11 @@ class OrRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => OrRule::class,
+                'type' => OrRule::getName(),
                 'ruleId' => $ruleId,
                 'children' => [
                     [
-                        'type' => OrRule::class,
+                        'type' => OrRule::getName(),
                         'ruleId' => $ruleId,
                     ],
                 ],

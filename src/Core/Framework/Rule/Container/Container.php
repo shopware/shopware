@@ -27,7 +27,6 @@ abstract class Container extends Rule
      */
     public function __construct(array $rules = [])
     {
-        parent::__construct();
         array_map([$this, 'addRule'], $rules);
     }
 

@@ -18,4 +18,9 @@ class FalseRule extends Rule
     {
         return [];
     }
+
+    public static function getName(): string
+    {
+        return 'false';
+    }
 }

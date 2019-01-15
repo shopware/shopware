@@ -25,7 +25,6 @@ class CustomerGroupRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -63,5 +62,10 @@ class CustomerGroupRule extends Rule
             'customerGroupIds' => [new NotBlank(), new ArrayOfUuid()],
             'operator' => [new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'customer_group';
     }
 }

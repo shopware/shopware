@@ -47,4 +47,9 @@ class LineItemWrapperRule extends Rule
             'container' => [new NotBlank(), new Type(Container::class)],
         ];
     }
+
+    public static function getName(): string
+    {
+        return 'line_item_wrapper';
+    }
 }

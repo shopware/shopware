@@ -21,7 +21,6 @@ class CurrencyRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -49,5 +48,10 @@ class CurrencyRule extends Rule
             'currencyIds' => [new NotBlank(), new ArrayOfUuid()],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'currency';
     }
 }

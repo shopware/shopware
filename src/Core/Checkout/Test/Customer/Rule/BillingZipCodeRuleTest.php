@@ -47,7 +47,7 @@ class BillingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingZipCodeRule::class,
+                    'type' => BillingZipCodeRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class BillingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingZipCodeRule::class,
+                    'type' => BillingZipCodeRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'zipCodes' => [],
@@ -98,7 +98,7 @@ class BillingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingZipCodeRule::class,
+                    'type' => BillingZipCodeRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'zipCodes' => '12345',
@@ -124,7 +124,7 @@ class BillingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingZipCodeRule::class,
+                    'type' => BillingZipCodeRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'zipCodes' => [false, 3, null, '12345'],
@@ -157,7 +157,7 @@ class BillingZipCodeRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => BillingZipCodeRule::class,
+                'type' => BillingZipCodeRule::getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'zipCodes' => ['12345', '54321'],

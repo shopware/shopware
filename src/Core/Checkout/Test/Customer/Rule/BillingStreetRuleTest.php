@@ -47,7 +47,7 @@ class BillingStreetRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingStreetRule::class,
+                    'type' => BillingStreetRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class BillingStreetRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingStreetRule::class,
+                    'type' => BillingStreetRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'streetName' => '',
@@ -98,7 +98,7 @@ class BillingStreetRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingStreetRule::class,
+                    'type' => BillingStreetRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'streetName' => true,
@@ -130,7 +130,7 @@ class BillingStreetRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => BillingStreetRule::class,
+                'type' => BillingStreetRule::getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'streetName' => 'Street 1',

@@ -25,7 +25,6 @@ class BillingZipCodeRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -65,5 +64,10 @@ class BillingZipCodeRule extends Rule
             'zipCodes' => [new NotBlank(), new ArrayOfType('string')],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'billing_zip_code';
     }
 }

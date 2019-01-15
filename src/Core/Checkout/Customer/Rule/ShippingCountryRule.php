@@ -25,7 +25,6 @@ class ShippingCountryRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -64,5 +63,10 @@ class ShippingCountryRule extends Rule
             'countryIds' => [new NotBlank(), new ArrayOfUuid()],
             'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_EQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'shipping_country';
     }
 }

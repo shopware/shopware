@@ -24,7 +24,6 @@ class LineItemOfTypeRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -60,5 +59,10 @@ class LineItemOfTypeRule extends Rule
             'lineItemType' => [new NotBlank(), new Type('string')],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'line_item_of_type';
     }
 }

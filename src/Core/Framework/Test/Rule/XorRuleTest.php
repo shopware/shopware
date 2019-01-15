@@ -49,7 +49,7 @@ class XorRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => XorRule::class,
+                    'type' => XorRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'rules' => ['Rule'],
@@ -80,7 +80,7 @@ class XorRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => XorRule::class,
+                'type' => XorRule::getName(),
                 'ruleId' => $ruleId,
             ],
         ], $this->context);
@@ -100,11 +100,11 @@ class XorRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => XorRule::class,
+                'type' => XorRule::getName(),
                 'ruleId' => $ruleId,
                 'children' => [
                     [
-                        'type' => XorRule::class,
+                        'type' => XorRule::getName(),
                         'ruleId' => $ruleId,
                     ],
                 ],

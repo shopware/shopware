@@ -47,7 +47,7 @@ class LastNameRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LastNameRule::class,
+                    'type' => LastNameRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class LastNameRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LastNameRule::class,
+                    'type' => LastNameRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'lastName' => '',
@@ -98,7 +98,7 @@ class LastNameRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LastNameRule::class,
+                    'type' => LastNameRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'lastName' => true,
@@ -130,7 +130,7 @@ class LastNameRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => LastNameRule::class,
+                'type' => LastNameRule::getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'lastName' => 'Type',

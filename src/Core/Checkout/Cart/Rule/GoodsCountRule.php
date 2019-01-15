@@ -24,7 +24,6 @@ class GoodsCountRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -82,5 +81,10 @@ class GoodsCountRule extends Rule
             'count' => [new NotBlank(), new Type('int')],
             'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_EQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'goods_count';
     }
 }

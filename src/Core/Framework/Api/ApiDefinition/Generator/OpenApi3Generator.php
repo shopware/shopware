@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -340,7 +341,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         /** @var Field $field */
         foreach ($definition::getFields() as $field) {
-            if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id' || preg_match('#translations$#i', $field->getPropertyName())) {
+            if ($field->getPropertyName() === 'translations'
+                || $field->getPropertyName() === 'id'
+                || preg_match('#translations$#i', $field->getPropertyName())
+                || $field->is(Internal::class)) {
                 continue;
             }
 

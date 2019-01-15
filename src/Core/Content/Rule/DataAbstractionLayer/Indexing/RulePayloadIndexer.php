@@ -186,7 +186,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 $nested = new AndRule($nested);
 
                 $serialized = $this->serializer->serialize($nested, 'json');
-            } catch (ConditionClassNotFound $exception) {
+            } catch (ConditionTypeNotFound $exception) {
                 $invalid = true;
             } finally {
                 $this->connection->createQueryBuilder()
@@ -212,11 +212,13 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 continue;
             }
 
-            if (!in_array($rule['type'], $this->ruleConditionRegistry->collect()) || !class_exists($rule['type'])) {
-                throw new ConditionClassNotFound($rule['type']);
+            if (!$this->ruleConditionRegistry->has($rule['type'])
+                || !class_exists($conditionClass = $this->ruleConditionRegistry->getClass($rule['type']))
+            ) {
+                throw new ConditionTypeNotFound($rule['type']);
             }
 
-            $object = new $rule['type']();
+            $object = new $conditionClass();
             if ($rule['value'] !== null) {
                 /* @var Rule $object */
                 $object->assign(json_decode($rule['value'], true));

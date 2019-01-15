@@ -15,14 +15,11 @@ abstract class Rule extends Struct
     public const OPERATOR_NEQ = '!=';
 
     /**
-     * @var string
+     * Returns the api name for this rule. The name has to be unique in the system.
+     *
+     * @return string
      */
-    protected $type;
-
-    public function __construct()
-    {
-        $this->type = static::class;
-    }
+    abstract public static function getName(): string;
 
     /**
      * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not

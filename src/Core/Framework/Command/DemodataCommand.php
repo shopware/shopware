@@ -675,13 +675,13 @@ class DemodataCommand extends Command
     {
         $data = [];
         $data['value'] = $rule->jsonSerialize();
-        unset($data['value']['_class'], $data['value']['type'], $data['value']['rules'], $data['value']['extensions']);
+        unset($data['value']['_class'], $data['value']['rules'], $data['value']['extensions']);
         if (!$data['value']) {
             unset($data['value']);
         }
         $data['id'] = Uuid::uuid4()->getHex();
         $data['parentId'] = $parentId;
-        $data['type'] = get_class($rule);
+        $data['type'] = $rule::getName();
 
         if ($rule instanceof Container) {
             $data['children'] = [];

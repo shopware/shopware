@@ -28,4 +28,9 @@ class AndRule extends Container
 
         return new Match($valid, $messages);
     }
+
+    public static function getName(): string
+    {
+        return 'and_container';
+    }
 }

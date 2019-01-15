@@ -48,7 +48,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -80,7 +80,7 @@ class LineItemWithQuantityRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => LineItemWithQuantityRule::class,
+                'type' => LineItemWithQuantityRule::getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'quantity' => 1,
@@ -99,7 +99,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
@@ -127,7 +127,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'quantity' => 3,
@@ -155,7 +155,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'id' => true,
@@ -183,7 +183,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'id' => '12345',
@@ -211,7 +211,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
@@ -249,7 +249,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             [
                 [
                     'id' => $conditionIdEq,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
@@ -259,7 +259,7 @@ class LineItemWithQuantityRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdNEq,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
@@ -269,7 +269,7 @@ class LineItemWithQuantityRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdLTE,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
@@ -279,7 +279,7 @@ class LineItemWithQuantityRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdGTE,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
@@ -304,7 +304,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemWithQuantityRule::class,
+                    'type' => LineItemWithQuantityRule::getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
@@ -338,7 +338,7 @@ class LineItemWithQuantityRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => LineItemWithQuantityRule::class,
+                'type' => LineItemWithQuantityRule::getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'id' => '0915d54fbf80423c917c61ad5a391b48',

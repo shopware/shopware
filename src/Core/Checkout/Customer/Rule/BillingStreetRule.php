@@ -25,7 +25,6 @@ class BillingStreetRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -66,5 +65,10 @@ class BillingStreetRule extends Rule
             'streetName' => [new NotBlank(), new Type('string')],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'billing_street';
     }
 }

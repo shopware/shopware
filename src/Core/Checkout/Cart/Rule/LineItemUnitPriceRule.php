@@ -24,7 +24,6 @@ class LineItemUnitPriceRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -82,5 +81,10 @@ class LineItemUnitPriceRule extends Rule
             'amount' => [new NotBlank(), new Type('numeric')],
             'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_EQ])],
         ];
+    }
+
+    public static function getName(): string
+    {
+        return 'line_item_unit_price';
     }
 }

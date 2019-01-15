@@ -382,6 +382,15 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="sales_channel_domain.repository" public="true">
+            <argument>Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="integration.repository" public="true">
             <argument>Shopware\Core\System\Integration\IntegrationDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>

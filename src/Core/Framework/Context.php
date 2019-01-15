@@ -16,11 +16,6 @@ class Context extends Struct
     /**
      * @var string
      */
-    protected $snippetSetId;
-
-    /**
-     * @var string
-     */
     protected $versionId;
 
     /**
@@ -65,8 +60,7 @@ class Context extends Struct
         string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
-        float $currencyFactor = 1.0,
-        string $snippetSetId = Defaults::SNIPPET_BASE_SET_EN
+        float $currencyFactor = 1.0
     ) {
         $this->sourceContext = $sourceContext;
         $this->catalogIds = $catalogIds;
@@ -75,7 +69,6 @@ class Context extends Struct
 
         $this->versionId = $versionId;
         $this->currencyFactor = $currencyFactor;
-        $this->snippetSetId = $snippetSetId;
 
         if (empty($languageIdChain)) {
             throw new \InvalidArgumentException('languageIdChain may not be empty');
@@ -140,8 +133,7 @@ class Context extends Struct
             $this->currencyId,
             $this->languageIdChain,
             $versionId,
-            $this->currencyFactor,
-            $this->snippetSetId
+            $this->currencyFactor
         );
 
         foreach ($this->getExtensions() as $key => $extension) {
@@ -163,8 +155,7 @@ class Context extends Struct
             $this->currencyId,
             $this->languageIdChain,
             $this->versionId,
-            $this->currencyFactor,
-            $this->snippetSetId
+            $this->currencyFactor
         );
 
         foreach ($this->getExtensions() as $key => $extension) {
@@ -185,10 +176,5 @@ class Context extends Struct
     public function getDeleteProtection(): ProtectionStruct
     {
         return $this->deleteProtection;
-    }
-
-    public function getSnippetSetId(): string
-    {
-        return $this->snippetSetId;
     }
 }

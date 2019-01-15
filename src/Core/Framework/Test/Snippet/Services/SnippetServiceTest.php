@@ -25,10 +25,10 @@ class SnippetServiceTest extends TestCase
      *
      * @dataProvider dataProviderForTestGetSnippets
      */
-    public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, Context $context, array $expectedResult): void
+    public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, array $expectedResult): void
     {
         $service = $this->getSnippetService();
-        $result = $service->getStorefrontSnippets($catalog, $context);
+        $result = $service->getStorefrontSnippets($catalog, $snippetSetId);
 
         $this->assertArraySubset($expectedResult, $result);
         $this->assertNotEmpty($result);
@@ -57,12 +57,10 @@ class SnippetServiceTest extends TestCase
 
     public function dataProviderForTestGetSnippets(): array
     {
-        $context = $this->getContext(Defaults::SALES_CHANNEL);
-
         return [
-            [$this->getCatalog([], 'en_GB'), $context, []],
-            [$this->getCatalog(['messages' => ['a' => 'a']], 'en_GB'), $context, ['a' => 'a']],
-            [$this->getCatalog(['messages' => ['a' => 'a', 'b' => 'b']], 'en_GB'), $context, ['a' => 'a', 'b' => 'b']],
+            [$this->getCatalog([], 'en_GB'), Defaults::SNIPPET_BASE_SET_EN, []],
+            [$this->getCatalog(['messages' => ['a' => 'a']], 'en_GB'), Defaults::SNIPPET_BASE_SET_EN, ['a' => 'a']],
+            [$this->getCatalog(['messages' => ['a' => 'a', 'b' => 'b']], 'en_GB'), Defaults::SNIPPET_BASE_SET_EN, ['a' => 'a', 'b' => 'b']],
         ];
     }
 

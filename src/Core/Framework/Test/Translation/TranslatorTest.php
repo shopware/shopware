@@ -7,9 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\Snippet\SnippetDefinition;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Translation\Translator;
-use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -75,7 +77,10 @@ class TranslatorTest extends TestCase
 
         // fake request
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
+
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, Defaults::SNIPPET_BASE_SET_EN);
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, Defaults::LOCALE_EN_GB_ISO);
+
         $this->getContainer()->get(RequestStack::class)->push($request);
 
         // get overwritten string
@@ -87,5 +92,23 @@ class TranslatorTest extends TestCase
             $request,
             $this->getContainer()->get(RequestStack::class)->pop()
         );
+    }
+
+    public function testDeleteSnippet(): void
+    {
+        $snippetRepository = $this->getContainer()->get('snippet.repository');
+        $snippet = [
+            'id' => Uuid::uuid4()->getHex(),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'setId' => Defaults::SNIPPET_BASE_SET_EN,
+            'translationKey' => 'foo',
+            'value' => 'bar',
+        ];
+
+        $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
+        static::assertEquals([$snippet['id']], $created->getIds());
+
+        $deleted = $snippetRepository->delete([['id' => $snippet['id']]], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
+        static::assertEquals([$snippet['id']], $deleted->getIds());
     }
 }

@@ -566,6 +566,7 @@ class EntityReader implements EntityReaderInterface
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
+
         $data = $this->_read(
             $readCriteria,
             $referenceClass,

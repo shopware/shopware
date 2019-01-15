@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
@@ -148,6 +149,25 @@ class EntityForeignKeyResolver
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();
 
+            /*
+             * `EntityTranslationDefinitions` dont have an id column. We need to construct one by combining the entity id and the language id.
+             */
+            if ($cascade instanceof TranslationsAssociationField) {
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
+                $entityColumnName = $cascade->getReferenceField();
+                $languageColumnName = $cascade->getLanguageField();
+
+                $query->addSelect(
+                    'GROUP_CONCAT(DISTINCT CONCAT(' .
+                        'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $entityColumnName . '`),' .
+                        '"-",' .
+                        'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $languageColumnName . '`)' .
+                    ')' .
+                    ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
+                );
+                continue;
+            }
+
             if ($cascade instanceof OneToManyAssociationField) {
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
@@ -156,6 +176,7 @@ class EntityForeignKeyResolver
                     EntityDefinitionQueryHelper::escape($alias) . '.`id`)' .
                     ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
+                continue;
             }
 
             if ($cascade instanceof ManyToManyAssociationField) {

@@ -58,8 +58,9 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         foreach ($value as $identifier => $fields) {
-            /* multiple formats are supported.
+            /* Supported formats:
                 translations => [['property' => 'translation', 'languageId' => '{languageUuid}']] -> skip
+                translations => [['property' => 'translation', 'language' => ['id' => {languageUuid}'] ]] -> skip
                 translations => ['{languageUuid}' => ['property' => 'translation']] -> skip
                 translations => ['en_GB' => ['property' => 'translation']] -> proceed and use localeLanguageResolver
             */
@@ -100,24 +101,30 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
         }
 
+        $refClass = $field->getReferenceClass();
+        $languageField = $refClass::getFields()->getByStorageName($field->getLanguageField());
+        $languagePropName = $languageField->getPropertyName();
+
         $translations = [];
         foreach ($value as $keyValue => $subResources) {
             if (!\is_array($subResources)) {
                 throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
             }
+
+            // See above for Supported formats
             $languageId = $keyValue;
             if (is_numeric($languageId) && $languageId >= 0 && $languageId < count($value)) {
                 // languageId is a property of $subResources. Also see formats above
-                if (isset($subResources[$field->getReferenceField()])) {
-                    $languageId = $subResources[$field->getReferenceField()];
+                if (isset($subResources[$languagePropName])) {
+                    $languageId = $subResources[$languagePropName];
                 } elseif (isset($subResources['language']['id'])) {
                     $languageId = $subResources['language']['id'];
                 } else {
                     throw new MissingTranslationLanguageException($parameters->getPath() . '/' . $key . '/' . $keyValue);
                 }
-            } elseif ($field->getReferenceField()) {
+            } elseif ($languagePropName) {
                 // the key is the language id, also write it into $subResources
-                $subResources[$field->getReferenceField()] = $languageId;
+                $subResources[$languagePropName] = $languageId;
             }
             $translations[$languageId] = $subResources;
         }

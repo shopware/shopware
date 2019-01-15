@@ -78,7 +78,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new TranslatedField('comment'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->setFlags(new Required(), new CascadeDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, false, 'shipping_method_id', 'sales_channel_id'),
         ]);
     }

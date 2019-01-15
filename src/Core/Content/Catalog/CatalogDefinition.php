@@ -55,13 +55,13 @@ class CatalogDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'categoryTranslations'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id', 'categoryTranslations'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class, 'productManufacturerTranslations'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', 'productManufacturerTranslations'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'productTranslations'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CatalogTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id', 'productTranslations'))->setFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(CatalogTranslationDefinition::class, 'catalog_id'))->setFlags(new Required(), new CascadeDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCatalogDefinition::class, false, 'catalog_id', 'sales_channel_id'),
         ]);
     }

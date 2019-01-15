@@ -49,7 +49,7 @@ class ListingFacetDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(ListingFacetTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(ListingFacetTranslationDefinition::class, 'listing_facet_id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }
 }

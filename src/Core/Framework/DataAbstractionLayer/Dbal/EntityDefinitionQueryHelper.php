@@ -11,8 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolve
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -198,7 +201,17 @@ class EntityDefinitionQueryHelper
         if ($useVersionFallback) {
             $this->joinVersion($query, $definition, $definition::getEntityName(), $context);
         } elseif ($definition::isVersionAware()) {
-            $query->andWhere(self::escape($table) . '.`version_id` = :version');
+            /** @var FkField|null $versionIdField */
+            $versionIdField = $definition::getPrimaryKeys()
+                ->filter(function ($f) {
+                    return $f instanceof VersionField || $f instanceof ReferenceVersionField;
+                })->first();
+
+            if (!$versionIdField) {
+                throw new \RuntimeException('Missing `VersionField` in `' . $definition . '`');
+            }
+
+            $query->andWhere(self::escape($table) . '.`' . $versionIdField->getStorageName() . '` = :version');
             $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         }
 

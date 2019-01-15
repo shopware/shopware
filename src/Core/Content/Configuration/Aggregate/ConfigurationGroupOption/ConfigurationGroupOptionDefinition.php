@@ -65,7 +65,7 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, true),
-            (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new ReverseInherited('datasheet')),

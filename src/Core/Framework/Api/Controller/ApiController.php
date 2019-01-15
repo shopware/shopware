@@ -12,11 +12,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -228,12 +228,6 @@ class ApiController extends AbstractController
         /** @var AssociationInterface $association */
         $association = $child['field'];
 
-        if ($association instanceof OneToManyAssociationField) {
-            $this->doDelete($request, $context, $definition, ['id' => $id]);
-
-            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
-        }
-
         // DELETE api/product/{id}/manufacturer/{id}
         if ($association instanceof ManyToOneAssociationField) {
             $this->doDelete($request, $context, $definition, ['id' => $id]);
@@ -262,28 +256,24 @@ class ApiController extends AbstractController
         }
 
         if ($association instanceof TranslationsAssociationField) {
-            $pks = $definition::getPrimaryKeys();
-            $parentIdField = null;
+            /** @var EntityTranslationDefinition $refClass */
+            $refClass = $association->getReferenceClass();
 
-            foreach ($pks as $pk) {
-                if (!$pk instanceof FkField) {
-                    continue;
-                }
-                if ($pk->getReferenceField() === 'id' && $pk->getReferenceClass() === $parent['definition']) {
-                    $parentIdField = $pk;
-                }
-            }
-
-            if ($parentIdField === null) {
-                throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
-            }
+            $refPropName = $refClass::getFields()->getByStorageName($association->getReferenceField())->getPropertyName();
+            $refLanguagePropName = $refClass::getPrimaryKeys()->getByStorageName($association->getLanguageField())->getPropertyName();
 
             $mapping = [
-              $parentIdField->getPropertyName() => $parent['value'],
-              'languageId' => $id,
+                $refPropName => $parent['value'],
+                $refLanguagePropName => $id,
             ];
 
             $this->doDelete($request, $context, $definition, $mapping);
+
+            return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
+        }
+
+        if ($association instanceof OneToManyAssociationField) {
+            $this->doDelete($request, $context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }

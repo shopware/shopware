@@ -2,38 +2,35 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-class TranslationsAssociationField extends Field implements AssociationInterface
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
+
+class TranslationsAssociationField extends OneToManyAssociationField
 {
-    use AssociationTrait;
-
     public const PRIORITY = 90;
-
-    /**
-     * @var string
-     */
-    protected $localField;
-
-    /**
-     * @var string
-     */
-    protected $referenceField;
 
     public function __construct(
         string $referenceClass,
+        string $referenceField,
         string $propertyName = 'translations',
-        bool $loadInBasic = false,
         string $localField = 'id'
     ) {
-        parent::__construct($propertyName);
-        $this->loadInBasic = $loadInBasic;
-        $this->localField = $localField;
-        $this->referenceField = 'languageId';
-        $this->referenceClass = $referenceClass;
+        if (!is_subclass_of($referenceClass, EntityTranslationDefinition::class)) {
+            throw new \InvalidArgumentException('$referenceClass needs to be an `EntityTranslationDefinition`');
+        }
+
+        parent::__construct($propertyName, $referenceClass, $referenceField, false, $localField);
+        $this->addFlags(new CascadeDelete());
     }
 
     public function getReferenceField(): string
     {
         return $this->referenceField;
+    }
+
+    public function getLanguageField(): string
+    {
+        return 'language_id';
     }
 
     public function getLocalField(): string

@@ -75,7 +75,7 @@ class MediaDefinition extends EntityDefinition
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'),
             new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(MediaTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id', true))->setFlags(new CascadeDelete()),
             (new BoolField('has_file', 'hasFile'))->setFlags(new Deferred()),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),

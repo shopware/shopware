@@ -72,7 +72,7 @@ class SalesChannelDefinition extends EntityDefinition
             new StringField('tax_calculation_type', 'taxCalculationType'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(SalesChannelTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->setFlags(new Required(), new CascadeDelete()),
             new ManyToManyAssociationField('catalogs', CatalogDefinition::class, SalesChannelCatalogDefinition::class, true, 'sales_channel_id', 'catalog_id'),
             new ManyToManyAssociationField('currencies', CurrencyDefinition::class, SalesChannelCurrencyDefinition::class, false, 'sales_channel_id', 'currency_id'),
             new ManyToManyAssociationField('languages', LanguageDefinition::class, SalesChannelLanguageDefinition::class, false, 'sales_channel_id', 'language_id'),

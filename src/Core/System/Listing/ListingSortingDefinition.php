@@ -49,7 +49,7 @@ class ListingSortingDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(ListingSortingTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(ListingSortingTranslationDefinition::class, 'listing_sorting_id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }
 }

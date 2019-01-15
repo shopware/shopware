@@ -63,7 +63,7 @@ class CountryDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CountryTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(CountryTranslationDefinition::class, 'country_id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, false, 'country_id', 'sales_channel_id'),

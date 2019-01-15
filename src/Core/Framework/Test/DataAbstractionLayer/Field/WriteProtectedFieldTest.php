@@ -29,30 +29,33 @@ class WriteProtectedFieldTest extends TestCase
     {
         $this->connection = $this->getContainer()->get(Connection::class);
 
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_nullable`');
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_nullable_reference`');
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_nullable_translation`');
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_relation`');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS _test_relation;
 CREATE TABLE `_test_relation` (
   `id` binary(16) NOT NULL,
   PRIMARY KEY `id` (`id`)
 );
 
-DROP TABLE IF EXISTS _test_nullable_reference;
 CREATE TABLE `_test_nullable_reference` (
   `wp_id` binary(16) NOT NULL,
   `relation_id` binary(16) NOT NULL,
   PRIMARY KEY `pk` (`wp_id`, `relation_id`)
 );
             
-DROP TABLE IF EXISTS _test_nullable_translation;
 CREATE TABLE `_test_nullable_translation` (
-  `wp_id` binary(16) NOT NULL,
+  `_test_nullable_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
   `language_parent_id` binary(16) NULL,
   `protected` varchar(255) NULL,
-  PRIMARY KEY `pk` (`wp_id`, `language_id`)
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3),
+  PRIMARY KEY `pk` (`_test_nullable_id`, `language_id`)
 );
 
-DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` binary(16) NOT NULL,
   `relation_id` binary(16) NULL,
@@ -338,7 +341,7 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_translation`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['wp_id']);
+        static::assertEquals($id->getBytes(), $data[0]['_test_nullable_id']);
         static::assertEquals('foobar', $data[0]['protected']);
     }
 

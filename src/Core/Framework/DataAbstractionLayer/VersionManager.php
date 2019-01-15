@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
@@ -571,8 +573,17 @@ class VersionManager
     private function removePrimaryKey(OneToManyAssociationField $field, array $nestedItem): array
     {
         $pkFields = $field->getReferenceClass()::getPrimaryKeys();
-        /** @var Field $pkField */
+
+        /** @var Field|StorageAware $pkField */
         foreach ($pkFields as $pkField) {
+            /*
+             * `EntityTranslationDefinition`s dont have an `id`, they use a composite primary key consisting of the
+             * entity id and the `languageId`. When cloning the entity we want to copy the `languageId`. The entity id
+             * has to be unset, so that its set by the parent, resulting in a valid primary key.
+             */
+            if ($field instanceof TranslationsAssociationField && $pkField->getStorageName() === $field->getLanguageField()) {
+                continue;
+            }
             if (array_key_exists($pkField->getPropertyName(), $nestedItem)) {
                 unset($nestedItem[$pkField->getPropertyName()]);
             }

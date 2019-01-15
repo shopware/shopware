@@ -6,7 +6,6 @@ Component.register('sw-settings-snippet-set-list', {
     template,
 
     mixins: [
-        Mixin.getByName('listing'),
         Mixin.getByName('sw-settings-list')
     ],
 
@@ -15,10 +14,12 @@ Component.register('sw-settings-snippet-set-list', {
     data() {
         return {
             isLoading: false,
-            snippetSets: [],
             offset: 0,
+            snippetSets: [],
             showDeleteModal: false,
-            showCloneModal: false
+            showCloneModal: false,
+            selection: {},
+            snippetsEditiable: false
         };
     },
 
@@ -57,6 +58,26 @@ Component.register('sw-settings-snippet-set-list', {
             foundRow.isEditingActive = true;
 
             return true;
+        },
+
+        onEditSnippetSets() {
+            if (!this.snippetsEditiable) {
+                this.createNotEditableErrorNote();
+
+                return;
+            }
+            const selection = Object.keys(this.selection);
+
+            this.$router.push({
+                name: 'sw.settings.snippet.list',
+                query: { ids: selection }
+            });
+        },
+
+        onSelectionChanged(selection) {
+            this.selection = selection;
+            this.selectionCount = Object.keys(selection).length;
+            this.snippetsEditiable = this.selectionCount >= 1;
         },
 
         onInlineEditCancel() {
@@ -108,17 +129,24 @@ Component.register('sw-settings-snippet-set-list', {
             });
         },
 
+        createNotEditableErrorNote() {
+            this.createNotificationError({
+                title: this.$tc('sw-settings-snippet.setList.notEditableNoteTitle'),
+                message: this.$tc('sw-settings-snippet.setList.notEditableNoteMessage')
+            });
+        },
+
         createCloneErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.list.cloneNoteTitle'),
-                message: this.$tc('sw-settings-snippet.list.errorMessage')
+                title: this.$tc('sw-settings-snippet.setList.cloneNoteTitle'),
+                message: this.$tc('sw-settings-snippet.setList.cloneErrorMessage')
             });
         },
 
         createCloneSuccessNote() {
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-snippet.list.cloneNoteTitle'),
-                message: this.$tc('sw-settings-snippet.list.cloneSuccessMessage')
+                title: this.$tc('sw-settings-snippet.setList.cloneNoteTitle'),
+                message: this.$tc('sw-settings-snippet.setList.cloneSuccessMessage')
             });
         },
 

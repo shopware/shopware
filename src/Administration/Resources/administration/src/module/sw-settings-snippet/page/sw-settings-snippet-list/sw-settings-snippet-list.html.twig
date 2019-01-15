@@ -1,0 +1,170 @@
+{% block sw_settings_snippet_list %}
+    <sw-page class="sw-settings-snippet-list">
+        {% block sw_settings_snippet_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_snippet_list_smart_bar_header_title %}
+                    <h2 class="sw-settings-snippet-list__smart_bar_header"
+                        v-if="!isLoading">
+                        {% block sw_settings_snippet_list_smart_bar_header_title_text %}
+                            <span class="sw-settings_snippet_list__smart-bar-title-text">
+                                {{ $tc('sw-settings-snippet.list.textSnippetList', snippetSets.length, { setName: metaName }) }}
+                            </span>
+                        {% endblock %}
+
+                        {% block sw_settings_snippet_list_smart_bar_header_amount %}
+                            <span class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_snippet_list_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_snippet_list_smart_bar_actions_add %}
+                    <sw-button :routerLink="{ name: 'sw.settings.snippet.create' }"
+                               :disabled="isLoading"
+                               variant="primary">
+                        {{ $tc('sw-settings-snippet.list.buttonAdd') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_snippet_list_content %}
+            <template slot="content">
+                <div class="sw-settings-snippet-list__content">
+                    {% block sw_settings_snippet_list_grid_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_list_grid %}
+                        <sw-grid v-if="total"
+                                 :items="grid"
+                                 :isFullpage="true"
+                                 @edit="onEdit"
+                                 @inline-edit-cancel="onInlineEditCancel"
+                                 @inline-edit-finish="onInlineEditSave">
+                            {% block sw_settings_snippet_list_grid_slots %}
+                                <template slot="columns" slot-scope="{ item }">
+                                    {% block sw_settings_snippet_list_columns %}
+                                        {% block sw_settings_snippet_list_column_key %}
+                                            <sw-grid-column flex="minmax(200px, 1fr)"
+                                                            :label="$tc('sw-settings-snippet.list.columnKey')"
+                                                            sortable
+                                                            truncate
+                                                            editable>
+                                                {% block sw_settings_snippet_list_column_key_link %}
+                                                    <router-link :to="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey } }">
+                                                        {% block sw_settings_snippet_list_column_key_label %}
+                                                            {{ item[metaId].translationKey }}
+                                                        {% endblock %}
+                                                    </router-link>
+                                                {% endblock %}
+
+                                                {% block sw_settings_snippet_list_column_key_editor %}
+                                                    <span class="content__column-translationKey" slot="inline-edit">
+                                                        {{ item[metaId].translationKey }}
+                                                    </span>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_snippet_list_column_value %}
+                                            <sw-grid-column flex="minmax(200px, 1fr)"
+                                                            :label="set.name"
+                                                            sortable
+                                                            truncate
+                                                            editable
+                                                            v-for="set in snippetSets" :key="set.id">
+                                                {% block sw_settings_snippet_list_column_value_link %}
+                                                    <router-link :to="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey } }">
+                                                        {% block sw_settings_snippet_list_column_value_label %}
+                                                            {{ item[set.id].value }}
+                                                        {% endblock %}
+                                                    </router-link>
+                                                {% endblock %}
+
+                                                {% block sw_settings_snippet_list_column_value_editor %}
+                                                    <sw-field type="text"
+                                                              :ref="`field-${item[metaId].translationKey}`"
+                                                              :class="`field-${item[metaId].translationKey}`"
+                                                              v-model="item[set.id].value"
+                                                              slot="inline-edit"></sw-field>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_settings_snippet_list_grid_column_actions %}
+                                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
+                                                <sw-context-button>
+                                                    {% block sw_settings_snippet_list_grid_column_actions_edit %}
+                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey } }">
+                                                            {{ $tc('sw-settings-snippet.list.contextMenuEdit') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_snippet_list_grid_column_actions_delete %}
+                                                        <sw-context-menu-item @click="onDelete(item)" variant="danger">
+                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+                                                </sw-context-button>
+                                            </sw-grid-column>
+                                        {% endblock %}
+                                    {% endblock %}
+
+                                    {% block sw_settings_snippet_list_delete_modal %}
+                                        <sw-modal v-if="showDeleteModal === item"
+                                                  @closeModal="onCloseDeleteModal"
+                                                  :title="$tc('sw-settings-snippet.list.modalTitleDelete')"
+                                                  variant="small">
+                                            {% block sw_settings_snippet_list_delete_modal_text %}
+                                                <span class="modal__confirm-delete-text">
+                                                    {{ $tc('sw-settings-snippet.list.textDeleteConfirm', queryIdCount, { key: item[metaId].translationKey }) }}
+                                                </span>
+                                            {% endblock %}
+
+                                            {% block sw_settings_snippet_list_delete_modal_footer %}
+                                                <template slot="modal-footer">
+                                                    {% block sw_settings_snippet_list_delete_modal_cancel %}
+                                                        <sw-button @click="onCloseDeleteModal"
+                                                                   size="small">
+                                                            {{ $tc('sw-settings-snippet.list.buttonCancel') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_snippet_list_delete_modal_confirm %}
+                                                        <sw-button @click="onConfirmDelete(item)"
+                                                                   variant="primary"
+                                                                   disabled
+                                                                   size="small">
+                                                            {{ $tc('sw-settings-snippet.list.buttonDelete') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+                                        </sw-modal>
+                                    {% endblock %}
+                                </template>
+
+                                <template slot="pagination">
+                                    {% block sw_settings_snippet_list_grid_pagination %}
+                                        <sw-pagination :page="page"
+                                                       :limit="limit"
+                                                       :total="total"
+                                                       :total-visible="7"
+                                                       @page-change="onPageChange">
+                                        </sw-pagination>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        </sw-grid>
+                    {% endblock %}
+                </div>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -91,7 +91,7 @@ class SnippetEntity extends Entity
         return $this->value;
     }
 
-    public function setValue(string $value): void
+    public function setValue(?string $value): void
     {
         $this->value = $value;
     }

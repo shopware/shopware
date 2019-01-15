@@ -200,11 +200,9 @@
                  decorates="translator">
             <argument type="service" id="Shopware\Core\Framework\Translation\Translator.inner"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
             <argument type="service" id="translator.formatter"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
             <tag name="monolog.logger"/>
         </service>
 
@@ -214,15 +212,25 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+        <service id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener" public="true"/>
 
-        <service id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection">
+        <service id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection" public="true">
             <argument type="tagged" tag="shopware.language.file"/>
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Services\SnippetFileConverter" public="true">
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Services\SnippetService" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Api\SnippetController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <!--LanguageFiles-->

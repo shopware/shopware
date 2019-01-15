@@ -66,7 +66,6 @@
         "notepadLink": "Merkzettel",
         "serviceLink": "Service\/Hilfe"
     },
-    "SPACER-OLD-DATA-FOLLOWING": "TODO: REMOVE ME",
     "frontend.AccountCurrentPassword": "Login",
     "frontend.AccountLoginTitle": "Die Passw\u00f6rter stimmen nicht \u00fcberein.",
     "frontend.AccountPasswordNotEqual": "Leider k\u00f6nnen wir den von Ihnen gew\u00fcnschten Artikel nicht mehr in ausreichender St\u00fcckzahl liefern. (#0 von #1 lieferbar).",

@@ -929,6 +929,24 @@
       "titleSaveSuccess": "Textbausteine"
     },
     "list": {
+      "buttonAdd": "Neuer Textbaustein",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "columnKey": "Name",
+      "columnValue": "Wert",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Zurücksetzen",
+      "messageDeleteSuccess": "Der Textbaustein \"{key}\" wurde erfolgreich zurückgesetzt.",
+      "messageSaveError": "Der Textbaustein \"{key}\" konnte nicht gespeichert werden. | Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
+      "messageSaveSuccess":  "Der Textbaustein \"{key}\" wurde erfolgreich gespeichert. | Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
+      "modalTitleDelete": "Textbausteine",
+      "textDeleteConfirm": "Möchtest Du den Textbaustein \"{key}\" wirklich zurücksetzen? | Möchtest Du die Textbausteine für \"{key}\" wirklich zurücksetzen?",
+      "textSnippetList": "Textbausteine von \"{setName}\" | Textbausteine",
+      "titleDeleteSuccess": "Textbausteine",
+      "titleSaveError": "Fehler: Textbausteine",
+      "titleSaveSuccess": "Textbausteine"
+    },
+    "setList": {
       "title": "Textbausteine verwalten & bearbeiten",
       "cardTitle" : "Testbaustein-Sets",
       "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle Sets aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst Du hier Textbaustein-Sets importieren, neue anlegen und bestehende als CSV-Datei exportieren.",
@@ -951,7 +969,9 @@
       "textCloneConfirm": "Möchtest Du von dem Textbaustein-Set \"{name}\" eine Kopie erstellen?",
       "cloneNoteTitle": "Kopie erstellen",
       "cloneSuccessMessage": "Die Kopie wurde erfolgreich erstellt.",
-      "errorMessage": "Die Kopie konnte nicht erstellt werden."
+      "cloneErrorMessage": "Die Kopie konnte nicht erstellt werden.",
+      "notEditableNoteTitle": "Textbausteine bearbeiten",
+      "notEditableNoteMessage": "Die Textbausteine konnten nicht bearbeitet werden."
     }
   },
   "sw-settings-rule": {

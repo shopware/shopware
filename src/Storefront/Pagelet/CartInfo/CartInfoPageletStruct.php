@@ -6,8 +6,6 @@ use Shopware\Storefront\Framework\Page\PageletStruct;
 
 class CartInfoPageletStruct extends PageletStruct
 {
-    protected $defered = true;
-
     /**
      * @var int
      */

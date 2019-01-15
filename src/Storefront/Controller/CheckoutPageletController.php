@@ -30,7 +30,7 @@ class CheckoutPageletController extends StorefrontController
      */
     public function infoAction(CartInfoPageletRequest $request, CheckoutContext $context): Response
     {
-        $page = $this->cartInfoPageletLoader->load($request, $context, true);
+        $page = $this->cartInfoPageletLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/frontend/checkout/info.html.twig', [
             'page' => [

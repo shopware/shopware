@@ -3,9 +3,9 @@
     <li class="navigation--entry entry--notepad" role="menuitem">
         <a href="#" title="{{ 'topbar.notepadLink'|trans|escape }}" class="btn">
             <i class="icon--heart"></i>
-            {% if page.cartInfo.notesQuantity > 0 %}
+            {% if page.header.cartInfo.notesQuantity > 0 %}
                 <span class="badge notes--quantity">
-                    {{ page.cartInfo.notesQuantity ?: '0' }}
+                    {{ page.header.cartInfo.notesQuantity ?: '0' }}
                 </span>
             {% endif %}
         </a>
@@ -38,12 +38,12 @@
                 {% endif %}
             </span>
 
-            <span class="badge is--primary is--minimal cart--quantity{% if page.cartInfo.cartQuantity < 1 %} is--hidden{% endif %}">{{ cartQuantity ?: '0' }}</span>
+            <span class="badge is--primary is--minimal cart--quantity{% if page.header.cartInfo.cartQuantity < 1 %} is--hidden{% endif %}">{{ cartQuantity ?: '0' }}</span>
 
             <i class="icon--basket"></i>
 
             <span class="cart--amount">
-                {% sw_include('@Storefront/frontend/checkout/ajax_amount.html.twig') with {'amount': page.cartInfo.cartAmount} %}
+                {% sw_include('@Storefront/frontend/checkout/ajax_amount.html.twig') with {'amount': page.header.cartInfo.cartAmount} %}
             </span>
         </a>
         <div class="ajax-loader">&nbsp;</div>

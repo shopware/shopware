@@ -41,20 +41,14 @@ class CartInfoPageletLoader
     /**
      * @param CartInfoPageletRequest $request
      * @param CheckoutContext        $context
-     * @param bool                   $deferedCall
      *
      * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      *
      * @return CartInfoPageletStruct
      */
-    public function load(CartInfoPageletRequest $request, CheckoutContext $context, $deferedCall = false): CartInfoPageletStruct
+    public function load(CartInfoPageletRequest $request, CheckoutContext $context): CartInfoPageletStruct
     {
         $page = new CartInfoPageletStruct();
-        if (!$deferedCall && $page->isDefered()) {
-            $page->setDefered(true);
-
-            return $page;
-        }
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -62,13 +56,6 @@ class CartInfoPageletLoader
         $page->setCartAmount($cart->getPrice()->getTotalPrice());
         $page->setNotesQuantity(0);
         $page->setCustomerLoggedIn(false);
-
-        if ($deferedCall) {
-            $this->eventDispatcher->dispatch(
-                CartInfoPageletLoadedEvent::NAME,
-                new CartInfoPageletLoadedEvent($page, $context, $request)
-            );
-        }
 
         return $page;
     }

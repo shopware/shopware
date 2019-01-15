@@ -22,6 +22,7 @@ class Content extends Bundle
         $loader->load('media.xml');
         $loader->load('product.xml');
         $loader->load('rule.xml');
+        $loader->load('product_stream.xml');
         $loader->load('configuration.xml');
     }
 }

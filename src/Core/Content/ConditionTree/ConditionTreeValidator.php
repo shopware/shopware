@@ -1,14 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Rule;
+namespace Shopware\Core\Content\ConditionTree;
 
-use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
+use Shopware\Core\Framework\ConditionTree\ConditionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
 use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
@@ -18,7 +16,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class RuleValidator implements WriteCommandValidatorInterface
+class ConditionTreeValidator implements WriteCommandValidatorInterface
 {
     /**
      * @var ValidatorInterface
@@ -26,14 +24,23 @@ class RuleValidator implements WriteCommandValidatorInterface
     private $validator;
 
     /**
-     * @var RuleConditionRegistry
+     * @var ConditionRegistry
      */
-    private $ruleConditionRegistry;
+    private $conditionRegistry;
 
-    public function __construct(ValidatorInterface $validator, RuleConditionRegistry $ruleConditionRegistry)
-    {
+    /**
+     * @var string
+     */
+    private $conditionDefinitionClass;
+
+    public function __construct(
+        ValidatorInterface $validator,
+        ConditionRegistry $conditionRegistry,
+        string $conditionDefinitionClass
+    ) {
         $this->validator = $validator;
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
+        $this->conditionRegistry = $conditionRegistry;
+        $this->conditionDefinitionClass = $conditionDefinitionClass;
     }
 
     /**
@@ -43,7 +50,7 @@ class RuleValidator implements WriteCommandValidatorInterface
     {
         $violationList = new ConstraintViolationList();
         foreach ($commands as $command) {
-            if (!($command instanceof InsertCommand || $command instanceof UpdateCommand) || $command->getDefinition() !== RuleConditionDefinition::class) {
+            if (!($command instanceof InsertCommand || $command instanceof UpdateCommand) || $command->getDefinition() !== $this->conditionDefinitionClass) {
                 continue;
             }
 
@@ -57,7 +64,7 @@ class RuleValidator implements WriteCommandValidatorInterface
                 $type = $payload['type'];
             }
 
-            if (!$this->isRule($type)) {
+            if (!$this->isConditionTree($type)) {
                 $violationList->add(
                     $this->buildViolation(
                         'This "type" value (%value%) is invalid.',
@@ -69,9 +76,8 @@ class RuleValidator implements WriteCommandValidatorInterface
                 continue;
             }
 
-            /** @var Rule $rule */
-            $rule = $this->ruleConditionRegistry->getRuleInstance($type);
-            $validations = $rule->getConstraints();
+            $conditionTree = $this->conditionRegistry->getInstance($type);
+            $validations = $conditionTree->getConstraints();
 
             $violationList->addAll($this->validateConsistence($basePath, $validations, $this->extractValue($payload)));
         }
@@ -94,13 +100,13 @@ class RuleValidator implements WriteCommandValidatorInterface
         }
     }
 
-    private function isRule(?string $type): bool
+    private function isConditionTree(?string $type): bool
     {
         if (!$type) {
             return false;
         }
 
-        return $this->ruleConditionRegistry->has($type);
+        return $this->conditionRegistry->has($type);
     }
 
     private function extractValue(array $payload): array

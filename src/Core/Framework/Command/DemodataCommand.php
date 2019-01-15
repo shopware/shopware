@@ -35,6 +35,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -159,6 +160,11 @@ class DemodataCommand extends Command
     private $defaultFolderRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $productStreamRepository;
+
+    /**
      * @var FileNameProvider
      */
     private $fileNameProvider;
@@ -177,6 +183,7 @@ class DemodataCommand extends Command
         EntityRepositoryInterface $taxRepository,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $configurationGroupRepository,
+        EntityRepositoryInterface $productStreamRepository,
         FileNameProvider $fileNameProvider,
         string $kernelEnv,
         string $projectDir
@@ -198,6 +205,7 @@ class DemodataCommand extends Command
         $this->projectDir = $projectDir;
         $this->configurationGroupRepository = $configurationGroupRepository;
         $this->defaultFolderRepository = $defaultFolderRepository;
+        $this->productStreamRepository = $productStreamRepository;
         $this->fileNameProvider = $fileNameProvider;
     }
 
@@ -233,6 +241,8 @@ class DemodataCommand extends Command
         $this->io->title('Demodata Generator');
 
         $ruleIds = $this->createRules();
+
+        //$this->createProductStreams();
 
         $this->createCustomer($input->getOption('customers'));
 
@@ -679,6 +689,76 @@ class DemodataCommand extends Command
         $this->writer->insert(RuleDefinition::class, $payload, $this->getContext());
 
         return array_column($payload, 'id');
+    }
+
+    /** TODO: change demo data (rule clone) */
+    private function createProductStreams(): void
+    {
+        $ids = $this->productStreamRepository->searchIds(new Criteria(), Context::createDefaultContext());
+
+        if (!empty($ids->getIds())) {
+            return;
+        }
+
+        $pool = [
+            [
+                'rule' => new IsNewCustomerRule(),
+                'name' => 'New customer',
+            ],
+            [
+                'rule' => (new DateRangeRule())->assign(['fromDate' => new DateTime(), 'toDate' => (new DateTime())->modify('+2 day')]),
+                'name' => 'Next two days',
+            ],
+            [
+                'rule' => (new GoodsPriceRule())->assign(['amount' => 5000, 'operator' => GoodsPriceRule::OPERATOR_GTE]),
+                'name' => 'Cart >= 5000',
+            ],
+            [
+                'rule' => (new CustomerGroupRule())->assign(['customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]),
+                'name' => 'Default group',
+            ],
+            [
+                'rule' => (new CurrencyRule())->assign(['currencyIds' => [Defaults::CURRENCY]]),
+                'name' => 'Default currency',
+            ],
+        ];
+
+        $payload = [];
+        for ($i = 0; $i < 20; ++$i) {
+            $rules = \array_slice($pool, random_int(0, \count($pool) - 2), random_int(1, 2));
+
+            $classes = array_column($rules, 'rule');
+            $names = array_column($rules, 'name');
+
+            $ruleData = [
+                'id' => Uuid::uuid4()->getHex(),
+                'priority' => $i,
+                'name' => implode(' + ', $names),
+                'description' => $this->faker->text(),
+            ];
+
+            $ruleData['conditions'][] = $this->buildChildRule(null, (new OrRule())->assign(['rules' => $classes]));
+
+            $payload[] = $ruleData;
+        }
+
+        // nested condition
+        $nestedRule = new OrRule();
+
+        $nestedRuleData = [
+            'id' => Uuid::uuid4()->getHex(),
+            'priority' => 20,
+            'name' => 'nested rule',
+            'description' => $this->faker->text(),
+        ];
+
+        $this->buildNestedRule($nestedRule, $pool, 0, 6);
+
+        $nestedRuleData['conditions'][] = $this->buildChildRule(null, $nestedRule);
+
+        $payload[] = $nestedRuleData;
+
+        $this->writer->insert(ProductStreamDefinition::class, $payload, $this->getContext());
     }
 
     private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule

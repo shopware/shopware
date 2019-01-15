@@ -871,6 +871,24 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product_stream.repository" public="true">
+            <argument>Shopware\Core\Content\ProductStream\ProductStreamDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product_stream_condition.repository" public="true">
+            <argument>Shopware\Core\Content\ProductStream\Aggregate\ProductStreamCondition\ProductStreamConditionDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="configuration_group.repository" public="true">
             <argument>Shopware\Core\Content\Configuration\ConfigurationGroupDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>

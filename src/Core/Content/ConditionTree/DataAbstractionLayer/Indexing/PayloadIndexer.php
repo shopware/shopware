@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
+namespace Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\Util\EventIdExtractor;
+use Shopware\Core\Framework\ConditionTree\ConditionRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
@@ -30,7 +30,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\Serializer;
 
-class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
+/** TODO ProductStreams: refactor to be used by product streams and rules */
+class PayloadIndexer implements IndexerInterface, EventSubscriberInterface
 {
     /**
      * @var Connection
@@ -50,7 +51,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     /**
      * @var EntityRepositoryInterface
      */
-    private $ruleRepository;
+    private $repository;
 
     /**
      * @var Serializer
@@ -58,9 +59,9 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $serializer;
 
     /**
-     * @var RuleConditionRegistry
+     * @var ConditionRegistry
      */
-    private $ruleConditionRegistry;
+    private $conditionRegistry;
 
     /**
      * @var TagAwareAdapter
@@ -72,24 +73,31 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
      */
     private $cacheKeyGenerator;
 
+    /**
+     * @var string
+     */
+    private $entityName;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         EntityRepositoryInterface $ruleRepository,
         Serializer $serializer,
-        RuleConditionRegistry $ruleConditionRegistry,
+        ConditionRegistry $conditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache
+        TagAwareAdapter $cache,
+        string $entityName
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
-        $this->ruleRepository = $ruleRepository;
+        $this->repository = $ruleRepository;
         $this->serializer = $serializer;
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
+        $this->conditionRegistry = $conditionRegistry;
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->entityName = $entityName;
     }
 
     public static function getSubscribedEvents()
@@ -107,7 +115,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing rules', $iterator->getTotal())
+            new ProgressStartedEvent('Start indexing ' . $this->entityName, $iterator->getTotal())
         );
 
         while ($ids = $iterator->fetchIds()) {
@@ -120,7 +128,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished indexing rules')
+            new ProgressFinishedEvent('Finished indexing ' . $this->entityName)
         );
     }
 
@@ -138,19 +146,19 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 MultiFilter::CONNECTION_OR, [
                     new NotFilter(
                         NotFilter::CONNECTION_AND,
-                        [new EqualsAnyFilter('rule.conditions.type', $this->ruleConditionRegistry->getNames())]
+                        [new EqualsAnyFilter($this->entityName . '.conditions.type', $this->conditionRegistry->getNames())]
                     ),
-                    new EqualsFilter('rule.invalid', true),
+                    new EqualsFilter($this->entityName . '.invalid', true),
                 ]
             )
         );
 
-        $this->update($this->ruleRepository->searchIds($criteria, $context)->getIds());
+        $this->update($this->repository->searchIds($criteria, $context)->getIds());
     }
 
     private function createIterator(Context $context): RepositoryIterator
     {
-        return new RepositoryIterator($this->ruleRepository, $context);
+        return new RepositoryIterator($this->repository, $context);
     }
 
     private function update(array $ids): void
@@ -159,7 +167,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
-        if ($this->cache->hasItem('rules_key')) {
+        if ($this->cache->hasItem($this->entityName . 's_key')) {
             $this->cache->deleteItem('rules_key');
         }
 
@@ -212,11 +220,11 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 continue;
             }
 
-            if (!$this->ruleConditionRegistry->has($rule['type'])) {
+            if (!$this->conditionRegistry->has($rule['type'])) {
                 throw new ConditionTypeNotFound($rule['type']);
             }
 
-            $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['type']);
+            $ruleClass = $this->conditionRegistry->getConditionClass($rule['type']);
             $object = new $ruleClass();
 
             if ($rule['value'] !== null) {

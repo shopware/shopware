@@ -18,16 +18,17 @@
             <argument type="service" id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
+            <argument type="service" id="rule.condition_registry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
         </service>
 
         <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
 
-        <service id="Shopware\Core\Content\Rule\RuleValidator">
+        <service class="Shopware\Core\Content\ConditionTree\ConditionTreeValidator" id="rule.condition_tree_validator">
             <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
+            <argument type="service" id="rule.condition_registry"/>
+            <argument>Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition</argument>
 
             <tag name="shopware.validator"/>
         </service>

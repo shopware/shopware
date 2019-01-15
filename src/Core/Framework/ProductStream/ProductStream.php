@@ -1,38 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Rule;
+namespace Shopware\Core\Framework\ProductStream;
 
 use Shopware\Core\Framework\ConditionTree\ConditionInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
-abstract class Rule extends Struct implements ConditionInterface
+abstract class ProductStream extends Struct implements ConditionInterface
 {
     public const OPERATOR_GTE = '>=';
 
     public const OPERATOR_LTE = '<=';
-
-    public const OPERATOR_GT = '>';
-
-    public const OPERATOR_LT = '<';
 
     public const OPERATOR_EQ = '=';
 
     public const OPERATOR_NEQ = '!=';
 
     /**
-     * Returns the api name for this rule. The name has to be unique in the system.
+     * Returns the api name for this product stream. The name has to be unique in the system.
      *
      * @return string
      */
     abstract public function getName(): string;
 
-    /**
-     * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
-     */
-    abstract public function match(RuleScope $scope): Match;
+//    /**
+//     * Validate the current product stream and returns a reason object which contains defines if the product stream match and if not why not
+//     */
+//    abstract public function match(ProductStreamScope $scope): Match;
 
     /**
-     * Gets the constraints of the rule
+     * Gets the constraints of the product stream
      * Format:
      *  [
      *   'propertyName' => [new Constraint(), new OtherConstraint()],

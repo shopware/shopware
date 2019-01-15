@@ -171,11 +171,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 $nested = $this->buildNested($rule, null);
 
                 //ensure the root rule is an AndRule
-                if (\count($nested) !== 1 || !$nested[0] instanceof AndRule) {
-                    $nested = new AndRule($nested);
-                } else {
-                    $nested = array_shift($nested);
-                }
+                $nested = new AndRule($nested);
 
                 $serialized = $this->serializer->serialize($nested, 'json');
             } catch (ConditionClassNotFound $exception) {

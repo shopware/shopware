@@ -624,13 +624,13 @@ class DemodataCommand extends Command
                 'description' => $this->faker->text(),
             ];
 
-            $ruleData['conditions'][] = $this->buildChildRule(null, (new AndRule())->assign(['rules' => $classes]));
+            $ruleData['conditions'][] = $this->buildChildRule(null, (new OrRule())->assign(['rules' => $classes]));
 
             $payload[] = $ruleData;
         }
 
         // nested condition
-        $nestedRule = new AndRule();
+        $nestedRule = new OrRule();
 
         $nestedRuleData = [
             'id' => Uuid::uuid4()->getHex(),
@@ -660,7 +660,7 @@ class DemodataCommand extends Command
 
         $classes = array_column($rules, 'rule');
 
-        if ($currentDepth % 2 === 0) {
+        if ($currentDepth % 2 === 1) {
             $classes[] = $this->buildNestedRule(new OrRule(), $pool, $currentDepth + 1, $depth);
         } else {
             $classes[] = $this->buildNestedRule(new AndRule(), $pool, $currentDepth + 1, $depth);

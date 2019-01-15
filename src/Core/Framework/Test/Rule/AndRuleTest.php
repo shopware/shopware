@@ -113,6 +113,6 @@ class AndRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
         /** @var RuleEntity $ruleStruct */
         $ruleStruct = $this->ruleRepository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
-        static::assertEquals(new AndRule([new AndRule()]), $ruleStruct->getPayload());
+        static::assertEquals(new AndRule([new AndRule([new AndRule()])]), $ruleStruct->getPayload());
     }
 }

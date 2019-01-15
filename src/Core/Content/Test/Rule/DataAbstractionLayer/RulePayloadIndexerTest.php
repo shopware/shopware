@@ -60,19 +60,14 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => AndRule::class,
+                    'type' => OrRule::class,
                     'children' => [
                         [
-                            'type' => OrRule::class,
-                            'children' => [
-                                [
-                                    'type' => CurrencyRule::class,
-                                    'value' => [
-                                        'currencyIds' => [
-                                            $currencyId1,
-                                            $currencyId2,
-                                        ],
-                                    ],
+                            'type' => CurrencyRule::class,
+                            'value' => [
+                                'currencyIds' => [
+                                    $currencyId1,
+                                    $currencyId2,
                                 ],
                             ],
                         ],
@@ -108,19 +103,14 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => AndRule::class,
+                    'type' => OrRule::class,
                     'children' => [
                         [
-                            'type' => OrRule::class,
-                            'children' => [
-                                [
-                                    'type' => CurrencyRule::class,
-                                    'value' => [
-                                        'currencyIds' => [
-                                            $currencyId1,
-                                            $currencyId2,
-                                        ],
-                                    ],
+                            'type' => CurrencyRule::class,
+                            'value' => [
+                                'currencyIds' => [
+                                    $currencyId1,
+                                    $currencyId2,
                                 ],
                             ],
                         ],
@@ -156,19 +146,14 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 1,
                 'conditions' => [
                     [
-                        'type' => AndRule::class,
+                        'type' => OrRule::class,
                         'children' => [
                             [
-                                'type' => OrRule::class,
-                                'children' => [
-                                    [
-                                        'type' => CurrencyRule::class,
-                                        'value' => [
-                                            'currencyIds' => [
-                                                $currencyId1,
-                                                $currencyId2,
-                                            ],
-                                        ],
+                                'type' => CurrencyRule::class,
+                                'value' => [
+                                    'currencyIds' => [
+                                        $currencyId1,
+                                        $currencyId2,
                                     ],
                                 ],
                             ],
@@ -182,16 +167,11 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 42,
                 'conditions' => [
                     [
-                        'type' => AndRule::class,
-                        'children' => [
-                            [
-                                'type' => SalesChannelRule::class,
-                                'value' => [
-                                    'salesChannelIds' => [
-                                        $salesChannelId1,
-                                        $salesChannelId2,
-                                    ],
-                                ],
+                        'type' => SalesChannelRule::class,
+                        'value' => [
+                            'salesChannelIds' => [
+                                $salesChannelId1,
+                                $salesChannelId2,
                             ],
                         ],
                     ],
@@ -238,19 +218,14 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 1,
                 'conditions' => [
                     [
-                        'type' => AndRule::class,
+                        'type' => OrRule::class,
                         'children' => [
                             [
-                                'type' => OrRule::class,
-                                'children' => [
-                                    [
-                                        'type' => CurrencyRule::class,
-                                        'value' => [
-                                            'currencyIds' => [
-                                                $currencyId1,
-                                                $currencyId2,
-                                            ],
-                                        ],
+                                'type' => CurrencyRule::class,
+                                'value' => [
+                                    'currencyIds' => [
+                                        $currencyId1,
+                                        $currencyId2,
                                     ],
                                 ],
                             ],
@@ -264,16 +239,11 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 42,
                 'conditions' => [
                     [
-                        'type' => AndRule::class,
-                        'children' => [
-                            [
-                                'type' => SalesChannelRule::class,
-                                'value' => [
-                                    'salesChannelIds' => [
-                                        $salesChannelId1,
-                                        $salesChannelId2,
-                                    ],
-                                ],
+                        'type' => SalesChannelRule::class,
+                        'value' => [
+                            'salesChannelIds' => [
+                                $salesChannelId1,
+                                $salesChannelId2,
                             ],
                         ],
                     ],

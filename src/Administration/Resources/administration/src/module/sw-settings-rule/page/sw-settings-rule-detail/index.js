@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import utils from 'src/core/service/util.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.less';
 
@@ -70,15 +71,60 @@ Component.register('sw-settings-rule-detail', {
                 return nestedConditions;
             }
 
+            return this.checkRootContainer(nestedConditions);
+        },
+
+        checkRootContainer(nestedConditions) {
             if (nestedConditions.length === 1
-                && nestedConditions[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule') {
+                && nestedConditions[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule') {
+                if (nestedConditions[0].children.length > 0) {
+                    return nestedConditions[0];
+                }
+
+                nestedConditions[0].children = [
+                    this.createCondition(
+                        'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                        utils.createId(),
+                        nestedConditions[0].id
+                    )
+                ];
+
                 return nestedConditions[0];
             }
 
-            return {
-                type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
-                children: nestedConditions
+            const rootId = utils.createId();
+            const rootRole = this.createCondition(
+                'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
+                rootId,
+                null
+            );
+
+            rootRole.children = [
+                this.createCondition(
+                    'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                    utils.createId(),
+                    rootId,
+                    nestedConditions
+                )
+            ];
+
+            return rootRole;
+        },
+
+        createCondition(type, conditionId, parentId = null, children) {
+            const conditionData = {
+                type: type,
+                parentId: parentId
             };
+
+            if (children) {
+                children.forEach((child) => {
+                    child.parentId = conditionId;
+                });
+                conditionData.children = children;
+            }
+
+            return Object.assign(this.conditionAssociations.create(conditionId), conditionData);
         },
 
         onSave() {
@@ -124,7 +170,7 @@ Component.register('sw-settings-rule-detail', {
                 }
 
                 const changes = Object.keys(condition.getChanges()).length;
-                if (changes) {
+                if (changes && condition.isDeleted !== true) {
                     condition.original.type = '';
                     condition.original.value = {};
                 }

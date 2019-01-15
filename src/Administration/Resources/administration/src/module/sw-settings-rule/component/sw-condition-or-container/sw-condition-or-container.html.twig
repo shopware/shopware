@@ -1,40 +1,40 @@
 {% block sw_condition_container %}
-<div class="sw-condition-or-container " :class="containerRowClass">
-    {% block sw_condition_container_content %}
-    <div class="sw-condition-or-container__condition-content">
-        {% block sw_condition_container_children %}
-        <div v-for="(child, index) in condition.children"
-             :key="index">
-            {% block sw_condition_container_children_spacer %}
-            <div v-if="index"
-                 class="condition-content__spacer--or">
-                {{ $tc('global.sw-condition.condition.or').toUpperCase() }}
+    <div class="sw-condition-or-container " :class="containerRowClass">
+        {% block sw_condition_container_content %}
+            <div class="sw-condition-or-container__condition-content">
+                {% block sw_condition_container_children %}
+                    <div v-for="(child, index) in condition.children"
+                         :key="index">
+                        {% block sw_condition_container_children_spacer %}
+                            <div v-if="index"
+                                 class="condition-content__spacer--or">
+                                {{ $tc('global.sw-condition.condition.or').toUpperCase() }}
+                            </div>
+                        {% endblock %}
+                        {% block sw_condition_container_children_component %}
+                            <component v-bind:is="getComponent(child.type)"
+                                       :condition="child"
+                                       :conditionAssociations="conditionAssociations"
+                                       :level="level + 1"
+                                       @delete-condition="onDeleteCondition">
+                            </component>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+                {% block sw_condition_container_actions %}
+                    <div class="sw-condition-or-container__actions">
+                        <sw-button class="sw-condition-or-container__actions--or" @click="onAddAndClick">
+                            {{ $tc('global.sw-condition.condition.or') }}
+                        </sw-button>
+                        <sw-button v-if="level !== 0" class="sw-condition-or-container__actions--sub" @click="onAddChildClick">
+                            {{ $tc('global.sw-condition.condition.subCondition') }}
+                        </sw-button>
+                        <sw-button class="sw-condition-or-container__actions--delete" @click="onDeleteAll">
+                            {{ $tc('global.sw-condition.condition.deleteConditions') }}
+                        </sw-button>
+                    </div>
+                {% endblock %}
             </div>
-            {% endblock %}
-            {% block sw_condition_container_children_component %}
-            <component v-bind:is="getComponent(child.type)"
-                       :condition="child"
-                       :conditionAssociations="conditionAssociations"
-                       :level="level + 1"
-                       @delete-condition="onDeleteCondition">
-            </component>
-            {% endblock %}
-        </div>
-        {% endblock %}
-        {% block sw_condition_container_actions %}
-        <div v-if="level !== 0" class="sw-condition-or-container__actions">
-            <sw-button class="sw-condition-or-container__actions--or" @click="onAddAndClick(condition.id)">
-                {{ $tc('global.sw-condition.condition.or') }}
-            </sw-button>
-            <sw-button class="sw-condition-or-container__actions--sub" @click="onAddChildClick(condition.id)">
-                {{ $tc('global.sw-condition.condition.subCondition') }}
-            </sw-button>
-            <sw-button class="sw-condition-or-container__actions--delete" @click="onDeleteAll">
-                {{ $tc('global.sw-condition.condition.deleteConditions') }}
-            </sw-button>
-        </div>
         {% endblock %}
     </div>
-    {% endblock %}
-</div>
 {% endblock %}

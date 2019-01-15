@@ -1,8 +1,22 @@
 @import "~less/variables";
 
-@sw-label-border-radius:         @border-radius-default;
-@sw-label-item-color-background: darken(@color-light-gray, 5%);
-@sw-label-item-color-text:       @color-gutenberg;
+@sw-label-border-radius:            @border-radius-default;
+@sw-label-pill-border-radius:       50px;
+@sw-label-color-background:         darken(@color-light-gray, 5%);
+@sw-label-color-text:               @color-gutenberg;
+@sw-label-color-border:             darken(@color-light-gray, 15%);
+@sw-label-info-color-background:    lighten(@color-shopware-blue, 40%);
+@sw-label-info-color-text:          @color-shopware-blue;
+@sw-label-info-color-border:        @color-shopware-blue;
+@sw-label-success-color-background: lighten(@color-emerald, 40%);
+@sw-label-success-color-text:       darken(@color-emerald, 5%);
+@sw-label-success-color-border:     @color-emerald;
+@sw-label-danger-color-background:  lighten(@color-crimson, 42%);
+@sw-label-danger-color-text:        @color-crimson;
+@sw-label-danger-color-border:      @color-crimson;
+@sw-label-warning-color-background: lighten(@color-pumpkin-spice, 25%);
+@sw-label-warning-color-text:       darken(@color-pumpkin-spice, 10%);
+@sw-label-warning-color-border:     @color-pumpkin-spice;
 
 .sw-label {
     display: inline-block;
@@ -12,18 +26,18 @@
     padding: 4px 12px 4px 12px;
     line-height: 22px;
     font-size: 13px;
-    background: @sw-label-item-color-background;
+    background: @sw-label-color-background;
     border-radius: @sw-label-border-radius;
-    color: @sw-label-item-color-text;
+    color: @sw-label-color-text;
     flex-shrink: 0;
     cursor: default;
     border: 1px solid transparent;
 
     &:hover {
-        background: darken(@sw-label-item-color-background, 3%);
+        background: darken(@sw-label-color-background, 3%);
     }
 
-    &.is--dismiss-able {
+    &.sw-label--dismiss-able {
         padding-right: 40px;
     }
 
@@ -35,7 +49,7 @@
         padding: 4px 10px;
         right: 0;
         top: 0;
-        color: @sw-label-item-color-text;
+        color: @sw-label-color-text;
         font-size: 14px;
         text-align: center;
         background: 0 none;
@@ -49,6 +63,75 @@
         .sw-icon {
             width: 12px;
             height: 12px;
+        }
+    }
+
+    &.sw-label--ghost {
+        background: transparent;
+        border-color: @sw-label-color-border;
+    }
+
+    &.sw-label--pill {
+        border-radius: @sw-label-pill-border-radius;
+
+        .sw-label__dismiss {
+            border-radius: @sw-label-pill-border-radius;
+        }
+    }
+
+    &.sw-label--info {
+        background-color: @sw-label-info-color-background;
+        color: @sw-label-info-color-text;
+
+        .sw-label__dismiss {
+            color: @sw-label-info-color-text;
+        }
+
+        &.sw-label--ghost {
+            background: transparent;
+            border-color: @sw-label-info-color-border;
+        }
+    }
+
+    &.sw-label--success {
+        background-color: @sw-label-success-color-background;
+        color: @sw-label-success-color-text;
+
+        .sw-label__dismiss {
+            color: @sw-label-success-color-text;
+        }
+
+        &.sw-label--ghost {
+            background: transparent;
+            border-color: @sw-label-success-color-border;
+        }
+    }
+
+    &.sw-label--danger {
+        background-color: @sw-label-danger-color-background;
+        color: @sw-label-danger-color-text;
+
+        .sw-label__dismiss {
+            color: @sw-label-danger-color-text;
+        }
+
+        &.sw-label--ghost {
+            background: transparent;
+            border-color: @sw-label-danger-color-border;
+        }
+    }
+
+    &.sw-label--warning {
+        background-color: @sw-label-warning-color-background;
+        color: @sw-label-warning-color-text;
+
+        .sw-label__dismiss {
+            color: @sw-label-warning-color-text;
+        }
+
+        &.sw-label--ghost {
+            background: transparent;
+            border-color: @sw-label-warning-color-border;
         }
     }
 }

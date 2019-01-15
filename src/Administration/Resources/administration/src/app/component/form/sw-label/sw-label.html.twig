@@ -1,6 +1,6 @@
 {% block sw_label %}
     <span class="sw-label"
-          :class="{'is--dismiss-able': dismissAble}"
+          :class="labelClasses"
           @click.stop="$emit('selected')">
         {% block sw_label_text_holder %}
             <slot>{% block sw_label_slot_default %}{% endblock %}</slot>

@@ -49,19 +49,19 @@ Component.register('sw-condition-and-container', {
         containerRowClass() {
             return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
         },
-        highestSort() {
+        nextPosition() {
             const children = this.condition.children;
             if (!children || !children.length) {
-                return 0;
+                return 1;
             }
 
-            return children[children.length - 1].sort;
+            return children[children.length - 1].position + 1;
         },
         sortedChildren() {
             if (!this.condition.children) {
                 return [];
             }
-            return this.condition.children.sort((child1, child2) => { return child1.sort - child2.sort; });
+            return this.condition.children.sort((child1, child2) => { return child1.position - child2.position; });
         }
     },
 
@@ -80,7 +80,7 @@ Component.register('sw-condition-and-container', {
             }
 
             if (!this.condition.children.length) {
-                this.createCondition('placeholder', this.highestSort + 1);
+                this.createCondition('placeholder', this.nextPosition);
             }
         },
         onFinishLoading() {
@@ -95,45 +95,45 @@ Component.register('sw-condition-and-container', {
             return condition.component;
         },
         onAddAndClick() {
-            this.createCondition('placeholder', this.highestSort + 1);
+            this.createCondition('placeholder', this.nextPosition);
         },
         onAddChildClick() {
-            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\OrRule', this.highestSort + 1);
+            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\OrRule', this.nextPosition);
         },
-        createCondition(type, sort) {
+        createCondition(type, position) {
             const condition = Object.assign(
                 this.conditionAssociations.create(),
                 {
                     type: type,
                     parentId: this.condition.id,
-                    sort: sort
+                    position: position
                 }
             );
             this.condition.children.push(condition);
         },
         createPlaceholderBefore(element) {
-            const newSort = element.sort;
+            const originalPosition = element.position;
             this.condition.children.forEach(child => {
-                if (child.sort < newSort) {
+                if (child.position < originalPosition) {
                     return;
                 }
 
-                child.sort += 1;
+                child.position += 1;
             });
 
-            this.createCondition('placeholder', newSort);
+            this.createCondition('placeholder', originalPosition);
         },
         createPlaceholderAfter(element) {
-            const newSort = element.sort;
+            const originalPosition = element.position;
             this.condition.children.forEach(child => {
-                if (child.sort <= newSort) {
+                if (child.position <= originalPosition) {
                     return;
                 }
 
-                child.sort += 1;
+                child.position += 1;
             });
 
-            this.createCondition('placeholder', newSort + 1);
+            this.createCondition('placeholder', originalPosition + 1);
         },
         onDeleteAll() {
             if (this.level === 0) {
@@ -158,13 +158,13 @@ Component.register('sw-condition-and-container', {
             });
         },
         onDeleteCondition(condition) {
-            const oldSort = condition.sort;
+            const originalPosition = condition.position;
             this.condition.children.forEach(child => {
-                if (child.sort < oldSort) {
+                if (child.position < originalPosition) {
                     return;
                 }
 
-                child.sort -= 1;
+                child.position -= 1;
             });
 
             condition.delete();
@@ -175,7 +175,7 @@ Component.register('sw-condition-and-container', {
                     if (this.level === 0) {
                         this.onAddChildClick();
                     } else {
-                        this.createPlaceholder();
+                        this.createCondition('placeholder', this.nextPosition);
                     }
                 });
             }

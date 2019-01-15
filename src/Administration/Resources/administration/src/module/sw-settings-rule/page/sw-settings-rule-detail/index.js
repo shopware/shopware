@@ -42,7 +42,7 @@ Component.register('sw-settings-rule-detail', {
             this.conditionAssociations.getList({
                 page: 1,
                 limit: 500,
-                sortBy: 'sort'
+                sortBy: 'position'
             }).then(() => {
                 this.nestedConditions = this.buildNestedConditions(this.rule.conditions, null);
 

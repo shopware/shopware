@@ -47,7 +47,7 @@ class RuleConditionDefinition extends EntityDefinition
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
             new ParentFkField(self::class),
             new JsonField('value', 'value'),
-            new IntField('sort', 'sort'),
+            new IntField('position', 'position'),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false, 'id'),
             new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),

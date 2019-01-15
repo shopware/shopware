@@ -15,7 +15,7 @@ Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
 
     methods: {
         onAddChildClick() {
-            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\AndRule', this.highestSort + 1);
+            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\AndRule', this.nextPosition);
         },
         onAddAndClick() {
             if (this.level === 0) {

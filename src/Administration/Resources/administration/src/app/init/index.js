@@ -11,6 +11,7 @@ import initDirectives from 'src/app/init/directive.init';
 import initLocale from 'src/app/init/locale.init';
 import initApiServices from 'src/app/init/api-services.init';
 import initComponents from 'src/app/init/component.init';
+import initConditions from 'src/app/init/condition.init';
 
 export default {
     contextService: initContext,
@@ -25,5 +26,6 @@ export default {
     view: initView,
     router: initRouter,
     entity: initEntity,
-    locale: initLocale
+    locale: initLocale,
+    init: initConditions
 };

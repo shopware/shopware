@@ -1,14 +1,14 @@
 {% block sw_condition_container %}
-    <div class="sw-condition-or-container " :class="containerRowClass">
+    <div class="sw-condition-and-container" :class="containerRowClass">
         {% block sw_condition_container_content %}
-            <div class="sw-condition-or-container__condition-content">
+            <div class="sw-condition-and-container__condition-content">
                 {% block sw_condition_container_children %}
                     <div v-for="(child, index) in sortedChildren"
                          :key="index">
                         {% block sw_condition_container_children_spacer %}
                             <div v-if="index"
-                                 class="condition-content__spacer--or">
-                                {{ $tc('global.sw-condition.condition.or').toUpperCase() }}
+                                 class="condition-content__spacer--and">
+                                {{ $tc('global.sw-condition.condition.and') }}
                             </div>
                         {% endblock %}
                         {% block sw_condition_container_children_component %}
@@ -16,22 +16,25 @@
                                        :condition="child"
                                        :conditionAssociations="conditionAssociations"
                                        :level="level + 1"
+                                       :conditionStore="conditionStore"
+                                       :entityName="entityName"
                                        @delete-condition="onDeleteCondition"
                                        @create-before="createPlaceholderBefore"
                                        @create-after="createPlaceholderAfter">
+                                       @delete-condition="onDeleteCondition">
                             </component>
                         {% endblock %}
                     </div>
                 {% endblock %}
                 {% block sw_condition_container_actions %}
-                    <div class="sw-condition-or-container__actions">
-                        <sw-button class="sw-condition-or-container__actions--or" @click="onAddAndClick">
-                            {{ $tc('global.sw-condition.condition.or') }}
+                    <div class="sw-condition-and-container__actions">
+                        <sw-button class="sw-condition-and-container__actions--and" @click="onAddAndClick">
+                            {{ $tc('global.sw-condition.condition.and') }}
                         </sw-button>
-                        <sw-button v-if="level !== 0" class="sw-condition-or-container__actions--sub" @click="onAddChildClick">
+                        <sw-button class="sw-condition-and-container__actions--sub" @click="onAddChildClick">
                             {{ $tc('global.sw-condition.condition.subCondition') }}
                         </sw-button>
-                        <sw-button class="sw-condition-or-container__actions--delete"
+                        <sw-button class="sw-condition-and-container__actions--delete"
                                    :disabled="disabledDeleteButton"
                                    @click="onDeleteAll">
                             {{ $tc('global.sw-condition.condition.deleteConditions') }}

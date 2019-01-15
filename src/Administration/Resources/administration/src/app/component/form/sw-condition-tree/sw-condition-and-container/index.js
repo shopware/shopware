@@ -16,8 +16,6 @@ const AND_CONTAINER_NAME = 'andContainer';
  */
 Component.register('sw-condition-and-container', {
     template,
-
-    inject: ['ruleConditionDataProviderService'],
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -46,6 +44,14 @@ Component.register('sw-condition-and-container', {
             default() {
                 return 1;
             }
+        },
+        conditionStore: {
+            type: Object,
+            required: true
+        },
+        entityName: {
+            type: String,
+            required: true
         }
     },
 
@@ -130,7 +136,7 @@ Component.register('sw-condition-and-container', {
             this.createComponent();
         },
         getComponent(type) {
-            const condition = this.ruleConditionDataProviderService.getByType(type);
+            const condition = this.conditionStore.getById(type);
             if (!condition) {
                 return 'sw-condition-not-found';
             }
@@ -241,7 +247,7 @@ Component.register('sw-condition-and-container', {
             let parent = this.$parent;
 
             while (parent) {
-                if (['sw-settings-rule-create', 'sw-settings-rule-detail'].includes(parent.$options.name)) {
+                if (['sw-page'].includes(parent.$options.name)) {
                     this.detailPage = parent;
                     return;
                 }

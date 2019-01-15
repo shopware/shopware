@@ -1,6 +1,7 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
+import SwSelect from '../../sw-select';
 
 const PLACEHOLDER_NAME = 'placeholder';
 
@@ -15,7 +16,6 @@ const PLACEHOLDER_NAME = 'placeholder';
 Component.register('sw-condition-base', {
     template,
 
-    inject: ['ruleConditionDataProviderService'],
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -25,6 +25,10 @@ Component.register('sw-condition-base', {
      * All additional passed attributes are bound explicit to the correct child element.
      */
     inheritAttrs: false,
+
+    components: {
+        SwSelect
+    },
 
     props: {
         condition: {
@@ -37,6 +41,14 @@ Component.register('sw-condition-base', {
         conditionAssociations: {
             type: Object,
             required: true
+        },
+        conditionStore: {
+            type: Object,
+            required: true
+        },
+        entityName: {
+            type: String,
+            require: true
         }
     },
 
@@ -67,7 +79,7 @@ Component.register('sw-condition-base', {
         return {
             formErrors: {},
             hasErrors: false,
-            rulePageComponent: undefined
+            conditionTreeComponent: undefined
         };
     },
 
@@ -109,7 +121,7 @@ Component.register('sw-condition-base', {
             fieldNames.push('type');
 
             fieldNames.forEach(fieldName => {
-                const boundExpression = `rule.conditions.${this.condition.id}.${fieldName}`;
+                const boundExpression = `${this.entityName}.conditions.${this.condition.id}.${fieldName}`;
                 this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
             });
 
@@ -134,7 +146,7 @@ Component.register('sw-condition-base', {
         },
 
         getLabel(type) {
-            return this.ruleConditionDataProviderService.getByType(type).label;
+            return this.conditionStore.getById(type).label;
         },
         createdComponent() {
             if (!this.condition.value) {
@@ -144,16 +156,16 @@ Component.register('sw-condition-base', {
             let parent = this.$parent;
 
             while (parent) {
-                if (['sw-settings-rule-create', 'sw-settings-rule-detail'].includes(parent.$options.name)) {
-                    this.rulePageComponent = parent;
+                if (['sw-condition-tree'].includes(parent.$options.name)) {
+                    this.conditionTreeComponent = parent;
                     break;
                 }
 
                 parent = parent.$parent;
             }
 
-            if (this.rulePageComponent) {
-                this.rulePageComponent.$on('on-save-rule', () => { this.checkErrors(); });
+            if (this.conditionTreeComponent) {
+                this.conditionTreeComponent.$on('on-save', () => { this.checkErrors(); });
             }
         },
         applyDefaultValues() {

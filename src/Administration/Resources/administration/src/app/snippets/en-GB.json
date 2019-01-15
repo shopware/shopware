@@ -245,7 +245,8 @@
         "subCondition": "subcondition",
         "deleteConditions": "Delete all",
         "createBefore": "Create before",
-        "createAfter": "Create after"
+        "createAfter": "Create after",
+        "delete": "Delete"
       }
     },
     "sw-product-image": {

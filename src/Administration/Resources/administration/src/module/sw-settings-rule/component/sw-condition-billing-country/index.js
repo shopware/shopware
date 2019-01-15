@@ -14,7 +14,7 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionDataProviderService.operatorSets.multiStore;
+            return this.conditionStore.operatorSets.multiStore;
         },
         fieldNames() {
             return ['operator', 'countryIds'];
@@ -24,7 +24,7 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
+                operator: this.conditionStore.operators.isOneOf.identifier
             };
         }
     },

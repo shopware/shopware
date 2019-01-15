@@ -1,0 +1,13 @@
+{% block sw_condition_tree %}
+    <div class="sw-condition-tree">
+        <component v-if="nestedConditions"
+                   is="sw-condition-or-container"
+                   :condition="nestedConditions"
+                   :conditionAssociations="conditionAssociations"
+                   :level="0"
+                   :conditionStore="conditionStore"
+                   :entityName="store.entityName"
+                   ref="mainContainer">
+        </component>
+    </div>
+{% endblock %}

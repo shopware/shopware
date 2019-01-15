@@ -428,6 +428,10 @@ export default class EntityProxy {
      * @return {void}
      */
     addError(error) {
+        if (error.id && this.errors.map(obj => obj.id).includes(error.id)) {
+            return;
+        }
+
         this.errors.push(error);
 
         State.getStore('error').addError({

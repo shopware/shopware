@@ -149,6 +149,8 @@ Component.register('sw-settings-rule-detail', {
                     message: messageSaveSuccess
                 });
                 this.$emit('on-save-rule');
+
+                return true;
             }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Struct\Uuid;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TreeIndexer implements IndexerInterface
@@ -39,14 +41,28 @@ class TreeIndexer implements IndexerInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
+
+    /**
+     * @var TagAwareAdapter
+     */
+    private $cache;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        DefinitionRegistry $definitionRegistry
+        DefinitionRegistry $definitionRegistry,
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        TagAwareAdapter $cache
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->eventDispatcher = $eventDispatcher;
         $this->connection = $connection;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->cache = $cache;
     }
 
     public function index(\DateTime $timestamp): void
@@ -117,20 +133,28 @@ class TreeIndexer implements IndexerInterface
             return;
         }
 
-        $this->updateRecursive($parent, $definition, $context);
+        $updatedIds = $this->updateRecursive($parent, $definition, $context);
+
+        $tags = array_map(function ($id) use ($definition) {
+            return $this->cacheKeyGenerator->getEntityTag($id, $definition);
+        }, $updatedIds);
+
+        $this->cache->invalidateTags($tags);
     }
 
     private function updateRecursive(
         array $entity,
         $definition,
         Context $context
-    ): void {
-        $this->updateTree($entity, $definition, $context);
+    ): array {
+        $ids[] = $this->updateTree($entity, $definition, $context);
         foreach ($this->getChildren($entity, $definition, $context) as $child) {
             $child['parent'] = $entity;
             $child['parentCount'] = $entity['parentCount'] + 1;
-            $this->updateRecursive($child, $definition, $context);
+            $ids = array_merge($ids, $this->updateRecursive($child, $definition, $context));
         }
+
+        return $ids;
     }
 
     private function getChildren(
@@ -150,7 +174,7 @@ class TreeIndexer implements IndexerInterface
         return $query->execute()->fetchAll();
     }
 
-    private function updateTree(array $entity, $definition, Context $context): void
+    private function updateTree(array $entity, $definition, Context $context): string
     {
         $query = $this->connection->createQueryBuilder();
         $escaped = EntityDefinitionQueryHelper::escape($definition::getEntityName());
@@ -183,6 +207,8 @@ class TreeIndexer implements IndexerInterface
         $this->makeQueryVersionAware($definition, Uuid::fromStringToBytes($context->getVersionId()), $query);
 
         $query->execute();
+
+        return Uuid::fromBytesToHex($entity['id']);
     }
 
     private function buildPathArray(array $parent, TreePathField $field): array

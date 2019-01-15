@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Struct\Uuid;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 class MediaFolderConfigIndexer implements IndexerInterface
 {
@@ -30,12 +32,26 @@ class MediaFolderConfigIndexer implements IndexerInterface
      */
     private $connection;
 
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
+
+    /**
+     * @var TagAwareAdapter
+     */
+    private $cache;
+
     public function __construct(
         Connection $connection,
-        RepositoryInterface $folderRepository
+        RepositoryInterface $folderRepository,
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        TagAwareAdapter $cache
     ) {
         $this->connection = $connection;
         $this->folderRepository = $folderRepository;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->cache = $cache;
     }
 
     public function index(\DateTime $timestamp): void
@@ -126,6 +142,13 @@ class MediaFolderConfigIndexer implements IndexerInterface
             ->setParameter('configId', Uuid::fromHexToBytes($configId))
             ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY)
             ->execute();
+
+        $tags = array_map(function ($id) {
+            return $this->cacheKeyGenerator
+                ->getEntityTag(Uuid::fromBytesToHex($id), MediaFolderDefinition::class);
+        }, $ids);
+
+        $this->cache->invalidateTags($tags);
     }
 
     private function fetchFoldersWithOwnConfig(Context $context): EntityCollection

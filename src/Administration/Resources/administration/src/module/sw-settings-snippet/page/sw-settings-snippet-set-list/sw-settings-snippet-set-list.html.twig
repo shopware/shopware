@@ -128,14 +128,14 @@
                                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
                                                     <sw-context-button>
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
-                                                            <sw-context-menu-item
-                                                                    :routerLink="{ name: 'sw.settings.snippet.list', params:{ id: item.id } }">
+                                                            <sw-context-menu-item v-if="false"
+                                                                    :routerLink="{ name: 'sw.settings.snippet.list', params: { ids: [item.id] } }">
                                                                 {{ $tc('sw-settings-snippet.setList.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
-                                                        <sw-context-menu-item @click="onClone(item.id)">
+                                                            <sw-context-menu-item @click="onClone(item.id)">
                                                                 {{ $tc('sw-settings-snippet.setList.contextMenuClone') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
@@ -185,11 +185,11 @@
 
                                         {% block sw_settings_snippet_set_list_columns_clone_modal %}
                                             <sw-modal v-if="showCloneModal === item.id"
-                                                      :title="$tc('sw-settings-snippet.list.modalTitleClone')"
+                                                      :title="$tc('sw-settings-snippet.setList.modalTitleClone')"
                                                       variant="small">
                                                 {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}
                                                     <p class="sw-settings-snippet-set-list__confirm-delete-text">
-                                                        {{ $tc('sw-settings-snippet.list.textCloneConfirm', 0, { name: item.name }) }}
+                                                        {{ $tc('sw-settings-snippet.setList.textCloneConfirm', 0, { name: item.name }) }}
                                                     </p>
                                                 {% endblock %}
 
@@ -198,7 +198,7 @@
                                                         {% block sw_settings_snippet_set_list_clone_modal_cancel %}
                                                             <sw-button @click="closeCloneModal"
                                                                        size="small">
-                                                                {{ $tc('sw-settings-snippet.list.buttonCancel') }}
+                                                                {{ $tc('sw-settings-snippet.setList.buttonCancel') }}
                                                             </sw-button>
                                                         {% endblock %}
 
@@ -206,7 +206,7 @@
                                                             <sw-button @click="onConfirmClone(item.id)"
                                                                        variant="primary"
                                                                        size="small">
-                                                                {{ $tc('sw-settings-snippet.list.buttonClone') }}
+                                                                {{ $tc('sw-settings-snippet.setList.buttonClone') }}
                                                             </sw-button>
                                                         {% endblock %}
                                                     </template>

@@ -4,14 +4,22 @@ import template from './sw-settings-snippet-detail.html.twig';
 Component.register('sw-settings-snippet-detail', {
     template,
 
+    inject: ['snippetService'],
+
     mixins: [
         Mixin.getByName('notification')
     ],
 
     data() {
         return {
-            isLoading: false,
-            snippet: {}
+            isLoading: true,
+            isCreate: false,
+            page: this.$route.query.page,
+            limit: this.$route.query.limit,
+            moduleData: this.$route.meta.$module,
+            translationKey: '',
+            snippets: [],
+            sets: {}
         };
     },
 
@@ -19,8 +27,18 @@ Component.register('sw-settings-snippet-detail', {
         snippetSetStore() {
             return State.getStore('snippet_set');
         },
-        snippetStore() {
-            return State.getStore('snippet');
+        backPath() {
+            if (this.$route.query.ids && this.$route.query.ids.length > 0) {
+                return {
+                    name: 'sw.settings.snippet.list',
+                    query: {
+                        ids: this.$route.query.ids,
+                        limit: this.$route.query.limit,
+                        page: this.$route.query.page
+                    }
+                };
+            }
+            return { name: 'sw.settings.snippet.index' };
         }
     },
 
@@ -30,33 +48,68 @@ Component.register('sw-settings-snippet-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                const snippetId = this.$route.params.id;
-                this.snippet = this.snippetStore.getById(snippetId);
+            if (!this.$route.params.key) {
+                this.$router.back();
+
+                return;
             }
-            if (this.$route.params.setId) {
-                this.snippet.setId = this.$route.params.setId;
-            }
+
+            this.translationKey = this.$route.params.key;
+            this.snippetSetStore.getList({}).then((response) => {
+                this.sets = response.items;
+            }).then(() => {
+                this.initializeSnippet();
+                this.isLoading = false;
+            });
+        },
+
+        initializeSnippet() {
+            this.snippetService.getByKey(this.translationKey, this.page, this.limit).then((response) => {
+                if (!response) {
+                    this.$router.back();
+
+                    return;
+                }
+                this.snippets = response;
+            });
         },
 
         onSave() {
-            this.snippet.languageId = '20080911ffff4fffafffffff19830531';
+            const responses = [];
+            this.snippets.forEach((snippet) => {
+                if (snippet.value === null) {
+                    snippet.value = snippet.origin;
+                }
 
-            const snippetKey = this.snippet.translationKey;
-            const titleSaveSuccess = this.$tc('sw-settings-snippet.detail.titleSaveSuccess');
-            const titleSaveError = this.$tc('sw-settings-snippet.detail.titleSaveError');
-            const messageSaveSuccess = this.$tc('sw-settings-snippet.detail.messageSaveSuccess', 0, { key: snippetKey });
-            const messageSaveError = this.$tc('sw-settings-snippet.detail.messageSaveError', 0, { key: snippetKey });
-            return this.snippet.save().then(() => {
+                if (snippet.origin !== snippet.value) {
+                    responses.push(this.snippetService.save(snippet));
+                } else if (snippet.id !== null) {
+                    responses.push(this.snippetService.delete(snippet.id));
+                }
+            });
+
+            Promise.all(responses).then(() => {
                 this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
+                    title: this.$tc('sw-settings-snippet.detail.titleSaveSuccess'),
+                    message: this.$tc(
+                        'sw-settings-snippet.detail.messageSaveSuccess',
+                        0,
+                        { key: this.translationKey }
+                    )
                 });
+
+                this.createdComponent();
             }).catch(() => {
                 this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+                    title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
+                    message: this.$tc(
+                        'sw-settings-snippet.detail.messageSaveError',
+                        0,
+                        { key: this.translationKey }
+                    )
                 });
+
+                this.createdComponent();
             });
         }
     }

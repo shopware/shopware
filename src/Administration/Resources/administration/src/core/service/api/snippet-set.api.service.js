@@ -17,7 +17,7 @@ class SnippetSetApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`${this.getApiBasePath()}/getList`, { page, limit }, { headers })
+            .post(`/_action/${this.getApiBasePath()}`, { page, limit }, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

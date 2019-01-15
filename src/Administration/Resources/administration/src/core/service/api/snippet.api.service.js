@@ -19,6 +19,19 @@ class SnippetApiService extends ApiService {
         }
         return this.updateById(snippet.id, snippet);
     }
+
+    /**
+     * @returns {Promise<T>}
+     */
+    getByKey(translationKey, page, limit) {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .post(`/_action/${this.getApiBasePath()}`, { translationKey, page, limit }, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 export default SnippetApiService;

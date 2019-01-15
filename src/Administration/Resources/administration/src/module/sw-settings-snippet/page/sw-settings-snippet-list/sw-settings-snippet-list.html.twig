@@ -24,7 +24,7 @@
         {% block sw_settings_snippet_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_snippet_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.settings.snippet.create' }"
+                    <sw-button :routerLink="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } }"
                                :disabled="isLoading"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.list.buttonAdd') }}
@@ -57,7 +57,7 @@
                                                             truncate
                                                             editable>
                                                 {% block sw_settings_snippet_list_column_key_link %}
-                                                    <router-link :to="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey } }">
+                                                    <router-link :to="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey }, query: { ids: queryIds, limit, page } }">
                                                         {% block sw_settings_snippet_list_column_key_label %}
                                                             {{ item[metaId].translationKey }}
                                                         {% endblock %}
@@ -79,19 +79,14 @@
                                                             truncate
                                                             editable
                                                             v-for="set in snippetSets" :key="set.id">
-                                                {% block sw_settings_snippet_list_column_value_link %}
-                                                    <router-link :to="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey } }">
-                                                        {% block sw_settings_snippet_list_column_value_label %}
-                                                            {{ item[set.id].value }}
-                                                        {% endblock %}
-                                                    </router-link>
-                                                {% endblock %}
+                                                {{ item[set.id].value }}
 
                                                 {% block sw_settings_snippet_list_column_value_editor %}
                                                     <sw-field type="text"
                                                               :ref="`field-${item[metaId].translationKey}`"
                                                               :class="`field-${item[metaId].translationKey}`"
                                                               v-model="item[set.id].value"
+                                                              :placeholder="item[set.id].origin"
                                                               slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
@@ -101,7 +96,7 @@
                                             <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
                                                     {% block sw_settings_snippet_list_grid_column_actions_edit %}
-                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey } }">
+                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey }, query: { ids: queryIds, limit, page } }">
                                                             {{ $tc('sw-settings-snippet.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}

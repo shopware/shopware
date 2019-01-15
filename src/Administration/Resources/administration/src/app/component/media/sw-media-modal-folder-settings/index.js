@@ -27,7 +27,9 @@ Component.register('sw-media-modal-folder-settings', {
             thumbnailSizes: [],
             isEditThumbnails: false,
             defaultFolder: null,
-            parent: null
+            parent: null,
+            configuration: null,
+            originalConfiguration: null
         };
     },
 
@@ -53,11 +55,11 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         mediaFolderConfigurationThumbnailSizeStore() {
-            return this.folder.configuration.getAssociation('mediaThumbnailSizes');
+            return this.configuration.getAssociation('mediaThumbnailSizes');
         },
 
         notEditable() {
-            return this.folder.useParentConfiguration || !this.folder.configuration.createThumbnails;
+            return this.folder.useParentConfiguration || !this.configuration.createThumbnails;
         },
 
         thumbnailListClass() {
@@ -88,7 +90,7 @@ Component.register('sw-media-modal-folder-settings', {
                     this.defaultFolder = response.items.shift();
                 }
             });
-            this.folder.configuration = this.mediaFolderConfigurationStore.getById(this.folder.configuration.id);
+            this.configuration = this.mediaFolderConfigurationStore.getById(this.folder.configuration.id);
             this.mediaFolderConfigurationThumbnailSizeStore.getList({
                 limit: 25,
                 page: 1
@@ -144,7 +146,7 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         isThumbnailSizeActive(size) {
-            return this.folder.configuration.mediaThumbnailSizes.some((value) => {
+            return this.configuration.mediaThumbnailSizes.some((value) => {
                 return value.id === size.id;
             });
         },
@@ -152,12 +154,12 @@ Component.register('sw-media-modal-folder-settings', {
         onChangeThumbnailSize(value, size) {
             if (value === true) {
                 const mapping = this.mediaFolderConfigurationThumbnailSizeStore.create(size.id);
-                this.folder.configuration.mediaThumbnailSizes.push(mapping);
+                this.configuration.mediaThumbnailSizes.push(mapping);
 
                 return;
             }
 
-            this.folder.configuration.mediaThumbnailSizes.forEach((savedSize) => {
+            this.configuration.mediaThumbnailSizes.forEach((savedSize) => {
                 if (savedSize.id === size.id) {
                     savedSize.delete();
                 }
@@ -166,21 +168,26 @@ Component.register('sw-media-modal-folder-settings', {
 
         onChangeInheritance(value) {
             if (value === true) {
-                const configuration = this.folder.configuration;
-                this.folder.configuration = this.parent.configuration.clone();
-                configuration.delete(true);
+                this.originalConfiguration = this.configuration;
+                this.configuration = this.parent.configuration;
+                this.originalConfiguration.delete();
 
                 return;
             }
 
-            this.folder.configuration = this.mediaFolderConfigurationStore.duplicate(this.folder.configuration.id, true);
+            if (this.originalConfiguration) {
+                this.configuration = this.originalConfiguration;
+                this.configuration.isDeleted = false;
+
+                return;
+            }
+
+            this.configuration = this.mediaFolderConfigurationStore.duplicate(this.parent.configuration.id, true);
         },
 
         onClickSave() {
             const notificationMessageSuccess = this.$tc('global.sw-media-modal-folder-settings.notificationSuccess');
             const notificationMessageError = this.$tc('global.sw-media-modal-folder-settings.notificationError');
-
-            const configuration = this.folder.configuration;
 
             const resetDefaultFolder = () => {
                 if (this.defaultFolder && this.folder.defaultFolder.length > 0) {
@@ -195,9 +202,23 @@ Component.register('sw-media-modal-folder-settings', {
                 return Promise.resolve();
             };
 
+            this.folder.configuration.id = this.configuration.id;
+
+            // if the config is created all properties that are null won't be sent to the server
+            // this leads to setting default values for this properties on the server side
+            // these properties are null because the value of an unchecked checkbox is null
+            // ToDo fix this with NEXT-1544
+            if (this.configuration.keepAspectRatio === null) {
+                this.configuration.keepAspectRatio = false;
+            }
+
+            if (this.configuration.createThumbnails === null) {
+                this.configuration.createThumbnails = false;
+            }
+
             resetDefaultFolder()
                 .then(() => {
-                    return configuration.save();
+                    return this.mediaFolderConfigurationStore.sync();
                 })
                 .then(() => {
                     return this.folder.save();

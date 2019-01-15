@@ -115,6 +115,7 @@
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="tax.repository"/>
+            <argument type="service" id="media_default_folder.repository"/>
             <argument>%kernel.environment%</argument>
             <argument>%kernel.project_dir%</argument>
         </service>

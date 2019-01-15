@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder;
 
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -18,6 +19,15 @@ class MediaDefaultFolderEntity extends Entity
      * @var string
      */
     protected $entity;
+    /**
+     * @var string|null
+     */
+    protected $folderId;
+
+    /**
+     * @var MediaFolderEntity|null
+     */
+    protected $folder;
 
     /**
      * @var \DateTime
@@ -29,67 +39,63 @@ class MediaDefaultFolderEntity extends Entity
      */
     protected $updatedAt;
 
-    /**
-     * @return string[]
-     */
     public function getAssociations(): array
     {
         return $this->associations;
     }
 
-    /**
-     * @param string[] $associations
-     */
     public function setAssociations(array $associations): void
     {
         $this->associations = $associations;
     }
 
-    /**
-     * @return string
-     */
     public function getEntity(): string
     {
         return $this->entity;
     }
 
-    /**
-     * @param string $entity
-     */
     public function setEntity(string $entity): void
     {
         $this->entity = $entity;
     }
 
-    /**
-     * @return \DateTime
-     */
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    /**
-     * @param \DateTime $createdAt
-     */
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    /**
-     * @return \DateTime|null
-     */
     public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
 
-    /**
-     * @param \DateTime|null $updatedAt
-     */
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getFolderId(): ?string
+    {
+        return $this->folderId;
+    }
+
+    public function setFolderId(?string $folderId): void
+    {
+        $this->folderId = $folderId;
+    }
+
+    public function getFolder(): ?MediaFolderEntity
+    {
+        return $this->folder;
+    }
+
+    public function setFolder(?MediaFolderEntity $folder): void
+    {
+        $this->folder = $folder;
     }
 }

@@ -207,7 +207,7 @@ class ChildCountIndexer implements IndexerInterface
 
             return new LastIdQuery($query);
         }
-        $query->select(['id']);
+        $query->select('id', 'id AS entityId');
 
         return new OffsetQuery($query);
     }

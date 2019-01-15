@@ -13,206 +13,249 @@
 
 @sw-condition-base-z-index-arrow: 100;
 
+@sw-condition-base-color-error: @color-crimson;
+
 .sw-condition-base {
-  width: 100%;
-  display: flex;
-  background: none;
-
-  .field {
-    background-color: @sw-condition-base-color-background;
-    position: relative;
-    line-height: 40px;
-    padding: 0 16px;
-    height: 44px;
-    border-top: 1px solid @sw-condition-base-color-border;
-    border-bottom: 1px solid @sw-condition-base-color-border;
-  }
-
-  .sw-field {
-    margin-bottom: 0;
-  }
-
-  .field--condition {
-    background: @sw-condition-base-color-primary;
-    color: @sw-condition-base-color-primary-text;
-    width: 168px;
-    height: 44px;
-    border-top: none;
-    border-bottom: none;
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-
-    &:before {
-      content: '';
-      position: absolute;
-      right: -5px;
-      top: 1px;
-      width: 10px;
-      height: 25px;
-      background: @sw-condition-base-color-primary;
-      z-index: @sw-condition-base-z-index-arrow;
-      transform: rotate(-20deg);
-      border-bottom-right-radius: 3px;
-    }
-
-    &:after {
-      content: '';
-      position: absolute;
-      right: -5px;
-      bottom: 1px;
-      width: 10px;
-      height: 25px;
-      background: @sw-condition-base-color-primary;
-      z-index: @sw-condition-base-z-index-arrow;
-      border-top-right-radius: 3px;
-      transform: rotate(20deg);
-    }
-  }
-
-  .field--select {
-    width: 196px;
-    border-top: 1px solid @sw-condition-base-color-border;
-    border-bottom: 1px solid @sw-condition-base-color-border;
-
-    .sw-field__select select {
-      outline: none;
-      box-shadow: none;
-      border: 0;
-      padding: 7px 0;
-      background: @sw-condition-base-color-background;
-      height: 42px;
-    }
-  }
-
-  .has--arrow {
-    &:before {
-      content: '';
-      position: absolute;
-      right: -5px;
-      top: -1px;
-      width: 1px;
-      height: 23px;
-      background: @sw-condition-base-color-border;
-      z-index: @sw-condition-base-z-index-arrow;
-      transform: rotate(-20deg);
-    }
-
-    &:after {
-      content: '';
-      position: absolute;
-      right: -5px;
-      bottom: -1px;
-      width: 1px;
-      height: 23px;
-      background: @sw-condition-base-color-border;
-      z-index: @sw-condition-base-z-index-arrow;
-      transform: rotate(20deg);
-    }
-  }
-
-  .field--date {
-    .sw-datepicker {
-      width: 100%;
-    }
-
-    .sw-field__suffix {
-      display: none;
-    }
-  }
-
-  .field--main {
-    flex-grow: 1;
-    padding-left: 20px;
-    width: 100%;
-  }
-
-  .field--multi {
-    height: auto;
-    padding: 0;
-
-    .sw-select__inner, .sw-tagged-field__inner {
-      border: none;
-      padding: 4px 45px 0 13px;
-      min-height: 42px;
-    }
-
-    &:before {
-      content: '';
-      position: absolute;
-      width: 1px;
-      left: 0;
-      top: 42px;
-      bottom: -1px;
-      background-color: @sw-condition-base-color-border;
-      z-index: @sw-condition-base-z-index-arrow;
-    }
-
-    &:after {
-      content: '';
-      position: absolute;
-      width: 1px;
-      right: -1px;
-      top: 42px;
-      bottom: -1px;
-      background-color: @sw-condition-base-color-border;
-    }
-  }
-
-  .field--actions {
-    width: 44px;
-    border: 1px solid @sw-condition-base-color-border;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    line-height: 45px;
-    text-align: left;
-    padding: 0 0;
-  }
-
-  .sw-field input:disabled {
-    background-color: @sw-condition-base-color-background;
-  }
-
-  .sw-field--switch {
-    padding-top: 12px;
-  }
-
-  .sw-select__inner {
-    border: none;
-  }
-
-  .sw-field__input {
-    input, select {
-      outline: none;
-      box-shadow: none;
-      border: 0 none;
-      padding: 7px 20px;
-      background: @sw-condition-base-color-background;
-      height: 42px;
-    }
-
-    input {
-      &:active,
-      &:focus {
-        box-shadow: none;
-      }
-    }
-
-    .sw-field__select select{
-      padding-left: 20px;
-      &:active,
-      &:focus {
-        box-shadow: none;
-      }
-    }
-  }
-
-  .sw-condition-base__field {
-    border: 0;
     background: none;
-    color: @sw-condition-base-color-primary-text;
-    font-size: @sw-condition-base-font-size;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-  }
+
+    .sw-condition-base__container {
+        display: flex;
+        width: 100%;
+    }
+
+    .field {
+        background-color: @sw-condition-base-color-background;
+        position: relative;
+        line-height: 40px;
+        padding: 0 16px;
+        height: 44px;
+        border-top: 1px solid @sw-condition-base-color-border;
+        border-bottom: 1px solid @sw-condition-base-color-border;
+    }
+
+    .sw-field {
+        margin-bottom: 0;
+    }
+
+    .field--condition {
+        background: @sw-condition-base-color-primary;
+        color: @sw-condition-base-color-primary-text;
+        width: 168px;
+        height: 44px;
+        border-top: none;
+        border-bottom: none;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+
+        &:before {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 1px;
+            width: 10px;
+            height: 25px;
+            background: @sw-condition-base-color-primary;
+            z-index: @sw-condition-base-z-index-arrow;
+            transform: rotate(-20deg);
+            border-bottom-right-radius: 3px;
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            bottom: 1px;
+            width: 10px;
+            height: 25px;
+            background: @sw-condition-base-color-primary;
+            z-index: @sw-condition-base-z-index-arrow;
+            border-top-right-radius: 3px;
+            transform: rotate(20deg);
+        }
+    }
+
+    .field--select {
+        width: 196px;
+        border-top: 1px solid @sw-condition-base-color-border;
+        border-bottom: 1px solid @sw-condition-base-color-border;
+
+        .sw-field__select select {
+            outline: none;
+            box-shadow: none;
+            border: 0;
+            padding: 7px 0;
+            background: @sw-condition-base-color-background;
+            height: 42px;
+        }
+    }
+
+    .has--arrow {
+        &:before {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -1px;
+            width: 1px;
+            height: 23px;
+            background: @sw-condition-base-color-border;
+            z-index: @sw-condition-base-z-index-arrow;
+            transform: rotate(-20deg);
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            bottom: -1px;
+            width: 1px;
+            height: 23px;
+            background: @sw-condition-base-color-border;
+            z-index: @sw-condition-base-z-index-arrow;
+            transform: rotate(20deg);
+        }
+    }
+
+    .field--date {
+        .sw-datepicker {
+            width: 100%;
+        }
+
+        .sw-field__suffix {
+            display: none;
+        }
+    }
+
+    .field--main {
+        flex-grow: 1;
+        padding-left: 20px;
+        width: 100%;
+    }
+
+    .field--multi {
+        height: auto;
+        padding: 0;
+
+        .sw-select__inner, .sw-tagged-field__inner {
+            border: none;
+            padding: 4px 45px 0 13px;
+            min-height: 42px;
+        }
+
+        &:before {
+            content: '';
+            position: absolute;
+            width: 1px;
+            left: 0;
+            top: 42px;
+            bottom: -1px;
+            background-color: @sw-condition-base-color-border;
+            z-index: @sw-condition-base-z-index-arrow;
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            width: 1px;
+            right: -1px;
+            top: 42px;
+            bottom: -1px;
+            background-color: @sw-condition-base-color-border;
+        }
+    }
+
+    .field--actions {
+        width: 44px;
+        border: 1px solid @sw-condition-base-color-border;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        line-height: 45px;
+        text-align: left;
+        padding: 0 0;
+    }
+
+    .sw-field input:disabled {
+        background-color: @sw-condition-base-color-background;
+    }
+
+    .sw-field--switch {
+        padding-top: 12px;
+    }
+
+    .sw-select__inner {
+        border: none;
+    }
+
+    .sw-field__input {
+        input, select {
+            outline: none;
+            box-shadow: none;
+            border: 0 none;
+            padding: 7px 20px;
+            background: @sw-condition-base-color-background;
+            height: 42px;
+        }
+
+        input {
+            &:active,
+            &:focus {
+                box-shadow: none;
+            }
+        }
+
+        .sw-field__select select {
+            padding-left: 20px;
+
+            &:active,
+            &:focus {
+                box-shadow: none;
+            }
+        }
+    }
+
+    .sw-condition-base__field {
+        border: 0;
+        background: none;
+        color: @sw-condition-base-color-primary-text;
+        font-size: @sw-condition-base-font-size;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    &.has--error .sw-condition-base__container {
+        .sw-field__suffix {
+            border: none;
+            background: none;
+            padding-top: 11px;
+            padding-bottom: 0;
+        }
+
+        .field--condition {
+            background-color: @sw-condition-base-color-error;
+
+            &:before, &:after {
+                background-color: @sw-condition-base-color-error;
+            }
+        }
+
+        .field {
+            border-top-color: @sw-condition-base-color-error;
+            border-bottom-color: @sw-condition-base-color-error;
+        }
+
+        .has--arrow {
+            &:before, &:after {
+                background-color: @sw-condition-base-color-error;
+            }
+        }
+
+        .field--actions {
+            border-color: @sw-condition-base-color-error;
+        }
+    }
+
+    .sw-condition-base__error-container {
+        display: block;
+        color: @sw-condition-base-color-error;
+    }
 }

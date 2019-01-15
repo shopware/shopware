@@ -43,9 +43,11 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testValidateWithMissingParameters()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemUnitPriceRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
@@ -56,8 +58,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemUnitPriceRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (amount)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/amount', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -89,9 +90,11 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testValidateWithMissingAmount()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemUnitPriceRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -105,8 +108,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemUnitPriceRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (amount)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/amount', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -223,9 +225,11 @@ class LineItemUnitPriceRuleTest extends TestCase
 
     public function testValidateWithInvalidOperator()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LineItemUnitPriceRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -240,8 +244,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LineItemUnitPriceRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (operator)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/operator', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('8e179f1b-97aa-4560-a02f-2a8b42e49df7', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(0)->getMessage());
             }

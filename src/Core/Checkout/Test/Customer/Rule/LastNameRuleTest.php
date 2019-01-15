@@ -42,9 +42,11 @@ class LastNameRuleTest extends TestCase
 
     public function testValidateWithMissingLastName()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LastNameRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
@@ -55,8 +57,7 @@ class LastNameRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LastNameRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (lastName)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/lastName', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -65,9 +66,11 @@ class LastNameRuleTest extends TestCase
 
     public function testValidateWithEmptyLastName()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LastNameRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -81,8 +84,7 @@ class LastNameRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LastNameRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (lastName)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/lastName', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -91,9 +93,11 @@ class LastNameRuleTest extends TestCase
 
     public function testValidateWithInvalidLastName()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => LastNameRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -107,8 +111,7 @@ class LastNameRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(LastNameRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (lastName)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/lastName', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('ba785a8c-82cb-4283-967c-3cf342181b40', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should be of type string.', $exception->getViolations()->get(0)->getMessage());
             }

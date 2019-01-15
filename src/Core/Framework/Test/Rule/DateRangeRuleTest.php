@@ -42,9 +42,11 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithoutParameters()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => DateRangeRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
@@ -55,11 +57,10 @@ class DateRangeRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(2, $exception->getViolations());
-                static::assertStringStartsWith(DateRangeRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (fromDate)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertStringEndsWith(' (toDate)', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/toDate', $exception->getViolations()->get(1)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(1)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
@@ -68,9 +69,11 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithoutFromDate()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => DateRangeRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -84,8 +87,7 @@ class DateRangeRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(DateRangeRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (fromDate)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -94,9 +96,11 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithoutToDate()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => DateRangeRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -110,8 +114,7 @@ class DateRangeRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(DateRangeRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (toDate)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/toDate', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -120,10 +123,12 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithInvalidFromDateFormat()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         foreach ([true, 'Invalid'] as $value) {
             try {
                 $this->conditionRepository->create([
                     [
+                        'id' => $conditionId,
                         'type' => DateRangeRule::class,
                         'ruleId' => Uuid::uuid4()->getHex(),
                         'value' => [
@@ -138,8 +143,7 @@ class DateRangeRuleTest extends TestCase
                 /** @var ConstraintViolationException $exception */
                 foreach ($stackException->getExceptions() as $exception) {
                     static::assertCount(1, $exception->getViolations());
-                    static::assertStringStartsWith(DateRangeRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                    static::assertStringEndsWith(' (fromDate)', $exception->getViolations()->get(0)->getPropertyPath());
+                    static::assertSame('/conditions/' . $conditionId . '/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
                     static::assertSame('1a9da513-2640-4f84-9b6a-4d99dcddc628', $exception->getViolations()->get(0)->getCode());
                     static::assertSame('This value is not a valid datetime.', $exception->getViolations()->get(0)->getMessage());
                 }
@@ -149,10 +153,12 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithInvalidToDateFormat()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         foreach ([true, 'Invalid'] as $value) {
             try {
                 $this->conditionRepository->create([
                     [
+                        'id' => $conditionId,
                         'type' => DateRangeRule::class,
                         'ruleId' => Uuid::uuid4()->getHex(),
                         'value' => [
@@ -167,8 +173,7 @@ class DateRangeRuleTest extends TestCase
                 /** @var ConstraintViolationException $exception */
                 foreach ($stackException->getExceptions() as $exception) {
                     static::assertCount(1, $exception->getViolations());
-                    static::assertStringStartsWith(DateRangeRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                    static::assertStringEndsWith(' (toDate)', $exception->getViolations()->get(0)->getPropertyPath());
+                    static::assertSame('/conditions/' . $conditionId . '/toDate', $exception->getViolations()->get(0)->getPropertyPath());
                     static::assertSame('1a9da513-2640-4f84-9b6a-4d99dcddc628', $exception->getViolations()->get(0)->getCode());
                     static::assertSame('This value is not a valid datetime.', $exception->getViolations()->get(0)->getMessage());
                 }
@@ -178,9 +183,11 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithInvalidUseTime()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => DateRangeRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -196,8 +203,7 @@ class DateRangeRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(DateRangeRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (useTime)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/useTime', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('ba785a8c-82cb-4283-967c-3cf342181b40', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should be of type bool.', $exception->getViolations()->get(0)->getMessage());
             }

@@ -42,9 +42,11 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testValidateWithMissingCustomerGroupIds()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => CustomerGroupRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
@@ -55,8 +57,7 @@ class CustomerGroupRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(CustomerGroupRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (customerGroupIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -65,9 +66,11 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testValidateWithEmptyCustomerGroupIds()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => CustomerGroupRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -81,8 +84,7 @@ class CustomerGroupRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(CustomerGroupRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (customerGroupIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -91,9 +93,11 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testValidateWithInvalidCustomerGroupIdsType()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => CustomerGroupRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -107,8 +111,7 @@ class CustomerGroupRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(CustomerGroupRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (customerGroupIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -116,9 +119,11 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testValidateWithInvalidCustomerGroupIdsUuid()
     {
+        $conditionId = Uuid::uuid4()->getHex();
         try {
             $this->conditionRepository->create([
                 [
+                    'id' => $conditionId,
                     'type' => CustomerGroupRule::class,
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
@@ -132,8 +137,7 @@ class CustomerGroupRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertStringStartsWith(CustomerGroupRule::class, $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertStringEndsWith(' (customerGroupIds)', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "GROUP-ID" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
             }
         }

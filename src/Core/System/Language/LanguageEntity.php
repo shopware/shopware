@@ -27,6 +27,7 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetT
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -44,6 +45,16 @@ class LanguageEntity extends Entity
      * @var string
      */
     protected $localeId;
+
+    /**
+     * @var string|null
+     */
+    protected $translationCodeId;
+
+    /**
+     * @var LocaleEntity|null
+     */
+    protected $translationCode;
 
     /**
      * @var string
@@ -210,6 +221,16 @@ class LanguageEntity extends Entity
      */
     protected $mediaFolderTranslations;
 
+    /**
+     * @var DiscountSurchargeTranslationCollection| null
+     */
+    protected $discountSurchargeTranslations;
+
+    /**
+     * @var SalesChannelDomainCollection|null
+     */
+    protected $salesChannelDomains;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -228,6 +249,26 @@ class LanguageEntity extends Entity
     public function setLocaleId(string $localeId): void
     {
         $this->localeId = $localeId;
+    }
+
+    public function getTranslationCodeId(): ?string
+    {
+        return $this->translationCodeId;
+    }
+
+    public function setTranslationCodeId(?string $translationCodeId): void
+    {
+        $this->translationCodeId = $translationCodeId;
+    }
+
+    public function getTranslationCode(): ?LocaleEntity
+    {
+        return $this->translationCode;
+    }
+
+    public function setTranslationCode(?LocaleEntity $translationCode): void
+    {
+        $this->translationCode = $translationCode;
     }
 
     public function getName(): string
@@ -558,5 +599,15 @@ class LanguageEntity extends Entity
     public function setMediaFolderTranslations(?MediaFolderTranslationCollection $mediaFolderTranslations): void
     {
         $this->mediaFolderTranslations = $mediaFolderTranslations;
+    }
+
+    public function getSalesChannelDomains(): ?SalesChannelDomainCollection
+    {
+        return $this->salesChannelDomains;
+    }
+
+    public function setSalesChannelDomains(?SalesChannelDomainCollection $salesChannelDomains): void
+    {
+        $this->salesChannelDomains = $salesChannelDomains;
     }
 }

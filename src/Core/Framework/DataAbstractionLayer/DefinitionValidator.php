@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LanguageParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -55,7 +57,7 @@ class DefinitionValidator
     ];
 
     private static $ignoredInPrefixCheck = [
-        'datasheet', 'variations',
+        'datasheet', 'variations', 'translationcode',
     ];
 
     private static $tablesWithoutDefinition = [
@@ -217,7 +219,10 @@ class DefinitionValidator
         $functionViolations = [];
 
         foreach ($fields as $field) {
-            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+            if ($field instanceof VersionField ||
+                $field instanceof ReferenceVersionField ||
+                $field instanceof LanguageParentFkField
+            ) {
                 continue;
             }
 
@@ -240,7 +245,7 @@ class DefinitionValidator
             if ($field instanceof BoolField) {
                 $getterMethods[] = 'is' . ucfirst($propertyName);
                 $getterMethods[] = 'has' . ucfirst($propertyName);
-                $getterMethods[] = 'has' . ucfirst(ltrim('has', $propertyName));
+                $getterMethods[] = 'has' . ucfirst(preg_replace('/^has/', '', $propertyName));
             }
 
             $hasGetter = false;
@@ -260,7 +265,7 @@ class DefinitionValidator
                 $functionViolations[] = sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
-            if (!$reflection->hasMethod($setter)) {
+            if (!$field->is(Deferred::class) && !$reflection->hasMethod($setter)) {
                 $functionViolations[] = sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }
@@ -605,6 +610,11 @@ class DefinitionValidator
 
         $ref = str_replace($def, '', $ref);
 
+        $namespace = $this->getAggregateNamespace($definition);
+        if ($namespace !== $ref) {
+            $ref = str_replace($namespace, '', $ref);
+        }
+
         $ref = $this->mapRefNameContainedName($ref);
         $refPlural = Inflector::pluralize($ref);
 
@@ -690,8 +700,13 @@ class DefinitionValidator
         return $violations;
     }
 
-    private function getShortClassName(string $defintion): string
+    private function getShortClassName(string $definition): string
     {
-        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $defintion));
+        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition));
+    }
+
+    private function getAggregateNamespace(string $definition): string
+    {
+        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition));
     }
 }

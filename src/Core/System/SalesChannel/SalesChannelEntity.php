@@ -17,6 +17,7 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 
@@ -162,6 +163,11 @@ class SalesChannelEntity extends Entity
      * @var SalesChannelTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var SalesChannelDomainCollection|null
+     */
+    protected $domains;
 
     public function getLanguageId(): string
     {
@@ -328,9 +334,6 @@ class SalesChannelEntity extends Entity
         return $this->language;
     }
 
-    /**
-     * @param LanguageEntity $language
-     */
     public function setLanguage(LanguageEntity $language): void
     {
         $this->language = $language;
@@ -444,5 +447,15 @@ class SalesChannelEntity extends Entity
     public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
+    }
+
+    public function getDomains(): ?SalesChannelDomainCollection
+    {
+        return $this->domains;
+    }
+
+    public function setDomains(?SalesChannelDomainCollection $domains): void
+    {
+        $this->domains = $domains;
     }
 }

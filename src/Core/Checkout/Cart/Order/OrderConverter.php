@@ -325,7 +325,7 @@ class OrderConverter
             });
 
             if ($lineItem->hasChildren()) {
-                $converted = array_merge($this->convertLineItems($lineItem->getChildren(), $id), $converted);
+                $converted = array_merge($converted, $this->convertLineItems($lineItem->getChildren(), $id));
             }
         }
 

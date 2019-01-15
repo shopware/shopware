@@ -8,6 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 class MediaFolderTranslationEntity extends TranslationEntity
 {
     /**
+     * @var string
+     */
+    protected $mediaFolderId;
+
+    /**
      * @var MediaFolderEntity
      */
     protected $mediaFolder;
@@ -16,6 +21,16 @@ class MediaFolderTranslationEntity extends TranslationEntity
      * @var string
      */
     protected $name;
+
+    public function getMediaFolderId(): string
+    {
+        return $this->mediaFolderId;
+    }
+
+    public function setMediaFolderId(string $mediaFolderId): void
+    {
+        $this->mediaFolderId = $mediaFolderId;
+    }
 
     public function getName(): string
     {

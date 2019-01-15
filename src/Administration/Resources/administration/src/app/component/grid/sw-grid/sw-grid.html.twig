@@ -50,11 +50,13 @@
                         {% block sw_grid_slot_body %}
                             <div class="sw-grid__body" ref="swGridBody">
 
-                                <slot name="items" v-for="item in items">
+                                <slot name="items" v-for="(item, index) in items">
                                     {% block sw_grid_body_slot_items %}
                                         <sw-grid-row class="sw-grid__item"
                                                      :style="columnFlex"
+                                                     :key="item.id"
                                                      :item="item"
+                                                     :index="index"
                                                      @inline-edit-finish="onInlineEditFinish"
                                                      :class="{ 'is--selected': isSelected(item.id) }">
 

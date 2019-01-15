@@ -11,6 +11,19 @@ class SnippetSetApiService extends ApiService {
     }
 
     /**
+     * @returns {Promise<T>}
+     */
+    getCustomList(page = 1, limit = 25) {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .post(`${this.getApiBasePath()}/getList`, { page, limit }, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
      * Call the API to clone the SnippetSet with the given id
      *
      * @param {string} id

@@ -927,6 +927,24 @@
       "titleSaveSuccess": "Snippets"
     },
     "list": {
+      "buttonAdd": "New Snippet",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "columnKey": "Name",
+      "columnValue": "Value",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Reset",
+      "messageDeleteSuccess": "Snippet \"{key}\" has been reset successfully.",
+      "messageSaveError": "Snippet \"{key}\" could not be saved. | Snippets for \"{key}\" could not be saved.",
+      "messageSaveSuccess":  "Snippet \"{key}\" has been saved successfully. | Snippets for \"{key}\" have been saved successfully.",
+      "modalTitleDelete": "Snippets",
+      "textDeleteConfirm": "Are you sure you want to reset the snippet \"{key}\"? | Are you sure you want to reset the snippets for \"{key}\"?",
+      "textSnippetList": "Snippets of \"{setName}\" | Snippets",
+      "titleDeleteSuccess": "Snippets",
+      "titleSaveError": "Error: Snippets",
+      "titleSaveSuccess": "Snippets"
+    },
+    "setList": {
       "title": "Manage snippets",
       "cardTitle" : "Snippet sets",
       "description": "This is an overview of your snippet sets. Select the sets whose snippets you want to edit and switch to the editing table via button press. You can also import snippets, create new ones and export existing ones as CSV files.",
@@ -944,12 +962,14 @@
       "contextMenuDelete": "Delete",
       "modalTitleDelete": "Snippet Sets",
       "buttonClone": "Copy",
-      "textDeleteConfirm": "Are you sure you really want to delete the snippet set \"{name}\"?",
+      "textDeleteConfirm": "Are you sure you want to delete the snippet set \"{name}\"?",
       "modalTitleClone": "Copy snippet set",
       "textCloneConfirm": "Are you sure you want to copy the snippet set \"{name}\"?",
       "cloneNoteTitle": "Create copy",
       "cloneSuccessMessage": "Snippet set has been copied successfully.",
-      "errorMessage": "Error while copy a snippet set"
+      "cloneErrorMessage": "Error while copy a snippet set.",
+      "notEditableNoteTitle": "Edit snippets",
+      "notEditableNoteMessage": "Error while editing snippet sets."
     }
   },
   "sw-settings-rule": {

@@ -7,18 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
-use Shopware\Core\Framework\Snippet\SnippetDefinition;
-use Shopware\Core\Framework\SourceContext;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Translation\MessageCatalogue;
-use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class TranslatorTest extends TestCase
 {
@@ -94,126 +87,5 @@ class TranslatorTest extends TestCase
             $request,
             $this->getContainer()->get(RequestStack::class)->pop()
         );
-    }
-
-    public function testGetLocaleBySnippetSetId()
-    {
-        $method = ReflectionHelper::getMethod(Translator::class, 'getLocaleBySnippetSetId');
-        $result_en_GB = $method->invoke($this->translator, Defaults::SNIPPET_BASE_SET_EN);
-        $result_de_DE = $method->invoke($this->translator, Defaults::SNIPPET_BASE_SET_DE);
-
-        $this->assertSame(Defaults::LOCALE_EN_GB_ISO, $result_en_GB);
-        $this->assertSame(Defaults::LOCALE_DE_DE_ISO, $result_de_DE);
-    }
-
-    public function testGetDefaultLocale_expect_en_GB(): void
-    {
-        $method = ReflectionHelper::getMethod(Translator::class, 'getDefaultLocale');
-        $result = $method->invoke($this->translator);
-
-        $this->assertSame(Defaults::LOCALE_EN_GB_ISO, $result);
-    }
-
-    /**
-     * @param MessageCatalogueInterface $catalog
-     * @param Context                   $context
-     * @param array                     $expectedResult
-     *
-     * @dataProvider dataProviderForTestGetSnippets
-     */
-    public function testGetSnippets(MessageCatalogueInterface $catalog, Context $context, array $expectedResult): void
-    {
-        $method = ReflectionHelper::getMethod(Translator::class, 'getSnippets');
-        $result = $method->invokeArgs($this->translator, [$catalog, $context]);
-
-        $this->assertArraySubset($expectedResult, $result);
-        $this->assertNotEmpty($result);
-        $this->assertTrue(count($expectedResult) < count($result));
-    }
-
-    public function dataProviderForTestGetSnippets(): array
-    {
-        $context = $this->getContext(Defaults::SALES_CHANNEL);
-
-        return [
-            [$this->getCatalog([], 'en_GB'), $context, []],
-            [$this->getCatalog(['messages' => ['a' => 'a']], 'en_GB'), $context, ['a' => 'a']],
-            [$this->getCatalog(['messages' => ['a' => 'a', 'b' => 'b']], 'en_GB'), $context, ['a' => 'a', 'b' => 'b']],
-        ];
-    }
-
-    public function testDeleteSnippet(): void
-    {
-        $snippetRepository = $this->getContainer()->get('snippet.repository');
-        $snippet = [
-            'id' => Uuid::uuid4()->getHex(),
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'setId' => Defaults::SNIPPET_BASE_SET_EN,
-            'translationKey' => 'foo',
-            'value' => 'bar',
-        ];
-
-        $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
-        static::assertEquals([$snippet['id']], $created->getIds());
-
-        $deleted = $snippetRepository->delete([['id' => $snippet['id']]], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
-        static::assertEquals([$snippet['id']], $deleted->getIds());
-    }
-
-    private function getCatalog(array $messages, string $local): MessageCatalogueInterface
-    {
-        return new MessageCatalogue($local, $messages);
-    }
-
-    private function getContext(string $salesChannelId)
-    {
-        $sourceContext = new SourceContext();
-        $sourceContext->setSalesChannelId($salesChannelId);
-
-        $context = Context::createDefaultContext();
-        $property = ReflectionHelper::getProperty(Context::class, 'sourceContext');
-        $property->setValue($context, $sourceContext);
-
-        return $context;
-    }
-}
-
-class LanguageFileMock implements LanguageFileInterface
-{
-    public $path;
-    public $name;
-    public $iso;
-    public $isBase;
-
-    public function __construct(
-        string $path = __DIR__ . '/_fixtures/test_three.json',
-        string $name = 'LanguageFileMock',
-        string $iso = 'en_GB',
-        bool $isBase = true
-    ) {
-        $this->path = $path;
-        $this->name = $name;
-        $this->iso = $iso;
-        $this->isBase = $isBase;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-    public function getIso(): string
-    {
-        return $this->iso;
-    }
-
-    public function isBase(): bool
-    {
-        return $this->isBase;
     }
 }

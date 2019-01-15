@@ -3,6 +3,7 @@ import { NEXT717 } from 'src/flag/feature_next717';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-snippet-set-list';
+import './page/sw-settings-snippet-list';
 import './page/sw-settings-snippet-detail';
 import './page/sw-settings-snippet-create';
 
@@ -25,18 +26,25 @@ Module.register('sw-settings-snippet', {
                 parentPath: 'sw.settings.index'
             }
         },
-        detail: {
-            component: 'sw-settings-snippet-detail',
-            path: 'detail/:id',
+        list: {
+            component: 'sw-settings-snippet-list',
+            path: 'list',
             meta: {
                 parentPath: 'sw.settings.snippet.index'
+            }
+        },
+        detail: {
+            component: 'sw-settings-snippet-detail',
+            path: 'detail/:key',
+            meta: {
+                parentPath: 'sw.settings.snippet.list'
             }
         },
         create: {
             component: 'sw-settings-snippet-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.snippet.index'
+                parentPath: 'sw.settings.snippet.list'
             }
         }
     },

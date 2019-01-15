@@ -9,6 +9,16 @@ class SnippetApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'snippet') {
         super(httpClient, loginService, apiEndpoint);
     }
+
+    /**
+     * @returns {Promise<T>}
+     */
+    save(snippet) {
+        if (snippet.id === null) {
+            return this.create(snippet);
+        }
+        return this.updateById(snippet.id, snippet);
+    }
 }
 
 export default SnippetApiService;

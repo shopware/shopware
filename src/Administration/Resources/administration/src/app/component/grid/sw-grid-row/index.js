@@ -13,6 +13,10 @@ Component.register('sw-grid-row', {
         item: {
             type: Object,
             required: true
+        },
+        index: {
+            type: Number,
+            required: false
         }
     },
 
@@ -69,14 +73,14 @@ Component.register('sw-grid-row', {
             this.$parent.$emit('sw-row-inline-edit-start', this.id);
         },
 
-        onInlineEditCancel(id) {
+        onInlineEditCancel(id, index) {
             if (id && id !== this.id) {
                 return;
             }
 
             this.isEditingActive = false;
-            this.$parent.$emit('sw-row-inline-edit-cancel', this.id);
-            this.$parent.$emit('inline-edit-cancel', this.item);
+            this.$parent.$emit('sw-row-inline-edit-cancel', this.id, index);
+            this.$parent.$emit('inline-edit-cancel', this.item, index);
         },
 
         onInlineEditFinish() {

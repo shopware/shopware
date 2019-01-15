@@ -6,5 +6,6 @@ trait IntegrationTestBehaviour
 {
     use KernelTestBehaviour,
         DatabaseTransactionBehaviour,
-        FilesystemBehaviour;
+        FilesystemBehaviour,
+        CacheTestBehaviour;
 }

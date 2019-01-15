@@ -3,9 +3,10 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -61,9 +63,14 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $ruleConditionRegistry;
 
     /**
-     * @var CacheItemPoolInterface
+     * @var TagAwareAdapter
      */
     private $cache;
+
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
 
     public function __construct(
         Connection $connection,
@@ -72,7 +79,8 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         RepositoryInterface $ruleRepository,
         Serializer $serializer,
         RuleConditionRegistry $ruleConditionRegistry,
-        CacheItemPoolInterface $cache
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        TagAwareAdapter $cache
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -81,6 +89,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $this->serializer = $serializer;
         $this->ruleConditionRegistry = $ruleConditionRegistry;
         $this->cache = $cache;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
     public static function getSubscribedEvents()
@@ -164,11 +173,14 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
         $rules = FetchModeHelper::group($conditions);
 
+        $tags = [];
         foreach ($rules as $id => $rule) {
             $invalid = false;
             $serialized = null;
             try {
                 $nested = $this->buildNested($rule, null);
+
+                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), RuleDefinition::class);
 
                 //ensure the root rule is an AndRule
                 $nested = new AndRule($nested);
@@ -188,6 +200,8 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                     ->execute();
             }
         }
+
+        $this->cache->invalidateTags($tags);
     }
 
     private function buildNested(array $rules, ?string $parentId): array

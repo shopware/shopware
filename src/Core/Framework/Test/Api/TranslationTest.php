@@ -13,7 +13,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Exception\MissingRootTranslationException;
 use Shopware\Core\System\Exception\MissingSystemTranslationException;
 use Shopware\Core\System\Language\TranslationValidator;
-use Shopware\Core\System\Locale\LocaleStruct;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -118,7 +118,7 @@ class TranslationTest extends TestCase
     public function testOnlySystemLocaleIdentifier()
     {
         $localeRepo = $this->getContainer()->get('locale.repository');
-        /** @var LocaleStruct $locale */
+        /** @var LocaleEntity $locale */
         $locale = $localeRepo->read(new ReadCriteria([Defaults::TRANSLATION_CODE_SYSTEM]), Context::createDefaultContext())->first();
 
         $this->assertTranslation(

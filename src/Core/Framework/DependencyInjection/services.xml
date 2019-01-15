@@ -32,7 +32,10 @@
         </service>
 
         <!-- Cache -->
-        <service id="shopware.cache" alias="cache.app"/>
+        <service id="shopware.cache" class="Symfony\Component\Cache\Adapter\TagAwareAdapter" public="true">
+            <argument type="service" id="cache.app" />
+            <argument type="service" id="cache.app" />
+        </service>
 
         <service class="Cocur\Slugify\Slugify" public="false" id="slugify">
             <argument>%shopware.slug.config%</argument>

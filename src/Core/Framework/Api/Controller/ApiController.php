@@ -20,9 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -30,8 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Search\CompositeEntitySearcher;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -64,11 +60,6 @@ class ApiController extends AbstractController
     private $serializer;
 
     /**
-     * @var EntityWriterInterface
-     */
-    private $entityWriter;
-
-    /**
      * @var RequestCriteriaBuilder
      */
     private $searchCriteriaBuilder;
@@ -81,13 +72,11 @@ class ApiController extends AbstractController
     public function __construct(
         DefinitionRegistry $definitionRegistry,
         Serializer $serializer,
-        EntityWriterInterface $entityWriter,
         RequestCriteriaBuilder $searchCriteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
-        $this->entityWriter = $entityWriter;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->compositeEntitySearcher = $compositeEntitySearcher;
     }
@@ -223,7 +212,7 @@ class ApiController extends AbstractController
             //first api level call /product/{id}
             $definition = $first['definition'];
 
-            $this->doDelete($request, $context, $definition, $id);
+            $this->doDelete($request, $context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -240,14 +229,14 @@ class ApiController extends AbstractController
         $association = $child['field'];
 
         if ($association instanceof OneToManyAssociationField) {
-            $this->doDelete($request, $context, $definition, $id);
+            $this->doDelete($request, $context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         // DELETE api/product/{id}/manufacturer/{id}
         if ($association instanceof ManyToOneAssociationField) {
-            $this->doDelete($request, $context, $definition, $id);
+            $this->doDelete($request, $context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -267,15 +256,7 @@ class ApiController extends AbstractController
                 $reference->getPropertyName() => $id,
             ];
 
-            $deleteResult = $this->entityWriter->delete(
-                $definition,
-                [$mapping],
-                WriteContext::createFromContext($context)
-            );
-
-            if (empty($deleteResult->getDeleted())) {
-                throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
-            }
+            $this->doDelete($request, $context, $definition, $mapping);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -302,15 +283,7 @@ class ApiController extends AbstractController
               'languageId' => $id,
             ];
 
-            $deleteResult = $this->entityWriter->delete(
-                $definition,
-                [$mapping],
-                WriteContext::createFromContext($context)
-            );
-
-            if (empty($deleteResult->getDeleted())) {
-                throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
-            }
+            $this->doDelete($request, $context, $definition, $mapping);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -763,11 +736,11 @@ class ApiController extends AbstractController
      * @param Request                 $request
      * @param Context                 $context
      * @param string|EntityDefinition $definition
-     * @param string                  $id
+     * @param array                   $primaryKey
      *
      * @throws ResourceNotFoundException
      */
-    private function doDelete(Request $request, Context $context, string $definition, string $id): void
+    private function doDelete(Request $request, Context $context, string $definition, array $primaryKey): void
     {
         try {
             $repository = $this->getRepository($definition, $request);
@@ -775,32 +748,13 @@ class ApiController extends AbstractController
             throw new NotFoundHttpException($e->getMessage(), $e);
         }
 
-        $payload = [];
-        $fields = $definition::getPrimaryKeys()->filter(function (Field $field) {
-            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
-        });
-
-        try {
-            $payload = $this->getRequestBody($request);
-        } catch (\Exception $exception) {
-            // empty payload is allowed for DELETE requests
-        }
-
-        if ($fields->count() > 1) {
-            $mapping = $payload;
-        } else {
-            $pk = $fields->first();
-            /** @var Field $pk */
-            $mapping = [$pk->getPropertyName() => $id];
-        }
-
-        $deleteEvent = $repository->delete([$mapping], $context);
+        $deleteEvent = $repository->delete([$primaryKey], $context);
 
         if (empty($deleteEvent->getErrors())) {
             return;
         }
 
-        throw new ResourceNotFoundException($definition::getEntityName(), $mapping);
+        throw new ResourceNotFoundException($definition::getEntityName(), $primaryKey);
     }
 
     /**

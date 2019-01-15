@@ -14,10 +14,12 @@ class Criteria extends Struct
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
     public const TOTAL_COUNT_MODE_NONE = 0;
+
     /**
      * exact total count will be selected. Should be used if an exact pagination is required (slow)
      */
     public const TOTAL_COUNT_MODE_EXACT = 1;
+
     /**
      * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
      */
@@ -251,5 +253,28 @@ class Criteria extends Struct
         $this->offset = $offset;
 
         return $this;
+    }
+
+    public function getSearchQueryFields(): array
+    {
+        $fields = [];
+
+        $parts = [
+            $this->filters,
+            $this->postFilters,
+            $this->sorting,
+            $this->queries,
+        ];
+
+        foreach ($parts as $part) {
+            /** @var CriteriaPartInterface $item */
+            foreach ($part as $item) {
+                foreach ($item->getFields() as $field) {
+                    $fields[] = $field;
+                }
+            }
+        }
+
+        return $fields;
     }
 }

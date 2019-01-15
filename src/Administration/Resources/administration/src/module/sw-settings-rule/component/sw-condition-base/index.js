@@ -95,7 +95,7 @@ Component.register('sw-condition-base', {
             fieldNames.push('type');
 
             fieldNames.forEach(fieldName => {
-                const boundExpression = `rule.conditions[${this.condition.id}].${fieldName}`;
+                const boundExpression = `rule.conditions/${this.condition.id}/${fieldName}`;
                 this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
 
                 this.$watch(`condition.value.${fieldName}`, () => {

@@ -49,7 +49,7 @@ class RuleValidator implements WriteCommandValidatorInterface
 
             $payload = $command->getPayload();
             $currentId = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-            $basePath = sprintf('/conditions[%s]', $currentId);
+            $basePath = sprintf('/conditions/%s', $currentId);
 
             /** @var Rule|null $type */
             $type = null;
@@ -63,7 +63,7 @@ class RuleValidator implements WriteCommandValidatorInterface
                         'This "type" value (%value%) is invalid.',
                         ['%value%' => $type ?? 'NULL'],
                         null,
-                        $basePath . '.type'
+                        $basePath . '/type'
                     )
                 );
                 continue;
@@ -144,7 +144,7 @@ class RuleValidator implements WriteCommandValidatorInterface
     {
         $list = new ConstraintViolationList();
         foreach ($fieldValidations as $fieldName => $validations) {
-            $currentPath = sprintf('%s.%s', $basePath, $fieldName);
+            $currentPath = sprintf('%s/%s', $basePath, $fieldName);
             $list->addAll(
                 $this->validator->startContext()
                     ->atPath($currentPath)
@@ -154,7 +154,7 @@ class RuleValidator implements WriteCommandValidatorInterface
         }
 
         foreach ($payload as $fieldName => $value) {
-            $currentPath = sprintf('%s.%s', $basePath, $fieldName);
+            $currentPath = sprintf('%s/%s', $basePath, $fieldName);
 
             if (!array_key_exists($fieldName, $fieldValidations)) {
                 $list->add(

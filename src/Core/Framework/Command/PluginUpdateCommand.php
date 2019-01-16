@@ -4,7 +4,8 @@ namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Core\Framework\Plugin\PluginManager;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,15 +15,21 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class PluginUpdateCommand extends Command
 {
     /**
-     * @var PluginManager
+     * @var PluginService
      */
-    private $pluginManager;
+    private $pluginService;
 
-    public function __construct(PluginManager $pluginManager)
+    /**
+     * @var PluginLifecycleService
+     */
+    private $pluginLifecycleService;
+
+    public function __construct(PluginService $pluginService, PluginLifecycleService $pluginLifecycleService)
     {
         parent::__construct();
 
-        $this->pluginManager = $pluginManager;
+        $this->pluginService = $pluginService;
+        $this->pluginLifecycleService = $pluginLifecycleService;
     }
 
     protected function configure(): void
@@ -49,9 +56,9 @@ EOF
 
         $pluginName = $input->getArgument('plugin');
 
-        $plugin = $this->pluginManager->getPluginByName($pluginName, $context);
+        $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
-        $this->pluginManager->updatePlugin($plugin, $context);
+        $this->pluginLifecycleService->updatePlugin($plugin, $context);
 
         $io->success(sprintf('Plugin "%s" has been updated successfully.', $pluginName));
     }

@@ -7,7 +7,8 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginManager;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,20 +20,26 @@ class PluginDeactivateCommand extends Command
     use PluginCommandTrait;
 
     /**
-     * @var PluginManager
+     * @var PluginService
      */
-    private $pluginManager;
+    private $pluginService;
 
-    public function __construct(PluginManager $pluginManager)
+    /**
+     * @var PluginLifecycleService
+     */
+    private $pluginLifecycleService;
+
+    public function __construct(PluginService $pluginService, PluginLifecycleService $pluginLifecycleService)
     {
         parent::__construct();
 
-        $this->pluginManager = $pluginManager;
+        $this->pluginService = $pluginService;
+        $this->pluginLifecycleService = $pluginLifecycleService;
     }
 
-    public function getPluginManager(): PluginManager
+    public function getPluginService(): PluginService
     {
-        return $this->pluginManager;
+        return $this->pluginService;
     }
 
     protected function configure(): void
@@ -79,7 +86,7 @@ EOF
                 continue;
             }
 
-            $this->pluginManager->deactivatePlugin($plugin, $context);
+            $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
 
             $io->text(sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getLabel()));
         }

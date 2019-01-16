@@ -34,8 +34,7 @@ class PluginListCommand extends Command
         $this
             ->setName('plugin:list')
             ->setDescription('Show a list of available plugins.')
-            ->addOption('filter', null, InputOption::VALUE_REQUIRED, 'Filter to a given text')
-        ;
+            ->addOption('filter', null, InputOption::VALUE_REQUIRED, 'Filter to a given text');
     }
 
     /**
@@ -75,8 +74,8 @@ class PluginListCommand extends Command
                 $plugin->getVersion(),
                 $pluginUpgradeable,
                 $plugin->getAuthor(),
-                $pluginActive ? 'Yes' : 'No',
                 $pluginInstalled ? 'Yes' : 'No',
+                $pluginActive ? 'Yes' : 'No',
                 $pluginUpgradeable ? 'Yes' : 'No',
             ];
 
@@ -94,7 +93,7 @@ class PluginListCommand extends Command
         }
 
         $io->table(
-            ['Plugin', 'Label', 'Version', 'Upgrade version', 'Author', 'Active', 'Installed', 'Upgradeable'],
+            ['Plugin', 'Label', 'Version', 'Upgrade version', 'Author', 'Installed', 'Active', 'Upgradeable'],
             $pluginTable
         );
         $io->text(

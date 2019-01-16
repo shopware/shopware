@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginManager;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 trait PluginCommandTrait
 {
-    abstract public function getPluginManager(): PluginManager;
+    abstract public function getPluginService(): PluginService;
 
     public function displayHeader(SymfonyStyle $io): void
     {
@@ -28,7 +28,7 @@ trait PluginCommandTrait
         $pluginStructs = [];
 
         foreach ($plugins as $pluginName) {
-            $pluginStructs[$pluginName] = $this->getPluginManager()->getPluginByName($pluginName, $context);
+            $pluginStructs[$pluginName] = $this->getPluginService()->getPluginByName($pluginName, $context);
         }
 
         return $pluginStructs;

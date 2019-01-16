@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Command;
 
 use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\PluginManager;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
@@ -15,15 +15,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PluginRefreshCommand extends Command
 {
     /**
-     * @var PluginManager
+     * @var PluginService
      */
-    private $pluginManager;
+    private $pluginService;
 
-    public function __construct(PluginManager $pluginManager)
+    public function __construct(PluginService $pluginService)
     {
         parent::__construct();
 
-        $this->pluginManager = $pluginManager;
+        $this->pluginService = $pluginService;
     }
 
     /**
@@ -43,7 +43,7 @@ class PluginRefreshCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $context = Context::createDefaultContext();
-        $this->pluginManager->refreshPlugins($context, new ConsoleIO($input, $output, new HelperSet()));
+        $this->pluginService->refreshPlugins($context, new ConsoleIO($input, $output, new HelperSet()));
 
         $listInput = new StringInput('plugin:list');
 

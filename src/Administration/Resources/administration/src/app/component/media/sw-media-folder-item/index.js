@@ -42,6 +42,10 @@ Component.register('sw-media-folder-item', {
     },
 
     computed: {
+        locale() {
+            return this.$root.$i18n.locale;
+        },
+
         defaultContextMenuClass() {
             return {
                 'sw-context-menu__group': this.$slots['additional-context-menu-items']
@@ -66,12 +70,12 @@ Component.register('sw-media-folder-item', {
         },
 
         isDefaultFolder() {
-            return this.item.defaultFolder.length > 0;
+            return this.item.defaultFolders.length > 0;
         },
 
         iconConfig() {
             if (this.isDefaultFolder) {
-                const defaultFolder = this.item.defaultFolder[0];
+                const defaultFolder = this.item.defaultFolders[0];
                 const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
                 if (module) {
                     return {

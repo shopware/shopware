@@ -360,8 +360,8 @@ Component.register('sw-media-upload', {
             folder.configuration = configuration;
             folder.useParentConfiguration = false;
 
-            folder.getAssociation('defaultFolder').add(defaultFolder);
-            folder.defaultFolder.push(defaultFolder);
+            folder.getAssociation('defaultFolders').add(defaultFolder);
+            folder.defaultFolders.push(defaultFolder);
 
             return folder;
         },

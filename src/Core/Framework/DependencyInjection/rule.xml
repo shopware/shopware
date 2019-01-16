@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry">
+            <argument type="tagged" tag="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\Container\AndRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\Container\NotRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\Container\OrRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\Container\XorRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\CurrencyRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\DateRangeRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\SalesChannelRule">
+            <tag name="rule.definition"/>
+        </service>
+
+    </services>
+</container>

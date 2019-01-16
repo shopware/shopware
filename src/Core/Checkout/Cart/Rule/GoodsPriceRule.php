@@ -76,7 +76,7 @@ class GoodsPriceRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
@@ -84,8 +84,8 @@ class GoodsPriceRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'goods_price';
+        return 'swGoodsPrice';
     }
 }

@@ -47,7 +47,7 @@ class CustomerGroupRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CustomerGroupRule::getName(),
+                    'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class CustomerGroupRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CustomerGroupRule::getName(),
+                    'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'customerGroupIds' => [],
@@ -98,7 +98,7 @@ class CustomerGroupRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CustomerGroupRule::getName(),
+                    'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'customerGroupIds' => 'GROUP-ID',
@@ -124,7 +124,7 @@ class CustomerGroupRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CustomerGroupRule::getName(),
+                    'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'customerGroupIds' => ['GROUP-ID'],
@@ -155,7 +155,7 @@ class CustomerGroupRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => CustomerGroupRule::getName(),
+                'type' => (new CustomerGroupRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'customerGroupIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],

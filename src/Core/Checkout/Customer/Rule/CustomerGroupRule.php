@@ -56,7 +56,7 @@ class CustomerGroupRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'customerGroupIds' => [new NotBlank(), new ArrayOfUuid()],
@@ -64,8 +64,8 @@ class CustomerGroupRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'customer_group';
+        return 'swCustomerGroup';
     }
 }

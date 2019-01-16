@@ -138,7 +138,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 MultiFilter::CONNECTION_OR, [
                     new NotFilter(
                         NotFilter::CONNECTION_AND,
-                        [new EqualsAnyFilter('rule.conditions.type', $this->ruleConditionRegistry->collect())]
+                        [new EqualsAnyFilter('rule.conditions.type', $this->ruleConditionRegistry->getNames())]
                     ),
                     new EqualsFilter('rule.invalid', true),
                 ]
@@ -212,13 +212,13 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 continue;
             }
 
-            if (!$this->ruleConditionRegistry->has($rule['type'])
-                || !class_exists($conditionClass = $this->ruleConditionRegistry->getClass($rule['type']))
-            ) {
+            if (!$this->ruleConditionRegistry->has($rule['type'])) {
                 throw new ConditionTypeNotFound($rule['type']);
             }
 
-            $object = new $conditionClass();
+            $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['type']);
+            $object = new $ruleClass();
+
             if ($rule['value'] !== null) {
                 /* @var Rule $object */
                 $object->assign(json_decode($rule['value'], true));

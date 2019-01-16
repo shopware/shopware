@@ -47,7 +47,7 @@ class ShippingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingZipCodeRule::getName(),
+                    'type' => (new ShippingZipCodeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class ShippingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingZipCodeRule::getName(),
+                    'type' => (new ShippingZipCodeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'zipCodes' => [],
@@ -98,7 +98,7 @@ class ShippingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingZipCodeRule::getName(),
+                    'type' => (new ShippingZipCodeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'zipCodes' => '12345',
@@ -124,7 +124,7 @@ class ShippingZipCodeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingZipCodeRule::getName(),
+                    'type' => (new ShippingZipCodeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'zipCodes' => [true, 3.1, null, '12345'],
@@ -157,7 +157,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => ShippingZipCodeRule::getName(),
+                'type' => (new ShippingZipCodeRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'zipCodes' => ['12345', '54321'],

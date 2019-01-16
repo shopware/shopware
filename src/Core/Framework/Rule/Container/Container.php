@@ -45,7 +45,7 @@ abstract class Container extends Rule
         return $this->rules;
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'rules' => [new ArrayOfType(Rule::class)],

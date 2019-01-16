@@ -38,9 +38,9 @@ class NotRule extends Container
         );
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'not_container';
+        return 'swNotContainer';
     }
 
     /**

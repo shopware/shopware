@@ -2,6 +2,8 @@ import { Component } from 'src/core/shopware';
 import template from './sw-condition-or-container.html.twig';
 import './sw-condition-or-container.less';
 
+const AND_CONTAINER_NAME = 'swAndContainer';
+
 /**
  * @public
  * @description TODO: Add description
@@ -15,7 +17,7 @@ Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
 
     methods: {
         onAddChildClick() {
-            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\AndRule', this.nextPosition);
+            this.createCondition(AND_CONTAINER_NAME, this.nextPosition);
         },
         onAddAndClick() {
             if (this.level === 0) {

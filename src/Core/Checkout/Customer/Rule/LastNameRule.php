@@ -55,7 +55,7 @@ class LastNameRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'lastName' => [new NotBlank(), new Type('string')],
@@ -63,8 +63,8 @@ class LastNameRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'last_name';
+        return 'swLastName';
     }
 }

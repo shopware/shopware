@@ -42,7 +42,7 @@ class CurrencyRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'currencyIds' => [new NotBlank(), new ArrayOfUuid()],
@@ -50,8 +50,8 @@ class CurrencyRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'currency';
+        return 'swCurrency';
     }
 }

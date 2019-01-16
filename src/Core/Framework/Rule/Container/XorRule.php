@@ -28,8 +28,8 @@ class XorRule extends Container
         return new Match($matches === 1, $messages);
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'xor_container';
+        return 'swXorContainer';
     }
 }

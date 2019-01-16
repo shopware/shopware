@@ -48,7 +48,7 @@ class ShippingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingCountryRule::getName(),
+                    'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -77,7 +77,7 @@ class ShippingCountryRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => ShippingCountryRule::getName(),
+                'type' => (new ShippingCountryRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
@@ -95,7 +95,7 @@ class ShippingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingCountryRule::getName(),
+                    'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -122,7 +122,7 @@ class ShippingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingCountryRule::getName(),
+                    'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -150,7 +150,7 @@ class ShippingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingCountryRule::getName(),
+                    'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -186,7 +186,7 @@ class ShippingCountryRuleTest extends TestCase
             [
                 [
                     'id' => $conditionIdEq,
-                    'type' => ShippingCountryRule::getName(),
+                    'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
@@ -195,7 +195,7 @@ class ShippingCountryRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdNEq,
-                    'type' => ShippingCountryRule::getName(),
+                    'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
@@ -220,7 +220,7 @@ class ShippingCountryRuleTest extends TestCase
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
-                        'type' => ShippingCountryRule::getName(),
+                        'type' => (new ShippingCountryRule())->getName(),
                         'ruleId' => Uuid::uuid4()->getHex(),
                         'value' => [
                             'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
@@ -254,7 +254,7 @@ class ShippingCountryRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => ShippingCountryRule::getName(),
+                'type' => (new ShippingCountryRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,

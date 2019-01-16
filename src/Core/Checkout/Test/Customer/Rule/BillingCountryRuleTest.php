@@ -47,7 +47,7 @@ class BillingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingCountryRule::getName(),
+                    'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class BillingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingCountryRule::getName(),
+                    'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'countryIds' => [],
@@ -98,7 +98,7 @@ class BillingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingCountryRule::getName(),
+                    'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'countryIds' => 'COUNTRY-ID-1',
@@ -124,7 +124,7 @@ class BillingCountryRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => BillingCountryRule::getName(),
+                    'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'countryIds' => ['COUNTRY-ID-1', true, 3, Uuid::uuid4()->getHex()],
@@ -157,7 +157,7 @@ class BillingCountryRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => BillingCountryRule::getName(),
+                'type' => (new BillingCountryRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],

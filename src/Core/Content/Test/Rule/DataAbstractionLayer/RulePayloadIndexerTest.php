@@ -60,10 +60,10 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => OrRule::getName(),
+                    'type' => (new OrRule())->getName(),
                     'children' => [
                         [
-                            'type' => CurrencyRule::getName(),
+                            'type' => (new CurrencyRule())->getName(),
                             'value' => [
                                 'currencyIds' => [
                                     $currencyId1,
@@ -103,10 +103,10 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => OrRule::getName(),
+                    'type' => (new OrRule())->getName(),
                     'children' => [
                         [
-                            'type' => CurrencyRule::getName(),
+                            'type' => (new CurrencyRule())->getName(),
                             'value' => [
                                 'currencyIds' => [
                                     $currencyId1,
@@ -146,10 +146,10 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 1,
                 'conditions' => [
                     [
-                        'type' => OrRule::getName(),
+                        'type' => (new OrRule())->getName(),
                         'children' => [
                             [
-                                'type' => CurrencyRule::getName(),
+                                'type' => (new CurrencyRule())->getName(),
                                 'value' => [
                                     'currencyIds' => [
                                         $currencyId1,
@@ -167,7 +167,7 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 42,
                 'conditions' => [
                     [
-                        'type' => SalesChannelRule::getName(),
+                        'type' => (new SalesChannelRule())->getName(),
                         'value' => [
                             'salesChannelIds' => [
                                 $salesChannelId1,
@@ -218,10 +218,10 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 1,
                 'conditions' => [
                     [
-                        'type' => OrRule::getName(),
+                        'type' => (new OrRule())->getName(),
                         'children' => [
                             [
-                                'type' => CurrencyRule::getName(),
+                                'type' => (new CurrencyRule())->getName(),
                                 'value' => [
                                     'currencyIds' => [
                                         $currencyId1,
@@ -239,7 +239,7 @@ class RulePayloadIndexerTest extends TestCase
                 'priority' => 42,
                 'conditions' => [
                     [
-                        'type' => SalesChannelRule::getName(),
+                        'type' => (new SalesChannelRule())->getName(),
                         'value' => [
                             'salesChannelIds' => [
                                 $salesChannelId1,
@@ -280,13 +280,13 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => OrRule::getName(),
+                    'type' => (new OrRule())->getName(),
                     'children' => [
                         [
-                            'type' => AndRule::getName(),
+                            'type' => (new AndRule())->getName(),
                             'children' => [
                                 [
-                                    'type' => CurrencyRule::getName(),
+                                    'type' => (new CurrencyRule())->getName(),
                                     'value' => [
                                         'currencyIds' => [
                                             Uuid::uuid4()->getHex(),
@@ -299,7 +299,7 @@ class RulePayloadIndexerTest extends TestCase
                     ],
                 ],
                 [
-                    'type' => OrRule::getName(),
+                    'type' => (new OrRule())->getName(),
                 ],
             ],
         ];
@@ -330,7 +330,7 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => CurrencyRule::getName(),
+                    'type' => (new CurrencyRule())->getName(),
                     'value' => [
                         'currencyIds' => [
                             $currencyId1,
@@ -368,7 +368,7 @@ class RulePayloadIndexerTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => CurrencyRule::getName(),
+                    'type' => (new CurrencyRule())->getName(),
                     'value' => [
                         'currencyIds' => [
                             $currencyId1,

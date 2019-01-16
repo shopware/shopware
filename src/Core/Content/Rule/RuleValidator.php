@@ -69,9 +69,9 @@ class RuleValidator implements WriteCommandValidatorInterface
                 continue;
             }
 
-            /** @var Rule|string $ruleClass */
-            $ruleClass = $this->ruleConditionRegistry->getClass($type);
-            $validations = $ruleClass::getConstraints();
+            /** @var Rule $rule */
+            $rule = $this->ruleConditionRegistry->getRuleInstance($type);
+            $validations = $rule->getConstraints();
 
             $violationList->addAll($this->validateConsistence($basePath, $validations, $this->extractValue($payload)));
         }
@@ -96,11 +96,11 @@ class RuleValidator implements WriteCommandValidatorInterface
 
     private function isRule(?string $type): bool
     {
-        if (!$type || !$this->ruleConditionRegistry->has($type)) {
+        if (!$type) {
             return false;
         }
 
-        return class_exists($this->ruleConditionRegistry->getClass($type));
+        return $this->ruleConditionRegistry->has($type);
     }
 
     private function extractValue(array $payload): array

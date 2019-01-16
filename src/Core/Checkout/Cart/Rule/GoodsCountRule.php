@@ -75,7 +75,7 @@ class GoodsCountRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'count' => [new NotBlank(), new Type('int')],
@@ -83,8 +83,8 @@ class GoodsCountRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'goods_count';
+        return 'swGoodsCount';
     }
 }

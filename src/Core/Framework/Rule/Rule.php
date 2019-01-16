@@ -19,7 +19,7 @@ abstract class Rule extends Struct
      *
      * @return string
      */
-    abstract public static function getName(): string;
+    abstract public function getName(): string;
 
     /**
      * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
@@ -34,5 +34,5 @@ abstract class Rule extends Struct
      *   'propertyName2' => [new Constraint(), new OtherConstraint()],
      *  ]
      */
-    abstract public static function getConstraints(): array;
+    abstract public function getConstraints(): array;
 }

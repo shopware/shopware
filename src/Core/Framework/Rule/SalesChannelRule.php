@@ -48,7 +48,7 @@ class SalesChannelRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'salesChannelIds' => [new NotBlank(), new ArrayOfUuid()],
@@ -56,8 +56,8 @@ class SalesChannelRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'sales_channel';
+        return 'swSalesChannel';
     }
 }

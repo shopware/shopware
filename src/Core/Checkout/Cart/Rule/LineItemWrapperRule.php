@@ -41,15 +41,15 @@ class LineItemWrapperRule extends Rule
         return new Match(false, ['No line item found']);
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'container' => [new NotBlank(), new Type(Container::class)],
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'line_item_wrapper';
+        return 'swLineItemWrapper';
     }
 }

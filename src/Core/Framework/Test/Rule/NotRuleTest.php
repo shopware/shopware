@@ -49,7 +49,7 @@ class NotRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => NotRule::getName(),
+                    'type' => (new NotRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'rules' => ['Rule'],
@@ -80,7 +80,7 @@ class NotRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => NotRule::getName(),
+                'type' => (new NotRule())->getName(),
                 'ruleId' => $ruleId,
             ],
         ], $this->context);
@@ -100,11 +100,11 @@ class NotRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => NotRule::getName(),
+                'type' => (new NotRule())->getName(),
                 'ruleId' => $ruleId,
                 'children' => [
                     [
-                        'type' => NotRule::getName(),
+                        'type' => (new NotRule())->getName(),
                         'ruleId' => $ruleId,
                     ],
                 ],

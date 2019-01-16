@@ -53,7 +53,7 @@ class LineItemOfTypeRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'lineItemType' => [new NotBlank(), new Type('string')],
@@ -61,8 +61,8 @@ class LineItemOfTypeRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'line_item_of_type';
+        return 'swLineItemOfType';
     }
 }

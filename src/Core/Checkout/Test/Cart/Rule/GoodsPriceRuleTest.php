@@ -48,7 +48,7 @@ class GoodsPriceRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsPriceRule::getName(),
+                    'type' => (new GoodsPriceRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -77,7 +77,7 @@ class GoodsPriceRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => GoodsPriceRule::getName(),
+                'type' => (new GoodsPriceRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'amount' => 3.1,
@@ -95,7 +95,7 @@ class GoodsPriceRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsPriceRule::getName(),
+                    'type' => (new GoodsPriceRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -127,7 +127,7 @@ class GoodsPriceRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => GoodsPriceRule::getName(),
+                'type' => (new GoodsPriceRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,
@@ -151,7 +151,7 @@ class GoodsPriceRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => GoodsPriceRule::getName(),
+                'type' => (new GoodsPriceRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,
@@ -179,7 +179,7 @@ class GoodsPriceRuleTest extends TestCase
             [
                 [
                     'id' => $conditionIdEq,
-                    'type' => GoodsPriceRule::getName(),
+                    'type' => (new GoodsPriceRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'amount' => 1.1,
@@ -188,7 +188,7 @@ class GoodsPriceRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdNEq,
-                    'type' => GoodsPriceRule::getName(),
+                    'type' => (new GoodsPriceRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'amount' => 1.1,
@@ -197,7 +197,7 @@ class GoodsPriceRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdLTE,
-                    'type' => GoodsPriceRule::getName(),
+                    'type' => (new GoodsPriceRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'amount' => 1.1,
@@ -206,7 +206,7 @@ class GoodsPriceRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdGTE,
-                    'type' => GoodsPriceRule::getName(),
+                    'type' => (new GoodsPriceRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'amount' => 1.1,
@@ -230,7 +230,7 @@ class GoodsPriceRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsPriceRule::getName(),
+                    'type' => (new GoodsPriceRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'amount' => 0.1,
@@ -263,7 +263,7 @@ class GoodsPriceRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => GoodsPriceRule::getName(),
+                'type' => (new GoodsPriceRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,

@@ -49,15 +49,15 @@ class IsNewCustomerRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'isNew' => [new Type('bool')],
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'is_new_customer';
+        return 'swIsNewCustomer';
     }
 }

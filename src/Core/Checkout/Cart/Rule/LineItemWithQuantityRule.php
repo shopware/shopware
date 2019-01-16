@@ -89,7 +89,7 @@ class LineItemWithQuantityRule extends Rule
         return new Match(true);
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'id' => [new NotBlank(), new Uuid()],
@@ -98,8 +98,8 @@ class LineItemWithQuantityRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'line_item_with_quantity';
+        return 'swLineItemWithQuantity';
     }
 }

@@ -47,7 +47,7 @@ class ShippingStreetRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingStreetRule::getName(),
+                    'type' => (new ShippingStreetRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'streetName' => '',
@@ -74,7 +74,7 @@ class ShippingStreetRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingStreetRule::getName(),
+                    'type' => (new ShippingStreetRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -98,7 +98,7 @@ class ShippingStreetRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => ShippingStreetRule::getName(),
+                    'type' => (new ShippingStreetRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'streetName' => true,
@@ -130,7 +130,7 @@ class ShippingStreetRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => ShippingStreetRule::getName(),
+                'type' => (new ShippingStreetRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'streetName' => 'Street 1',

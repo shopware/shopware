@@ -597,25 +597,25 @@ class EntityRepositoryTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => AndRule::getName(),
+                    'type' => (new AndRule())->getName(),
                     'children' => [
                         [
-                            'type' => AndRule::getName(),
+                            'type' => (new AndRule())->getName(),
                             'children' => [
                                 [
-                                    'type' => AndRule::getName(),
+                                    'type' => (new AndRule())->getName(),
                                     'children' => [
                                         [
-                                            'type' => AndRule::getName(),
+                                            'type' => (new AndRule())->getName(),
                                             'children' => [
                                                 [
-                                                    'type' => AndRule::getName(),
+                                                    'type' => (new AndRule())->getName(),
                                                     'children' => [
                                                         [
-                                                            'type' => AndRule::getName(),
+                                                            'type' => (new AndRule())->getName(),
                                                             'children' => [
                                                                 [
-                                                                    'type' => AndRule::getName(),
+                                                                    'type' => (new AndRule())->getName(),
                                                                 ],
                                                             ],
                                                         ],

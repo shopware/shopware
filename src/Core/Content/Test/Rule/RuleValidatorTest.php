@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Rule\Collector\RuleConditionCollectorInterface;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
@@ -52,7 +51,7 @@ class RuleValidatorTest extends TestCase
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->ruleValidator = $this->getContainer()->get(RuleValidator::class);
-        $this->addMockCollections(new TestConditionCollector());
+        $this->addMockRules(new MockIntRule(), new MockOptionalStringArrayRule());
     }
 
     public function testWriteRuleWithInconsistentSubChild(): void
@@ -66,14 +65,14 @@ class RuleValidatorTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => MockOptionalStringArrayRule::getName(),
+                    'type' => (new MockOptionalStringArrayRule())->getName(),
                     'children' => [
                         [
-                            'type' => MockOptionalStringArrayRule::getName(),
+                            'type' => (new MockOptionalStringArrayRule())->getName(),
                             'children' => [
                                 [
                                     'id' => $conditionId,
-                                    'type' => MockIntRule::getName(),
+                                    'type' => (new MockIntRule())->getName(),
                                 ],
                             ],
                         ],
@@ -109,10 +108,10 @@ class RuleValidatorTest extends TestCase
             'conditions' => [
                 [
                     'id' => $conditionId,
-                    'type' => MockIntRule::getName(),
+                    'type' => (new MockIntRule())->getName(),
                     'children' => [
                         [
-                            'type' => MockOptionalStringArrayRule::getName(),
+                            'type' => (new MockOptionalStringArrayRule())->getName(),
                         ],
                     ],
                 ],
@@ -147,11 +146,11 @@ class RuleValidatorTest extends TestCase
             'conditions' => [
                 [
                     'id' => $conditionId1,
-                    'type' => MockIntRule::getName(),
+                    'type' => (new MockIntRule())->getName(),
                     'children' => [
                         [
                             'id' => $conditionId2,
-                            'type' => MockIntRule::getName(),
+                            'type' => (new MockIntRule())->getName(),
                         ],
                     ],
                 ],
@@ -188,7 +187,7 @@ class RuleValidatorTest extends TestCase
             'conditions' => [
                 [
                     'id' => $conditionId,
-                    'type' => MockIntRule::getName(),
+                    'type' => (new MockIntRule())->getName(),
                 ],
             ],
         ];
@@ -235,12 +234,12 @@ class RuleValidatorTest extends TestCase
         $data = [
             'id' => $conditionId1,
             'ruleId' => $ruleId,
-            'type' => MockIntRule::getName(),
+            'type' => (new MockIntRule())->getName(),
             'children' => [
                 [
                     'id' => $conditionId2,
                     'ruleId' => $ruleId,
-                    'type' => MockIntRule::getName(),
+                    'type' => (new MockIntRule())->getName(),
                 ],
             ],
         ];
@@ -281,12 +280,12 @@ class RuleValidatorTest extends TestCase
         $data = [
             'id' => $id,
             'ruleId' => $ruleId,
-            'type' => MockOptionalStringArrayRule::getName(),
+            'type' => (new MockOptionalStringArrayRule())->getName(),
             'children' => [
                 [
                     'id' => $conditionId2,
                     'ruleId' => $ruleId,
-                    'type' => MockIntRule::getName(),
+                    'type' => (new MockIntRule())->getName(),
                 ],
             ],
         ];
@@ -324,11 +323,11 @@ class RuleValidatorTest extends TestCase
         $data = [
             'id' => $conditionId,
             'ruleId' => $ruleId,
-            'type' => MockIntRule::getName(),
+            'type' => (new MockIntRule())->getName(),
             'children' => [
                 [
                     'ruleId' => $ruleId,
-                    'type' => MockOptionalStringArrayRule::getName(),
+                    'type' => (new MockOptionalStringArrayRule())->getName(),
                 ],
             ],
         ];
@@ -366,7 +365,7 @@ class RuleValidatorTest extends TestCase
         $data = [
             'id' => $conditionId,
             'ruleId' => $ruleId,
-            'type' => MockIntRule::getName(),
+            'type' => (new MockIntRule())->getName(),
             'value' => [
                 'property' => 42,
                 'invalidProp' => 23,
@@ -398,10 +397,10 @@ class RuleValidatorTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => MockOptionalStringArrayRule::getName(),
+                    'type' => (new MockOptionalStringArrayRule())->getName(),
                     'children' => [
                         [
-                            'type' => MockOptionalStringArrayRule::getName(),
+                            'type' => (new MockOptionalStringArrayRule())->getName(),
                         ],
                     ],
                 ],
@@ -430,11 +429,11 @@ class RuleValidatorTest extends TestCase
         $data = [
             'id' => $id,
             'ruleId' => $ruleId,
-            'type' => MockOptionalStringArrayRule::getName(),
+            'type' => (new MockOptionalStringArrayRule())->getName(),
             'children' => [
                 [
                     'ruleId' => $ruleId,
-                    'type' => MockOptionalStringArrayRule::getName(),
+                    'type' => (new MockOptionalStringArrayRule())->getName(),
                 ],
             ],
         ];
@@ -443,21 +442,19 @@ class RuleValidatorTest extends TestCase
         static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
     }
 
-    private function addMockCollections(RuleConditionCollectorInterface $collector)
+    private function addMockRules(Rule ...$rules)
     {
         $registry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $reflectionClass = new \ReflectionClass(RuleConditionRegistry::class);
+        $property = $reflectionClass->getProperty('rules');
+        $property->setAccessible(true);
+        $taggedRules = $property->getValue($registry);
 
-        $collected = $registry->collect();
-
-        /** @var $class string|Rule */
-        foreach ($collector->getClasses() as $class) {
-            $collected[$class] = $class::getName();
+        foreach ($rules as $rule) {
+            $taggedRules[$rule->getName()] = $rule;
         }
 
-        $reflectionClass = new \ReflectionClass(RuleConditionRegistry::class);
-        $property = $reflectionClass->getProperty('names');
-        $property->setAccessible(true);
-        $property->setValue($registry, $collected);
+        $property->setValue($registry, $taggedRules);
     }
 }
 
@@ -468,16 +465,16 @@ class MockOptionalStringArrayRule extends Rule
         return new Match(true);
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'property' => [new ArrayOfType('string')],
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'mock_optional_string';
+        return 'mockOptionalString';
     }
 }
 
@@ -488,26 +485,15 @@ class MockIntRule extends Rule
         return new Match(true);
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'property' => [new NotBlank(), new Type('int')],
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'mock_int';
-    }
-}
-
-class TestConditionCollector implements RuleConditionCollectorInterface
-{
-    public function getClasses(): array
-    {
-        return [
-            MockOptionalStringArrayRule::class,
-            MockIntRule::class,
-        ];
+        return 'mockInt';
     }
 }

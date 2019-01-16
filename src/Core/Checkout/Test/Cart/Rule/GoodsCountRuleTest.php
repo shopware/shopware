@@ -48,7 +48,7 @@ class GoodsCountRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -77,7 +77,7 @@ class GoodsCountRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => GoodsCountRule::getName(),
+                'type' => (new GoodsCountRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'count' => 3,
@@ -95,7 +95,7 @@ class GoodsCountRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -122,7 +122,7 @@ class GoodsCountRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -150,7 +150,7 @@ class GoodsCountRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -187,7 +187,7 @@ class GoodsCountRuleTest extends TestCase
             [
                 [
                     'id' => $conditionIdEq,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'count' => 1,
@@ -196,7 +196,7 @@ class GoodsCountRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdNEq,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'count' => 1,
@@ -205,7 +205,7 @@ class GoodsCountRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdLTE,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'count' => 1,
@@ -214,7 +214,7 @@ class GoodsCountRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdGTE,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'count' => 1,
@@ -238,7 +238,7 @@ class GoodsCountRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => GoodsCountRule::getName(),
+                    'type' => (new GoodsCountRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'count' => 42,
@@ -271,7 +271,7 @@ class GoodsCountRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => GoodsCountRule::getName(),
+                'type' => (new GoodsCountRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,

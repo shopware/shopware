@@ -4,6 +4,9 @@ import utils from 'src/core/service/util.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.less';
 
+const AND_CONTAINER_NAME = 'swAndContainer';
+const OR_CONTAINER_NAME = 'swOrContainer';
+
 Component.register('sw-settings-rule-detail', {
     template,
 
@@ -77,14 +80,14 @@ Component.register('sw-settings-rule-detail', {
 
         checkRootContainer(nestedConditions) {
             if (nestedConditions.length === 1
-                && nestedConditions[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule') {
+                && nestedConditions[0].type === OR_CONTAINER_NAME) {
                 if (nestedConditions[0].children.length > 0) {
                     return nestedConditions[0];
                 }
 
                 nestedConditions[0].children = [
                     this.createCondition(
-                        'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                        AND_CONTAINER_NAME,
                         utils.createId(),
                         nestedConditions[0].id
                     )
@@ -95,14 +98,14 @@ Component.register('sw-settings-rule-detail', {
 
             const rootId = utils.createId();
             const rootRole = this.createCondition(
-                'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
+                OR_CONTAINER_NAME,
                 rootId,
                 null
             );
 
             rootRole.children = [
                 this.createCondition(
-                    'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
+                    AND_CONTAINER_NAME,
                     utils.createId(),
                     rootId,
                     nestedConditions

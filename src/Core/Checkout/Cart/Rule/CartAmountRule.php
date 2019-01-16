@@ -75,7 +75,7 @@ class CartAmountRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
@@ -83,8 +83,8 @@ class CartAmountRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'cart_amount';
+        return 'swCartAmount';
     }
 }

@@ -57,7 +57,7 @@ class BillingCountryRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'countryIds' => [new NotBlank(), new ArrayOfUuid()],
@@ -65,8 +65,8 @@ class BillingCountryRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'billing_country';
+        return 'swBillingCountry';
     }
 }

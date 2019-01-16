@@ -57,7 +57,7 @@ class LineItemRule extends Rule
         return $this->identifiers;
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'identifiers' => [new NotBlank(), new ArrayOfUuid()],
@@ -65,8 +65,8 @@ class LineItemRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'line_item';
+        return 'swLineItem';
     }
 }

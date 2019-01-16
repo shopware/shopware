@@ -47,7 +47,7 @@ class CurrencyRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CurrencyRule::getName(),
+                    'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class CurrencyRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CurrencyRule::getName(),
+                    'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'currencyIds' => [],
@@ -98,7 +98,7 @@ class CurrencyRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CurrencyRule::getName(),
+                    'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'currencyIds' => '0915d54fbf80423c917c61ad5a391b48',
@@ -124,7 +124,7 @@ class CurrencyRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CurrencyRule::getName(),
+                    'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'currencyIds' => [true, 3, null, '0915d54fbf80423c917c61ad5a391b48'],
@@ -152,7 +152,7 @@ class CurrencyRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CurrencyRule::getName(),
+                    'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'currencyIds' => ['Invalid', '1234abcd'],
@@ -184,7 +184,7 @@ class CurrencyRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => CurrencyRule::getName(),
+                'type' => (new CurrencyRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'currencyIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],

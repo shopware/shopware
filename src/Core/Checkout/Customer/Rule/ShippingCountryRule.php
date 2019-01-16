@@ -57,7 +57,7 @@ class ShippingCountryRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'countryIds' => [new NotBlank(), new ArrayOfUuid()],
@@ -65,8 +65,8 @@ class ShippingCountryRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'shipping_country';
+        return 'swShippingCountry';
     }
 }

@@ -14,12 +14,12 @@ class TrueRule extends Rule
         return new Match(true);
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
         return 'true';
     }

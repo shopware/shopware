@@ -72,7 +72,7 @@ class LineItemTotalPriceRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
@@ -80,8 +80,8 @@ class LineItemTotalPriceRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'line_item_total_price';
+        return 'swLineItemTotalPrice';
     }
 }

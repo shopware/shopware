@@ -59,7 +59,7 @@ class LineItemsInCartRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'identifiers' => [new NotBlank(), new ArrayOfUuid()],
@@ -67,8 +67,8 @@ class LineItemsInCartRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'line_items_in_cart';
+        return 'swLineItemsInCart';
     }
 }

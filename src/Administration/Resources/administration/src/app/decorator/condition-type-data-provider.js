@@ -24,103 +24,103 @@ import 'src/module/sw-settings-rule/component/sw-condition-shipping-street';
 import 'src/module/sw-settings-rule/component/sw-condition-shipping-zip-code';
 
 Application.addServiceProviderDecorator('ruleConditionService', (ruleConditionService) => {
-    ruleConditionService.addCondition('date_range', {
+    ruleConditionService.addCondition('swDateRange', {
         component: 'sw-condition-date-range',
         label: 'global.sw-condition.condition.dateRangeRule.label'
     });
-    ruleConditionService.addCondition('sales_channel', {
+    ruleConditionService.addCondition('swSalesChannel', {
         component: 'sw-condition-sales-channel',
         label: 'global.sw-condition.condition.salesChannelRule'
     });
-    ruleConditionService.addCondition('currency', {
+    ruleConditionService.addCondition('swCurrency', {
         component: 'sw-condition-currency',
         label: 'global.sw-condition.condition.currencyRule'
     });
-    ruleConditionService.addCondition('billing_country', {
+    ruleConditionService.addCondition('swBillingCountry', {
         component: 'sw-condition-billing-country',
         label: 'global.sw-condition.condition.billingCountryRule'
     });
-    ruleConditionService.addCondition('billing_street', {
+    ruleConditionService.addCondition('swBillingStreet', {
         component: 'sw-condition-billing-street',
         label: 'global.sw-condition.condition.billingStreetRule'
     });
-    ruleConditionService.addCondition('billing_zip_code', {
+    ruleConditionService.addCondition('swBillingZipCode', {
         component: 'sw-condition-billing-zip-code',
         label: 'global.sw-condition.condition.billingZipCodeRule'
     });
-    ruleConditionService.addCondition('customer_group', {
+    ruleConditionService.addCondition('swCustomerGroup', {
         component: 'sw-condition-customer-group',
         label: 'global.sw-condition.condition.customerGroupRule'
     });
-    ruleConditionService.addCondition('customer_number', {
+    ruleConditionService.addCondition('swCustomerNumber', {
         component: 'sw-condition-customer-number',
         label: 'global.sw-condition.condition.customerNumberRule'
     });
-    ruleConditionService.addCondition('different_addresses', {
+    ruleConditionService.addCondition('swDifferentAddresses', {
         component: 'sw-condition-different-addresses',
         label: 'global.sw-condition.condition.differentAddressesRule'
     });
-    ruleConditionService.addCondition('is_new_customer', {
+    ruleConditionService.addCondition('swIsNewCustomer', {
         component: 'sw-condition-is-new-customer',
         label: 'global.sw-condition.condition.isNewCustomerRule'
     });
-    ruleConditionService.addCondition('last_name', {
+    ruleConditionService.addCondition('swLastName', {
         component: 'sw-condition-last-name',
         label: 'global.sw-condition.condition.lastNameRule'
     });
-    ruleConditionService.addCondition('shipping_country', {
+    ruleConditionService.addCondition('swShippingCountry', {
         component: 'sw-condition-shipping-country',
         label: 'global.sw-condition.condition.shippingCountryRule'
     });
-    ruleConditionService.addCondition('shipping_street', {
+    ruleConditionService.addCondition('swShippingStreet', {
         component: 'sw-condition-shipping-street',
         label: 'global.sw-condition.condition.shippingStreetRule'
     });
-    ruleConditionService.addCondition('shipping_zip_code', {
+    ruleConditionService.addCondition('swShippingZipCode', {
         component: 'sw-condition-shipping-zip-code',
         label: 'global.sw-condition.condition.shippingZipCodeRule'
     });
-    ruleConditionService.addCondition('cart_amount', {
+    ruleConditionService.addCondition('swCartAmount', {
         component: 'sw-condition-cart-amount',
         label: 'global.sw-condition.condition.cartAmountRule'
     });
-    ruleConditionService.addCondition('goods_count', {
+    ruleConditionService.addCondition('swGoodsCount', {
         component: 'sw-condition-goods-count',
         label: 'global.sw-condition.condition.goodsCountRule'
     });
-    ruleConditionService.addCondition('goods_price', {
+    ruleConditionService.addCondition('swGoodsPrice', {
         component: 'sw-condition-goods-price',
         label: 'global.sw-condition.condition.goodsPriceRule'
     });
-    ruleConditionService.addCondition('line_item_of_type', {
+    ruleConditionService.addCondition('swLineItemOfType', {
         component: 'sw-condition-line-item-of-type',
         label: 'global.sw-condition.condition.lineItemOfTypeRule.label'
     });
-    ruleConditionService.addCondition('line_item', {
+    ruleConditionService.addCondition('swLineItem', {
         component: 'sw-condition-line-item',
         label: 'global.sw-condition.condition.lineItemRule'
     });
-    ruleConditionService.addCondition('line_items_in_cart', {
+    ruleConditionService.addCondition('swLineItemsInCart', {
         component: 'sw-condition-line-items-in-cart',
         label: 'global.sw-condition.condition.lineItemsInCartRule'
     });
-    ruleConditionService.addCondition('line_item_total_price', {
+    ruleConditionService.addCondition('swLineItemTotalPrice', {
         component: 'sw-condition-line-item-total-price',
         label: 'global.sw-condition.condition.lineItemTotalPriceRule'
     });
-    ruleConditionService.addCondition('line_item_unit_price', {
+    ruleConditionService.addCondition('swLineItemUnitPrice', {
         component: 'sw-condition-line-item-unit-price',
         label: 'global.sw-condition.condition.lineItemUnitPriceRule'
     });
-    ruleConditionService.addCondition('line_item_with_quantity', {
+    ruleConditionService.addCondition('swLineItemWithQuantity', {
         component: 'sw-condition-line-item-with-quantity',
         label: 'global.sw-condition.condition.lineItemWithQuantityRule'
     });
-    ruleConditionService.addCondition('and_container', {
+    ruleConditionService.addCondition('swAndContainer', {
         component: 'sw-condition-and-container',
         label: 'global.sw-condition.condition.andRule'
     });
-    ruleConditionService.addCondition('or_container', {
+    ruleConditionService.addCondition('swOrContainer', {
         component: 'sw-condition-or-container',
         label: 'global.sw-condition.condition.orRule'
     });

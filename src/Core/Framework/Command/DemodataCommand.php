@@ -681,7 +681,7 @@ class DemodataCommand extends Command
         }
         $data['id'] = Uuid::uuid4()->getHex();
         $data['parentId'] = $parentId;
-        $data['type'] = $rule::getName();
+        $data['type'] = $rule->getName();
 
         if ($rule instanceof Container) {
             $data['children'] = [];

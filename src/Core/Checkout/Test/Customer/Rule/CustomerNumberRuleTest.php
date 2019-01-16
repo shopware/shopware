@@ -47,7 +47,7 @@ class CustomerNumberRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CustomerNumberRule::getName(),
+                    'type' => (new CustomerNumberRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class CustomerNumberRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CustomerNumberRule::getName(),
+                    'type' => (new CustomerNumberRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'numbers' => [],
@@ -98,7 +98,7 @@ class CustomerNumberRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => CustomerNumberRule::getName(),
+                    'type' => (new CustomerNumberRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'numbers' => '1234',
@@ -129,7 +129,7 @@ class CustomerNumberRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => CustomerNumberRule::getName(),
+                'type' => (new CustomerNumberRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'numbers' => ['12345', '23', '42'],

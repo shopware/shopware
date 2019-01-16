@@ -28,8 +28,8 @@ class OrRule extends Container
         return new Match($valid, $messages);
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'or_container';
+        return 'swOrContainer';
     }
 }

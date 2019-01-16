@@ -59,7 +59,7 @@ class BillingStreetRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'streetName' => [new NotBlank(), new Type('string')],
@@ -67,8 +67,8 @@ class BillingStreetRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'billing_street';
+        return 'swBillingStreet';
     }
 }

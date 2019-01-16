@@ -47,7 +47,7 @@ class LineItemsInCartRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemsInCartRule::getName(),
+                    'type' => (new LineItemsInCartRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -71,7 +71,7 @@ class LineItemsInCartRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemsInCartRule::getName(),
+                    'type' => (new LineItemsInCartRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'identifiers' => [],
@@ -98,7 +98,7 @@ class LineItemsInCartRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemsInCartRule::getName(),
+                    'type' => (new LineItemsInCartRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'identifiers' => '0915d54fbf80423c917c61ad5a391b48',
@@ -124,7 +124,7 @@ class LineItemsInCartRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => LineItemsInCartRule::getName(),
+                    'type' => (new LineItemsInCartRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'identifiers' => [true, 3, '1234abcd', '0915d54fbf80423c917c61ad5a391b48'],
@@ -157,7 +157,7 @@ class LineItemsInCartRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => LineItemsInCartRule::getName(),
+                'type' => (new LineItemsInCartRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'identifiers' => ['0915d54fbf80423c917c61ad5a391b48', '6f7a6b89579149b5b687853271608949'],

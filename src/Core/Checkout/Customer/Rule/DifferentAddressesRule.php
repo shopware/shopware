@@ -45,15 +45,15 @@ class DifferentAddressesRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'isDifferent' => [new Type('bool')],
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'different_addresses';
+        return 'swDifferentAddresses';
     }
 }

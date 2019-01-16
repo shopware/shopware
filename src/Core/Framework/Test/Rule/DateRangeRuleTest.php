@@ -47,7 +47,7 @@ class DateRangeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => DateRangeRule::getName(),
+                    'type' => (new DateRangeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -74,7 +74,7 @@ class DateRangeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => DateRangeRule::getName(),
+                    'type' => (new DateRangeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'toDate' => '2018-12-06T10:03:35+00:00',
@@ -101,7 +101,7 @@ class DateRangeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => DateRangeRule::getName(),
+                    'type' => (new DateRangeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'fromDate' => '2018-12-06T10:03:35+00:00',
@@ -129,7 +129,7 @@ class DateRangeRuleTest extends TestCase
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
-                        'type' => DateRangeRule::getName(),
+                        'type' => (new DateRangeRule())->getName(),
                         'ruleId' => Uuid::uuid4()->getHex(),
                         'value' => [
                             'fromDate' => $value,
@@ -159,7 +159,7 @@ class DateRangeRuleTest extends TestCase
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
-                        'type' => DateRangeRule::getName(),
+                        'type' => (new DateRangeRule())->getName(),
                         'ruleId' => Uuid::uuid4()->getHex(),
                         'value' => [
                             'toDate' => $value,
@@ -188,7 +188,7 @@ class DateRangeRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => DateRangeRule::getName(),
+                    'type' => (new DateRangeRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'toDate' => '2018-12-06T10:03:35+00:00',
@@ -222,7 +222,7 @@ class DateRangeRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => DateRangeRule::getName(),
+                'type' => (new DateRangeRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'toDate' => '2018-12-06T10:03:35+00:00',

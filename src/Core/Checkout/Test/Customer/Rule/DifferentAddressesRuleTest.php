@@ -50,7 +50,7 @@ class DifferentAddressesRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => DifferentAddressesRule::getName(),
+                'type' => (new DifferentAddressesRule())->getName(),
                 'ruleId' => $ruleId,
             ],
         ], $this->context);

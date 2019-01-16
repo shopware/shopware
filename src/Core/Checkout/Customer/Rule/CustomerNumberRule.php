@@ -57,7 +57,7 @@ class CustomerNumberRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'numbers' => [new NotBlank(), new ArrayOfType('string')],
@@ -65,8 +65,8 @@ class CustomerNumberRule extends Rule
         ];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
-        return 'customer_number';
+        return 'swCustomerNumber';
     }
 }

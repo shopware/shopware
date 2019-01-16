@@ -48,7 +48,7 @@ class SalesChannelRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => SalesChannelRule::getName(),
+                    'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                 ],
             ], $this->context);
@@ -72,7 +72,7 @@ class SalesChannelRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => SalesChannelRule::getName(),
+                    'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'salesChannelIds' => [],
@@ -99,7 +99,7 @@ class SalesChannelRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => SalesChannelRule::getName(),
+                    'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'salesChannelIds' => '0915d54fbf80423c917c61ad5a391b48',
@@ -125,7 +125,7 @@ class SalesChannelRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => SalesChannelRule::getName(),
+                    'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'salesChannelIds' => [true, 3, null, '0915d54fbf80423c917c61ad5a391b48'],
@@ -153,7 +153,7 @@ class SalesChannelRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => SalesChannelRule::getName(),
+                    'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'salesChannelIds' => ['Invalid', '1234abcd'],
@@ -187,7 +187,7 @@ class SalesChannelRuleTest extends TestCase
             [
                 [
                     'id' => $conditionIdEq,
-                    'type' => SalesChannelRule::getName(),
+                    'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -196,7 +196,7 @@ class SalesChannelRuleTest extends TestCase
                 ],
                 [
                     'id' => $conditionIdNEq,
-                    'type' => SalesChannelRule::getName(),
+                    'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
@@ -221,7 +221,7 @@ class SalesChannelRuleTest extends TestCase
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
-                        'type' => SalesChannelRule::getName(),
+                        'type' => (new SalesChannelRule())->getName(),
                         'ruleId' => Uuid::uuid4()->getHex(),
                         'value' => [
                             'operator' => $operator,
@@ -254,7 +254,7 @@ class SalesChannelRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => SalesChannelRule::getName(),
+                'type' => (new SalesChannelRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,

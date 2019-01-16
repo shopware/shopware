@@ -14,12 +14,12 @@ class FalseRule extends Rule
         return new Match(false);
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [];
     }
 
-    public static function getName(): string
+    public function getName(): string
     {
         return 'false';
     }

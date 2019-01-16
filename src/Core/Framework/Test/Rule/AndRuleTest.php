@@ -48,7 +48,7 @@ class AndRuleTest extends TestCase
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
-                    'type' => AndRule::getName(),
+                    'type' => (new AndRule())->getName(),
                     'ruleId' => Uuid::uuid4()->getHex(),
                     'value' => [
                         'rules' => ['Rule'],
@@ -79,7 +79,7 @@ class AndRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => AndRule::getName(),
+                'type' => (new AndRule())->getName(),
                 'ruleId' => $ruleId,
             ],
         ], $this->context);
@@ -99,11 +99,11 @@ class AndRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => AndRule::getName(),
+                'type' => (new AndRule())->getName(),
                 'ruleId' => $ruleId,
                 'children' => [
                     [
-                        'type' => AndRule::getName(),
+                        'type' => (new AndRule())->getName(),
                         'ruleId' => $ruleId,
                     ],
                 ],

@@ -127,7 +127,7 @@ class SalesChannelPageObject {
                 .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
                     this.assert.notEqual(secondResult, me.accessKeyId);
                 })
-                .fillField(me.elements.salesChannelNameInput, salesChannelName)
+                .fillField(me.elements.salesChannelNameInput, salesChannelName, 'input', true)
                 .waitForElementVisible('.sw-sales-channel-detail__save-action')
                 .click('.sw-sales-channel-detail__save-action')
                 .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);

@@ -18,11 +18,11 @@ module.exports = {
             .fillField('input[name=sw-field--customer-lastName]', 'Eroni')
             .fillField('input[name=sw-field--customer-email]', 'test@example.com')
             .waitForElementNotPresent('.sw-field--customer-groupId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--customer-groupId]', 'Standard customer group', false)
+            .fillSelectField('select[name=sw-field--customer-groupId]', 'Standard customer group')
             .waitForElementNotPresent('.sw-field--customer-salesChannelId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API', false)
+            .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
             .waitForElementNotPresent('.sw-field--customer-defaultPaymentMethodId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice', false)
+            .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
             .fillField('input[name=sw-field--customer-customerNumber]', '1234321');
     },
     'add customer address': (browser) => {
@@ -36,7 +36,7 @@ module.exports = {
             .fillField('input[name=sw-field--address-zipcode]', '48624')
             .fillField('input[name=sw-field--address-city]', 'Schöppingen')
             .waitForElementNotPresent('.sw-field--address-countryId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name="sw-field--address-countryId"]', 'Germany', false);
+            .fillSelectField('select[name="sw-field--address-countryId"]', 'Germany');
     },
     'save new customer and verify data': (browser) => {
         browser

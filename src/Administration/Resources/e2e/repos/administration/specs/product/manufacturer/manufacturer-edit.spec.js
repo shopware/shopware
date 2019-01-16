@@ -1,16 +1,16 @@
-const manufacturerFixture = global.FixtureService.loadJson('manufacturer.json');
-
 module.exports = {
     '@tags': ['product', 'manufacturer-edit', 'manufacturer', 'edit'],
     before: (browser, done) => {
-        global.FixtureService.create('/v1/product-manufacturer', manufacturerFixture, 'manufacturer', done);
+        global.FixtureService.create('product-manufacturer').then(() => {
+            done();
+        });
     },
     'navigate to manufacturer module and look for manufacturer to be edited': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .assert.urlContains('#/sw/manufacturer/index')
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-grid-row:first-child', manufacturerFixture.name);
+            .assert.containsText('.sw-grid-row:first-child', global.FixtureService.basicFixture.name);
     },
     'open manufacturer details and change the given data': (browser) => {
         browser
@@ -23,9 +23,9 @@ module.exports = {
             .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.smart-bar__header h2:not(.sw-manufacturer-detail__empty-title)')
             .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
-            .fillField('input[name=name]', 'Minnie\'s Haberdashery')
-            .fillField('input[name=link]', 'https://google.com/doodles')
-            .fillField('.ql-editor', 'A wonderfully changed description', 'editor')
+            .fillField('input[name=name]', 'Minnie\'s Haberdashery', true)
+            .fillField('input[name=link]', 'https://google.com/doodles', true)
+            .fillField('.ql-editor', 'A wonderfully changed description', true, 'editor')
             .click('.sw-manufacturer-detail__save-action')
             .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
             .click('.sw-button__content');

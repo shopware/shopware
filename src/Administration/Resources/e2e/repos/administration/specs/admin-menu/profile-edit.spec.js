@@ -1,7 +1,7 @@
 const loginPage = require('administration/page-objects/sw-login.page-object.js');
 
 module.exports = {
-    '@tags': ['profile-edit','profile','edit'],
+    '@tags': ['profile-edit', 'profile', 'edit'],
     'open user profile and edit values': (browser) => {
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
@@ -9,8 +9,8 @@ module.exports = {
             .waitForElementVisible('.sw-admin-menu__profile-item')
             .click('.sw-admin-menu__profile-item')
             .assert.containsText('.smart-bar__header', 'Your profile')
-            .fillField('input[name=sw-field--user-name]', 'Super Richie')
-            .fillField('input[name=sw-field--user-email]', 'mail@shopware.com')
+            .fillField('input[name=sw-field--user-name]', 'Super Richie', true)
+            .fillField('input[name=sw-field--user-email]', 'mail@shopware.com', true)
             .fillField('input[name=sw-field--newPassword]', 'sicheresPasswort1234')
             .fillField('input[name=sw-field--newPasswordConfirm]', 'sicheresPasswort1234')
             .click('.sw-button--primary')

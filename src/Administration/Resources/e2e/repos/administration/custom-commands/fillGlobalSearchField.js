@@ -4,14 +4,14 @@ const searchInputCssSelector = 'input.sw-search-bar__input';
  * Uses the global search input field in the Administration for finding a product or other entity.
  *
  * @param {String} value
- * @param {Boolean} [clearField=true]
+ * @param {Boolean} [clearField=false]
  * @returns {exports}
  */
-exports.command = function fillGlobalSearchField(value, clearField = true) {
+exports.command = function fillGlobalSearchField(value, clearField = false) {
     this.waitForElementVisible(searchInputCssSelector);
 
     if (clearField) {
-        this.clearValue(searchInputCssSelector);
+        this.clearInputField(searchInputCssSelector);
     }
 
     this.setValue(searchInputCssSelector, [value, this.Keys.ENTER]);

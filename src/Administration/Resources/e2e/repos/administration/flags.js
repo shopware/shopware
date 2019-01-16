@@ -152,9 +152,10 @@ function getCache() {
  * @returns {void}
  */
 function renderAvailableFlags($cache) {
-    console.log('### Available feature flags');
+    global.logger.lineBreak();
+    global.logger.title('Available feature flags' );
 
     $cache.forEach((value, key) => {
-        console.log(`• ${value ? '✓' : '✖'} - ${key}`);
+        global.logger[(value ? 'success' : 'error')](key);
     });
 }

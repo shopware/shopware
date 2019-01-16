@@ -6,20 +6,15 @@ const loadingIndicator = '.sw-field__select-load-placeholder';
  *
  * @param {String} selector
  * @param {String} value
- * @param {Boolean} [clearField=true]
  * @returns {exports}
  */
-exports.command = function fillSelectField(selector, value, clearField = true) {
-    this.waitForElementVisible(selector)
-        .waitForElementNotPresent(loadingIndicator);
-
-    if (clearField) {
-        this.clearValue(selector);
-    }
-
-    this.setValue(selector, value);
-    this.waitForText(value, true);
-    this.useCss();
+exports.command = function fillSelectField(selector, value) {
+    this
+        .waitForElementVisible(selector)
+        .waitForElementNotPresent(loadingIndicator)
+        .setValue(selector, value)
+        .waitForText(value, true)
+        .useCss();
 
     return this;
 };

@@ -1,4 +1,5 @@
 const loginPage = require('../page-objects/sw-login.page-object.js');
+const symfonyToolbarButtonSelector = '.hide-button';
 
 module.exports = {
     /**
@@ -11,9 +12,10 @@ module.exports = {
         page.fastLogin(username, password);
     },
     hideToolbarIfVisible: (browser) => {
-        browser.element('css selector', '.hide-button', function (result) {
-            if (result.status !== -1) {
-                browser.click('.hide-button').waitForElementNotVisible('.hide-button');
+        browser.checkIfElementExists(symfonyToolbarButtonSelector, (result) => {
+            if (result.value) {
+                global.logger.error(`Element "${symfonyToolbarButtonSelector}" was detected and will be collapsed.`);
+                browser.click(symfonyToolbarButtonSelector).waitForElementNotVisible(symfonyToolbarButtonSelector);
             }
         });
     }

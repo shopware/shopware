@@ -1,12 +1,11 @@
 const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
-const integrationFixture = global.FixtureService.loadJson('integration.json');
 
 module.exports = {
     '@tags': ['integration-delete', 'integration', 'delete'],
     before: (browser, done) => {
-        global.FixtureService.create('/v1/integration', integrationFixture, 'integration', done);
-        integrationFixture.name = 'My very own integration';
-        integrationFixture.label = 'My very own integration';
+        global.IntegrationFixtureService.setIntegrationFixtures().then(() => {
+            done();
+        });
     },
     'open integration module and look for the integration to be deleted': (browser) => {
         browser
@@ -17,7 +16,7 @@ module.exports = {
     },
     'delete integration and verify deletion': (browser) => {
         const page = integrationPage(browser);
-        page.deleteSingleIntegration(integrationFixture.name);
+        page.deleteSingleIntegration(global.IntegrationFixtureService.integrationFixture.name);
     },
     after: (browser) => {
         browser.end();

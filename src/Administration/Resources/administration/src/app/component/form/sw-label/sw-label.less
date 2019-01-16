@@ -1,4 +1,5 @@
 @import "~less/variables";
+@import "sw-label-variant";
 
 @sw-label-border-radius:            @border-radius-default;
 @sw-label-pill-border-radius:       50px;
@@ -80,58 +81,18 @@
     }
 
     &.sw-label--info {
-        background-color: @sw-label-info-color-background;
-        color: @sw-label-info-color-text;
-
-        .sw-label__dismiss {
-            color: @sw-label-info-color-text;
-        }
-
-        &.sw-label--ghost {
-            background: transparent;
-            border-color: @sw-label-info-color-border;
-        }
+        .sw-label-variant(@sw-label-info-color-background, @sw-label-info-color-text, @sw-label-info-color-border);
     }
 
     &.sw-label--success {
-        background-color: @sw-label-success-color-background;
-        color: @sw-label-success-color-text;
-
-        .sw-label__dismiss {
-            color: @sw-label-success-color-text;
-        }
-
-        &.sw-label--ghost {
-            background: transparent;
-            border-color: @sw-label-success-color-border;
-        }
+        .sw-label-variant(@sw-label-success-color-background, @sw-label-success-color-text, @sw-label-success-color-border);
     }
 
     &.sw-label--danger {
-        background-color: @sw-label-danger-color-background;
-        color: @sw-label-danger-color-text;
-
-        .sw-label__dismiss {
-            color: @sw-label-danger-color-text;
-        }
-
-        &.sw-label--ghost {
-            background: transparent;
-            border-color: @sw-label-danger-color-border;
-        }
+        .sw-label-variant(@sw-label-danger-color-background, @sw-label-danger-color-text, @sw-label-danger-color-border);
     }
 
     &.sw-label--warning {
-        background-color: @sw-label-warning-color-background;
-        color: @sw-label-warning-color-text;
-
-        .sw-label__dismiss {
-            color: @sw-label-warning-color-text;
-        }
-
-        &.sw-label--ghost {
-            background: transparent;
-            border-color: @sw-label-warning-color-border;
-        }
+        .sw-label-variant(@sw-label-warning-color-background, @sw-label-warning-color-text, @sw-label-warning-color-border);
     }
 }

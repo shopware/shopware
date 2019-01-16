@@ -16,6 +16,10 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
         $commandTester = new CommandTester($this->getContainer()->get(DataAbstractionLayerValidateCommand::class));
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode(), 'databastractionlayer:validate returned errors');
+        static::assertEquals(
+            0,
+            $commandTester->getStatusCode(),
+            "\"bin/console dataabstractionlayer:validate\" returned errors:\n" . $commandTester->getDisplay()
+        );
     }
 }

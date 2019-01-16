@@ -153,6 +153,7 @@ Component.register('sw-condition-and-container', {
                 {
                     type: type,
                     parentId: this.condition.id,
+                    parent: this.condition,
                     position: position
                 }
             );

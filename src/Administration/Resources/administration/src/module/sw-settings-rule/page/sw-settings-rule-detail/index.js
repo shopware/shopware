@@ -90,7 +90,6 @@ Component.register('sw-settings-rule-detail', {
                     this.createCondition(
                         AND_CONTAINER_NAME,
                         utils.createId(),
-                        nestedConditions[0].id,
                         nestedConditions[0]
                     )
                 ];
@@ -101,15 +100,13 @@ Component.register('sw-settings-rule-detail', {
             const rootId = utils.createId();
             const rootRole = this.createCondition(
                 OR_CONTAINER_NAME,
-                rootId,
-                null
+                rootId
             );
 
             rootRole.children = [
                 this.createCondition(
                     AND_CONTAINER_NAME,
                     utils.createId(),
-                    rootId,
                     rootRole,
                     nestedConditions
                 )
@@ -118,10 +115,10 @@ Component.register('sw-settings-rule-detail', {
             return rootRole;
         },
 
-        createCondition(type, conditionId, parentId = null, parent, children) {
+        createCondition(type, conditionId, parent, children) {
             const conditionData = {
                 type: type,
-                parentId: parentId
+                parentId: null
             };
 
             if (children) {
@@ -133,6 +130,7 @@ Component.register('sw-settings-rule-detail', {
 
             if (parent) {
                 conditionData.parent = parent;
+                conditionData.parentId = parent.id;
             }
 
             return Object.assign(this.conditionAssociations.create(conditionId), conditionData);

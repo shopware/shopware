@@ -1171,11 +1171,9 @@ class GettingStarted extends Plugin
     }
 }
 ```
-To install the plugin, run `bin/console plugin:refresh` to refresh the plugin list and
-`bin/console plugin:install --activate` to install and activate the plugin.
+To install the plugin, run `bin/console plugin:install --activate GettingStarted` to install and activate the plugin.
 
-Plugins can react to certain kernel events, such as when the DI container is rebuilt or
-the kernel is booted:
+Plugins can react to certain kernel events, such as when the DI container is rebuilt or the kernel is booted:
 ```php
 <?php declare(strict_types=1);
 

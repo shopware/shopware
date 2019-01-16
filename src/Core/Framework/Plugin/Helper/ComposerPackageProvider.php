@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 
 class ComposerPackageProvider
 {
+    /**
+     * @throws PluginComposerJsonInvalidException
+     */
     public function getPluginInformation(string $pluginPath, IOInterface $composerIO): RootPackageInterface
     {
         $composerJsonPath = $pluginPath . '/composer.json';

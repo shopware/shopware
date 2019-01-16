@@ -1,6 +1,7 @@
 This guide will teach you how to start developing with the shopware administration.
 
-All commands which are necessary for administration development can be accessed from the root directory of your shopware instance. The administration commands are prefixed with `administration`:
+All commands which are necessary for administration development can be accessed from the root directory of your shopware instance.
+The administration commands are prefixed with `administration`:
 
 ```
 ./psh.phar administration:{COMMAND}
@@ -21,7 +22,11 @@ This will install all necessary dependencies for your local environment using [N
 
 ## Local development Server
 
-For local development you can start a server from your terminal. This will also enable a file watcher which will update the page in your browser when you make any changes to your files. Even when the the browser is refreshing the page the current state of the application remains the same. You can stay at the same place where you're working at. The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
+For local development you can start a server from your terminal.
+This will also enable a file watcher which will update the page in your browser when you make any changes to your files.
+Even when the the browser is refreshing the page the current state of the application remains the same.
+You can stay at the same place where you're working at.
+The watcher also offers automatic linting using ESLint and will show an overlay with helpful error messages.
 
 Start the development server:
 
@@ -42,7 +47,8 @@ If you need port `8080` for something else like e.g. elastic search, you can als
 
 The `./psh.phar administration:watch` command opens a new window of your default browser with the URL of the development server.
 
-The shopware administration can be reached at `/admin`. If you have followed the rest of the guide, an administator-account will have automatically been created: 
+The shopware administration can be reached at `/admin`.
+If you have followed the other parts of the guide, an administrator account will have automatically been created: 
 
 Username | Password
 -------- | --------
@@ -50,7 +56,9 @@ admin    | shopware
 
 ## Using the Vue.js developer tools
 
-The [Vue.js](https://vuejs.org/) framework offers an extension for the developer console of your browser. With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information. This can be a really helpful tool during development.
+The [Vue.js](https://vuejs.org/) framework offers an extension for the developer console of your browser.
+With this extension you have a reference to the original component structure and can inspect each component to get live information about it's state, events and several other information.
+This can be a really helpful tool during development.
 
 ![Vue.js developer tools](https://sbp-testingmachine.s3.eu-west-1.amazonaws.com/1541782342/vuejs-devtools.jpg)
 
@@ -67,7 +75,8 @@ Let's create an example plugin called "SwagAdministrationExample".
 
 All plugins are located inside the `{YOUR_SW_ROOT}/custom/plugins` directory.
 
-In order to make your plugin functional you need at least a plugin bootstrap file inside the root directory of your plugin. _Please beware that the file name has to be equal to the name of the plugin._
+In order to make your plugin functional you need at least a plugin bootstrap file inside the root directory of your plugin.
+_Please beware that the file name has to be equal to the name of the plugin._
 
 ```
 └── plugins
@@ -93,7 +102,9 @@ class SwagAdministrationExample extends Plugin {
 ```
 *minimum bootstrap file*
 
-This is already a valid shopware plugin. You can however add additional functionality like for example custom install or update methods. Only the bootstrap class is required to start making changes in the administration.
+This is already a valid shopware plugin.
+You can however add additional functionality like custom install or update methods.
+Only the bootstrap class is required to start making changes in the administration.
 
 [Learn about Plugins](../1-getting-started/20-getting-started.md) 
 
@@ -101,45 +112,24 @@ This is already a valid shopware plugin. You can however add additional function
 
 Before you make further changes to the administration itself you should install the plugin first in order to see all upcoming changes.
 
-You can manage plugins with the `plugin` command.
+You can manage plugins with the `plugin` commands.
 
-First of all you can list all plugins which are currently available:
-
-```
-bin/console plugin:list
-```
-
-This will display an overview table with the available plugins in you terminal:
-
-```
---------------------------- -------------------------- -------- -------- -------- ----------
- Plugin                     Label                      Version  Author   Active   Installed
---------------------------- -------------------------- -------- -------- -------- ----------
- SwagAdministrationExample  SwagAdministrationExample  1.0.0              No       No
---------------------------- -------------------------- -------- -------- -------- ----------
-
-1 plugins, 0 installed, 0 active
-```
-
-In case your plugin does not show up you can refresh the plugin list with the `refresh` command:
-
-```
-bin/console plugin:refresh
-```
-
-Finally you can install your plugin. The `--activate` argument also enables the new plugin so you can see the changes right away:
+Use the `plugin:install` command to install your plugin.
+The `--activate` argument also enables the new plugin so you can see the changes right away:
 
 ```
 bin/console plugin:install SwagAdministrationExample --activate
 ```
 
-When the plugin was successfully activated, please restart the development server. Webpack will then keep track of the new plugin and add the administration files to the file watcher process.
+When the plugin was successfully activated, please restart the development server.
+Webpack will then keep track of the new plugin and add the administration files to the file watcher process.
 
 ## Making changes
 
 The administration files of your plugin are located in the `Resources/views/administration` directory.
 
-The entry point for your administration is the `main.js` file. In this file you can import all your components and modules later on.
+The entry point for your administration is the `main.js` file.
+In this file you can import all your components and modules later on.
 
 ```
 SwagAdministrationExample
@@ -151,11 +141,15 @@ SwagAdministrationExample
 ```
 *file structure*
 
-To make actual changes you have two main possibilities. Writing entirely new components or using the multi inheritance system from shopware. The inheritance system allows you to extend or override existing functionality with your own code. You don't need to copy large chunks of code in order to make your desired change.
+To make actual changes you have two main possibilities.
+Writing entirely new components or using the multi inheritance system from shopware.
+The inheritance system allows you to extend or override existing functionality with your own code.
+You don't need to copy large chunks of code in order to make your desired change.
 
 Shopware is using a custom build of [Twig.js](https://github.com/twigjs/twig.js) to make this possible for the administration templates. 
 
-You can use all Vue components of the shopware core as an entry point in order to make changes. Let's take a look at the component template of `sw-dashboard`:
+You can use all Vue components of the shopware core as an entry point in order to make changes.
+Let's take a look at the component template of `sw-dashboard`:
 
 ```
 {% block sw_dashboard_index %}
@@ -168,9 +162,14 @@ You can use all Vue components of the shopware core as an entry point in order t
     </sw-page>
 {% endblock %}
 ```
-As you can see the most important parts of a core template are wrapped inside Twig blocks. This gives you the possibility to override or append any of those blocks in your own plugin. Just like you are maybe already familiar with from frameworks like Symfony.
+As you can see the most important parts of a core template are wrapped inside Twig blocks.
+This gives you the possibility to override or append any of those blocks in your own plugin.
+Just like you are maybe already familiar with from frameworks like Symfony.
 
-Please note that the custom build of Twig.js only contains the block feature to give you the power of making template driven changes without overriding the whole component template. It does however not include features like `{% for %}` or `{% set %}`. Stuff like variables, for loops or modifiers are completely handled by Vue.js. Just think about it this way: You are looking at Vue.js Code with additional Twig blocks.
+Please note that the custom build of Twig.js only contains the block feature to give you the power of making template driven changes without overriding the whole component template.
+It does however not include features like `{% for %}` or `{% set %}`.
+Stuff like variables, for loops or modifiers are completely handled by Vue.js.
+Just think about it this way: You are looking at Vue.js Code with additional Twig blocks.
 
 ### Overriding a component
 
@@ -191,7 +190,9 @@ SwagAdministrationExample
 ```
 *file structure*
 
-All components are registered globally by the component factory and have to use unique names. So it does not really matter where exactly your components are located inside the `administration/src` directory your plugin. The `extension` directory is just a nice convention to keep things organized and separate your new components from components you are extending or overriding.
+All components are registered globally by the component factory and have to use unique names.
+So it does not really matter where exactly your components are located inside the `administration/src` directory your plugin.
+The `extension` directory is just a nice convention to keep things organized and separate your new components from components you are extending or overriding.
 
 The new component can override an existing component by using the `Component.override()` feature. [Learn more about components](./20-create-a-component.md).
 

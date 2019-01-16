@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -46,6 +47,9 @@ class PluginService
         $this->composerPackageProvider = $composerPackageProvider;
     }
 
+    /**
+     * @throws PluginComposerJsonInvalidException
+     */
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): void
     {
         $finder = new Finder();

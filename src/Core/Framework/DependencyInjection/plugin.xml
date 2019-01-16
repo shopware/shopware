@@ -32,43 +32,43 @@
         </service>
 
         <!-- Commands -->
-        <service id="Shopware\Core\Framework\Command\PluginRefreshCommand">
+        <service id="Shopware\Core\Framework\Plugin\Command\PluginRefreshCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\PluginListCommand">
+        <service id="Shopware\Core\Framework\Plugin\Command\PluginListCommand">
             <argument type="service" id="plugin.repository"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\PluginInstallCommand">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+        <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="plugin.repository"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\PluginActivateCommand">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+        <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginActivateCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="plugin.repository"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\PluginUpdateCommand">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+        <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="plugin.repository"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+        <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginDeactivateCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="plugin.repository"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\PluginUninstallCommand">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+        <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUninstallCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="plugin.repository"/>
             <tag name="console.command"/>
         </service>
 

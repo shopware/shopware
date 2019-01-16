@@ -1,78 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Command;
+namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginLifecycleService;
-use Shopware\Core\Framework\Plugin\PluginService;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class PluginInstallCommand extends Command
+class PluginInstallCommand extends AbstractPluginLifecycleCommand
 {
-    use PluginCommandTrait;
-
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
-
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
-
-    public function __construct(PluginService $pluginService, PluginLifecycleService $pluginLifecycleService)
-    {
-        parent::__construct();
-
-        $this->pluginService = $pluginService;
-        $this->pluginLifecycleService = $pluginLifecycleService;
-    }
-
-    public function getPluginService(): PluginService
-    {
-        return $this->pluginService;
-    }
+    private const LIFECYCLE_METHOD = 'install';
 
     protected function configure(): void
     {
-        $this
-            ->setName('plugin:install')
-            ->setDescription('Installs a plugin.')
-            ->addArgument('plugins', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Name of the plugins to be installed.')
-            ->addOption('activate', null, InputOption::VALUE_NONE, 'Activate plugin after installation.')
-            ->addOption('reinstall', null, InputOption::VALUE_NONE, 'Reinstall the plugin')
-            ->setHelp(<<<'EOF'
-The <info>%command.name%</info> installs a plugin.
-EOF
-            );
+        $this->configureCommand(self::LIFECYCLE_METHOD);
+        $this->addOption('activate', null, InputOption::VALUE_NONE, 'Activate plugins after installation.')
+            ->addOption('reinstall', null, InputOption::VALUE_NONE, 'Reinstall the plugins');
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws PluginNotFoundException
      * @throws PluginNotInstalledException
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $this->displayHeader($io);
         $context = Context::createDefaultContext();
+        $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input->getArgument('plugins'), $context);
 
-        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $context);
-
-        $io->text(sprintf('Installing %d plugins:', \count($plugins)));
-        $io->listing($this->formatPluginList($plugins));
-
+        $installed = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($input->getOption('reinstall') && $plugin->getInstalledAt()) {
@@ -96,6 +56,7 @@ EOF
             $message = 'Plugin "%s" has been installed%s successfully.';
 
             $this->pluginLifecycleService->installPlugin($plugin, $context);
+            ++$installed;
 
             if ($input->getOption('activate')) {
                 $this->pluginLifecycleService->activatePlugin($plugin, $context);
@@ -105,6 +66,8 @@ EOF
             $io->text(sprintf($message, $plugin->getLabel(), $activationSuffix));
         }
 
-        $io->success(sprintf('Installed %d plugins.', \count($plugins)));
+        if ($installed !== 0) {
+            $io->success(sprintf('Installed %d plugin(s).', $installed));
+        }
     }
 }

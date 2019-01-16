@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Command;
+namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Command\Command;
@@ -16,11 +18,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class PluginListCommand extends Command
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $pluginRepo;
 
-    public function __construct(RepositoryInterface $pluginRepo)
+    public function __construct(EntityRepositoryInterface $pluginRepo)
     {
         parent::__construct();
         $this->pluginRepo = $pluginRepo;
@@ -31,33 +33,32 @@ class PluginListCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setName('plugin:list')
+        $this->setName('plugin:list')
             ->setDescription('Show a list of available plugins.')
-            ->addOption('filter', null, InputOption::VALUE_REQUIRED, 'Filter to a given text');
+            ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Plugin Manager');
+        $io->title('Shopware Plugin Service');
         $context = Context::createDefaultContext();
 
-        /** @var PluginCollection $plugins */
-        $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-
+        $criteria = new Criteria();
         $filter = $input->getOption('filter');
         if ($filter) {
             $io->comment(sprintf('Filtering for: %s', $filter));
 
-            $plugins = $plugins->filter(function (PluginEntity $plugin) use ($filter) {
-                return stripos($plugin->getName(), $filter) !== false
-                    || stripos($plugin->getLabel(), $filter) !== false;
-            });
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new ContainsFilter('name', $filter),
+                new ContainsFilter('label', $filter),
+            ]));
         }
+        /** @var PluginCollection $plugins */
+        $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         $pluginTable = [];
         $active = $installed = $upgradeable = 0;

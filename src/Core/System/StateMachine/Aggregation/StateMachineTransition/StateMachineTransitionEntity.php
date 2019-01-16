@@ -3,10 +3,12 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
-class StateMachineTransitionStruct extends Entity
+class StateMachineTransitionEntity extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */
@@ -18,7 +20,7 @@ class StateMachineTransitionStruct extends Entity
     protected $stateMachineId;
 
     /**
-     * @var StateMachineStateStruct
+     * @var StateMachineStateEntity
      */
     protected $stateMachine;
 
@@ -28,9 +30,9 @@ class StateMachineTransitionStruct extends Entity
     protected $fromStateId;
 
     /**
-     * @var StateMachineStateStruct
+     * @var StateMachineStateEntity
      */
-    protected $fromState;
+    protected $fromStateMachineState;
 
     /**
      * @var string
@@ -38,9 +40,9 @@ class StateMachineTransitionStruct extends Entity
     protected $toStateId;
 
     /**
-     * @var StateMachineStateStruct
+     * @var StateMachineStateEntity
      */
-    protected $toState;
+    protected $toStateMachineState;
 
     /**
      * @var \DateTime
@@ -62,12 +64,12 @@ class StateMachineTransitionStruct extends Entity
         $this->stateMachineId = $stateMachineId;
     }
 
-    public function getStateMachine(): StateMachineStateStruct
+    public function getStateMachine(): StateMachineStateEntity
     {
         return $this->stateMachine;
     }
 
-    public function setStateMachine(StateMachineStateStruct $stateMachine): void
+    public function setStateMachine(StateMachineStateEntity $stateMachine): void
     {
         $this->stateMachine = $stateMachine;
     }
@@ -82,14 +84,14 @@ class StateMachineTransitionStruct extends Entity
         $this->fromStateId = $fromStateId;
     }
 
-    public function getFromState(): StateMachineStateStruct
+    public function getFromStateMachineState(): StateMachineStateEntity
     {
-        return $this->fromState;
+        return $this->fromStateMachineState;
     }
 
-    public function setFromState(StateMachineStateStruct $fromState): void
+    public function setFromStateMachineState(StateMachineStateEntity $fromStateMachineState): void
     {
-        $this->fromState = $fromState;
+        $this->fromStateMachineState = $fromStateMachineState;
     }
 
     public function getToStateId(): string
@@ -102,14 +104,14 @@ class StateMachineTransitionStruct extends Entity
         $this->toStateId = $toStateId;
     }
 
-    public function getToState(): StateMachineStateStruct
+    public function getToStateMachineState(): StateMachineStateEntity
     {
-        return $this->toState;
+        return $this->toStateMachineState;
     }
 
-    public function setToState(StateMachineStateStruct $toState): void
+    public function setToStateMachineState(StateMachineStateEntity $toStateMachineState): void
     {
-        $this->toState = $toState;
+        $this->toStateMachineState = $toStateMachineState;
     }
 
     public function getCreatedAt(): \DateTime

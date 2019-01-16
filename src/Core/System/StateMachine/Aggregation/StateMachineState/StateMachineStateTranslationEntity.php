@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class StateMachineStateTranslationStruct extends Entity
+class StateMachineStateTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
@@ -18,19 +17,9 @@ class StateMachineStateTranslationStruct extends Entity
     protected $stateMachineStateId;
 
     /**
-     * @var StateMachineStateStruct
+     * @var StateMachineStateEntity
      */
     protected $stateMachineState;
-
-    /**
-     * @var string
-     */
-    protected $languageId;
-
-    /**
-     * @var LanguageStruct
-     */
-    protected $language;
 
     /**
      * @var \DateTime
@@ -62,34 +51,14 @@ class StateMachineStateTranslationStruct extends Entity
         $this->stateMachineStateId = $stateMachineStateId;
     }
 
-    public function getStateMachineState(): StateMachineStateStruct
+    public function getStateMachineState(): StateMachineStateEntity
     {
         return $this->stateMachineState;
     }
 
-    public function setStateMachineState(StateMachineStateStruct $stateMachineState): void
+    public function setStateMachineState(StateMachineStateEntity $stateMachineState): void
     {
         $this->stateMachineState = $stateMachineState;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
-    }
-
-    public function getLanguage(): LanguageStruct
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(LanguageStruct $language): void
-    {
-        $this->language = $language;
     }
 
     public function getCreatedAt(): \DateTime

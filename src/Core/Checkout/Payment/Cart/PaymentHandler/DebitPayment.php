@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -30,7 +30,7 @@ class DebitPayment implements PaymentHandlerInterface
 
     public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
     {
-        $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_COMPLETED, $context)->getId();
+        $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
 
         $data = [
             'id' => $transaction->getTransactionId(),

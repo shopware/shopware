@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 class OrderEntity extends Entity
 {
@@ -166,9 +166,9 @@ class OrderEntity extends Entity
     protected $searchKeywords;
 
     /**
-     * @var StateMachineStateStruct
+     * @var StateMachineStateEntity
      */
-    protected $state;
+    protected $stateMachineState;
 
     /**
      * @var string
@@ -420,14 +420,14 @@ class OrderEntity extends Entity
         $this->searchKeywords = $searchKeywords;
     }
 
-    public function getState(): StateMachineStateStruct
+    public function getStateMachineState(): StateMachineStateEntity
     {
-        return $this->state;
+        return $this->stateMachineState;
     }
 
-    public function setState(StateMachineStateStruct $state): void
+    public function setStateMachineState(StateMachineStateEntity $stateMachineState): void
     {
-        $this->state = $state;
+        $this->stateMachineState = $stateMachineState;
     }
 
     public function getStateId(): string

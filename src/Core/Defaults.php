@@ -68,12 +68,18 @@ final class Defaults
     public const ORDER_DELIVERY_STATES_OPEN = 'open';
     public const ORDER_DELIVERY_STATES_PARTIALLY_SHIPPED = 'shipped_partially';
     public const ORDER_DELIVERY_STATES_SHIPPED = 'shipped';
+    public const ORDER_DELIVERY_STATES_RETURNED = 'returned';
+    public const ORDER_DELIVERY_STATES_PARTIALLY_RETURNED = 'returned_partially';
+    public const ORDER_DELIVERY_STATES_CANCELLED = 'cancelled';
 
     public const ORDER_TRANSACTION_STATE_MACHINE = 'order_transaction.state';
     public const ORDER_TRANSACTION_STATES_OPEN = 'open';
-    public const ORDER_TRANSACTION_STATES_COMPLETED = 'completed';
-    public const ORDER_TRANSACTION_STATES_FAILED = 'failed';
+    public const ORDER_TRANSACTION_STATES_PAID = 'paid';
+    public const ORDER_TRANSACTION_STATES_PARTIALLY_PAID = 'paid_partially';
+    public const ORDER_TRANSACTION_STATES_REFUNDED = 'refunded';
+    public const ORDER_TRANSACTION_STATES_PARTIALLY_REFUNDED = 'refunded_partially';
     public const ORDER_TRANSACTION_STATES_CANCELLED = 'cancelled';
+    public const ORDER_TRANSACTION_STATES_REMINDED = 'reminded';
 
     public const PAYMENT_METHOD_DEBIT = 'e84976ace9ab4928a3dcc387b66dbaa6';
     public const PAYMENT_METHOD_CASH_ON_DELIVERY = '77573b9cf7914cb5a9519945bff1d95b';
@@ -81,7 +87,6 @@ final class Defaults
     public const PAYMENT_METHOD_PAID_IN_ADVANCE = '47160b00cd064b0188176451f9f3c247';
 
     public const PAYMENT_METHOD_SEPA = 'a6ddadce4cb441f3976a32505049f037';
-    public const SALES_CHANNEL = '20080911ffff4fffafffffff19830531';
     public const SALES_CHANNEL_STOREFRONT_API = 'f183ee5650cf4bdb8a774337575067a6';
 
     public const SALES_CHANNEL_STOREFRONT = '8a243080f92e4c719546314b577cf82b';

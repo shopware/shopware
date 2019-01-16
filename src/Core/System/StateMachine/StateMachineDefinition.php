@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -27,14 +26,19 @@ class StateMachineDefinition extends EntityDefinition
         return 'state_machine';
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return StateMachineStruct::class;
+        return StateMachineEntity::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
     {
         return StateMachineTranslationDefinition::class;
+    }
+
+    public static function getCollectionClass(): string
+    {
+        return StateMachineCollection::class;
     }
 
     protected static function defineFields(): FieldCollection
@@ -43,15 +47,14 @@ class StateMachineDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             (new StringField('technical_name', 'technicalName'))->setFlags(new Required()),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 
             new OneToManyAssociationField('states', StateMachineStateDefinition::class, 'state_machine_id', false),
             new OneToManyAssociationField('transitions', StateMachineTransitionDefinition::class, 'state_machine_id', false),
 
             new FkField('initial_state_id', 'initialStateId', StateMachineStateDefinition::class),
-            new ManyToOneAssociationField('initialState', 'initial_state_id', StateMachineStateDefinition::class, true),
 
-            (new TranslationsAssociationField(StateMachineTranslationDefinition::class))->setFlags(new CascadeDelete(), new Required()),
+            (new TranslationsAssociationField(StateMachineTranslationDefinition::class, 'state_machine_id'))->setFlags(new CascadeDelete(), new Required()),
 
             new CreatedAtField(),
             new UpdatedAtField(),

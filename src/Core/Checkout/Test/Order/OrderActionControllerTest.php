@@ -3,6 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Order;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -59,8 +63,9 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/' . $orderId . '/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
 
+        static::assertEquals(200, $this->getClient()->getResponse()->getStatusCode());
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
 
@@ -69,7 +74,7 @@ class OrderActionControllerTest extends TestCase
 
         static::assertCount(2, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
-        static::assertStringEndsWith('/order/' . $orderId . '/actions/state/cancel', $response['transitions'][0]['url']);
+        static::assertStringEndsWith('/_action/order/' . $orderId . '/state/cancel', $response['transitions'][0]['url']);
     }
 
     public function testTransitionToAllowedState(): void
@@ -78,7 +83,7 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/' . $orderId . '/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -94,7 +99,7 @@ class OrderActionControllerTest extends TestCase
         static::assertEquals(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         static::assertEquals($orderId, $response['data']['id']);
 
-        $stateId = $response['data']['relationships']['state']['data']['id'] ?? null;
+        $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
         static::assertNotNull($stateId);
 
         $actualTechnicalName = null;
@@ -115,7 +120,7 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/order/' . $orderId . '/actions/state/foo');
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state/foo');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -130,7 +135,7 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/order/' . $orderId . '/actions/state');
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -142,18 +147,14 @@ class OrderActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::uuid4()->getHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getUniqueIdentifier();
+        $billingAddressId = Uuid::uuid4()->getHex();
 
         $order = [
             'id' => $orderId,
             'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => 100,
-            'amountNet' => 100,
-            'positionPrice' => 100,
-            'shippingTotal' => 5,
-            'shippingNet' => 5,
-            'isNet' => true,
-            'isTaxFree' => true,
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
@@ -165,14 +166,17 @@ class OrderActionControllerTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'billingAddress' => [
-                'salutation' => 'mr',
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'street' => 'Ebbinghoff 10',
-                'zipcode' => '48624',
-                'city' => 'Schöppingen',
-                'countryId' => Defaults::COUNTRY,
+            'billingAddressId' => $billingAddressId,
+            'addresses' => [
+                [
+                    'salutation' => 'mr',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                    'countryId' => Defaults::COUNTRY,
+                 ],
             ],
             'lineItems' => [],
             'deliveries' => [],

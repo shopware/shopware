@@ -49,12 +49,10 @@ class OrderTransactionDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class))->addFlags(new Required()),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
-            (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(OrderTransactionStateDefinition::class))->addFlags(new Required()),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new Required()),
 
             (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('state', 'state_id', StateMachineStateDefinition::class, true),
+            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, true),
             new JsonField('details', 'details'),
             new CreatedAtField(),
             new UpdatedAtField(),

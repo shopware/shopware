@@ -6,12 +6,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\StateMachine\IllegalTransitionException;
 use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionStruct;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class OrderActionController extends AbstractController
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepository
      */
     private $orderRepository;
 
@@ -30,14 +30,14 @@ class OrderActionController extends AbstractController
      */
     private $stateMachineRegistry;
 
-    public function __construct(RepositoryInterface $orderRepository, StateMachineRegistry $stateMachineRegistry)
+    public function __construct(EntityRepository $orderRepository, StateMachineRegistry $stateMachineRegistry)
     {
         $this->orderRepository = $orderRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**
-     * @Route("/api/v{version}/order/{orderId}/actions/state", name="api.order.get_state", methods={"GET"})
+     * @Route("/api/v{version}/_action/order/{orderId}/state", name="api.action.order.get-state", methods={"GET"})
      */
     public function getAvailableTransitions(Request $request, Context $context, string $orderId): Response
     {
@@ -52,9 +52,9 @@ class OrderActionController extends AbstractController
 
         $currentState = null;
 
-        /** @var StateMachineStateStruct $place */
+        /** @var StateMachineStateEntity $place */
         foreach ($stateMachine->getStates()->getElements() as $place) {
-            if ($place->getTechnicalName() === $order->getState()->getTechnicalName()) {
+            if ($place->getTechnicalName() === $order->getStateMachineState()->getTechnicalName()) {
                 $currentState = [
                     'name' => $place->getName(),
                     'technicalName' => $place->getTechnicalName(),
@@ -62,15 +62,15 @@ class OrderActionController extends AbstractController
             }
         }
 
-        /** @var StateMachineTransitionStruct $transition */
+        /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions()->getElements() as $transition) {
-            if ($transition->getFromState()->getTechnicalName() !== $order->getState()->getTechnicalName()) {
+            if ($transition->getFromStateMachineState()->getTechnicalName() !== $order->getStateMachineState()->getTechnicalName()) {
                 continue;
             }
 
             $transitions[] = [
-                'name' => $transition->getToState()->getName(),
-                'technicalName' => $transition->getToState()->getTechnicalName(),
+                'name' => $transition->getToStateMachineState()->getName(),
+                'technicalName' => $transition->getToStateMachineState()->getTechnicalName(),
                 'actionName' => $transition->getActionName(),
                 'url' => $baseUrl . '/' . $transition->getActionName(),
             ];
@@ -83,7 +83,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/order/{orderId}/actions/state/{transition?}", name="api.order.transition_state", methods={"POST"})
+     * @Route("/api/v{version}/_action/order/{orderId}/state/{transition?}", name="api.order.transition_state", methods={"POST"})
      */
     public function transitionOrderState(
         Request $request,
@@ -95,15 +95,15 @@ class OrderActionController extends AbstractController
         $order = $this->getOrder($orderId, $context);
 
         if (empty($transition)) {
-            $transitions = $this->stateMachineRegistry->getAvailableTransitions(Defaults::ORDER_STATE_MACHINE, $order->getState()->getTechnicalName(), $context);
-            $transitionNames = array_map(function (StateMachineTransitionStruct $transition) {
+            $transitions = $this->stateMachineRegistry->getAvailableTransitions(Defaults::ORDER_STATE_MACHINE, $order->getStateMachineState()->getTechnicalName(), $context);
+            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
                 return $transition->getActionName();
             }, $transitions);
 
-            throw new IllegalTransitionException($order->getState()->getName(), '', $transitionNames);
+            throw new IllegalTransitionException($order->getStateMachineState()->getName(), '', $transitionNames);
         }
 
-        $toPlace = $this->stateMachineRegistry->transition(Defaults::ORDER_STATE_MACHINE, $order->getState()->getTechnicalName(), $transition, $context);
+        $toPlace = $this->stateMachineRegistry->transition(Defaults::ORDER_STATE_MACHINE, $order->getStateMachineState()->getTechnicalName(), $transition, $context);
 
         $payload = [
             ['id' => $order->getId(), 'stateId' => $toPlace->getId()],
@@ -111,15 +111,15 @@ class OrderActionController extends AbstractController
 
         $this->orderRepository->update($payload, $context);
 
-        $order->setState($toPlace);
+        $order->setStateMachineState($toPlace);
         $order->setStateId($toPlace->getId());
 
         return $responseFactory->createDetailResponse($order, OrderDefinition::class, $request, $context);
     }
 
-    private function getOrder(string $id, Context $context): OrderStruct
+    private function getOrder(string $id, Context $context): OrderEntity
     {
-        $result = $this->orderRepository->read(new ReadCriteria([$id]), $context);
+        $result = $this->orderRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
             throw new ResourceNotFoundException(OrderDefinition::getEntityName(), ['id' => $id]);

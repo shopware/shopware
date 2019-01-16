@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 class OrderDeliveryEntity extends Entity
 {
@@ -70,9 +70,9 @@ class OrderDeliveryEntity extends Entity
     protected $stateId;
 
     /**
-     * @var StateMachineStateStruct
+     * @var StateMachineStateEntity
      */
-    protected $state;
+    protected $stateMachineState;
 
     /**
      * @var ShippingMethodEntity
@@ -229,13 +229,13 @@ class OrderDeliveryEntity extends Entity
         $this->stateId = $stateId;
     }
 
-    public function getState(): StateMachineStateStruct
+    public function getStateMachineState(): StateMachineStateEntity
     {
-        return $this->state;
+        return $this->stateMachineState;
     }
 
-    public function setState(StateMachineStateStruct $state): void
+    public function setStateMachineState(StateMachineStateEntity $stateMachineState): void
     {
-        $this->state = $state;
+        $this->stateMachineState = $stateMachineState;
     }
 }

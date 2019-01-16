@@ -3,7 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Order;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\Struct\Price;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
@@ -69,17 +70,18 @@ class OrderTransactionActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order-transaction/' . $transactionId . '/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-transaction/' . $transactionId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
 
+        static::assertEquals(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         static::assertNotNull($response['currentState']);
         static::assertEquals(Defaults::ORDER_TRANSACTION_STATES_OPEN, $response['currentState']['technicalName']);
 
-        static::assertCount(2, $response['transitions']);
+        static::assertCount(4, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
-        static::assertStringEndsWith('/order-transaction/' . $transactionId . '/actions/state/cancel', $response['transitions'][0]['url']);
+        static::assertStringEndsWith('/_action/order-transaction/' . $transactionId . '/state/cancel', $response['transitions'][0]['url']);
     }
 
     public function testTransitionToAllowedState(): void
@@ -89,7 +91,7 @@ class OrderTransactionActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order-transaction/' . $transactionId . '/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-transaction/' . $transactionId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -105,7 +107,7 @@ class OrderTransactionActionControllerTest extends TestCase
         static::assertEquals(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode(), print_r($response, true));
         static::assertEquals($transactionId, $response['data']['id']);
 
-        $stateId = $response['data']['relationships']['state']['data']['id'] ?? null;
+        $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
         static::assertNotNull($stateId);
 
         $actualTechnicalName = null;
@@ -127,7 +129,7 @@ class OrderTransactionActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/order-transaction/' . $transactionId . '/actions/state/foo');
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-transaction/' . $transactionId . '/state/foo');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -143,7 +145,7 @@ class OrderTransactionActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/order-transaction/' . $transactionId . '/actions/state');
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-transaction/' . $transactionId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -156,17 +158,13 @@ class OrderTransactionActionControllerTest extends TestCase
     {
         $orderId = Uuid::uuid4()->getHex();
         $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
+        $billingAddressId = Uuid::uuid4()->getHex();
 
         $order = [
             'id' => $orderId,
             'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => 100,
-            'amountNet' => 100,
-            'positionPrice' => 100,
-            'shippingTotal' => 5,
-            'shippingNet' => 5,
-            'isNet' => true,
-            'isTaxFree' => true,
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
@@ -178,14 +176,17 @@ class OrderTransactionActionControllerTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'billingAddress' => [
-                'salutation' => 'mr',
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'street' => 'Ebbinghoff 10',
-                'zipcode' => '48624',
-                'city' => 'Schöppingen',
-                'countryId' => Defaults::COUNTRY,
+            'billingAddressId' => $billingAddressId,
+            'addresses' => [
+                [
+                    'salutation' => 'mr',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                    'countryId' => Defaults::COUNTRY,
+                ],
             ],
             'lineItems' => [],
             'deliveries' => [
@@ -247,7 +248,7 @@ class OrderTransactionActionControllerTest extends TestCase
             'orderId' => $orderId,
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'stateId' => $stateId,
-            'amount' => new Price(
+            'amount' => new CalculatedPrice(
                 100,
                 100,
                 new CalculatedTaxCollection(),

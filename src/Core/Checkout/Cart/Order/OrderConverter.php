@@ -73,7 +73,7 @@ class OrderConverter
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
-        CheckoutContextFactory $checkoutContextFactory
+        CheckoutContextFactory $checkoutContextFactory,
         StateMachineRegistry $stateMachineRegistry,
         EventDispatcherInterface $eventDispatcher
     ) {
@@ -110,6 +110,8 @@ class OrderConverter
             $data['deliveries'] = DeliveryTransformer::transformCollection(
                 $cart->getDeliveries(),
                 $convertedLineItems,
+                $this->stateMachineRegistry,
+                $context->getContext(),
                 $shippingAddresses
             );
         }
@@ -128,7 +130,7 @@ class OrderConverter
         }
 
         if ($conversionContext->shouldIncludeTransactions()) {
-            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions());
+            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions(), $this->stateMachineRegistry, $context->getContext());
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
@@ -140,7 +142,6 @@ class OrderConverter
         }
 
         $data['stateId'] = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context->getContext())->getId();
-
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
 

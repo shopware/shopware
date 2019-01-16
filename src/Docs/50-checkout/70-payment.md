@@ -111,7 +111,7 @@ class PayPalPayment implements PaymentHandlerInterface
         $paymentState = $this->getPaymentState($response);
 
         if ($paymentState === PaymentStatus::PAYMENT_COMPLETED) {
-            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_COMPLETED, $context)->getId();
+            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
         } else {
             $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_OPEN, $context)->getId();
         }

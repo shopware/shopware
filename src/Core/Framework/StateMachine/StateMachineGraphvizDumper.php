@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\StateMachine;
 
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionStruct;
-use Shopware\Core\System\StateMachine\StateMachineStruct;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
+use Shopware\Core\System\StateMachine\StateMachineEntity;
 
 class StateMachineGraphvizDumper
 {
@@ -23,7 +23,7 @@ class StateMachineGraphvizDumper
      *  * node: The default options for nodes (places)
      *  * edge: The default options for edges
      */
-    public function dump(StateMachineStruct $stateMachine, array $options = [])
+    public function dump(StateMachineEntity $stateMachine, array $options = [])
     {
         $places = $this->findStates($stateMachine);
         $edges = $this->findEdges($stateMachine);
@@ -39,11 +39,11 @@ class StateMachineGraphvizDumper
     /**
      * @internal
      */
-    protected function findStates(StateMachineStruct $stateMachine): array
+    protected function findStates(StateMachineEntity $stateMachine): array
     {
         $states = [];
 
-        /** @var StateMachineStateStruct $state */
+        /** @var StateMachineStateEntity $state */
         foreach ($stateMachine->getStates() as $state) {
             $attributes = [];
             if ($state->getId() === $stateMachine->getInitialStateId()) {
@@ -62,7 +62,7 @@ class StateMachineGraphvizDumper
     /**
      * @internal
      */
-    protected function findTransitions(StateMachineStruct $stateMachine): array
+    protected function findTransitions(StateMachineEntity $stateMachine): array
     {
         $transitions = [];
         foreach ($stateMachine->getTransitions() as $transition) {
@@ -134,15 +134,15 @@ class StateMachineGraphvizDumper
         return addslashes($string);
     }
 
-    protected function findEdges(StateMachineStruct $stateMachine)
+    protected function findEdges(StateMachineEntity $stateMachine)
     {
         $edges = [];
 
-        /** @var StateMachineTransitionStruct $transition */
+        /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions() as $transition) {
-            $edges[$transition->getFromState()->getName()][] = [
+            $edges[$transition->getFromStateMachineState()->getName()][] = [
                 'name' => $transition->getActionName(),
-                'to' => $transition->getToState()->getName(),
+                'to' => $transition->getToStateMachineState()->getName(),
             ];
         }
 

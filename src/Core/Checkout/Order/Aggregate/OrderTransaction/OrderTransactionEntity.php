@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactio
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 class OrderTransactionEntity extends Entity
 {
@@ -57,7 +57,7 @@ class OrderTransactionEntity extends Entity
     /***
      * @var OrderTransactionStateEntity
      */
-    protected $state;
+    protected $stateMachineState;
 
     /**
      * @var string
@@ -144,14 +144,14 @@ class OrderTransactionEntity extends Entity
         $this->order = $order;
     }
 
-    public function getState(): StateMachineStateEntity
+    public function getStateMachineState(): StateMachineStateEntity
     {
-        return $this->state;
+        return $this->stateMachineState;
     }
 
-    public function setState(StateMachineStateEntity $state): void
+    public function setStateMachineState(StateMachineStateEntity $stateMachineState): void
     {
-        $this->state = $state;
+        $this->stateMachineState = $stateMachineState;
     }
 
     public function getStateId(): string

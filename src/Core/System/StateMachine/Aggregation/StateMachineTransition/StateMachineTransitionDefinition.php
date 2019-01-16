@@ -22,9 +22,14 @@ class StateMachineTransitionDefinition extends EntityDefinition
         return 'state_machine_transition';
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return StateMachineTransitionStruct::class;
+        return StateMachineTransitionEntity::class;
+    }
+
+    public static function getCollectionClass(): string
+    {
+        return StateMachineTransitionCollection::class;
     }
 
     protected static function defineFields(): FieldCollection
@@ -38,10 +43,10 @@ class StateMachineTransitionDefinition extends EntityDefinition
             new ManyToOneAssociationField('stateMachine', 'state_machine_id', StateMachineDefinition::class, false),
 
             (new FkField('from_state_id', 'fromStateId', StateMachineStateDefinition::class))->setFlags(new Required()),
-            new ManyToOneAssociationField('fromState', 'from_state_id', StateMachineStateDefinition::class, true),
+            new ManyToOneAssociationField('fromStateMachineState', 'from_state_id', StateMachineStateDefinition::class, true),
 
             (new FkField('to_state_id', 'toStateId', StateMachineStateDefinition::class))->setFlags(new Required()),
-            new ManyToOneAssociationField('toState', 'to_state_id', StateMachineStateDefinition::class, true),
+            new ManyToOneAssociationField('toStateMachineState', 'to_state_id', StateMachineStateDefinition::class, true),
 
             new CreatedAtField(),
             new UpdatedAtField(),

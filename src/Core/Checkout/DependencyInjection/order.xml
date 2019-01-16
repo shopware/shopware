@@ -29,11 +29,11 @@
             <tag name="shopware.entity.definition" entity="order_line_item"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
             <tag name="shopware.entity.definition" entity="order_transaction"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\Order\OrderPersister" id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
+        <service id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
         </service>
@@ -45,7 +45,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\OrderActionController" id="Shopware\Core\Checkout\Order\OrderActionController" public="true">
+        <service id="Shopware\Core\Checkout\Order\OrderActionController" public="true">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
             <call method="setContainer">
@@ -53,7 +53,7 @@
             </call>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\OrderDeliveryActionController" id="Shopware\Core\Checkout\Order\OrderDeliveryActionController" public="true">
+        <service id="Shopware\Core\Checkout\Order\OrderDeliveryActionController" public="true">
             <argument type="service" id="order_delivery.repository"/>
             <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
             <call method="setContainer">
@@ -61,7 +61,7 @@
             </call>
         </service>
 
-        <service class="Shopware\Core\Checkout\Order\OrderTransactionActionController" id="Shopware\Core\Checkout\Order\OrderTransactionActionController" public="true">
+        <service id="Shopware\Core\Checkout\Order\OrderTransactionActionController" public="true">
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
             <call method="setContainer">

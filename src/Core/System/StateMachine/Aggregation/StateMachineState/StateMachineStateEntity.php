@@ -2,12 +2,18 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\Struct\Collection;
-use Shopware\Core\System\StateMachine\StateMachineStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
+use Shopware\Core\System\StateMachine\StateMachineCollection;
+use Shopware\Core\System\StateMachine\StateMachineEntity;
 
-class StateMachineStateStruct extends Entity
+class StateMachineStateEntity extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */
@@ -24,27 +30,27 @@ class StateMachineStateStruct extends Entity
     protected $stateMachineId;
 
     /**
-     * @var StateMachineStruct
+     * @var StateMachineEntity
      */
     protected $stateMachine;
 
     /**
-     * @var Collection|null
+     * @var StateMachineTransitionCollection|null
      */
-    protected $fromTransitions;
+    protected $fromStateMachineTransitions;
 
     /**
-     * @var Collection|null
+     * @var StateMachineTransitionCollection|null
      */
-    protected $toTransitions;
+    protected $toStateMachineTransitions;
 
     /**
-     * @var Collection|null
+     * @var StateMachineCollection|null
      */
     protected $initialStateStateMachines;
 
     /**
-     * @var Collection
+     * @var StateMachineStateTranslationCollection
      */
     protected $translations;
 
@@ -59,17 +65,17 @@ class StateMachineStateStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var Collection|null
+     * @var OrderCollection|null
      */
     protected $orders;
 
     /**
-     * @var Collection|null
+     * @var OrderTransactionCollection|null
      */
     protected $orderTransactions;
 
     /**
-     * @var Collection|null
+     * @var OrderDeliveryCollection|null
      */
     protected $orderDeliveries;
 
@@ -93,42 +99,42 @@ class StateMachineStateStruct extends Entity
         $this->stateMachineId = $stateMachineId;
     }
 
-    public function getStateMachine(): StateMachineStruct
+    public function getStateMachine(): StateMachineEntity
     {
         return $this->stateMachine;
     }
 
-    public function setStateMachine(StateMachineStruct $stateMachine): void
+    public function setStateMachine(StateMachineEntity $stateMachine): void
     {
         $this->stateMachine = $stateMachine;
     }
 
-    public function getFromTransitions(): ?Collection
+    public function getFromStateMachineTransitions(): ?StateMachineTransitionCollection
     {
-        return $this->fromTransitions;
+        return $this->fromStateMachineTransitions;
     }
 
-    public function setFromTransitions(Collection $fromTransitions): void
+    public function setFromStateMachineTransitions(StateMachineTransitionCollection $fromStateMachineTransitions): void
     {
-        $this->fromTransitions = $fromTransitions;
+        $this->fromStateMachineTransitions = $fromStateMachineTransitions;
     }
 
-    public function getToTransitions(): ?Collection
+    public function getToStateMachineTransitions(): ?StateMachineTransitionCollection
     {
-        return $this->toTransitions;
+        return $this->toStateMachineTransitions;
     }
 
-    public function setToTransitions(Collection $toTransitions): void
+    public function setToStateMachineTransitions(StateMachineTransitionCollection $toStateMachineTransitions): void
     {
-        $this->toTransitions = $toTransitions;
+        $this->toStateMachineTransitions = $toStateMachineTransitions;
     }
 
-    public function getInitialStateStateMachines(): ?Collection
+    public function getInitialStateStateMachines(): ?StateMachineCollection
     {
         return $this->initialStateStateMachines;
     }
 
-    public function setInitialStateStateMachines(Collection $initialStateStateMachines): void
+    public function setInitialStateStateMachines(StateMachineCollection $initialStateStateMachines): void
     {
         $this->initialStateStateMachines = $initialStateStateMachines;
     }
@@ -153,12 +159,12 @@ class StateMachineStateStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getTranslations(): Collection
+    public function getTranslations(): StateMachineStateTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(Collection $translations): void
+    public function setTranslations(StateMachineStateTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }
@@ -173,32 +179,32 @@ class StateMachineStateStruct extends Entity
         $this->technicalName = $technicalName;
     }
 
-    public function getOrders(): ?Collection
+    public function getOrders(): ?OrderCollection
     {
         return $this->orders;
     }
 
-    public function setOrders(Collection $orders): void
+    public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
     }
 
-    public function getOrderTransactions(): ?Collection
+    public function getOrderTransactions(): ?OrderTransactionCollection
     {
         return $this->orderTransactions;
     }
 
-    public function setOrderTransactions(Collection $orderTransactions): void
+    public function setOrderTransactions(OrderTransactionCollection $orderTransactions): void
     {
         $this->orderTransactions = $orderTransactions;
     }
 
-    public function getOrderDeliveries(): ?Collection
+    public function getOrderDeliveries(): ?OrderDeliveryCollection
     {
         return $this->orderDeliveries;
     }
 
-    public function setOrderDeliveries(Collection $orderDeliveries): void
+    public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
     }

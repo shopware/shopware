@@ -3,32 +3,32 @@
 namespace Shopware\Core\Framework\StateMachine;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionStruct;
-use Shopware\Core\System\StateMachine\StateMachineStruct;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
+use Shopware\Core\System\StateMachine\StateMachineEntity;
 
 class StateMachineRegistry
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepository
      */
     private $stateMachineRepository;
 
     /**
-     * @var StateMachineStruct[]
+     * @var StateMachineEntity[]
      */
     private $stateMachines;
 
-    public function __construct(RepositoryInterface $stateMachineRepository)
+    public function __construct(EntityRepository $stateMachineRepository)
     {
         $this->stateMachineRepository = $stateMachineRepository;
     }
 
-    public function getStateMachine(string $name, Context $context): StateMachineStruct
+    public function getStateMachine(string $name, Context $context): StateMachineEntity
     {
         if (isset($this->stateMachines[$name])) {
             return $this->stateMachines[$name];
@@ -42,7 +42,6 @@ class StateMachineRegistry
         $criteria = new Criteria();
         $criteria->addAssociation('state_machine.transitions', $transitionCriteria);
         $criteria->addAssociation('state_machine.states', $statesCriteria);
-        $criteria->addAssociation('state_machine.initialState');
         $criteria->addFilter(new EqualsFilter('state_machine.technicalName', $name));
         $criteria->setLimit(1);
 
@@ -55,29 +54,28 @@ class StateMachineRegistry
         return $this->stateMachines[$name] = $results->first();
     }
 
-    public function getInitialState(string $stateMachineName, Context $context): StateMachineStateStruct
+    public function getInitialState(string $stateMachineName, Context $context): StateMachineStateEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('state_machine.technicalName', $stateMachineName));
-        $criteria->setLimit(1);
-
-        $result = $this->stateMachineRepository->search($criteria, $context);
-
-        /** @var StateMachineStruct|null $stateMachine */
-        $stateMachine = $result->first();
+        /** @var StateMachineEntity|null $stateMachine */
+        $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
         if ($stateMachine === null) {
             throw new StateMachineNotFoundException($stateMachineName);
         }
 
-        return $stateMachine->getInitialState();
+        $initialState = $stateMachine->getInitialState();
+        if ($initialState === null) {
+            throw new StateMachineWithoutInitialStateException($stateMachineName);
+        }
+
+        return $initialState;
     }
 
-    public function getStateByTechnicalName(string $stateMachineName, string $technicalName, Context $context): StateMachineStateStruct
+    public function getStateByTechnicalName(string $stateMachineName, string $technicalName, Context $context): StateMachineStateEntity
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
-        /** @var StateMachineStateStruct $state */
+        /** @var StateMachineStateEntity $state */
         foreach ($stateMachine->getStates() as $state) {
             if ($state->getTechnicalName() === $technicalName) {
                 return $state;
@@ -88,21 +86,16 @@ class StateMachineRegistry
     }
 
     /**
-     * @param string  $stateMachineName
-     * @param string  $fromStateName
-     * @param Context $context
-     *
      * @throws StateMachineNotFoundException
-     *
-     * @return StateMachineTransitionStruct[]
      */
     public function getAvailableTransitions(string $stateMachineName, string $fromStateName, Context $context): array
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
         $transitions = [];
+        /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions() as $transition) {
-            if ($transition->getFromState()->getTechnicalName() === $fromStateName) {
+            if ($transition->getFromStateMachineState()->getTechnicalName() === $fromStateName) {
                 $transitions[] = $transition;
             }
         }
@@ -110,19 +103,19 @@ class StateMachineRegistry
         return $transitions;
     }
 
-    public function transition(string $stateMachineName, string $fromStateName, string $transitionName, Context $context): StateMachineStateStruct
+    public function transition(string $stateMachineName, string $fromStateName, string $transitionName, Context $context): StateMachineStateEntity
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
-        /** @var StateMachineTransitionStruct $transition */
+        /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions() as $transition) {
-            if ($transition->getActionName() === $transitionName && $transition->getFromState()->getTechnicalName() === $fromStateName) {
-                return $transition->getToState();
+            if ($transition->getActionName() === $transitionName && $transition->getFromStateMachineState()->getTechnicalName() === $fromStateName) {
+                return $transition->getToStateMachineState();
             }
         }
 
         $transitions = $this->getAvailableTransitions($stateMachineName, $fromStateName, $context);
-        $transitionNames = array_map(function (StateMachineTransitionStruct $transition) {
+        $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
             return $transition->getActionName();
         }, $transitions);
 

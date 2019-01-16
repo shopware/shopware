@@ -9,13 +9,13 @@ class OrderTransactionCollection extends EntityCollection
     public function filterByState(string $state): self
     {
         return $this->filter(function (OrderTransactionEntity $transaction) use ($state) {
-            return $transaction->getState()->getTechnicalName() === $state;
+            return $transaction->getStateMachineState()->getTechnicalName() === $state;
         });
     }
 
     public function filterByStateId(string $stateId): self
     {
-        return $this->filter(function (OrderTransactionStruct $transaction) use ($stateId) {
+        return $this->filter(function (OrderTransactionEntity $transaction) use ($stateId) {
             return $transaction->getStateId() === $stateId;
         });
     }

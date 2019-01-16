@@ -3,6 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Order;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
@@ -75,8 +79,8 @@ class OrderDeliveryActionControllerTest extends TestCase
         static::assertEquals(Defaults::ORDER_DELIVERY_STATES_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(3, $response['transitions']);
-        static::assertEquals('retour', $response['transitions'][0]['actionName']);
-        static::assertStringEndsWith('/order-delivery/' . $deliveryId . '/actions/state/retour', $response['transitions'][0]['url']);
+        static::assertEquals('cancel', $response['transitions'][0]['actionName']);
+        static::assertStringEndsWith('/order-delivery/' . $deliveryId . '/actions/state/cancel', $response['transitions'][0]['url']);
     }
 
     public function testTransitionToAllowedState(): void
@@ -102,7 +106,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         static::assertEquals(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         static::assertEquals($deliveryId, $response['data']['id']);
 
-        $stateId = $response['data']['relationships']['state']['data']['id'] ?? null;
+        $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
         static::assertNotNull($stateId);
 
         $actualTechnicalName = null;
@@ -153,17 +157,13 @@ class OrderDeliveryActionControllerTest extends TestCase
     {
         $orderId = Uuid::uuid4()->getHex();
         $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId();
+        $billingAddressId = Uuid::uuid4()->getHex();
 
         $order = [
             'id' => $orderId,
             'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => 100,
-            'amountNet' => 100,
-            'positionPrice' => 100,
-            'shippingTotal' => 5,
-            'shippingNet' => 5,
-            'isNet' => true,
-            'isTaxFree' => true,
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
@@ -175,14 +175,17 @@ class OrderDeliveryActionControllerTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'billingAddress' => [
-                'salutation' => 'mr',
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'street' => 'Ebbinghoff 10',
-                'zipcode' => '48624',
-                'city' => 'Schöppingen',
-                'countryId' => Defaults::COUNTRY,
+            'billingAddressId' => $billingAddressId,
+            'addresses' => [
+                [
+                    'salutation' => 'mr',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                    'countryId' => Defaults::COUNTRY,
+                ],
             ],
             'lineItems' => [],
             'deliveries' => [
@@ -246,8 +249,10 @@ class OrderDeliveryActionControllerTest extends TestCase
             'shippingDateLatest' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'shippingOrderAddressId' => Defaults::SHIPPING_METHOD,
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'stateId' => $stateId,
             'shippingOrderAddress' => [
+                'orderId' => $orderId,
                 'countryId' => Defaults::COUNTRY,
                 'salutation' => 'Herr',
                 'firstName' => 'Max',

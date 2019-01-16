@@ -8,6 +8,8 @@ use Throwable;
 
 class IllegalTransitionException extends ShopwareHttpException
 {
+    protected $code = 'ILLEGAL-STATE-TRANSITION';
+
     public function __construct(string $currentState, string $transition, array $possibleTransitions, int $code = 0, Throwable $previous = null)
     {
         $message = sprintf(

@@ -102,8 +102,6 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('listingSortingTranslations', ListingSortingTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('localeTranslations', LocaleTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mediaTranslations', MediaTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('orderStateTranslations', OrderStateTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('orderTransactionStateTranslations', OrderTransactionStateTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('paymentMethodTranslations', PaymentMethodTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productTranslations', ProductTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),

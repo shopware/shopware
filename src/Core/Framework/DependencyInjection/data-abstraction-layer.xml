@@ -106,8 +106,9 @@
             <argument type="tagged" tag="shopware.entity.extension"/>
         </service>
 
+        <!-- EntityDefinition[] -->
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry">
-            <argument type="collection"/><!-- EntityDefinition[] -->
+            <argument type="collection"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">

@@ -30,9 +30,9 @@ class StateMachineStateDefinition extends EntityDefinition
         return 'state_machine_state';
     }
 
-    public static function getStructClass(): string
+    public static function getEntityClass(): string
     {
-        return StateMachineStateStruct::class;
+        return StateMachineStateEntity::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
@@ -40,22 +40,26 @@ class StateMachineStateDefinition extends EntityDefinition
         return StateMachineStateTranslationDefinition::class;
     }
 
+    public static function getCollectionClass(): string
+    {
+        return StateMachineStateCollection::class;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
-            (new StringField('technical_name', 'technicalName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('technical_name', 'technicalName'))->setFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 
             (new FkField('state_machine_id', 'stateMachineId', StateMachineDefinition::class))->setFlags(new Required()),
             new ManyToOneAssociationField('stateMachine', 'state_machine_id', StateMachineDefinition::class, false),
 
-            new OneToManyAssociationField('fromTransitions', StateMachineTransitionDefinition::class, 'from_state_id', false),
-            new OneToManyAssociationField('toTransitions', StateMachineTransitionDefinition::class, 'to_state_id', false),
-            new OneToManyAssociationField('initialStateStateMachines', StateMachineDefinition::class, 'initial_state_id', false),
+             new OneToManyAssociationField('fromStateMachineTransitions', StateMachineTransitionDefinition::class, 'from_state_id', false),
+             new OneToManyAssociationField('toStateMachineTransitions', StateMachineTransitionDefinition::class, 'to_state_id', false),
 
-            (new TranslationsAssociationField(StateMachineStateTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(StateMachineStateTranslationDefinition::class, 'state_machine_state_id'))->setFlags(new Required(), new CascadeDelete()),
 
             new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'state_id', false),
             new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'state_id', false),

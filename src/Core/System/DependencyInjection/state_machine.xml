@@ -5,19 +5,19 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Core\System\StateMachine\StateMachineDefinition" id="Shopware\Core\System\StateMachine\StateMachineDefinition">
+        <service id="Shopware\Core\System\StateMachine\StateMachineDefinition">
             <tag name="shopware.entity.definition" entity="state_machine"/>
         </service>
-        <service class="Shopware\Core\System\StateMachine\StateMachineTranslationDefinition" id="Shopware\Core\System\StateMachine\StateMachineTranslationDefinition">
+        <service id="Shopware\Core\System\StateMachine\StateMachineTranslationDefinition">
             <tag name="shopware.entity.definition" entity="state_machine_translation"/>
         </service>
-        <service class="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition" id="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition">
+        <service id="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition">
             <tag name="shopware.entity.definition" entity="state_machine_state"/>
         </service>
-        <service class="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition" id="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition">
+        <service id="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition">
             <tag name="shopware.entity.definition" entity="state_machine_state_translation"/>
         </service>
-        <service class="Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition" id="Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition">
+        <service  id="Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition">
             <tag name="shopware.entity.definition" entity="state_machine_transition"/>
         </service>
     </services>

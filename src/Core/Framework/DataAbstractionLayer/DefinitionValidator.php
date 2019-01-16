@@ -35,13 +35,6 @@ class DefinitionValidator
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
         'product_configurator.selected',
-        'state_machine_state.fromTransitions',
-        'state_machine_state.toTransitions',
-        'state_machine_transition.fromState',
-        'state_machine_transition.toState',
-        'order.state',
-        'order_delivery.state',
-        'order_transaction.state',
     ];
 
     /**

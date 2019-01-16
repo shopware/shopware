@@ -3,17 +3,17 @@
 namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\StateMachine\IllegalTransitionException;
 use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionStruct;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class OrderDeliveryActionController extends AbstractController
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepository
      */
     private $orderDeliveryRepository;
 
@@ -32,7 +32,7 @@ class OrderDeliveryActionController extends AbstractController
      */
     private $stateMachineRegistry;
 
-    public function __construct(RepositoryInterface $orderDeliveryRepository, StateMachineRegistry $stateMachineRegistry)
+    public function __construct(EntityRepository $orderDeliveryRepository, StateMachineRegistry $stateMachineRegistry)
     {
         $this->orderDeliveryRepository = $orderDeliveryRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
@@ -54,9 +54,9 @@ class OrderDeliveryActionController extends AbstractController
 
         $currentState = null;
 
-        /** @var StateMachineStateStruct $place */
+        /** @var StateMachineStateEntity $place */
         foreach ($stateMachine->getStates()->getElements() as $place) {
-            if ($place->getTechnicalName() === $delivery->getState()->getTechnicalName()) {
+            if ($place->getTechnicalName() === $delivery->getStateMachineState()->getTechnicalName()) {
                 $currentState = [
                     'name' => $place->getName(),
                     'technicalName' => $place->getTechnicalName(),
@@ -64,15 +64,15 @@ class OrderDeliveryActionController extends AbstractController
             }
         }
 
-        /** @var StateMachineTransitionStruct $transition */
+        /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions()->getElements() as $transition) {
-            if ($transition->getFromState()->getTechnicalName() !== $delivery->getState()->getTechnicalName()) {
+            if ($transition->getFromStateMachineState()->getTechnicalName() !== $delivery->getStateMachineState()->getTechnicalName()) {
                 continue;
             }
 
             $transitions[] = [
-                'name' => $transition->getToState()->getName(),
-                'technicalName' => $transition->getToState()->getTechnicalName(),
+                'name' => $transition->getToStateMachineState()->getName(),
+                'technicalName' => $transition->getToStateMachineState()->getTechnicalName(),
                 'actionName' => $transition->getActionName(),
                 'url' => $baseUrl . '/' . $transition->getActionName(),
             ];
@@ -97,15 +97,15 @@ class OrderDeliveryActionController extends AbstractController
         $delivery = $this->getOrderDelivery($deliveryId, $context);
 
         if (empty($transition)) {
-            $transitions = $this->stateMachineRegistry->getAvailableTransitions(Defaults::ORDER_DELIVERY_STATE_MACHINE, $delivery->getState()->getTechnicalName(), $context);
-            $transitionNames = array_map(function (StateMachineTransitionStruct $transition) {
+            $transitions = $this->stateMachineRegistry->getAvailableTransitions(Defaults::ORDER_DELIVERY_STATE_MACHINE, $delivery->getStateMachineState()->getTechnicalName(), $context);
+            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
                 return $transition->getActionName();
             }, $transitions);
 
-            throw new IllegalTransitionException($delivery->getState()->getName(), '', $transitionNames);
+            throw new IllegalTransitionException($delivery->getStateMachineState()->getName(), '', $transitionNames);
         }
 
-        $toPlace = $this->stateMachineRegistry->transition(Defaults::ORDER_DELIVERY_STATE_MACHINE, $delivery->getState()->getTechnicalName(), $transition, $context);
+        $toPlace = $this->stateMachineRegistry->transition(Defaults::ORDER_DELIVERY_STATE_MACHINE, $delivery->getStateMachineState()->getTechnicalName(), $transition, $context);
 
         $payload = [
             ['id' => $delivery->getId(), 'stateId' => $toPlace->getId()],
@@ -113,15 +113,15 @@ class OrderDeliveryActionController extends AbstractController
 
         $this->orderDeliveryRepository->update($payload, $context);
 
-        $delivery->setState($toPlace);
+        $delivery->setStateMachineState($toPlace);
         $delivery->setStateId($toPlace->getId());
 
         return $responseFactory->createDetailResponse($delivery, OrderDeliveryDefinition::class, $request, $context);
     }
 
-    private function getOrderDelivery(string $id, Context $context): OrderDeliveryStruct
+    private function getOrderDelivery(string $id, Context $context): OrderDeliveryEntity
     {
-        $result = $this->orderDeliveryRepository->read(new ReadCriteria([$id]), $context);
+        $result = $this->orderDeliveryRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
             throw new ResourceNotFoundException(OrderDeliveryDefinition::getEntityName(), ['id' => $id]);

@@ -3,11 +3,14 @@
 namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\Struct\Collection;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
 
-class StateMachineStruct extends Entity
+class StateMachineEntity extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */
@@ -19,19 +22,14 @@ class StateMachineStruct extends Entity
     protected $name;
 
     /**
-     * @var Collection|null
+     * @var StateMachineTransitionCollection|null
      */
     protected $transitions;
 
     /**
-     * @var Collection|null
+     * @var StateMachineStateCollection|null
      */
     protected $states;
-
-    /**
-     * @var StateMachineStateStruct|null
-     */
-    protected $initialState;
 
     /**
      * @var string|null
@@ -39,7 +37,7 @@ class StateMachineStruct extends Entity
     protected $initialStateId;
 
     /**
-     * @var Collection
+     * @var StateMachineTranslationCollection
      */
     protected $translations;
 
@@ -73,34 +71,35 @@ class StateMachineStruct extends Entity
         $this->name = $name;
     }
 
-    public function getTransitions(): ?Collection
+    public function getTransitions(): ?StateMachineTransitionCollection
     {
         return $this->transitions;
     }
 
-    public function setTransitions(Collection $transitions): void
+    public function setTransitions(StateMachineTransitionCollection $transitions): void
     {
         $this->transitions = $transitions;
     }
 
-    public function getStates(): ?Collection
+    public function getStates(): ?StateMachineStateCollection
     {
         return $this->states;
     }
 
-    public function setStates(Collection $states): void
+    public function setStates(StateMachineStateCollection $states): void
     {
         $this->states = $states;
     }
 
-    public function getInitialState(): StateMachineStateStruct
+    public function getInitialState(): ?StateMachineStateEntity
     {
-        return $this->initialState;
-    }
+        foreach ($this->states as $state) {
+            if ($state->getId() === $this->initialStateId) {
+                return $state;
+            }
+        }
 
-    public function setInitialState(StateMachineStateStruct $initialState): void
-    {
-        $this->initialState = $initialState;
+        return null;
     }
 
     public function getInitialStateId(): ?string
@@ -113,12 +112,12 @@ class StateMachineStruct extends Entity
         $this->initialStateId = $initialStateId;
     }
 
-    public function getTranslations(): Collection
+    public function getTranslations(): StateMachineTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(Collection $translations): void
+    public function setTranslations(StateMachineTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

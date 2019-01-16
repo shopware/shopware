@@ -82,9 +82,14 @@ Component.register('sw-condition-and-container', {
 
     methods: {
         createComponent() {
-            this.getDetailPage();
+            this.locateDetailPage();
             if (this.detailPage) {
-                this.detailPage.$on('check-delete-all', () => { this.onCheckDeleteAll(); });
+                this.detailPage.$on(
+                    'check-delete-all',
+                    () => {
+                        this.disabledDeleteButton = this.onCheckDeleteAll();
+                    }
+                );
             }
             this.condition.value = {};
 
@@ -99,8 +104,7 @@ Component.register('sw-condition-and-container', {
         },
         onCheckDeleteAll() {
             if (this.level > 1) {
-                this.disabledDeleteButton = false;
-                return;
+                return false;
             }
 
             if (this.level === 1
@@ -108,21 +112,18 @@ Component.register('sw-condition-and-container', {
                 && this.condition.type === 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule'
                 && this.condition.children.length === 1
                 && this.condition.children[0].type === 'placeholder') {
-                this.disabledDeleteButton = true;
-                return;
+                return true;
             }
 
             if (this.level === 0
                 && this.condition.children.length === 1
                 && this.condition.children[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule'
                 && this.condition.children[0].children.length === 1
-                && this.condition.children[0].children[0].type === 'placeholder'
-            ) {
-                this.disabledDeleteButton = true;
-                return;
+                && this.condition.children[0].children[0].type === 'placeholder') {
+                return true;
             }
 
-            this.disabledDeleteButton = false;
+            return false;
         },
         onFinishLoading() {
             this.createComponent();
@@ -134,7 +135,7 @@ Component.register('sw-condition-and-container', {
             }
 
             this.$nextTick(() => {
-                this.throwConditionContainerChangeEvent();
+                this.emitConditionContainerChangeEvent();
             });
             return condition.component;
         },
@@ -156,8 +157,6 @@ Component.register('sw-condition-and-container', {
                 }
             );
             this.condition.children.push(condition);
-
-            this.throwConditionContainerChangeEvent();
         },
         createPlaceholderBefore(element) {
             const originalPosition = element.position;
@@ -197,7 +196,7 @@ Component.register('sw-condition-and-container', {
 
             this.$emit('delete-condition', this.condition);
 
-            this.throwConditionContainerChangeEvent();
+            this.emitConditionContainerChangeEvent();
         },
         deleteChildren(children) {
             children.forEach((child) => {
@@ -220,7 +219,7 @@ Component.register('sw-condition-and-container', {
             condition.delete();
             this.condition.children.splice(this.condition.children.indexOf(condition), 1);
 
-            this.throwConditionContainerChangeEvent();
+            this.emitConditionContainerChangeEvent();
 
             if (this.condition.children.length <= 0) {
                 this.$nextTick(() => {
@@ -232,19 +231,19 @@ Component.register('sw-condition-and-container', {
                 });
             }
         },
-        getDetailPage() {
+        locateDetailPage() {
             let parent = this.$parent;
 
             while (parent) {
                 if (['sw-settings-rule-create', 'sw-settings-rule-detail'].includes(parent.$options.name)) {
                     this.detailPage = parent;
-                    break;
+                    return;
                 }
 
                 parent = parent.$parent;
             }
         },
-        throwConditionContainerChangeEvent() {
+        emitConditionContainerChangeEvent() {
             if (!this.detailPage) {
                 return;
             }

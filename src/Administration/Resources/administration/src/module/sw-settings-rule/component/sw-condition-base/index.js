@@ -8,7 +8,7 @@ import './sw-condition-base.less';
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-base :condition="condition"></sw-condition-baser>
+ * <sw-condition-base :condition="condition"></sw-condition-base>
  */
 Component.register('sw-condition-base', {
     template,

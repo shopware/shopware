@@ -121,10 +121,9 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="category.repository"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="500"/>
         </service>
 
     </services>

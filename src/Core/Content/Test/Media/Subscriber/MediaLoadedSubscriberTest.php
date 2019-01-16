@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -19,7 +20,7 @@ class MediaLoadedSubscriberTest extends TestCase
 
     public function testExtensionSubscribesToMediaLoaded(): void
     {
-        static::assertCount(2, MediaLoadedSubscriber::getSubscribedEvents()['media.loaded']);
+        static::assertCount(2, MediaLoadedSubscriber::getSubscribedEvents()[MediaEvents::MEDIA_LOADED_EVENT]);
     }
 
     public function testItAddsUrl(): void

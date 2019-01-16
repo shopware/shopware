@@ -55,6 +55,14 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="500"/>
+        </service>
+
         <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
             <argument type="service" id="request_stack"/>

@@ -1,0 +1,211 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer\Indexing;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+
+class MediaFolderConfigIndexerTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $folderRepository;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var Connection
+     */
+    private $conncetion;
+
+    /**
+     * @var MediaFolderConfigIndexer
+     */
+    private $configIndexer;
+
+    public function setUp()
+    {
+        $this->folderRepository = $this->getContainer()->get('media_folder.repository');
+        $this->conncetion = $this->getContainer()->get(Connection::class);
+        $this->configIndexer = $this->getContainer()->get(MediaFolderConfigIndexer::class);
+        $this->context = Context::createDefaultContext();
+    }
+
+    public function testOnRefreshItUpdatesChildConfig(): void
+    {
+        $parentId = Uuid::uuid4()->getHex();
+        $child1Id = Uuid::uuid4()->getHex();
+        $child1_1Id = Uuid::uuid4()->getHex();
+        $configId = Uuid::uuid4()->getHex();
+        $newConfigId = Uuid::uuid4()->getHex();
+
+        $this->folderRepository->create([
+            [
+                'id' => $parentId,
+                'name' => 'Parent',
+                'configuration' => [
+                    'id' => $configId,
+                    'createThumbnails' => true,
+                ],
+                'children' => [
+                    [
+                        'id' => $child1Id,
+                        'name' => 'child',
+                        'useParentConfiguration' => true,
+                        'configurationId' => $configId,
+                        'children' => [
+                            [
+                                'id' => $child1_1Id,
+                                'name' => 'child 1.1',
+                                'useParentConfiguration' => true,
+                                'configurationId' => $configId,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        $this->folderRepository->update([
+            [
+                'id' => $parentId,
+                'configuration' => [
+                    'id' => $newConfigId,
+                    'createThumbnails' => false,
+                ],
+            ],
+        ], $this->context);
+
+        $children = $this->folderRepository->read(new ReadCriteria([$child1Id, $child1_1Id]), $this->context);
+
+        static::assertEquals($newConfigId, $children->get($child1Id)->getConfigurationId());
+        static::assertEquals($newConfigId, $children->get($child1_1Id)->getConfigurationId());
+    }
+
+    public function testOnRefreshItUpdatesOwnConfig(): void
+    {
+        $parentId = Uuid::uuid4()->getHex();
+        $child1Id = Uuid::uuid4()->getHex();
+        $child1_1Id = Uuid::uuid4()->getHex();
+        $child1_1_1Id = Uuid::uuid4()->getHex();
+        $configId = Uuid::uuid4()->getHex();
+        $childConfigId = Uuid::uuid4()->getHex();
+
+        $this->folderRepository->create([
+            [
+                'id' => $parentId,
+                'name' => 'Parent',
+                'configuration' => [
+                    'id' => $configId,
+                    'createThumbnails' => true,
+                ],
+                'children' => [
+                    [
+                        'id' => $child1Id,
+                        'name' => 'child',
+                        'useParentConfiguration' => false,
+                        'configuration' => [
+                            'id' => $childConfigId,
+                            'createThumbnails' => true,
+                        ],
+                        'children' => [
+                            [
+                                'id' => $child1_1Id,
+                                'name' => 'child 1.1',
+                                'useParentConfiguration' => true,
+                                'configurationId' => $childConfigId,
+                                'children' => [
+                                    [
+                                        'id' => $child1_1_1Id,
+                                        'name' => 'child 1.1.1',
+                                        'useParentConfiguration' => true,
+                                        'configurationId' => $childConfigId,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        $this->folderRepository->update([
+            [
+                'id' => $child1_1Id,
+                'parentId' => $parentId,
+            ],
+        ], $this->context);
+
+        $children = $this->folderRepository->read(new ReadCriteria([$child1_1Id, $child1_1_1Id]), $this->context);
+
+        static::assertEquals($configId, $children->get($child1_1Id)->getConfigurationId());
+        static::assertEquals($configId, $children->get($child1_1_1Id)->getConfigurationId());
+    }
+
+    public function testIndex(): void
+    {
+        $parentId = Uuid::uuid4()->getHex();
+        $child1Id = Uuid::uuid4()->getHex();
+        $child1_1Id = Uuid::uuid4()->getHex();
+        $configId = Uuid::uuid4()->getHex();
+
+        $this->folderRepository->create([
+            [
+                'id' => $parentId,
+                'name' => 'Parent',
+                'useParentConfiguration' => false,
+                'configuration' => [
+                    'id' => $configId,
+                    'createThumbnails' => true,
+                ],
+                'children' => [
+                    [
+                        'id' => $child1Id,
+                        'name' => 'child',
+                        'useParentConfiguration' => true,
+                        'configurationId' => $configId,
+                        'children' => [
+                            [
+                                'id' => $child1_1Id,
+                                'name' => 'child 1.1',
+                                'useParentConfiguration' => true,
+                                'configurationId' => $configId,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        $this->conncetion->createQueryBuilder()
+            ->update('media_folder')
+            ->set('media_folder_configuration_id', ':configId')
+            ->andWhere('id in (:ids)')
+            ->setParameter('configId', Uuid::uuid4()->getBytes())
+            ->setParameter(
+                'ids',
+                [Uuid::fromHexToBytes($child1Id), Uuid::fromHexToBytes($child1_1Id)],
+                Connection::PARAM_STR_ARRAY
+            )
+            ->execute();
+
+        $this->configIndexer->index(new \DateTime());
+
+        $children = $this->folderRepository->read(new ReadCriteria([$child1Id, $child1_1Id]), $this->context);
+
+        static::assertEquals($configId, $children->get($child1Id)->getConfigurationId());
+        static::assertEquals($configId, $children->get($child1_1Id)->getConfigurationId());
+    }
+}

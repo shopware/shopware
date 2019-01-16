@@ -274,7 +274,7 @@ class InheritanceIndexer implements IndexerInterface
             return new LastIdQuery($query);
         }
 
-        $query->select([$escaped . '.id', $escaped . '.id']);
+        $query->select([$escaped . '.id', $escaped . '.id AS entityId']);
         $query->setFirstResult(0);
 
         return new OffsetQuery($query);

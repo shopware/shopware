@@ -1,0 +1,305 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\TreeIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+class TreeIndexerTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $categoryRepository;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var TreeIndexer
+     */
+    private $treeIndexer;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function setUp()
+    {
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->folderRepository = $this->getContainer()->get('media_folder.repository');
+        $this->context = Context::createDefaultContext();
+        $this->treeIndexer = $this->getContainer()->get(TreeIndexer::class);
+        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->connection = $this->getContainer()->get(Connection::class);
+    }
+
+    public function testRefreshTree(): void
+    {
+        /*
+        Category A
+        ├── Category B
+        ├── Category C
+        │  └── Category D
+        */
+        $categoryA = $this->createCategory();
+
+        $categoryB = $this->createCategory($categoryA);
+        $categoryC = $this->createCategory($categoryA);
+
+        $categoryD = $this->createCategory($categoryC);
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+
+        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());
+
+        static::assertEquals(1, $categories->get($categoryA)->getLevel());
+        static::assertEquals(2, $categories->get($categoryB)->getLevel());
+        static::assertEquals(2, $categories->get($categoryC)->getLevel());
+        static::assertEquals(3, $categories->get($categoryD)->getLevel());
+
+        $this->categoryRepository->update([[
+            'id' => $categoryD,
+            'parentId' => $categoryA,
+        ]], $this->context);
+
+        /*
+        Category A
+        ├── Category B
+        ├── Category C
+        ├── Category D
+        */
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+
+        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryD)->getPath());
+
+        static::assertEquals(1, $categories->get($categoryA)->getLevel());
+        static::assertEquals(2, $categories->get($categoryB)->getLevel());
+        static::assertEquals(2, $categories->get($categoryC)->getLevel());
+        static::assertEquals(2, $categories->get($categoryD)->getLevel());
+    }
+
+    public function testRefreshTreeMovingMultipleCategories(): void
+    {
+        /*
+        Category A
+        ├── Category B
+        │  └── Category C
+        ├── Category D
+        │  └── Category E
+        */
+        $categoryA = $this->createCategory();
+        $categoryB = $this->createCategory($categoryA);
+        $categoryC = $this->createCategory($categoryB);
+
+        $categoryD = $this->createCategory($categoryA);
+        $categoryE = $this->createCategory($categoryD);
+
+        $categories = $this->categoryRepository->read(
+            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
+            $this->context
+        );
+
+        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertEquals("|${categoryA}|${categoryB}|", $categories->get($categoryC)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryD)->getPath());
+        static::assertEquals("|${categoryA}|${categoryD}|", $categories->get($categoryE)->getPath());
+
+        static::assertEquals(1, $categories->get($categoryA)->getLevel());
+        static::assertEquals(2, $categories->get($categoryB)->getLevel());
+        static::assertEquals(3, $categories->get($categoryC)->getLevel());
+        static::assertEquals(2, $categories->get($categoryD)->getLevel());
+        static::assertEquals(3, $categories->get($categoryE)->getLevel());
+
+        $this->categoryRepository->update([
+            [
+                'id' => $categoryC,
+                'parentId' => $categoryA,
+            ],
+            [
+                'id' => $categoryD,
+                'parentId' => $categoryC,
+            ],
+            [
+                'id' => $categoryE,
+                'parentId' => $categoryC,
+            ],
+        ], $this->context);
+
+        /**
+        Category A
+        ├── Category B
+        ├── Category C
+        │  └── Category D
+        │  └── Category E
+         */
+        $categories = $this->categoryRepository->read(
+            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
+            $this->context
+        );
+
+        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());
+        static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryE)->getPath());
+
+        static::assertEquals(1, $categories->get($categoryA)->getLevel());
+        static::assertEquals(2, $categories->get($categoryB)->getLevel());
+        static::assertEquals(2, $categories->get($categoryC)->getLevel());
+        static::assertEquals(3, $categories->get($categoryD)->getLevel());
+        static::assertEquals(3, $categories->get($categoryE)->getLevel());
+    }
+
+    public function testRefreshTreeWithDifferentVersion(): void
+    {
+        /*
+        Category A
+        ├── Category B
+        ├── Category C
+        │  └── Category D
+        */
+        $categoryA = $this->createCategory();
+
+        $categoryB = $this->createCategory($categoryA);
+        $categoryC = $this->createCategory($categoryA);
+
+        $categoryD = $this->createCategory($categoryC);
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+
+        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());
+
+        static::assertEquals(1, $categories->get($categoryA)->getLevel());
+        static::assertEquals(2, $categories->get($categoryB)->getLevel());
+        static::assertEquals(2, $categories->get($categoryC)->getLevel());
+        static::assertEquals(3, $categories->get($categoryD)->getLevel());
+
+        $versionId = $this->categoryRepository->createVersion($categoryD, $this->context);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        /** @var CategoryEntity $category */
+        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $versionContext)->first();
+        static::assertInstanceOf(CategoryEntity::class, $category);
+        static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
+
+        //update parent of last category in version scope
+        $updated = ['id' => $categoryD, 'parentId' => $categoryA];
+
+        $this->categoryRepository->update([$updated], $versionContext);
+
+        /** @var CategoryEntity $category */
+        //check that the path updated
+        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $versionContext)->first();
+        static::assertInstanceOf(CategoryEntity::class, $category);
+        static::assertEquals('|' . $categoryA . '|', $category->getPath());
+
+        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $this->context)->first();
+        static::assertInstanceOf(CategoryEntity::class, $category);
+        static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
+
+        $this->categoryRepository->merge($versionId, $this->context);
+
+        //test after merge the path is updated too
+        /** @var CategoryEntity $category */
+        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $this->context)->first();
+        static::assertInstanceOf(CategoryEntity::class, $category);
+        static::assertEquals('|' . $categoryA . '|', $category->getPath());
+    }
+
+    public function testIndexTree(): void
+    {
+        /*
+        Category A
+        ├── Category B
+        ├── Category C
+        │  └── Category D
+        */
+        $categoryA = $this->createCategory();
+
+        $categoryB = $this->createCategory($categoryA);
+        $categoryC = $this->createCategory($categoryA);
+
+        $categoryD = $this->createCategory($categoryC);
+
+        $this->connection->executeQuery(
+            'UPDATE category SET path = NULL, level = 0 WHERE HEX(id) IN (:ids)',
+            [
+                'ids' => [
+                    $categoryA,
+                    $categoryB,
+                    $categoryC,
+                    $categoryD,
+                ],
+            ],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        foreach ($categories as $category) {
+            static::assertEquals(0, $category->getLevel());
+            static::assertNull($category->getPath());
+        }
+
+        $this->treeIndexer->index(new \DateTime());
+
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+
+        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());
+
+        static::assertEquals(1, $categories->get($categoryA)->getLevel());
+        static::assertEquals(2, $categories->get($categoryB)->getLevel());
+        static::assertEquals(2, $categories->get($categoryC)->getLevel());
+        static::assertEquals(3, $categories->get($categoryD)->getLevel());
+    }
+
+    private function createCategory(string $parentId = null): string
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'catalogId' => Defaults::CATALOG,
+            'name' => 'Category ',
+        ];
+
+        if ($parentId) {
+            $data['parentId'] = $parentId;
+        }
+        $this->categoryRepository->upsert([$data], $this->context);
+
+        return $id;
+    }
+}

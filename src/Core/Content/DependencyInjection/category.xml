@@ -12,18 +12,5 @@
         <service id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition">
             <tag name="shopware.entity.definition" entity="category_translation"/>
         </service>
-
-        <service id="Shopware\Core\Content\Category\Util\CategoryPathBuilder">
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\Command\BuildCategoryPathCommand">
-            <argument type="service" id="Shopware\Core\Content\Category\Util\CategoryPathBuilder"/>
-            <argument type="service" id="category.repository"/>
-            <tag name="console.command"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
     </services>
 </container>                

@@ -380,18 +380,6 @@ export default class EntityProxy {
     }
 
     /**
-     * Overrides the original entity with the given entity.
-     *
-     * @memberOf module:core/data/EntityProxy
-     * @param {EntityProxy} newEntity
-     * @return {void}
-     */
-    override(newEntity) {
-        this.setLocalData(newEntity);
-        this.id = newEntity.id;
-    }
-
-    /**
      * Validates the entity.
      *
      * @memberOf module:core/data/EntityProxy

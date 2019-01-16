@@ -253,24 +253,4 @@ describe('core/data/EntityProxy.js', () => {
 
         expect(changes.testProp).to.be.an('undefined');
     });
-
-    it('should override correctly', () => {
-        const tax = new EntityProxy('tax', serviceContainer.taxService);
-        tax.setData({
-            name: 'Test tax rate',
-            taxRate: 99.98
-        });
-
-        const newTax = new EntityProxy('tax', serviceContainer.taxService);
-        newTax.setData({
-            name: 'New tax rate',
-            taxRate: 19
-        });
-
-        tax.override(newTax);
-
-        expect(tax.id).equals(newTax.id);
-        expect(tax.draft.name).equals(newTax.name);
-        expect(tax.draft.taxRate).equals(newTax.taxRate);
-    });
 });

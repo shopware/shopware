@@ -273,6 +273,15 @@
             <argument type="service" id="shopware.cache"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\TreeIndexer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerRegistry">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
             <tag name="kernel.event_subscriber"/>
@@ -1156,6 +1165,12 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TreeLevelFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
+            <argument type="service" id="validator"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
@@ -1164,6 +1179,12 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
+            <argument type="service" id="validator"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TreePathFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>

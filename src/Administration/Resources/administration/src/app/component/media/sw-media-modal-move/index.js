@@ -125,9 +125,9 @@ Component.register('sw-media-modal-move', {
             }).forEach((item) => {
                 const messages = this._getNotificationMessages(item);
                 item.isLoading = true;
-
+                item.parentId = this.targetFolder.id || null;
                 movePromises.push(
-                    this.mediaFolderService.moveFolder(item.id, this.targetFolder.id).then(() => {
+                    item.save().then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
                             message: messages.successMessage

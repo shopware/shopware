@@ -2,21 +2,20 @@
 <div class="sw-condition-base" :class="[conditionClass, { 'has--error': hasErrors }]">
     <div class="sw-condition-base__container">
         {% block sw_condition_field_condition %}
-            <div class="field field--condition">
-                {% block sw_condition_field_condition_select %}
-                    <select name="name"
-                            class="sw-condition-base__field"
-                            v-model="condition.type">
-                        {% block sw_condition_field_condition_select_option %}
-                            <option v-for="(innerCondition, innerConditionType) in ruleConditionService.getConditions()"
-                                    :selected="innerConditionType === condition.type"
-                                    :value="innerConditionType">
-                                {{ $tc(getLabel(innerConditionType)) }}
-                            </option>
-                        {% endblock %}
-                    </select>
-                {% endblock %}
-            </div>
+            <sw-field type="select"
+                      name="type"
+                      v-model="condition.type"
+                      class="field field--select field--condition">
+                <template slot="options">
+                    {% block sw_condition_field_condition_select_option %}
+                    <option v-for="(innerCondition, innerConditionType) in ruleConditionService.getConditions()"
+                            :selected="innerConditionType === condition.type"
+                            :value="innerConditionType">
+                        {{ $tc(getLabel(innerConditionType)) }}
+                    </option>
+                    {% endblock %}
+                </template>
+            </sw-field>
         {% endblock %}
 
         {% block sw_condition_fields %}
@@ -31,6 +30,11 @@
         {% block sw_condition_field_actions %}
             <div class="field field--actions">
                 <sw-context-button>
+                    <template slot="button">
+                        <button class="sw-context-button__button">
+                            <sw-icon name="small-more" decorative></sw-icon>
+                        </button>
+                    </template>
                     <sw-context-menu-item @click="$emit('delete-condition', condition)" variant="danger">
                         {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
                     </sw-context-menu-item>
@@ -38,12 +42,14 @@
             </div>
         {% endblock %}
     </div>
-    <div v-if="hasErrors" class="sw-condition-base__error-container">
-        <div v-for="(error, fieldName) in formErrors">
-            <span v-if="error.detail">
-                {{ fieldName }}: {{ error.detail }}
-            </span>
+    {% block sw_condition_errors %}
+        <div v-if="hasErrors" class="sw-condition-base__error-container">
+            <div v-for="(error, fieldName) in formErrors">
+                <span v-if="error.detail">
+                    {{ fieldName }}: {{ error.detail }}
+                </span>
+            </div>
         </div>
-    </div>
+    {% endblock %}
 </div>
 {% endblock %}

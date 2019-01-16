@@ -13,8 +13,11 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
     template,
 
     computed: {
-        operator() {
-            return this.ruleConditionService.operators.equals;
+        selectValues() {
+            return [
+                { label: 'global.sw-condition.condition.yes', value: true },
+                { label: 'global.sw-condition.condition.no', value: false }
+            ];
         },
         fieldNames() {
             return ['isDifferent'];
@@ -24,5 +27,19 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
                 isDifferent: true
             };
         }
+    },
+
+    watch: {
+        isDifferent: {
+            handler(newValue) {
+                this.condition.value.isDifferent = newValue === 'true';
+            }
+        }
+    },
+
+    data() {
+        return {
+            isDifferent: String(this.condition.value.isDifferent)
+        };
     }
 });

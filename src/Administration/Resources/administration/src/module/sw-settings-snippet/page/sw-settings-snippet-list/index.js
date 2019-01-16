@@ -44,7 +44,7 @@ Component.register('sw-settings-snippet-list', {
             this.queryIds = this.$route.query.ids;
             const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
 
-            this.snippetSetService.getCustomList(this.page, this.limit).then((response) => {
+            this.snippetSetService.getCustomList(this.page, this.limit, this.term).then((response) => {
                 this.snippetSetStore.getList({ criteria }).then((sets) => {
                     this.snippetSets = sets.items;
                     this.metaId = this.queryIds[0];
@@ -140,6 +140,12 @@ Component.register('sw-settings-snippet-list', {
 
         onDelete(item) {
             this.showDeleteModal = item;
+        },
+
+        onSearch(term) {
+            this.term = term;
+            this.page = 1;
+            this.initializeSnippetSet();
         },
 
         onInlineEditCancel(result, upperIndex) {

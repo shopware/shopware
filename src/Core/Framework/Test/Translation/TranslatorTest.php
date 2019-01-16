@@ -39,18 +39,12 @@ class TranslatorTest extends TestCase
      */
     private $languageRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $snippetSetRepository;
-
     protected function setUp()
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->translator = $this->getContainer()->get(Translator::class);
         $this->snippetRepository = $this->getContainer()->get('snippet.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->snippetSetRepository = $this->getContainer()->get('snippet_set.repository');
 
         $this->translator->resetInMemoryCache();
     }
@@ -68,7 +62,7 @@ class TranslatorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $snippet = [
-            'translationKey' => 'footer.copyright',
+            'translationKey' => 'new.unit.test.key',
             'value' => 'Realisiert mit Unit test',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'setId' => Defaults::SNIPPET_BASE_SET_EN,
@@ -86,7 +80,7 @@ class TranslatorTest extends TestCase
         // get overwritten string
         static::assertEquals(
             $snippet['value'],
-            $this->translator->getCatalogue('en_GB')->get('footer.copyright')
+            $this->translator->getCatalogue('en_GB')->get('new.unit.test.key')
         );
         static::assertSame(
             $request,

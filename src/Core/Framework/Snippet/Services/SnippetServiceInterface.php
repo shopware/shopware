@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Snippet\Services;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -12,7 +13,7 @@ interface SnippetServiceInterface
      *
      * @return array
      */
-    public function getList(Criteria $criteria): array;
+    public function getList(Criteria $criteria, Context $context): array;
 
     /**
      * @param MessageCatalogueInterface $catalog

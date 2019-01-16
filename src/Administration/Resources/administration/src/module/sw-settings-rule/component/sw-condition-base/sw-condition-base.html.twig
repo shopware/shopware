@@ -41,7 +41,9 @@
                     <sw-context-menu-item @click="$emit('create-after', condition)">
                         {{ $tc('global.sw-condition.condition.createAfter') }}
                     </sw-context-menu-item>
-                    <sw-context-menu-item @click="$emit('delete-condition', condition)" variant="danger">
+                    <sw-context-menu-item @click="$emit('delete-condition', condition)"
+                                          :disabled="disableContextDeleteButton"
+                                          variant="danger">
                         {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
                     </sw-context-menu-item>
                 </sw-context-button>

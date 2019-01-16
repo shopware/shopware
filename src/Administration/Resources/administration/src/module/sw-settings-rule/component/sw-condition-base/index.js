@@ -8,7 +8,7 @@ import './sw-condition-base.less';
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-base :condition="condition"></sw-condition-and-container>
+ * <sw-condition-base :condition="condition"></sw-condition-baser>
  */
 Component.register('sw-condition-base', {
     template,
@@ -46,6 +46,9 @@ Component.register('sw-condition-base', {
         },
         errorStore() {
             return State.getStore('error');
+        },
+        disableContextDeleteButton() {
+            return this.condition.type === 'placeholder' && this.condition.parent.children.length === 1;
         }
     },
 

@@ -61,6 +61,7 @@ Component.register('sw-settings-rule-detail', {
                     const children = this.buildNestedConditions(conditions, current.id);
                     children.forEach((child) => {
                         if (current.children.indexOf(child) === -1) {
+                            child.parent = current;
                             current.children.push(child);
                         }
                     });
@@ -89,7 +90,8 @@ Component.register('sw-settings-rule-detail', {
                     this.createCondition(
                         AND_CONTAINER_NAME,
                         utils.createId(),
-                        nestedConditions[0].id
+                        nestedConditions[0].id,
+                        nestedConditions[0]
                     )
                 ];
 
@@ -108,6 +110,7 @@ Component.register('sw-settings-rule-detail', {
                     AND_CONTAINER_NAME,
                     utils.createId(),
                     rootId,
+                    rootRole,
                     nestedConditions
                 )
             ];
@@ -115,7 +118,7 @@ Component.register('sw-settings-rule-detail', {
             return rootRole;
         },
 
-        createCondition(type, conditionId, parentId = null, children) {
+        createCondition(type, conditionId, parentId = null, parent, children) {
             const conditionData = {
                 type: type,
                 parentId: parentId
@@ -126,6 +129,10 @@ Component.register('sw-settings-rule-detail', {
                     child.parentId = conditionId;
                 });
                 conditionData.children = children;
+            }
+
+            if (parent) {
+                conditionData.parent = parent;
             }
 
             return Object.assign(this.conditionAssociations.create(conditionId), conditionData);

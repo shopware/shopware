@@ -14,6 +14,7 @@ Component.register('sw-settings-snippet-list', {
 
     data() {
         return {
+            entityName: 'snippets',
             snippetSets: {},
             metaId: ''
         };
@@ -89,6 +90,10 @@ Component.register('sw-settings-snippet-list', {
             const key = result[this.metaId].translationKey;
 
             this.snippetSets.forEach((item) => {
+                if (result[item.id].value === null) {
+                    result[item.id].value = result[item.id].origin;
+                }
+
                 if (result[item.id].origin !== result[item.id].value) {
                     responses.push(this.snippetService.save(result[item.id]));
                 } else if (result[item.id].id !== null) {

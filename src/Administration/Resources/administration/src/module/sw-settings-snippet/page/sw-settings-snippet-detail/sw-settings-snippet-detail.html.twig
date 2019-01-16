@@ -1,8 +1,20 @@
 {% block sw_settings_snippet_detail %}
     <sw-page class="sw-settings-snippet-detail">
+
+        {% block sw_settings_snippet_detail_smart_bar %}
+            <template slot="smart-bar-back">
+                <router-link class="smart-bar__back-btn"
+                             :to="backPath"
+                             :style="{ 'color': moduleData.color }">
+                    <sw-icon name="small-arrow-large-left" size="16"></sw-icon>
+                    <sw-icon :name="moduleData.icon" v-if="moduleData && moduleData.icon"></sw-icon>
+                </router-link>
+            </template>
+        {% endblock %}
+
         {% block sw_settings_snippet_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="snippet.translationKey">{{ snippet.translationKey }}</h2>
+                <h2 v-if="translationKey">{{ translationKey }}</h2>
                 <h2 v-else>{{ $tc('sw-settings-snippet.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
@@ -10,14 +22,14 @@
         {% block sw_settings_snippet_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_snippet_detail_actions_abort %}
-                    <sw-button :disabled="snippet.isLoading"
-                               :routerLink="{ name: 'sw.settings.snippet.index' }">
+                    <sw-button :disabled="isLoading"
+                               :routerLink="backPath">
                         {{ $tc('sw-settings-snippet.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_settings_snippet_detail_actions_save %}
-                    <sw-button :disabled="snippet.isLoading"
+                    <sw-button :disabled="isLoading"
                                @click.prevent="onSave"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.detail.buttonSave') }}
@@ -31,7 +43,8 @@
                 {% block sw_settings_snippet_set_detail_card %}
                     <div class="sw-settings-snippet-set-detail-card">
                         {% block sw_settings_snippet_set_detail_card_information %}
-                            <sw-card :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')" :isLoading="snippet.isLoading">
+                            <sw-card :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
+                                     :isLoading="isLoading">
                                 <div class="snippet-general-card">
                                     {% block sw_settings_snippet_set_detail_card_information_container %}
                                         <sw-container>
@@ -39,7 +52,8 @@
                                                 <sw-field type="text"
                                                           :label="$tc('sw-settings-snippet.detail.labelName')"
                                                           :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
-                                                          v-model="snippet.translationKey">
+                                                          v-model="translationKey"
+                                                          :disabled="!isCreate">
                                                 </sw-field>
                                             {% endblock %}
                                         </sw-container>
@@ -49,21 +63,21 @@
                         {% endblock %}
 
                         {% block sw_settings_snippet_set_detail_card_snippets %}
-                            <sw-card :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')" :isLoading="snippet.isLoading">
+                            <sw-card :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
+                                     :isLoading="isLoading"
+                                     v-if="!isCreate">
                                 <div class="snippet-overview-card">
                                     {% block sw_settings_snippet_set_detail_card_snippets_container %}
                                         <sw-container>
-                                            {#TODO: REMOVE ME - Make dynamic with NEXT-1380 #}
                                             {% block sw_settings_snippet_set_detail_card_snippets_fields %}
                                                 <sw-field type="text"
-                                                          {#v-for="snippetSet in snippetSets"#}
+                                                          v-for="snippet, index in snippets"
                                                           v-model="snippet.value"
-                                                          {#:label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSet.name })"#}
-                                                          label="Snippet-Text:"
-                                                          :placeholder="$tc('sw-settings-snippet.detail.labelContentPlaceholder')">
+                                                          :key="snippet.setId"
+                                                          :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[index].name })"
+                                                          :placeholder="snippet.origin">
                                                 </sw-field>
                                             {% endblock %}
-                                            {#TODO: REMOVE ME - Make dynamic with NEXT-1380 #}
                                         </sw-container>
                                     {% endblock %}
                                 </div>

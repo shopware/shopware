@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Snippet\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Snippet\Services\SnippetService;
 use Shopware\Core\Framework\Snippet\Services\SnippetServiceInterface;
 use Shopware\Core\Framework\Snippet\SnippetDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,27 +16,26 @@ use Symfony\Component\Routing\Annotation\Route;
 class SnippetController extends AbstractController
 {
     /**
+     * @var SnippetServiceInterface
+     */
+    private $snippetService;
+
+    /**
      * @var RequestCriteriaBuilder
      */
     private $criteriaBuilder;
 
-    public function __construct(RequestCriteriaBuilder $criteriaBuilder)
+    public function __construct(SnippetServiceInterface $snippetService, RequestCriteriaBuilder $criteriaBuilder)
     {
+        $this->snippetService = $snippetService;
         $this->criteriaBuilder = $criteriaBuilder;
     }
 
     /**
-     * @Route("/api/v{version}/snippet-set/getList", name="api.action.snippet.set.getList", methods={"POST", "GET"})
-     *
-     * @param Request $request
-     *
-     * @return Response
+     * @Route("/api/v{version}/_action/snippet-set", name="api.action.snippet-set.getList", methods={"POST"})
      */
     public function getList(Request $request): Response
     {
-        /** @var SnippetServiceInterface $service */
-        $service = $this->get(SnippetService::class);
-
         $criteria = new Criteria();
         $criteria = $this->criteriaBuilder->handleRequest(
             $request,
@@ -46,6 +44,27 @@ class SnippetController extends AbstractController
             Context::createDefaultContext()
         );
 
-        return new JsonResponse($service->getList($criteria));
+        return new JsonResponse($this->snippetService->getList($criteria));
+    }
+
+    /**
+     * @Route("/api/{version}/_action/snippet", name="api.action.snippet.get", methods={"POST"})
+     */
+    public function getByKey(Request $request): Response
+    {
+        $criteria = new Criteria();
+        $criteria = $this->criteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            SnippetDefinition::class,
+            Context::createDefaultContext()
+        );
+
+        $translationKey = $request->request->get('translationKey');
+
+        $response = $this->snippetService->getList($criteria);
+        $response = $translationKey !== null ? $response['data'][$translationKey] : false;
+
+        return new JsonResponse($response);
     }
 }

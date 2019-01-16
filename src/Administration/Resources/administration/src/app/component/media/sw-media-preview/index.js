@@ -110,7 +110,7 @@ Component.register('sw-media-preview', {
                 return this.item.dataUrl;
             }
 
-            if (this.useThumbnails && this.item.thumbnails.length > 0) {
+            if (this.useThumbnails && this.item.thumbnails && this.item.thumbnails.length > 0) {
                 const thumbnails = this.item.thumbnails.filter((thumb) => {
                     return thumb.height === 300;
                 });

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
@@ -19,10 +20,10 @@ use Shopware\Core\System\Language\LanguageDefinition;
 
 class EntityCacheKeyGenerator
 {
-    public function getEntityContextCacheKey(string $id, string $definition, Context $context): string
+    public function getEntityContextCacheKey(string $id, string $definition, ReadCriteria $criteria, Context $context): string
     {
         /** @var string|EntityDefinition $definition */
-        $keys = [$definition::getEntityName(), $id, $this->getContextHash($context)];
+        $keys = [$definition::getEntityName(), $id, $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
 
         return implode('-', $keys);
     }
@@ -186,6 +187,22 @@ class EntityCacheKeyGenerator
         return $associations;
     }
 
+    private function getReadCriteriaHash(ReadCriteria $criteria): string
+    {
+        return md5(json_encode([
+            $criteria->getIds(),
+            $criteria->getFilters(),
+            $criteria->getPostFilters(),
+            $criteria->getQueries(),
+            $criteria->getSorting(),
+            $criteria->getLimit(),
+            $criteria->getOffset(),
+            $criteria->getTotalCountMode(),
+            $criteria->getExtensions(),
+            $criteria->getAssociations()
+        ]));
+    }
+
     private function getCriteriaHash(Criteria $criteria): string
     {
         return md5(json_encode([
@@ -197,6 +214,7 @@ class EntityCacheKeyGenerator
             $criteria->getOffset(),
             $criteria->getTotalCountMode(),
             $criteria->getExtensions(),
+            $criteria->getAssociations()
         ]));
     }
 

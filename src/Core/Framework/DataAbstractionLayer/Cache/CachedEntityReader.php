@@ -45,7 +45,7 @@ class CachedEntityReader implements EntityReaderInterface
     {
         $collection = $this->loadFromCache($definition, $criteria, $context);
 
-        if ($collection && $collection->count() === \count($criteria->getIds())) {
+        if ($collection) {
             return $collection;
         }
 
@@ -57,7 +57,16 @@ class CachedEntityReader implements EntityReaderInterface
 
         /** @var Entity $entity */
         foreach ($loaded as $entity) {
-            $this->cacheEntity($definition, $context, $entity);
+            $this->cacheEntity($definition, $criteria, $context, $entity);
+        }
+
+        //If ids inside criteria are filtered or not found cache null result to prevent uncachable querys
+        if ($loaded->count() < \count($criteria->getIds())) {
+            foreach ($criteria->getIds() as $id) {
+                if (!array_key_exists($id, $loaded->getElements())) {
+                    $this->cacheNull($definition, $criteria, $context, $id);
+                }
+            }
         }
 
         $this->cache->commit();
@@ -67,7 +76,7 @@ class CachedEntityReader implements EntityReaderInterface
 
     private function loadFromCache(string $definition, Criteria $criteria, Context $context): ?EntityCollection
     {
-        if (\count($criteria->getAssociations()) > 0 || $criteria->getFilters() || $criteria->getPostFilters()) {
+        if (\count($criteria->getAssociations()) > 0) {
             return null;
         }
 
@@ -80,27 +89,32 @@ class CachedEntityReader implements EntityReaderInterface
         $collection = $definition::getCollectionClass();
         $collection = new $collection();
 
-        $keys = array_map(function ($id) use ($definition, $context) {
-            return $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context);
+        $keys = array_map(function ($id) use ($definition, $criteria, $context) {
+            return $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $criteria, $context);
         }, $criteria->getIds());
 
         $items = $this->cache->getItems($keys);
 
         /** @var CacheItem $item */
         foreach ($items as $item) {
+            //if item handle the id as "resolved" for cache request
+            if ($item->isHit() && $item->get() === null) {
+                continue;
+            }
             if (!$item->isHit()) {
                 return null;
             }
-
             $collection->add($item->get());
         }
 
         return $collection;
     }
 
-    private function cacheEntity(string $definition, Context $context, Entity $entity): void
+    private function cacheEntity(string $definition, ReadCriteria $criteria, Context $context, Entity $entity): void
     {
-        $key = $this->cacheKeyGenerator->getEntityContextCacheKey($entity->getUniqueIdentifier(), $definition, $context);
+        $key = $this->cacheKeyGenerator->getEntityContextCacheKey(
+            $entity->getUniqueIdentifier(), $definition, $criteria, $context
+        );
         /** @var CacheItem $item */
         $item = $this->cache->getItem($key);
         $item->set($entity);
@@ -111,6 +125,24 @@ class CachedEntityReader implements EntityReaderInterface
 
         //add cache keys for associated data
         $item->tag($tags);
+
+
+        //deferred saves are persisted with the cache->commit()
+        $this->cache->saveDeferred($item);
+    }
+
+    private function cacheNull(string $definition, ReadCriteria $criteria, Context $context, string $id): void
+    {
+        $key = $this->cacheKeyGenerator->getEntityContextCacheKey(
+            $id, $definition, $criteria, $context
+        );
+        /** @var CacheItem $item */
+        $item = $this->cache->getItem($key);
+
+        $item->set(null);
+        $item->tag($key);
+        $item->expiresAfter(3600);
+
 
         //deferred saves are persisted with the cache->commit()
         $this->cache->saveDeferred($item);

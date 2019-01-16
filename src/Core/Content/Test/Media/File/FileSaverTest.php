@@ -67,7 +67,6 @@ class FileSaverTest extends TestCase
             [
                 [
                     'id' => $mediaId,
-                    'name' => 'test file',
                 ],
             ],
             $context
@@ -145,7 +144,6 @@ class FileSaverTest extends TestCase
             [
                 [
                     'id' => $mediaId,
-                    'name' => 'test file',
                 ],
             ],
             $context
@@ -201,8 +199,10 @@ class FileSaverTest extends TestCase
         self::assertStringEndsWith($png->getFileName(), $updatedMedia->getFileName());
     }
 
-    public function testPersistFileToMediaAddsSuffixIfFileNameIsInUse(): void
+    public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
+        static::expectException(DuplicatedMediaFileNameException::class);
+
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
@@ -219,7 +219,6 @@ class FileSaverTest extends TestCase
                 [
                     [
                         'id' => $newMediaId,
-                        'name' => 'test_media',
                     ],
                 ],
                 $context
@@ -236,9 +235,46 @@ class FileSaverTest extends TestCase
                 unlink($tempFile);
             }
         }
+    }
 
-        $newMedia = $this->mediaRepository->search(new Criteria([$newMediaId]), $context)->get($newMediaId);
-        self::assertStringEndsWith($png->getFileName() . ' (1)', $newMedia->getFileName());
+    public function testPersistFileToMediaAcceptsSameNameWithDifferentExtension(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+
+        $this->setFixtureContext($context);
+        $jpg = $this->getJpg();
+
+        $newMediaId = Uuid::uuid4()->getHex();
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        copy(self::TEST_IMAGE, $tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
+
+        try {
+            $this->mediaRepository->create(
+                [
+                    [
+                        'id' => $newMediaId,
+                    ],
+                ],
+                $context
+            );
+
+            $this->fileSaver->persistFileToMedia(
+                $mediaFile,
+                $jpg->getFileName(),
+                $newMediaId,
+                $context
+            );
+        } finally {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$newMediaId]), $context)->get($newMediaId);
+        $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
     public function testPersistFileToMediaWorksWithMoreThan255Characters(): void
@@ -295,7 +331,6 @@ class FileSaverTest extends TestCase
         $this->mediaRepository->create([
             [
                 'id' => $id,
-                'name' => 'testFileWithNoData',
             ],
         ], $context);
 
@@ -311,9 +346,28 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
 
         $png = $this->getPng();
-        $txt = $this->getTxt();
+        $old = $this->getPngWithFolder();
 
-        $this->fileSaver->renameMedia($txt->getId(), $png->getFileName(), $context);
+        $this->fileSaver->renameMedia($old->getId(), $png->getFileName(), $context);
+    }
+
+    public function testRenameMediaForNewExtensionWorksWithSameName(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->setFixtureContext($context);
+
+        $png = $this->getPng();
+        $txt = $this->getTxt();
+        $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
+        $this->getPublicFilesystem()->put($mediaPath, 'test file content');
+
+        $this->fileSaver->renameMedia($png->getId(), $txt->getFileName(), $context);
+        $updatedMedia = $this->mediaRepository->read(new ReadCriteria([$png->getId()]), $context)->get($png->getId());
+
+        $newPath = $this->urlGenerator->getRelativeMediaUrl($updatedMedia);
+        static::assertTrue($this->getPublicFilesystem()->has($newPath));
+        static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
     }
 
     public function testRenameMediaDoesSkipIfOldFileNameEqualsNewOne(): void
@@ -373,9 +427,14 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
         $png = $this->getPng();
 
-        $searchResult = new EntitySearchResult(1, new MediaCollection([$png]), null, new Criteria(), $context);
+        $collection = new MediaCollection([$png]);
+        $searchResult = new EntitySearchResult(1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
+        $repositoryMock->expects($this->once())
+            ->method('read')
+            ->willReturn($collection);
+
         $repositoryMock->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);

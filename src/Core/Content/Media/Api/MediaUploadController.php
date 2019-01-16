@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -28,10 +29,16 @@ class MediaUploadController extends AbstractController
      */
     private $fileSaver;
 
-    public function __construct(FileFetcher $fileFetcher, FileSaver $fileSaver)
+    /**
+     * @var FileNameProvider
+     */
+    private $fileNameProvider;
+
+    public function __construct(FileFetcher $fileFetcher, FileSaver $fileSaver, FileNameProvider $fileNameProvider)
     {
         $this->fileFetcher = $fileFetcher;
         $this->fileSaver = $fileSaver;
+        $this->fileNameProvider = $fileNameProvider;
     }
 
     /**
@@ -75,6 +82,29 @@ class MediaUploadController extends AbstractController
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
 
         return $responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/media/provide-name", name="api.action.media.provide-name", methods={"GET"})
+     *
+     * @return Response
+     */
+    public function provideName(Request $request, Context $context, ResponseFactoryInterface $responseFactory): Response
+    {
+        $fileName = $request->query->get('fileName');
+        $fileExtension = $request->query->get('extension');
+        $mediaId = $request->query->get('mediaId');
+
+        if ($fileName === null) {
+            throw new EmptyMediaFilenameException();
+        }
+        if ($fileExtension === null) {
+            throw new MissingFileExtensionException();
+        }
+
+        $name = $this->fileNameProvider->provide($fileName, $fileExtension, $mediaId, $context);
+
+        return new Response(json_encode(['fileName' => $name]));
     }
 
     /**

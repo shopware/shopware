@@ -18,7 +18,6 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
@@ -45,7 +44,7 @@ class ThumbnailService
     private $urlGenerator;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $mediaFolderRepository;
 
@@ -54,7 +53,7 @@ class ThumbnailService
         MediaThumbnailRepository $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,
-        EntityRepository $mediaFolderRepository
+        EntityRepositoryInterface $mediaFolderRepository
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->thumbnailRepository = $thumbnailRepository;

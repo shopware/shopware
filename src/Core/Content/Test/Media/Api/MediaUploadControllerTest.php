@@ -332,4 +332,57 @@ class MediaUploadControllerTest extends TestCase
         self::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
         self::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
     }
+
+    public function testProvideName()
+    {
+        $context = Context::createDefaultContext();
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->setFixtureContext($context);
+        $media = $this->getPng();
+        $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
+
+        $url = sprintf(
+            '/api/v%s/_action/media/provide-name?fileName=%s&extension=png',
+            PlatformRequest::API_VERSION,
+            $media->getFileName()
+        );
+
+        $this->getClient()->request(
+            'GET',
+            $url
+        );
+
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $result = json_decode($response->getContent(), true);
+        static::assertEquals($media->getFileName() . '_(1)', $result['fileName']);
+    }
+
+    public function testProvideNameProvidesOwnName()
+    {
+        $context = Context::createDefaultContext();
+        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->setFixtureContext($context);
+        $media = $this->getPng();
+        $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
+
+        $url = sprintf(
+            '/api/v%s/_action/media/provide-name?fileName=%s&extension=png&mediaId=%s',
+            PlatformRequest::API_VERSION,
+            $media->getFileName(),
+            $media->getId()
+        );
+
+        $this->getClient()->request(
+            'GET',
+            $url
+        );
+
+        $response = $this->getClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $result = json_decode($response->getContent(), true);
+        static::assertEquals($media->getFileName(), $result['fileName']);
+    }
 }

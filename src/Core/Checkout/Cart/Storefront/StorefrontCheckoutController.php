@@ -48,7 +48,7 @@ class StorefrontCheckoutController extends AbstractController
     private $checkoutContextFactory;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Storefront\AccountService
+     * @var AccountService
      */
     private $accountService;
 

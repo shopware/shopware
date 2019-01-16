@@ -23,8 +23,6 @@ class ListingController extends StorefrontController
 
     /**
      * @Route("/listing/{id}", name="frontend.listing.page", options={"seo"=true}, methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function index(string $id, CheckoutContext $context, ListingPageRequest $request): Response
     {

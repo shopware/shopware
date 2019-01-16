@@ -9,7 +9,7 @@ class FrameworkEvents
     /**
      * Fired when a Page request comes in and transformed to the PageRequest object
      *
-     * @Event("Shopware\Storefront\Framework\Event\PageRequestEvent")
+     * @Event("PageRequestEvent")
      */
     public const REQUEST = PageRequestEvent::NAME;
 }

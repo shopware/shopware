@@ -12,16 +12,21 @@ use Symfony\Component\Routing\Annotation\Route;
 class ContentController extends StorefrontController
 {
     /**
+     * @var ContentHomePageLoader
+     */
+    private $contentHomePageLoader;
+
+    public function __construct(ContentHomePageLoader $contentHomePageLoader)
+    {
+        $this->contentHomePageLoader = $contentHomePageLoader;
+    }
+
+    /**
      * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function index(ContentHomePageRequest $request, CheckoutContext $context): ?Response
     {
-        /** @var ContentHomePageLoader $indexPageLoader */
-        $indexPageLoader = $this->get(ContentHomePageLoader::class);
-
-        $data = $indexPageLoader->load($request, $context);
+        $data = $this->contentHomePageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/frontend/home/index.html.twig', [
                 'page' => $data,

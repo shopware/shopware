@@ -87,7 +87,6 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CartTokenNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function cart(CheckoutContext $context): Response
     {
@@ -100,7 +99,6 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/shipping-payment", name="frontend.checkout.shipping-payment.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
-     * @throws \Twig_Error_Loader
      */
     public function shippingPayment(CheckoutContext $context): Response
     {
@@ -142,7 +140,6 @@ class CheckoutController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      * @throws CartTokenNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function confirm(Request $request, CheckoutContext $context): Response
     {
@@ -202,7 +199,6 @@ class CheckoutController extends StorefrontController
      * @throws CustomerNotLoggedInException
      * @throws OrderNotFoundException
      * @throws InvalidParameterException
-     * @throws \Twig_Error_Loader
      */
     public function finish(Request $request, CheckoutContext $context): Response
     {

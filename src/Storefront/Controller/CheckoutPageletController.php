@@ -26,7 +26,6 @@ class CheckoutPageletController extends StorefrontController
      * @Route("/widgets/checkout/info", name="widgets/checkout/info", methods={"GET"})
      *
      * @throws CartTokenNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function infoAction(CartInfoPageletRequest $request, CheckoutContext $context): Response
     {

@@ -12,5 +12,9 @@
         <service id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition">
             <tag name="shopware.entity.definition" entity="category_translation"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository" public="true">
+            <argument type="service" id="category.repository"/>
+        </service>
     </services>
 </container>                

@@ -22,7 +22,7 @@ class AccountRegistrationRequestEvent extends NestedEvent
     private $context;
 
     /**
-     * @var \Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest
+     * @var AccountRegistrationRequest
      */
     private $registrationRequest;
 

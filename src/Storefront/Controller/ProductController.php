@@ -23,8 +23,6 @@ class ProductController extends StorefrontController
 
     /**
      * @Route("/detail/{id}", name="frontend.detail.page", options={"seo"="true"}, methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function index(CheckoutContext $context, ProductDetailPageRequest $request): Response
     {

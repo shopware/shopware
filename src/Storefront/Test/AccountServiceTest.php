@@ -18,7 +18,7 @@ class AccountServiceTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Storefront\AccountService
+     * @var AccountService
      */
     private $accountService;
 

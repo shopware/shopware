@@ -21,8 +21,6 @@ class ErrorController extends StorefrontController
      * @param \Exception $exception
      * @param Request    $request
      *
-     * @throws \Twig_Error_Loader
-     *
      * @return Response
      */
     public function error(\Exception $exception, Request $request): Response

@@ -46,6 +46,13 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\ContentController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\ContentHome\ContentHomePageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\AccountController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
@@ -99,7 +106,7 @@
 
 
         <!-- PageLoader -->
-        <service id="Shopware\Storefront\Page\ContentHome\ContentHomePageLoader" public="true">
+        <service id="Shopware\Storefront\Page\ContentHome\ContentHomePageLoader">
             <argument type="service" id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader" />
             <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
             <argument type="service" id="event_dispatcher" />
@@ -162,19 +169,19 @@
 
 
         <!-- PageletLoader -->
-        <service id="Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader">
             <argument type="service" id="customer_address.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader">
             <argument type="service" id="order.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletLoader">
             <argument type="service" id="payment_method.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="product_configurator.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
@@ -184,7 +191,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="event_dispatcher" />
             <call method="setContainer">
@@ -192,7 +199,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Search\SearchPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\Search\SearchPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
@@ -210,50 +217,50 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader">
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoader">
             <argument type="service" id="payment_method.repository"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader">
             <argument type="service" id="language.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader">
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader">
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="event_dispatcher"/>
             <call method="setContainer">
@@ -261,14 +268,14 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoader">
             <argument type="service" id="currency.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader" public="true">
+        <service id="Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader">
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>

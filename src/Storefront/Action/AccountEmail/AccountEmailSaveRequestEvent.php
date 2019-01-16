@@ -22,7 +22,7 @@ class AccountEmailSaveRequestEvent extends NestedEvent
     private $context;
 
     /**
-     * @var \Shopware\Storefront\Action\AccountEmail\AccountEmailSaveRequest
+     * @var AccountEmailSaveRequest
      */
     private $emailSaveRequest;
 

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class DetailControllerDecorator extends AbstractController
 {
     /**
-     * @var \Shopware\Storefront\Controller\ProductController
+     * @var ProductController
      */
     private $originalController;
 

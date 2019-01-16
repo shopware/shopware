@@ -43,8 +43,6 @@ class ListingPageletController extends StorefrontController
 
     /**
      * @Route("/widgets/listing/top_seller", name="widgets_top_seller", methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function topSellerAction(CheckoutContext $context): Response
     {
@@ -60,8 +58,6 @@ class ListingPageletController extends StorefrontController
 
     /**
      * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function listAction(string $categoryId, ListingPageRequest $request, CheckoutContext $context): JsonResponse
     {
@@ -88,8 +84,6 @@ class ListingPageletController extends StorefrontController
 
     /**
      * @Route("/widgets/listing/search", name="widgets_listing_search", methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function searchAction(SearchPageRequest $request, CheckoutContext $context): JsonResponse
     {

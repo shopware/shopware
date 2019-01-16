@@ -28,7 +28,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $router;
 
     /**
-     * @var \Shopware\Storefront\Controller\ErrorController
+     * @var ErrorController
      */
     private $errorController;
 

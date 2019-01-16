@@ -16,8 +16,6 @@ abstract class StorefrontController extends AbstractController
 {
     /**
      * {@inheritdoc}
-     *
-     * @throws \Twig_Error_Loader
      */
     protected function renderStorefront($view, array $parameters = [], Response $response = null): Response
     {
@@ -28,8 +26,6 @@ abstract class StorefrontController extends AbstractController
 
     /**
      * @param string $view
-     *
-     * @throws \Twig_Error_Loader
      *
      * @return string
      */

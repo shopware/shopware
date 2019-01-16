@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SearchController extends StorefrontController
 {
     /**
-     * @var \Shopware\Storefront\Page\Search\SearchPageLoader
+     * @var SearchPageLoader
      */
     private $searchPageLoader;
 
@@ -24,8 +24,6 @@ class SearchController extends StorefrontController
 
     /**
      * @Route("/search", name="frontend.search.page", options={"seo"=false}, methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      *
      * @return Response
      */
@@ -45,8 +43,6 @@ class SearchController extends StorefrontController
      *
      * @param CheckoutContext   $context
      * @param SearchPageRequest $searchPageRequest
-     *
-     * @throws \Twig_Error_Loader
      *
      * @return Response
      */

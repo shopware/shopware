@@ -45,7 +45,6 @@ class CartController extends StorefrontController
      * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
      * @throws CartTokenNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function addProduct(Request $request, CheckoutContext $context): Response
     {
@@ -118,7 +117,6 @@ class CartController extends StorefrontController
      * @throws LineItemNotFoundException
      * @throws LineItemNotRemovableException
      * @throws CartTokenNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function removeLineItem(Request $request, CheckoutContext $context): Response
     {
@@ -185,7 +183,6 @@ class CartController extends StorefrontController
      * @Route("/cart/amount", name="frontend.cart.amount", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CartTokenNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function getCartAmount(CheckoutContext $context): Response
     {
@@ -206,7 +203,6 @@ class CartController extends StorefrontController
      * @Route("/cart", name="frontend.cart.detail", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CartTokenNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function getCart(CheckoutContext $context): Response
     {

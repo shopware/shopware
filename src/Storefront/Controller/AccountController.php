@@ -112,7 +112,6 @@ class AccountController extends StorefrontController
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
-     * @throws \Twig_Error_Loader
      */
     public function index(AccountOverviewPageRequest $request, CheckoutContext $context): Response
     {
@@ -128,8 +127,6 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function login(AccountLoginPageRequest $request, CheckoutContext $context): Response
     {
@@ -222,7 +219,6 @@ class AccountController extends StorefrontController
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
-     * @throws \Twig_Error_Loader
      */
     public function paymentOverview(AccountPaymentMethodPageRequest $request, CheckoutContext $context): Response
     {
@@ -264,7 +260,6 @@ class AccountController extends StorefrontController
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
-     * @throws \Twig_Error_Loader
      */
     public function orderOverview(AccountOrderPageRequest $request, CheckoutContext $context): Response
     {
@@ -282,7 +277,6 @@ class AccountController extends StorefrontController
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
-     * @throws \Twig_Error_Loader
      */
     public function profileOverview(AccountProfilePageRequest $request, CheckoutContext $context): Response
     {
@@ -358,7 +352,6 @@ class AccountController extends StorefrontController
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
-     * @throws \Twig_Error_Loader
      */
     public function addressOverview(AccountAddressPageRequest $request, CheckoutContext $context): Response
     {
@@ -374,8 +367,6 @@ class AccountController extends StorefrontController
 
     /**
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws \Twig_Error_Loader
      */
     public function createAddress(AccountAddressPageRequest $request, CheckoutContext $context): Response
     {
@@ -427,7 +418,6 @@ class AccountController extends StorefrontController
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function editAddress($addressId, AccountAddressPageRequest $request, CheckoutContext $context): Response
     {
@@ -437,7 +427,9 @@ class AccountController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/frontend/address/edit.html.twig', [
             'formData' => $address,
-            'countryList' => $this->accountService->getCountryList($context),
+            'page' => [
+                'countryList' => $this->accountService->getCountryList($context),
+            ],
             'redirectTo' => $request->getRedirectTo(),
         ]);
     }
@@ -448,7 +440,6 @@ class AccountController extends StorefrontController
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function deleteAddressConfirm(AccountAddressPageRequest $request, CheckoutContext $context): Response
     {
@@ -514,7 +505,6 @@ class AccountController extends StorefrontController
      * @Route("/ajax/account/address", name="frontend.account.address.list.ajax", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
-     * @throws \Twig_Error_Loader
      */
     public function ajaxAddressList(Request $request, CheckoutContext $context): Response
     {
@@ -524,6 +514,7 @@ class AccountController extends StorefrontController
         $setDefaultBillingAddress = (bool) $request->get('setDefaultBillingAddress', false);
         $addresses = $this->accountService->getAddressesByCustomer($context);
 
+        //@todo dont use request here
         if (!empty($request->get('addressId'))) {
             /** @var CustomerAddressEntity $address */
             foreach ($addresses as $key => $address) {
@@ -547,7 +538,6 @@ class AccountController extends StorefrontController
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
-     * @throws \Twig_Error_Loader
      */
     public function addressAjaxEdit(Request $request, CheckoutContext $context): Response
     {

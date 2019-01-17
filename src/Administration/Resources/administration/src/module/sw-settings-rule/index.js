@@ -1,6 +1,7 @@
 import { Module } from 'src/core/shopware';
 import { NEXT516 } from 'src/flag/feature_next516';
 
+import './extension/sw-settings-index';
 import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 import './page/sw-settings-rule-create';

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Rule\Rule;
 class RuleEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */
@@ -160,5 +161,14 @@ class RuleEntity extends Entity
     public function setInvalid(bool $invalid): void
     {
         $this->invalid = $invalid;
+    }
+
+    public function getViewData()
+    {
+        /** @var self $data */
+        $data = parent::getViewData();
+        $data->payload = null;
+
+        return $data;
     }
 }

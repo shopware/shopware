@@ -51,7 +51,7 @@ class RuleValidator implements WriteCommandValidatorInterface
             $currentId = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
             $basePath = sprintf('/conditions/%s', $currentId);
 
-            /** @var Rule|null $type */
+            /** @var string|null $type */
             $type = null;
             if (array_key_exists('type', $payload)) {
                 $type = $payload['type'];
@@ -69,7 +69,9 @@ class RuleValidator implements WriteCommandValidatorInterface
                 continue;
             }
 
-            $validations = $type::getConstraints();
+            /** @var Rule $rule */
+            $rule = $this->ruleConditionRegistry->getRuleInstance($type);
+            $validations = $rule->getConstraints();
 
             $violationList->addAll($this->validateConsistence($basePath, $validations, $this->extractValue($payload)));
         }
@@ -94,17 +96,11 @@ class RuleValidator implements WriteCommandValidatorInterface
 
     private function isRule(?string $type): bool
     {
-        if (!$type || !class_exists($type) || !in_array($type, $this->ruleConditionRegistry->collect())) {
+        if (!$type) {
             return false;
         }
 
-        try {
-            $rule = new $type();
-
-            return $rule instanceof Rule;
-        } catch (\Throwable $throwable) {
-            return false;
-        }
+        return $this->ruleConditionRegistry->has($type);
     }
 
     private function extractValue(array $payload): array

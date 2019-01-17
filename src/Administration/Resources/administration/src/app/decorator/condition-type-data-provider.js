@@ -24,103 +24,103 @@ import 'src/module/sw-settings-rule/component/sw-condition-shipping-street';
 import 'src/module/sw-settings-rule/component/sw-condition-shipping-zip-code';
 
 Application.addServiceProviderDecorator('ruleConditionService', (ruleConditionService) => {
-    ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\DateRangeRule', {
+    ruleConditionService.addCondition('dateRange', {
         component: 'sw-condition-date-range',
         label: 'global.sw-condition.condition.dateRangeRule.label'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\SalesChannelRule', {
+    ruleConditionService.addCondition('salesChannel', {
         component: 'sw-condition-sales-channel',
         label: 'global.sw-condition.condition.salesChannelRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\CurrencyRule', {
+    ruleConditionService.addCondition('currency', {
         component: 'sw-condition-currency',
         label: 'global.sw-condition.condition.currencyRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\BillingCountryRule', {
+    ruleConditionService.addCondition('customerBillingCountry', {
         component: 'sw-condition-billing-country',
         label: 'global.sw-condition.condition.billingCountryRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\BillingStreetRule', {
+    ruleConditionService.addCondition('customerBillingStreet', {
         component: 'sw-condition-billing-street',
         label: 'global.sw-condition.condition.billingStreetRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\BillingZipCodeRule', {
+    ruleConditionService.addCondition('customerBillingZipCode', {
         component: 'sw-condition-billing-zip-code',
         label: 'global.sw-condition.condition.billingZipCodeRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\CustomerGroupRule', {
+    ruleConditionService.addCondition('customerCustomerGroup', {
         component: 'sw-condition-customer-group',
         label: 'global.sw-condition.condition.customerGroupRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\CustomerNumberRule', {
+    ruleConditionService.addCondition('customerCustomerNumber', {
         component: 'sw-condition-customer-number',
         label: 'global.sw-condition.condition.customerNumberRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\DifferentAddressesRule', {
+    ruleConditionService.addCondition('customerDifferentAddresses', {
         component: 'sw-condition-different-addresses',
         label: 'global.sw-condition.condition.differentAddressesRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\IsNewCustomerRule', {
+    ruleConditionService.addCondition('customerIsNewCustomer', {
         component: 'sw-condition-is-new-customer',
         label: 'global.sw-condition.condition.isNewCustomerRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\LastNameRule', {
+    ruleConditionService.addCondition('customerLastName', {
         component: 'sw-condition-last-name',
         label: 'global.sw-condition.condition.lastNameRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\ShippingCountryRule', {
+    ruleConditionService.addCondition('customerShippingCountry', {
         component: 'sw-condition-shipping-country',
         label: 'global.sw-condition.condition.shippingCountryRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\ShippingStreetRule', {
+    ruleConditionService.addCondition('customerShippingStreet', {
         component: 'sw-condition-shipping-street',
         label: 'global.sw-condition.condition.shippingStreetRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Customer\\Rule\\ShippingZipCodeRule', {
+    ruleConditionService.addCondition('customerShippingZipCode', {
         component: 'sw-condition-shipping-zip-code',
         label: 'global.sw-condition.condition.shippingZipCodeRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\CartAmountRule', {
+    ruleConditionService.addCondition('cartCartAmount', {
         component: 'sw-condition-cart-amount',
         label: 'global.sw-condition.condition.cartAmountRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsCountRule', {
+    ruleConditionService.addCondition('cartGoodsCount', {
         component: 'sw-condition-goods-count',
         label: 'global.sw-condition.condition.goodsCountRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\GoodsPriceRule', {
+    ruleConditionService.addCondition('cartGoodsPrice', {
         component: 'sw-condition-goods-price',
         label: 'global.sw-condition.condition.goodsPriceRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemOfTypeRule', {
+    ruleConditionService.addCondition('cartLineItemOfType', {
         component: 'sw-condition-line-item-of-type',
         label: 'global.sw-condition.condition.lineItemOfTypeRule.label'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemRule', {
+    ruleConditionService.addCondition('cartLineItem', {
         component: 'sw-condition-line-item',
         label: 'global.sw-condition.condition.lineItemRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemsInCartRule', {
+    ruleConditionService.addCondition('cartLineItemsInCart', {
         component: 'sw-condition-line-items-in-cart',
         label: 'global.sw-condition.condition.lineItemsInCartRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemTotalPriceRule', {
+    ruleConditionService.addCondition('cartLineItemTotalPrice', {
         component: 'sw-condition-line-item-total-price',
         label: 'global.sw-condition.condition.lineItemTotalPriceRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemUnitPriceRule', {
+    ruleConditionService.addCondition('cartLineItemUnitPrice', {
         component: 'sw-condition-line-item-unit-price',
         label: 'global.sw-condition.condition.lineItemUnitPriceRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Checkout\\Cart\\Rule\\LineItemWithQuantityRule', {
+    ruleConditionService.addCondition('cartLineItemWithQuantity', {
         component: 'sw-condition-line-item-with-quantity',
         label: 'global.sw-condition.condition.lineItemWithQuantityRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\Container\\AndRule', {
+    ruleConditionService.addCondition('andContainer', {
         component: 'sw-condition-and-container',
         label: 'global.sw-condition.condition.andRule'
     });
-    ruleConditionService.addCondition('Shopware\\Core\\Framework\\Rule\\Container\\OrRule', {
+    ruleConditionService.addCondition('orContainer', {
         component: 'sw-condition-or-container',
         label: 'global.sw-condition.condition.orRule'
     });

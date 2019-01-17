@@ -597,25 +597,25 @@ class EntityRepositoryTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => AndRule::class,
+                    'type' => (new AndRule())->getName(),
                     'children' => [
                         [
-                            'type' => AndRule::class,
+                            'type' => (new AndRule())->getName(),
                             'children' => [
                                 [
-                                    'type' => AndRule::class,
+                                    'type' => (new AndRule())->getName(),
                                     'children' => [
                                         [
-                                            'type' => AndRule::class,
+                                            'type' => (new AndRule())->getName(),
                                             'children' => [
                                                 [
-                                                    'type' => AndRule::class,
+                                                    'type' => (new AndRule())->getName(),
                                                     'children' => [
                                                         [
-                                                            'type' => AndRule::class,
+                                                            'type' => (new AndRule())->getName(),
                                                             'children' => [
                                                                 [
-                                                                    'type' => AndRule::class,
+                                                                    'type' => (new AndRule())->getName(),
                                                                 ],
                                                             ],
                                                         ],

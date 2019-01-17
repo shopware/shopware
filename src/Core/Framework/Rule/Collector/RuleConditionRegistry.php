@@ -2,37 +2,61 @@
 
 namespace Shopware\Core\Framework\Rule\Collector;
 
+use Shopware\Core\Framework\Rule\InvalidConditionException;
+use Shopware\Core\Framework\Rule\Rule;
+
 class RuleConditionRegistry
 {
     /**
-     * @var iterable|RuleConditionCollectorInterface[]
+     * @var Rule[]
      */
-    private $taggedConditionCollectors;
+    private $rules;
 
-    /**
-     * @var array
-     */
-    private $classes;
-
-    public function __construct(iterable $taggedConditionCollectors)
+    public function __construct(iterable $taggedRules)
     {
-        $this->taggedConditionCollectors = $taggedConditionCollectors;
+        $this->mapRules($taggedRules);
     }
 
     /**
      * @return string[]
      */
-    public function collect(): array
+    public function getNames(): array
     {
-        if ($this->classes) {
-            return $this->classes;
+        return array_keys($this->rules);
+    }
+
+    public function has(string $name): bool
+    {
+        try {
+            $this->getRuleInstance($name);
+        } catch (InvalidConditionException $exception) {
+            return false;
         }
 
-        $this->classes = [];
-        foreach ($this->taggedConditionCollectors as $collector) {
-            $this->classes = array_merge($this->classes, $collector->getClasses());
+        return true;
+    }
+
+    public function getRuleInstance(string $name): Rule
+    {
+        if (!array_key_exists($name, $this->rules)) {
+            throw new InvalidConditionException($name);
         }
 
-        return $this->classes;
+        return $this->rules[$name];
+    }
+
+    public function getRuleClass(string $name): string
+    {
+        return get_class($this->getRuleInstance($name));
+    }
+
+    private function mapRules(iterable $taggedRules): void
+    {
+        $this->rules = [];
+
+        /** @var Rule $rule */
+        foreach ($taggedRules as $rule) {
+            $this->rules[$rule->getName()] = $rule;
+        }
     }
 }

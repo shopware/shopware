@@ -25,7 +25,6 @@ class ShippingCountryRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -58,11 +57,16 @@ class ShippingCountryRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'countryIds' => [new NotBlank(), new ArrayOfUuid()],
             'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_EQ])],
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'customerShippingCountry';
     }
 }

@@ -24,7 +24,6 @@ class LineItemOfTypeRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -54,11 +53,16 @@ class LineItemOfTypeRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'lineItemType' => [new NotBlank(), new Type('string')],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemOfType';
     }
 }

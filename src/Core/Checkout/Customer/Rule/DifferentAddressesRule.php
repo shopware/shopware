@@ -18,7 +18,6 @@ class DifferentAddressesRule extends Rule
     public function __construct()
     {
         $this->isDifferent = true;
-        parent::__construct();
     }
 
     public function match(RuleScope $scope): Match
@@ -46,10 +45,15 @@ class DifferentAddressesRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'isDifferent' => [new Type('bool')],
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'customerDifferentAddresses';
     }
 }

@@ -2,6 +2,9 @@ import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.less';
 
+const PLACEHOLDER_NAME = 'placeholder';
+const OR_CONTAINER_NAME = 'orContainer';
+
 /**
  * @public
  * @description TODO: Add description
@@ -80,7 +83,7 @@ Component.register('sw-condition-and-container', {
             }
 
             if (!this.condition.children.length) {
-                this.createCondition('placeholder', this.nextPosition);
+                this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
             }
         },
         onFinishLoading() {
@@ -95,10 +98,10 @@ Component.register('sw-condition-and-container', {
             return condition.component;
         },
         onAddAndClick() {
-            this.createCondition('placeholder', this.nextPosition);
+            this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
         },
         onAddChildClick() {
-            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\OrRule', this.nextPosition);
+            this.createCondition(OR_CONTAINER_NAME, this.nextPosition);
         },
         createCondition(type, position) {
             const condition = Object.assign(
@@ -121,7 +124,7 @@ Component.register('sw-condition-and-container', {
                 child.position += 1;
             });
 
-            this.createCondition('placeholder', originalPosition);
+            this.createCondition(PLACEHOLDER_NAME, originalPosition);
         },
         createPlaceholderAfter(element) {
             const originalPosition = element.position;
@@ -133,7 +136,7 @@ Component.register('sw-condition-and-container', {
                 child.position += 1;
             });
 
-            this.createCondition('placeholder', originalPosition + 1);
+            this.createCondition(PLACEHOLDER_NAME, originalPosition + 1);
         },
         onDeleteAll() {
             if (this.level === 0) {
@@ -175,7 +178,7 @@ Component.register('sw-condition-and-container', {
                     if (this.level === 0) {
                         this.onAddChildClick();
                     } else {
-                        this.createCondition('placeholder', this.nextPosition);
+                        this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
                     }
                 });
             }

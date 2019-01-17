@@ -27,4 +27,9 @@ class XorRule extends Container
 
         return new Match($matches === 1, $messages);
     }
+
+    public function getName(): string
+    {
+        return 'xorContainer';
+    }
 }

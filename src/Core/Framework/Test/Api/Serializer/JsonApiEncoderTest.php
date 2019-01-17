@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -175,6 +176,16 @@ class JsonApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
 
         $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
+
+        static::assertEquals($expected, json_decode($actual, true));
+    }
+
+    public function testEncodePayloadShouldNotBeInIncluded(): void
+    {
+        $struct = include __DIR__ . '/fixtures/testPayloadShouldNotBeInIncluded.php';
+        $expected = include __DIR__ . '/fixtures/testPayloadShouldNotBeInIncludedExpectation.php';
+
+        $actual = $this->encoder->encode(RuleDefinition::class, $struct, '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }

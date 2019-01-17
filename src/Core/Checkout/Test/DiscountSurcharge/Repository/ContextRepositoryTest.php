@@ -53,13 +53,13 @@ class ContextRepositoryTest extends TestCase
             'priority' => 1,
             'conditions' => [
                 [
-                    'type' => AndRule::class,
+                    'type' => (new AndRule())->getName(),
                     'children' => [
                         [
-                            'type' => OrRule::class,
+                            'type' => (new OrRule())->getName(),
                             'children' => [
                                 [
-                                    'type' => CurrencyRule::class,
+                                    'type' => (new CurrencyRule())->getName(),
                                     'value' => [
                                         'currencyIds' => [
                                             $currencyId,

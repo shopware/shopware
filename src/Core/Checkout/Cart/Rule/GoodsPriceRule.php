@@ -24,7 +24,6 @@ class GoodsPriceRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -77,11 +76,16 @@ class GoodsPriceRule extends Rule
         }
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
             'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_EQ])],
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'cartGoodsPrice';
     }
 }

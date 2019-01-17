@@ -295,22 +295,5 @@
 
         <!-- Feature Flags -->
         <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
-
-        <!-- Rule -->
-        <service id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry">
-            <argument type="tagged" tag="rule.condition_collector"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerRuleConditionCollector">
-            <tag name="rule.condition_collector"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Cart\Rule\CartRuleConditionCollector">
-            <tag name="rule.condition_collector"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Rule\FrameworkRuleConditionCollector">
-            <tag name="rule.condition_collector"/>
-        </service>
     </services>
 </container>

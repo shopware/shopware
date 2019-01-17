@@ -41,6 +41,10 @@ Component.register('sw-product-detail-context-prices', {
             return this.product.getAssociation('priceRules');
         },
 
+        ruleStore() {
+            return State.getStore('rule');
+        },
+
         priceRuleGroups() {
             const priceRuleGroups = {};
 
@@ -105,8 +109,6 @@ Component.register('sw-product-detail-context-prices', {
 
     methods: {
         mountedComponent() {
-            this.ruleStore = State.getStore('rule');
-
             this.product.getAssociation('priceRules').getList({
                 page: 1,
                 limit: 500,

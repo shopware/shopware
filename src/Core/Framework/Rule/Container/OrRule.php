@@ -27,4 +27,9 @@ class OrRule extends Container
 
         return new Match($valid, $messages);
     }
+
+    public function getName(): string
+    {
+        return 'orContainer';
+    }
 }

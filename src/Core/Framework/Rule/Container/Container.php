@@ -27,7 +27,6 @@ abstract class Container extends Rule
      */
     public function __construct(array $rules = [])
     {
-        parent::__construct();
         array_map([$this, 'addRule'], $rules);
     }
 
@@ -46,7 +45,7 @@ abstract class Container extends Rule
         return $this->rules;
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'rules' => [new ArrayOfType(Rule::class)],

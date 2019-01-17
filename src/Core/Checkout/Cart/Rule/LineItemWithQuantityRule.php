@@ -30,7 +30,6 @@ class LineItemWithQuantityRule extends Rule
 
     public function __construct()
     {
-        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 
@@ -90,12 +89,17 @@ class LineItemWithQuantityRule extends Rule
         return new Match(true);
     }
 
-    public static function getConstraints(): array
+    public function getConstraints(): array
     {
         return [
             'id' => [new NotBlank(), new Uuid()],
             'quantity' => [new NotBlank(), new Type('int')],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_LTE, self::OPERATOR_GTE, self::OPERATOR_NEQ])],
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemWithQuantity';
     }
 }

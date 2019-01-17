@@ -2,6 +2,8 @@ import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.less';
 
+const PLACEHOLDER_NAME = 'placeholder';
+
 /**
  * @public
  * @description TODO: Add description
@@ -48,7 +50,7 @@ Component.register('sw-condition-base', {
             return State.getStore('error');
         },
         disableContextDeleteButton() {
-            return this.condition.type === 'placeholder' && this.condition.parent.children.length === 1;
+            return this.condition.type === PLACEHOLDER_NAME && this.condition.parent.children.length === 1;
         }
     },
 

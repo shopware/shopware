@@ -85,12 +85,9 @@ Component.register('sw-condition-and-container', {
         createComponent() {
             this.locateDetailPage();
             if (this.detailPage) {
-                this.detailPage.$on(
-                    'check-delete-all',
-                    () => {
-                        this.disabledDeleteButton = this.onCheckDeleteAll();
-                    }
-                );
+                this.detailPage.$on('check-delete-all', () => {
+                    this.disabledDeleteButton = this.onCheckDeleteAll();
+                });
             }
             this.condition.value = {};
 
@@ -142,11 +139,11 @@ Component.register('sw-condition-and-container', {
         },
         onAddAndClick() {
             this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
-            this.throwConditionContainerChangeEvent();
+            this.emitConditionContainerChangeEvent();
         },
         onAddChildClick() {
             this.createCondition(OR_CONTAINER_NAME, this.nextPosition);
-            this.throwConditionContainerChangeEvent();
+            this.emitConditionContainerChangeEvent();
         },
         createCondition(type, position) {
             const condition = Object.assign(

@@ -6,8 +6,8 @@
     {#{$sBreadcrumb[] = ["name"=>"{s name="AddressesTitle"}My addresses{/s}", "link"=>{url action="index"}]}#}
 {% endblock %}
 
-{# @var customerAdressPage \Shopware\Storefront\Account\Page\CustomerAddressPageStruct #}
-{% set addresses =  customerAdressPage.addresses %}
+{# @var customerAdressPage \Shopware\Storefront\Page\AccountAddress\CustomerAddressPageStruct #}
+{% set addresses =  page.accountAddress.addresses %}
 
 {# Main content #}
 {% block frontend_index_content %}

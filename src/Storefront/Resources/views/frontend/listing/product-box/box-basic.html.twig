@@ -2,11 +2,11 @@
 {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
 
 {% block frontend_listing_box_article %}
-    {% set class = 'product--box box--' ~ productBoxLayout %}
+    {% set class = 'product--box box--' ~ page.listing.productBoxLayout %}
     <div class="{{ class }}"
          data-page-index="{{ pageIndex }}"
          data-ordernumber="{{ product.id }}"
-         {% if shopware.config.disableArticleNavigation == false %}data-category-id="{{ navigation.activeCategory.id }}"{% endif %}>
+         {% if shopware.config.disableArticleNavigation == false %}data-category-id="{{ page.navigation.activeCategory.id }}"{% endif %}>
 
         {% block frontend_listing_box_article_content %}
             <div class="box--content is--rounded">

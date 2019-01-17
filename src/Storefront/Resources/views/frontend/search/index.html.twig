@@ -14,11 +14,11 @@
 {% block frontend_index_content %}
     <div class="content search--content">
         <h1 class="search--headline">
-            {# @var listing \Shopware\Storefront\Page\Search\SearchPageStruct #}
-            {{ 'frontend.search.fuzzy.SearchHeadline'|trans({'%searchTerm%': searchTerm, '%searchResultProductsCount%': listing.products.total})|raw}}
+            {# @var page \Shopware\Storefront\Page\Search\SearchPageStruct #}
+            {{ 'frontend.search.fuzzy.SearchHeadline'|trans({'%searchTerm%': page.listing.searchTerm, '%searchResultProductsCount%': page.listing.products.total})|raw}}
         </h1>
 
-        {% set baseParameters = { search: searchTerm } %}
+        {% set baseParameters = { search: listing.searchTerm } %}
 
         {# @var page \Shopware\Storefront\Page\Listing\ListingPageStruct #}
         {% set countCtrlUrl = url('widgets_listing_search') %}

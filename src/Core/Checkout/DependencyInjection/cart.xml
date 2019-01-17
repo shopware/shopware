@@ -22,7 +22,7 @@
             <argument type="service" id="serializer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Storefront\CartService">
+        <service id="Shopware\Core\Checkout\Cart\Storefront\CartService" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
@@ -105,7 +105,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Storefront\Account\Page\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="order.repository"/>
             <call method="setContainer">

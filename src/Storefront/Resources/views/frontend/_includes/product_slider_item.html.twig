@@ -1,4 +1,4 @@
-{% set productBoxLayout %}{% if productBoxLayout is defined %}{{ productBoxLayout }}{% else %}""{% endif %}{% endset %}
+{% set productBoxLayout %}{% if page.listing.productBoxLayout is defined %}{{ page.listing.productBoxLayout }}{% else %}""{% endif %}{% endset %}
 {% set fixedImageSize %}{% if fixedImageSize is defined %}{{ fixedImageSize }}{% else %}""{% endif %}{% endset %}
 
 {% block frontend_common_product_slider_item %}

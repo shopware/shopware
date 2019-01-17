@@ -32,8 +32,8 @@
         {% block frontend_index_checkout_actions %}
             {# Include of the cart #}
             {% block frontend_index_checkout_actions_include %}
-                {{ render(controller('Storefront/Checkout:Widget/Checkout:info')) }}
+                {% sw_include "@Storefront/frontend/checkout/info.html.twig" %}
             {% endblock %}
-        {% endblock %}
-    </ul>
+{% endblock %}
+</ul>
 </nav>

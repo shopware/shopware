@@ -1,11 +1,11 @@
 {% block frontend_detail_data %}
     {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
-    {% set price = product.calculatedPrice %}
+    {% set price = page.productDetail.product.calculatedPrice %}
 
-    {% if product.calculatedPriceRules.count > 1 %}
+    {% if page.productDetail.product.calculatedPriceRules.count > 1 %}
         {% sw_include '@Storefront/frontend/detail/block_price.html.twig' %}
     {% else %}
-        <div class="product--price price--default{% if product.pseudoPrice %} price--discount{% endif %}">
+        <div class="product--price price--default{% if page.productDetail.product.pseudoPrice %} price--discount{% endif %}">
             {% block frontend_detail_data_price_configurator %}
 
                 {% if price %}
@@ -58,7 +58,7 @@
         </div>
     {% endif %}
 
-    {% if product.purchaseUnit %}
+    {% if page.productDetail.product.purchaseUnit %}
         {% block frontend_detail_data_price %}
             <div class='product--price price--unit'>
 
@@ -69,13 +69,13 @@
                 {% endblock %}
 
                 {% block frontend_detail_data_price_unit_content %}
-                    {{ product.purchaseUnit }} {{ product.unit.name }}
+                    {{ page.productDetail.product.purchaseUnit }} {{ product.unit.name }}
                 {% endblock %}
 
-                {% if product.purchaseUnit and product.purchaseUnit != product.referenceUnit %}
+                {% if page.productDetail.product.purchaseUnit and page.productDetail.product.purchaseUnit != page.productDetail.product.referenceUnit %}
                     {% block frontend_detail_data_price_unit_reference_content %}
                         ({{ price.referencePrice|localizedcurrency(context.currency.shortName) }} {% trans %}general.priceStar{% endtrans %}
-                        / {{ product.referenceUnit }} {{ product.unit.name }})
+                        / {{ page.productDetail.product.referenceUnit }} {{ page.productDetail.product.unit.name }})
                     {% endblock %}
                 {% endif %}
             </div>
@@ -96,10 +96,10 @@
     {% endblock %}
 
     {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
-    {% if product.calculatedPriceRules and (page.configurator.count <= 0 or product.priceGroupId) %}
-        {% for price in product.calculatedPriceRules %}
+    {% if page.productDetail.product.calculatedPriceRules and (detail.configurator.count <= 0 or page.productDetail.product.priceGroupId) %}
+        {% for price in page.productDetail.product.calculatedPriceRules %}
             {% if price.quantity == 1 %}
-                <input id="price_{{ product.id }}" type="hidden" value="{{ price.totalPrice }}">
+                <input id="price_{{ page.productDetail.product.id }}" type="hidden" value="{{ price.totalPrice }}">
             {% endif %}
         {% endfor %}
     {% endif %}

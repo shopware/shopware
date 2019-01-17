@@ -1,6 +1,6 @@
 {# Config #}
 {% set productSliderCls %}{% if productSliderCls is defined %}{{ productSliderCls }}{% else %}{% endif %}{% endset %}
-{% set productBoxLayout %}{% if productBoxLayout is defined %}{{ productBoxLayout }}{% else %}slider{% endif %}{% endset %}
+{% set productBoxLayout %}{% if page.listing.productBoxLayout is defined %}{{ page.listing.productBoxLayout }}{% else %}slider{% endif %}{% endset %}
 {% set sliderMode %}{% if sliderMode is defined %}{{ sliderMode }}{% else %}{% endif %}{% endset %}
 {% set sliderOrientation %}{% if sliderOrientation is defined %}{{ sliderOrientation }}{% else %}{% endif %}{% endset %}
 {% set sliderItemMinWidth %}{% if sliderItemMinWidth is defined %}{{ sliderItemMinWidth }}{% else %}{% endif %}{% endset %}

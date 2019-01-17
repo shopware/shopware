@@ -1,15 +1,15 @@
 {% block frontend_detail_configurator_error %}
-    {% if page.error and page.error.notAvailableVariant %}
+    {% if detail.error and detail.error.notAvailableVariant %}
         {#{include file="frontend/_includes/messages.tpl" type="error" content="{s name='VariantAreNotAvailable'}{/s}"}#}
     {% endif %}
 {% endblock %}
 
 {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
 {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
-{% set url = path('frontend.detail.page', { id: product.id }) %}
+{% set url = path('frontend.detail.page', { id: page.productDetail.product.id }) %}
 
 <form method="post" action="{{ url }}" class="configurator--form selection--form">
-    {% set groups = page.configurator.groupedOptions %}
+    {% set groups = detail.configurator.groupedOptions %}
     {# @var group \Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct #}
     {% for group in groups %}
         {% block frontend_detail_group_name %}
@@ -37,7 +37,7 @@
                     {% set selected = false %}
 
                     {% for option in group.options %}
-                        {% set config = page.configurator.byOptionId(option.id) %}
+                        {% set config = detail.configurator.byOptionId(option.id) %}
                         {% if config.selected %}
                             {% set selected = true %}
                         {% endif %}
@@ -51,7 +51,7 @@
 
                     {# @var option \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity #}
                     {% for option in group.options %}
-                        {% set config = page.configurator.byOptionId(option.id) %}
+                        {% set config = detail.configurator.byOptionId(option.id) %}
 
                         <option {% if config.selected %}selected="selected"{% endif %} value="{{ option.id }}">
                             {{ option.name }}

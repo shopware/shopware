@@ -13,7 +13,7 @@
 
                 {% block frontend_account_order_item_date_value %}
                     <div class="column--value">
-                        {{ order.date|date }}
+                        {{ page.order.date|date }}
                     </div>
                 {% endblock %}
             </div>
@@ -31,7 +31,7 @@
 
                 {% block frontend_account_order_item_number_value %}
                     <div class="column--value">
-                        {{ order.id }}
+                        {{ page.order.id }}
                     </div>
                 {% endblock %}
             </div>
@@ -71,7 +71,7 @@
 
                 {% block frontend_account_order_item_amount_value %}
                     <div class="column--value">
-                        {{ order.amountTotal|localizedcurrency(context.currency.shortName) }}
+                        {{ page.order.amountTotal|localizedcurrency(context.currency.shortName) }}
                     </div>
                 {% endblock %}
             </div>
@@ -119,9 +119,9 @@
         {# Order actions #}
         {% block frontend_account_order_item_actions %}
             <div class="order--actions panel--td column--actions">
-                <a href="{{ path('frontend.checkout.finish.page', {'order': order.id}) }}"
+                <a href="{{ path('frontend.checkout.finish.page', {'order': page.order.id}) }}"
                    target="_blank"
-                   title="{% trans %}frontend.account.order_item.OrderActionSlide{% endtrans %} {{ order.id }}"
+                   title="{% trans %}frontend.account.order_item.OrderActionSlide{% endtrans %} {{ page.order.id }}"
                    class="btn is--small">
                     {% trans %}frontend.account.order_item.OrderActionSlide{% endtrans %}
                 </a>

@@ -6,7 +6,7 @@
     {#parent()#}
 {% endblock %}
 
-{# @var orderPage \Shopware\Storefront\Account\Page\OrderPageStruct #}
+{# @var orderPage \Shopware\Storefront\Page\AccountAddress\OrderPageStruct #}
 
 {# Main content #}
 {% block frontend_index_content %}
@@ -99,7 +99,7 @@
                     {% block frontend_account_orders_actions_paging %}
                         <div class="account--paging panel--paging">
                             {% if orderPage.currentPage > 1 %}
-                                <a href="{{ path('frontend.account.order.page', {'page': orderPage.currentPage - 1}) }}" class="btn paging--link paging--prev">
+                                <a href="{{ path('frontend.account.order.page', {'page': page.orderPage.currentPage - 1}) }}" class="btn paging--link paging--prev">
                                     <i class="icon--arrow-left"></i>
                                 </a>
                             {% endif %}
@@ -109,7 +109,7 @@
                             </a>
 
                             {% if orderPage.pageCount - orderPage.currentPage > 0 %}
-                                <a href="{{ path('frontend.account.order.page', {'page': orderPage.currentPage + 1}) }}" class="btn paging--link paging--prev">
+                                <a href="{{ path('frontend.account.order.page', {'page': page.orderPage.currentPage + 1}) }}" class="btn paging--link paging--prev">
                                     <i class="icon--arrow-right"></i>
                                 </a>
                             {% endif %}
@@ -117,7 +117,7 @@
                             {% block frontend_account_orders_actions_paging_count %}
                                 <div class="paging--display">
                                     {% trans %}frontend.account.orders.frontend.listing.listing_actions.ListingTextSite{% endtrans %}
-                                    <span class="is--bold">{{ orderPage.currentPage }}</span>
+                                    <span class="is--bold">{{ page.orderPage.currentPage }}</span>
                                 </div>
                             {% endblock %}
                         </div>

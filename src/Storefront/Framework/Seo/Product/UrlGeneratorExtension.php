@@ -37,7 +37,7 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
         return SeoUrlDefinition::class;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'seo_url.loaded' => 'seoUrlBasicLoaded',

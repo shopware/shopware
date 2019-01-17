@@ -3,7 +3,7 @@
 {#{namespace name="frontend/listing/box_article"}#}
 
 {% block frontend_listing_box_article %}
-    <div class="product--box box--{$productBoxLayout}" data-ordernumber="{{ product.ordernumber }}">
+    <div class="product--box box--{$listing.productBoxLayout}" data-ordernumber="{{ product.ordernumber }}">
         {% set productName = product.name %}
         {% if product.additionaltext %}
             {% set productName = productName ~ ' ' ~ product.additionaltext %}

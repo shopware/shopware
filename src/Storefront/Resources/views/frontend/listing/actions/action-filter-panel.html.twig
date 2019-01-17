@@ -4,10 +4,10 @@
     {% set listingMode = shopware.config.listingMode %}
 
     {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
-    {% set facets = listing.aggregations %}
+    {% set facets = page.listing.aggregations %}
 
     {# @var criteria \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria #}
-    {% set criteria = listing.criteria %}
+    {% set criteria = page.listing.criteria %}
 
     <div class="action--filter-options off-canvas{% if facets|length <= 0 %} is--hidden{% endif %}{% if listingMode != 'full_page_reload' %} is--ajax-reload{% endif %}">
 
@@ -50,8 +50,8 @@
                         {% endblock %}
 
                         {% block frontend_listing_actions_filter_form_sort %}
-                            {% if listing.currentSorting %}
-                                <input type="hidden" name="o" value="{{ listing.currentSorting }}"/>
+                            {% if page.listing.currentSorting %}
+                                <input type="hidden" name="o" value="{{ page.listing.currentSorting }}"/>
                             {% endif %}
                         {% endblock %}
 

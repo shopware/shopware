@@ -142,10 +142,10 @@
             /**
              * Selector for the payment method select fields.
              *
-             * @property paymentMethodSelector
+             * @property PaymentMethodelector
              * @type {String}
              */
-            paymentMethodSelector: '.payment--method',
+            PaymentMethodelector: '.payment--method',
 
             /**
              * Selector for a input field.
@@ -236,7 +236,7 @@
 
             me.$countySelectFields = $el.find(opts.countryFieldSelector);
 
-            me.$paymentMethods = $el.find(opts.paymentMethodSelector);
+            me.$PaymentMethod = $el.find(opts.PaymentMethodelector);
 
             me.$inputs = $el.find(opts.inputSelector);
             me.$stateContainers = $el.find(opts.stateContainerSelector);
@@ -261,7 +261,7 @@
             me._on(me.$skipAccount, 'change', $.proxy(me.checkSkipAccount, me));
             me._on(me.$alternativeShipping, 'change', $.proxy(me.checkChangeShipping, me));
             me._on(me.$countySelectFields, 'change', $.proxy(me.onCountryChanged, me));
-            me._on(me.$paymentMethods, 'change', $.proxy(me.onPaymentChanged, me));
+            me._on(me.$PaymentMethod, 'change', $.proxy(me.onPaymentChanged, me));
             me._on(me.$form, 'focusout', $.proxy(me.onValidateInput, me));
             me._on(me.$submitBtn, 'click', $.proxy(me.onSubmitBtn, me));
 
@@ -428,7 +428,7 @@
                 radio,
                 $el;
 
-            $.each(me.$paymentMethods, function (index, el) {
+            $.each(me.$PaymentMethod, function (index, el) {
                 $el = $(el);
 
                 radio = $el.find(inputSelector);

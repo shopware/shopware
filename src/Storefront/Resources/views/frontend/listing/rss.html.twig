@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="{encoding}" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-<atom:link href="{{ navigation.activeCategory.rssFeed }}" rel="self" type="application/rss+xml" />
-<title>{% block frontend_atom_title %}{{ navigation.activeCategory.description }}{% endblock %}</title>
+<atom:link href="{{ page.navigation.activeCategory.rssFeed }}" rel="self" type="application/rss+xml" />
+<title>{% block frontend_atom_title %}{{ page.navigation.activeCategory.description }}{% endblock %}</title>
 <link>{url controller='index'}</link>
-<description>{{ shopware.config.shopName }} - {{ navigation.activeCategory.description }}</description>
+<description>{{ shopware.config.shopName }} - {{ page.navigation.activeCategory.description }}</description>
 <language>de-de</language>
 <lastBuildDate>{{ "now"|date('RSS') }}</lastBuildDate>
 {% for product in products %}

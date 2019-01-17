@@ -38,7 +38,7 @@
 
 {# Listing wrapper #}
 {% block frontend_listing_listing_wrapper %}
-    {% if listing.showListing %}
+    {% if page.listing.showListing %}
 
         {% set listingCssClass = "listing--wrapper" %}
 
@@ -74,7 +74,7 @@
                             data-infinite-scrolling="true"
                             data-loadPreviousSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadPrevious{% endtrans %}"
                             data-loadMoreSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadMore{% endtrans %}"
-                            data-categoryId="{{ listing.navigationId }}"
+                            data-categoryId="{{ page.listing.navigationId }}"
                             data-pages="{{ pages }}"
                             data-threshold="{{ theme.infiniteThreshold }}"
                                 {% endif %}>
@@ -82,7 +82,7 @@
                             {# Actual listing #}
                             {% block frontend_listing_list_inline %}
                                 {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
-                                {% for product in listing.products %}
+                                {% for product in page.listing.products %}
                                     {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
                                 {% endfor %}
                             {% endblock %}

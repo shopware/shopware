@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerAccountExistsException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Account\Exception\CustomerNotFoundException;
-use Shopware\Storefront\Account\Page\AccountService;
-use Shopware\Storefront\Account\Page\RegistrationRequest;
+use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
+use Shopware\Storefront\Exception\AccountLogin\CustomerNotFoundException;
 
 class AccountServiceTest extends TestCase
 {
@@ -95,7 +95,7 @@ class AccountServiceTest extends TestCase
         static::assertEquals($request->getLastName(), $customer->getLastName());
     }
 
-    private function getRegistrationRequest(): RegistrationRequest
+    private function getRegistrationRequest(): AccountRegistrationRequest
     {
         $data = [
             'email' => 'max.mustermann@example.com',
@@ -110,7 +110,7 @@ class AccountServiceTest extends TestCase
 
             'password' => Uuid::uuid4()->getHex(),
         ];
-        $request = new RegistrationRequest();
+        $request = new AccountRegistrationRequest();
         $request->assign($data);
 
         return $request;

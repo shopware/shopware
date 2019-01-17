@@ -8,7 +8,7 @@ class Seo extends Bundle
 {
     protected $name = 'Storefront/Framework/Seo';
 
-    public function getParent()
+    public function getParent(): string
     {
         return 'Storefront/Framework';
     }

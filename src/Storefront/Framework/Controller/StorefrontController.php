@@ -33,9 +33,9 @@ abstract class StorefrontController extends AbstractController
     {
         //remove static template inheritance prefix
         if (strpos($view, '@') === 0) {
-            $view = explode('/', $view);
-            array_shift($view);
-            $view = implode('/', $view);
+            $viewParts = explode('/', $view);
+            array_shift($viewParts);
+            $view = implode('/', $viewParts);
         }
 
         /** @var TemplateFinder $templateFinder */

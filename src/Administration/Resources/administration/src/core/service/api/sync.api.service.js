@@ -1,4 +1,4 @@
-import ApiService from './api.service';
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "sync"
@@ -8,6 +8,7 @@ import ApiService from './api.service';
 class SyncApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sync') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'syncService';
     }
 
     sync(payload, additionalParams = {}, additionalHeaders = {}) {

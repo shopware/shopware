@@ -1,4 +1,4 @@
-import ApiService from './api.service';
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "media-folder"
@@ -8,6 +8,7 @@ import ApiService from './api.service';
 class MediaFolderApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'media-folder') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'mediaFolderService';
     }
 
     dissolveFolder(id) {

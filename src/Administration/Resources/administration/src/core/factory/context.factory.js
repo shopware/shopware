@@ -2,7 +2,7 @@
  * @module core/factory/context
  * @type factory
  */
-export default function createContext(context) {
+export default function createContext(context = {}) {
     const isDevMode = (process.env.NODE_ENV !== 'production');
     const installationPath = getInstallationPath(context, isDevMode);
     const apiPath = `${installationPath}/api`;

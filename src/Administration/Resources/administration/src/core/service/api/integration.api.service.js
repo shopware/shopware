@@ -1,4 +1,4 @@
-import ApiService from './api.service';
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "integration"
@@ -8,6 +8,7 @@ import ApiService from './api.service';
 class IntegrationApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'integration') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'integrationService';
     }
 
     /**

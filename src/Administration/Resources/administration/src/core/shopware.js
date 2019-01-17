@@ -59,6 +59,14 @@ export const Entity = {
     getAssociatedProperties: Shopware.Entity.getAssociatedProperties
 };
 
+export const ApiService = {
+    register: Shopware.ApiService.register,
+    getByName: Shopware.ApiService.getByName,
+    getRegistry: Shopware.ApiService.getRegistry,
+    getServices: Shopware.ApiService.getServices,
+    has: Shopware.ApiService.has
+};
+
 export default {
     Module,
     Component,
@@ -69,5 +77,6 @@ export default {
     Entity,
     Filter,
     Directive,
-    Locale
+    Locale,
+    ApiService
 };

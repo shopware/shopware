@@ -355,7 +355,7 @@ class ApplicationBootstrapper {
             this.applicationRoot = view.createInstance(
                 '#app',
                 router,
-                this.getContainer('service'),
+                this.getContainer('service')
             );
 
             this.applicationRoot.initError = error;

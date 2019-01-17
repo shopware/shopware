@@ -4,6 +4,7 @@ import './sw-condition-and-container.less';
 
 const PLACEHOLDER_NAME = 'placeholder';
 const OR_CONTAINER_NAME = 'orContainer';
+const AND_CONTAINER_NAME = 'andContainer';
 
 /**
  * @public
@@ -109,17 +110,17 @@ Component.register('sw-condition-and-container', {
 
             if (this.level === 1
                 && this.condition.parent.children.length === 1
-                && this.condition.type === 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule'
+                && this.condition.type === AND_CONTAINER_NAME
                 && this.condition.children.length === 1
-                && this.condition.children[0].type === 'placeholder') {
+                && this.condition.children[0].type === PLACEHOLDER_NAME) {
                 return true;
             }
 
             if (this.level === 0
                 && this.condition.children.length === 1
-                && this.condition.children[0].type === 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule'
+                && this.condition.children[0].type === AND_CONTAINER_NAME
                 && this.condition.children[0].children.length === 1
-                && this.condition.children[0].children[0].type === 'placeholder') {
+                && this.condition.children[0].children[0].type === PLACEHOLDER_NAME) {
                 return true;
             }
 

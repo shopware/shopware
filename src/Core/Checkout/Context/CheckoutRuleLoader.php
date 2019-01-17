@@ -143,7 +143,7 @@ class CheckoutRuleLoader
     {
         /** @var RuleEntity $rule */
         foreach ($this->rules as $key => $rule) {
-            if ($rule->isInvalid()) {
+            if ($rule->isInvalid() || !$rule->getPayload()) {
                 $this->rules->remove($key);
             }
         }

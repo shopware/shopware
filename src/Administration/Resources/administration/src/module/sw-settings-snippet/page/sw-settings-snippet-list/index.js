@@ -19,12 +19,18 @@ Component.register('sw-settings-snippet-list', {
             grid: [],
             metaId: '',
             isCustomState: this.$route.query.isCustomState
+            resetItems: [],
+            hasResetableItems: true,
+            modalResetSelection: []
         };
     },
 
     computed: {
         snippetSetStore() {
             return State.getStore('snippet_set');
+        },
+        snippetStore() {
+            return State.getStore('snippet');
         },
         queryIdCount() {
             return this.queryIds.length;
@@ -45,6 +51,7 @@ Component.register('sw-settings-snippet-list', {
 
                 return;
             }
+
             this.isLoading = true;
             this.queryIds = this.$route.query.ids;
             const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
@@ -69,6 +76,7 @@ Component.register('sw-settings-snippet-list', {
                 items.forEach((item) => {
                     content[item.setId] = item;
                 });
+                content.id = items[0].translationKey;
                 result.push(content);
             });
 
@@ -149,8 +157,108 @@ Component.register('sw-settings-snippet-list', {
             });
         },
 
-        onDelete(item) {
-            this.showDeleteModal = item;
+        onReset(item) {
+            const keys = Object.keys(item);
+            let i = keys.length;
+            while (i) {
+                i -= 1;
+                if (keys[i] === 'id') {
+                    keys.splice(i, 1);
+                }
+            }
+
+            const criteria = CriteriaFactory.equalsAny('id', keys);
+            this.isLoading = true;
+
+            this.snippetSetStore.getList({ criteria }).then((response) => {
+                const resetItems = [];
+                Object.values(item).forEach((currentItem, index) => {
+                    if (!(currentItem instanceof Object)) {
+                        return;
+                    }
+
+                    currentItem.setName = this.getName(response.items, currentItem.setId);
+                    if (currentItem.id === null) {
+                        currentItem.id = index;
+                        currentItem.isFileSnippet = true;
+                    }
+
+                    resetItems.push(currentItem);
+                });
+
+                this.resetItems = resetItems;
+                this.showDeleteModal = item;
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
+        getName(list, id) {
+            let name = '';
+            list.forEach((item) => {
+                if (item.id === id) {
+                    name = item.name;
+                }
+            });
+
+            return name;
+        },
+
+        onModalSelectionChanged(selection) {
+            this.selection = selection;
+            this.selectionCount = Object.keys(selection).length;
+            this.hasResetableItems = this.selectionCount === 0;
+        },
+
+        onConfirmReset() {
+            const items = Object.values(this.selection);
+            this.showDeleteModal = false;
+
+            items.forEach((item) => {
+                if (item.hasOwnProperty('isFileSnippet')) {
+                    return;
+                }
+                this.isLoading = true;
+                this.snippetService.delete(item.id).then(() => {
+                    this.createSuccessMessage(item);
+                }).catch(() => {
+                    this.createResetErrorNote(item);
+                }).finally(() => {
+                    this.isLoading = false;
+                    this.getList();
+                });
+            });
+        },
+
+        createSuccessMessage(item) {
+            const title = this.$tc('sw-settings-snippet.list.titleDeleteSuccess');
+            const message = this.$tc(
+                'sw-settings-snippet.list.resetSuccessMessage',
+                0,
+                {
+                    key: item.value,
+                    value: item.origin
+                }
+            );
+
+            this.createNotificationSuccess({
+                title,
+                message
+            });
+        },
+
+        createResetErrorNote(item) {
+            const title = this.$tc('sw-settings-snippet.list.titleSaveError');
+            const message = this.$tc(
+                'sw-settings-snippet.list.resetErrorMessage',
+                0,
+                { key: item.value }
+            );
+
+            this.createNotificationError({
+                title,
+                message
+            });
         },
 
         onSearch(term) {

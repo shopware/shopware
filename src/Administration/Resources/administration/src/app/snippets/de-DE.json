@@ -960,6 +960,11 @@
       "titleDeleteSuccess": "Textbausteine",
       "titleSaveError": "Fehler: Textbausteine",
       "titleSaveSuccess": "Textbausteine",
+      "columnHeaderGridColumTitleSet": "Textbaustein-Set",
+      "columnHeaderResetTo": "Original",
+      "resetErrorMessage": "Der Textbaustein \"{key}\" konnte nicht zurückgesetzt werden.",
+      "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt."
+      "titleSaveSuccess": "Textbausteine",
       "titleSidebarCustomItems": "Eigene Textbausteine",
       "titleSidebarItemRefresh": "Aktualisieren"
     },

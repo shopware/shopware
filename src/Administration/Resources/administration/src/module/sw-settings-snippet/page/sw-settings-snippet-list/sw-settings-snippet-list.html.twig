@@ -56,7 +56,8 @@
                                  :sidebar="true"
                                  @edit="onEdit"
                                  @inline-edit-cancel="onInlineEditCancel"
-                                 @inline-edit-finish="onInlineEditSave">
+                                 @inline-edit-finish="onInlineEditSave"
+                                 table>
                             {% block sw_settings_snippet_list_grid_slots %}
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_settings_snippet_list_columns %}
@@ -120,7 +121,7 @@
                                                     {% endblock %}
 
                                                     {% block sw_settings_snippet_list_grid_column_actions_delete %}
-                                                        <sw-context-menu-item @click="onDelete(item)" variant="danger">
+                                                        <sw-context-menu-item @click="onReset(item)" variant="danger">
                                                             {{ $tc('sw-settings-snippet.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
@@ -133,11 +134,43 @@
                                         <sw-modal v-if="showDeleteModal === item"
                                                   @closeModal="onCloseDeleteModal"
                                                   :title="$tc('sw-settings-snippet.list.modalTitleDelete')"
-                                                  variant="small">
+                                                  variant="large">
                                             {% block sw_settings_snippet_list_delete_modal_text %}
                                                 <span class="modal__confirm-delete-text">
                                                     {{ $tc('sw-settings-snippet.list.textDeleteConfirm', queryIdCount, { key: item[metaId].translationKey }) }}
                                                 </span>
+                                                {% block sw_settings_snippet_list_delete_modal_grid %}
+                                                    <sw-grid :items="resetItems"
+                                                             @sw-grid-select-item="onModalSelectionChanged"
+                                                             @sw-grid-select-all="onModalSelectionChanged"
+                                                             table>
+                                                        {% block sw_settings_snippet_list_delete_modal_grid_template %}
+                                                            <template slot="columns" slot-scope="{ item }">
+                                                                {% block sw_settings_snippet_list_delete_modal_grid_name %}
+                                                                    <sw-grid-column :label="$tc('sw-settings-snippet.list.columnHeaderGridColumTitleSet')"
+                                                                                    flex="minmax(150px, 1fr)"
+                                                                                    dataIndex="setName">
+                                                                        {{ item.setName }}
+                                                                    </sw-grid-column>
+                                                                {% endblock %}
+                                                                {% block sw_settings_snippet_list_delete_modal_grid_value %}
+                                                                    <sw-grid-column :label="$tc('sw-settings-snippet.list.columnValue')"
+                                                                                    flex="minmax(50px,1fr)"
+                                                                                    dataIndex="value">
+                                                                        {{ item.value }}
+                                                                    </sw-grid-column>
+                                                                {% endblock %}
+                                                                {% block sw_settings_snippet_list_delete_modal_grid_origin %}
+                                                                    <sw-grid-column :label="$tc('sw-settings-snippet.list.columnHeaderResetTo')"
+                                                                                    flex="minmax(50px,1fr)"
+                                                                                    dataIndex="origin">
+                                                                        {{ item.origin }}
+                                                                    </sw-grid-column>
+                                                                {% endblock %}
+                                                            </template>
+                                                        {% endblock %}
+                                                    </sw-grid>
+                                                {% endblock %}
                                             {% endblock %}
 
                                             {% block sw_settings_snippet_list_delete_modal_footer %}
@@ -150,11 +183,11 @@
                                                     {% endblock %}
 
                                                     {% block sw_settings_snippet_list_delete_modal_confirm %}
-                                                        <sw-button @click="onConfirmDelete(item)"
+                                                        <sw-button @click="onConfirmReset(item)"
+                                                                   :disabled="hasResetableItems"
                                                                    variant="primary"
-                                                                   disabled
                                                                    size="small">
-                                                            {{ $tc('sw-settings-snippet.list.buttonDelete') }}
+                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete') }}
                                                         </sw-button>
                                                     {% endblock %}
                                                 </template>

@@ -86,6 +86,20 @@
       "notificationSuccessOverall": "Ordner erfolgreich aufgelöst",
       "notificationErrorOverall": "Die Ordner konnten nicht aufgelöst werden"
     },
+    "sw-media-modal-duplicate-media": {
+      "titleModal": "Datei existiert bereits",
+      "description": "Es existiert bereits eine Datei mit diesem Namen.",
+      "buttonReplace": "Datei ersetzen",
+      "buttonRename": "Datei umbennen",
+      "buttonSkip": "Datei überspringen",
+      "buttonCancel": "Abbrechen",
+      "labelSaveSelection": "Auswahl merken und nicht erneut nachfragen",
+      "labelOptionReplace": "Hochladen und ersetzen",
+      "labelOptionRename": "Hochladen und umbenennen",
+      "labelOptionSkip": "Datei überspringen",
+      "labelOldFile": "Hochzuladene Datei",
+      "labelNewFile": "Bereits existierende Datei"
+    },
     "sw-media-modal-move": {
       "titleModal": "\"{mediaName}\" verschieben | {count} Objekte verschieben",
       "buttonMove": "Verschieben",

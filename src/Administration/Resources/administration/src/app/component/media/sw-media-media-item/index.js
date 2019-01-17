@@ -14,7 +14,7 @@ import './sw-media-media-item.less';
  *     :item="mediaItem"
  *     :selected="false"
  *     :showSelectionIndicator="false"
- *     isList="false">
+ *     :isList="false">
  *
  *       <sw-context-menu-item @click="showDetails(mediaItem)"
  *             slot="additional-context-menu-items">

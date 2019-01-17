@@ -80,7 +80,9 @@ export default {
             showUrlInput: false,
             previewMediaEntity: null,
             isDragActive: false,
-            defaultFolderPromise: Promise.resolve(null)
+            defaultFolderPromise: Promise.resolve(null),
+            showDuplicatedMediaModal: false,
+            errorFiles: []
         };
     },
 
@@ -370,8 +372,8 @@ export default {
             return () => {
                 return this.mediaUploadService.uploadFileToMedia(file, mediaEntity).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
-                }).catch(() => {
-                    return this.cleanUpFailure(mediaEntity, failureMessage);
+                }).catch((error) => {
+                    this.handleError(error, mediaEntity, failureMessage);
                 });
             };
         },
@@ -384,7 +386,7 @@ export default {
                 return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
                 }).catch(() => {
-                    return this.cleanUpFailure(mediaEntity, failureMessage);
+                    return this.handleError(mediaEntity, failureMessage);
                 });
             };
         },
@@ -414,9 +416,16 @@ export default {
             });
         },
 
-        cleanUpFailure(mediaEntity, message) {
-            this.createNotificationError({ message });
-            mediaEntity.delete(true);
+        handleError(error, mediaEntity, message) {
+            if (error.response.data.errors.some((err) => {
+                return err.code === 'DUPLICATED_MEDIA_FILE_NAME_EXCEPTION';
+            })) {
+                mediaEntity.isLoading = false;
+                this.errorFiles.push(mediaEntity);
+                this.showDuplicatedMediaModal = true;
+            } else {
+                this.createNotificationError({ message });
+            }
         }
     }
 };

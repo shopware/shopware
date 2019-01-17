@@ -130,5 +130,12 @@
                        @change="onFileInputChange"/>
             </form>
         {% endblock %}
+
+        {% block sw_media_duplicated_media_modal %}
+            <sw-media-modal-duplicate-media
+                v-if="showDuplicatedMediaModal"
+                :item="errorFiles[0]">
+            </sw-media-modal-duplicate-media>
+        {% endblock %}
     </div>
 {% endblock %}

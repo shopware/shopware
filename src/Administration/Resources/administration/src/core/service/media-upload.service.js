@@ -13,6 +13,15 @@ export default function createMediaUploadService(mediaService) {
     function uploadFileToMedia(file, mediaEntity) {
         const pathinfo = splitFileNameAndExtension(file.name);
 
+        fileReader.readAsDataURL(file).then((dataUrl) => {
+            mediaEntity.fileName = pathinfo.fileName;
+            mediaEntity.fileExtension = pathinfo.extension;
+            mediaEntity.hasFile = true;
+            mediaEntity.mimeType = file.type;
+            mediaEntity.url = dataUrl;
+            mediaEntity.uploadedAt = new Date();
+        });
+
         return fileReader.readAsArrayBuffer(file).then((buffer) => {
             return mediaService.uploadMediaById(
                 mediaEntity.id,
@@ -35,6 +44,12 @@ export default function createMediaUploadService(mediaService) {
         if (fileExtension) {
             pathinfo.extension = fileExtension;
         }
+
+        mediaEntity.fileName = pathinfo.fileName;
+        mediaEntity.fileExtension = pathinfo.extension;
+        mediaEntity.hasFile = true;
+        mediaEntity.url = url.href;
+        mediaEntity.uploadedAt = new Date();
 
         return mediaService.uploadMediaFromUrl(
             mediaEntity.id,

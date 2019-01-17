@@ -86,6 +86,20 @@
       "notificationSuccessOverall": "Folders have been dissolved successfully",
       "notificationErrorOverall": "Error dissolving folders"
     },
+    "sw-media-modal-duplicate-media": {
+      "titleModal": "File already exists",
+      "description": "A file with that name already exists.",
+      "buttonReplace": "Replace file",
+      "buttonRename": "Rename file",
+      "buttonSkip": "Skip file",
+      "buttonCancel": "Cancel",
+      "labelSaveSelection": "Save selection and don't ask again",
+      "labelOptionReplace": "Upload and replace",
+      "labelOptionRename": "Upload and rename",
+      "labelOptionSkip": "Skip file",
+      "labelOldFile": "Uploaded file",
+      "labelNewFile": "Existing file"
+    },
     "sw-media-modal-move": {
       "titleModal": "Move \"{mediaName}\" | Move {count} items",
       "buttonMove": "Move",

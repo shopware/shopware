@@ -5,7 +5,8 @@ Component.register('sw-settings-payment-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('discard-detail-page-changes')('paymentMethod')
     ],
 
     data() {

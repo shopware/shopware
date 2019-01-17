@@ -8,7 +8,8 @@ Component.register('sw-product-detail', {
     inject: ['mediaService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('discard-detail-page-changes')('product')
     ],
 
     data() {

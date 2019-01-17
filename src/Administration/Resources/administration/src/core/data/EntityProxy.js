@@ -204,10 +204,15 @@ export default class EntityProxy {
      * Discards current changes of the entity.
      *
      * @memberOf module:core/data/EntityProxy
+     * @param {Boolean} [includeAssociations=true]
      * @return {void}
      */
-    discardChanges() {
+    discardChanges(includeAssociations = true) {
         this.draft = deepCopyObject(this.original);
+
+        if (includeAssociations) {
+            this.discardAssociationChanges();
+        }
     }
 
     /**
@@ -578,6 +583,34 @@ export default class EntityProxy {
         });
 
         return changes;
+    }
+
+    /**
+     * Discard all changes in OneToMany associations.
+     * Associations marked as deleted will be unmarked and "local" associations will be removed from the store
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {void}
+     */
+    discardAssociationChanges() {
+        Object.keys(this.associations).forEach((associationKey) => {
+            const association = this.associations[associationKey];
+
+            Object.keys(association.store).forEach((id) => {
+                const entity = association.store[id];
+
+                if (entity.isDeleted) {
+                    entity.isDeleted = false;
+                }
+
+                if (entity.isLocal) {
+                    entity.remove();
+                    return;
+                }
+
+                entity.discardChanges();
+            });
+        });
     }
 
     /**

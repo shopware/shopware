@@ -5,7 +5,8 @@ Component.register('sw-settings-tax-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('discard-detail-page-changes')('tax')
     ],
 
     data() {

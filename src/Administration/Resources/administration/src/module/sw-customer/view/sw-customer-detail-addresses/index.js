@@ -103,8 +103,11 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onConfirmDeleteAddress(id) {
-            this.customerAddressStore.getById(id).delete();
-            this.customer.addresses = this.customer.addresses.filter(a => a.id !== id);
+            this.onCloseDeleteAddressModal();
+            this.$nextTick(() => {
+                this.customerAddressStore.getById(id).delete();
+                this.customer.addresses = this.customer.addresses.filter(a => a.id !== id);
+            });
         },
 
         onCloseDeleteAddressModal() {

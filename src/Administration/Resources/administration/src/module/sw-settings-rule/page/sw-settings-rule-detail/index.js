@@ -11,8 +11,10 @@ Component.register('sw-settings-rule-detail', {
     template,
 
     inject: ['ruleConditionDataProviderService'],
+
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('discard-detail-page-changes')('rule')
     ],
 
     data() {

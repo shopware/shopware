@@ -50,14 +50,15 @@ Application
     });
 
 // Add custom api service providers
-Object.keys(apiServices).forEach((key) => {
+apiServices.forEach((ApiService) => {
     const serviceContainer = Application.getContainer('service');
     const initContainer = Application.getContainer('init');
-    const ApiService = apiServices[key].service;
-    const service = new ApiService(initContainer.httpClient, serviceContainer.loginService);
-    apiServiceFactory.register(key, service);
 
-    Application.addServiceProvider(key, () => {
+    const service = new ApiService(initContainer.httpClient, serviceContainer.loginService);
+    const serviceName = service.name;
+    apiServiceFactory.register(serviceName, service);
+
+    Application.addServiceProvider(serviceName, () => {
         return service;
     });
 });

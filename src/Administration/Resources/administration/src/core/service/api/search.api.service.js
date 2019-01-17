@@ -8,6 +8,7 @@ import ApiService from '../api.service';
 class SearchApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = '_search') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'searchService';
     }
 
     search({ term, page = 1, limit = 25, additionalParams = {}, additionalHeaders = {} }) {

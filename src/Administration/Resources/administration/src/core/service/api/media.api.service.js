@@ -8,6 +8,7 @@ import ApiService from '../api.service';
 class MediaApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'media') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'mediaService';
     }
 
     uploadMediaById(id, mimeType, data, extension, fileName = id) {

@@ -8,6 +8,7 @@ import ApiService from '../api.service';
 class MediaFolderApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'media-folder') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'mediaFolder';
     }
 
     dissolveFolder(id) {

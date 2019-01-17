@@ -8,6 +8,7 @@ import ApiService from '../api.service';
 class SalesChannelApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sales-channel') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'salesChannelName';
     }
 
     /**

@@ -8,6 +8,7 @@ import ApiService from '../api.service';
 class CustomerAddressApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'customer_address') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'customerAddressService';
     }
 
     getListByCustomerId(customerId, page, limit, additionalParams = {}, additionalHeaders = {}) {

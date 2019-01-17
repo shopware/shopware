@@ -8,6 +8,7 @@ import ApiService from '../api.service';
 class SnippetSetApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'snippet-set') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'snippetSetService';
     }
 
     /**

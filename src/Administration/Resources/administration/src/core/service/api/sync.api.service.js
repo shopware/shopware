@@ -8,6 +8,7 @@ import ApiService from '../api.service';
 class SyncApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sync') {
         super(httpClient, loginService, apiEndpoint);
+        this.name = 'syncService';
     }
 
     sync(payload, additionalParams = {}, additionalHeaders = {}) {

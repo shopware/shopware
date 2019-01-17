@@ -31,23 +31,53 @@ class PluginConfigReaderTest extends TestCase
     {
         return [
             0 => [
-                'type' => 'text',
-                'label' => [
-                    'en_GB' => 'Salutation',
-                    'de_DE' => 'Begrüßung',
+                'title' => [
+                    'en_GB' => 'Basic configuration',
+                    'de_DE' => 'Grundeinstellungen',
                 ],
-                'helpText' => [
-                    'en_GB' => 'The salutation shown in every eMail',
-                    'de_DE' => 'Die Begrüßung in jeder eMail',
+                'fields' => [
+                    0 => [
+                        'type' => 'text',
+                        'name' => 'email',
+                        'label' => [
+                            'en_GB' => 'eMail',
+                            'de_DE' => 'E-Mail',
+                        ],
+                        'placeholder' => [
+                            'en_GB' => 'Enter your eMail address',
+                            'de_DE' => 'Bitte gib deine E-Mail Adresse ein',
+                        ],
+                        'copyable' => true,
+                        'value' => null,
+                    ],
+                    1 => [
+                        'type' => 'select',
+                        'name' => 'mailMethod',
+                        'label' => [
+                            'en_GB' => 'Mailing protocol',
+                            'de_DE' => 'E-Mail Versand Protokoll',
+                        ],
+                        'placeholder' => [
+                            'en_GB' => 'Choose your preferred transfer method',
+                            'de_DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                        ],
+                        'options' => [
+                            0 => [
+                                'value' => 'smtp',
+                                'label' => [
+                                    'en_GB' => 'SMTP',
+                                ],
+                            ],
+                            1 => [
+                                'value' => 'pop3',
+                                'label' => [
+                                    'en_GB' => 'POP3',
+                                ],
+                            ],
+                        ],
+                        'value' => null,
+                    ],
                 ],
-            ],
-            1 => [
-                'type' => 'textarea',
-                'label' => [
-                    'en_GB' => 'eMail body',
-                    'de_DE' => 'eMail Inhalt',
-                ],
-                'copyable' => 'true',
             ],
         ];
     }

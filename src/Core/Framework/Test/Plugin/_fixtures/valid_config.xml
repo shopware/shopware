@@ -1,16 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../../../Plugin/Schema/config.xsd">
-    <sw-field>
-        <label>Salutation</label>
-        <label lang="de_DE">Begrüßung</label>
-        <helpText>The salutation shown in every eMail</helpText>
-        <helpText lang="de_DE">Die Begrüßung in jeder eMail</helpText>
-    </sw-field>
+    <card>
+        <title>Basic configuration</title>
+        <title lang="de_DE">Grundeinstellungen</title>
+        <sw-field>
+            <name>email</name>
+            <label>eMail</label>
+            <label lang="de_DE">E-Mail</label>
+            <placeholder>Enter your eMail address</placeholder>
+            <placeholder lang="de_DE">Bitte gib deine E-Mail Adresse ein</placeholder>
+            <copyable>true</copyable>
+        </sw-field>
 
-    <sw-field type="textarea">
-        <label>eMail body</label>
-        <label lang="de_DE">eMail Inhalt</label>
-        <copyable>true</copyable>
-    </sw-field>
+        <sw-field type="select">
+            <name>mailMethod</name>
+            <label>Mailing protocol</label>
+            <label lang="de_DE">E-Mail Versand Protokoll</label>
+            <placeholder>Choose your preferred transfer method</placeholder>
+            <placeholder lang="de_DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
+            <options>
+                <option>
+                    <value>smtp</value>
+                    <label>SMTP</label>
+                </option>
+                <option>
+                    <value>pop3</value>
+                    <label>POP3</label>
+                </option>
+            </options>
+        </sw-field>
+    </card>
 </config>

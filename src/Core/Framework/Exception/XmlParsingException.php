@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class XmlParsingException extends ShopwareHttpException
@@ -14,5 +15,10 @@ class XmlParsingException extends ShopwareHttpException
         $message = sprintf('Unable to parse file "%s". Message: %s', $xmlFile, $message);
 
         parent::__construct($message, $code, $previous);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

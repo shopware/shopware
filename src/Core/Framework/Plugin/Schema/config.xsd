@@ -3,18 +3,7 @@
     <xs:element name="config">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="sw-field" maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="label" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
-                            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
-                            <xs:element name="helpText" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
-                            <xs:element name="copyable" type="xs:boolean" minOccurs="0"/>
-                            <xs:element name="disabled" type="xs:boolean" minOccurs="0"/>
-                        </xs:sequence>
-                        <xs:attribute name="type" type="type" default="text"/>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="card" type="card" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -33,6 +22,24 @@
             <xs:enumeration value="date"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:complexType name="card">
+        <xs:sequence>
+            <xs:element name="title" type="translatableString" maxOccurs="unbounded"/>
+            <xs:element name="sw-field" type="sw-field" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="sw-field">
+        <xs:sequence>
+            <xs:element name="name" type="name"/>
+            <xs:element name="label" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="helpText" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="copyable" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="disabled" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="options" type="option-collection" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="type" default="text"/>
+    </xs:complexType>
     <xs:complexType name="translatableString">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -43,6 +50,22 @@
     <xs:simpleType name="languageCode">
         <xs:restriction base="xs:string">
             <xs:pattern value="[a-z]{2}_[A-Z]{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="option-collection">
+        <xs:sequence>
+            <xs:element name="option" type="option" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="option">
+        <xs:sequence>
+            <xs:element name="value" type="xs:string"/>
+            <xs:element name="label" type="translatableString" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="name">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-Z]{4,}"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

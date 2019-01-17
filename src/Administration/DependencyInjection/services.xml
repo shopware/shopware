@@ -21,5 +21,11 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <service id="Shopware\Administration\Controller\PluginConfigurationController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\PluginConfigReader"/>
+            <argument type="service" id="kernel"/>
+        </service>
+
     </services>
 </container>

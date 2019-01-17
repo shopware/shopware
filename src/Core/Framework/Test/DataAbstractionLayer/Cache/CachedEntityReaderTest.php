@@ -16,11 +16,15 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 class CachedEntityReaderTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    /**
+     * @var TagAwareAdapter
+     */
     protected $cache;
 
     protected function setUp()

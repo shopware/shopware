@@ -16,14 +16,34 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class EntityCacheKeyGenerator
 {
-    public function getEntityContextCacheKey(string $id, string $definition, ReadCriteria $criteria, Context $context): string
+    public function getEntityContextCacheKey(
+        string $id, string $definition, context $context, ?ReadCriteria $criteria = null
+    ): string
+    {
+        if ($criteria && \count($criteria->getAssociations()) > 0) {
+            /** @var string|EntityDefinition $definition */
+            $keys = [
+                $definition::getEntityName(),
+                $id,
+                md5(json_encode($criteria->getAssociations())),
+                $this->getContextHash($context)
+            ];
+        } else {
+            /** @var string|EntityDefinition $definition */
+            $keys = [$definition::getEntityName(), $id, $this->getContextHash($context)];
+        }
+        return implode('-', $keys);
+    }
+
+    public function getEntityFilteredContextCacheKey(string $definition, ReadCriteria $criteria, Context $context): string
     {
         /** @var string|EntityDefinition $definition */
-        $keys = [$definition::getEntityName(), $id, $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
+        $keys = [$definition::getEntityName(), $this->getFilteredHash($criteria), $this->getContextHash($context)];
 
         return implode('-', $keys);
     }
@@ -187,18 +207,12 @@ class EntityCacheKeyGenerator
         return $associations;
     }
 
-    private function getReadCriteriaHash(ReadCriteria $criteria): string
+    public function getFilteredHash(ReadCriteria $criteria): string
     {
         return md5(json_encode([
             $criteria->getIds(),
             $criteria->getFilters(),
             $criteria->getPostFilters(),
-            $criteria->getQueries(),
-            $criteria->getSorting(),
-            $criteria->getLimit(),
-            $criteria->getOffset(),
-            $criteria->getTotalCountMode(),
-            $criteria->getExtensions(),
             $criteria->getAssociations()
         ]));
     }

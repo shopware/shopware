@@ -47,7 +47,7 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         mediaDefaultFolderAssociationStore() {
-            return this.folder.getAssociation('defaultFolder');
+            return this.folder.getAssociation('defaultFolders');
         },
 
         mediaFolderConfigurationStore() {
@@ -190,8 +190,8 @@ Component.register('sw-media-modal-folder-settings', {
             const notificationMessageError = this.$tc('global.sw-media-modal-folder-settings.notificationError');
 
             const resetDefaultFolder = () => {
-                if (this.defaultFolder && this.folder.defaultFolder.length > 0) {
-                    const currentFolder = this.folder.defaultFolder[0];
+                if (this.defaultFolder && this.folder.defaultFolders.length > 0) {
+                    const currentFolder = this.folder.defaultFolders[0];
                     if (currentFolder.id !== this.defaultFolder.id) {
                         const oldFolder = this.mediaDefaultFolderStore.getById(this.defaultFolder.id);
                         oldFolder.folderId = null;
@@ -247,12 +247,12 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         onInputDefaultFolder(defaultFolderId) {
-            this.folder.defaultFolder.splice(0);
+            this.folder.defaultFolders.splice(0);
             this.mediaDefaultFolderAssociationStore.removeAll();
             this.mediaDefaultFolderStore.getByIdAsync(defaultFolderId).then((response) => {
                 response.folderId = this.folder.id;
                 this.mediaDefaultFolderAssociationStore.add(response);
-                this.folder.defaultFolder.push(response);
+                this.folder.defaultFolders.push(response);
             });
         }
     }

@@ -97,6 +97,7 @@ Component.register('sw-media-index', {
         },
 
         routeFolderId() {
+            this.page = 1;
             this.createdComponent();
         }
     },
@@ -179,7 +180,7 @@ Component.register('sw-media-index', {
                 sortBy: 'name',
                 criteria: CriteriaFactory.equals('parentId', this.mediaFolderId),
                 associations: {
-                    defaultFolder: {
+                    defaultFolders: {
                         page: 1,
                         limit: 5
                     }

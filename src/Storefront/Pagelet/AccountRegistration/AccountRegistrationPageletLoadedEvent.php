@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\AccountRegistration;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class AccountRegistrationPageletLoadedEvent extends NestedEvent
 {
@@ -21,14 +22,14 @@ class AccountRegistrationPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var AccountRegistrationPageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
     public function __construct(
         AccountRegistrationPageletStruct $pagelet,
         CheckoutContext $context,
-        AccountRegistrationPageletRequest $request
+        InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -55,7 +56,7 @@ class AccountRegistrationPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): AccountRegistrationPageletRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

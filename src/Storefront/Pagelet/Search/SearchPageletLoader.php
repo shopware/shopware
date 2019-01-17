@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\Listing\PageCriteriaCreatedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -60,12 +61,12 @@ class SearchPageletLoader
     }
 
     /**
-     * @param SearchPageletRequest $request
-     * @param CheckoutContext      $context
+     * @param InternalRequest $request
+     * @param CheckoutContext $context
      *
      * @return SearchPageletStruct
      */
-    public function load(SearchPageletRequest $request, CheckoutContext $context): SearchPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): SearchPageletStruct
     {
         $config = [];
 
@@ -77,10 +78,6 @@ class SearchPageletLoader
             new PageCriteriaCreatedEvent($criteria, $context, $request)
         );
 
-        if (!$request->loadAggregations()) {
-            $criteria->resetAggregations();
-        }
-
         $products = $this->productRepository->search($criteria, $context);
 
         $layout = $config['searchProductBoxLayout'] ?? 'basic';
@@ -90,7 +87,7 @@ class SearchPageletLoader
         $page->setProducts($products);
         $page->setCriteria($criteria);
         $page->setProductBoxLayout($layout);
-        $page->setSearchTerm($request->getSearchTerm());
+//        $page->setSearchTerm($request->getSearchTerm());
 
         return $page;
     }

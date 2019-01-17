@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Action\AccountAddress\AccountAddressSaveRequest;
 use Shopware\Storefront\Action\AccountEmail\AccountEmailSaveRequest;
@@ -22,17 +23,11 @@ use Shopware\Storefront\Exception\AccountLogin\CustomerNotFoundException;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Exception\BadCredentialsException;
 use Shopware\Storefront\Page\AccountAddress\AccountAddressPageLoader;
-use Shopware\Storefront\Page\AccountAddress\AccountAddressPageRequest;
 use Shopware\Storefront\Page\AccountLogin\AccountLoginPageLoader;
-use Shopware\Storefront\Page\AccountLogin\AccountLoginPageRequest;
 use Shopware\Storefront\Page\AccountOrder\AccountOrderPageLoader;
-use Shopware\Storefront\Page\AccountOrder\AccountOrderPageRequest;
 use Shopware\Storefront\Page\AccountOverview\AccountOverviewPageLoader;
-use Shopware\Storefront\Page\AccountOverview\AccountOverviewPageRequest;
 use Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageLoader;
-use Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageRequest;
 use Shopware\Storefront\Page\AccountProfile\AccountProfilePageLoader;
-use Shopware\Storefront\Page\AccountProfile\AccountProfilePageRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -113,7 +108,7 @@ class AccountController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function index(AccountOverviewPageRequest $request, CheckoutContext $context): Response
+    public function index(InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -128,7 +123,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
-    public function login(AccountLoginPageRequest $request, CheckoutContext $context): Response
+    public function login(InternalRequest $request, CheckoutContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
@@ -220,7 +215,7 @@ class AccountController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function paymentOverview(AccountPaymentMethodPageRequest $request, CheckoutContext $context): Response
+    public function paymentOverview(InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -261,7 +256,7 @@ class AccountController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function orderOverview(AccountOrderPageRequest $request, CheckoutContext $context): Response
+    public function orderOverview(InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -278,7 +273,7 @@ class AccountController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function profileOverview(AccountProfilePageRequest $request, CheckoutContext $context): Response
+    public function profileOverview(InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -353,7 +348,7 @@ class AccountController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function addressOverview(AccountAddressPageRequest $request, CheckoutContext $context): Response
+    public function addressOverview(InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -368,7 +363,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function createAddress(AccountAddressPageRequest $request, CheckoutContext $context): Response
+    public function createAddress(InternalRequest $request, CheckoutContext $context): Response
     {
         $page = array_merge(
             $this->accountAddressPageLoader->load($request, $context)->toArray(),
@@ -419,7 +414,7 @@ class AccountController extends StorefrontController
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function editAddress($addressId, AccountAddressPageRequest $request, CheckoutContext $context): Response
+    public function editAddress($addressId, InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -430,7 +425,7 @@ class AccountController extends StorefrontController
             'page' => [
                 'countryList' => $this->accountService->getCountryList($context),
             ],
-            'redirectTo' => $request->getRedirectTo(),
+//            'redirectTo' => $request->getRedirectTo(),
         ]);
     }
 
@@ -441,11 +436,11 @@ class AccountController extends StorefrontController
      * @throws InvalidUuidException
      * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException
      */
-    public function deleteAddressConfirm(AccountAddressPageRequest $request, CheckoutContext $context): Response
+    public function deleteAddressConfirm(InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $addressId = $request->getAccountAddressRequest()->getAddressId();
+        $addressId = (string) $request->requireRouting('addressId');
         $address = $this->accountService->getAddressById($addressId, $context);
 
         return $this->renderStorefront('@Storefront/frontend/address/delete.html.twig', ['address' => $address]);

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ContentCurrencyPageletLoader
@@ -35,7 +36,7 @@ class ContentCurrencyPageletLoader
         $this->container = $container;
     }
 
-    public function load(ContentCurrencyPageletRequest $request, CheckoutContext $context): ContentCurrencyPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ContentCurrencyPageletStruct
     {
         $page = new ContentCurrencyPageletStruct();
         $page->setCurrencies($this->getCurrencies($context));

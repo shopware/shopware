@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\NavigationSidebar;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class NavigationSidebarPageletLoadedEvent extends NestedEvent
 {
@@ -21,14 +22,14 @@ class NavigationSidebarPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var NavigationSidebarPageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
     public function __construct(
         NavigationSidebarPageletStruct $pagelet,
         CheckoutContext $context,
-        NavigationSidebarPageletRequest $request
+        InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -55,7 +56,7 @@ class NavigationSidebarPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): NavigationSidebarPageletRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

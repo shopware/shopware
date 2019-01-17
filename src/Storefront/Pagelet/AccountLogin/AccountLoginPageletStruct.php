@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Pagelet\AccountLogin;
 
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class AccountLoginPageletStruct extends PageletStruct
+class AccountLoginPageletStruct extends Struct
 {
 }

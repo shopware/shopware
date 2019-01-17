@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\AccountProfile;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,21 +35,15 @@ class AccountProfilePageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param AccountProfilePageRequest $request
-     * @param CheckoutContext           $context
-     *
-     * @return AccountProfilePageStruct
-     */
-    public function load(AccountProfilePageRequest $request, CheckoutContext $context): AccountProfilePageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountProfilePageStruct
     {
         $page = new AccountProfilePageStruct();
         $page->setAccountProfile(
-            $this->accountProfilePageletLoader->load($request->getAccountProfileRequest(), $context)
+            $this->accountProfilePageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

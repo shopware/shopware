@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Pagelet\CheckoutPaymentMethod;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class CheckoutPaymentMethodPageletStruct extends PageletStruct
+class CheckoutPaymentMethodPageletStruct extends Struct
 {
     /**
      * @var PaymentMethodCollection

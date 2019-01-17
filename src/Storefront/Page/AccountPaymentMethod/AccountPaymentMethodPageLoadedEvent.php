@@ -5,9 +5,7 @@ namespace Shopware\Storefront\Page\AccountPaymentMethod;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class AccountPaymentMethodPageLoadedEvent extends NestedEvent
 {
@@ -24,23 +22,15 @@ class AccountPaymentMethodPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var AccountPaymentMethodPageRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(AccountPaymentMethodPageStruct $page, CheckoutContext $context, AccountPaymentMethodPageRequest $request)
+    public function __construct(AccountPaymentMethodPageStruct $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
         $this->request = $request;
-    }
-
-    public function getEvents(): ?NestedEventCollection
-    {
-        return new NestedEventCollection([
-            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
-            new AccountPaymentMethodPageletLoadedEvent($this->page->getAccountPaymentMethod(), $this->context, $this->request->getAccountPaymentMethodRequest()),
-        ]);
     }
 
     public function getName(): string
@@ -63,7 +53,7 @@ class AccountPaymentMethodPageLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): AccountPaymentMethodPageRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\AccountLogin;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,23 +35,15 @@ class AccountLoginPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param AccountLoginPageRequest $request
-     * @param CheckoutContext         $context
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return AccountLoginPageStruct
-     */
-    public function load(AccountLoginPageRequest $request, CheckoutContext $context): AccountLoginPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountLoginPageStruct
     {
         $page = new AccountLoginPageStruct();
         $page->setAccountLogin(
-            $this->accountLoginPageletLoader->load($request->getAccountLoginRequest(), $context)
+            $this->accountLoginPageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

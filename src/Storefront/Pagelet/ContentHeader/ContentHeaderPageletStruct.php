@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Pagelet\ContentHeader;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Framework\Page\PageletStruct;
 use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletStruct;
 use Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletStruct;
 use Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletStruct;
@@ -48,7 +47,7 @@ class ContentHeaderPageletStruct extends Struct
     /**
      * @param ContentLanguagePageletStruct $language
      */
-    public function setLanguage(PageletStruct $language): void
+    public function setLanguage(Struct $language): void
     {
         $this->language = $language;
     }

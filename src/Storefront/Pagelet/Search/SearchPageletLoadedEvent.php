@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\Search;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class SearchPageletLoadedEvent extends NestedEvent
 {
@@ -21,14 +22,14 @@ class SearchPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var SearchPageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
     public function __construct(
         SearchPageletStruct $pagelet,
         CheckoutContext $context,
-        SearchPageletRequest $request
+        InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -55,7 +56,7 @@ class SearchPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): SearchPageletRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

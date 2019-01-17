@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Pagelet\CartInfo;
 
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class CartInfoPageletStruct extends PageletStruct
+class CartInfoPageletStruct extends Struct
 {
     /**
      * @var int

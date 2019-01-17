@@ -6,8 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Storefront\Page\Search\SearchPageRequest;
-use Shopware\Storefront\Pagelet\Search\SearchPageletRequest;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class PageCriteriaCreatedEvent extends NestedEvent
 {
@@ -24,11 +23,11 @@ class PageCriteriaCreatedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var ListingPageletRequest|SearchPageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(Criteria $criteria, CheckoutContext $context, ListingPageletRequest $request)
+    public function __construct(Criteria $criteria, CheckoutContext $context, InternalRequest $request)
     {
         $this->criteria = $criteria;
         $this->context = $context;
@@ -56,15 +55,15 @@ class PageCriteriaCreatedEvent extends NestedEvent
     }
 
     /**
-     * @return ListingPageletRequest|SearchPageRequest
+     * @return InternalRequest
      */
-    public function getRequest()
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }
 
     /**
-     * @param ListingPageletRequest|SearchPageRequest $request
+     * @param InternalRequest $request
      */
     public function setRequest($request): void
     {

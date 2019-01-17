@@ -17,9 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletRequest;
 use Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -100,10 +100,10 @@ class CheckoutController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function shippingPayment(CheckoutContext $context): Response
+    public function shippingPayment(InternalRequest $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
-        $page = $this->paymentMethodLoader->load(new AccountPaymentMethodPageletRequest(), $context);
+        $page = $this->paymentMethodLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/frontend/checkout/shipping_payment.html.twig', [
                 'page' => $page,

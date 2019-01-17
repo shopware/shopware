@@ -23,7 +23,7 @@
                         {% if category.extensions.canonicalUrl %}
                             {% set url = category.extensions.canonicalUrl.url %}
                         {% else %}
-                            {% set url = url('frontend.listing.page', { 'id': category.id }) %}
+                            {% set url = url('frontend.listing.page', { 'categoryId': category.id }) %}
                         {% endif %}
 
                         {% set isActive = (category.id in header.navigation.activeCategory.path or category.id == header.navigation.activeCategory.id) %}

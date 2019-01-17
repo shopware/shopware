@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\ContentHome;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,21 +35,15 @@ class ContentHomePageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param ContentHomePageRequest $request
-     * @param CheckoutContext        $context
-     *
-     * @return ContentHomePageStruct
-     */
-    public function load(ContentHomePageRequest $request, CheckoutContext $context): ContentHomePageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ContentHomePageStruct
     {
         $page = new ContentHomePageStruct();
         $page->setContentHome(
-            $this->contentHomePageletLoader->load($request->getContentHomeRequest(), $context)
+            $this->contentHomePageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

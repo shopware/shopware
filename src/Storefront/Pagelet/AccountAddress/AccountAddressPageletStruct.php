@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Pagelet\AccountAddress;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class AccountAddressPageletStruct extends PageletStruct
+class AccountAddressPageletStruct extends Struct
 {
     /**
      * @var CustomerAddressCollection

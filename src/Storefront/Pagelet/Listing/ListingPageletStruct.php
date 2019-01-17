@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Pagelet\Listing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Listing\ListingSortingCollection;
 use Shopware\Storefront\Framework\Page\AggregationView\AggregationViewCollection;
-use Shopware\Storefront\Framework\Page\PageletStruct;
 
-class ListingPageletStruct extends PageletStruct
+class ListingPageletStruct extends Struct
 {
     /**
      * @var EntitySearchResult

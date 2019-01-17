@@ -5,9 +5,7 @@ namespace Shopware\Storefront\Page\ProductDetail;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoadedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class ProductDetailPageLoadedEvent extends NestedEvent
 {
@@ -24,23 +22,15 @@ class ProductDetailPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var ProductDetailPageRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(ProductDetailPageStruct $page, CheckoutContext $context, ProductDetailPageRequest $request)
+    public function __construct(ProductDetailPageStruct $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
         $this->request = $request;
-    }
-
-    public function getEvents(): ?NestedEventCollection
-    {
-        return new NestedEventCollection([
-            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
-            new ProductDetailPageletLoadedEvent($this->page->getProductDetail(), $this->context, $this->request->getProductDetailRequest()),
-        ]);
     }
 
     public function getName(): string
@@ -63,7 +53,7 @@ class ProductDetailPageLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): ProductDetailPageRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

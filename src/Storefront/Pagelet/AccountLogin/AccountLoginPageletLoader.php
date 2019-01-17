@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Pagelet\AccountLogin;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AccountLoginPageletLoader
@@ -24,13 +25,7 @@ class AccountLoginPageletLoader
         $this->container = $container;
     }
 
-    /**
-     * @param AccountLoginPageletRequest $request
-     * @param CheckoutContext            $context
-     *
-     * @return AccountLoginPageletStruct
-     */
-    public function load(AccountLoginPageletRequest $request, CheckoutContext $context): AccountLoginPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountLoginPageletStruct
     {
         return new AccountLoginPageletStruct();
     }

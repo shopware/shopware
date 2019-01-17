@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Pagelet\CartInfo;
 
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -39,14 +40,14 @@ class CartInfoPageletLoader
     }
 
     /**
-     * @param CartInfoPageletRequest $request
-     * @param CheckoutContext        $context
+     * @param InternalRequest $request
+     * @param CheckoutContext $context
      *
      * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
      *
      * @return CartInfoPageletStruct
      */
-    public function load(CartInfoPageletRequest $request, CheckoutContext $context): CartInfoPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): CartInfoPageletStruct
     {
         $page = new CartInfoPageletStruct();
 

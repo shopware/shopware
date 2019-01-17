@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
-use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,7 +27,7 @@ class SearchController extends StorefrontController
      *
      * @return Response
      */
-    public function index(CheckoutContext $context, SearchPageRequest $searchPageRequest): Response
+    public function index(CheckoutContext $context, InternalRequest $searchPageRequest): Response
     {
         $page = $this->searchPageLoader->load($searchPageRequest, $context);
 
@@ -41,12 +41,12 @@ class SearchController extends StorefrontController
     /**
      * @Route("/search/suggest", name="frontend.search.suggest", methods={"GET"})
      *
-     * @param CheckoutContext   $context
-     * @param SearchPageRequest $searchPageRequest
+     * @param CheckoutContext $context
+     * @param InternalRequest $searchPageRequest
      *
      * @return Response
      */
-    public function suggest(CheckoutContext $context, Request $request, SearchPageRequest $searchPageRequest): Response
+    public function suggest(CheckoutContext $context, Request $request, InternalRequest $searchPageRequest): Response
     {
         $searchTerm = $request->get('search');
 

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
 use Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader;
@@ -42,27 +43,19 @@ class ListingPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param ListingPageRequest $request
-     * @param CheckoutContext    $context
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return ListingPageStruct
-     */
-    public function load(ListingPageRequest $request, CheckoutContext $context): ListingPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ListingPageStruct
     {
         $page = new ListingPageStruct();
         $page->setListing(
-            $this->listingPageletLoader->load($request->getListingRequest(), $context)
+            $this->listingPageletLoader->load($request, $context)
         );
 
         $page->setNavigationSidebar(
-            $this->navigationSidebarPageletLoader->load($request->getNavigationSidebarRequest(), $context)
+            $this->navigationSidebarPageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

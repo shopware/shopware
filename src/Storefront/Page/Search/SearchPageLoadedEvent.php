@@ -5,9 +5,7 @@ namespace Shopware\Storefront\Page\Search;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Search\SearchPageletLoadedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class SearchPageLoadedEvent extends NestedEvent
 {
@@ -24,23 +22,15 @@ class SearchPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var SearchPageRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(SearchPageStruct $page, CheckoutContext $context, SearchPageRequest $request)
+    public function __construct(SearchPageStruct $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
         $this->request = $request;
-    }
-
-    public function getEvents(): ?NestedEventCollection
-    {
-        return new NestedEventCollection([
-            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
-            new SearchPageletLoadedEvent($this->page->getSearch(), $this->context, $this->request->getSearchRequest()),
-        ]);
     }
 
     public function getName(): string
@@ -63,7 +53,7 @@ class SearchPageLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): SearchPageRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

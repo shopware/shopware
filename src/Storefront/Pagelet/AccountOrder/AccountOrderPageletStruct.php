@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Pagelet\AccountOrder;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class AccountOrderPageletStruct extends PageletStruct
+class AccountOrderPageletStruct extends Struct
 {
     /**
      * @var EntitySearchResult

@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Pagelet\AccountProfile;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class AccountProfilePageletStruct extends PageletStruct
+class AccountProfilePageletStruct extends Struct
 {
     /**
      * @var CustomerEntity

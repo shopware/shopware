@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\Listing;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class ListingPageletLoadedEvent extends NestedEvent
 {
@@ -21,11 +22,11 @@ class ListingPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var ListingPageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(ListingPageletStruct $page, CheckoutContext $context, ListingPageletRequest $request)
+    public function __construct(ListingPageletStruct $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -52,7 +53,7 @@ class ListingPageletLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): ListingPageletRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

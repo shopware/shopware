@@ -5,9 +5,7 @@ namespace Shopware\Storefront\Page\AccountAddress;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class AccountAddressPageLoadedEvent extends NestedEvent
 {
@@ -24,23 +22,15 @@ class AccountAddressPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var AccountAddressPageRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(AccountAddressPageStruct $page, CheckoutContext $context, AccountAddressPageRequest $request)
+    public function __construct(AccountAddressPageStruct $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
         $this->request = $request;
-    }
-
-    public function getEvents(): ?NestedEventCollection
-    {
-        return new NestedEventCollection([
-            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
-            new AccountAddressPageletLoadedEvent($this->page->getAccountAddress(), $this->context, $this->request->getAccountAddressRequest()),
-        ]);
     }
 
     public function getName(): string
@@ -63,7 +53,7 @@ class AccountAddressPageLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): AccountAddressPageRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Pagelet\ProductDetail;
 
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class ProductDetailPageletStruct extends PageletStruct
+class ProductDetailPageletStruct extends Struct
 {
     /**
      * @var ProductEntity

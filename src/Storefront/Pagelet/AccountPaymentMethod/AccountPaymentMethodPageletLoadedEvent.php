@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\AccountPaymentMethod;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
 {
@@ -21,14 +22,14 @@ class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var AccountPaymentMethodPageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
     public function __construct(
         AccountPaymentMethodPageletStruct $pagelet,
         CheckoutContext $context,
-        AccountPaymentMethodPageletRequest $request
+        InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -55,7 +56,7 @@ class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): AccountPaymentMethodPageletRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

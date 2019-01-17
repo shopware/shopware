@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Pagelet\ContentLanguage;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Storefront\Framework\Page\PageletStruct;
 
-class ContentLanguagePageletStruct extends PageletStruct
+class ContentLanguagePageletStruct extends Struct
 {
     /**
      * @var EntitySearchResult

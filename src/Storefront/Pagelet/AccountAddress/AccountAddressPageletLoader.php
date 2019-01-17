@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class AccountAddressPageletLoader
 {
@@ -20,7 +21,7 @@ class AccountAddressPageletLoader
         $this->customerAddressRepository = $customerAddressRepository;
     }
 
-    public function load(AccountAddressPageletRequest $request, CheckoutContext $context): AccountAddressPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountAddressPageletStruct
     {
         $criteria = $this->createCriteria($context->getCustomer()->getId());
 

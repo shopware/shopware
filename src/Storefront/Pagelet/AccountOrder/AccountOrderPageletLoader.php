@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class AccountOrderPageletLoader
 {
@@ -22,32 +23,24 @@ class AccountOrderPageletLoader
         $this->orderRepository = $orderRepository;
     }
 
-    /**
-     * @param AccountOrderPageletRequest $request
-     * @param CheckoutContext            $context
-     *
-     * @throws CustomerNotLoggedInException
-     *
-     * @return \Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletStruct
-     */
-    public function load(AccountOrderPageletRequest $request, CheckoutContext $context): AccountOrderPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountOrderPageletStruct
     {
-        $limit = $request->getLimit();
-        $pageNumber = $request->getPage();
+        $limit = (int) $request->optional('limit', 10);
+        $page = (int) $request->optional('page', 1);
 
         $customer = $context->getCustomer();
         if ($customer === null) {
             throw new CustomerNotLoggedInException();
         }
 
-        $criteria = $this->createCriteria($customer->getId(), $limit, $pageNumber);
+        $criteria = $this->createCriteria($customer->getId(), $limit, $page);
         $orders = $this->orderRepository->search($criteria, $context->getContext());
 
         $page = new AccountOrderPageletStruct();
         $page->setOrders($orders);
         $page->setCriteria($criteria);
-        $page->setCurrentPage($pageNumber);
-        $page->setPageCount($this->getPageCount($orders, $criteria, $pageNumber));
+        $page->setCurrentPage((int) $request->optional('page', 1));
+        $page->setPageCount($this->getPageCount($orders, $criteria, (int) $request->optional('page', 1)));
 
         return $page;
     }

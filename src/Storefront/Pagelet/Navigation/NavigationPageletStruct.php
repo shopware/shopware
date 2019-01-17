@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Pagelet\Navigation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Util\Tree\TreeItem;
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class NavigationPageletStruct extends PageletStruct
+class NavigationPageletStruct extends Struct
 {
     /**
      * @var TreeItem[]

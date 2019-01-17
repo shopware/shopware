@@ -5,12 +5,7 @@ namespace Shopware\Storefront\Pagelet\ContentHeader;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoadedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class ContentHeaderPageletLoadedEvent extends NestedEvent
 {
@@ -27,26 +22,15 @@ class ContentHeaderPageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var ContentHeaderPageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(ContentHeaderPageletStruct $page, CheckoutContext $context, ContentHeaderPageletRequest $request)
+    public function __construct(ContentHeaderPageletStruct $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->pagelet = $page;
         $this->context = $context;
         $this->request = $request;
-    }
-
-    public function getEvents(): ?NestedEventCollection
-    {
-        return new NestedEventCollection([
-            new NavigationPageletLoadedEvent($this->pagelet->getNavigation(), $this->context, $this->request->getNavigationRequest()),
-            new CartInfoPageletLoadedEvent($this->pagelet->getCartInfo(), $this->context, $this->request->getCartInfoRequest()),
-            new ShopmenuPageletLoadedEvent($this->pagelet->getShopmenu(), $this->context, $this->request->getShopmenuRequest()),
-            new ContentCurrencyPageletLoadedEvent($this->pagelet->getCurrency(), $this->context, $this->request->getCurrencyRequest()),
-            new ContentLanguagePageletLoadedEvent($this->pagelet->getLanguage(), $this->context, $this->request->getLanguageRequest()),
-        ]);
     }
 
     public function getName(): string
@@ -69,7 +53,7 @@ class ContentHeaderPageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): ContentHeaderPageletRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

@@ -5,11 +5,10 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
-use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
-use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -59,10 +58,8 @@ class ListingPageletController extends StorefrontController
     /**
      * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list", methods={"GET"})
      */
-    public function listAction(string $categoryId, ListingPageRequest $request, CheckoutContext $context): JsonResponse
+    public function listAction(InternalRequest $request, CheckoutContext $context): JsonResponse
     {
-        $request->getListingRequest()->setNavigationId($categoryId);
-
         $page = $this->listingPageLoader->load($request, $context);
 
         $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', [
@@ -85,7 +82,7 @@ class ListingPageletController extends StorefrontController
     /**
      * @Route("/widgets/listing/search", name="widgets_listing_search", methods={"GET"})
      */
-    public function searchAction(SearchPageRequest $request, CheckoutContext $context): JsonResponse
+    public function searchAction(InternalRequest $request, CheckoutContext $context): JsonResponse
     {
         $page = $this->searchPageLoader->load($request, $context);
 

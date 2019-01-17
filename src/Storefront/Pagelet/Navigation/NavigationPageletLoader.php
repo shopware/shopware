@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Pagelet\Navigation;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
-use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -42,34 +42,19 @@ class NavigationPageletLoader
     }
 
     /**
-     * @param NavigationPageletRequest $request
-     * @param CheckoutContext          $context
+     * @param InternalRequest $request
+     * @param CheckoutContext $context
      *
      * @return NavigationPageletStruct
      */
-    public function load(NavigationPageletRequest $request, CheckoutContext $context): NavigationPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): NavigationPageletStruct
     {
         $pagelet = new NavigationPageletStruct();
-        $navigation = $this->categoryService->read($this->getNavigationId($request), $context->getContext());
+        $navigation = $this->categoryService->read($request->optionalGet('categoryId'), $context->getContext());
 
         $pagelet->setTree($navigation->getTree());
         $pagelet->setActiveCategory($navigation->getActiveCategory());
 
         return $pagelet;
-    }
-
-    private function getNavigationId(NavigationPageletRequest $request): ?string
-    {
-        $route = $request->getRoute();
-
-        if ($request->getRouteParams()) {
-            switch ($route) {
-                case ListingPageSeoUrlIndexer::ROUTE_NAME:
-                default:
-                    return $request->getNavigationId();
-            }
-        }
-
-        return null;
     }
 }

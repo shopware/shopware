@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\AccountPaymentMethod;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoader;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,21 +35,15 @@ class AccountPaymentMethodPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param AccountPaymentMethodPageRequest $request
-     * @param CheckoutContext                 $context
-     *
-     * @return AccountPaymentMethodPageStruct
-     */
-    public function load(AccountPaymentMethodPageRequest $request, CheckoutContext $context): AccountPaymentMethodPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountPaymentMethodPageStruct
     {
         $page = new AccountPaymentMethodPageStruct();
         $page->setAccountPaymentMethod(
-            $this->accountPaymentMethodPageletLoader->load($request->getAccountPaymentMethodRequest(), $context)
+            $this->accountPaymentMethodPageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

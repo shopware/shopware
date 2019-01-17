@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Pagelet\ContentCurrency;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Storefront\Framework\Page\PageletStruct;
 
-class ContentCurrencyPageletStruct extends PageletStruct
+class ContentCurrencyPageletStruct extends Struct
 {
     /**
      * @var EntitySearchResult

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ProductDetailPageletLoader
@@ -61,9 +62,9 @@ class ProductDetailPageletLoader
         $this->container = $container;
     }
 
-    public function load(ProductDetailPageletRequest $request, CheckoutContext $context): ProductDetailPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ProductDetailPageletStruct
     {
-        $productId = $request->getProductId();
+        $productId = (string) $request->requireGet('productId');
         $parentId = $this->fetchParentId($productId, $context);
 
         $productId = $this->resolveProductId($productId, $parentId, $request, $context);
@@ -90,10 +91,10 @@ class ProductDetailPageletLoader
     private function resolveProductId(
         string $productId,
         string $parentId,
-        ProductDetailPageletRequest $request,
+        InternalRequest $request,
         CheckoutContext $context
     ): string {
-        $selection = array_filter($request->getGroup());
+        $selection = array_filter($request->optionalGet('group'));
 
         if (empty($selection)) {
             return $productId;

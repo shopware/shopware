@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\ContentLanguage;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class ContentLanguagePageletLoadedEvent extends NestedEvent
 {
@@ -21,14 +22,14 @@ class ContentLanguagePageletLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var ContentLanguagePageletRequest
+     * @var InternalRequest
      */
     protected $request;
 
     public function __construct(
         ContentLanguagePageletStruct $pagelet,
         CheckoutContext $context,
-        ContentLanguagePageletRequest $request
+        InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
         $this->context = $context;
@@ -55,7 +56,7 @@ class ContentLanguagePageletLoadedEvent extends NestedEvent
         return $this->pagelet;
     }
 
-    public function getRequest(): ContentLanguagePageletRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

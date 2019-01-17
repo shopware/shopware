@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
-use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -22,12 +22,10 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/listing/{id}", name="frontend.listing.page", options={"seo"=true}, methods={"GET"})
+     * @Route("/listing/{categoryId}", name="frontend.listing.page", options={"seo"=true}, methods={"GET"})
      */
-    public function index(string $id, CheckoutContext $context, ListingPageRequest $request): Response
+    public function index(CheckoutContext $context, InternalRequest $request): Response
     {
-        $request->getListingRequest()->setNavigationId($id);
-
         $page = $this->listingPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', [

@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Shopmenu;
 
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Storefront\Framework\Page\PageletStruct;
 
-class ShopmenuPageletStruct extends PageletStruct
+class ShopmenuPageletStruct extends Struct
 {
     /**
      * @var SalesChannelEntity

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Search\SearchPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,21 +35,15 @@ class SearchPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param SearchPageRequest $request
-     * @param CheckoutContext   $context
-     *
-     * @return SearchPageStruct
-     */
-    public function load(SearchPageRequest $request, CheckoutContext $context): SearchPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): SearchPageStruct
     {
         $page = new SearchPageStruct();
         $page->setSearch(
-            $this->searchPageletLoader->load($request->getSearchRequest(), $context)
+            $this->searchPageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

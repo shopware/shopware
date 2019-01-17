@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Pagelet\ContentHeader;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader;
 use Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoader;
 use Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader;
@@ -50,22 +51,14 @@ class ContentHeaderPageletLoader
         $this->languageLoader = $languageLoader;
     }
 
-    /**
-     * @param ContentHeaderPageletRequest $request
-     * @param CheckoutContext             $context
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return ContentHeaderPageletStruct
-     */
-    public function load(ContentHeaderPageletRequest $request, CheckoutContext $context): ContentHeaderPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ContentHeaderPageletStruct
     {
         $headerPageletStruct = new ContentHeaderPageletStruct();
-        $headerPageletStruct->setNavigation($this->navigationLoader->load($request->getNavigationRequest(), $context));
-        $headerPageletStruct->setCartInfo($this->cartInfoLoader->load($request->getCartInfoRequest(), $context));
-        $headerPageletStruct->setShopmenu($this->shopmenuLoader->load($request->getShopmenuRequest(), $context));
-        $headerPageletStruct->setCurrency($this->currencyLoader->load($request->getCurrencyRequest(), $context));
-        $headerPageletStruct->setLanguage($this->languageLoader->load($request->getLanguageRequest(), $context));
+        $headerPageletStruct->setNavigation($this->navigationLoader->load($request, $context));
+        $headerPageletStruct->setCartInfo($this->cartInfoLoader->load($request, $context));
+        $headerPageletStruct->setShopmenu($this->shopmenuLoader->load($request, $context));
+        $headerPageletStruct->setCurrency($this->currencyLoader->load($request, $context));
+        $headerPageletStruct->setLanguage($this->languageLoader->load($request, $context));
 
         return $headerPageletStruct;
     }

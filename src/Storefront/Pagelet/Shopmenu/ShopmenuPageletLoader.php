@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Pagelet\Shopmenu;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ShopmenuPageletLoader
@@ -20,7 +21,7 @@ class ShopmenuPageletLoader
         $this->container = $container;
     }
 
-    public function load(ShopmenuPageletRequest $request, CheckoutContext $context): ShopmenuPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ShopmenuPageletStruct
     {
         $page = new ShopmenuPageletStruct();
         $salesChannel = $context->getSalesChannel();

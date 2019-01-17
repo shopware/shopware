@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Event\ListingEvents;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,31 +45,28 @@ class ListingPageletLoader
     }
 
     /**
-     * @param ListingPageletRequest $request
-     * @param CheckoutContext       $context
+     * @param InternalRequest $request
+     * @param CheckoutContext $context
      *
      * @return ListingPageletStruct
      */
-    public function load(ListingPageletRequest $request, CheckoutContext $context): ListingPageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ListingPageletStruct
     {
-        /** @var ListingPageletRequest $request */
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.active', true));
-        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $request->getNavigationId()));
+        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $request->requireGet('categoryId')));
 
         $this->eventDispatcher->dispatch(
             ListingEvents::CRITERIA_CREATED,
             new PageCriteriaCreatedEvent($criteria, $context, $request)
         );
 
-        if (!$request->loadAggregations()) {
-            $criteria->resetAggregations();
-        }
-
         $products = $this->productRepository->search($criteria, $context);
 
         $page = new ListingPageletStruct();
-        $page->setNavigationId($request->getNavigationId());
+        $page->setPageCount(3);
+        $page->setCurrentPage(1);
+        $page->setNavigationId($request->requireGet('categoryId'));
         $page->setProducts($products);
         $page->setCriteria($criteria);
 

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\ProductDetail;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,21 +35,15 @@ class ProductDetailPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param ProductDetailPageRequest $request
-     * @param CheckoutContext          $context
-     *
-     * @return ProductDetailPageStruct
-     */
-    public function load(ProductDetailPageRequest $request, CheckoutContext $context): ProductDetailPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ProductDetailPageStruct
     {
         $page = new ProductDetailPageStruct();
         $page->setProductDetail(
-            $this->productDetailPageletLoader->load($request->getProductDetailRequest(), $context)
+            $this->productDetailPageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

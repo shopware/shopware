@@ -5,9 +5,7 @@ namespace Shopware\Storefront\Page\AccountLogin;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoadedEvent;
+use Shopware\Core\Framework\Routing\InternalRequest;
 
 class AccountLoginPageLoadedEvent extends NestedEvent
 {
@@ -24,23 +22,15 @@ class AccountLoginPageLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var AccountLoginPageRequest
+     * @var InternalRequest
      */
     protected $request;
 
-    public function __construct(AccountLoginPageStruct $page, CheckoutContext $context, AccountLoginPageRequest $request)
+    public function __construct(AccountLoginPageStruct $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
         $this->request = $request;
-    }
-
-    public function getEvents(): ?NestedEventCollection
-    {
-        return new NestedEventCollection([
-            new ContentHeaderPageletLoadedEvent($this->page->getHeader(), $this->context, $this->request->getHeaderRequest()),
-            new AccountLoginPageletLoadedEvent($this->page->getAccountLogin(), $this->context, $this->request->getAccountLoginRequest()),
-        ]);
     }
 
     public function getName(): string
@@ -63,7 +53,7 @@ class AccountLoginPageLoadedEvent extends NestedEvent
         return $this->page;
     }
 
-    public function getRequest(): AccountLoginPageRequest
+    public function getRequest(): InternalRequest
     {
         return $this->request;
     }

@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Page\ContentHome\ContentHomePageLoader;
-use Shopware\Storefront\Page\ContentHome\ContentHomePageRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,7 +24,7 @@ class ContentController extends StorefrontController
     /**
      * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function index(ContentHomePageRequest $request, CheckoutContext $context): ?Response
+    public function index(InternalRequest $request, CheckoutContext $context): ?Response
     {
         $data = $this->contentHomePageLoader->load($request, $context);
 

@@ -247,11 +247,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader">
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
+        <service id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader" />
 
         <service id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository"/>
@@ -343,159 +339,38 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\SortingSubscriber">
+        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\SortingSubscriber">
             <argument type="service" id="listing_sorting.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\DatasheetAggregationSubscriber">
+        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\DatasheetAggregationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\PaginationSubscriber">
+        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\PaginationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\ManufacturerAggregationSubscriber">
+        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\ManufacturerAggregationSubscriber">
             <argument type="service" id="product_manufacturer.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\PriceAggregationSubscriber">
+        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\PriceAggregationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Search\SearchTermSubscriber">
+        <service id="Shopware\Storefront\Pagelet\Search\Subscriber\SearchTermSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Search\SearchPageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Search\SearchPageletSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Navigation\NavigationSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\ProductDetail\ProductDetailPageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountLogin\AccountLoginPageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountOverview\AccountOverviewPageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountProfile\AccountProfilePageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountAddress\AccountAddressPageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountOrder\AccountOrderPageSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <!-- END Event subscriber -->
-
-        <!--Entity field resolver -->
         <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\CanonicalUrlAssociationFieldResolver">
             <tag name="shopware.entity.field_resolver" priority="200"/>
         </service>
 
-        <!-- Argument Resolver -->
-
-        <service id="Shopware\Storefront\Page\AccountOrder\AccountOrderPageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountAddress\AccountAddressPageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountProfile\AccountProfilePageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountOverview\AccountOverviewPageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountLogin\AccountLoginPageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\ProductDetail\ProductDetailPageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\ContentHome\ContentHomePageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Page\PageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
-
         <service id="Shopware\Storefront\Action\AccountAddress\AccountAddressSaveRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Listing\ListingPageRequestResolver">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="request_stack"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
@@ -526,18 +401,6 @@
         </service>
 
         <service id="Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Search\SearchPageRequestResolver">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletRequestResolver">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="request_stack"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>

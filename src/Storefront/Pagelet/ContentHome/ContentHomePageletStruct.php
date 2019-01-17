@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Pagelet\ContentHome;
 
-use Shopware\Storefront\Framework\Page\PageletStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
-class ContentHomePageletStruct extends PageletStruct
+class ContentHomePageletStruct extends Struct
 {
 }

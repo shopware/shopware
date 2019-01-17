@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Pagelet\AccountProfile;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AccountProfilePageletLoader
@@ -24,13 +25,7 @@ class AccountProfilePageletLoader
         $this->container = $container;
     }
 
-    /**
-     * @param AccountProfilePageletRequest $request
-     * @param CheckoutContext              $context
-     *
-     * @return AccountProfilePageletStruct
-     */
-    public function load(AccountProfilePageletRequest $request, CheckoutContext $context): AccountProfilePageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountProfilePageletStruct
     {
         $page = new AccountProfilePageletStruct();
         $page->setCustomer($context->getCustomer());

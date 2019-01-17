@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ContentLanguagePageletLoader
@@ -35,7 +36,7 @@ class ContentLanguagePageletLoader
         $this->container = $container;
     }
 
-    public function load(ContentLanguagePageletRequest $request, CheckoutContext $context): ContentLanguagePageletStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ContentLanguagePageletStruct
     {
         $page = new ContentLanguagePageletStruct();
         $salesChannel = $context->getSalesChannel();

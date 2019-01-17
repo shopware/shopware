@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\AccountOrder;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader;
 use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,23 +35,15 @@ class AccountOrderPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @param AccountOrderPageRequest $request
-     * @param CheckoutContext         $context
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException
-     *
-     * @return AccountOrderPageStruct
-     */
-    public function load(AccountOrderPageRequest $request, CheckoutContext $context): AccountOrderPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): AccountOrderPageStruct
     {
         $page = new AccountOrderPageStruct();
         $page->setAccountOrder(
-            $this->accountOrderPageletLoader->load($request->getAccountOrderRequest(), $context)
+            $this->accountOrderPageletLoader->load($request, $context)
         );
 
         $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+            $this->headerPageletLoader->load($request, $context)
         );
 
         $this->eventDispatcher->dispatch(

@@ -44,6 +44,11 @@ class RuleConditionEntity extends Entity
      */
     protected $parent;
 
+    /**
+     * @var int
+     */
+    protected $position;
+
     public function getType(): string
     {
         return $this->type;
@@ -112,5 +117,15 @@ class RuleConditionEntity extends Entity
     public function setParent(?RuleConditionEntity $parent): void
     {
         $this->parent = $parent;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

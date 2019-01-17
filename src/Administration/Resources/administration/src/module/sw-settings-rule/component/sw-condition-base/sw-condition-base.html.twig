@@ -35,6 +35,12 @@
                             <sw-icon name="small-more" decorative></sw-icon>
                         </button>
                     </template>
+                    <sw-context-menu-item @click="$emit('create-before', condition)">
+                        {{ $tc('global.sw-condition.condition.createBefore') }}
+                    </sw-context-menu-item>
+                    <sw-context-menu-item @click="$emit('create-after', condition)">
+                        {{ $tc('global.sw-condition.condition.createAfter') }}
+                    </sw-context-menu-item>
                     <sw-context-menu-item @click="$emit('delete-condition', condition)" variant="danger">
                         {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
                     </sw-context-menu-item>

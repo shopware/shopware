@@ -227,7 +227,9 @@
           "error-message": "The conditiontype {type} was not found. The condition includes the field: {fields} | The conditiontype {type} was not found. The conditions include the fields: {fields}"
         },
         "subCondition": "subcondition",
-        "deleteConditions": "Delete all"
+        "deleteConditions": "Delete all",
+        "createBefore": "Create before",
+        "createAfter": "Create after"
       }
     },
     "sw-product-image": {

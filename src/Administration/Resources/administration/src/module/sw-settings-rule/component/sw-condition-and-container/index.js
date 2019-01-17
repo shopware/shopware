@@ -48,6 +48,20 @@ Component.register('sw-condition-and-container', {
     computed: {
         containerRowClass() {
             return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
+        },
+        nextPosition() {
+            const children = this.condition.children;
+            if (!children || !children.length) {
+                return 1;
+            }
+
+            return children[children.length - 1].position + 1;
+        },
+        sortedChildren() {
+            if (!this.condition.children) {
+                return [];
+            }
+            return this.condition.children.sort((child1, child2) => { return child1.position - child2.position; });
         }
     },
 
@@ -66,7 +80,7 @@ Component.register('sw-condition-and-container', {
             }
 
             if (!this.condition.children.length) {
-                this.createPlaceholder();
+                this.createCondition('placeholder', this.nextPosition);
             }
         },
         onFinishLoading() {
@@ -81,27 +95,45 @@ Component.register('sw-condition-and-container', {
             return condition.component;
         },
         onAddAndClick() {
-            this.createPlaceholder();
-        },
-        createPlaceholder() {
-            const child = Object.assign(
-                this.conditionAssociations.create(),
-                {
-                    type: 'placeholder',
-                    parentId: this.condition.id
-                }
-            );
-            this.condition.children.push(child);
+            this.createCondition('placeholder', this.nextPosition);
         },
         onAddChildClick() {
+            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\OrRule', this.nextPosition);
+        },
+        createCondition(type, position) {
             const condition = Object.assign(
                 this.conditionAssociations.create(),
                 {
-                    type: 'Shopware\\Core\\Framework\\Rule\\Container\\OrRule',
-                    parentId: this.condition.id
+                    type: type,
+                    parentId: this.condition.id,
+                    position: position
                 }
             );
             this.condition.children.push(condition);
+        },
+        createPlaceholderBefore(element) {
+            const originalPosition = element.position;
+            this.condition.children.forEach(child => {
+                if (child.position < originalPosition) {
+                    return;
+                }
+
+                child.position += 1;
+            });
+
+            this.createCondition('placeholder', originalPosition);
+        },
+        createPlaceholderAfter(element) {
+            const originalPosition = element.position;
+            this.condition.children.forEach(child => {
+                if (child.position <= originalPosition) {
+                    return;
+                }
+
+                child.position += 1;
+            });
+
+            this.createCondition('placeholder', originalPosition + 1);
         },
         onDeleteAll() {
             if (this.level === 0) {
@@ -126,6 +158,15 @@ Component.register('sw-condition-and-container', {
             });
         },
         onDeleteCondition(condition) {
+            const originalPosition = condition.position;
+            this.condition.children.forEach(child => {
+                if (child.position < originalPosition) {
+                    return;
+                }
+
+                child.position -= 1;
+            });
+
             condition.delete();
             this.condition.children.splice(this.condition.children.indexOf(condition), 1);
 
@@ -134,7 +175,7 @@ Component.register('sw-condition-and-container', {
                     if (this.level === 0) {
                         this.onAddChildClick();
                     } else {
-                        this.createPlaceholder();
+                        this.createCondition('placeholder', this.nextPosition);
                     }
                 });
             }

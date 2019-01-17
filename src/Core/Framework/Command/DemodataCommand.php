@@ -685,8 +685,10 @@ class DemodataCommand extends Command
 
         if ($rule instanceof Container) {
             $data['children'] = [];
-            foreach ($rule->getRules() as $childRule) {
-                $data['children'][] = $this->buildChildRule($data['id'], $childRule);
+            foreach ($rule->getRules() as $index => $childRule) {
+                $child = $this->buildChildRule($data['id'], $childRule);
+                $child['position'] = $index;
+                $data['children'][] = $child;
             }
         }
 

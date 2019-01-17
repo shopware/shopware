@@ -15,14 +15,7 @@ Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
 
     methods: {
         onAddChildClick() {
-            const condition = Object.assign(
-                this.conditionAssociations.create(),
-                {
-                    type: 'Shopware\\Core\\Framework\\Rule\\Container\\AndRule',
-                    parentId: this.condition.id
-                }
-            );
-            this.condition.children.push(condition);
+            this.createCondition('Shopware\\Core\\Framework\\Rule\\Container\\AndRule', this.nextPosition);
         },
         onAddAndClick() {
             if (this.level === 0) {

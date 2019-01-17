@@ -594,11 +594,9 @@ export default class EntityProxy {
      */
     discardAssociationChanges() {
         Object.keys(this.associations).forEach((associationKey) => {
-            const association = this.associations[associationKey];
+            const associationStore = this.associations[associationKey];
 
-            Object.keys(association.store).forEach((id) => {
-                const entity = association.store[id];
-
+            associationStore.forEach((entity) => {
                 if (entity.isDeleted) {
                     entity.isDeleted = false;
                 }

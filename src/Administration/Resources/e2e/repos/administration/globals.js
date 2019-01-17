@@ -8,13 +8,20 @@ const beforeScenarioActions = require('./specs/before-scenario.js');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
+renderWatcherUsage();
+
 module.exports = {
 
     waitForConditionTimeout: 30000,
     asyncHookTimeout: 60000,
 
     beforeEach: (browser, done) => {
-        browser.url(browser.launch_url);
+        let launch_url = browser.launch_url;
+
+        if (process.env.APP_WATCH === 'true') {
+            launch_url = launch_url.replace('8000', process.env.DEVPORT);
+        }
+        browser.url(launch_url);
 
         browser.execute(function () {
             // Disable the auto closing of notifications globally.
@@ -47,6 +54,18 @@ module.exports = {
             });
     }
 };
+
+/**
+ * Provide corrensponding log entries if the tests will be launched on DEVPORT
+ *
+ */
+function renderWatcherUsage() {
+    if (process.env.APP_WATCH === 'true') {
+        global.logger.lineBreak();
+        global.logger.title('Usage of administration:watch');
+        global.logger.success(`Launching on port ${process.env.DEVPORT}`);
+    }
+}
 
 /**
  * Clears the database using a child process on the shell of the system.

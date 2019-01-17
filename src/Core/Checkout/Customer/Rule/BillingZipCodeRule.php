@@ -68,6 +68,6 @@ class BillingZipCodeRule extends Rule
 
     public function getName(): string
     {
-        return 'swBillingZipCode';
+        return 'customerBillingZipCode';
     }
 }

@@ -31,6 +31,6 @@ class AndRule extends Container
 
     public function getName(): string
     {
-        return 'swAndContainer';
+        return 'andContainer';
     }
 }

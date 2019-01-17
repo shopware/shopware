@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
@@ -46,7 +45,7 @@ class RuleDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new IntField('priority', 'priority'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
-            (new ObjectField('payload', 'payload'))->setFlags(new ReadOnly(), new Internal()),
+            (new ObjectField('payload', 'payload'))->setFlags(new ReadOnly()),
             (new BoolField('invalid', 'invalid'))->setFlags(new ReadOnly()),
             new CreatedAtField(),
             new UpdatedAtField(),

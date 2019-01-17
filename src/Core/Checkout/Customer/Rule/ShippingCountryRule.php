@@ -67,6 +67,6 @@ class ShippingCountryRule extends Rule
 
     public function getName(): string
     {
-        return 'swShippingCountry';
+        return 'customerShippingCountry';
     }
 }

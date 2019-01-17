@@ -59,6 +59,6 @@ class DateRangeRule extends Rule
 
     public function getName(): string
     {
-        return 'swDateRange';
+        return 'dateRange';
     }
 }

@@ -50,6 +50,6 @@ class LineItemWrapperRule extends Rule
 
     public function getName(): string
     {
-        return 'swLineItemWrapper';
+        return 'cartLineItemWrapper';
     }
 }

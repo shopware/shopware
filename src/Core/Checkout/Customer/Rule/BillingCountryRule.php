@@ -67,6 +67,6 @@ class BillingCountryRule extends Rule
 
     public function getName(): string
     {
-        return 'swBillingCountry';
+        return 'customerBillingCountry';
     }
 }

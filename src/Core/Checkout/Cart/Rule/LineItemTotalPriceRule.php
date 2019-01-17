@@ -82,6 +82,6 @@ class LineItemTotalPriceRule extends Rule
 
     public function getName(): string
     {
-        return 'swLineItemTotalPrice';
+        return 'cartLineItemTotalPrice';
     }
 }

@@ -100,6 +100,6 @@ class LineItemWithQuantityRule extends Rule
 
     public function getName(): string
     {
-        return 'swLineItemWithQuantity';
+        return 'cartLineItemWithQuantity';
     }
 }

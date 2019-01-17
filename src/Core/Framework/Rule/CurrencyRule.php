@@ -52,6 +52,6 @@ class CurrencyRule extends Rule
 
     public function getName(): string
     {
-        return 'swCurrency';
+        return 'currency';
     }
 }

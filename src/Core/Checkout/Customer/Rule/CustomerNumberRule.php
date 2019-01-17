@@ -67,6 +67,6 @@ class CustomerNumberRule extends Rule
 
     public function getName(): string
     {
-        return 'swCustomerNumber';
+        return 'customerCustomerNumber';
     }
 }

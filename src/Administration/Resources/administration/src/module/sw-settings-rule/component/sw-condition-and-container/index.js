@@ -3,7 +3,7 @@ import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.less';
 
 const PLACEHOLDER_NAME = 'placeholder';
-const OR_CONTAINER_NAME = 'swOrContainer';
+const OR_CONTAINER_NAME = 'orContainer';
 
 /**
  * @public

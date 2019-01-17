@@ -85,6 +85,6 @@ class CartAmountRule extends Rule
 
     public function getName(): string
     {
-        return 'swCartAmount';
+        return 'cartCartAmount';
     }
 }

@@ -54,6 +54,6 @@ class DifferentAddressesRule extends Rule
 
     public function getName(): string
     {
-        return 'swDifferentAddresses';
+        return 'customerDifferentAddresses';
     }
 }

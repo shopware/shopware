@@ -85,6 +85,6 @@ class LineItemUnitPriceRule extends Rule
 
     public function getName(): string
     {
-        return 'swLineItemUnitPrice';
+        return 'cartLineItemUnitPrice';
     }
 }

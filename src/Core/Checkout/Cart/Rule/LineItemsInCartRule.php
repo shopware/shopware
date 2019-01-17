@@ -69,6 +69,6 @@ class LineItemsInCartRule extends Rule
 
     public function getName(): string
     {
-        return 'swLineItemsInCart';
+        return 'cartLineItemsInCart';
     }
 }

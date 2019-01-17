@@ -85,6 +85,6 @@ class GoodsCountRule extends Rule
 
     public function getName(): string
     {
-        return 'swGoodsCount';
+        return 'cartGoodsCount';
     }
 }

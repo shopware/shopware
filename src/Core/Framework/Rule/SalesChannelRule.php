@@ -58,6 +58,6 @@ class SalesChannelRule extends Rule
 
     public function getName(): string
     {
-        return 'swSalesChannel';
+        return 'salesChannel';
     }
 }

@@ -58,6 +58,6 @@ class IsNewCustomerRule extends Rule
 
     public function getName(): string
     {
-        return 'swIsNewCustomer';
+        return 'customerIsNewCustomer';
     }
 }

@@ -174,70 +174,70 @@
                                 </sw-media-quickinfo-metadata-item>
                             {% endblock %}
 
-                            <template v-if="item.mediaType.name === 'IMAGE'">
+                            <template v-if="item.meta.viewData.mediaType.name === 'IMAGE'">
                                 {% block sw_media_quickinfo_metadata_content_image %}
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.width"
+                                        v-if="item.meta.viewData.metaData.type.width"
                                         class="sw-media-quickinfo-metadata-width"
                                         :label-name="$tc('sw-media.sidebar.metadata.width')">
-                                        {{ item.metaData.type.width }}px
+                                        {{ item.meta.viewData.metaData.type.width }}px
                                     </sw-media-quickinfo-metadata-item>
 
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.height"
+                                        v-if="item.meta.viewData.metaData.type.height"
                                         class="sw-media-quickinfo-metadata-height"
                                         :label-name="$tc('sw-media.sidebar.metadata.height')">
-                                        {{ item.metaData.type.height }}px
+                                        {{ item.meta.viewData.metaData.type.height }}px
                                     </sw-media-quickinfo-metadata-item>
                                 {% endblock %}
                             </template>
 
-                            <template v-if="item.mediaType.name === 'VIDEO'">
+                            <template v-if="item.meta.viewData.mediaType.name === 'VIDEO'">
                                 {% block sw_media_quickinfo_metadata_content_video %}
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.width"
+                                        v-if="item.meta.viewData.metaData.type.width"
                                         class="sw-media-quickinfo-metadata-width"
                                         :label-name="$tc('sw-media.sidebar.metadata.width')">
-                                        {{ item.metaData.type.width }}px
+                                        {{ item.meta.viewData.metaData.type.width }}px
                                     </sw-media-quickinfo-metadata-item>
 
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.height"
+                                        v-if="item.meta.viewData.metaData.type.height"
                                         class="sw-media-quickinfo-metadata-height"
                                         :label-name="$tc('sw-media.sidebar.metadata.height')">
-                                        {{ item.metaData.type.height }}px
+                                        {{ item.meta.viewData.metaData.type.height }}px
                                     </sw-media-quickinfo-metadata-item>
 
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.frameRate"
+                                        v-if="item.meta.viewData.metaData.type.frameRate"
                                         class="sw-media-quickinfo-metadata-frameRate"
                                         :label-name="$tc('sw-media.sidebar.metadata.frameRate')">
-                                        {{ item.metaData.type.frameRate }}FPS
+                                        {{ item.meta.viewData.metaData.type.frameRate }}FPS
                                     </sw-media-quickinfo-metadata-item>
                                 {% endblock %}
                             </template>
 
-                            <template v-if="item.mediaType.name === 'DOCUMENT'">
+                            <template v-if="item.meta.viewData.mediaType.name === 'DOCUMENT'">
                                 {% block sw_media_quickinfo_metadata_content_document %}
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.pages"
+                                        v-if="item.meta.viewData.metaData.type.pages"
                                         class="sw-media-quickinfo-metadata-pages"
                                         :label-name="$tc('sw-media.sidebar.metadata.pages')">
-                                        {{ item.metaData.type.pages }}
+                                        {{ item.meta.viewData.metaData.type.pages }}
                                     </sw-media-quickinfo-metadata-item>
 
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.title"
+                                        v-if="item.meta.viewData.metaData.type.title"
                                         class="sw-media-quickinfo-metadata-title"
                                         :label-name="$tc('sw-media.sidebar.metadata.documentTitle')">
-                                        {{ item.metaData.type.title }}
+                                        {{ item.meta.viewData.metaData.type.title }}
                                     </sw-media-quickinfo-metadata-item>
 
                                     <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.creator"
+                                        v-if="item.meta.viewData.metaData.type.creator"
                                         class="sw-media-quickinfo-metadata-creator"
                                         :label-name="$tc('sw-media.sidebar.metadata.creator')">
-                                        {{ item.metaData.type.creator }}
+                                        {{ item.meta.viewData.metaData.type.creator }}
                                     </sw-media-quickinfo-metadata-item>
                                 {% endblock %}
                             </template>

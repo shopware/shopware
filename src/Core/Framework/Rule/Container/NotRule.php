@@ -40,7 +40,7 @@ class NotRule extends Container
 
     public function getName(): string
     {
-        return 'swNotContainer';
+        return 'notContainer';
     }
 
     /**

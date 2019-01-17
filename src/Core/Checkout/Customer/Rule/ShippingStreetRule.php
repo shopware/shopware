@@ -70,6 +70,6 @@ class ShippingStreetRule extends Rule
 
     public function getName(): string
     {
-        return 'swShippingStreet';
+        return 'customerShippingStreet';
     }
 }

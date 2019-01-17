@@ -30,6 +30,6 @@ class OrRule extends Container
 
     public function getName(): string
     {
-        return 'swOrContainer';
+        return 'orContainer';
     }
 }

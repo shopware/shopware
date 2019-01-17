@@ -30,6 +30,6 @@ class XorRule extends Container
 
     public function getName(): string
     {
-        return 'swXorContainer';
+        return 'xorContainer';
     }
 }

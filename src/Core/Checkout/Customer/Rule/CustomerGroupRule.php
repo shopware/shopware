@@ -66,6 +66,6 @@ class CustomerGroupRule extends Rule
 
     public function getName(): string
     {
-        return 'swCustomerGroup';
+        return 'customerCustomerGroup';
     }
 }

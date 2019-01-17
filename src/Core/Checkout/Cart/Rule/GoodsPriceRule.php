@@ -86,6 +86,6 @@ class GoodsPriceRule extends Rule
 
     public function getName(): string
     {
-        return 'swGoodsPrice';
+        return 'cartGoodsPrice';
     }
 }

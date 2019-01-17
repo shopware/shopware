@@ -65,6 +65,6 @@ class LastNameRule extends Rule
 
     public function getName(): string
     {
-        return 'swLastName';
+        return 'customerLastName';
     }
 }

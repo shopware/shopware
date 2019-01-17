@@ -4,8 +4,8 @@ import utils from 'src/core/service/util.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.less';
 
-const AND_CONTAINER_NAME = 'swAndContainer';
-const OR_CONTAINER_NAME = 'swOrContainer';
+const AND_CONTAINER_NAME = 'andContainer';
+const OR_CONTAINER_NAME = 'orContainer';
 
 Component.register('sw-settings-rule-detail', {
     template,

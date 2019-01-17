@@ -84,34 +84,34 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(
-            2,
-            $responseData['data']['attributes']['metaData'],
-            print_r($responseData['data']['attributes'], true)
+            3,
+            $responseData['data']['meta']['viewData']['metaData'],
+            print_r($responseData['data']['meta']['viewData'], true)
         );
         static::assertSame(
             266,
-            $responseData['data']['attributes']['metaData']['type']['width'],
-            print_r($responseData['data']['attributes'], true)
+            $responseData['data']['meta']['viewData']['metaData']['type']['width'],
+            print_r($responseData['data']['meta']['viewData'], true)
         );
         static::assertCount(
-            2,
-            $responseData['data']['attributes']['mediaType'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            3,
+            $responseData['data']['meta']['viewData']['mediaType'],
+            print_r($responseData['data']['meta']['viewData']['mediaType'], true)
         );
         static::assertSame(
             'IMAGE',
-            $responseData['data']['attributes']['mediaType']['name'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['name'],
+            print_r($responseData['data']['meta']['viewData']['mediaType'], true)
         );
         static::assertCount(
             1,
-            $responseData['data']['attributes']['mediaType']['flags'],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['flags'],
+            print_r($responseData['data']['meta']['viewData']['mediaType']['flags'], true)
         );
         static::assertSame(
             ImageType::TRANSPARENT,
-            $responseData['data']['attributes']['mediaType']['flags'][0],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['flags'][0],
+            print_r($responseData['data']['meta']['viewData']['mediaType']['flags'], true)
         );
     }
 
@@ -157,34 +157,34 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(
-            2,
-            $responseData['data']['attributes']['metaData'],
-            print_r($responseData['data']['attributes'], true)
+            3,
+            $responseData['data']['meta']['viewData']['metaData'],
+            print_r($responseData['data']['meta']['viewData'], true)
         );
         static::assertSame(
             266,
-            $responseData['data']['attributes']['metaData']['type']['width'],
-            print_r($responseData['data']['attributes'], true)
+            $responseData['data']['meta']['viewData']['metaData']['type']['width'],
+            print_r($responseData['data']['meta']['viewData'], true)
         );
         static::assertCount(
-            2,
-            $responseData['data']['attributes']['mediaType'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            3,
+            $responseData['data']['meta']['viewData']['mediaType'],
+            print_r($responseData['data']['meta']['viewData']['mediaType'], true)
         );
         static::assertSame(
             'IMAGE',
-            $responseData['data']['attributes']['mediaType']['name'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['name'],
+            print_r($responseData['data']['meta']['viewData']['mediaType'], true)
         );
         static::assertCount(
             1,
-            $responseData['data']['attributes']['mediaType']['flags'],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['flags'],
+            print_r($responseData['data']['meta']['viewData']['mediaType']['flags'], true)
         );
         static::assertSame(
             ImageType::TRANSPARENT,
-            $responseData['data']['attributes']['mediaType']['flags'][0],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['flags'][0],
+            print_r($responseData['data']['meta']['viewData']['mediaType']['flags'], true)
         );
     }
 
@@ -235,34 +235,34 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(
-            2,
-            $responseData['data']['attributes']['metaData'],
-            print_r($responseData['data']['attributes'], true)
+            3,
+            $responseData['data']['meta']['viewData']['metaData'],
+            print_r($responseData['data']['meta']['viewData'], true)
         );
         static::assertSame(
             266,
-            $responseData['data']['attributes']['metaData']['type']['width'],
-            print_r($responseData['data']['attributes'], true)
+            $responseData['data']['meta']['viewData']['metaData']['type']['width'],
+            print_r($responseData['data']['meta']['viewData'], true)
         );
         static::assertCount(
-            2,
-            $responseData['data']['attributes']['mediaType'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            3,
+            $responseData['data']['meta']['viewData']['mediaType'],
+            print_r($responseData['data']['meta']['viewData']['mediaType'], true)
         );
         static::assertSame(
             'IMAGE',
-            $responseData['data']['attributes']['mediaType']['name'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['name'],
+            print_r($responseData['data']['meta']['viewData']['mediaType'], true)
         );
         static::assertCount(
             1,
-            $responseData['data']['attributes']['mediaType']['flags'],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['flags'],
+            print_r($responseData['data']['meta']['viewData']['mediaType']['flags'], true)
         );
         static::assertSame(
             ImageType::TRANSPARENT,
-            $responseData['data']['attributes']['mediaType']['flags'][0],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            $responseData['data']['meta']['viewData']['mediaType']['flags'][0],
+            print_r($responseData['data']['meta']['viewData']['mediaType']['flags'], true)
         );
     }
 

@@ -69,6 +69,6 @@ class BillingStreetRule extends Rule
 
     public function getName(): string
     {
-        return 'swBillingStreet';
+        return 'customerBillingStreet';
     }
 }

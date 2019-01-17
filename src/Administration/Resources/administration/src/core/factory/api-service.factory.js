@@ -67,7 +67,7 @@ function has(apiServiceName) {
 }
 
 /**
- * Get a mixin by its name
+ * Get a api service by its name
  *
  * @param {String|any} apiServiceName
  * @returns {any|undefined}

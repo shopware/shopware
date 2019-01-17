@@ -182,6 +182,8 @@ module.exports = {
     ApiService: {
         register: ApiServiceFactory.register,
         getByName: ApiServiceFactory.getByName,
-        getRegistry: ApiServiceFactory.getRegistry
+        getRegistry: ApiServiceFactory.getRegistry,
+        getServices: ApiServiceFactory.getServices,
+        has: ApiServiceFactory.has
     }
 };

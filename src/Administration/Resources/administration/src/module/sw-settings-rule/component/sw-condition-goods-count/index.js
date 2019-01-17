@@ -14,14 +14,14 @@ Component.extend('sw-condition-goods-count', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionService.operatorSets.number;
+            return this.ruleConditionDataProviderService.operatorSets.number;
         },
         fieldNames() {
             return ['operator', 'count'];
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionService.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

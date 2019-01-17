@@ -14,7 +14,7 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionService.operatorSets.string;
+            return this.ruleConditionDataProviderService.operatorSets.string;
         },
         lineItemTypes() {
             return {
@@ -29,7 +29,7 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionService.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

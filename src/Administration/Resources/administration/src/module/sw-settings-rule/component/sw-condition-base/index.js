@@ -13,7 +13,7 @@ import './sw-condition-base.less';
 Component.register('sw-condition-base', {
     template,
 
-    inject: ['ruleConditionService'],
+    inject: ['ruleConditionDataProviderService'],
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -107,7 +107,7 @@ Component.register('sw-condition-base', {
             });
         },
         getLabel(type) {
-            return this.ruleConditionService.getByType(type).label;
+            return this.ruleConditionDataProviderService.getByType(type).label;
         },
         createdComponent() {
             if (!this.condition.value) {

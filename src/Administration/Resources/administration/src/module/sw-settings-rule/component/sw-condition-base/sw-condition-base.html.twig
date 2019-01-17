@@ -8,7 +8,7 @@
                       class="field field--select field--condition">
                 <template slot="options">
                     {% block sw_condition_field_condition_select_option %}
-                    <option v-for="(innerCondition, innerConditionType) in ruleConditionService.getConditions()"
+                    <option v-for="(innerCondition, innerConditionType) in ruleConditionDataProviderService.getConditions()"
                             :selected="innerConditionType === condition.type"
                             :value="innerConditionType">
                         {{ $tc(getLabel(innerConditionType)) }}

@@ -14,14 +14,14 @@ Component.extend('sw-condition-cart-amount', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionService.operatorSets.number;
+            return this.ruleConditionDataProviderService.operatorSets.number;
         },
         fieldNames() {
             return ['operator', 'amount'];
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionService.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

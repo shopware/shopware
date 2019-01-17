@@ -10,7 +10,7 @@ const OR_CONTAINER_NAME = 'orContainer';
 Component.register('sw-settings-rule-detail', {
     template,
 
-    inject: ['ruleConditionService'],
+    inject: ['ruleConditionDataProviderService'],
     mixins: [
         Mixin.getByName('notification')
     ],

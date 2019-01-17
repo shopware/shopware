@@ -14,14 +14,14 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionService.operatorSets.multiStore;
+            return this.ruleConditionDataProviderService.operatorSets.multiStore;
         },
         fieldNames() {
             return ['operator', 'currencyIds'];
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionService.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

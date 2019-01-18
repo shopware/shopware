@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 
 class UserDefinition extends EntityDefinition
@@ -57,6 +58,7 @@ class UserDefinition extends EntityDefinition
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
             new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
             new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', false, 'id'),
+            new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', false, 'id'),
         ]);
     }
 }

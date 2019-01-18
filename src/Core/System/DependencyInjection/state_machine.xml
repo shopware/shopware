@@ -20,5 +20,8 @@
         <service  id="Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition">
             <tag name="shopware.entity.definition" entity="state_machine_transition"/>
         </service>
+        <service  id="Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition">
+            <tag name="shopware.entity.definition" entity="state_machine_history"/>
+        </service>
     </services>
 </container>

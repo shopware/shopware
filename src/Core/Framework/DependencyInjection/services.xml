@@ -250,6 +250,7 @@
 
         <service id="Shopware\Core\Framework\StateMachine\StateMachineRegistry">
             <argument type="service" id="state_machine.repository" />
+            <argument type="service" id="state_machine_history.repository" />
         </service>
 
         <service id="Shopware\Core\Framework\Command\WorkflowDumpCommand">

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
@@ -67,6 +68,9 @@ class StateMachineStateDefinition extends EntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
+
+            new OneToManyAssociationField('toStateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'to_state_id', false),
+            new OneToManyAssociationField('fromStateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'from_state_id', false),
         ]);
     }
 }

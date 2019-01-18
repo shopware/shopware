@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
@@ -78,6 +79,36 @@ class StateMachineStateEntity extends Entity
      * @var OrderDeliveryCollection|null
      */
     protected $orderDeliveries;
+
+    /**
+     * @var StateMachineHistoryCollection|null
+     */
+    protected $fromStateMachineHistoryEntries;
+
+    /**
+     * @var StateMachineHistoryCollection|null
+     */
+    protected $toStateMachineHistoryEntries;
+
+    public function getToStateMachineHistoryEntries(): ?StateMachineHistoryCollection
+    {
+        return $this->toStateMachineHistoryEntries;
+    }
+
+    public function setToStateMachineHistoryEntries(?StateMachineHistoryCollection $toStateMachineHistoryEntries): void
+    {
+        $this->toStateMachineHistoryEntries = $toStateMachineHistoryEntries;
+    }
+
+    public function getFromStateMachineHistoryEntries(): ?StateMachineHistoryCollection
+    {
+        return $this->fromStateMachineHistoryEntries;
+    }
+
+    public function setFromStateMachineHistoryEntries(?StateMachineHistoryCollection $fromStateMachineHistoryEntries): void
+    {
+        $this->fromStateMachineHistoryEntries = $fromStateMachineHistoryEntries;
+    }
 
     public function getName(): string
     {

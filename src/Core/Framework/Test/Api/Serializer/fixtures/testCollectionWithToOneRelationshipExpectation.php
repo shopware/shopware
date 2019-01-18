@@ -198,6 +198,12 @@ return [
                         'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/locale',
                     ],
                 ],
+                'stateMachineHistoryEntries' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/user/6f51622e-b381-4c75-ae02-63cece27ce72/state-machine-history-entries',
+                    ],
+                ],
             ],
             'meta' => null,
         ],

@@ -405,7 +405,7 @@ Component.register('sw-media-upload', {
         createPreviewFromUrl(url) {
             this.previewMediaEntity = {
                 url: url.href,
-                mimeTyp: 'image/*',
+                mimeType: 'image/*',
                 hasFile: true
             };
         },

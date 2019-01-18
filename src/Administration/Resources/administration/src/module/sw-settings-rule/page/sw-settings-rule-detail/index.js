@@ -61,7 +61,6 @@ Component.register('sw-settings-rule-detail', {
                     const children = this.buildNestedConditions(conditions, current.id);
                     children.forEach((child) => {
                         if (current.children.indexOf(child) === -1) {
-                            child.parent = current;
                             current.children.push(child);
                         }
                     });
@@ -90,7 +89,7 @@ Component.register('sw-settings-rule-detail', {
                     this.createCondition(
                         AND_CONTAINER_NAME,
                         utils.createId(),
-                        nestedConditions[0]
+                        nestedConditions[0].id
                     )
                 ];
 
@@ -107,7 +106,7 @@ Component.register('sw-settings-rule-detail', {
                 this.createCondition(
                     AND_CONTAINER_NAME,
                     utils.createId(),
-                    rootRole,
+                    rootRole.id,
                     nestedConditions
                 )
             ];
@@ -115,10 +114,10 @@ Component.register('sw-settings-rule-detail', {
             return rootRole;
         },
 
-        createCondition(type, conditionId, parent, children) {
+        createCondition(type, conditionId, parentId = null, children) {
             const conditionData = {
                 type: type,
-                parentId: null
+                parentId: parentId
             };
 
             if (children) {
@@ -126,11 +125,6 @@ Component.register('sw-settings-rule-detail', {
                     child.parentId = conditionId;
                 });
                 conditionData.children = children;
-            }
-
-            if (parent) {
-                conditionData.parent = parent;
-                conditionData.parentId = parent.id;
             }
 
             return Object.assign(this.conditionAssociations.create(conditionId), conditionData);
@@ -174,10 +168,6 @@ Component.register('sw-settings-rule-detail', {
             conditions.forEach((condition) => {
                 if (condition.children) {
                     this.removeOriginalConditionTypes(condition.children);
-                }
-
-                if (typeof condition.getChanges !== 'function') {
-                    return;
                 }
 
                 const changes = Object.keys(condition.getChanges()).length;

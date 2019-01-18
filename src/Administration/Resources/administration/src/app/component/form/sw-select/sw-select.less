@@ -22,7 +22,6 @@
 @sw-select-disabled-color-background:       @color-light-gray;
 @sw-select-disabled-color-text:             lighten(@color-gutenberg, 40%);
 @sw-select-transition-results:              all ease-in-out .2s;
-@sw-select-transition-selections:           all ease-in-out .15s;
 @sw-select-transition-result-icon:          all ease-in-out .15s;
 
 .sw-select {
@@ -275,17 +274,5 @@
     .sw-select-fade-down-leave-to {
         transform: translateY(-10px);
         opacity: 0;
-    }
-
-    .sw-select-magnify-enter-active,
-    .sw-select-magnify-leave-active {
-        transition: @sw-select-transition-selections;
-        transform: scale(1);
-    }
-
-    .sw-select-magnify-enter,
-    .sw-select-magnify-leave-to {
-        opacity: 0;
-        transform: scale(0.4);
     }
 }

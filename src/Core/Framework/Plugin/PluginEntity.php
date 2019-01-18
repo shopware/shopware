@@ -167,7 +167,7 @@ class PluginEntity extends Entity
         return $this->upgradeVersion;
     }
 
-    public function setUpgradeVersion(string $upgradeVersion): void
+    public function setUpgradeVersion(?string $upgradeVersion): void
     {
         $this->upgradeVersion = $upgradeVersion;
     }
@@ -177,7 +177,7 @@ class PluginEntity extends Entity
         return $this->installedAt;
     }
 
-    public function setInstalledAt(DateTime $installedAt): void
+    public function setInstalledAt(?DateTime $installedAt): void
     {
         $this->installedAt = $installedAt;
     }

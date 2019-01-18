@@ -118,8 +118,12 @@ class PluginLifecycleService
         $updateVersion = $plugin->getUpgradeVersion();
         if ($updateVersion !== null && $this->hasPluginUpdate($updateVersion, $pluginVersion)) {
             $pluginData['version'] = $updateVersion;
+            $plugin->setVersion($updateVersion);
             $pluginData['upgradeVersion'] = null;
-            $pluginData['upgradedAt'] = (new DateTime())->format(Defaults::DATE_FORMAT);
+            $plugin->setUpgradeVersion(null);
+            $upgradeDate = new DateTime();
+            $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::DATE_FORMAT);
+            $plugin->setUpgradedAt($upgradeDate);
         }
 
         $this->eventDispatcher->dispatch(
@@ -131,7 +135,9 @@ class PluginLifecycleService
 
         $this->runMigrations($pluginBaseClass);
 
-        $pluginData['installedAt'] = (new DateTime())->format(Defaults::DATE_FORMAT);
+        $installDate = new DateTime();
+        $pluginData['installedAt'] = $installDate->format(Defaults::DATE_FORMAT);
+        $plugin->setInstalledAt($installDate);
 
         $this->updatePluginData($pluginData, $shopwareContext);
 
@@ -187,6 +193,8 @@ class PluginLifecycleService
             ],
             $shopwareContext
         );
+        $plugin->setActive(false);
+        $plugin->setInstalledAt(null);
 
         $this->eventDispatcher->dispatch(
             PluginPostUninstallEvent::NAME,
@@ -217,15 +225,20 @@ class PluginLifecycleService
 
         $this->runMigrations($pluginBaseClass);
 
+        $updateVersion = $updateContext->getUpdatePluginVersion();
+        $updateDate = new DateTime();
         $this->updatePluginData(
             [
                 'id' => $plugin->getId(),
-                'version' => $updateContext->getUpdatePluginVersion(),
+                'version' => $updateVersion,
                 'upgradeVersion' => null,
-                'upgradedAt' => (new DateTime())->format(Defaults::DATE_FORMAT),
+                'upgradedAt' => $updateDate->format(Defaults::DATE_FORMAT),
             ],
             $shopwareContext
         );
+        $plugin->setVersion($updateVersion);
+        $plugin->setUpgradeVersion(null);
+        $plugin->setUpgradedAt($updateDate);
 
         $pluginBaseClass->postUpdate($updateContext);
 
@@ -274,6 +287,7 @@ class PluginLifecycleService
             ],
             $shopwareContext
         );
+        $plugin->setActive(true);
 
         $this->eventDispatcher->dispatch(
             PluginPostActivateEvent::NAME,
@@ -321,6 +335,7 @@ class PluginLifecycleService
             ],
             $shopwareContext
         );
+        $plugin->setActive(false);
 
         $this->eventDispatcher->dispatch(
             PluginPostDeactivateEvent::NAME,

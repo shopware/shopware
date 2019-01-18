@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\AccountPaymentMethod;
 
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletStruct;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
+use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
 class AccountPaymentMethodPageStruct extends Struct
 {
@@ -14,7 +14,7 @@ class AccountPaymentMethodPageStruct extends Struct
     protected $accountPaymentMethod;
 
     /**
-     * @var ContentHeaderPageletStruct
+     * @var HeaderPagelet
      */
     protected $header;
 
@@ -34,12 +34,12 @@ class AccountPaymentMethodPageStruct extends Struct
         $this->accountPaymentMethod = $accountPaymentMethod;
     }
 
-    public function getHeader(): ContentHeaderPageletStruct
+    public function getHeader(): HeaderPagelet
     {
         return $this->header;
     }
 
-    public function setHeader(ContentHeaderPageletStruct $header): void
+    public function setHeader(HeaderPagelet $header): void
     {
         $this->header = $header;
     }

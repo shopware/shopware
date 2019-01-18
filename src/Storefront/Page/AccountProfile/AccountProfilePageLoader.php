@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\AccountProfile;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AccountProfilePageLoader
@@ -16,7 +16,7 @@ class AccountProfilePageLoader
     private $accountProfilePageletLoader;
 
     /**
-     * @var ContentHeaderPageletLoader
+     * @var HeaderPageletLoader
      */
     private $headerPageletLoader;
 
@@ -27,7 +27,7 @@ class AccountProfilePageLoader
 
     public function __construct(
         AccountProfilePageletLoader $accountProfilePageletLoader,
-        ContentHeaderPageletLoader $headerPageletLoader,
+        HeaderPageletLoader $headerPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->accountProfilePageletLoader = $accountProfilePageletLoader;

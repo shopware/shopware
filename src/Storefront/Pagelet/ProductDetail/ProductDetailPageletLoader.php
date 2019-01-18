@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Pagelet\ProductDetail;
 
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
+use Shopware\Core\Content\Category\Storefront\NavigationLoader;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
@@ -38,7 +38,7 @@ class ProductDetailPageletLoader
     private $cartService;
 
     /**
-     * @var StorefrontCategoryRepository
+     * @var NavigationLoader
      */
     private $categoryService;
 
@@ -46,7 +46,7 @@ class ProductDetailPageletLoader
         StorefrontProductRepository $productRepository,
         EntityRepositoryInterface $configuratorRepository,
         CartService $cartService,
-        StorefrontCategoryRepository $categoryService
+        NavigationLoader $categoryService
     ) {
         $this->productRepository = $productRepository;
         $this->configuratorRepository = $configuratorRepository;

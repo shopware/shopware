@@ -3,7 +3,7 @@
 namespace SwagExample\Decorator;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Storefront\Controller\ProductController;
+use Shopware\Storefront\PageController\ProductController;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

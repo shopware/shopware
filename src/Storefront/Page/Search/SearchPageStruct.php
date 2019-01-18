@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
+use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 use Shopware\Storefront\Pagelet\Search\SearchPageletStruct;
 
 class SearchPageStruct extends Struct
@@ -19,7 +19,7 @@ class SearchPageStruct extends Struct
     protected $search;
 
     /**
-     * @var ContentHeaderPageletStruct
+     * @var HeaderPagelet
      */
     protected $header;
 
@@ -44,12 +44,12 @@ class SearchPageStruct extends Struct
         $this->search = $search;
     }
 
-    public function getHeader(): ContentHeaderPageletStruct
+    public function getHeader(): HeaderPagelet
     {
         return $this->header;
     }
 
-    public function setHeader(ContentHeaderPageletStruct $header): void
+    public function setHeader(HeaderPagelet $header): void
     {
         $this->header = $header;
     }

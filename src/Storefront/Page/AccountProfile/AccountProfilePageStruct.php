@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\AccountProfile;
 
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletStruct;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
+use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
 class AccountProfilePageStruct extends Struct
 {
@@ -14,7 +14,7 @@ class AccountProfilePageStruct extends Struct
     protected $accountProfile;
 
     /**
-     * @var ContentHeaderPageletStruct
+     * @var HeaderPagelet
      */
     protected $header;
 
@@ -34,12 +34,12 @@ class AccountProfilePageStruct extends Struct
         $this->accountProfile = $accountProfile;
     }
 
-    public function getHeader(): ContentHeaderPageletStruct
+    public function getHeader(): HeaderPagelet
     {
         return $this->header;
     }
 
-    public function setHeader(ContentHeaderPageletStruct $header): void
+    public function setHeader(HeaderPagelet $header): void
     {
         $this->header = $header;
     }

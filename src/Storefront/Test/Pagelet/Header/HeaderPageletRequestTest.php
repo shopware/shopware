@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Test\Pagelet\Header;
 
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequestResolver;
+use Shopware\Storefront\Pagelet\Header\ContentHeaderPageletRequest;
+use Shopware\Storefront\Pagelet\Header\ContentHeaderPageletRequestResolver;
 use Shopware\Storefront\Test\Page\PageRequestTestCase;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 

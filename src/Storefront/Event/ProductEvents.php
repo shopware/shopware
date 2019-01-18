@@ -2,14 +2,14 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Storefront\Page\ProductDetail\ProductDetailPageLoadedEvent;
+use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 
 class ProductEvents
 {
     /**
-     * Dispatched as soon as the productpage has been loaded
+     * Dispatched as soon as the product page has been loaded
      *
      * @Event("ProductProductPageLoadedEvent")
      */
-    public const PRODUCTDETAIL_PAGE_LOADED = ProductDetailPageLoadedEvent::NAME;
+    public const PRODUCTDETAIL_PAGE_LOADED = ProductPageLoadedEvent::NAME;
 }

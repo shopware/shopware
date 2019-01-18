@@ -9,15 +9,26 @@ namespace Shopware\Core\Framework\Struct;
  */
 trait CreateFromTrait
 {
+    /**
+     * @param Struct $object
+     * @return static
+     */
     public static function createFrom(Struct $object)
     {
-        $self = new static();
+        try {
+            $self = (new \ReflectionClass(static::class))
+                ->newInstanceWithoutConstructor();
+        } catch (\ReflectionException $exception) {
+            throw new InvalidArgumentException($exception->getMessage());
+        }
+
         $vars = get_object_vars($object);
 
         foreach ($vars as $property => $value) {
             $self->$property = $value;
         }
 
+        /** @var static $self */
         return $self;
     }
 }

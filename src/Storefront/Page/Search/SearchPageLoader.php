@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Search\SearchPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -16,7 +16,7 @@ class SearchPageLoader
     private $searchPageletLoader;
 
     /**
-     * @var ContentHeaderPageletLoader
+     * @var HeaderPageletLoader
      */
     private $headerPageletLoader;
 
@@ -27,7 +27,7 @@ class SearchPageLoader
 
     public function __construct(
         SearchPageletLoader $searchPageletLoader,
-        ContentHeaderPageletLoader $headerPageletLoader,
+        HeaderPageletLoader $headerPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->searchPageletLoader = $searchPageletLoader;

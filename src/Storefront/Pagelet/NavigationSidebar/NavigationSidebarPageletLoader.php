@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Pagelet\NavigationSidebar;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
+use Shopware\Core\Content\Category\Storefront\NavigationLoader;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -16,7 +16,7 @@ class NavigationSidebarPageletLoader
     private $container;
 
     /**
-     * @var StorefrontCategoryRepository
+     * @var NavigationLoader
      */
     private $categoryService;
 
@@ -26,7 +26,7 @@ class NavigationSidebarPageletLoader
     private $eventDispatcher;
 
     public function __construct(
-        StorefrontCategoryRepository $categoryService,
+        NavigationLoader $categoryService,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->categoryService = $categoryService;

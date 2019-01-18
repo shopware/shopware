@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Test\Page\ProductDetail;
 
-use Shopware\Storefront\Page\ProductDetail\ProductDetailPageRequest;
-use Shopware\Storefront\Page\ProductDetail\ProductDetailPageRequestResolver;
+use Shopware\Storefront\Page\Product\ProductDetailPageRequest;
+use Shopware\Storefront\Page\Product\ProductDetailPageRequestResolver;
 use Shopware\Storefront\Test\Page\PageRequestTestCase;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 

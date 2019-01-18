@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Test\Page\Home\ContentHome;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Storefront\Page\ContentHome\ContentHomePageLoader;
-use Shopware\Storefront\Page\ContentHome\ContentHomePageRequest;
-use Shopware\Storefront\Page\ContentHome\ContentHomePageStruct;
+use Shopware\Storefront\Page\Home\HomePageLoader;
+use Shopware\Storefront\Page\Home\ContentHomePageRequest;
+use Shopware\Storefront\Page\Home\HomePage;
 use Shopware\Storefront\Test\Page\PageRequestTestCase;
 
 class ContentHomePagerLoaderTest extends PageRequestTestCase
@@ -17,7 +17,7 @@ class ContentHomePagerLoaderTest extends PageRequestTestCase
      */
     protected $contextFactory;
     /**
-     * @var ContentHomePageLoader
+     * @var HomePageLoader
      */
     private $pageLoader;
 
@@ -25,7 +25,7 @@ class ContentHomePagerLoaderTest extends PageRequestTestCase
     {
         parent::setUp();
 
-        $this->pageLoader = $this->getContainer()->get(ContentHomePageLoader::class);
+        $this->pageLoader = $this->getContainer()->get(HomePageLoader::class);
         $this->contextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
     }
 
@@ -41,6 +41,6 @@ class ContentHomePagerLoaderTest extends PageRequestTestCase
         $request->getHeaderRequest()->getNavigationRequest()->setRouteParams(['id' => 'test']);
         $page = $this->pageLoader->load($request, $context);
 
-        static::assertInstanceOf(ContentHomePageStruct::class, $page);
+        static::assertInstanceOf(HomePage::class, $page);
     }
 }

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
 use Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -22,7 +22,7 @@ class ListingPageLoader
     private $navigationSidebarPageletLoader;
 
     /**
-     * @var ContentHeaderPageletLoader
+     * @var HeaderPageletLoader
      */
     private $headerPageletLoader;
 
@@ -34,7 +34,7 @@ class ListingPageLoader
     public function __construct(
         ListingPageletLoader $listingPageletLoader,
         NavigationSidebarPageletLoader $navigationSidebarPageletLoader,
-        ContentHeaderPageletLoader $headerPageletLoader,
+        HeaderPageletLoader $headerPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->listingPageletLoader = $listingPageletLoader;

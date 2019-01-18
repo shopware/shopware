@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Test\Page\Home;
 
-use Shopware\Storefront\Page\ContentHome\ContentHomePageRequest;
-use Shopware\Storefront\Page\ContentHome\ContentHomePageRequestResolver;
+use Shopware\Storefront\Page\Home\ContentHomePageRequest;
+use Shopware\Storefront\Page\Home\ContentHomePageRequestResolver;
 use Shopware\Storefront\Test\Page\PageRequestTestCase;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 

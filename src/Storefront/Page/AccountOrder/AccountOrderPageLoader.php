@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\AccountOrder;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AccountOrderPageLoader
@@ -16,7 +16,7 @@ class AccountOrderPageLoader
     private $accountOrderPageletLoader;
 
     /**
-     * @var ContentHeaderPageletLoader
+     * @var HeaderPageletLoader
      */
     private $headerPageletLoader;
 
@@ -27,7 +27,7 @@ class AccountOrderPageLoader
 
     public function __construct(
         AccountOrderPageletLoader $accountOrderPageletLoader,
-        ContentHeaderPageletLoader $headerPageletLoader,
+        HeaderPageletLoader $headerPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->accountOrderPageletLoader = $accountOrderPageletLoader;

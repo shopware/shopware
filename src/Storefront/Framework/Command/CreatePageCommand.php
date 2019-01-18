@@ -109,7 +109,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Storefront\Pagelet\%%namespace%%%%name%%\%%namespace%%%%name%%PageletLoadedEvent;
-use Shopware\Storefront\Pagelet\ContentHeader\HeaderPageletLoadedEvent;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 
 class %%namespace%%%%name%%PageLoadedEvent extends NestedEvent
 {
@@ -185,7 +185,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Storefront\Pagelet\%%namespace%%%%name%%\%%namespace%%%%name%%PageletRequestEvent;
-use Shopware\Storefront\Pagelet\ContentHeader\HeaderPageletRequestEvent;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 class %%namespace%%%%name%%PageRequestEvent extends NestedEvent
@@ -258,7 +258,7 @@ namespace Shopware\Storefront\Page\%%namespace%%%%name%%;
 
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\%%namespace%%%%name%%\%%namespace%%%%name%%PageletRequest;
-use Shopware\Storefront\Pagelet\ContentHeader\HeaderPageletRequest;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletRequest;
 
 class %%namespace%%%%name%%PageRequest extends Struct
 {
@@ -338,7 +338,7 @@ namespace Shopware\Storefront\Page\%%namespace%%%%name%%;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Pagelet\%%namespace%%%%name%%\%%namespace%%%%name%%PageletLoader;
-use Shopware\Storefront\Pagelet\ContentHeader\HeaderPageletLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class %%namespace%%%%name%%PageLoader
@@ -429,7 +429,7 @@ namespace Shopware\Storefront\Page\%%namespace%%%%name%%;
 
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\%%namespace%%%%name%%\%%namespace%%%%name%%PageletStruct;
-use Shopware\Storefront\Pagelet\ContentHeader\HeaderPageletStruct;
+use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
 class %%namespace%%%%name%%PageStruct extends Struct
 {
@@ -439,7 +439,7 @@ class %%namespace%%%%name%%PageStruct extends Struct
     protected $%%namespaceLower%%%%name%%;
 
     /**
-     * @var HeaderPageletStruct
+     * @var HeaderPagelet
      */
     protected $header;
 
@@ -459,12 +459,12 @@ class %%namespace%%%%name%%PageStruct extends Struct
         $this->%%namespaceLower%%%%name%% = $%%namespaceLower%%%%name%%;
     }
 
-    public function getHeader(): HeaderPageletStruct
+    public function getHeader(): HeaderPagelet
     {
         return $this->header;
     }
 
-    public function setHeader(HeaderPageletStruct $header): void
+    public function setHeader(HeaderPagelet $header): void
     {
         $this->header = $header;
     }

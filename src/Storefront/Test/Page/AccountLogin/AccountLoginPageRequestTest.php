@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Test\Page\AccountLogin;
 
-use Shopware\Storefront\Page\AccountLogin\AccountLoginPageRequest;
-use Shopware\Storefront\Page\AccountLogin\AccountLoginPageRequestResolver;
+use Shopware\Storefront\Page\Login\AccountLoginPageRequest;
+use Shopware\Storefront\Page\Login\AccountLoginPageRequestResolver;
 use Shopware\Storefront\Test\Page\PageRequestTestCase;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 

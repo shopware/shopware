@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Pagelet\Search;
 
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
+use Shopware\Core\Content\Category\Storefront\NavigationLoader;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -36,7 +36,7 @@ class SearchPageletLoader
     private $cartService;
 
     /**
-     * @var StorefrontCategoryRepository
+     * @var NavigationLoader
      */
     private $categoryService;
 
@@ -44,7 +44,7 @@ class SearchPageletLoader
         StorefrontProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
-        StorefrontCategoryRepository $categoryService
+        NavigationLoader $categoryService
     ) {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;

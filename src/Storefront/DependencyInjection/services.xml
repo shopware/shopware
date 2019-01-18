@@ -37,278 +37,330 @@
             <!--<tag name="shopware.dbal_indexing.indexer"/>-->
         </service>
 
-        <service id="Shopware\Storefront\Controller\ListingPageletController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
-            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Controller\ContentController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\ContentHome\ContentHomePageLoader"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Controller\AccountController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
-            <argument type="service" id="Shopware\Storefront\Page\AccountLogin\AccountLoginPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\AccountOverview\AccountOverviewPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\AccountAddress\AccountAddressPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\AccountProfile\AccountProfilePageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\AccountOrder\AccountOrderPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\ActionController\ContextController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
-            <argument type="service" id="currency.repository"/>
-            <argument type="service" id="language.repository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Controller\CheckoutPageletController" public="true">
-            <argument type="service" id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader" />
-        </service>
-
         <service id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver" public="false">
             <argument type="service" id="twig"/>
         </service>
 
-        <service id="Shopware\Storefront\Controller\ErrorController" public="false">
+        <service id="Shopware\Storefront\PageController\ErrorController" public="false">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
         </service>
 
-        <service id="Shopware\Storefront\Controller\ListingController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader" />
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Controller\ProductController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\ProductDetail\ProductDetailPageLoader" />
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-
-        <!-- PageLoader -->
-        <service id="Shopware\Storefront\Page\ContentHome\ContentHomePageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\Listing\ListingPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountLogin\AccountLoginPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountOverview\AccountOverviewPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountProfile\AccountProfilePageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountAddress\AccountAddressPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\AccountOrder\AccountOrderPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\ProductDetail\ProductDetailPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <service id="Shopware\Storefront\Page\Search\SearchPageLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Search\SearchPageletLoader" />
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-
-        <!-- PageletLoader -->
-        <service id="Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader">
-            <argument type="service" id="customer_address.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader">
-            <argument type="service" id="order.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletLoader">
-            <argument type="service" id="payment_method.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
-            <argument type="service" id="product_configurator.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
-            <argument type="service" id="event_dispatcher" />
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Search\SearchPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader">
-            <argument type="service" id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoader"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader">
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoader">
-            <argument type="service" id="payment_method.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader">
-            <argument type="service" id="language.repository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader">
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader" />
-
-        <service id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <argument type="service" id="event_dispatcher"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoader">
-            <argument type="service" id="currency.repository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader">
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service id="Shopware\Storefront\Controller\CartController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-        </service>
-
-        <service class="Shopware\Storefront\Framework\Routing\StorefrontSubscriber" id="shopware.storefront.routing.storefront_subscriber">
+        <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+            <argument type="service" id="Shopware\Storefront\PageController\ErrorController"/>
         </service>
 
-        <service id="Shopware\Storefront\Controller\CheckoutController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
-            <argument type="service" id="router"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
+        <service id="Shopware\Storefront\Framework\Seo\Product\UrlGeneratorExtension">
+            <argument type="service" id="request_stack"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.entity.extension"/>
         </service>
 
-        <service id="Shopware\Storefront\Controller\SearchController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
+        <service id="Shopware\Storefront\Framework\Seo\Product\CanonicalUrlExtension">
+            <tag name="shopware.entity.extension"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\Category\CanonicalUrlExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\SeoUrlDefinition" >
+            <tag name="shopware.entity.definition" entity="seo_url" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="language.repository"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\SalesChannelExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\Entity\FieldHandler\CanonicalUrlFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
+            <tag name="shopware.write_read_field_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
+            <argument type="service" id="request_stack"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
+
+        <service id="Shopware\Storefront\PageController\HomePageController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader" />
+        </service>
+
+        <!-- PageLoader -->
+        <service id="Shopware\Storefront\Framework\Page\GenericPageLoader">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader" />
+        </service>
+
+        <service id="Shopware\Storefront\Page\Home\HomePageLoader">
+            <argument type="service" id="Shopware\Storefront\Framework\Page\GenericPageLoader" />
+            <argument type="service" id="event_dispatcher" />
+        </service>
+
+        <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
+            <argument id="language.repository" type="service"/>
+            <argument id="currency.repository" type="service"/>
+            <argument id="Shopware\Core\Content\Category\Storefront\NavigationLoader" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
+
+
+        <!--<service id="Shopware\Storefront\PageController\ListingPageletController" public="true">-->
+            <!--<argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+
+
+        <!--<service id="Shopware\Storefront\PageController\AccountController" public="true">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Login\LoginPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\AccountOverview\AccountOverviewPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\AccountAddress\AccountAddressPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\AccountProfile\AccountProfilePageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\AccountOrder\AccountOrderPageLoader"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\ActionController\ContextController" public="true">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>-->
+            <!--<argument type="service" id="currency.repository"/>-->
+            <!--<argument type="service" id="language.repository"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\PageController\CheckoutPageletController" public="true">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\PageController\ListingController" public="true">-->
+        <!--<argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader" />-->
+        <!--<call method="setContainer">-->
+        <!--<argument type="service" id="service_container" />-->
+        <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\PageController\ProductController" public="true">-->
+        <!--<argument type="service" id="Shopware\Storefront\Page\Product" />-->
+        <!--<call method="setContainer">-->
+        <!--<argument type="service" id="service_container" />-->
+        <!--</call>-->
+        <!--</service>-->
+
+
+        <!--<service id="Shopware\Storefront\Page\Listing\ListingPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\AccountLogin\AccountLoginPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\AccountOverview\AccountOverviewPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\AccountProfile\AccountProfilePageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\AccountAddress\AccountAddressPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\AccountOrder\AccountOrderPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\ProductDetail\ProductDetailPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Page\Search\SearchPageLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\Search\SearchPageletLoader" />-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader" />-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+        <!--</service>-->
+
+
+        <!--&lt;!&ndash; PageletLoader &ndash;&gt;-->
+        <!--<service id="Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletLoader">-->
+            <!--<argument type="service" id="customer_address.repository"/>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletLoader">-->
+            <!--<argument type="service" id="order.repository"/>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletLoader">-->
+            <!--<argument type="service" id="payment_method.repository"/>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader">-->
+            <!--<argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>-->
+            <!--<argument type="service" id="product_configurator.repository"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>-->
+            <!--<argument type="service" id="NavigationPageletLoader"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader">-->
+            <!--<argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>-->
+            <!--<argument type="service" id="event_dispatcher" />-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\Search\SearchPageletLoader">-->
+            <!--<argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>-->
+            <!--<argument type="service" id="event_dispatcher"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>-->
+            <!--<argument type="service" id="NavigationPageletLoader"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoader"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader"/>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletLoader">-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletLoader">-->
+            <!--<argument type="service" id="payment_method.repository"/>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\ContentLanguage\ContentLanguagePageletLoader">-->
+            <!--<argument type="service" id="language.repository"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader">-->
+            <!--<argument type="service" id="NavigationPageletLoader"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletLoader">-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\ContentHome\ContentHomePageletLoader" />-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\Navigation\NavigationPageletLoader">-->
+            <!--<argument type="service" id="NavigationPageletLoader"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletLoader">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>-->
+            <!--<argument type="service" id="event_dispatcher"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\ContentCurrency\ContentCurrencyPageletLoader">-->
+            <!--<argument type="service" id="currency.repository"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\Pagelet\Shopmenu\ShopmenuPageletLoader">-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\PageController\CartController" public="true">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+
+
+        <!--<service id="Shopware\Storefront\PageController\CheckoutController" public="true">-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>-->
+            <!--<argument type="service" id="order.repository"/>-->
+            <!--<argument type="service" id="Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletLoader"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>-->
+            <!--<argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>-->
+            <!--<argument type="service" id="router"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
+
+        <!--<service id="Shopware\Storefront\PageController\SearchController" public="true">-->
+            <!--<argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>-->
+            <!--<call method="setContainer">-->
+                <!--<argument type="service" id="service_container" />-->
+            <!--</call>-->
+        <!--</service>-->
 
         <!-- Event subscriber -->
         <service id="Shopware\Storefront\Framework\Subscriber\PageSubscriber">
@@ -406,45 +458,8 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
-            <argument type="service" id="request_stack"/>
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-        </service>
 
         <!-- END Argument Resolver -->
-
-        <service id="Shopware\Storefront\Framework\Seo\Product\UrlGeneratorExtension">
-            <argument type="service" id="request_stack"/>
-            <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Product\CanonicalUrlExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Category\CanonicalUrlExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url" />
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="language.repository"/>
-            <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SalesChannelExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Entity\FieldHandler\CanonicalUrlFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
-            <tag name="shopware.write_read_field_handler"/>
-        </service>
 
     </services>
 </container>

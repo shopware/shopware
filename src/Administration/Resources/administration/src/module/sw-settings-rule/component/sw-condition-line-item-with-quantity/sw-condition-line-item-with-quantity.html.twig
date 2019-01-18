@@ -1,6 +1,7 @@
 {% block sw_condition_fields %}
     {% block sw_condition_fields_product %}
         <sw-select :store="getProductStore()"
+                   name="id"
                    :id="condition.id"
                    class="field sw-condition-line-item-with-quantity__id-select has--arrow"
                    v-model="condition.value.id">
@@ -20,6 +21,7 @@
     {% endblock %}
     {% block sw_condition_fields_value %}
         <sw-field type="number"
+                  name="quantity"
                   step="1"
                   class="field field--main"
                   v-model="condition.value.quantity">

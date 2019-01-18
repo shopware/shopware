@@ -100,17 +100,30 @@ Component.register('sw-condition-base', {
             fieldNames.push('type');
 
             fieldNames.forEach(fieldName => {
-                const boundExpression = `rule.conditions/${this.condition.id}/${fieldName}`;
+                const boundExpression = `rule.conditions.${this.condition.id}.${fieldName}`;
                 this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
-
-                this.$watch(`condition.value.${fieldName}`, () => {
-                    if (this.formErrors[fieldName].detail) {
-                        this.errorStore.deleteError(this.formErrors[fieldName]);
-                        this.checkErrors();
-                    }
-                });
             });
+
+            this.$children.forEach(child => {
+                if (!this.fieldNames.includes(child.$attrs.name)) {
+                    return;
+                }
+
+                child.$on('input', () => { this.deleteError(child.$attrs.name); });
+            });
+
+            this.deleteError('type');
         },
+
+        deleteError(fieldName) {
+            if (!this.formErrors[fieldName].detail) {
+                return;
+            }
+
+            this.errorStore.deleteError(this.formErrors[fieldName]);
+            this.checkErrors();
+        },
+
         getLabel(type) {
             return this.ruleConditionDataProviderService.getByType(type).label;
         },

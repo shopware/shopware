@@ -3,9 +3,9 @@ Storefront Error Handling
 
 On Exceptions a *showHtmlExceptionResponse*-Kernel Event will be fired and catched by the **StorefrontSubscriber**.
 
-The **StorefrontSubscriber** will check if the Request is a Storefrontrequest and then call the **ErrorController**.
+The **StorefrontSubscriber** will check if the Request is a Storefrontrequest and then call the **ErrorPageController**.
 
-The **ErrorController** determines the right Template for the given error in *Storefront/Resources/views/frontend/error/* and renders it.
+The **ErrorPageController** determines the right Template for the given error in *Storefront/Resources/views/frontend/error/* and renders it.
 
 A customized Template for specific Exceptions can be implemented by adding an error-Template with the right name depending on the Exception-Code.
 

@@ -1,8 +1,7 @@
 {% block frontend_listing_list_inline_ajax %}
-    {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
+    {# @var page \Shopware\Storefront\Framework\Page\StorefrontSearchResult #}
 
-    {% set productBoxLayout = page.listing.productBoxLayout %}
-    {% for product in page.listing.products %}
+    {% for product in page %}
         {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
     {% endfor %}
 {% endblock %}

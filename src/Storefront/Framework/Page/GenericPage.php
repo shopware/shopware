@@ -1,24 +1,29 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Framework\Page;
 
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
-class GenericPage extends Struct
+abstract class GenericPage extends Struct
 {
     /**
-     * @var HeaderPagelet
+     * @var CheckoutContext
      */
-    protected $header;
+    protected $context;
 
-    public function __construct(HeaderPagelet $header)
+    public function __construct(CheckoutContext $context)
     {
-        $this->header = $header;
+        $this->context = $context;
     }
 
-    public function getHeader(): HeaderPagelet
+    public function getContext(): CheckoutContext
     {
-        return $this->header;
+        return $this->context;
+    }
+
+    public function setContext(CheckoutContext $context): void
+    {
+        $this->context = $context;
     }
 }

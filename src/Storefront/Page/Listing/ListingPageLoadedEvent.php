@@ -12,7 +12,7 @@ class ListingPageLoadedEvent extends NestedEvent
     public const NAME = 'listing.page.loaded';
 
     /**
-     * @var ListingPageStruct
+     * @var ListingPage
      */
     protected $page;
 
@@ -26,7 +26,7 @@ class ListingPageLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(ListingPageStruct $page, CheckoutContext $context, InternalRequest $request)
+    public function __construct(ListingPage $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -48,7 +48,7 @@ class ListingPageLoadedEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getPage(): ListingPageStruct
+    public function getPage(): ListingPage
     {
         return $this->page;
     }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Routing\InternalRequest;
 
 class HeaderPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'content-header.pagelet.loaded.event';
+    public const NAME = 'header.pagelet.loaded.event';
 
     /**
      * @var HeaderPagelet

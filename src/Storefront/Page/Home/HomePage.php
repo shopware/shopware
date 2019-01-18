@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Home;
 
-use Shopware\Storefront\Framework\Page\GenericPage;
+use Shopware\Storefront\Framework\Page\PageWithHeader;
 
-class HomePage extends GenericPage
+class HomePage extends PageWithHeader
 {
 }

@@ -12,45 +12,45 @@ customer. 
 
 **Parameter:**
 
-| Name                           | Type    | Notes                                                       | Required |
-| ------------------------------ | ------- | ----------------------------------------------------------- | :------: |
-| salutation                     | string  |                                                             |          |
-| title                          | string  |                                                             |          |
-| firstName                      | string  |                                                             |    ✔     |
-| lastName                       | string  |                                                             |    ✔     |
-| guest                          | bool    |                                                             |          |
-| email                          | string  |                                                             |    ✔     |
-| emailConfirmation              | string  |                                                             |    ✔     |
-| password                       | string  | Only required when guest is false                           |          |
-| passwordConfirmation           | string  | Only required when guest is false                           |          |
-| birthdayDay                    | integer |                                                             |          |
-| birthdayMonth                  | integer |                                                             |          |
-| birthdayYear                   | integer |                                                             |          |
-| differentShippingAddress       | boolean | If set to true, an alternative shipping address is used.    |          |
-| billingCompany                 | sring   |                                                             |          |
-| billingDepartment              | string  |                                                             |          |
-| billingVatId                   | string  |                                                             |          |
-| billingStreet                  | string  |                                                             |    ✔     |
-| billingAdditionalAddressLine1  | string  |                                                             |          |
-| billingAdditionalAddressLine2  | string  |                                                             |          |
-| billingZipcode                 | string  |                                                             |    ✔     |
-| billingCity                    | string  |                                                             |    ✔     |
-| billingCountry                 | uuid    |                                                             |    ✔     |
-| billingCountryState            | uuid    |                                                             |          |
-| billingPhone                   | string  |                                                             |          |
-| shippingSalutation             | string  |                                                             |          |
-| shippingCompany                | string  |                                                             |          |
-| shippingDepartment             | string  |                                                             |          |
-| shippingFirstName              | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingLastName               | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingStreet                 | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingAdditionalAddressLine1 | string  |                                                             |          |
-| shippingAdditionalAddressLine2 | string  |                                                             |          |
-| shippingZipcode                | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingCity                   | string  | Only required, when differentShippingAddress is set to true |          |
-| shippingPhone                  | string  |                                                             |          |
-| shippingCountry                | uuid    |                                                             |          |
-| shippingCountryState           | uuid    | Only required, when differentShippingAddress is set to true |          |
+| Name                                   | Type    | Notes                                                       | Required |
+| ---------------------------------------| ------- | ----------------------------------------------------------- | :------: |
+| salutation                             | string  |                                                             |          |
+| title                                  | string  |                                                             |          |
+| firstName                              | string  |                                                             |    ✔     |
+| lastName                               | string  |                                                             |    ✔     |
+| guest                                  | bool    |                                                             |          |
+| email                                  | string  |                                                             |    ✔     |
+| emailConfirmation                      | string  |                                                             |    ✔     |
+| password                               | string  | Only required when guest is false                           |          |
+| passwordConfirmation                   | string  | Only required when guest is false                           |          |
+| birthdayDay                            | integer |                                                             |          |
+| birthdayMonth                          | integer |                                                             |          |
+| birthdayYear                           | integer |                                                             |          |
+| differentShippingAddress               | boolean | If set to true, an alternative shipping address is used.    |          |
+| billingAddress.company                 | sring   |                                                             |          |
+| billingAddress.department              | string  |                                                             |          |
+| billingAddress.vatId                   | string  |                                                             |          |
+| billingAddress.street                  | string  |                                                             |    ✔     |
+| billingAddress.additionalAddressLine1  | string  |                                                             |          |
+| billingAddress.additionalAddressLine2  | string  |                                                             |          |
+| billingAddress.zipcode                 | string  |                                                             |    ✔     |
+| billingAddress.city                    | string  |                                                             |    ✔     |
+| billingAddress.country                 | uuid    |                                                             |    ✔     |
+| billingAddress.countryState            | uuid    |                                                             |          |
+| billingAddress.phone                   | string  |                                                             |          |
+| shippingAddress.Salutation             | string  |                                                             |          |
+| shippingAddress.Company                | string  |                                                             |          |
+| shippingAddress.Department             | string  |                                                             |          |
+| shippingAddress.FirstName              | string  | Only required, when differentShippingAddress is set to true |          |
+| shippingAddress.LastName               | string  | Only required, when differentShippingAddress is set to true |          |
+| shippingAddress.Street                 | string  | Only required, when differentShippingAddress is set to true |          |
+| shippingAddress.AdditionalAddressLine1 | string  |                                                             |          |
+| shippingAddress.AdditionalAddressLine2 | string  |                                                             |          |
+| shippingAddress.Zipcode                | string  | Only required, when differentShippingAddress is set to true |          |
+| shippingAddress.City                   | string  | Only required, when differentShippingAddress is set to true |          |
+| shippingAddress.Phone                  | string  |                                                             |          |
+| shippingAddress.Country                | uuid    |                                                             |          |
+| shippingAddress.CountryState           | uuid    | Only required, when differentShippingAddress is set to true |          |
 
 **Response:** If successful, the customerId will be returned.
 

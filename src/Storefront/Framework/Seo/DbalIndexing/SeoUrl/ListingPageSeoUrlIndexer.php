@@ -176,7 +176,6 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
         $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getSourceContext()->getSalesChannelId());
 
-        $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $timestamp = new \DateTime();

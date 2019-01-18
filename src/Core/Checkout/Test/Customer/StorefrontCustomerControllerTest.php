@@ -292,28 +292,27 @@ class StorefrontCustomerControllerTest extends TestCase
         ];
 
         $billing = [
-            'billingCountry' => Defaults::COUNTRY,
-            'billingStreet' => 'Examplestreet 11',
-            'billingZipcode' => '48441',
-            'billingCity' => 'Cologne',
-            'billingPhone' => '0123456789',
-            'billingVatId' => 'DE999999999',
-            'billingAdditionalAddressLine1' => 'Additional address line 1',
-            'billingAdditionalAddressLine2' => 'Additional address line 2',
+            'billingAddress.country' => Defaults::COUNTRY,
+            'billingAddress.street' => 'Examplestreet 11',
+            'billingAddress.zipcode' => '48441',
+            'billingAddress.city' => 'Cologne',
+            'billingAddress.phone' => '0123456789',
+            'billingAddress.vatId' => 'DE999999999',
+            'billingAddress.additionalAddressLine1' => 'Additional address line 1',
+            'billingAddress.additionalAddressLine2' => 'Additional address line 2',
         ];
 
         $shipping = [
-            'differentShippingAddress' => true,
-            'shippingCountry' => Defaults::COUNTRY,
-            'shippingSalutation' => 'Miss',
-            'shippingFirstName' => 'Test 2',
-            'shippingLastName' => 'Example 2',
-            'shippingStreet' => 'Examplestreet 111',
-            'shippingZipcode' => '12341',
-            'shippingCity' => 'Berlin',
-            'shippingPhone' => '987654321',
-            'shippingAdditionalAddressLine1' => 'Additional address line 01',
-            'shippingAdditionalAddressLine2' => 'Additional address line 02',
+            'shippingAddress.country' => Defaults::COUNTRY,
+            'shippingAddress.salutation' => 'Miss',
+            'shippingAddress.firstName' => 'Test 2',
+            'shippingAddress.lastName' => 'Example 2',
+            'shippingAddress.street' => 'Examplestreet 111',
+            'shippingAddress.zipcode' => '12341',
+            'shippingAddress.city' => 'Berlin',
+            'shippingAddress.phone' => '987654321',
+            'shippingAddress.additionalAddressLine1' => 'Additional address line 01',
+            'shippingAddress.additionalAddressLine2' => 'Additional address line 02',
         ];
 
         $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer', array_merge($personal, $billing, $shipping));
@@ -349,31 +348,31 @@ class StorefrontCustomerControllerTest extends TestCase
         // verify billing address
         $billingAddress = $customer->getDefaultBillingAddress();
 
-        static::assertEquals($billing['billingCountry'], $billingAddress->getCountryId());
+        static::assertEquals($billing['billingAddress.country'], $billingAddress->getCountryId());
         static::assertEquals($personal['salutation'], $billingAddress->getSalutation());
         static::assertEquals($personal['firstName'], $billingAddress->getFirstName());
         static::assertEquals($personal['lastName'], $billingAddress->getLastName());
-        static::assertEquals($billing['billingStreet'], $billingAddress->getStreet());
-        static::assertEquals($billing['billingZipcode'], $billingAddress->getZipcode());
-        static::assertEquals($billing['billingCity'], $billingAddress->getCity());
-        static::assertEquals($billing['billingPhone'], $billingAddress->getPhoneNumber());
-        static::assertEquals($billing['billingVatId'], $billingAddress->getVatId());
-        static::assertEquals($billing['billingAdditionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
-        static::assertEquals($billing['billingAdditionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
+        static::assertEquals($billing['billingAddress.street'], $billingAddress->getStreet());
+        static::assertEquals($billing['billingAddress.zipcode'], $billingAddress->getZipcode());
+        static::assertEquals($billing['billingAddress.city'], $billingAddress->getCity());
+        static::assertEquals($billing['billingAddress.phone'], $billingAddress->getPhoneNumber());
+        static::assertEquals($billing['billingAddress.vatId'], $billingAddress->getVatId());
+        static::assertEquals($billing['billingAddress.additionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
+        static::assertEquals($billing['billingAddress.additionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
 
         // verify shipping address
         $shippingAddress = $customer->getDefaultShippingAddress();
 
-        static::assertEquals($shipping['shippingCountry'], $shippingAddress->getCountryId());
-        static::assertEquals($shipping['shippingSalutation'], $shippingAddress->getSalutation());
-        static::assertEquals($shipping['shippingFirstName'], $shippingAddress->getFirstName());
-        static::assertEquals($shipping['shippingLastName'], $shippingAddress->getLastName());
-        static::assertEquals($shipping['shippingStreet'], $shippingAddress->getStreet());
-        static::assertEquals($shipping['shippingZipcode'], $shippingAddress->getZipcode());
-        static::assertEquals($shipping['shippingCity'], $shippingAddress->getCity());
-        static::assertEquals($shipping['shippingPhone'], $shippingAddress->getPhoneNumber());
-        static::assertEquals($shipping['shippingAdditionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
-        static::assertEquals($shipping['shippingAdditionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
+        static::assertEquals($shipping['shippingAddress.country'], $shippingAddress->getCountryId());
+        static::assertEquals($shipping['shippingAddress.salutation'], $shippingAddress->getSalutation());
+        static::assertEquals($shipping['shippingAddress.firstName'], $shippingAddress->getFirstName());
+        static::assertEquals($shipping['shippingAddress.lastName'], $shippingAddress->getLastName());
+        static::assertEquals($shipping['shippingAddress.street'], $shippingAddress->getStreet());
+        static::assertEquals($shipping['shippingAddress.zipcode'], $shippingAddress->getZipcode());
+        static::assertEquals($shipping['shippingAddress.city'], $shippingAddress->getCity());
+        static::assertEquals($shipping['shippingAddress.phone'], $shippingAddress->getPhoneNumber());
+        static::assertEquals($shipping['shippingAddress.additionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
+        static::assertEquals($shipping['shippingAddress.additionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
     }
 
     public function testChangeEmail(): void

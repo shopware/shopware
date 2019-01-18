@@ -12,7 +12,7 @@ class SearchPageLoadedEvent extends NestedEvent
     public const NAME = 'search.page.loaded';
 
     /**
-     * @var SearchPageStruct
+     * @var SearchPage
      */
     protected $page;
 
@@ -26,7 +26,7 @@ class SearchPageLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(SearchPageStruct $page, CheckoutContext $context, InternalRequest $request)
+    public function __construct(SearchPage $page, CheckoutContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -48,7 +48,7 @@ class SearchPageLoadedEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getPage(): SearchPageStruct
+    public function getPage(): SearchPage
     {
         return $this->page;
     }

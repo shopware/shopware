@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block frontend_index_content_left %}
-    {# @var page \Shopware\Storefront\Page\Listing\ListingPageStruct #}
-    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId': page.listing.navigationId }) %}
+    {# @var page \Shopware\Storefront\Page\Listing\ListingPage #}
+    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId': page.header.navigation.activeCategory.id }) %}
 
     {% sw_include '@Storefront/frontend/listing/sidebar.html.twig' %}
 {% endblock %}
@@ -16,20 +16,10 @@
     {# Define all necessary template variables for the listing #}
     {% set emotionViewports = {0: 'xl', 1: 'l', 2: 'm', 3: 's', 4: 'xs'} %}
 
-    {# Count of available product pages #}
-    {% set pages = page.listing.pageCount %}
+    {% set baseParameters = { categoryId: page.header.navigation.activeCategory.id } %}
 
-    {# Layout for the product boxes #}
-    {% set productBoxLayout = 'basic' %}
-
-    {% if page.navigation.activeCategory.productBoxLayout != null and page.navigation.activeCategory.productBoxLayout != 'extend' %}
-        {% set productBoxLayout = page.navigation.activeCategory.productBoxLayout %}
-    {% endif %}
-
-    {% set baseParameters = { categoryId: page.listing.navigationId } %}
-
-    {# @var page \Shopware\Storefront\Page\Listing\ListingPageStruct #}
-    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId' : page.listing.navigationId }) %}
+    {# @var page \Shopware\Storefront\Page\Listing\ListingPage #}
+    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId' : page.header.navigation.activeCategory.id }) %}
 
     <div class="content listing--content">
 
@@ -52,10 +42,10 @@
             {% set topSellerActive = config.topSellerActive %}
             {% set topSellerActive = true %}
             {% if hasEmotion == false and topSellerActive %}
-    {% endif %}
-{% endblock %}
+            {% endif %}
+        {% endblock %}
 
-{# Listing #}
+        {# Listing #}
         {% block frontend_listing_index_listing %}
             {% sw_include '@Storefront/frontend/listing/listing.html.twig' %}
         {% endblock %}

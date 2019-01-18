@@ -38,65 +38,65 @@
 
 {# Listing wrapper #}
 {% block frontend_listing_listing_wrapper %}
-    {% if page.listing.showListing %}
+    {# @var page \Shopware\Storefront\Page\Listing\ListingPage #}
 
-        {% set listingCssClass = "listing--wrapper" %}
+    {% set listingCssClass = "listing--wrapper" %}
 
-        {% for device in showListingDevices %}
-            {% set listingCssClass = listingCssClass ~ " visible--" ~ emotionViewports[device] %}
-        {% endfor %}
+    {% for device in showListingDevices %}
+        {% set listingCssClass = listingCssClass ~ " visible--" ~ emotionViewports[device] %}
+    {% endfor %}
 
-        {% if theme.sidebarFilter %}
-            {% set listingCssClass = listingCssClass ~ " has--sidebar-filter" %}
-        {% endif %}
-
-        <div class="{{ listingCssClass }}">
-
-            {# Sorting and changing layout #}
-            {% block frontend_listing_top_actions %}
-                {% sw_include '@Storefront/frontend/listing/listing_actions.html.twig' %}
-            {% endblock %}
-
-            {% block frontend_listing_listing_container %}
-                <div class="listing--container">
-
-                    {% block frontend_listing_no_filter_result %}
-                        <div class="listing-no-filter-result">
-                            {#{% sw_include "@Shopwarwe/frontend/_includes/messages.html.twig" type="info" content="{s name=noFilterResult}Für die Filterung wurden keine Ergebnisse gefunden!{/s}" visible=false %}#}
-                        </div>
-                    {% endblock %}
-
-                    {% block frontend_listing_listing_content %}
-                        <div class="listing"
-                             data-ajax-wishlist="true"
-                             data-compare-ajax="true"
-                                {% if theme.infiniteScrolling %}
-                            data-infinite-scrolling="true"
-                            data-loadPreviousSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadPrevious{% endtrans %}"
-                            data-loadMoreSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadMore{% endtrans %}"
-                            data-categoryId="{{ page.listing.navigationId }}"
-                            data-pages="{{ pages }}"
-                            data-threshold="{{ theme.infiniteThreshold }}"
-                                {% endif %}>
-
-                            {# Actual listing #}
-                            {% block frontend_listing_list_inline %}
-                                {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
-                                {% for product in page.listing.products %}
-                                    {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
-                                {% endfor %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-
-            {# Paging #}
-            {% block frontend_listing_bottom_paging %}
-                <div class="listing--bottom-paging">
-                    {% sw_include '@Storefront/frontend/listing/actions/action-pagination.html.twig' %}
-                </div>
-            {% endblock %}
-        </div>
+    {% if theme.sidebarFilter %}
+        {% set listingCssClass = listingCssClass ~ " has--sidebar-filter" %}
     {% endif %}
+
+    <div class="{{ listingCssClass }}">
+
+        {# Sorting and changing layout #}
+        {% block frontend_listing_top_actions %}
+            {% sw_include '@Storefront/frontend/listing/listing_actions.html.twig' %}
+        {% endblock %}
+
+        {% block frontend_listing_listing_container %}
+            <div class="listing--container">
+
+                {% block frontend_listing_no_filter_result %}
+                    <div class="listing-no-filter-result">
+                        {#{% sw_include "@Shopwarwe/frontend/_includes/messages.html.twig" type="info" content="{s name=noFilterResult}Für die Filterung wurden keine Ergebnisse gefunden!{/s}" visible=false %}#}
+                    </div>
+                {% endblock %}
+
+                {# @var page \Shopware\Storefront\Page\Listing\ListingPage #}
+                {% block frontend_listing_listing_content %}
+                    <div class="listing"
+                         data-ajax-wishlist="true"
+                         data-compare-ajax="true"
+                            {% if theme.infiniteScrolling %}
+                        data-infinite-scrolling="true"
+                        data-loadPreviousSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadPrevious{% endtrans %}"
+                        data-loadMoreSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadMore{% endtrans %}"
+                        data-categoryId="{{ page.header.navigation.activeCategory.id }}"
+                        data-pages="{{ pages }}"
+                        data-threshold="{{ theme.infiniteThreshold }}"
+                            {% endif %}>
+
+                        {# Actual listing #}
+                        {% block frontend_listing_list_inline %}
+                            {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
+                            {% for product in page.listing %}
+                                {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
+                            {% endfor %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {# Paging #}
+        {% block frontend_listing_bottom_paging %}
+            <div class="listing--bottom-paging">
+                {% sw_include '@Storefront/frontend/listing/actions/action-pagination.html.twig' with {'page': page.listing} %}
+            </div>
+        {% endblock %}
+    </div>
 {% endblock %}

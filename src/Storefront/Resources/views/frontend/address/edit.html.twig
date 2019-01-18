@@ -23,7 +23,7 @@
             <div class="panel has--border is--rounded">
                 <form name="frmAddresses" method="post" action="{{ path('frontend.account.address.upsert') }}">
                     <input type="hidden" name="address[id]" value="{{ formData.id }}">
-                    {% sw_include '@Storefront/frontend/address/form.html.twig' %}
+                    {% sw_include '@Storefront/frontend/address/form.html.twig' with { countryList: countryList } %}
                 </form>
             </div>
         {% endblock %}

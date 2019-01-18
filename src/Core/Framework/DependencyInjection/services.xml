@@ -132,17 +132,6 @@
             </call>
         </service>
 
-        <!-- Framework -->
-        <service id="Shopware\Storefront\Framework\Command\CreatePageletCommand">
-            <tag name="console.command"/>
-            <argument>%kernel.project_dir%</argument>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Command\CreatePageCommand">
-            <tag name="console.command"/>
-            <argument>%kernel.project_dir%</argument>
-        </service>
-
         <!-- Serializer -->
         <service id="Shopware\Core\Framework\Struct\Serializer\StructNormalizer">
             <tag name="serializer.normalizer"/>

@@ -4,46 +4,50 @@ namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
-use Shopware\Storefront\Pagelet\Search\SearchPageletLoader;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
+use Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchPageLoader
 {
     /**
-     * @var SearchPageletLoader
-     */
-    private $searchPageletLoader;
-
-    /**
-     * @var HeaderPageletLoader
-     */
-    private $headerPageletLoader;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var PageWithHeaderLoader
+     */
+    private $pageWithHeaderLoader;
+
+    /**
+     * @var ListingPageletLoader
+     */
+    private $listingPageletLoader;
+
     public function __construct(
-        SearchPageletLoader $searchPageletLoader,
-        HeaderPageletLoader $headerPageletLoader,
+        PageWithHeaderLoader $pageWithHeaderLoader,
+        ListingPageletLoader $listingPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->searchPageletLoader = $searchPageletLoader;
-        $this->headerPageletLoader = $headerPageletLoader;
+        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
         $this->eventDispatcher = $eventDispatcher;
+        $this->listingPageletLoader = $listingPageletLoader;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): SearchPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): SearchPage
     {
-        $page = new SearchPageStruct();
-        $page->setSearch(
-            $this->searchPageletLoader->load($request, $context)
+        $page = $this->pageWithHeaderLoader->load($request, $context);
+
+        $page = SearchPage::createFrom($page);
+
+        $page->setListing(
+            $this->listingPageletLoader->load($request, $context)
         );
 
-        $page->setHeader(
-            $this->headerPageletLoader->load($request, $context)
+        $page->setSearchTerm(
+            (string) $request->requireGet(SearchTermSubscriber::TERM_PARAMETER)
         );
 
         $this->eventDispatcher->dispatch(

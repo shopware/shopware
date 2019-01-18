@@ -264,7 +264,7 @@
                                     {% trans %}frontend.register.billing_fieldset.RegisterBillingPlaceholderCountry{% endtrans %}
                                     {% trans %}frontend.register.index.RequiredField{% endtrans %}
                                 </option>
-                                {% for country in page.countryList %}
+                                {% for country in countryList %}
                                     {% set states = country.extensions.states %}
                                     {% block frontend_address_form_input_country_option %}
                                         <option value="{{ country.id }}" {% if country.id == formData.country.id %} selected="selected"{% endif %} {% if states %}stateSelector="country_{{ country.id }}_states"{% endif %}>
@@ -279,7 +279,7 @@
                 {# Country state #}
                 {% block frontend_address_form_input_country_states %}
                     <div class="country-area-state-selection">
-                        {% for country in page.countryList %}
+                        {% for country in countryList %}
                             {% block frontend_address_form_input_country_states_item %}
                                 {% set states = country.extensions.states %}
                                 {% if states.elements %}

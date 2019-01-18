@@ -2,7 +2,7 @@
 {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
 
 {% block frontend_listing_box_article %}
-    {% set class = 'product--box box--' ~ page.listing.productBoxLayout %}
+    {% set class = 'product--box box--' ~ productBoxLayout %}
     <div class="{{ class }}"
          data-page-index="{{ pageIndex }}"
          data-ordernumber="{{ product.id }}"
@@ -38,7 +38,7 @@
                             {% if product.extensions.canonicalUrl %}
                                 {% set url = product.extensions.canonicalUrl.url %}
                             {% else %}
-                                {% set url = url('frontend.detail.page', { 'id': product.id }) %}
+                                {% set url = url('frontend.detail.page', { 'productId': product.id }) %}
                             {% endif %}
 
                             <a href="{{ url }}"

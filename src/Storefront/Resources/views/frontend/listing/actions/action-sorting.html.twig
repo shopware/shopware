@@ -24,7 +24,7 @@
                     {% if listingMode != 'full_page_reload' %}data-loadingindicator="false"{% endif %}>
 
 
-                {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
+                {# @var listing \Shopware\Storefront\Page\Listing\ListingPage #}
                 {% for sorting in page.listing.sortings %}
                     {# @var sorting \Shopware\Core\System\Listing\ListingSortingEntity #}
                     {% block frontend_listing_actions_sort_field_release %}

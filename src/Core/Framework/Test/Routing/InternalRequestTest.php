@@ -3,68 +3,82 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Controller\InternalRequest;
 use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class InternalRequestTest extends TestCase
 {
-    public function testRequireThrowsException()
+    public function testRequireGetThrowsException()
     {
         $request = new InternalRequest();
         $this->expectException(MissingParameterException::class);
-        $request->require('test');
+
+        $request->requireGet('test');
     }
 
-    public function testConsidersGet()
-    {
-        $request = new InternalRequest(['test' => 'foo']);
-        static::assertSame('foo', $request->require('test'));
-        static::assertSame('foo', $request->optional('test'));
-    }
-
-    public function testConsidersPost()
-    {
-        $request = new InternalRequest([], ['test' => 'foo']);
-        static::assertSame('foo', $request->require('test'));
-        static::assertSame('foo', $request->optional('test'));
-    }
-
-    public function testConsidersRouting()
-    {
-        $request = new InternalRequest([], [], ['test' => 'foo']);
-        static::assertSame('foo', $request->require('test'));
-        static::assertSame('foo', $request->optional('test'));
-    }
-
-    public function testOptionalDefault()
+    public function testRequirePostThrowsException()
     {
         $request = new InternalRequest();
-        static::assertSame('foo', $request->optional('test', 'foo'));
+        $this->expectException(MissingParameterException::class);
+
+        $request->requirePost('test');
     }
 
-    public function testArrayAccess()
+    public function testRequireRoutingThrowsException()
     {
-        $request = new InternalRequest([
-            'test' => [
-                'foo' => 'bar',
-            ],
-            'foo' => [
-                'bar' => [
-                    'baz' => true,
-                ],
-            ],
-            'foo.test.bar' => 1,
-        ]);
-        static::assertSame('bar', $request->require('test.foo'));
-        static::assertSame(['foo' => 'bar'], $request->require('test'));
-        static::assertTrue($request->require('foo.bar.baz'));
-        static::assertSame(1, $request->require('foo.test.bar'));
+        $request = new InternalRequest();
+        $this->expectException(MissingParameterException::class);
 
-        static::assertSame('bar', $request->optional('test.foo'));
-        static::assertSame(['foo' => 'bar'], $request->optional('test'));
-        static::assertTrue($request->optional('foo.bar.baz'));
-        static::assertSame(1, $request->optional('foo.test.bar'));
+        $request->requireRouting('test');
+    }
+
+    public function testRequiresGetConsidersRouting()
+    {
+        $request = new InternalRequest(
+            [],
+            [],
+            ['foo' => 'bar']
+        );
+
+        static::assertSame('bar', $request->requireGet('foo'));
+    }
+
+    public function testRequiresPostSuccess()
+    {
+        $request = new InternalRequest(
+            [],
+            ['foo' => 'bar']
+        );
+
+        static::assertSame('bar', $request->requirePost('foo'));
+    }
+
+    public function testRequiresGetSuccess()
+    {
+        $request = new InternalRequest(
+            ['foo' => 'bar']
+        );
+
+        static::assertSame('bar', $request->requireGet('foo'));
+    }
+
+    public function testOptionPostDefault()
+    {
+        $request = new InternalRequest([], [], []);
+        static::assertSame('bar', $request->optionalPost('test', 'bar'));
+    }
+
+    public function testOptionGetDefault()
+    {
+        $request = new InternalRequest([], [], []);
+        static::assertSame('bar', $request->optionalGet('test', 'bar'));
+    }
+
+    public function testOptionRoutingDefault()
+    {
+        $request = new InternalRequest([], [], []);
+        static::assertSame('bar', $request->optionalRouting('test', 'bar'));
     }
 
     public function testCreateFromRequest()
@@ -73,7 +87,7 @@ class InternalRequestTest extends TestCase
 
         $internal = InternalRequest::createFromHttpRequest($http);
 
-        static::assertSame(['foo' => 'bar'], $internal->getQuery());
+        static::assertSame(['foo' => 'bar'], $internal->getGet());
         static::assertSame(['bar' => 'foo'], $internal->getPost());
         static::assertSame(['baz' => true], $internal->getRouting());
     }

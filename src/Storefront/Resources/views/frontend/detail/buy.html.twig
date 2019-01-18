@@ -15,32 +15,32 @@
               data-addArticleUrl="{{ url }}"
           {% endif %}>
 
-        <input type="hidden" name="identifier" value="{{ page.productDetail.product.id }}"/>
+        <input type="hidden" name="identifier" value="{{ page.product.id }}"/>
 
         {% block frontend_detail_buy_button_container_outer %}
-            {% if page.productDetail.product.active is defined == false or product.active %}
-                {% if page.productDetail.product.isAvailable %}
+            {% if page.product.active is defined == false or product.active %}
+                {% if page.product.isAvailable %}
                     {% block frontend_detail_buy_button_container %}
-                        <div class="buybox--button-container block-group{% if NotifyHideBasket and page.productDetail.product.allowNotification and product.stock <= 0 %} is--hidden{% endif %}">
+                        <div class="buybox--button-container block-group{% if NotifyHideBasket and page.product.allowNotification and product.stock <= 0 %} is--hidden{% endif %}">
 
                             {# Quantity selection #}
                             {% block frontend_detail_buy_quantity %}
                                 <div class="buybox--quantity block">
-                                    {% set maxPurchase = page.productDetail.product.maxPurchase ?? 25 %}
+                                    {% set maxPurchase = page.product.maxPurchase ?? 25 %}
                                     {% set maxQuantity = maxPurchase %}
-                                    {% if page.productDetail.product.isCloseout() and product.stock < maxPurchase %}
-                                        {% set maxQuantity = page.productDetail.product.stock %}
+                                    {% if page.product.isCloseout() and product.stock < maxPurchase %}
+                                        {% set maxQuantity = page.product.stock %}
                                     {% endif %}
 
-                                    {% set purchaseSteps = page.productDetail.product.purchaseSteps ?? 1 %}
-                                    {% set minPurchase = page.productDetail.product.minPurchase ?? 1 %}
+                                    {% set purchaseSteps = page.product.purchaseSteps ?? 1 %}
+                                    {% set minPurchase = page.product.minPurchase ?? 1 %}
 
                                     {% block frontend_detail_buy_quantity_select %}
                                         <div class="select-field">
                                             <select id="sQuantity" name="quantity" class="quantity--select">
                                                 {% for i in range(minPurchase, maxQuantity) %}
                                                     {% if i == minPurchase or purchaseSteps > 0 and i % purchaseSteps == 0 %}
-                                                        <option value="{{ i }}">{{ i }}{% if page.productDetail.product.packUnit %} {{ page.productDetail.product.packUnit }}{% endif %}</option>
+                                                        <option value="{{ i }}">{{ i }}{% if page.product.packUnit %} {{ page.product.packUnit }}{% endif %}</option>
                                                     {% endif %}
                                                 {% endfor %}
                                             </select>
@@ -51,7 +51,7 @@
 
                             {# "Buy now" button #}
                             {% block frontend_detail_buy_button %}
-                                {% if page.productDetail.product.sConfigurator and activeConfiguratorSelection == false %}
+                                {% if page.product.sConfigurator and activeConfiguratorSelection == false %}
                                     <button class="buybox--button block btn is--disabled is--icon-right is--large" disabled="disabled" aria-disabled="true"{% if buy_box_display %} style="{{ buy_box_display }}"{% endif %}>
                                         {% trans %}detail.buyAddButton{% endtrans %} <i class="icon--arrow-right"></i>
                                     </button>
@@ -70,13 +70,13 @@
         {% block frontend_detail_buy_services %}
             {% set lastId = null %}
             {# @var service \Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceEntity #}
-            {% for service in page.productDetail.product.services %}
+            {% for service in page.product.services %}
                 {% if lastId != service.option.groupId %}
                     {% set lastId = service.option.groupId %}
 
                     <select name="service[{{ service.option.groupId }}]">
 
-                        {% set services = page.productDetail.product.services.filterByGroupId(lastId) %}
+                        {% set services = page.product.services.filterByGroupId(lastId) %}
 
                         <option value="" selected="selected">{{ service.option.group.name }}</option>
 

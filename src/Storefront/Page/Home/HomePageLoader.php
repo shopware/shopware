@@ -4,14 +4,14 @@ namespace Shopware\Storefront\Page\Home;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Framework\Page\GenericPageLoader;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class HomePageLoader implements PageLoaderInterface
 {
     /**
-     * @var GenericPageLoader
+     * @var PageWithHeaderLoader
      */
     private $genericLoader;
 
@@ -21,7 +21,7 @@ class HomePageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     public function __construct(
-        GenericPageLoader $genericLoader,
+        PageWithHeaderLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;

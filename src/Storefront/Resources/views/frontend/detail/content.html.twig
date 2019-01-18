@@ -1,5 +1,5 @@
 {% block frontend_index_content_inner %}
-    {% set product = page.productDetail.product %}
+    {% set product = page.product %}
 
     {% set ajaxVariantSwitch = '' %}
     {% if shopware.theme.ajaxVariantSwitch %}
@@ -13,7 +13,7 @@
          {{ ajaxVariantSwitch }}>
 
         {# @var url \Shopware\Core\Api\Seo\Struct\SeoUrlEntity #}
-        {% set url = page.productDetail.product.extension('canonicalUrl') %}
+        {% set url = page.product.extension('canonicalUrl') %}
 
         <div class="is--hidden canonical-url">{{ url.url }}</div>
 
@@ -23,8 +23,8 @@
         <div class="product--detail-upper block-group">
             {# Product image #}
             {% block frontend_detail_index_image_container %}
-                <div class="product--image-container image-slider{% if page.productDetail.product.media.count and shopware.config.usezoomplus %} product--image-zoom{% endif %}"
-                    {% if page.productDetail.product.media.count %}
+                <div class="product--image-container image-slider{% if page.product.media.count and shopware.config.usezoomplus %} product--image-zoom{% endif %}"
+                    {% if page.product.media.count %}
                         data-image-slider="true"
                         data-image-gallery="true"
                         data-maxZoom="{{ theme.lightboxZoomFactor }}"

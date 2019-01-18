@@ -1,9 +1,9 @@
 {% block frontend_detail_data_block_prices_start %}
     {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductEntity #}
 
-    <div class="block-prices--container block-price--{{ page.productDetail.product.id }}">
+    <div class="block-prices--container block-price--{{ page.product.id }}">
 
-        {% set hasReferencePrice = page.productDetail.product.calculatedPrice.referencePrice > 0 %}
+        {% set hasReferencePrice = page.product.calculatedPrice.referencePrice > 0 %}
 
         {% block frontend_detail_data_block_prices_table %}
             <table class="block-prices--table">
@@ -41,8 +41,8 @@
                             {% block frontend_detail_data_block_prices_table_body_inner %}
                                 {% set cylceClasses = ['is--primary', 'is--secondary'] %}
 
-                                {% for key, price in page.productDetail.product.calculatedPriceRules %}
-                                    {% set next = page.productDetail.product.calculatedPriceRules[key+1]  %}
+                                {% for key, price in page.product.calculatedPriceRules %}
+                                    {% set next = page.product.calculatedPriceRules[key+1]  %}
 
                                     {# @var price \Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice #}
                                     {% block frontend_detail_data_block_prices %}
@@ -74,7 +74,7 @@
                                                         <td class="block-prices--cell">
                                                             {{ price.referencePrice|localizedcurrency(context.currency.shortName) }}
                                                             {% trans %}general.priceStar{% endtrans %} /
-                                                            {{ page.productDetail.product.referenceUnit }} {{ product.unit.name }}
+                                                            {{ page.product.referenceUnit }} {{ product.unit.name }}
                                                         </td>
                                                     {% endblock %}
                                                 {% endif %}

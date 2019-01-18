@@ -3,7 +3,7 @@
 {% block frontend_listing_actions_filter %}
     {% set listingMode = shopware.config.listingMode %}
 
-    {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
+    {# @var listing \Shopware\Storefront\Page\Listing\ListingPage #}
     {% set facets = page.listing.aggregations %}
 
     {# @var criteria \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria #}

@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/frontend/checkout/cart/cart-item.html.twig' %}
 
 {% block frontend_checkout_cart_item_details_title %}
-    {% set detailUrl = path('frontend.detail.page', { 'id': lineItem.key }) %}
+    {% set detailUrl = path('frontend.detail.page', { 'productId': lineItem.key }) %}
     {% if lineItem.extensions.canonicalUrl %}
         {% set detailUrl = lineItem.extensions.canonicalUrl.url %}
     {% endif %}

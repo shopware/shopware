@@ -7,11 +7,11 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerAccountExistsException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
+use Shopware\Core\Checkout\Exception\CustomerNotFoundException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
-use Shopware\Storefront\Exception\AccountLogin\CustomerNotFoundException;
 
 class AccountServiceTest extends TestCase
 {
@@ -43,9 +43,9 @@ class AccountServiceTest extends TestCase
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
         static::assertNotEmpty($customerId);
 
-        $customer = $this->accountService->getCustomerByEmail($request->getEmail(), $this->checkoutContext);
-        static::assertEquals($request->getLastName(), $customer->getLastName());
-        static::assertNotEquals($request->getPassword(), $customer->getPassword());
+        $customer = $this->accountService->getCustomerByEmail($request->requirePost('email'), $this->checkoutContext);
+        static::assertEquals($request->requirePost('lastName'), $customer->getLastName());
+        static::assertNotEquals($request->requirePost('password'), $customer->getPassword());
     }
 
     public function testCreateWithExistingCustomer(): void
@@ -66,36 +66,36 @@ class AccountServiceTest extends TestCase
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
         static::assertNotEmpty($customerId);
 
-        $request->setGuest(true);
+        $request->addParam('guest', true);
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
         static::assertNotEmpty($customerId);
 
-        $customers = $this->accountService->getCustomersByEmail($request->getEmail(), $this->checkoutContext);
+        $customers = $this->accountService->getCustomersByEmail($request->requirePost('email'), $this->checkoutContext);
         static::assertCount(2, $customers);
 
-        $customers = $this->accountService->getCustomersByEmail($request->getEmail(), $this->checkoutContext, false);
+        $customers = $this->accountService->getCustomersByEmail($request->requirePost('email'), $this->checkoutContext, false);
         static::assertCount(1, $customers);
 
         $this->expectException(CustomerNotFoundException::class);
-        $this->accountService->getCustomerByEmail($request->getEmail(), $this->checkoutContext, true);
+        $this->accountService->getCustomerByEmail($request->requirePost('email'), $this->checkoutContext, true);
     }
 
     public function testLoginWithAdditionalGuestAccount(): void
     {
         $request = $this->getRegistrationRequest();
-        $request->setGuest(true);
+        $request->addParam('guest', true);
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
         static::assertNotEmpty($customerId);
 
-        $request->setGuest(false);
+        $request->addParam('guest', false);
         $customerId = $this->accountService->createNewCustomer($request, $this->checkoutContext);
         static::assertNotEmpty($customerId);
 
-        $customer = $this->accountService->getCustomerByEmail($request->getEmail(), $this->checkoutContext);
-        static::assertEquals($request->getLastName(), $customer->getLastName());
+        $customer = $this->accountService->getCustomerByEmail($request->requirePost('email'), $this->checkoutContext);
+        static::assertEquals($request->requirePost('lastName'), $customer->getLastName());
     }
 
-    private function getRegistrationRequest(): AccountRegistrationRequest
+    private function getRegistrationRequest(): InternalRequest
     {
         $data = [
             'email' => 'max.mustermann@example.com',
@@ -103,16 +103,14 @@ class AccountServiceTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
 
-            'billingCountry' => Defaults::COUNTRY,
-            'billingStreet' => 'Musterstrasse 13',
-            'billingZipcode' => '48599',
-            'billingCity' => 'Epe',
+            'billingAddress.country' => Defaults::COUNTRY,
+            'billingAddress.street' => 'Musterstrasse 13',
+            'billingAddress.zipcode' => '48599',
+            'billingAddress.city' => 'Epe',
 
             'password' => Uuid::uuid4()->getHex(),
         ];
-        $request = new AccountRegistrationRequest();
-        $request->assign($data);
 
-        return $request;
+        return new InternalRequest([], $data);
     }
 }

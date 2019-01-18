@@ -190,7 +190,7 @@
                         {% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderCountry{% endtrans %}
                     </option>
 
-                    {% for country in page.countryList %}
+                    {% for country in page.countries %}
                         <option value="{{ country.id }}"{% if country.id == form_data.shippingCountry %} selected="selected"{% endif %}>
                             {{ country.name }}
                         </option>
@@ -203,7 +203,7 @@
         {# Country state #}
         {% block frontend_register_shipping_fieldset_input_country_states %}
             <div class="country-area-state-selection">
-                {% for country in page.countryList %}
+                {% for country in page.countries %}
                     {% set states = country.extensions.states.elements %}
                     {% if states %}
                         <div data-country-id="{{ country.id }}" data-address-type="shipping" class="register--state-selection field--select select-field{% if country.id != form_data.country %} is--hidden{% endif %}">

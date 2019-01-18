@@ -2,18 +2,12 @@
 
 namespace Shopware\Storefront\Pagelet\Listing\Subscriber;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Storefront\Event\ListingEvents;
-use Shopware\Storefront\Framework\Page\AggregationView\ListAggregation;
-use Shopware\Storefront\Framework\Page\AggregationView\ListItem;
-use Shopware\Storefront\Pagelet\Listing\ListingPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Listing\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class DatasheetAggregationSubscriber implements EventSubscriberInterface
@@ -29,12 +23,11 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
-            ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
+            ListingEvents::LISTING_PAGELET_CRITERIA_CREATED_EVENT => 'buildCriteria',
         ];
     }
 
-    public function buildCriteria(PageCriteriaCreatedEvent $event): void
+    public function buildCriteria(ListingPageletCriteriaCreatedEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -59,63 +52,5 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
         $criteria->addExtension(self::AGGREGATION_NAME, new ArrayEntity(['ids' => $ids]));
         $criteria->addPostFilter($query);
-    }
-
-    public function buildPage(ListingPageletLoadedEvent $event): void
-    {
-        $page = $event->getPage();
-
-        if (!$page->getProducts()) {
-            return;
-        }
-
-        $result = $page->getProducts()->getAggregations();
-
-        if ($result->count() <= 0) {
-            return;
-        }
-
-        if (!$result->has(self::AGGREGATION_NAME)) {
-            return;
-        }
-
-        /** @var EntityAggregationResult $aggregation */
-        $aggregation = $result->get(self::AGGREGATION_NAME);
-
-        /** @var ArrayEntity|null $filter */
-        $filter = $page->getCriteria()->getExtension(self::AGGREGATION_NAME);
-
-        $active = $filter !== null;
-
-        $actives = $filter ? $filter->get('ids') : [];
-
-        /** @var ConfigurationGroupOptionCollection $values */
-        $values = $aggregation->getEntities();
-
-        if ($values->count() === 0) {
-            return;
-        }
-
-        $groups = $values->groupByConfigurationGroups();
-
-        /** @var ConfigurationGroupEntity $group */
-        foreach ($groups as $group) {
-            $items = [];
-
-            foreach ($group->getOptions() as $option) {
-                $item = new ListItem(
-                    $option->getName(),
-                    \in_array($option->getId(), $actives, true),
-                    $option->getId()
-                );
-
-                $item->addExtension('option', $option);
-                $items[] = $item;
-            }
-
-            $page->getAggregations()->add(
-                new ListAggregation('option', $active, $group->getName(), 'option', $items)
-            );
-        }
     }
 }

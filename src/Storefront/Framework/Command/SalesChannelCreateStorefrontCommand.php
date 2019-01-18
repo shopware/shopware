@@ -11,16 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
-
-    public function __construct(EntityRepositoryInterface $salesChannelRepository, EntityRepositoryInterface $languageRepository)
+    public function __construct(EntityRepositoryInterface $salesChannelRepository)
     {
         parent::__construct($salesChannelRepository);
-
-        $this->languageRepository = $languageRepository;
     }
 
     protected function configure()

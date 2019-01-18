@@ -22,6 +22,11 @@ class InternalRequest
      */
     protected $routing = [];
 
+    /**
+     * @var array
+     */
+    protected $params = [];
+
     public function __construct(array $query = [], array $post = [], array $routing = [])
     {
         $this->query = $query;
@@ -36,26 +41,6 @@ class InternalRequest
             $request->request->all(),
             $request->attributes->get('_route_params')
         );
-    }
-
-    public function optional(string $key, $default = null)
-    {
-        try {
-            return $this->_get($key, $this->routing);
-        } catch (MissingParameterException $e) {
-        }
-
-        try {
-            return $this->_get($key, $this->query);
-        } catch (MissingParameterException $e) {
-        }
-
-        try {
-            return $this->_get($key, $this->post);
-        } catch (MissingParameterException $e) {
-        }
-
-        return $default;
     }
 
     public function requirePost(string $key)
@@ -113,29 +98,22 @@ class InternalRequest
         return $default;
     }
 
-    /**
-     * @param string $key
-     *
-     * @throws MissingParameterException
-     *
-     * @return mixed
-     */
-    public function require(string $key)
+    public function hasRouting(string $key): bool
     {
-        try {
-            return $this->_get($key, $this->routing);
-        } catch (MissingParameterException $e) {
-        }
-
-        try {
-            return $this->_get($key, $this->query);
-        } catch (MissingParameterException $e) {
-        }
-
-        return $this->_get($key, $this->post);
+        return array_key_exists($key, $this->routing);
     }
 
-    public function getQuery(): array
+    public function hasGet(string $key): bool
+    {
+        return array_key_exists($key, $this->query);
+    }
+
+    public function hasPost(string $key): bool
+    {
+        return array_key_exists($key, $this->post);
+    }
+
+    public function getGet(): array
     {
         return $this->query;
     }
@@ -150,13 +128,28 @@ class InternalRequest
         return $this->routing;
     }
 
+    public function hasParam(string $key): bool
+    {
+        return array_key_exists($key, $this->params);
+    }
+
+    public function addParam(string $key, $value): void
+    {
+        $this->params[$key] = $value;
+    }
+
+    public function getParam(string $key)
+    {
+        return $this->params[$key] ?? null;
+    }
+
     /**
      * @param string $key
      * @param array  $values
      *
      * @throws MissingParameterException
      *
-     * @return array|mixed
+     * @return mixed
      */
     private function _get(string $key, array $values)
     {
@@ -165,21 +158,6 @@ class InternalRequest
             return $values[$key];
         }
 
-        //explode key for nested array access
-        $parts = explode('.', $key);
-
-        $cursor = $values;
-
-        while ($parts) {
-            $part = array_shift($parts);
-
-            if (!array_key_exists($part, $cursor)) {
-                throw new MissingParameterException($part);
-            }
-
-            $cursor = $cursor[$part];
-        }
-
-        return $cursor;
+        throw new MissingParameterException($key);
     }
 }

@@ -5,24 +5,24 @@ namespace Shopware\Storefront\Pagelet\Header;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Category\Storefront\NavigationLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Storefront\Event\ContentEvents;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class HeaderPageletLoader
+class HeaderPageletLoader implements PageLoaderInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $currencyRepository;
 
@@ -37,8 +37,8 @@ class HeaderPageletLoader
     private $eventDispatcher;
 
     public function __construct(
-        RepositoryInterface $languageRepository,
-        RepositoryInterface $currencyRepository,
+        EntityRepositoryInterface $languageRepository,
+        EntityRepositoryInterface $currencyRepository,
         NavigationLoader $navigationLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
@@ -67,7 +67,7 @@ class HeaderPageletLoader
         );
 
         $this->eventDispatcher->dispatch(
-            ContentEvents::HEADER_PAGELET_LOADED,
+            HeaderPageletLoadedEvent::NAME,
             new HeaderPageletLoadedEvent($page, $context, $request)
         );
 

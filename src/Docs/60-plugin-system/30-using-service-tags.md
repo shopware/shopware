@@ -38,7 +38,7 @@ To sort each listing descending, you need to add sorting to the `Shopware\Core\F
 namespace SwagExample\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Storefront\Pagelet\Listing\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletCriteriaCreatedEvent;
 use Shopware\Storefront\Event\ListingEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

@@ -208,10 +208,10 @@ class StorefrontCheckoutControllerTest extends TestCase
         $city = 'Cologne';
 
         $billing = [
-            'billingCountry' => $countryId,
-            'billingStreet' => $street,
-            'billingZipcode' => $zipcode,
-            'billingCity' => $city,
+            'billingAddress.country' => $countryId,
+            'billingAddress.street' => $street,
+            'billingAddress.zipcode' => $zipcode,
+            'billingAddress.city' => $city,
         ];
 
         $client = $this->createCart();
@@ -281,10 +281,10 @@ class StorefrontCheckoutControllerTest extends TestCase
         $city = 'Cologne';
 
         $billing = [
-            'billingCountry' => $countryId,
-            'billingStreet' => $street,
-            'billingZipcode' => $zipcode,
-            'billingCity' => $city,
+            'billingAddress.country' => $countryId,
+            'billingAddress.street' => $street,
+            'billingAddress.zipcode' => $zipcode,
+            'billingAddress.city' => $city,
         ];
 
         $client = $this->createCart();
@@ -358,10 +358,10 @@ class StorefrontCheckoutControllerTest extends TestCase
         $city = 'Cologne';
 
         $billing = [
-            'billingCountry' => $countryId,
-            'billingStreet' => $street,
-            'billingZipcode' => $zipcode,
-            'billingCity' => $city,
+            'billingAddress.country' => $countryId,
+            'billingAddress.street' => $street,
+            'billingAddress.zipcode' => $zipcode,
+            'billingAddress.city' => $city,
         ];
 
         $client = $this->createCart();
@@ -408,10 +408,10 @@ class StorefrontCheckoutControllerTest extends TestCase
         $city = 'Cologne';
 
         $billing = [
-            'billingCountry' => $countryId,
-            'billingStreet' => $street,
-            'billingZipcode' => $zipcode,
-            'billingCity' => $city,
+            'billingAddress.country' => $countryId,
+            'billingAddress.street' => $street,
+            'billingAddress.zipcode' => $zipcode,
+            'billingAddress.city' => $city,
         ];
 
         $addressId = Uuid::uuid4()->getHex();
@@ -597,10 +597,10 @@ class StorefrontCheckoutControllerTest extends TestCase
         $city = 'Cologne';
 
         $billing = [
-            'billingCountry' => $countryId,
-            'billingStreet' => $street,
-            'billingZipcode' => $zipcode,
-            'billingCity' => $city,
+            'billingAddress.country' => $countryId,
+            'billingAddress.street' => $street,
+            'billingAddress.zipcode' => $zipcode,
+            'billingAddress.city' => $city,
         ];
 
         $client = $this->createCart();

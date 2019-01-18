@@ -1,7 +1,7 @@
 {% block frontend_detail_product_quick_view %}
     {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct#}
     <div class="product--quick-view">
-        {% set url = path('frontend.detail.page', { id: product.id }) %}
+        {% set url = path('frontend.detail.page', { productId: product.id }) %}
 
         {% if product.extension('canonicalUrl') %}
             {% set url = product.extension('canonicalUrl').url %}

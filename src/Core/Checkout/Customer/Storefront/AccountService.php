@@ -9,22 +9,17 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Exception\CustomerNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Storefront\Action\AccountAddress\AccountAddressSaveRequest;
-use Shopware\Storefront\Action\AccountEmail\AccountEmailSaveRequest;
-use Shopware\Storefront\Action\AccountLogin\AccountLoginRequest;
-use Shopware\Storefront\Action\AccountPassword\AccountPasswordSaveRequest;
-use Shopware\Storefront\Action\AccountProfile\AccountProfileSaveRequest;
-use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
-use Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException;
-use Shopware\Storefront\Exception\AccountLogin\CustomerNotFoundException;
-use Shopware\Storefront\Framework\Exception\BadCredentialsException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class AccountService
@@ -62,7 +57,7 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
+     * @throws \Shopware\Core\Checkout\Exception\CustomerNotFoundException
      * @throws BadCredentialsException
      */
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerEntity
@@ -77,7 +72,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Storefront\Exception\AccountLogin\CustomerNotFoundException
+     * @throws \Shopware\Core\Checkout\Exception\CustomerNotFoundException
      */
     public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerEntity
     {
@@ -116,57 +111,42 @@ class AccountService
         return $context->getCustomer();
     }
 
-    public function saveProfile(AccountProfileSaveRequest $profileSaveRequest, CheckoutContext $context): void
+    public function saveProfile(InternalRequest $request, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'firstName' => $profileSaveRequest->getFirstName(),
-            'lastName' => $profileSaveRequest->getLastName(),
-            'title' => $profileSaveRequest->getTitle(),
-            'salutation' => $profileSaveRequest->getSalutation(),
-            'birthday' => $profileSaveRequest->getBirthday(),
+            'firstName' => $request->requirePost('firstName'),
+            'lastName' => $request->requirePost('lastName'),
+            'salutation' => $request->requirePost('salutation'),
+            'title' => $request->optionalPost('title'),
+            'birthday' => $this->getBirthday($request),
         ];
-
-        foreach ($profileSaveRequest->getExtensions() as $key => $value) {
-            $data[$key] = $value;
-        }
-        $data = array_filter($data);
 
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function savePassword(AccountPasswordSaveRequest $passwordSaveRequest, CheckoutContext $context): void
+    public function savePassword(InternalRequest $request, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'password' => $passwordSaveRequest->getPassword(),
+            'password' => $request->requirePost('password'),
         ];
-
-        foreach ($passwordSaveRequest->getExtensions() as $key => $value) {
-            $data[$key] = $value;
-        }
-        $data = array_filter($data);
 
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function saveEmail(AccountEmailSaveRequest $emailSaveRequest, CheckoutContext $context): void
+    public function saveEmail(InternalRequest $request, CheckoutContext $context): void
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'email' => $emailSaveRequest->getEmail(),
+            'email' => $request->requirePost('email'),
         ];
-
-        foreach ($emailSaveRequest->getExtensions() as $key => $value) {
-            $data[$key] = $value;
-        }
-        $data = array_filter($data);
 
         $this->customerRepository->update([$data], $context->getContext());
     }
 
     /**
-     * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
      * @throws InvalidUuidException
      */
     public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressEntity
@@ -174,17 +154,18 @@ class AccountService
         return $this->validateAddressId($addressId, $context);
     }
 
-    public function getCountryList(CheckoutContext $context): array
+    public function getCountryList(CheckoutContext $context): CountryCollection
     {
         $criteria = new Criteria([]);
         $criteria->addFilter(new EqualsFilter('country.active', true));
 
         /** @var CountryCollection $countries */
-        $countries = $this->countryRepository->search($criteria, $context->getContext());
+        $countries = $this->countryRepository->search($criteria, $context->getContext())
+            ->getEntities();
 
         $countries->sortCountryAndStates();
 
-        return $countries->getElements();
+        return $countries;
     }
 
     /**
@@ -204,55 +185,55 @@ class AccountService
     }
 
     /**
+     * @param InternalRequest $request
+     * @param CheckoutContext $context
+     *
+     * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException     */
-    public function saveAddress(AccountAddressSaveRequest $addressSaveRequest, CheckoutContext $context): string
+     *
+     * @return string
+     */
+    public function saveAddress(InternalRequest $request, CheckoutContext $context): string
     {
         $this->validateCustomer($context);
 
-        if (!$addressSaveRequest->getId()) {
-            $addressSaveRequest->setId(Uuid::uuid4()->getHex());
+        $id = $request->optionalPost('addressId');
+
+        if (!$id) {
+            $id = Uuid::uuid4()->getHex();
         } else {
-            $this->validateAddressId($addressSaveRequest->getId(), $context)->getId();
+            $this->validateAddressId((string) $id, $context)->getId();
         }
 
         $data = [
-            'id' => $addressSaveRequest->getId(),
+            'id' => $id,
             'customerId' => $context->getCustomer()->getId(),
-            'salutation' => $addressSaveRequest->getSalutation(),
-            'firstName' => $addressSaveRequest->getFirstName(),
-            'lastName' => $addressSaveRequest->getLastName(),
-            'street' => $addressSaveRequest->getStreet(),
-            'city' => $addressSaveRequest->getCity(),
-            'zipcode' => $addressSaveRequest->getZipcode(),
-            'countryId' => $addressSaveRequest->getCountryId(),
-            'countryStateId' => $addressSaveRequest->getCountryStateId(),
-            'company' => $addressSaveRequest->getCompany(),
-            'department' => $addressSaveRequest->getDepartment(),
-            'title' => $addressSaveRequest->getTitle(),
-            'vatId' => $addressSaveRequest->getVatId(),
-            'additionalAddressLine1' => $addressSaveRequest->getAdditionalAddressLine1(),
-            'additionalAddressLine2' => $addressSaveRequest->getAdditionalAddressLine2(),
+            'salutation' => $request->requirePost('salutation'),
+            'firstName' => $request->requirePost('firstName'),
+            'lastName' => $request->requirePost('lastName'),
+            'street' => $request->requirePost('street'),
+            'city' => $request->requirePost('city'),
+            'zipcode' => $request->requirePost('zipcode'),
+            'countryId' => $request->requirePost('countryId'),
+            'countryStateId' => $request->optionalPost('countryStateId'),
+            'company' => $request->optionalPost('company'),
+            'department' => $request->optionalPost('department'),
+            'title' => $request->optionalPost('title'),
+            'vatId' => $request->optionalPost('vatId'),
+            'additionalAddressLine1' => $request->optionalPost('additionalAddressLine1'),
+            'additionalAddressLine2' => $request->optionalPost('additionalAddressLine2'),
         ];
-
-        /* TODO pretty dangerous since extensions could not only overwrite all properties above
-        *  but also could write all sub entities.
-        */
-        foreach ($addressSaveRequest->getExtensions() as $key => $value) {
-            $data[$key] = $value;
-        }
-        $data = array_filter($data);
 
         $this->customerAddressRepository->upsert([$data], $context->getContext());
 
-        return $addressSaveRequest->getId();
+        return $id;
     }
 
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
      */
     public function deleteAddress(string $addressId, CheckoutContext $context): void
     {
@@ -264,7 +245,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
      */
     public function setDefaultBillingAddress(string $addressId, CheckoutContext $context): void
     {
@@ -281,7 +262,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
      */
     public function setDefaultShippingAddress(string $addressId, CheckoutContext $context): void
     {
@@ -295,9 +276,9 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function createNewCustomer(AccountRegistrationRequest $registrationRequest, CheckoutContext $context): string
+    public function createNewCustomer(InternalRequest $request, CheckoutContext $context): string
     {
-        $this->validateRegistrationRequest($registrationRequest, $context);
+        $this->validateRegistrationRequest($request, $context);
 
         $customerId = Uuid::uuid4()->getHex();
         $billingAddressId = Uuid::uuid4()->getHex();
@@ -307,62 +288,67 @@ class AccountService
         $addresses[] = array_filter([
             'id' => $billingAddressId,
             'customerId' => $customerId,
-            'countryId' => $registrationRequest->getBillingCountry(),
-            'salutation' => $registrationRequest->getSalutation(),
-            'firstName' => $registrationRequest->getFirstName(),
-            'lastName' => $registrationRequest->getLastName(),
-            'street' => $registrationRequest->getBillingStreet(),
-            'zipcode' => $registrationRequest->getBillingZipcode(),
-            'city' => $registrationRequest->getBillingCity(),
-            'phoneNumber' => $registrationRequest->getBillingPhone(),
-            'vatId' => $registrationRequest->getBillingVatId(),
-            'additionalAddressLine1' => $registrationRequest->getBillingAdditionalAddressLine1(),
-            'additionalAddressLine2' => $registrationRequest->getBillingAdditionalAddressLine2(),
-            'countryStateId' => $registrationRequest->getBillingCountryState(),
+            'firstName' => $request->requirePost('firstName'),
+            'lastName' => $request->requirePost('lastName'),
+
+            'salutation' => $request->optionalPost('salutation'),
+
+            'street' => $request->requirePost('billingAddress.street'),
+            'zipcode' => $request->requirePost('billingAddress.zipcode'),
+            'city' => $request->requirePost('billingAddress.city'),
+            'vatId' => $request->optionalPost('billingAddress.vatId'),
+            'countryStateId' => $request->optionalPost('billingAddress.countryStateId'),
+            'countryId' => $request->requirePost('billingAddress.country'),
+            'additionalAddressLine1' => $request->optionalPost('billingAddress.additionalAddressLine1'),
+            'additionalAddressLine2' => $request->optionalPost('billingAddress.additionalAddressLine2'),
+            'phoneNumber' => $request->optionalPost('billingAddress.phone'),
         ]);
 
-        if ($registrationRequest->hasDifferentShippingAddress()) {
+        if ($request->optionalPost('shippingAddress.country')) {
             $shippingAddressId = Uuid::uuid4()->getHex();
+
             $addresses[] = array_filter([
                 'id' => $shippingAddressId,
                 'customerId' => $customerId,
-                'countryId' => $registrationRequest->getShippingCountry(),
-                'salutation' => $registrationRequest->getShippingSalutation(),
-                'firstName' => $registrationRequest->getShippingFirstName(),
-                'lastName' => $registrationRequest->getShippingLastName(),
-                'street' => $registrationRequest->getShippingStreet(),
-                'zipcode' => $registrationRequest->getShippingZipcode(),
-                'city' => $registrationRequest->getShippingCity(),
-                'phoneNumber' => $registrationRequest->getShippingPhone(),
-                'additionalAddressLine1' => $registrationRequest->getShippingAdditionalAddressLine1(),
-                'additionalAddressLine2' => $registrationRequest->getShippingAdditionalAddressLine2(),
-                'countryStateId' => $registrationRequest->getShippingCountryState(),
+                'countryId' => $request->requirePost('shippingAddress.country'),
+                'salutation' => $request->requirePost('shippingAddress.salutation'),
+                'firstName' => $request->requirePost('shippingAddress.firstName'),
+                'lastName' => $request->requirePost('shippingAddress.lastName'),
+                'street' => $request->requirePost('shippingAddress.street'),
+                'zipcode' => $request->requirePost('shippingAddress.zipcode'),
+                'city' => $request->requirePost('shippingAddress.city'),
+                'phoneNumber' => $request->optionalPost('shippingAddress.phone'),
+                'vatId' => $request->optionalPost('shippingAddress.vatId'),
+                'additionalAddressLine1' => $request->optionalPost('shippingAddress.additionalAddressLine1'),
+                'additionalAddressLine2' => $request->optionalPost('shippingAddress.additionalAddressLine2'),
+                'countryStateId' => $request->optionalPost('shippingAddress.countryStateId'),
             ]);
         }
 
-        // todo implement customer number generator
+        $guest = $request->getParam('guest');
+
         $data = [
             'id' => $customerId,
             'salesChannelId' => $context->getSalesChannel()->getId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'customerNumber' => '123',
-            'salutation' => $registrationRequest->getSalutation(),
-            'firstName' => $registrationRequest->getFirstName(),
-            'lastName' => $registrationRequest->getLastName(),
-            'email' => $registrationRequest->getEmail(),
-            'title' => $registrationRequest->getTitle(),
+            'salutation' => $request->optionalPost('salutation'),
+            'firstName' => $request->requirePost('firstName'),
+            'lastName' => $request->requirePost('lastName'),
+            'email' => $request->requirePost('email'),
+            'title' => $request->optionalPost('title'),
             'encoder' => 'bcrypt',
             'active' => true,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId ?? $billingAddressId,
             'addresses' => $addresses,
-            'birthday' => $registrationRequest->getBirthday(),
-            'guest' => $registrationRequest->getGuest(),
+            'birthday' => $this->getBirthday($request),
+            'guest' => $guest,
         ];
 
-        if (!$registrationRequest->getGuest()) {
-            $data['password'] = $registrationRequest->getPassword();
+        if (!$guest) {
+            $data['password'] = $request->requirePost('password');
         }
 
         $data = array_filter($data, function ($element) {
@@ -375,19 +361,19 @@ class AccountService
     }
 
     /**
-     * @throws BadCredentialsException
+     * @throws \Shopware\Core\Checkout\Exception\BadCredentialsException
      * @throws UnauthorizedHttpException
      */
-    public function login(AccountLoginRequest $loginRequest, CheckoutContext $context): string
+    public function login(InternalRequest $request, CheckoutContext $context): string
     {
-        if (empty($loginRequest->getUsername()) || empty($loginRequest->getPassword())) {
+        if (empty($request->optionalPost('username')) || empty($request->optionalPost('password'))) {
             throw new BadCredentialsException();
         }
 
         try {
             $user = $this->getCustomerByLogin(
-                $loginRequest->getUsername(),
-                $loginRequest->getPassword(),
+                $request->requirePost('username'),
+                $request->requirePost('password'),
                 $context
             );
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
@@ -418,15 +404,15 @@ class AccountService
         );
     }
 
-    private function validateRegistrationRequest(AccountRegistrationRequest $registrationRequest, CheckoutContext $context): void
+    private function validateRegistrationRequest(InternalRequest $request, CheckoutContext $context): void
     {
-        if ($registrationRequest->getGuest()) {
+        if ($request->getParam('guest')) {
             return;
         }
 
-        $customers = $this->getCustomersByEmail($registrationRequest->getEmail(), $context, false);
+        $customers = $this->getCustomersByEmail($request->requirePost('email'), $context, false);
         if ($customers->getTotal() > 0) {
-            throw new CustomerAccountExistsException($registrationRequest->getEmail());
+            throw new CustomerAccountExistsException($request->requirePost('email'));
         }
     }
 
@@ -441,7 +427,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
      * @throws InvalidUuidException
      */
     private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressEntity
@@ -458,5 +444,25 @@ class AccountService
         }
 
         return $address;
+    }
+
+    private function getBirthday(InternalRequest $request): ?\DateTime
+    {
+        $birthdayDay = $request->optionalPost('birthdayDay');
+        $birthdayMonth = $request->optionalPost('birthdayMonth');
+        $birthdayYear = $request->optionalPost('birthdayYear');
+
+        if (!$birthdayDay ||
+            !$birthdayMonth ||
+            !$birthdayYear) {
+            return null;
+        }
+
+        return new \DateTime(sprintf(
+            '%s-%s-%s',
+            $birthdayYear,
+            $birthdayMonth,
+            $birthdayDay
+        ));
     }
 }

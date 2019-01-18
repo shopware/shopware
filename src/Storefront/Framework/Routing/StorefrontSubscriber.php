@@ -5,12 +5,11 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\PageController\ErrorController;
+use Shopware\Storefront\PageController\ErrorPageController;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
@@ -28,11 +27,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $router;
 
     /**
-     * @var ErrorController
+     * @var ErrorPageController
      */
     private $errorController;
 
-    public function __construct(RequestStack $requestStack, RouterInterface $router, ErrorController $errorController)
+    public function __construct(RequestStack $requestStack, RouterInterface $router, ErrorPageController $errorController)
     {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -52,9 +51,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function startSession(GetResponseEvent $event): void
+    public function startSession(): void
     {
         $master = $this->requestStack->getMasterRequest();
+        if (!$master) {
+            return;
+        }
         if (!$master->attributes->get(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
             return;
         }

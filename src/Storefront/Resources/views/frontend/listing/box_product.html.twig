@@ -1,6 +1,5 @@
 {% block frontend_listing_box_article_includes %}
-    {% set productBoxLayout %}{% if productBoxLayout is defined %}{{ productBoxLayout }}{% else %}{{ page.listing.productBoxLayout }}{% endif %}{% endset %}
-    {{ productBoxLayout }}
+    {% set productBoxLayout %}{% if productBoxLayout is defined %}{{ productBoxLayout }}{% else %}list{% endif %}{% endset %}
     {% if productBoxLayout == 'minimal' %}
         {% sw_include '@Storefront/frontend/listing/product-box/box-minimal.html.twig' %}
     {% elseif productBoxLayout == 'image' %}

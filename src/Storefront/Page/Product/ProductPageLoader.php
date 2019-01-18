@@ -3,48 +3,55 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
-use Shopware\Storefront\Pagelet\ProductDetail\ProductDetailPageletLoader;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductPageLoader
+class ProductPageLoader implements PageLoaderInterface
 {
     /**
-     * @var ProductDetailPageletLoader
+     * @var StorefrontProductRepository
      */
-    private $productDetailPageletLoader;
-
-    /**
-     * @var HeaderPageletLoader
-     */
-    private $headerPageletLoader;
+    private $productRepository;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var PageWithHeaderLoader
+     */
+    private $pageWithHeaderLoader;
+
     public function __construct(
-        ProductDetailPageletLoader $productDetailPageletLoader,
-        HeaderPageletLoader $headerPageletLoader,
+        PageWithHeaderLoader $pageWithHeaderLoader,
+        StorefrontProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->productDetailPageletLoader = $productDetailPageletLoader;
-        $this->headerPageletLoader = $headerPageletLoader;
         $this->eventDispatcher = $eventDispatcher;
+        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->productRepository = $productRepository;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): ProductPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context): ProductPage
     {
-        $page = new ProductPageStruct();
-        $page->setProductDetail(
-            $this->productDetailPageletLoader->load($request, $context)
-        );
+        $page = $this->pageWithHeaderLoader->load($request, $context);
 
-        $page->setHeader(
-            $this->headerPageletLoader->load($request, $context)
-        );
+        $page = ProductPage::createFrom($page);
+
+        $productId = $request->requireGet('productId');
+
+        $criteria = new Criteria([$productId]);
+
+        $product = $this->productRepository->read($criteria, $context)
+            ->get($productId);
+
+        $page->setProduct($product);
 
         $this->eventDispatcher->dispatch(
             ProductPageLoadedEvent::NAME,

@@ -2,20 +2,13 @@
 
 namespace Shopware\Storefront\Pagelet\Listing\Subscriber;
 
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Storefront\Event\ListingEvents;
-use Shopware\Storefront\Framework\Page\AggregationView\ListAggregation;
-use Shopware\Storefront\Framework\Page\AggregationView\ListItem;
-use Shopware\Storefront\Pagelet\Listing\ListingPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Listing\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ManufacturerAggregationSubscriber implements EventSubscriberInterface
@@ -39,12 +32,11 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
-            ListingEvents::LISTING_PAGELET_LOADED => 'buildPage',
+            ListingEvents::LISTING_PAGELET_CRITERIA_CREATED_EVENT => 'buildCriteria',
         ];
     }
 
-    public function buildCriteria(PageCriteriaCreatedEvent $event): void
+    public function buildCriteria(ListingPageletCriteriaCreatedEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -73,72 +65,5 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
         $query = new EqualsAnyFilter(self::PRODUCT_MANUFACTURER_ID, $ids->getIds());
 
         $event->getCriteria()->addPostFilter($query);
-    }
-
-    public function buildPage(ListingPageletLoadedEvent $event): void
-    {
-        if (!$event->getPage()->getProducts()) {
-            return;
-        }
-
-        $result = $event->getPage()->getProducts()->getAggregations();
-
-        if ($result->count() <= 0) {
-            return;
-        }
-
-        if (!$result->has(self::AGGREGATION_NAME)) {
-            return;
-        }
-
-        /** @var EntityAggregationResult $aggregation */
-        $aggregation = $result->get(self::AGGREGATION_NAME);
-
-        $criteria = $event->getPage()->getCriteria();
-
-        $filter = $this->getFilter(...$criteria->getPostFilters());
-
-        $active = $filter !== null;
-
-        $actives = $filter ? $filter->getValue() : [];
-
-        /** @var ProductManufacturerCollection $values */
-        $values = $aggregation->getEntities();
-
-        $items = [];
-        foreach ($values as $manufacturer) {
-            $item = new ListItem(
-                $manufacturer->getViewData()->getName(),
-                \in_array($manufacturer->getId(), $actives, true),
-                $manufacturer->getViewData()->getName()
-            );
-
-            $item->addExtension(self::AGGREGATION_NAME, $manufacturer);
-            $items[] = $item;
-        }
-
-        $event->getPage()->getAggregations()->add(
-            new ListAggregation(self::AGGREGATION_NAME, $active, 'Manufacturer', self::AGGREGATION_NAME, $items)
-        );
-    }
-
-    private function getFilter(Filter ...$nested): ?EqualsAnyFilter
-    {
-        foreach ($nested as $query) {
-            if ($query instanceof EqualsAnyFilter && $query->getField() === self::PRODUCT_MANUFACTURER_ID) {
-                return $query;
-            }
-
-            if (!$query instanceof MultiFilter) {
-                continue;
-            }
-
-            $found = $this->getFilter(...$query->getQueries());
-            if ($found) {
-                return $found;
-            }
-        }
-
-        return null;
     }
 }

@@ -43,7 +43,7 @@
             <i class="icon--basket"></i>
 
             <span class="cart--amount">
-                {% sw_include('@Storefront/frontend/checkout/ajax_amount.html.twig') with {'amount': page.header.cartInfo.cartAmount} %}
+                {% sw_include('@Storefront/frontend/checkout/ajax_amount.html.twig') with { 'cart': page.cart} %}
             </span>
         </a>
         <div class="ajax-loader">&nbsp;</div>

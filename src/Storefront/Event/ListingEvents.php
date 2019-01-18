@@ -3,29 +3,23 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Storefront\Page\Listing\ListingPageLoadedEvent;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletCriteriaCreatedEvent;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoadedEvent;
-use Shopware\Storefront\Pagelet\Listing\PageCriteriaCreatedEvent;
 
 class ListingEvents
 {
     /**
-     * Dispatched as soon as the search has been executed and the data is assigned to the view
-     *
-     * @Event("ListingPageLoadedEvent")
+     * @Event("Shopware\Storefront\Pagelet\Listing\ListingPageletLoadedEvent")
      */
-    public const LOADED = ListingPageLoadedEvent::NAME;
+    public const LISTING_PAGELET_LOADED_EVENT = ListingPageletLoadedEvent::NAME;
 
     /**
-     * Dispatched as soon as the search has been executed and the data is assigned to the view
-     *
-     * @Event("ListingPageLoadedEvent")
+     * @Event("Shopware\Storefront\Page\Listing\ListingPageLoadedEvent")
      */
-    public const LISTING_PAGELET_LOADED = ListingPageletLoadedEvent::NAME;
+    public const LISTING_PAGE_LOADED_EVENT = ListingPageLoadedEvent::NAME;
 
     /**
-     * Fired when a Criteria object is created for a product list in the storefront.
-     *
-     * @Event("PageCriteriaCreatedEvent")
+     * @Event("Shopware\Storefront\Pagelet\Listing\ListingPageletCriteriaCreatedEvent")
      */
-    public const CRITERIA_CREATED = PageCriteriaCreatedEvent::NAME;
+    public const LISTING_PAGELET_CRITERIA_CREATED_EVENT = ListingPageletCriteriaCreatedEvent::NAME;
 }

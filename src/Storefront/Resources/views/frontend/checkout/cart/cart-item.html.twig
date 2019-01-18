@@ -9,7 +9,7 @@
             {% set detailUrl = lineItem.extensions.canonicalUrl.url %}
         {% else %}
             {% if lineItem.key and lineItem.product %}
-                {% set detailUrl = url('frontend.detail.page', { 'id': lineItem.key }) %}
+                {% set detailUrl = url('frontend.detail.page', { 'productId': lineItem.key }) %}
             {% endif %}
         {% endif %}
 

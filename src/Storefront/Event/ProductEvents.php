@@ -7,9 +7,7 @@ use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 class ProductEvents
 {
     /**
-     * Dispatched as soon as the product page has been loaded
-     *
-     * @Event("ProductProductPageLoadedEvent")
+     * @Event("Shopware\Storefront\Page\Product\ProductPageLoadedEvent")
      */
-    public const PRODUCTDETAIL_PAGE_LOADED = ProductPageLoadedEvent::NAME;
+    public const PRODUCT_PAGE_LOADED_EVENT = ProductPageLoadedEvent::NAME;
 }

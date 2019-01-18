@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
+use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -111,11 +111,10 @@ class StorefrontCheckoutController extends AbstractController
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $request->request->remove('token');
-        $registrationRequest = new AccountRegistrationRequest();
-        $registrationRequest->assign($request->request->all());
-        $registrationRequest->setGuest(true);
+        $internal = InternalRequest::createFromHttpRequest($request);
+        $internal->addParam('guest', true);
 
-        $customerId = $this->accountService->createNewCustomer($registrationRequest, $context);
+        $customerId = $this->accountService->createNewCustomer($internal, $context);
 
         $orderContext = $this->createOrderContext($customerId, $context);
 

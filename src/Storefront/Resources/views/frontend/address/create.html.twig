@@ -22,7 +22,7 @@
         {% block frontend_address_form_content %}
             <div class="panel has--border is--rounded">
                 <form name="frmAddresses" method="post" action="{{ path('frontend.account.address.upsert')  }}">
-                    {% sw_include '@Storefront/frontend/address/form.html.twig' %}
+                    {% sw_include '@Storefront/frontend/address/form.html.twig' with { countryList: countryList } %}
                 </form>
             </div>
         {% endblock %}

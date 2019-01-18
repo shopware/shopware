@@ -113,7 +113,7 @@ If the user is logged in, you want to call the original `index` method, to displ
 You can achieve that by checking if the [context](../1-getting-started/20-getting-started.md#context) holds user information.
 Otherwise, return a new `RedirectResponse`, which leads to the login page.
 Because you inherited from `AbstractController`, you can generate the URL based on the route's name, by calling `$this->generateUrl()`.
-To find the route's name, just take a look into the `Shopware\Storefront\PageController\AccountController`,
+To find the route's name, just take a look into the `Shopware\Storefront\PageController\AccountPageController`,
 there you will find the `login` method with the route name `frontend.account.login.page`. Also, you should see that an argument `redirectTo` is passed to the `renderStorefront` method. If you append the `RequestUri` as a get parameter to the URL,
 the user gets redirected back to the product detail page he wanted to visit in the first place.
 

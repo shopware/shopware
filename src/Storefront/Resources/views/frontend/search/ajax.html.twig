@@ -1,0 +1,11 @@
+{# @var page \Shopware\Storefront\Pagelet\Suggest\SuggestPagelet #}
+{% if page.listing.total <= 0 %}
+
+    <ul class="results--list">
+        <li class="list--entry entry--no-results result--item">{% trans %}frontend.search.ajax.SearchAjaxNoResults{% endtrans %}</li>
+    </ul>
+{% else %}
+    {% for product in page.listing %}
+        {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
+    {% endfor %}
+{% endif %}

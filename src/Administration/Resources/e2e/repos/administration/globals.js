@@ -11,7 +11,7 @@ const exec = util.promisify(require('child_process').exec);
 module.exports = {
 
     waitForConditionTimeout: 30000,
-    asyncHookTimeout: 30000,
+    asyncHookTimeout: 60000,
 
     beforeEach: (browser, done) => {
         browser.url(browser.launch_url);

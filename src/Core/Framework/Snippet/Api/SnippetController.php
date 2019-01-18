@@ -16,25 +16,25 @@ use Symfony\Component\Routing\Annotation\Route;
 class SnippetController extends AbstractController
 {
     /**
-     * @var SnippetServiceInterface
-     */
-    private $snippetService;
-
-    /**
      * @var RequestCriteriaBuilder
      */
     private $criteriaBuilder;
 
-    public function __construct(SnippetServiceInterface $snippetService, RequestCriteriaBuilder $criteriaBuilder)
+    /**
+     * @var SnippetServiceInterface
+     */
+    private $snippetService;
+
+    public function __construct(RequestCriteriaBuilder $criteriaBuilder, SnippetServiceInterface $snippetService)
     {
-        $this->snippetService = $snippetService;
         $this->criteriaBuilder = $criteriaBuilder;
+        $this->snippetService = $snippetService;
     }
 
     /**
      * @Route("/api/v{version}/_action/snippet-set", name="api.action.snippet-set.getList", methods={"POST"})
      */
-    public function getList(Request $request): Response
+    public function getList(Request $request, Context $context): Response
     {
         $criteria = new Criteria();
         $criteria = $this->criteriaBuilder->handleRequest(
@@ -44,13 +44,15 @@ class SnippetController extends AbstractController
             Context::createDefaultContext()
         );
 
-        return new JsonResponse($this->snippetService->getList($criteria));
+        return new JsonResponse(
+            $this->snippetService->getList($criteria, $context)
+        );
     }
 
     /**
      * @Route("/api/{version}/_action/snippet", name="api.action.snippet.get", methods={"POST"})
      */
-    public function getByKey(Request $request): Response
+    public function getByKey(Request $request, Context $context): Response
     {
         $criteria = new Criteria();
         $criteria = $this->criteriaBuilder->handleRequest(
@@ -62,7 +64,7 @@ class SnippetController extends AbstractController
 
         $translationKey = $request->request->get('translationKey');
 
-        $response = $this->snippetService->getList($criteria);
+        $response = $this->snippetService->getList($criteria, $context);
         $response = $translationKey !== null ? $response['data'][$translationKey] : false;
 
         return new JsonResponse($response);

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 
@@ -44,8 +45,8 @@ class SnippetDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
             (new FkField('snippet_set_id', 'setId', SnippetSetDefinition::class))->setFlags(new Required()),
-            (new StringField('translation_key', 'translationKey'))->setFlags(new Required()),
-            (new LongTextField('value', 'value'))->setFlags(new Required()),
+            (new StringField('translation_key', 'translationKey'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new LongTextField('value', 'value'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),

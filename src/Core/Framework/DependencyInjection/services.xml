@@ -242,11 +242,12 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
+            <argument type="service" id="snippet.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Api\SnippetController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
         </service>
 
         <!--LanguageFiles-->

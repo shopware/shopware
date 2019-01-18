@@ -14,11 +14,11 @@ class SnippetSetApiService extends ApiService {
     /**
      * @returns {Promise<T>}
      */
-    getCustomList(page = 1, limit = 25) {
+    getCustomList(page = 1, limit = 25, term = null) {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}`, { page, limit }, { headers })
+            .post(`/_action/${this.getApiBasePath()}`, { page, limit, term }, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

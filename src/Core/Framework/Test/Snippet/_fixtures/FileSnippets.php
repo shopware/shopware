@@ -1,0 +1,192 @@
+<?php declare(strict_types=1);
+
+return [
+    // SET 1
+    'set1' => [
+        'only.possible.with.unitTests.test1' => 'this is test 1.',
+        'only.possible.with.unitTests.test2' => 'this is test 2.',
+        'only.possible.with.unitTests.test3' => 'this is test 3.',
+        'only.possible.with.unitTests.test4' => 'this is test 4.',
+        'only.possible.with.unitTests.test5' => 'this is test 5.',
+        'only.possible.with.unitTests.test6' => 'this is test 6.',
+        'only.possible.with.unitTests.test7' => 'this is test 7.',
+        'only.possible.with.unitTests.test8' => 'this is test 8.',
+    ],
+    'dbSet1' => [
+        [
+            'id' => '1',
+            'value' => 'This is a unit test 1.',
+            'resetTo' => 'this is test 1.',
+            'origin' => 'this is test 1.',
+            'translationKey' => 'only.possible.with.unitTests.test1',
+            'setId' => \Shopware\Core\Defaults::SNIPPET_BASE_SET_EN,
+        ],
+    ],
+    'result1' => [
+        'only.possible.with.unitTests.test1' => [
+                'id' => '1',
+                'value' => 'This is a unit test 1.',
+                'resetTo' => 'This is a unit test 1.',
+                'origin' => 'this is test 1.',
+                'translationKey' => 'only.possible.with.unitTests.test1',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'only.possible.with.unitTests.test2' => [
+                'id' => null,
+                'value' => 'this is test 2.',
+                'resetTo' => 'this is test 2.',
+                'origin' => 'this is test 2.',
+                'translationKey' => 'only.possible.with.unitTests.test2',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'only.possible.with.unitTests.test3' => [
+                'id' => null,
+                'value' => 'this is test 3.',
+                'resetTo' => 'this is test 3.',
+                'origin' => 'this is test 3.',
+                'translationKey' => 'only.possible.with.unitTests.test3',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'only.possible.with.unitTests.test4' => [
+                'id' => null,
+                'value' => 'this is test 4.',
+                'resetTo' => 'this is test 4.',
+                'origin' => 'this is test 4.',
+                'translationKey' => 'only.possible.with.unitTests.test4',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'only.possible.with.unitTests.test5' => [
+                'id' => null,
+                'value' => 'this is test 5.',
+                'resetTo' => 'this is test 5.',
+                'origin' => 'this is test 5.',
+                'translationKey' => 'only.possible.with.unitTests.test5',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'only.possible.with.unitTests.test6' => [
+                'id' => null,
+                'value' => 'this is test 6.',
+                'resetTo' => 'this is test 6.',
+                'origin' => 'this is test 6.',
+                'translationKey' => 'only.possible.with.unitTests.test6',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'only.possible.with.unitTests.test7' => [
+                'id' => null,
+                'value' => 'this is test 7.',
+                'resetTo' => 'this is test 7.',
+                'origin' => 'this is test 7.',
+                'translationKey' => 'only.possible.with.unitTests.test7',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'only.possible.with.unitTests.test8' => [
+                'id' => null,
+                'value' => 'this is test 8.',
+                'resetTo' => 'this is test 8.',
+                'origin' => 'this is test 8.',
+                'translationKey' => 'only.possible.with.unitTests.test8',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+    ],
+
+    // SET 2
+    'set2' => [
+        'only.possible.with.unitTests.test1' => 'this is test 1.',
+    ],
+    'dbSet2' => [
+        [
+            'id' => '2',
+            'value' => 'This is a unit test 1.',
+            'resetTo' => 'this is test 1.',
+            'origin' => 'this is test 1.',
+            'translationKey' => 'only.possible.with.unitTests.test2',
+            'setId' => \Shopware\Core\Defaults::SNIPPET_BASE_SET_EN,
+        ],
+    ],
+    'result2' => [
+        'only.possible.with.unitTests.test1' => [
+                'id' => null,
+                'value' => 'this is test 1.',
+                'resetTo' => 'this is test 1.',
+                'origin' => 'this is test 1.',
+                'translationKey' => 'only.possible.with.unitTests.test1',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+    ],
+
+    // SET 3
+    'set3' => [
+        'detail.descriptionHeader' => 'Just another test string',
+        'detail.configSubmit' => 'A new test string',
+        'footer.copyright' => 'Only possible with unit tests',
+        'detail.buyAddButton' => 'This is a test string',
+    ],
+    'dbSet3' => [
+        [
+            'id' => '3',
+            'value' => 'THIS TEXT IS EXPECTED 1',
+            'resetTo' => '',
+            'origin' => '',
+            'translationKey' => 'detail.descriptionHeader',
+            'setId' => \Shopware\Core\Defaults::SNIPPET_BASE_SET_EN,
+        ],
+        [
+            'id' => '4',
+            'value' => 'THIS TEXT IS EXPECTED 2',
+            'resetTo' => '',
+            'origin' => '',
+            'translationKey' => 'detail.configSubmit',
+            'setId' => \Shopware\Core\Defaults::SNIPPET_BASE_SET_EN,
+        ],
+        [
+            'id' => '5',
+            'value' => 'THIS TEXT IS EXPECTED 3',
+            'resetTo' => '',
+            'origin' => '',
+            'translationKey' => 'footer.copyright',
+            'setId' => \Shopware\Core\Defaults::SNIPPET_BASE_SET_EN,
+        ],
+        [
+            'id' => '6',
+            'value' => 'THIS TEXT IS EXPECTED 4',
+            'resetTo' => '',
+            'origin' => '',
+            'translationKey' => 'detail.buyAddButton',
+            'setId' => \Shopware\Core\Defaults::SNIPPET_BASE_SET_EN,
+        ],
+    ],
+    'result3' => [
+        'detail.descriptionHeader' => [
+                'id' => '3',
+                'value' => 'THIS TEXT IS EXPECTED 1',
+                'resetTo' => 'THIS TEXT IS EXPECTED 1',
+                'origin' => 'Just another test string',
+                'translationKey' => 'detail.descriptionHeader',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'detail.configSubmit' => [
+                'id' => '4',
+                'value' => 'THIS TEXT IS EXPECTED 2',
+                'resetTo' => 'THIS TEXT IS EXPECTED 2',
+                'origin' => 'A new test string',
+                'translationKey' => 'detail.configSubmit',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'footer.copyright' => [
+                'id' => '5',
+                'value' => 'THIS TEXT IS EXPECTED 3',
+                'resetTo' => 'THIS TEXT IS EXPECTED 3',
+                'origin' => 'Only possible with unit tests',
+                'translationKey' => 'footer.copyright',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+        'detail.buyAddButton' => [
+                'id' => '6',
+                'value' => 'THIS TEXT IS EXPECTED 4',
+                'resetTo' => 'THIS TEXT IS EXPECTED 4',
+                'origin' => 'This is a test string',
+                'translationKey' => 'detail.buyAddButton',
+                'setId' => '71a916e745114d72abafbfdc51cbd9d0',
+            ],
+    ],
+];

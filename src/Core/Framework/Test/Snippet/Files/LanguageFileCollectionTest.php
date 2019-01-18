@@ -42,15 +42,23 @@ class LanguageFileCollectionTest extends TestCase
 
         $result_en_GB = $collection->getLanguageFilesByIso('en_GB');
         $result_de_DE = $collection->getLanguageFilesByIso('de_DE');
+        $result_empty = $collection->getLanguageFilesByIso('na_NA');
+        $result_empty_two = $collection->getLanguageFilesByIso('');
 
         $this->assertNotNull($result_en_GB);
         $this->assertNotNull($result_de_DE);
+        $this->assertNotNull($result_empty);
+        $this->assertNotNull($result_empty_two);
 
         $this->assertCount(1, $result_en_GB);
         $this->assertCount(2, $result_de_DE);
+        $this->assertCount(0, $result_empty);
+        $this->assertCount(0, $result_empty_two);
 
         $this->assertSame('en_GB', $result_en_GB[0]->getIso());
         $this->assertSame('de_DE', $result_de_DE[0]->getIso());
+        $this->assertSame([], $result_empty);
+        $this->assertSame([], $result_empty_two);
     }
 
     public function testGetBaseFileByIso_expectException(): void

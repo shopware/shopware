@@ -4,10 +4,16 @@ namespace Shopware\Core\Framework\Snippet\Services;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
 use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Framework\Snippet\SnippetEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -28,23 +34,29 @@ class SnippetService implements SnippetServiceInterface
      */
     private $snippetFlattener;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $snippetRepository;
+
     public function __construct(
         Connection $connection,
         SnippetFlattenerInterface $snippetFlattener,
-        LanguageFileCollection $languageFileCollection
+        LanguageFileCollection $languageFileCollection,
+        RepositoryInterface $snippetRepository
     ) {
         $this->connection = $connection;
         $this->languageFileCollection = $languageFileCollection;
         $this->snippetFlattener = $snippetFlattener;
+        $this->snippetRepository = $snippetRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getList(Criteria $criteria): array
+    public function getList(Criteria $criteria, Context $context): array
     {
         $metaData = $this->getSetMetaData();
-
         if (\count($metaData) <= 0) {
             return [
                 'total' => 0,
@@ -52,34 +64,34 @@ class SnippetService implements SnippetServiceInterface
             ];
         }
 
+        $term = $this->getTerm($criteria);
         $limit = $criteria->getLimit();
         $page = $criteria->getOffset() / $limit;
-
-        $isoList = array_column($metaData, 'iso');
+        $isoList = [];
+        foreach ($metaData as $set) {
+            $isoList[$set['id']] = $set['iso'];
+        }
 
         $languageFiles = $this->getLanguageFilesByIso($isoList);
 
-        $fileSnippets = [];
-        $total = 0;
-        foreach ($languageFiles as $iso => $isoLanguageFiles) {
-            $fileSnippets[$iso]['snippets'] = $this->getSnippetsFromFiles($isoLanguageFiles);
-            $total = max($total, \count($fileSnippets[$iso]['snippets']));
-        }
-
+        $fileSnippets = $this->getSnippets($languageFiles, $isoList, $criteria, $context);
         $fileSnippets = $this->fillBlankSnippets($isoList, $fileSnippets);
 
+        $total = 0;
         $sets = [];
         $translationKeyList = [];
         foreach (array_keys($metaData) as $snippetSetId) {
             $iso = $metaData[$snippetSetId]['iso'];
             $set = $metaData[$snippetSetId];
 
+            $total = max($total, \count($fileSnippets[$iso]['snippets']));
             $currentfileSnippets = $fileSnippets[$iso]['snippets'];
             $currentfileSnippets = array_chunk($currentfileSnippets, $limit, true);
 
-            $set['snippets'] = $currentfileSnippets[$page];
+            $currentPage = $currentfileSnippets[$page] ?? [];
+            $set['snippets'] = $currentPage;
 
-            $translationKeyList = array_keys($currentfileSnippets[$page]);
+            $translationKeyList = array_keys($currentPage);
             $sets[] = $set;
         }
 
@@ -298,5 +310,87 @@ class SnippetService implements SnippetServiceInterface
         }
 
         return $fileSnippets;
+    }
+
+    private function getSnippets(array $languageFiles, array $isoList, Criteria $criteria, Context $context): array
+    {
+        $term = $this->getTerm($criteria);
+        $fileSnippets = [];
+        foreach ($languageFiles as $iso => $isoLanguageFiles) {
+            $fileSnippets[$iso]['snippets'] = $this->getSnippetsFromFiles($isoLanguageFiles);
+        }
+
+        if (!$term) {
+            return $fileSnippets;
+        }
+
+        $result = [];
+        $searchWord = '*' . $term . '*';
+        foreach ($fileSnippets as $iso => $snippets) {
+            $result[$iso]['snippets'] = array_filter($snippets['snippets'], function ($arrayValue, $arrayIndex) use ($searchWord) {
+                if (fnmatch($searchWord, $arrayValue, FNM_CASEFOLD) || fnmatch($searchWord, $arrayIndex, FNM_CASEFOLD)) {
+                    return true;
+                }
+
+                return false;
+            }, ARRAY_FILTER_USE_BOTH);
+        }
+
+        $dbSnippets = $this->findSnippetsInDatabase($criteria, $context, $term, $isoList);
+        $result = array_merge_recursive($result, $dbSnippets);
+
+        foreach ($result as $currentIso => $tmpSnippets) {
+            foreach ($isoList as $iso) {
+                if ($currentIso === $iso) {
+                    continue;
+                }
+
+                foreach ($tmpSnippets['snippets'] as $key => $value) {
+                    if (!isset($result[$iso]['snippets'][$key])) {
+                        $result[$iso]['snippets'][$key] = $fileSnippets[$iso]['snippets'][$key] ?? '';
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    private function findSnippetsInDatabase(Criteria $criteria, Context $context, string $term, array $isoList): array
+    {
+        $criteria->resetQueries();
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.value', $term), 1));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.translationKey', $term), 1));
+
+        $queryResult = $this->snippetRepository->search($criteria, $context);
+
+        $result = [];
+        /** @var SnippetEntity $snippet */
+        foreach ($queryResult->getEntities()->getElements() as $snippet) {
+            if (!isset($isoList[$snippet->getSetId()])) {
+                continue;
+            }
+
+            $result[$isoList[$snippet->getSetId()]]['snippets'][$snippet->getTranslationKey()] = $snippet->getValue();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return float|int|string|null
+     */
+    private function getTerm(Criteria $criteria)
+    {
+        $term = '';
+        if (isset($criteria->getQueries()[0])) {
+            $query = $criteria->getQueries()[0]->getQuery();
+
+            if ($query instanceof EqualsFilter || $query instanceof ContainsFilter) {
+                $term = $query->getValue();
+            }
+        }
+
+        return $term;
     }
 }

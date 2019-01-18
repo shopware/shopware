@@ -77,7 +77,8 @@
                                entityName="currency"
                                :defaultItemId="salesChannel.currencyId"
                                v-model="salesChannel.currencies"
-                               @default_changed="changeDefaultCurrency">
+                               @default_changed="changeDefaultCurrency"
+                               v-if="!next1387 || !isStoreFront">
                     </sw-select>
                 {% endblock %}
 
@@ -92,7 +93,8 @@
                                entityName="language"
                                :defaultItemId="salesChannel.languageId"
                                v-model="salesChannel.languages"
-                               @default_changed="changeDefaultLanguage">
+                               @default_changed="changeDefaultLanguage"
+                               v-if="!next1387 || !isStoreFront">
                     </sw-select>
                 {% endblock %}
 
@@ -109,6 +111,37 @@
                 {% endblock %}
             </sw-card>
         {% endblock %}
+
+
+
+
+        <sw-card title="Domains" v-if="next1387 && isStoreFront">
+            <div class="sw-sales-channel-detail-base__domain-container" v-for="domain, index in salesChannel.domains">
+                <sw-field type="text" label="Url" v-model="domain.url"></sw-field>
+                <sw-select
+                        :store="languageStore"
+                        v-model="domain.languageId"
+                        id="domainLanguage"
+                        label="Sprache">
+                </sw-select>
+                <sw-select
+                        :store="currencyStore"
+                        v-model="domain.currencyId"
+                        id="domainCurrency"
+                        label="Währung">
+                </sw-select>
+                <sw-select v-if="next717"
+                        :store="snippetSetStore"
+                        v-model="domain.snippetSetId"
+                        id="domainSnippet"
+                        label="Snippets">
+                </sw-select>
+                <sw-button variant="danger" @click="onClickDeleteDomain(domain)">Delete Domain</sw-button>
+            </div>
+            <sw-button variant="primary" @click="onClickAddDomain">Add Domain</sw-button>
+
+        </sw-card>
+
 
         {% block sw_sales_channel_detail_base_options %}
             <sw-card :title="$tc('sw-sales-channel.detail.titleOptionsCard')">

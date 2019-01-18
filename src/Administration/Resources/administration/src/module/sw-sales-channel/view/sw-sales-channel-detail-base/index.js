@@ -23,7 +23,8 @@ Component.register('sw-sales-channel-detail-base', {
 
     data() {
         return {
-            showDeleteModal: false
+            showDeleteModal: false,
+            defaultSnippetSetId: '71a916e745114d72abafbfdc51cbd9d0'
         };
     },
 
@@ -78,7 +79,20 @@ Component.register('sw-sales-channel-detail-base', {
 
         shippingMethodAssociationStore() {
             return this.salesChannel.getAssociation('shippingMethods');
+        },
+        domainAssociationStore() {
+            return this.salesChannel.getAssociation('domains');
+        },
+        snippetSetStore() {
+            return State.getStore('snippet_set');
+        },
+        isStoreFront() {
+            return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
         }
+    },
+
+    created() {
+        this.domainAssociationStore.getList({});
     },
 
     methods: {
@@ -125,6 +139,25 @@ Component.register('sw-sales-channel-detail-base', {
                 });
 
                 this.$router.push({ name: 'sw.dashboard.index' });
+            });
+        },
+        onClickAddDomain() {
+            const newDomain = this.domainAssociationStore.create();
+            if (!this.next717) {
+                newDomain.snippetSetId = this.defaultSnippetSetId;
+            }
+            this.salesChannel.domains.push(newDomain);
+        },
+        onClickDeleteDomain(domain) {
+            domain.delete().then(() => {
+                this.salesChannel.domains = this.salesChannel.domains.filter((x) => {
+                    return x.id !== domain.id;
+                });
+            });
+        },
+        onSave() {
+            this.$super.onSave().then(() => {
+                console.debug('saved');
             });
         }
     }

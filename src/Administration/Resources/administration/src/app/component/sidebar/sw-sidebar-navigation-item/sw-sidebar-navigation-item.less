@@ -15,8 +15,8 @@
     cursor: pointer;
     outline: none;
 
-    &:hover {
-        background: @sw-sidebar-navigation-item-hover-color-background;
+    &:hover:not(.is--disabled) {
+        color: @sw-sidebar-navigation-item-icon-color-active;
     }
 
     &.is--active {

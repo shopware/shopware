@@ -23,7 +23,7 @@ import 'src/module/sw-settings-rule/component/sw-condition-shipping-country';
 import 'src/module/sw-settings-rule/component/sw-condition-shipping-street';
 import 'src/module/sw-settings-rule/component/sw-condition-shipping-zip-code';
 
-Application.addServiceProviderDecorator('ruleConditionService', (ruleConditionService) => {
+Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
         component: 'sw-condition-date-range',
         label: 'global.sw-condition.condition.dateRangeRule.label'

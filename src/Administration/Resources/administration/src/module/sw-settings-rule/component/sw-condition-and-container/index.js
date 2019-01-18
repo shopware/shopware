@@ -17,7 +17,7 @@ const AND_CONTAINER_NAME = 'andContainer';
 Component.register('sw-condition-and-container', {
     template,
 
-    inject: ['ruleConditionService'],
+    inject: ['ruleConditionDataProviderService'],
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -127,7 +127,7 @@ Component.register('sw-condition-and-container', {
             this.createComponent();
         },
         getComponent(type) {
-            const condition = this.ruleConditionService.getByType(type);
+            const condition = this.ruleConditionDataProviderService.getByType(type);
             if (!condition) {
                 return 'sw-condition-not-found';
             }

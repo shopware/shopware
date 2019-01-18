@@ -14,14 +14,14 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionService.operatorSets.multiStore;
+            return this.ruleConditionDataProviderService.operatorSets.multiStore;
         },
         fieldNames() {
             return ['operator', 'salesChannelIds'];
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionService.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

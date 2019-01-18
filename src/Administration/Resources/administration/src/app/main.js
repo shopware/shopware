@@ -45,7 +45,7 @@ Application
         const init = Application.getContainer('service');
         return MediaUploadService(init.mediaService);
     })
-    .addServiceProvider('ruleConditionService', () => {
+    .addServiceProvider('ruleConditionDataProviderService', () => {
         return RuleConditionService();
     });
 

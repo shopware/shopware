@@ -14,14 +14,14 @@ Component.extend('sw-condition-billing-street', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionService.operatorSets.string;
+            return this.ruleConditionDataProviderService.operatorSets.string;
         },
         fieldNames() {
             return ['operator', 'streetName'];
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionService.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

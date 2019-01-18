@@ -26,8 +26,8 @@
                                                      class="smart-bar__back-btn"
                                                      :to="{ name: parentRoute }"
                                                      :style="{ 'color': pageColor }">
-                                            <sw-icon name="small-arrow-large-left" size="16"></sw-icon>
-                                            <sw-icon :name="module.icon" v-if="module && module.icon"></sw-icon>
+                                            <sw-icon name="default-arrow-head-left" small></sw-icon>
+                                            <sw-icon :name="module.icon" v-if="module && module.icon" small></sw-icon>
                                         </router-link>
                                     {% endblock %}
                                 </slot>

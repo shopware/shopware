@@ -52,6 +52,7 @@
                     <sw-media-upload
                         variant="compact"
                         @sw-media-upload-new-uploads-added="onUploadsAdded"
+                        @sw-media-upload-media-upload-failure="onUploadFailed"
                         @sw-media-upload-media-upload-success="onUploadFinished">
                     </sw-media-upload>
                 {% endblock %}

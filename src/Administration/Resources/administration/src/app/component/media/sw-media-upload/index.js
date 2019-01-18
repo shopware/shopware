@@ -365,28 +365,28 @@ export default {
             return folder;
         },
 
-        buildFileUpload(file, mediaEntity) {
+        buildFileUpload(file, mediaEntity, fileName = '') {
             const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
             const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
-                return this.mediaUploadService.uploadFileToMedia(file, mediaEntity).then(() => {
+                return this.mediaUploadService.uploadFileToMedia(file, mediaEntity, fileName).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
                 }).catch((error) => {
-                    this.handleError(error, mediaEntity, failureMessage);
+                    this.handleError(error, mediaEntity, failureMessage, file);
                 });
             };
         },
 
-        buildUrlUpload(url, fileExtension, mediaEntity) {
+        buildUrlUpload(url, fileExtension, mediaEntity, fileName = '') {
             const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
             const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
-                return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension).then(() => {
+                return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension, fileName).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
-                }).catch(() => {
-                    return this.handleError(mediaEntity, failureMessage);
+                }).catch((error) => {
+                    return this.handleError(error, mediaEntity, failureMessage, url);
                 });
             };
         },
@@ -416,15 +416,92 @@ export default {
             });
         },
 
-        handleError(error, mediaEntity, message) {
+        handleError(error, mediaEntity, message, src) {
             if (error.response.data.errors.some((err) => {
                 return err.code === 'DUPLICATED_MEDIA_FILE_NAME_EXCEPTION';
             })) {
                 mediaEntity.isLoading = false;
-                this.errorFiles.push(mediaEntity);
+                this.errorFiles.push({
+                    id: mediaEntity.id,
+                    entity: mediaEntity,
+                    src: src
+                });
                 this.showDuplicatedMediaModal = true;
             } else {
                 this.createNotificationError({ message });
+            }
+            this.$emit('sw-media-upload-media-upload-failure', mediaEntity);
+            this.previewMediaEntity = null;
+            mediaEntity.delete(true);
+        },
+
+        retryUpload({ action, id, entityToReplace, newName }) {
+            if (action !== 'Skip') {
+                if (action === 'Replace') {
+                    this.handleReplace(id, entityToReplace);
+                } else if (action === 'Rename') {
+                    this.handleRename(id, newName);
+                }
+            }
+
+            this.errorFiles = this.errorFiles.filter((error) => {
+                return error.id !== id;
+            });
+
+            this.closeDuplicateMediaModal();
+        },
+
+        handleReplace(id, entityToReplace) {
+            const errorFile = this.errorFiles.find((error) => {
+                return error.id === id;
+            });
+
+            if (errorFile.src instanceof URL) {
+                this.buildUrlUpload(errorFile.src, errorFile.entity.fileExtension, entityToReplace)();
+            } else {
+                this.buildFileUpload(errorFile.src, entityToReplace)();
+            }
+        },
+
+        handleRename(id, newName) {
+            const errorFile = this.errorFiles.find((error) => {
+                return error.id === id;
+            });
+
+            this.getMediaEntityForUpload().then((entity) => {
+                entity.save().then(() => {
+                    if (errorFile.src instanceof URL) {
+                        this.buildUrlUpload(errorFile.src, errorFile.entity.fileExtension, entity, newName)();
+                    } else {
+                        this.buildFileUpload(errorFile.src, entity, newName)();
+                    }
+
+                    this.$emit('sw-media-upload-new-uploads-added', {
+                        uploadTag: this.uploadTag,
+                        data: [{
+                            entity: entity,
+                            src: errorFile.src
+                        }]
+                    });
+                });
+            });
+        },
+
+        cancelDuplicateMedia({ id }) {
+            this.errorFiles = this.errorFiles.filter((error) => {
+                return error.id !== id;
+            });
+
+            this.closeDuplicateMediaModal();
+        },
+
+        closeDuplicateMediaModal() {
+            this.showDuplicatedMediaModal = false;
+
+            if (this.errorFiles.length > 0) {
+                setTimeout(() => {
+                    this.showDuplicatedMediaModal = true;
+                }, 300);
             }
         }
     }

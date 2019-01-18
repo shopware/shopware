@@ -134,7 +134,9 @@
         {% block sw_media_duplicated_media_modal %}
             <sw-media-modal-duplicate-media
                 v-if="showDuplicatedMediaModal"
-                :item="errorFiles[0]">
+                :item="errorFiles[0].entity"
+                @sw-media-modal-duplicate-media-close="cancelDuplicateMedia"
+                @sw-media-modal-duplicate-media-resolve="retryUpload">
             </sw-media-modal-duplicate-media>
         {% endblock %}
     </div>

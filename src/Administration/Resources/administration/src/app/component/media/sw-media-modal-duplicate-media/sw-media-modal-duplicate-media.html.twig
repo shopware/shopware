@@ -6,7 +6,7 @@
         {% block sw_media_modal_duplicate_media_body %}
             {% block sw_media_modal_duplicate_media_body_description %}
                 <p class="sw-media-modal-duplicate-media__description">
-                    {{ $tc('global.sw-media-modal-duplicate-media.description') }}
+                    {{ $tc('global.sw-media-modal-duplicate-media.description', 1, { fileName: `${duplicateName}.${item.fileExtension}` }) }}
                 </p>
             {% endblock %}
 
@@ -97,7 +97,7 @@
 
                         {% block sw_media_modal_duplicate_media_upload_button %}
                             <sw-button class="sw-media-modal-duplicate-media__upload"
-                                       {#@click="solveDuplicate"#}
+                                       @click="solveDuplicate"
                                        size="small"
                                        variant="primary">
                                 {{ buttonLabel }}

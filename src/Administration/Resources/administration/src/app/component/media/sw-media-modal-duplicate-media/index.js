@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-modal-duplicate-media.html.twig';
 import './sw-media-modal-duplicate-media.less';
@@ -16,10 +16,6 @@ Component.register('sw-media-modal-duplicate-media', {
 
     inject: ['mediaService'],
 
-    mixins: [
-        Mixin.getByName('notification')
-    ],
-
     props: {
         item: {
             required: true,
@@ -35,6 +31,8 @@ Component.register('sw-media-modal-duplicate-media', {
             saveSelection: true,
             selectedOption: 'Replace',
             existingMedia: null,
+            duplicateName: this.item.fileName,
+            newName: '',
             options: [
                 {
                     value: 'Replace',
@@ -62,6 +60,18 @@ Component.register('sw-media-modal-duplicate-media', {
         }
     },
 
+    watch: {
+        selectedOption() {
+            if (this.selectedOption === 'Rename') {
+                this.item.fileName = this.newName;
+
+                return;
+            }
+
+            this.item.fileName = this.duplicateName;
+        }
+    },
+
     created() {
         this.componentCreated();
     },
@@ -77,10 +87,24 @@ Component.register('sw-media-modal-duplicate-media', {
             }).then((response) => {
                 this.existingMedia = response.items[0];
             });
+
+            this.mediaService.provideName(this.item.fileName, this.item.fileExtension)
+                .then((response) => {
+                    this.newName = response.fileName;
+                });
         },
 
-        closeModal(originalDomEvent) {
-            this.$emit('sw-media-modal-duplicate-media-close', { originalDomEvent });
+        closeModal() {
+            this.$emit('sw-media-modal-duplicate-media-close', { id: this.item.id });
+        },
+
+        solveDuplicate() {
+            this.$emit('sw-media-modal-duplicate-media-resolve', {
+                action: this.selectedOption,
+                id: this.item.id,
+                entityToReplace: this.existingMedia,
+                newName: this.newName
+            });
         }
     }
 });

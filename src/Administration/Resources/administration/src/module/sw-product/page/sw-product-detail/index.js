@@ -95,10 +95,6 @@ Component.register('sw-product-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
-        onRemoveImageToUpload(item) {
-            this.mediaItems = this.mediaItems.filter((e) => { return e.mediaEntity.id !== item.id; });
-        },
-
         onSave() {
             const productName = this.product.name;
             const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');

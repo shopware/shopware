@@ -1,6 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { fileReader } from 'src/core/service/util.service';
-import find from 'lodash/find';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.less';
 
@@ -194,11 +193,20 @@ Component.register('sw-product-media-form', {
         },
 
         successfulUpload(mediaEntity) {
-            const productMedia = find(this.mediaItems, (e) => e.mediaId === mediaEntity.id);
-            this.productMediaStore.getByIdAsync(productMedia.id).then(() => {
-                // just refresh
-                this.unsavedEntities = [];
+            // // after first upload we run into this but at this point the new created productMedia entity was not saved
+            const productMedia = this.mediaItems.find((e) => {
+                return e.mediaId === mediaEntity.id;
             });
+            if (productMedia.isLocal) {
+                delete productMedia.media.user;
+                this.product.save();
+            }
+
+            this.unsavedEntities = [];
+        },
+
+        onUploadFailed(mediaEntity) {
+            this.removeFile(mediaEntity.id);
         },
 
         getImageDimensions(img, size) {
@@ -216,7 +224,9 @@ Component.register('sw-product-media-form', {
         },
 
         removeFile(key) {
-            const item = find(this.mediaItems, (e) => e.mediaId === key);
+            const item = this.product.media.find((e) => {
+                return e.mediaId === key;
+            });
 
             this.product.media = this.product.media.filter((e) => e.mediaId !== key);
             if (this.isCover(item)) {

@@ -88,7 +88,7 @@
     },
     "sw-media-modal-duplicate-media": {
       "titleModal": "File already exists",
-      "description": "A file with that name already exists.",
+      "description": "A file with the name \"{fileName}\" already exists.",
       "buttonReplace": "Replace file",
       "buttonRename": "Rename file",
       "buttonSkip": "Skip file",
@@ -97,8 +97,8 @@
       "labelOptionReplace": "Upload and replace",
       "labelOptionRename": "Upload and rename",
       "labelOptionSkip": "Skip file",
-      "labelOldFile": "Uploaded file",
-      "labelNewFile": "Existing file"
+      "labelOldFile": "Existing file",
+      "labelNewFile": "Uploaded file"
     },
     "sw-media-modal-move": {
       "titleModal": "Move \"{mediaName}\" | Move {count} items",

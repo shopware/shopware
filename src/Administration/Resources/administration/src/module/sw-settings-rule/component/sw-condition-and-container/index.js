@@ -4,6 +4,7 @@ import './sw-condition-and-container.less';
 
 const PLACEHOLDER_NAME = 'placeholder';
 const OR_CONTAINER_NAME = 'orContainer';
+const AND_CONTAINER_NAME = 'andContainer';
 
 /**
  * @public
@@ -48,6 +49,13 @@ Component.register('sw-condition-and-container', {
         }
     },
 
+    data() {
+        return {
+            disabledDeleteButton: false,
+            detailPage: undefined
+        };
+    },
+
     computed: {
         containerRowClass() {
             return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
@@ -75,6 +83,12 @@ Component.register('sw-condition-and-container', {
 
     methods: {
         createComponent() {
+            this.locateDetailPage();
+            if (this.detailPage) {
+                this.detailPage.$on('check-delete-all', () => {
+                    this.disabledDeleteButton = this.onCheckDeleteAll();
+                });
+            }
             this.condition.value = {};
 
             if (typeof this.condition.children === 'undefined') {
@@ -86,6 +100,29 @@ Component.register('sw-condition-and-container', {
                 this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
             }
         },
+        onCheckDeleteAll() {
+            if (this.level > 1) {
+                return false;
+            }
+
+            if (this.level === 1
+                && this.condition.parent.children.length === 1
+                && this.condition.type === AND_CONTAINER_NAME
+                && this.condition.children.length === 1
+                && this.condition.children[0].type === PLACEHOLDER_NAME) {
+                return true;
+            }
+
+            if (this.level === 0
+                && this.condition.children.length === 1
+                && this.condition.children[0].type === AND_CONTAINER_NAME
+                && this.condition.children[0].children.length === 1
+                && this.condition.children[0].children[0].type === PLACEHOLDER_NAME) {
+                return true;
+            }
+
+            return false;
+        },
         onFinishLoading() {
             this.createComponent();
         },
@@ -95,13 +132,18 @@ Component.register('sw-condition-and-container', {
                 return 'sw-condition-not-found';
             }
 
+            this.$nextTick(() => {
+                this.emitConditionContainerChangeEvent();
+            });
             return condition.component;
         },
         onAddAndClick() {
             this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
+            this.emitConditionContainerChangeEvent();
         },
         onAddChildClick() {
             this.createCondition(OR_CONTAINER_NAME, this.nextPosition);
+            this.emitConditionContainerChangeEvent();
         },
         createCondition(type, position) {
             const condition = Object.assign(
@@ -109,6 +151,7 @@ Component.register('sw-condition-and-container', {
                 {
                     type: type,
                     parentId: this.condition.id,
+                    parent: this.condition,
                     position: position
                 }
             );
@@ -151,6 +194,8 @@ Component.register('sw-condition-and-container', {
             this.condition.children = [];
 
             this.$emit('delete-condition', this.condition);
+
+            this.emitConditionContainerChangeEvent();
         },
         deleteChildren(children) {
             children.forEach((child) => {
@@ -173,6 +218,8 @@ Component.register('sw-condition-and-container', {
             condition.delete();
             this.condition.children.splice(this.condition.children.indexOf(condition), 1);
 
+            this.emitConditionContainerChangeEvent();
+
             if (this.condition.children.length <= 0) {
                 this.$nextTick(() => {
                     if (this.level === 0) {
@@ -182,6 +229,31 @@ Component.register('sw-condition-and-container', {
                     }
                 });
             }
+        },
+        locateDetailPage() {
+            let parent = this.$parent;
+
+            while (parent) {
+                if (['sw-settings-rule-create', 'sw-settings-rule-detail'].includes(parent.$options.name)) {
+                    this.detailPage = parent;
+                    return;
+                }
+
+                parent = parent.$parent;
+            }
+        },
+        emitConditionContainerChangeEvent() {
+            if (!this.detailPage) {
+                return;
+            }
+
+            this.detailPage.$emit(
+                'check-delete-all',
+                {
+                    condition: this.condition,
+                    level: this.level
+                }
+            );
         }
     }
 });

@@ -2,13 +2,15 @@ import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.less';
 
+const PLACEHOLDER_NAME = 'placeholder';
+
 /**
  * @public
  * @description TODO: Add description
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-base :condition="condition"></sw-condition-and-container>
+ * <sw-condition-base :condition="condition"></sw-condition-base>
  */
 Component.register('sw-condition-base', {
     template,
@@ -46,6 +48,9 @@ Component.register('sw-condition-base', {
         },
         errorStore() {
             return State.getStore('error');
+        },
+        disableContextDeleteButton() {
+            return this.condition.type === PLACEHOLDER_NAME && this.condition.parent.children.length === 1;
         }
     },
 

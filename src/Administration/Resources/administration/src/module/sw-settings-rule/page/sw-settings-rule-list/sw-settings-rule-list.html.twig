@@ -159,7 +159,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_rule_list_columns_actions_edit %}
-                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item class="sw-rule-list__rule-edit-action" :routerLink="{ name: 'sw.settings.rule.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-settings-rule.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

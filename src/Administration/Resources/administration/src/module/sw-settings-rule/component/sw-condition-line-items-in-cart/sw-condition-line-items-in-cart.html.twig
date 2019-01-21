@@ -13,6 +13,7 @@
     {% endblock %}
     {% block sw_condition_fields_value %}
         <sw-condition-value multi
+                            name="identifiers"
                             :id="condition.id"
                             :store="getProductStore()"
                             class="field field--main field--multi"

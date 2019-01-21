@@ -31,22 +31,13 @@ Component.register('sw-category-tree', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            // @todo: add fields for adding subcategories
-            console.log(this.activeCategoryId);
-        },
-
         getActiveCategory() {
             this.activeCategoryId = this.$route.params.id;
         },
 
-        onAddSubcategory(parent) {
-            console.log(`Add subcategory for: ${parent.id}`);
+        onAddSubcategory() {
+            // @todo
         },
 
         onUpdatePositions() {

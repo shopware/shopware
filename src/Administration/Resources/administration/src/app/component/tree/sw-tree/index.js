@@ -87,10 +87,6 @@ export default {
         }
     },
 
-    created() {
-        console.log(this.treeItems);
-    },
-
     methods: {
         getItems(parentId = this.rootParentId, searchTerm = null) {
             this.$emit('getTreeItems', parentId, searchTerm);

@@ -23,15 +23,7 @@ Component.register('sw-category-view', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            // console.log(this.category);
-        },
-
         onUploadAdded({ uploadTag }) {
             this.$emit('sw-category-view-on-upload-media', uploadTag);
         },

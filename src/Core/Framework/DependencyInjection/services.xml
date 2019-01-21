@@ -246,8 +246,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Api\SnippetController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="user.repository"/>
         </service>
 
         <!--LanguageFiles-->

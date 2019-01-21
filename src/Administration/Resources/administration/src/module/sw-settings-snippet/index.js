@@ -11,7 +11,7 @@ Module.register('sw-settings-snippet', {
     flag: NEXT717,
     type: 'core',
     name: 'Snippets',
-    description: 'The shopware snippet module',
+    description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#2471C8',

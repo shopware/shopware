@@ -903,6 +903,7 @@
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Snippets",
+      "description": "The shopware snippet module",
       "searchBarTitleSets": "Snippet sets",
       "placeholderSearchBarSets": "Find snippet sets (name, base file)",
       "searchBarTitleSnippets": "Snippets",
@@ -919,6 +920,8 @@
       "labelNamePlaceholder": "Add name",
       "labelNamespace": "Section",
       "labelNamespacePlaceholder": "Select section",
+      "placeholderValue": "Define content",
+      "messageKeyExists": "Please choose a name | Snippets already exist for \"{key}\". Please choose a new name.",
       "messageSaveError": "Snippets for \"{key}\" could not be saved.",
       "messageSaveSuccess": "Snippets for \"{key}\" has been saved successfully.",
       "textHeadline": "New snippet",
@@ -927,21 +930,26 @@
     },
     "list": {
       "buttonAdd": "New Snippet",
+      "buttonEmpty": "Back to standard snippets",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "columnKey": "Name",
       "columnValue": "Value",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Reset",
+      "messageEmpty": "No custom snippets yet",
       "messageDeleteSuccess": "Snippet \"{key}\" has been reset successfully.",
       "messageSaveError": "Snippet \"{key}\" could not be saved. | Snippets for \"{key}\" could not be saved.",
       "messageSaveSuccess":  "Snippet \"{key}\" has been saved successfully. | Snippets for \"{key}\" have been saved successfully.",
       "modalTitleDelete": "Snippets",
       "textDeleteConfirm": "Are you sure you want to reset the snippet \"{key}\"? | Are you sure you want to reset the snippets for \"{key}\"?",
+      "textSidebarCustomItems": "Show custom snippets",
       "textSnippetList": "Snippets of \"{setName}\" | Snippets",
       "titleDeleteSuccess": "Snippets",
       "titleSaveError": "Error: Snippets",
-      "titleSaveSuccess": "Snippets"
+      "titleSaveSuccess": "Snippets",
+      "titleSidebarCustomItems": "Custom snippets",
+      "titleSidebarItemRefresh": "Refresh"
     },
     "setList": {
       "title": "Manage snippets",

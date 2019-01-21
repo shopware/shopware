@@ -66,6 +66,7 @@ class TranslatorTest extends TestCase
             'value' => 'Realisiert mit Unit test',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'setId' => Defaults::SNIPPET_BASE_SET_EN,
+            'author' => Defaults::SNIPPET_AUTHOR,
         ];
         $this->snippetRepository->create([$snippet], $context);
 
@@ -93,10 +94,11 @@ class TranslatorTest extends TestCase
         $snippetRepository = $this->getContainer()->get('snippet.repository');
         $snippet = [
             'id' => Uuid::uuid4()->getHex(),
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'setId' => Defaults::SNIPPET_BASE_SET_EN,
             'translationKey' => 'foo',
             'value' => 'bar',
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'setId' => Defaults::SNIPPET_BASE_SET_EN,
+            'author' => Defaults::SNIPPET_AUTHOR,
         ];
 
         $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);

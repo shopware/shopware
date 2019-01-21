@@ -112,6 +112,99 @@ class SnippetService implements SnippetServiceInterface
     /**
      * {@inheritdoc}
      */
+    public function getCustomList(Criteria $criteria, string $author): array
+    {
+        $metaSets = $this->getSetMetaData();
+        $dbSnippets = $this->getDatabaseSnippets();
+
+        if (\count($metaSets) <= 0 || \count($dbSnippets) <= 0) {
+            return [
+                'total' => 0,
+                'data' => [],
+            ];
+        }
+
+        if (\count($dbSnippets) < \count($metaSets)) {
+            foreach ($metaSets as $metaSet) {
+                if (!array_key_exists($metaSet['id'], $dbSnippets)) {
+                    $dbSnippets[$metaSet['id']] = [];
+                }
+            }
+        }
+
+        $limit = $criteria->getLimit();
+        $page = $criteria->getOffset() / $limit;
+
+        $translationKeyList = [];
+        foreach ($metaSets as &$set) {
+            $setSnippets = [];
+            foreach ($dbSnippets[$set['id']] as $snippet) {
+                $setSnippets[$snippet['translationKey']] = $snippet;
+                $translationKeyList[$snippet['translationKey']] = true;
+            }
+            $set['snippets'] = $setSnippets;
+        }
+        unset($set);
+
+        ksort($translationKeyList);
+        $total = \count($translationKeyList);
+        $translationKeyList = array_chunk($translationKeyList, $limit, true);
+
+        $merged = [];
+        foreach (array_keys($translationKeyList[$page]) as $key) {
+            $merged[$key] = [];
+            foreach ($metaSets as $metaSet) {
+                if (!isset($metaSet['snippets'][$key])) {
+                    $emptySnippet = [
+                        'id' => null,
+                        'translationKey' => $key,
+                        'value' => '',
+                        'setId' => $metaSet['id'],
+                        'author' => $author,
+                    ];
+
+                    $metaSet['snippets'][$key] = $emptySnippet;
+                }
+                $tempSnippet = $metaSet['snippets'][$key];
+                $tempSnippet['origin'] = '';
+                $tempSnippet['resetTo'] = $tempSnippet['value'];
+
+                $merged[$key][] = $tempSnippet;
+            }
+        }
+
+        return [
+            'total' => $total,
+            'data' => $merged,
+        ];
+    }
+
+    public function getDbSnippetByKey(string $translationKey, string $author): array
+    {
+        $metaSets = $this->getSetMetaData();
+        $dbSnippets = $this->getDatabaseSnippets([$translationKey]);
+
+        $snippet = [];
+        foreach ($metaSets as $set) {
+            $tempSnippet = $dbSnippets[$set['id']][0] ?? [
+                'id' => null,
+                'translationKey' => $translationKey,
+                'value' => '',
+                'setId' => $set['id'],
+                'author' => $author,
+            ];
+
+            $tempSnippet['origin'] = '';
+            $tempSnippet['resetTo'] = $tempSnippet['value'];
+            $snippet[] = $tempSnippet;
+        }
+
+        return ['data' => $snippet];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array
     {
         $locale = $this->getLocaleBySnippetSetId($snippetSetId);
@@ -203,6 +296,7 @@ class SnippetService implements SnippetServiceInterface
                 'origin' => $snippet,
                 'translationKey' => $translationKey,
                 'setId' => $snippetSetId,
+                'author' => Defaults::SNIPPET_AUTHOR,
             ];
         }
 
@@ -234,15 +328,20 @@ class SnippetService implements SnippetServiceInterface
         return FetchModeHelper::keyPair($snippets);
     }
 
-    private function getDatabaseSnippets($translationKeyList): array
+    private function getDatabaseSnippets($translationKeyList = null): array
     {
-        $result = $this->connection->createQueryBuilder()
-            ->select(['snippet_set_id', 'id', 'translation_key AS translationKey', 'value', 'snippet_set_id AS setId'])
-            ->from('snippet')
-            ->where('translation_key IN (:translationKeyList)')
-            ->setParameter('translationKeyList', $translationKeyList, Connection::PARAM_STR_ARRAY)
-            ->execute()
-            ->fetchAll();
+        $queryBuilder = $this->connection->createQueryBuilder()
+            ->select(['snippet_set_id', 'id', 'translation_key AS translationKey', 'value', 'snippet_set_id AS setId', 'author'])
+            ->from('snippet');
+
+        if ($translationKeyList !== null) {
+            $queryBuilder->where('translation_key IN (:translationKeyList)')
+                ->setParameter('translationKeyList', $translationKeyList, Connection::PARAM_STR_ARRAY);
+        } else {
+            $queryBuilder->where('author != :author')
+                ->setParameter('author', Defaults::SNIPPET_AUTHOR);
+        }
+        $result = $queryBuilder->execute()->fetchAll();
 
         return $this->getDbSnippetSets(FetchModeHelper::group($result));
     }

@@ -19,6 +19,8 @@ final class Defaults
 
     public const SNIPPET_BASE_SET_DE = 'b8d2230a7b324e448c9c8b22ed1b89d8';
 
+    public const SNIPPET_AUTHOR = 'shopware';
+
     public const LOCALE_SYSTEM = '20080911ffff4fffafffffff19830531';
 
     /**

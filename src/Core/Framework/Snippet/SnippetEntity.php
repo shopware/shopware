@@ -31,6 +31,11 @@ class SnippetEntity extends Entity
     protected $value;
 
     /**
+     * @var string
+     */
+    protected $author;
+
+    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -88,6 +93,16 @@ class SnippetEntity extends Entity
     public function setValue(?string $value): void
     {
         $this->value = $value;
+    }
+
+    public function getAuthor(): string
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(string $author): void
+    {
+        $this->author = $author;
     }
 
     public function getCreatedAt(): ?\DateTime

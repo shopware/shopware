@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Snippet\Services\SnippetServiceInterface;
 use Shopware\Core\Framework\Snippet\SnippetDefinition;
+use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,19 +19,25 @@ use Symfony\Component\Routing\Annotation\Route;
 class SnippetController extends AbstractController
 {
     /**
+     * @var SnippetServiceInterface
+     */
+    private $snippetService;
+
+    /**
      * @var RequestCriteriaBuilder
      */
     private $criteriaBuilder;
 
     /**
-     * @var SnippetServiceInterface
+     * @var RepositoryInterface
      */
-    private $snippetService;
+    private $userRepository;
 
-    public function __construct(RequestCriteriaBuilder $criteriaBuilder, SnippetServiceInterface $snippetService)
+    public function __construct(SnippetServiceInterface $snippetService, RequestCriteriaBuilder $criteriaBuilder, RepositoryInterface $userRepository)
     {
-        $this->criteriaBuilder = $criteriaBuilder;
         $this->snippetService = $snippetService;
+        $this->criteriaBuilder = $criteriaBuilder;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -43,10 +52,11 @@ class SnippetController extends AbstractController
             SnippetDefinition::class,
             Context::createDefaultContext()
         );
+        if ($request->request->get('isCustom', false)) {
+            return new JsonResponse($this->snippetService->getCustomList($criteria, $this->getActiveUsername($context)));
+        }
 
-        return new JsonResponse(
-            $this->snippetService->getList($criteria, $context)
-        );
+        return new JsonResponse($this->snippetService->getList($criteria, $context));
     }
 
     /**
@@ -63,10 +73,23 @@ class SnippetController extends AbstractController
         );
 
         $translationKey = $request->request->get('translationKey');
+        $response = $this->snippetService->getDbSnippetByKey($translationKey, $this->getActiveUsername($context));
 
+        if ($request->request->get('isCustom', false)) {
+            return new JsonResponse($response['data']);
+        }
         $response = $this->snippetService->getList($criteria, $context);
-        $response = $translationKey !== null ? $response['data'][$translationKey] : false;
 
-        return new JsonResponse($response);
+        return new JsonResponse($response['data'][$translationKey] ?? false);
+    }
+
+    private function getActiveUsername(Context $context): string
+    {
+        $userCriteria = new Criteria();
+        $userCriteria->addFilter(new EqualsFilter('id', $context->getSourceContext()->getUserId()));
+        /** @var UserEntity $currentUser */
+        $currentUser = $this->userRepository->search($userCriteria, $context)->first();
+
+        return 'user/' . ($currentUser->getUsername() ?: 'undefined');
     }
 }

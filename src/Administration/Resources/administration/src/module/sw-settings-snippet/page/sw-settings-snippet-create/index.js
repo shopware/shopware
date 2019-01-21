@@ -6,11 +6,5 @@ Component.extend('sw-settings-snippet-create', 'sw-settings-snippet-detail', {
         return {
             isCreate: true
         };
-    },
-
-    methods: {
-        onSave() {
-            this.$router.push({ name: 'sw.settings.snippet.detail', params: { key: this.translationKey } });
-        }
     }
 });

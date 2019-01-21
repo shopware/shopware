@@ -905,6 +905,7 @@
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Textbausteine",
+      "description": "Das Shopware Textbausteine-Modul",
       "searchBarTitleSets": "Textbaustein-Sets",
       "placeholderSearchBarSets": "Finde Textbaustein-Sets (Name, Basisdatei)",
       "searchBarTitleSnippets": "Textbausteine",
@@ -921,6 +922,8 @@
       "labelNamePlaceholder": "Benennung hinzufügen",
       "labelNamespace": "Bereich",
       "labelNamespacePlaceholder": "Bereich auswählen",
+      "placeholderValue": "Inhalt definieren",
+      "messageKeyExists": "Bitte gib einen Namen ein | Es existieren bereits Textbausteine für \"{key}\". Bitte wähle einen anderen Namen.",
       "messageSaveError": "Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
       "messageSaveSuccess": "Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
       "textHeadline": "Neuer Textbaustein",
@@ -929,21 +932,26 @@
     },
     "list": {
       "buttonAdd": "Neuer Textbaustein",
+      "buttonEmpty": "Zurück zu den Standard-Textbausteinen",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "columnKey": "Name",
       "columnValue": "Wert",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Zurücksetzen",
+      "messageEmpty": "Noch keine eigenen Textbausteine vorhanden",
       "messageDeleteSuccess": "Der Textbaustein \"{key}\" wurde erfolgreich zurückgesetzt.",
       "messageSaveError": "Der Textbaustein \"{key}\" konnte nicht gespeichert werden. | Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
       "messageSaveSuccess":  "Der Textbaustein \"{key}\" wurde erfolgreich gespeichert. | Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
       "modalTitleDelete": "Textbausteine",
       "textDeleteConfirm": "Möchtest Du den Textbaustein \"{key}\" wirklich zurücksetzen? | Möchtest Du die Textbausteine für \"{key}\" wirklich zurücksetzen?",
+      "textSidebarCustomItems": "Eigene Textbausteine anzeigen",
       "textSnippetList": "Textbausteine von \"{setName}\" | Textbausteine",
       "titleDeleteSuccess": "Textbausteine",
       "titleSaveError": "Fehler: Textbausteine",
-      "titleSaveSuccess": "Textbausteine"
+      "titleSaveSuccess": "Textbausteine",
+      "titleSidebarCustomItems": "Eigene Textbausteine",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "setList": {
       "title": "Textbausteine verwalten & bearbeiten",

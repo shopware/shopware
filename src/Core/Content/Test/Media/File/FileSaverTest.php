@@ -363,7 +363,7 @@ class FileSaverTest extends TestCase
         $this->getPublicFilesystem()->put($mediaPath, 'test file content');
 
         $this->fileSaver->renameMedia($png->getId(), $txt->getFileName(), $context);
-        $updatedMedia = $this->mediaRepository->read(new ReadCriteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
 
         $newPath = $this->urlGenerator->getRelativeMediaUrl($updatedMedia);
         static::assertTrue($this->getPublicFilesystem()->has($newPath));
@@ -431,11 +431,7 @@ class FileSaverTest extends TestCase
         $searchResult = new EntitySearchResult(1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects($this->once())
-            ->method('read')
-            ->willReturn($collection);
-
-        $repositoryMock->expects($this->once())
+        $repositoryMock->expects($this->exactly(2))
             ->method('search')
             ->willReturn($searchResult);
 

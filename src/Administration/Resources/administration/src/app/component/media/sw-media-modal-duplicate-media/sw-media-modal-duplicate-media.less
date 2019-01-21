@@ -1,8 +1,10 @@
-.sw-media-modal-duplicate-media {
-    .sw-modal__body {
-        word-break: break-word;
-    }
+@import "~less/variables";
 
+@sw-media-modal-duplicate-media-separator-color: @color-steam-cloud;
+@sw-media-modal-duplicate-media-text-color:      @color-gutenberg;
+
+
+.sw-media-modal-duplicate-media {
     .sw-media-modal-duplicate-media__description {
         font-size: 14px;
         margin-bottom: 10px;
@@ -22,7 +24,7 @@
 
     .sw-media-modal-duplicate-media__preview-separator {
         justify-self: center;
-        color: #D8DDE6;
+        color: @sw-media-modal-duplicate-media-separator-color;
     }
 
     .sw-media-modal-duplicate-media__options {
@@ -42,7 +44,7 @@
 
     .sw-field__radio-option {
         label {
-            color: #607182 !important;
+            color: @sw-media-modal-duplicate-media-text-color !important;
         }
     }
 }

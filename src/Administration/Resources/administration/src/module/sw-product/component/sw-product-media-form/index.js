@@ -193,16 +193,34 @@ Component.register('sw-product-media-form', {
         },
 
         successfulUpload(mediaEntity) {
-            // // after first upload we run into this but at this point the new created productMedia entity was not saved
             const productMedia = this.mediaItems.find((e) => {
                 return e.mediaId === mediaEntity.id;
             });
             if (productMedia.isLocal) {
                 delete productMedia.media.user;
                 this.product.save();
+            } else {
+                this.productMediaStore.getByIdAsync(productMedia.id);
             }
 
             this.unsavedEntities = [];
+        },
+
+        onMediaReplaced(mediaEntity) {
+            if (this.mediaItems.some((e) => {
+                return e.mediaId === mediaEntity.id;
+            })) {
+                this.createNotificationInfo({
+                    message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated')
+                });
+                return;
+            }
+
+            const productMedia = this.buildProductMedia(mediaEntity);
+            productMedia.isLoading = false;
+            this.product.media.push(productMedia);
+
+            this.product.save();
         },
 
         onUploadFailed(mediaEntity) {

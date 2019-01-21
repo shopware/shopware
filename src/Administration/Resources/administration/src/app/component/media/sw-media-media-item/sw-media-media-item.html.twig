@@ -18,7 +18,7 @@
 
                 {% block sw_media_media_item_metadata %}
                     <div slot="media-item-metadata" class="sw-media-media-item__metadata">
-                        {{ item.uploadedAt|date(locale, { year: 'numeric', month: 'long', day: 'numeric' }) }}, {{ item.fileSize|fileSize(locale) }}
+                        {{ getMetaData }}
                     </div>
                 {% endblock %}
 

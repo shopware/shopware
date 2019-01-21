@@ -93,12 +93,12 @@
       "buttonRename": "Datei umbennen",
       "buttonSkip": "Datei überspringen",
       "buttonCancel": "Abbrechen",
-      "labelSaveSelection": "Auswahl merken und nicht erneut nachfragen",
+      "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
       "labelOptionReplace": "Hochladen und ersetzen",
       "labelOptionRename": "Hochladen und umbenennen",
       "labelOptionSkip": "Datei überspringen",
       "labelOldFile": "Bereits existierende Datei",
-      "labelNewFile": "Hochzuladene Datei"
+      "labelNewFile": "Hochzuladende Datei"
     },
     "sw-media-modal-move": {
       "titleModal": "\"{mediaName}\" verschieben | {count} Objekte verschieben",

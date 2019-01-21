@@ -1,6 +1,5 @@
 import { Mixin, Filter } from 'src/core/shopware';
 import template from './sw-media-modal-delete.html.twig';
-import './sw-media-modal-delete.less';
 
 /**
  * @status ready

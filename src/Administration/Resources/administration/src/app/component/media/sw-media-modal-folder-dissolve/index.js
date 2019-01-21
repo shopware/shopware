@@ -1,6 +1,5 @@
 import { Mixin } from 'src/core/shopware';
 import template from './sw-media-modal-folder-dissolve.html.twig';
-import './sw-media-modal-folder-dissolve.less';
 
 /**
  * @status ready

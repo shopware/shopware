@@ -5,10 +5,12 @@ import './sw-media-modal-duplicate-media.less';
 
 /**
  * @status ready
- * @description The <u>sw-media-modal-duplicate-media</u> component is used to validate the dissolve folder action.
+ * @description The <u>sw-media-modal-duplicate-media</u> component is used to resolve situations
+ * when an image can not be uploaded because an image with the same name already exists.
  * @example-type code-only
  * @component-example
  * <sw-media-modal-duplicate-media >
+ *     :item="media"
  * </sw-media-modal-duplicate-media>
  */
 Component.register('sw-media-modal-duplicate-media', {
@@ -23,13 +25,25 @@ Component.register('sw-media-modal-duplicate-media', {
             validator(value) {
                 return (value.entityName === 'media');
             }
+        },
+
+        additionalErrorCount: {
+            required: false,
+            type: Number,
+            default: 0
+        },
+
+        defaultOption: {
+            required: false,
+            type: String,
+            default: 'Replace'
         }
     },
 
     data() {
         return {
             saveSelection: true,
-            selectedOption: 'Replace',
+            selectedOption: this.defaultOption,
             existingMedia: null,
             duplicateName: this.item.fileName,
             newName: '',
@@ -91,6 +105,9 @@ Component.register('sw-media-modal-duplicate-media', {
             this.mediaService.provideName(this.item.fileName, this.item.fileExtension)
                 .then((response) => {
                     this.newName = response.fileName;
+                    if (this.selectedOption === 'Rename') {
+                        this.item.fileName = this.newName;
+                    }
                 });
         },
 
@@ -102,6 +119,7 @@ Component.register('sw-media-modal-duplicate-media', {
             this.$emit('sw-media-modal-duplicate-media-resolve', {
                 action: this.selectedOption,
                 id: this.item.id,
+                saveSelection: this.saveSelection,
                 entityToReplace: this.existingMedia,
                 newName: this.newName
             });

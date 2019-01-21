@@ -21,7 +21,7 @@
                         </label>
                     {%  endblock %}
 
-                    <div></div>
+                    <div class="sw-media-modal-duplicate-media__spacer"></div>
 
                     {% block sw_media_modal_duplicate_media_body_preview_label_new_file %}
                         <label class="sw-media-modal-duplicate-media__preview_label">
@@ -30,13 +30,11 @@
                     {%  endblock %}
 
                     {% block sw_media_modal_duplicate_media_body_preview_new_media %}
-                        <sw-media-media-item
-                                :key="item.id"
-                                :item="item"
-                                :selected="false"
-                                :showSelectionIndicator="false"
-                                :isList="true"
-                                :showContextMenuButton="false">
+                        <sw-media-media-item :item="item"
+                                             :selected="false"
+                                             :showSelectionIndicator="false"
+                                             :isList="true"
+                                             :showContextMenuButton="false">
                         </sw-media-media-item>
                     {%  endblock %}
 
@@ -47,14 +45,12 @@
                     {%  endblock %}
 
                     {% block sw_media_modal_duplicate_media_body_preview_old_media %}
-                        <sw-media-media-item
-                                v-if="existingMedia"
-                                :key="existingMedia.id"
-                                :item="existingMedia"
-                                :selected="false"
-                                :showSelectionIndicator="false"
-                                :isList="true"
-                                :showContextMenuButton="false">
+                        <sw-media-media-item v-if="existingMedia"
+                                             :item="existingMedia"
+                                             :selected="false"
+                                             :showSelectionIndicator="false"
+                                             :isList="true"
+                                             :showContextMenuButton="false">
                         </sw-media-media-item>
                     {% endblock %}
                 </sw-container>
@@ -62,9 +58,9 @@
 
             {% block sw_media_modal_duplicate_media_body_options %}
                 <sw-field class="sw-media-modal-duplicate-media__options"
-                        type="radio"
-                        :options="options"
-                        v-model="selectedOption">
+                          type="radio"
+                          :options="options"
+                          v-model="selectedOption">
                 </sw-field>
             {% endblock %}
         {% endblock %}
@@ -73,23 +69,24 @@
             <template slot="modal-footer">
                 <sw-container columns="1fr 1fr" align="center">
 
-                    {% block sw_media_modal_duplicate_media__left_footer_container %}
-                        <div>
+                    {% block sw_media_modal_duplicate_media_right_left_container %}
+                    <div class="sw-media-modal-duplicate-media__left_footer">
 
-                            {% block sw_media_modal_duplicate_media__save_selection %}
-                                <sw-field type="checkbox"
-                                          v-model="saveSelection"
-                                          :label="$tc('global.sw-media-modal-duplicate-media.labelSaveSelection')">
-                                </sw-field>
-                            {% endblock %}
-
-                        </div>
+                        {% block sw_media_modal_duplicate_media_save_selection %}
+                            <sw-field v-if="additionalErrorCount > 0"
+                                      type="checkbox"
+                                      v-model="saveSelection"
+                                      :label="$tc('global.sw-media-modal-duplicate-media.labelSaveSelection', additionalErrorCount)">
+                            </sw-field>
+                        {% endblock %}
+                    </div>
                     {% endblock %}
 
-                    {% block sw_media_modal_duplicate_media__right_footer_container %}
-                    <div>
 
-                        {% block sw_media_modal_duplicate_media__cancel_button %}
+                    {% block sw_media_modal_duplicate_media_right_footer_container %}
+                    <div class="sw-media-modal-duplicate-media__right_footer">
+
+                        {% block sw_media_modal_duplicate_media_cancel_button %}
                             <sw-button @click="closeModal" size="small">
                                 {{ $tc('global.sw-media-modal-duplicate-media.buttonCancel') }}
                             </sw-button>

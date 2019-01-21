@@ -317,7 +317,7 @@ class FileSaver
     private function findMediaById(string $mediaId, Context $context): MediaEntity
     {
         $currentMedia = $this->mediaRepository
-            ->read(new ReadCriteria([$mediaId]), $context)
+            ->search(new Criteria([$mediaId]), $context)
             ->get($mediaId);
 
         if ($currentMedia === null) {

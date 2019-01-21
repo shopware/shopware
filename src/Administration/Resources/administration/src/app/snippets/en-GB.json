@@ -93,7 +93,7 @@
       "buttonRename": "Rename file",
       "buttonSkip": "Skip file",
       "buttonCancel": "Cancel",
-      "labelSaveSelection": "Save selection and don't ask again",
+      "labelSaveSelection": "Save selection and apply to {count} more",
       "labelOptionReplace": "Upload and replace",
       "labelOptionRename": "Upload and rename",
       "labelOptionSkip": "Skip file",

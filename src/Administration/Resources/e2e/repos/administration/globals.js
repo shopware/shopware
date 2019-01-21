@@ -11,7 +11,7 @@ const exec = util.promisify(require('child_process').exec);
 module.exports = {
 
     waitForConditionTimeout: 30000,
-    asyncHookTimeout: 30000,
+    asyncHookTimeout: 60000,
 
     beforeEach: (browser, done) => {
         browser.url(browser.launch_url);
@@ -32,12 +32,38 @@ module.exports = {
     },
     afterEach(client, done) {
         console.log();
-        console.log("### Resetting database to clean state...");
-        exec(`${process.env.PROJECT_ROOT}psh.phar e2e:restore-db`).then(() => {
-            global.logger.log('success', 'Successful');
-            done();
-        }).catch((err) => {
-            global.logger.log('error', err);
-        });
+        console.log("### Resetting database and cache to clean state...");
+
+        const startTime = new Date();
+        clearDatabase()
+            .then(clearCache())
+            .then(() => {
+                const endTime = new Date() - startTime;
+                global.logger.success(`Successfully reset database and cache! (${endTime / 1000}s)`);
+                done();
+            }).catch((err) => {
+                global.logger.error(err);
+                done(err);
+            });
     }
 };
+
+/**
+ * Clears the database using a child process on the shell of the system.
+ *
+ * @async
+ * @returns {Promise<String|void>}
+ */
+function clearDatabase() {
+    return exec(`${process.env.PROJECT_ROOT}psh.phar e2e:restore-db`);
+}
+
+/**
+ * Clears the cache of the application using a child process in the shell of the system.
+ *
+ * @async
+ * @returns {Promise<String|void>}
+ */
+function clearCache() {
+    return exec(`${process.env.PROJECT_ROOT}bin/console cache:clear`);
+}

@@ -3,15 +3,13 @@ class MediaPageObject {
         this.browser = browser;
 
         this.elements = {};
-        this.elements.urlUploadAction = '.sw-media-upload__url-upload-action';
         this.elements.previewItem = '.sw-media-preview__item';
         this.elements.baseItem = '.sw-media-preview__item';
     }
 
     uploadImageViaURL(imgPath) {
         this.browser
-            .waitForElementVisible(this.elements.urlUploadAction)
-            .click(this.elements.urlUploadAction)
+            .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', imgPath)
             .click('.sw-modal__footer .sw-button--primary')

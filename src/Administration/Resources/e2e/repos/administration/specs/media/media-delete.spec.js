@@ -7,8 +7,10 @@ module.exports = {
     },
     'upload and create new media item': (browser) => {
         browser
-            .waitForElementVisible('.sw-media-upload__url-upload-action')
-            .click('.sw-media-upload__url-upload-action')
+            .waitForElementVisible('.sw-media-upload__button-context-menu')
+            .click('.sw-media-upload__button-context-menu')
+            .waitForElementVisible('.sw-media-upload__button-url-upload')
+            .click('.sw-media-upload__button-url-upload')
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click('.sw-modal__footer .sw-button--primary')

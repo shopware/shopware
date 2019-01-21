@@ -9,8 +9,8 @@
                     :caption="$tc('sw-product.mediaForm.uploadCaption')"
                     :scrollTarget="$parent.$el"
                     :defaultFolder="product.entityName"
-                    @media-upload-success="successfulUpload"
-                    @new-uploads-added="onUploadsAdded"
+                    @sw-media-upload-media-upload-success="successfulUpload"
+                    @sw-media-upload-new-uploads-added="onUploadsAdded"
                     @sw-media-upload-open-sidebar="onMediaUploadButtonOpenSidebar">
             </sw-media-upload>
         {% endblock %}

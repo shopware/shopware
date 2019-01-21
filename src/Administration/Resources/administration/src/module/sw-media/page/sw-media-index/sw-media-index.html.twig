@@ -188,6 +188,7 @@
                                                         @sw-media-media-item-delete="onMediaGridItemsDeleted"
                                                         @sw-media-folder-item-remove="onMediaFoldersRemoved"
                                                         @sw-media-folder-item-dissolve="onMediaFoldersDissolved"
+                                                        @sw-media-media-item-moved="onMediaMoved"
                                                         v-on="mediaItemSelectionHandler">
                                                         <template v-if="gridItem.entityName === 'media'">
                                                             <sw-context-menu-item @click="showDetails(gridItem)">

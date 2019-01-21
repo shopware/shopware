@@ -48,6 +48,12 @@
                                     </sw-context-menu-item>
                                 {% endblock %}
 
+                                {% block sw_media_media_item_context_item_move %}
+                                    <sw-context-menu-item v-if="next1207" class="sw-media-context-item__move-media-action"  @click="openModalMove">
+                                        {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
                                 {% block sw_media_media_item_context_item_delete %}
                                     <sw-context-menu-item @click="openModalDelete" variant="danger">
                                         {{ $tc('global.sw-media-media-item.labelContextMenuDelete') }}
@@ -75,6 +81,15 @@
                 @sw-media-modal-delete-items-deleted="emitItemDeleted"
                 @sw-media-modal-delete-close="closeModalDelete">
             </sw-media-modal-delete>
+        {% endblock %}
+
+        {% block sw_media_media_item_move_modal %}
+            <sw-media-modal-move
+                v-if="showModalMove"
+                :itemsToMove="[item]"
+                @sw-media-modal-move-close="closeModalMove"
+                @sw-media-modal-move-items-moved="onMediaItemMoved">
+            </sw-media-modal-move>
         {% endblock %}
     </div>
 {% endblock %}

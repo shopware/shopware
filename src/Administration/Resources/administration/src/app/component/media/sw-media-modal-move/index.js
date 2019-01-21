@@ -46,7 +46,11 @@ Component.register('sw-media-modal-move', {
 
     computed: {
         mediaNameFilter() {
-            return (media) => { return media.name; };
+            return (media) => {
+                return media.entityName === 'media' ?
+                    `${media.fileName}.${media.fileExtension}` :
+                    media.name;
+            };
         },
 
         mediaFolderStore() {

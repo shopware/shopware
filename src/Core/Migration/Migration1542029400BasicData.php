@@ -52,9 +52,9 @@ class Migration1542029400BasicData extends MigrationStep
     private function createLanguage(Connection $connection): void
     {
         $localeEn = Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM);
-        $localeDe = uuid::fromHexToBytes(Defaults::LOCALE_DE_DE);
+        $localeDe = uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM_DE);
         $languageEn = uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = uuid::fromHexToBytes(Defaults::LANGUAGE_DE);
+        $languageDe = uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 
         // first locales
         $connection->insert('locale', ['id' => $localeEn, 'code' => 'en_GB', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -112,7 +112,7 @@ class Migration1542029400BasicData extends MigrationStep
 
         $queue = new MultiInsertQueryQueue($connection);
         $languageEn = uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = uuid::fromHexToBytes(Defaults::LANGUAGE_DE);
+        $languageDe = uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 
         foreach ($localeData as $locale) {
             if (\in_array($locale['locale'], ['en_GB', 'de_DE'])) {
@@ -156,7 +156,7 @@ class Migration1542029400BasicData extends MigrationStep
     {
         $catalogId = Uuid::fromHexToBytes(Defaults::CATALOG);
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes(Defaults::LANGUAGE_DE);
+        $languageDE = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 
         $connection->insert('catalog', [
             'id' => $catalogId,
@@ -182,7 +182,7 @@ class Migration1542029400BasicData extends MigrationStep
     {
         $languageDE = function (string $countryId, string $name) {
             return [
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_DE),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
                 'name' => $name,
                 'country_id' => Uuid::fromHexToBytes($countryId),
                 'created_at' => date(Defaults::DATE_FORMAT),

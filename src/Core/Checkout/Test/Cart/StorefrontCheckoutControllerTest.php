@@ -488,9 +488,9 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
         $response = $this->getStorefrontClient()->getResponse();
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode(), print_r($response, true));
 
         $actualOrder = json_decode($response->getContent(), true);
         static::assertArraySubset($expectedOrder, $actualOrder);
@@ -499,10 +499,9 @@ class StorefrontCheckoutControllerTest extends TestCase
     public function testDeepLinkGuestOrderWithAccessKey(): void
     {
         $expectedOrder = $this->createGuestOrder();
-
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
         $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(200, $response->getStatusCode());
@@ -520,7 +519,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $orderId = $order['data']['id'];
         $accessCode = Random::getBase64UrlString(32);
-        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
         $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -537,7 +536,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
         $orderId = $order['data']['id'];
-        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/guest-order/' . $orderId);
 
         $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -555,7 +554,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $orderId = Uuid::uuid4()->getHex();
         $accessCode = $order['data']['deepLinkCode'];
-        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
         $response = $this->getStorefrontClient()->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -662,7 +661,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         if ($client === null) {
             $storefrontClient = $this->getStorefrontClient();
         }
-        $storefrontClient->request('POST', '/storefront-api/checkout/cart');
+        $storefrontClient->request('POST', '/storefront-api/v1/checkout/cart');
         $response = $storefrontClient->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -681,9 +680,8 @@ class StorefrontCheckoutControllerTest extends TestCase
     {
         $client->request(
             'POST',
-            '/storefront-api/checkout/cart/product',
+            '/storefront-api/v1/checkout/cart/product/' . $id,
             [
-                'id' => $id,
                 'quantity' => $quantity,
             ]
         );
@@ -691,17 +689,17 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     private function order(Client $client): void
     {
-        $client->request('POST', '/storefront-api/checkout/order');
+        $client->request('POST', '/storefront-api/v1/checkout/order');
     }
 
     private function guestOrder(Client $client, array $payload): void
     {
-        $client->request('POST', '/storefront-api/checkout/guest-order', $payload);
+        $client->request('POST', '/storefront-api/v1/checkout/guest-order', $payload);
     }
 
     private function login(Client $client, string $email, string $password): void
     {
-        $client->request('POST', '/storefront-api/customer/login', [
+        $client->request('POST', '/storefront-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);

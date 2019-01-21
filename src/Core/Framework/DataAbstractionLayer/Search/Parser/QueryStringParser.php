@@ -22,7 +22,6 @@ class QueryStringParser
         }
 
         switch ($query['type']) {
-            case 'term': // TODO: Deprecated, will be removed with NEXT-1056
             case 'equals':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for equals filter is missing.', $path . '/field');
@@ -33,7 +32,6 @@ class QueryStringParser
                 }
 
                 return new EqualsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
-            case 'nested': // TODO: Deprecated, will be removed with NEXT-1056
             case 'multi':
                 $queries = [];
                 $operator = MultiFilter::CONNECTION_AND;
@@ -52,7 +50,6 @@ class QueryStringParser
                 }
 
                 return new MultiFilter($operator, $queries);
-            case 'match': // TODO: Deprecated, will be removed with NEXT-1056
             case 'contains':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for contains filter is missing.', $path . '/field');
@@ -72,7 +69,6 @@ class QueryStringParser
                 );
             case 'range':
                 return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
-            case 'terms': // TODO: Deprecated, will be removed with NEXT-1056
             case 'equalsAny':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for equalsAny filter is missing.', $path . '/field');

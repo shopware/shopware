@@ -64,16 +64,6 @@ class StorefrontCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/customer/login", name="storefront.api.customer.login.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function loginDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->login($request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/customer/login", name="storefront-api.customer.login", methods={"POST"})
      */
     public function login(Request $request, CheckoutContext $context): JsonResponse
@@ -89,16 +79,6 @@ class StorefrontCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/customer/logout", name="storefront.api.customer.logout.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function logoutDeprecated(CheckoutContext $context): JsonResponse
-    {
-        return $this->logout($context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/customer/logout", name="storefront-api.customer.logout", methods={"POST"})
      */
     public function logout(CheckoutContext $context): JsonResponse
@@ -106,16 +86,6 @@ class StorefrontCustomerController extends AbstractController
         $this->accountService->logout($context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @Route("/storefront-api/customer/orders", name="storefront.api.customer.orders.get.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function orderListDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->orderList($request, $context);
     }
 
     /**
@@ -129,16 +99,6 @@ class StorefrontCustomerController extends AbstractController
         $page = $request->query->getInt('page', 1);
 
         return new JsonResponse($this->serialize($this->loadOrders($page, $limit, $context)));
-    }
-
-    /**
-     * @Route("/storefront-api/customer", name="storefront.api.customer.create.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function registerDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->register($request, $context);
     }
 
     /**
@@ -157,16 +117,6 @@ class StorefrontCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/customer/email", name="storefront.api.customer.email.update.deprecated", methods={"PUT"})
-     *
-     * @deprecated
-     */
-    public function saveEmailDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->saveEmail($request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/customer/email", name="storefront-api.customer.email.update", methods={"PATCH"})
      */
     public function saveEmail(Request $request, CheckoutContext $context): JsonResponse
@@ -181,16 +131,6 @@ class StorefrontCustomerController extends AbstractController
         );
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @Route("/storefront-api/customer/password", name="storefront.api.customer.password.update.deprecated", methods={"PUT"})
-     *
-     * @deprecated
-     */
-    public function savePasswordDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->savePassword($request, $context);
     }
 
     /**
@@ -215,16 +155,6 @@ class StorefrontCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/customer/profile", name="storefront.api.customer.profile.update.deprecated", methods={"PUT"})
-     *
-     * @deprecated
-     */
-    public function saveProfileDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->saveProfile($request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/customer", name="storefront-api.customer.update", methods={"PATCH"})
      */
     public function saveProfile(Request $request, CheckoutContext $context): JsonResponse
@@ -239,16 +169,6 @@ class StorefrontCustomerController extends AbstractController
         );
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @Route("/storefront-api/customer", name="storefront.api.customer.detail.get.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getCustomerDetailDeprecated(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->getCustomerDetail($request, $context, $responseFactory);
     }
 
     /**
@@ -267,16 +187,6 @@ class StorefrontCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/customer/addresses", name="storefront.api.customer.addresses.get.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getAddressesDeprecated(CheckoutContext $context): JsonResponse
-    {
-        return $this->getAddresses($context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/customer/address", name="storefront-api.customer.address.list", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -286,16 +196,6 @@ class StorefrontCustomerController extends AbstractController
         return new JsonResponse(
             $this->serialize($this->accountService->getAddressesByCustomer($context))
         );
-    }
-
-    /**
-     * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.get.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getAddressDeprecated(string $id, CheckoutContext $context): JsonResponse
-    {
-        return $this->getAddress($id, $context);
     }
 
     /**
@@ -310,16 +210,6 @@ class StorefrontCustomerController extends AbstractController
         return new JsonResponse(
             $this->serialize($this->accountService->getAddressById($id, $context))
         );
-    }
-
-    /**
-     * @Route("/storefront-api/customer/address", name="storefront.api.customer.address.create.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function createAddressDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->createAddress($request, $context);
     }
 
     /**
@@ -345,16 +235,6 @@ class StorefrontCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/customer/address/{id}", name="storefront.api.customer.address.delete.deprecated", methods={"DELETE"})
-     *
-     * @deprecated
-     */
-    public function deleteAddressDeprecated(string $id, CheckoutContext $context): JsonResponse
-    {
-        return $this->deleteAddress($id, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/customer/address/{id}", name="storefront-api.customer.address.delete", methods={"DELETE"})
      *
      * @throws AddressNotFoundException
@@ -366,14 +246,6 @@ class StorefrontCustomerController extends AbstractController
         $this->accountService->deleteAddress($id, $context);
 
         return new JsonResponse($this->serialize($id));
-    }
-
-    /**
-     * @Route("/storefront-api/customer/default-shipping-address/{id}", name="storefront.api.customer.default_shipping_address.update.deprecated", methods={"PUT"})
-     */
-    public function setDefaultShippingAddressDeprecated(string $id, CheckoutContext $context): JsonResponse
-    {
-        return $this->setDefaultShippingAddress($id, $context);
     }
 
     /**
@@ -391,16 +263,6 @@ class StorefrontCustomerController extends AbstractController
         $this->accountService->setDefaultShippingAddress($id, $context);
 
         return new JsonResponse($this->serialize($id));
-    }
-
-    /**
-     * @Route("/storefront-api/customer/default-billing-address/{id}", name="storefront.api.customer.default_billing_address.update.deprecated", methods={"PUT"})
-     *
-     * @deprecated
-     */
-    public function setDefaultBillingAddressDeprecated(string $id, CheckoutContext $context): JsonResponse
-    {
-        return $this->setDefaultBillingAddress($id, $context);
     }
 
     /**

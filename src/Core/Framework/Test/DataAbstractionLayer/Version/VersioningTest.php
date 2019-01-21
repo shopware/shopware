@@ -381,13 +381,13 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
         $this->productRepository->create([$data], $context);
 
-        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productId', $id, $context->getVersionId());
+        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
         static::assertCount(1, $changelog);
         static::assertArrayHasKey('name', $changelog[0]['payload']);
         static::assertEquals('test', $changelog[0]['payload']['name']);
 
         $this->productRepository->update([['id' => $id, 'name' => 'updated']], $context);
-        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_EN, 'productId', $id, $context->getVersionId());
+        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
         static::assertCount(2, $changelog);
         static::assertArrayHasKey('name', $changelog[1]['payload']);
         static::assertEquals('updated', $changelog[1]['payload']['name']);

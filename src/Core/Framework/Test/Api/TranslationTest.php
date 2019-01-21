@@ -42,7 +42,7 @@ class TranslationTest extends TestCase
             [
                 'name' => 'not translated',
                 'translations' => [
-                    Defaults::LANGUAGE_DE => ['name' => 'german'],
+                    Defaults::LANGUAGE_SYSTEM_DE => ['name' => 'german'],
                 ],
             ]
         );

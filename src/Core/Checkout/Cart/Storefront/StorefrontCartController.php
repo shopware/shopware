@@ -53,16 +53,6 @@ class StorefrontCartController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.get.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getCartDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->getCart($request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/checkout/cart", name="storefront-api.checkout.cart.detail", methods={"GET"})
      *
      * @throws CartTokenNotFoundException
@@ -75,16 +65,6 @@ class StorefrontCartController extends AbstractController
         $cart = $this->cartService->getCart($token, $context, $name);
 
         return new JsonResponse($this->serialize($cart));
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/cart", name="storefront.api.checkout.cart.create.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function createCartDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->createCart($request, $context);
     }
 
     /**
@@ -104,16 +84,6 @@ class StorefrontCartController extends AbstractController
             JsonResponse::HTTP_OK,
             [PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken()]
         );
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/cart/product", name="storefront.api.checkout.cart.product.add.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function addProductDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->addProduct($request->request->getAlnum('id'), $request, $context);
     }
 
     /**
@@ -139,20 +109,6 @@ class StorefrontCartController extends AbstractController
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
         return new JsonResponse($this->serialize($cart));
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/cart/line-item", name="storefront.api.checkout.cart.line-item.add.deprecated", methods={"POST"})
-     */
-    public function addLineItemDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        $id = $request->request->getAlnum('id');
-
-        if (!$id) {
-            throw new MissingParameterException('id');
-        }
-
-        return $this->addLineItem($id, $request, $context);
     }
 
     /**
@@ -188,16 +144,6 @@ class StorefrontCartController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/cart/line-item", name="storefront.api.checkout.cart.line-item.delete.deprecated", methods={"DELETE"})
-     */
-    public function removeLineItemDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        $id = $request->request->getAlnum('id');
-
-        return $this->removeLineItem($id, $request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/checkout/cart/line-item/{id}", name="storefront-api.checkout.cart.line-item.delete", methods={"DELETE"})
      *
      * @throws LineItemNotFoundException
@@ -217,39 +163,6 @@ class StorefrontCartController extends AbstractController
         $cart = $this->cartService->remove($cart, $id, $context);
 
         return new JsonResponse($this->serialize($cart));
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/cart/line-item/quantity", name="storefront.api.checkout.cart.line-item.quatity.update.deprecated", methods={"PATCH"})
-     *
-     * @deprecated Use updateLineItem instead
-     */
-    public function setLineItemQuantity(Request $request, CheckoutContext $context): JsonResponse
-    {
-        $token = $request->request->getAlnum('token', $context->getToken());
-        $id = $request->request->getAlnum('id');
-        $quantity = $request->request->getInt('quantity');
-        $cart = $this->cartService->getCart($token, $context);
-
-        if (!$cart->has($id)) {
-            throw new LineItemNotFoundException($id);
-        }
-
-        $cart = $this->cartService->changeQuantity($cart, $id, $quantity, $context);
-
-        return new JsonResponse($this->serialize($cart));
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/cart/line-item", name="storefront.api.checkout.cart.line-item.update.deprecated", methods={"PATCH"})
-     *
-     * @deprecated Use updateLineItem instead
-     */
-    public function updateLineItemDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        $id = $request->request->getAlnum('id');
-
-        return $this->updateLineItem($id, $request, $context);
     }
 
     /**

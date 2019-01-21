@@ -24,7 +24,7 @@ class StorefrontAuthenticationListener implements EventSubscriberInterface
      */
     private static $unprotectedRoutes = [
         [
-            'path' => '/storefront-api/checkout/guest-order/',
+            'path' => '/storefront-api/v1/checkout/guest-order/',
             'methods' => ['GET'],
         ],
     ];

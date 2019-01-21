@@ -151,9 +151,10 @@ class OrderRecalculationTest extends TestCase
         $client->request(
             'GET',
             sprintf(
-                '/api/v%s/_proxy/storefront-api/%s/checkout/cart',
+                '/api/v%s/_proxy/storefront-api/%s/v%s/checkout/cart',
                 PlatformRequest::API_VERSION,
-                Defaults::SALES_CHANNEL
+                Defaults::SALES_CHANNEL,
+                PlatformRequest::API_VERSION
             ),
             [
                 'token' => $token,
@@ -176,12 +177,13 @@ class OrderRecalculationTest extends TestCase
         $client->request(
             'PATCH',
             sprintf(
-                '/api/v%s/_proxy/storefront-api/%s/checkout/cart/line-item',
+                '/api/v%s/_proxy/storefront-api/%s/v%s/checkout/cart/line-item/%s',
                 PlatformRequest::API_VERSION,
-                Defaults::SALES_CHANNEL
+                Defaults::SALES_CHANNEL,
+                PlatformRequest::API_VERSION,
+                $cart->getLineItems()->first()->getKey()
             ),
             [
-                'id' => $cart->getLineItems()->first()->getKey(),
                 'quantity' => 10,
                 'token' => $token,
                 'name' => OrderConverter::CART_TYPE,

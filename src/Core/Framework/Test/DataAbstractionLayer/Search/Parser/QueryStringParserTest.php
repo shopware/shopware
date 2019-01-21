@@ -49,15 +49,15 @@ class QueryStringParserTest extends TestCase
     public function equalsFilterDataProvider(): array
     {
         return [
-            [['type' => 'term', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'term', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'term', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'term', 'field' => 'foo'], true],
-            [['type' => 'term', 'value' => 'bar'], true],
-            [['type' => 'term', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'term', 'field' => 'foo', 'value' => false], false],
-            [['type' => 'term', 'field' => 'foo', 'value' => 1], false],
-            [['type' => 'term', 'field' => 'foo', 'value' => 0], false],
+            [['type' => 'equals', 'field' => 'foo', 'value' => 'bar'], false],
+            [['type' => 'equals', 'field' => 'foo', 'value' => ''], true],
+            [['type' => 'equals', 'field' => '', 'value' => 'bar'], true],
+            [['type' => 'equals', 'field' => 'foo'], true],
+            [['type' => 'equals', 'value' => 'bar'], true],
+            [['type' => 'equals', 'field' => 'foo', 'value' => true], false],
+            [['type' => 'equals', 'field' => 'foo', 'value' => false], false],
+            [['type' => 'equals', 'field' => 'foo', 'value' => 1], false],
+            [['type' => 'equals', 'field' => 'foo', 'value' => 0], false],
         ];
     }
 
@@ -85,15 +85,15 @@ class QueryStringParserTest extends TestCase
     public function containsFilterDataProvider(): array
     {
         return [
-            [['type' => 'match', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'match', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'match', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'match', 'field' => 'foo'], true],
-            [['type' => 'match', 'value' => 'bar'], true],
-            [['type' => 'match', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'match', 'field' => 'foo', 'value' => false], false],
-            [['type' => 'match', 'field' => 'foo', 'value' => 1], false],
-            [['type' => 'match', 'field' => 'foo', 'value' => 0], false],
+            [['type' => 'contains', 'field' => 'foo', 'value' => 'bar'], false],
+            [['type' => 'contains', 'field' => 'foo', 'value' => ''], true],
+            [['type' => 'contains', 'field' => '', 'value' => 'bar'], true],
+            [['type' => 'contains', 'field' => 'foo'], true],
+            [['type' => 'contains', 'value' => 'bar'], true],
+            [['type' => 'contains', 'field' => 'foo', 'value' => true], false],
+            [['type' => 'contains', 'field' => 'foo', 'value' => false], false],
+            [['type' => 'contains', 'field' => 'foo', 'value' => 1], false],
+            [['type' => 'contains', 'field' => 'foo', 'value' => 0], false],
         ];
     }
 
@@ -130,18 +130,18 @@ class QueryStringParserTest extends TestCase
     public function equalsAnyFilterDataProvider(): array
     {
         return [
-            [['type' => 'terms', 'field' => 'foo', 'value' => 'bar'], false],
-            [['type' => 'terms', 'field' => 'foo', 'value' => ''], true],
-            [['type' => 'terms', 'field' => '', 'value' => 'bar'], true],
-            [['type' => 'terms', 'field' => 'foo', 'value' => 'abc|def|ghi'], false],
-            [['type' => 'terms', 'field' => 'foo', 'value' => 'false|true|0'], false],
-            [['type' => 'terms', 'field' => 'foo'], true],
-            [['type' => 'terms', 'value' => 'foo'], true],
-            [['type' => 'terms', 'field' => 'foo', 'value' => '||||'], true],
-            [['type' => 'terms', 'field' => 'foo', 'value' => true], false],
-            [['type' => 'terms', 'field' => 'foo', 'value' => false], true],
-            [['type' => 'terms', 'field' => 'foo', 'value' => 0], true],
-            [['type' => 'terms', 'field' => 'foo', 'value' => 1], false],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'bar'], false],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => ''], true],
+            [['type' => 'equalsAny', 'field' => '', 'value' => 'bar'], true],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'abc|def|ghi'], false],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'false|true|0'], false],
+            [['type' => 'equalsAny', 'field' => 'foo'], true],
+            [['type' => 'equalsAny', 'value' => 'foo'], true],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => '||||'], true],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => true], false],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], true],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], true],
+            [['type' => 'equalsAny', 'field' => 'foo', 'value' => 1], false],
         ];
     }
 }

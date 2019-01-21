@@ -382,7 +382,7 @@ class TranslationTest extends TestCase
             [[
                 'id' => $germanLanguageId,
                 'name' => 'de_DE',
-                'localeId' => Defaults::LOCALE_DE_DE,
+                'localeId' => Defaults::LOCALE_SYSTEM_DE,
                 'translationCode' => [
                     'id' => Uuid::uuid4()->getHex(),
                     'code' => 'x-de_DE2',
@@ -488,7 +488,7 @@ class TranslationTest extends TestCase
         static::assertEquals('system', $catSystem->getViewData()->getName());
         static::assertCount(1, $catSystem->getTranslations());
 
-        $deDeContext = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_DE, Defaults::LANGUAGE_SYSTEM]);
+        $deDeContext = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
         /** @var CategoryEntity $catDeDe */
         $catDeDe = $categoryRepository->read(new ReadCriteria([$category['id']]), $deDeContext)->first();
 

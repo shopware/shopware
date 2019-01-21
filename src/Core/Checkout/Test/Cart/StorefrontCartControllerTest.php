@@ -399,9 +399,8 @@ class StorefrontCartControllerTest extends TestCase
 
         $client->request(
             'POST',
-            '/storefront-api/checkout/cart/line-item',
+            '/storefront-api/v1/checkout/cart/line-item/' . $productId,
             [
-                'id' => $productId,
                 'type' => $type,
                 'quantity' => $quantity,
                 'stackable' => $stackable,
@@ -486,9 +485,8 @@ class StorefrontCartControllerTest extends TestCase
 
         $client->request(
             'PATCH',
-            '/storefront-api/checkout/cart/line-item',
+            '/storefront-api/v1/checkout/cart/line-item/' . $productId,
             [
-                'id' => $productId,
                 'quantity' => $quantity,
                 'stackable' => $stackable,
                 'removable' => $removable,
@@ -526,7 +524,7 @@ class StorefrontCartControllerTest extends TestCase
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/cart');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/cart');
         $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(500, $response->getStatusCode(), $response->getContent());
         $content = json_decode($response->getContent(), true);
@@ -535,7 +533,7 @@ class StorefrontCartControllerTest extends TestCase
 
     private function createCart(): Client
     {
-        $this->getStorefrontClient()->request('POST', '/storefront-api/checkout/cart');
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/checkout/cart');
         $response = $this->getStorefrontClient()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -550,7 +548,7 @@ class StorefrontCartControllerTest extends TestCase
 
     private function getCart(Client $client)
     {
-        $this->getStorefrontClient()->request('GET', '/storefront-api/checkout/cart');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/cart');
 
         $cart = json_decode($client->getResponse()->getContent(), true);
 
@@ -561,9 +559,8 @@ class StorefrontCartControllerTest extends TestCase
     {
         $client->request(
             'POST',
-            '/storefront-api/checkout/cart/product',
+            '/storefront-api/v1/checkout/cart/product/' . $id,
             [
-                'id' => $id,
                 'quantity' => $quantity,
             ]
         );
@@ -571,16 +568,16 @@ class StorefrontCartControllerTest extends TestCase
 
     private function changeQuantity(Client $client, string $lineItemId, int $quantity): void
     {
-        $client->request('PATCH', '/storefront-api/checkout/cart/line-item/quantity', ['id' => $lineItemId, 'quantity' => $quantity]);
+        $client->request('PATCH', '/storefront-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
     }
 
     private function updateLineItemQuantity(Client $client, string $lineItemId, int $quantity): void
     {
-        $client->request('PATCH', '/storefront-api/checkout/cart/line-item', ['id' => $lineItemId, 'quantity' => $quantity]);
+        $client->request('PATCH', '/storefront-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
     }
 
     private function removeLineItem(Client $client, string $lineItemId): void
     {
-        $client->request('DELETE', '/storefront-api/checkout/cart/line-item', ['id' => $lineItemId]);
+        $client->request('DELETE', '/storefront-api/v1/checkout/cart/line-item/' . $lineItemId);
     }
 }

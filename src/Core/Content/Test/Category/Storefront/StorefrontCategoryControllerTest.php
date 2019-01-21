@@ -44,7 +44,7 @@ class StorefrontCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category');
 
         $response = $this->getStorefrontClient()->getResponse();
 
@@ -66,7 +66,7 @@ class StorefrontCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category'],
         ], $this->context);
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category/' . $id);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category/' . $id);
 
         $response = $this->getStorefrontClient()->getResponse();
 
@@ -93,7 +93,7 @@ class StorefrontCategoryControllerTest extends TestCase
         ], $this->context);
 
         $params = ['sort' => 'name', 'filter' => ['template' => $filterId]];
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category', $params);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category', $params);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -102,7 +102,7 @@ class StorefrontCategoryControllerTest extends TestCase
         static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
         $params['sort'] = '-name';
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category', $params);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category', $params);
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
@@ -124,7 +124,7 @@ class StorefrontCategoryControllerTest extends TestCase
             ['id' => $categoryB, 'name' => 'Matching name', 'template' => $filterId],
         ], $this->context);
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category', ['term' => 'Matching', 'filter' => ['template' => $filterId]]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category', ['term' => 'Matching', 'filter' => ['template' => $filterId]]);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -158,7 +158,7 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category', $params);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category', $params);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -187,14 +187,14 @@ class StorefrontCategoryControllerTest extends TestCase
         $body = [
             'filter' => [
                 [
-                    'type' => 'terms',
+                    'type' => 'equalsAny',
                     'field' => 'category.id',
                     'value' => implode('|', [$categoryA, $categoryB]),
                 ],
             ],
         ];
 
-        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/category', $body);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -207,12 +207,12 @@ class StorefrontCategoryControllerTest extends TestCase
         $body = [
             'filter' => [
                 [
-                    'type' => 'term',
+                    'type' => 'equals',
                     'field' => 'category.active',
                     'value' => true,
                 ],
                 [
-                    'type' => 'term',
+                    'type' => 'equals',
                     'field' => 'category.template',
                     'value' => $filterId,
                 ],
@@ -222,7 +222,7 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/category', $body);
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -234,22 +234,22 @@ class StorefrontCategoryControllerTest extends TestCase
         $body = [
             'filter' => [
                 [
-                    'type' => 'nested',
+                    'type' => 'multi',
                     'operator' => 'OR',
                     'queries' => [
-                        ['type' => 'term', 'field' => 'category.active', 'value' => true],
-                        ['type' => 'term', 'field' => 'category.name', 'value' => 'B'],
+                        ['type' => 'equals', 'field' => 'category.active', 'value' => true],
+                        ['type' => 'equals', 'field' => 'category.name', 'value' => 'B'],
                     ],
                 ],
                 [
-                    'type' => 'term',
+                    'type' => 'equals',
                     'field' => 'category.template',
                     'value' => $filterId,
                 ],
             ],
         ];
 
-        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/category', $body);
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -263,10 +263,10 @@ class StorefrontCategoryControllerTest extends TestCase
 
         $body = [
             'filter' => [
-                ['type' => 'term', 'field' => 'category.template', 'value' => $filterId],
+                ['type' => 'equals', 'field' => 'category.template', 'value' => $filterId],
             ],
             'post-filter' => [
-                ['type' => 'term', 'field' => 'category.active', 'value' => true],
+                ['type' => 'equals', 'field' => 'category.active', 'value' => true],
             ],
             'aggregations' => [
                 'category-names' => [
@@ -275,7 +275,7 @@ class StorefrontCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getStorefrontClient()->request('POST', '/storefront-api/category', $body);
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/category', $body);
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -308,7 +308,7 @@ class StorefrontCategoryControllerTest extends TestCase
     {
         $id = Uuid::uuid4()->getHex();
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/category/' . $id);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category/' . $id);
         $response = $this->getStorefrontClient()->getResponse();
 
         static::assertSame(404, $response->getStatusCode());

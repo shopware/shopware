@@ -36,16 +36,6 @@ class StorefrontProductController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/product", name="storefront.api.product.list.deprecated")
-     *
-     * @deprecated
-     */
-    public function listDeprecated(Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->list($request, $checkoutContext, $responseFactory);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/product", name="storefront-api.product.list")
      */
     public function list(Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
@@ -67,16 +57,6 @@ class StorefrontProductController extends AbstractController
             $request,
             $checkoutContext->getContext()
         );
-    }
-
-    /**
-     * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function detailDeprecated(string $productId, Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->detail($productId, $request, $checkoutContext, $responseFactory);
     }
 
     /**

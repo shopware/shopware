@@ -33,6 +33,10 @@ Component.register('sw-condition-base', {
             default() {
                 return {};
             }
+        },
+        conditionAssociations: {
+            type: Object,
+            required: true
         }
     },
 
@@ -50,7 +54,10 @@ Component.register('sw-condition-base', {
             return State.getStore('error');
         },
         disableContextDeleteButton() {
-            return this.condition.type === PLACEHOLDER_NAME && this.condition.parent.children.length === 1;
+            const parent = this.conditionAssociations.getById(this.condition.parentId);
+
+            return this.condition.type === PLACEHOLDER_NAME
+                   && parent.children.length === 1;
         }
     },
 

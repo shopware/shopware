@@ -105,12 +105,15 @@ Component.register('sw-condition-and-container', {
                 return false;
             }
 
-            if (this.level === 1
-                && this.condition.parent.children.length === 1
-                && this.condition.type === AND_CONTAINER_NAME
-                && this.condition.children.length === 1
-                && this.condition.children[0].type === PLACEHOLDER_NAME) {
-                return true;
+            if (this.level === 1) {
+                const parent = this.conditionAssociations.getById(this.condition.parentId);
+
+                if (parent.children.length === 1
+                    && this.condition.type === AND_CONTAINER_NAME
+                    && this.condition.children.length === 1
+                    && this.condition.children[0].type === PLACEHOLDER_NAME) {
+                    return true;
+                }
             }
 
             if (this.level === 0
@@ -151,7 +154,6 @@ Component.register('sw-condition-and-container', {
                 {
                     type: type,
                     parentId: this.condition.id,
-                    parent: this.condition,
                     position: position
                 }
             );

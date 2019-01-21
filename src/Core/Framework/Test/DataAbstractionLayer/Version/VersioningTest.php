@@ -1593,7 +1593,7 @@ class VersioningTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
 
         $affected = $productRepository->create([$product], Context::createDefaultContext());
-        $writtenProductTranslations = $affected->getEventByDefinition(ProductTranslationDefinition::class)->getPayload();
+        $writtenProductTranslations = $affected->getEventByDefinition(ProductTranslationDefinition::class)->getPayloads();
 
         static::assertCount(1, $writtenProductTranslations);
         static::assertEquals('😄', $writtenProductTranslations[0]['name']);

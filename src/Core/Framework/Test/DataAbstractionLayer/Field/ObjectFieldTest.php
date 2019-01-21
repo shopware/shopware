@@ -132,11 +132,11 @@ EOF;
 
         static::assertArrayHasKey(ObjectDefinition::class, $written);
         static::assertCount(1, $written[ObjectDefinition::class]);
-        $payload = $written[ObjectDefinition::class][0]['payload'];
+        $payload = $written[ObjectDefinition::class][0]->getPayload();
 
         static::assertArrayHasKey('data', $payload);
         /** @var CategoryEntity $writtenCat */
-        $writtenCat = $written[ObjectDefinition::class][0]['payload']['data'];
+        $writtenCat = $written[ObjectDefinition::class][0]->getPayload()['data'];
 
         static::assertEquals('😄', $writtenCat->getName());
     }

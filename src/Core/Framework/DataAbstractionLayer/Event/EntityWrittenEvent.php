@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -38,7 +39,12 @@ class EntityWrittenEvent extends NestedEvent
     /**
      * @var array
      */
-    protected $payload;
+    protected $payloads;
+
+    /**
+     * @var EntityWriteResult[]
+     */
+    protected $entityWriteResults;
 
     /**
      * @var EntityExistence[]
@@ -52,19 +58,15 @@ class EntityWrittenEvent extends NestedEvent
 
     public function __construct(
         string $definition,
-        array $ids,
-        array $payload,
-        array $existences,
+        array $entityWriteResults,
         Context $context,
         array $errors = []
     ) {
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
-        $this->ids = $ids;
-        $this->payload = $payload;
-        $this->existences = $existences;
         $this->definition = $definition;
+        $this->entityWriteResults = $entityWriteResults;
 
         /* @var string|EntityDefinition $definition */
         $this->name = $definition::getEntityName() . '.written';
@@ -95,6 +97,13 @@ class EntityWrittenEvent extends NestedEvent
 
     public function getIds(): array
     {
+        if (empty($this->ids)) {
+            $this->ids = [];
+            foreach ($this->entityWriteResults as $entityWriteResult) {
+                $this->ids[] = $entityWriteResult->getPrimaryKey();
+            }
+        }
+
         return $this->ids;
     }
 
@@ -108,9 +117,16 @@ class EntityWrittenEvent extends NestedEvent
         $this->events->add($event);
     }
 
-    public function getPayload(): array
+    public function getPayloads(): array
     {
-        return $this->payload;
+        if (empty($this->payloads)) {
+            $this->payloads = [];
+            foreach ($this->entityWriteResults as $entityWriteResult) {
+                $this->payloads[] = $entityWriteResult->getPayload();
+            }
+        }
+
+        return $this->payloads;
     }
 
     /**
@@ -118,6 +134,15 @@ class EntityWrittenEvent extends NestedEvent
      */
     public function getExistences(): array
     {
+        if (empty($this->existences)) {
+            $this->existences = [];
+            foreach ($this->entityWriteResults as $entityWriteResult) {
+                if ($entityWriteResult->getExistence()) {
+                    $this->existences[] = $entityWriteResult->getExistence();
+                }
+            }
+        }
+
         return $this->existences;
     }
 }

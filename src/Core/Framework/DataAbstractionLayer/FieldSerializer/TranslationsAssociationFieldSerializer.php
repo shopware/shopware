@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Exception\MissingRootTranslationException;
 use Shopware\Core\System\Exception\MissingSystemTranslationException;
 use Shopware\Core\System\Exception\MissingTranslationLanguageException;
 
@@ -129,15 +128,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             $translations[$languageId] = $subResources;
         }
 
-        // move root translations before child translations
-        $context = $parameters->getContext();
-        uksort($translations, function ($a, $b) use ($context) {
-            $aIsRoot = $context->isRootLanguage($a);
-            $bIsRoot = $context->isRootLanguage($b);
-
-            return $bIsRoot <=> $aIsRoot;
-        });
-
         foreach ($translations as $languageId => $translation) {
             $clonedParams = $parameters->cloneForSubresource(
                 $field->getReferenceClass(),
@@ -158,17 +148,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;
             throw new MissingSystemTranslationException($path);
-        }
-
-        // if you insert a translation for a child language, you need to include one for the child's root too.
-        foreach ($languageIds as $id) {
-            $isChild = !$parameters->getContext()->isRootLanguage($id);
-            $rootId = $parameters->getContext()->getRootLanguageId($id);
-
-            if ($isChild && !\in_array($rootId, $languageIds, true)) {
-                $path = $parameters->getPath() . '/' . $key . '/' . $rootId;
-                throw new MissingRootTranslationException($rootId, $id, $path);
-            }
         }
 
         // yield nothing. There has to be one yield for php to type check

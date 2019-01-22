@@ -10,12 +10,10 @@ use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Exception\MissingRootTranslationException;
 use Shopware\Core\System\Exception\MissingSystemTranslationException;
 use Shopware\Core\System\Language\TranslationValidator;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class TranslationTest extends TestCase
 {
@@ -321,95 +319,6 @@ class TranslationTest extends TestCase
                 ],
             ],
             $langId
-        );
-    }
-
-    public function testIncompleteChildWithoutRootTranslationFails(): void
-    {
-        $childId = Uuid::uuid4()->getHex();
-        $rootId = Uuid::uuid4()->getHex();
-        $this->createLanguage($childId, $rootId);
-
-        $this->assertTranslationError(
-            [
-                [
-                    'code' => MissingRootTranslationException::VIOLATION_MISSING_ROOT_TRANSLATION,
-                    'status' => '400',
-                    'source' => [
-                        'pointer' => '/translations/' . $rootId,
-                    ],
-                ],
-            ],
-            [
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
-                    $childId => [
-                        'metaTitle' => 'translated',
-                    ],
-                ],
-            ]
-        );
-    }
-
-    public function testUnsetRequiredRootTranslationFieldFails(): void
-    {
-        $rootId = Uuid::uuid4()->getHex();
-        $this->createLanguage($rootId);
-        $id = Uuid::uuid4()->getHex();
-
-        $this->assertTranslation(
-            ['name' => 'translated'],
-            ['id' => $id,
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
-                    $rootId => ['name' => 'translated'],
-                ],
-            ],
-            $rootId
-        );
-
-        $updateData = [
-            'id' => $id,
-            'name' => null,
-        ];
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/category/' . $id;
-        $headers = [$this->getLangHeaderName() => $rootId];
-        $this->getClient()->request('PATCH', $url, $updateData, [], $headers);
-        $response = $this->getClient()->getResponse();
-        $errors = \json_decode($response->getContent(), true)['errors'];
-
-        static::assertEquals(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
-        static::assertEquals('400', $errors[0]['status']);
-        static::assertEquals('/translations/' . $rootId . '/name', $errors[0]['source']['pointer']);
-    }
-
-    public function testRootIsMissingRequiredFieldWithCompleteChildFails(): void
-    {
-        $childId = Uuid::uuid4()->getHex();
-        $rootId = Uuid::uuid4()->getHex();
-        $this->createLanguage($childId, $rootId);
-
-        $this->assertTranslationError(
-            [
-                [
-                    'code' => NotBlank::IS_BLANK_ERROR,
-                    'status' => '400',
-                    'source' => [
-                        'pointer' => '/translations/' . $rootId . '/name',
-                    ],
-                ],
-            ],
-            [
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
-                    $childId => [
-                        'name' => 'translated',
-                    ],
-                    $rootId => [
-                        'metaTitle' => 'only translated by fallback',
-                    ],
-                ],
-            ]
         );
     }
 

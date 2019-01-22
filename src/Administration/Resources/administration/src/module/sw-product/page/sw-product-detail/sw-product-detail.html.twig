@@ -28,14 +28,19 @@
             <sw-card-view slot="content" sidebar>
                 {% block sw_product_detail_content_tabs %}
                     <sw-tabs class="sw-product-detail-page__tabs">
-                        <sw-tabs-item :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
-                                      :title="$tc('sw-product.detail.tabGeneral')">
-                            {{ $tc('sw-product.detail.tabGeneral') }}
-                        </sw-tabs-item>
-                        <sw-tabs-item :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                                      :title="$tc('sw-product.detail.tabAdvancedPrices')">
-                            {{ $tc('sw-product.detail.tabAdvancedPrices') }}
-                        </sw-tabs-item>
+                        {% block sw_product_detail_content_tabs_general %}
+                            <sw-tabs-item :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-product.detail.tabGeneral')">
+                                {{ $tc('sw-product.detail.tabGeneral') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_product_detail_content_tabs_advanced_prices %}
+                            <sw-tabs-item :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-product.detail.tabAdvancedPrices')">
+                                {{ $tc('sw-product.detail.tabAdvancedPrices') }}
+                            </sw-tabs-item>
+                        {% endblock %}
                     </sw-tabs>
                 {% endblock %}
 

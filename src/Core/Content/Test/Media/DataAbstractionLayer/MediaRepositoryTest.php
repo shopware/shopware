@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -51,7 +51,7 @@ class MediaRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
@@ -91,7 +91,7 @@ class MediaRepositoryTest extends TestCase
         ],
             $this->context
         );
-        $media = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
@@ -136,7 +136,7 @@ class MediaRepositoryTest extends TestCase
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $read = $this->mediaRepository->read(
-            new ReadCriteria(
+            new Criteria(
                 [
                     $firstId,
                     $secondId,

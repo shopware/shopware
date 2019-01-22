@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -88,7 +88,7 @@ class MediaFolderConfigIndexerTest extends TestCase
             ],
         ], $this->context);
 
-        $children = $this->folderRepository->read(new ReadCriteria([$child1Id, $child1_1Id]), $this->context);
+        $children = $this->folderRepository->read(new Criteria([$child1Id, $child1_1Id]), $this->context);
 
         static::assertEquals($newConfigId, $children->get($child1Id)->getConfigurationId());
         static::assertEquals($newConfigId, $children->get($child1_1Id)->getConfigurationId());
@@ -148,7 +148,7 @@ class MediaFolderConfigIndexerTest extends TestCase
             ],
         ], $this->context);
 
-        $children = $this->folderRepository->read(new ReadCriteria([$child1_1Id, $child1_1_1Id]), $this->context);
+        $children = $this->folderRepository->read(new Criteria([$child1_1Id, $child1_1_1Id]), $this->context);
 
         static::assertEquals($configId, $children->get($child1_1Id)->getConfigurationId());
         static::assertEquals($configId, $children->get($child1_1_1Id)->getConfigurationId());
@@ -203,7 +203,7 @@ class MediaFolderConfigIndexerTest extends TestCase
 
         $this->configIndexer->index(new \DateTime());
 
-        $children = $this->folderRepository->read(new ReadCriteria([$child1Id, $child1_1Id]), $this->context);
+        $children = $this->folderRepository->read(new Criteria([$child1Id, $child1_1Id]), $this->context);
 
         static::assertEquals($configId, $children->get($child1Id)->getConfigurationId());
         static::assertEquals($configId, $children->get($child1_1Id)->getConfigurationId());

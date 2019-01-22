@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -112,7 +112,7 @@ class PaymentService
      */
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
-        $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
+        $paymentMethods = $this->paymentMethodRepository->read(new Criteria([$paymentMethodId]), $context);
 
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $paymentMethods->get($paymentMethodId);

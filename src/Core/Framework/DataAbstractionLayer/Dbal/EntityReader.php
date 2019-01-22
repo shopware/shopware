@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationF
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -79,7 +78,7 @@ class EntityReader implements EntityReaderInterface
         $this->parser = $parser;
     }
 
-    public function read(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
+    public function read(string $definition, Criteria $criteria, Context $context): EntityCollection
     {
         $criteria->resetSorting();
         $criteria->resetQueries();
@@ -98,7 +97,7 @@ class EntityReader implements EntityReaderInterface
     }
 
     private function _read(
-        ReadCriteria $criteria,
+        Criteria $criteria,
         string $definition,
         Context $context,
         string $entity,
@@ -302,7 +301,7 @@ class EntityReader implements EntityReaderInterface
         $this->queryHelper->addTranslationSelect($root, $definition, $query, $context);
     }
 
-    private function fetch(ReadCriteria $criteria, string $definition, Context $context, FieldCollection $fields): array
+    private function fetch(Criteria $criteria, string $definition, Context $context, FieldCollection $fields): array
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -345,7 +344,7 @@ class EntityReader implements EntityReaderInterface
         /** @var string|EntityDefinition $definition */
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read(
-            new ReadCriteria($ids),
+            new Criteria($ids),
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),
@@ -500,7 +499,7 @@ class EntityReader implements EntityReaderInterface
         return false;
     }
 
-    private function loadOneToMany(ReadCriteria $criteria, string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection): void
+    private function loadOneToMany(Criteria $criteria, string $definition, OneToManyAssociationField $association, Context $context, EntityCollection $collection): void
     {
         /** @var string|EntityDefinition $definition */
         $accessor = $definition::getEntityName() . '.' . $association->getPropertyName();
@@ -554,21 +553,21 @@ class EntityReader implements EntityReaderInterface
         }
 
         //create new read criteria for the association without pre fetched ids
-        $readCriteria = new ReadCriteria([]);
-        $readCriteria->addFilter(...$fieldCriteria->getFilters());
-        $readCriteria->addPostFilter(...$fieldCriteria->getPostFilters());
-        $readCriteria->addSorting(...$fieldCriteria->getSorting());
-        $readCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
+        $Criteria = new Criteria([]);
+        $Criteria->addFilter(...$fieldCriteria->getFilters());
+        $Criteria->addPostFilter(...$fieldCriteria->getPostFilters());
+        $Criteria->addSorting(...$fieldCriteria->getSorting());
+        $Criteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
 
         foreach ($fieldCriteria->getAssociations() as $key => $associationCriteria) {
-            $readCriteria->addAssociation($key, $associationCriteria);
+            $Criteria->addAssociation($key, $associationCriteria);
         }
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
 
         $data = $this->_read(
-            $readCriteria,
+            $Criteria,
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),
@@ -634,15 +633,15 @@ class EntityReader implements EntityReaderInterface
         }
 
         //create new read criteria for the association
-        $readCriteria = new ReadCriteria($ids);
+        $Criteria = new Criteria($ids);
         foreach ($fieldCriteria->getAssociations() as $key => $associationCriteria) {
-            $readCriteria->addAssociation($key, $associationCriteria);
+            $Criteria->addAssociation($key, $associationCriteria);
         }
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read(
-            $readCriteria,
+            $Criteria,
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),
@@ -699,7 +698,7 @@ class EntityReader implements EntityReaderInterface
         $referenceClass = $association->getReferenceDefinition();
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read(
-            new ReadCriteria($ids),
+            new Criteria($ids),
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),
@@ -773,7 +772,7 @@ class EntityReader implements EntityReaderInterface
         //build inverse accessor `product.categories.id`
         $accessor = $association->getReferenceDefinition()::getEntityName() . '.' . $reference->getPropertyName() . '.id';
 
-        $criteria = new ReadCriteria([]);
+        $criteria = new Criteria([]);
         $criteria->addSorting(...$fieldCriteria->getSorting());
         $criteria->addFilter(...$fieldCriteria->getFilters());
         $criteria->addPostFilter(...$fieldCriteria->getPostFilters());
@@ -838,7 +837,7 @@ class EntityReader implements EntityReaderInterface
         }
         unset($row);
 
-        $read = new ReadCriteria($ids);
+        $read = new Criteria($ids);
         foreach ($fieldCriteria->getAssociations() as $fieldName => $associationCriteria) {
             $read->addAssociation($fieldName, $associationCriteria);
         }

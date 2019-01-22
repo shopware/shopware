@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
@@ -36,7 +35,7 @@ class VariantGenerator
 
     public function generate(string $productId, Context $context, $offset = null, $limit = null): EntityWrittenContainerEvent
     {
-        $products = $this->productRepository->read(new ReadCriteria([$productId]), $context);
+        $products = $this->productRepository->read(new Criteria([$productId]), $context);
         $product = $products->get($productId);
 
         if (!$product) {

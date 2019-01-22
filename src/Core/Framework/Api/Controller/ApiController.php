@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -147,7 +146,7 @@ class ApiController extends AbstractController
         }
 
         /** @var EntityRepositoryInterface $repository */
-        $entities = $repository->read(new ReadCriteria([$id]), $context);
+        $entities = $repository->read(new Criteria([$id]), $context);
         $entity = $entities->get($id);
 
         if ($entity === null) {
@@ -458,7 +457,7 @@ class ApiController extends AbstractController
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
-            $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
+            $entities = $repository->read(new Criteria($event->getIds()), $context);
 
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
@@ -495,7 +494,7 @@ class ApiController extends AbstractController
 
             $repository = $this->getRepository($definition, $request);
 
-            $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
+            $entities = $repository->read(new Criteria($event->getIds()), $context);
 
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
@@ -522,7 +521,7 @@ class ApiController extends AbstractController
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
-            $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
+            $entities = $repository->read(new Criteria($event->getIds()), $context);
 
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
@@ -538,7 +537,7 @@ class ApiController extends AbstractController
 
         $repository = $this->getRepository($reference, $request);
 
-        $entities = $repository->read(new ReadCriteria($event->getIds()), $context);
+        $entities = $repository->read(new Criteria($event->getIds()), $context);
 
         $entity = $entities->first();
 

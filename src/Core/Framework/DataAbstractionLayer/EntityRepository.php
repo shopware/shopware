@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -74,12 +73,12 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $ids = $this->searchIds($criteria, $context);
 
-        $readCriteria = new ReadCriteria($ids->getIds());
+        $Criteria = new Criteria($ids->getIds());
         foreach ($criteria->getAssociations() as $key => $associationCriteria) {
-            $readCriteria->addAssociation($key, $associationCriteria);
+            $Criteria->addAssociation($key, $associationCriteria);
         }
 
-        $entities = $this->read($readCriteria, $context);
+        $entities = $this->read($Criteria, $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
@@ -179,7 +178,7 @@ class EntityRepository implements EntityRepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function read(ReadCriteria $criteria, Context $context): EntityCollection
+    public function read(Criteria $criteria, Context $context): EntityCollection
     {
         /** @var EntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context);

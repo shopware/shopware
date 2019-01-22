@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -66,7 +66,7 @@ class ProductActionControllerTest extends TestCase
 
         static::assertSame(204, $this->getClient()->getResponse()->getStatusCode());
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.configurators');
         $product = $this->productRepository->read($criteria, $context)->get($id);
 
@@ -106,7 +106,7 @@ class ProductActionControllerTest extends TestCase
         static::assertArrayHasKey('data', $ids);
         static::assertCount(2, $ids['data']);
 
-        $products = $this->productRepository->read(new ReadCriteria($ids['data']), $context);
+        $products = $this->productRepository->read(new Criteria($ids['data']), $context);
 
         foreach ($products as $product) {
             static::assertSame($id, $product->getParentId());

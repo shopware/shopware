@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
@@ -99,7 +99,7 @@ class EntityRepositoryTest extends TestCase
             $context
         );
 
-        $locale = $repository->read(new ReadCriteria([$id]), $context);
+        $locale = $repository->read(new Criteria([$id]), $context);
 
         static::assertInstanceOf(EntityCollection::class, $locale);
         static::assertCount(1, $locale);
@@ -131,7 +131,7 @@ class EntityRepositoryTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
         $dispatcher->addListener('locale.loaded', $listener);
 
-        $locale = $repository->read(new ReadCriteria([$id]), $context);
+        $locale = $repository->read(new Criteria([$id]), $context);
 
         static::assertInstanceOf(EntityCollection::class, $locale);
         static::assertCount(1, $locale);
@@ -185,7 +185,7 @@ class EntityRepositoryTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
         $dispatcher->addListener('tax.loaded', $listener);
 
-        $locale = $repository->read(new ReadCriteria([$id, $id2]), $context);
+        $locale = $repository->read(new Criteria([$id, $id2]), $context);
 
         static::assertInstanceOf(EntityCollection::class, $locale);
         static::assertCount(2, $locale);
@@ -309,7 +309,7 @@ class EntityRepositoryTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
         $dispatcher->addListener('product_price_rule.loaded', $listener);
 
-        $locale = $repository->read(new ReadCriteria([$id, $id2]), $context);
+        $locale = $repository->read(new Criteria([$id, $id2]), $context);
 
         static::assertInstanceOf(EntityCollection::class, $locale);
         static::assertCount(2, $locale);
@@ -344,7 +344,7 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
-        $entities = $repository->read(new ReadCriteria([$id, $newId]), $context);
+        $entities = $repository->read(new Criteria([$id, $newId]), $context);
 
         static::assertCount(2, $entities);
         static::assertTrue($entities->has($id));
@@ -390,7 +390,7 @@ class EntityRepositoryTest extends TestCase
         $newId = array_shift($newId);
         static::assertNotEquals($id, $newId);
 
-        $entities = $repository->read(new ReadCriteria([$id, $newId]), $context);
+        $entities = $repository->read(new Criteria([$id, $newId]), $context);
 
         static::assertCount(2, $entities);
         static::assertTrue($entities->has($id));
@@ -456,7 +456,7 @@ class EntityRepositoryTest extends TestCase
         $written = $result->getEventByDefinition(ProductPriceRuleDefinition::class);
         static::assertCount(2, $written->getIds());
 
-        $entities = $repository->read(new ReadCriteria([$id, $newId]), $context);
+        $entities = $repository->read(new Criteria([$id, $newId]), $context);
 
         /** @var ProductEntity $old */
         /** @var ProductEntity $new */
@@ -514,7 +514,7 @@ class EntityRepositoryTest extends TestCase
         $written = $result->getEventByDefinition(CategoryDefinition::class);
         static::assertNull($written);
 
-        $criteria = new ReadCriteria([$id, $newId]);
+        $criteria = new Criteria([$id, $newId]);
         $criteria->addAssociation('product.categories');
         $criteria->addAssociation('product.categoriesRo');
         $entities = $repository->read($criteria, $context);
@@ -579,9 +579,9 @@ class EntityRepositoryTest extends TestCase
 
         static::assertCount(4, $childrenIds);
 
-        $readCriteria = new ReadCriteria([$newId]);
-        $readCriteria->addAssociation('product.children');
-        $product = $repo->read($readCriteria, $context)->get($newId);
+        $Criteria = new Criteria([$newId]);
+        $Criteria->addAssociation('product.children');
+        $product = $repo->read($Criteria, $context)->get($newId);
 
         /** @var ProductEntity $product */
         static::assertCount(2, $product->getChildren());
@@ -734,7 +734,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(12, $event->getIds());
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('media_folder.children', new PaginationCriteria(2, 0));
 
         $folder = $repository->read($criteria, $context)->get($id);
@@ -746,7 +746,7 @@ class EntityRepositoryTest extends TestCase
 
         $firstIds = $folder->getChildren()->getIds();
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('media_folder.children', new PaginationCriteria(3, 2));
 
         $folder = $repository->read($criteria, $context)->get($id);

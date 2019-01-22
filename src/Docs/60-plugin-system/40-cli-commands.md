@@ -88,7 +88,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CustomerPrintCommand extends Command
 {
     /**
-     * @var RepositoryInterface 
+     * @var EntityRepositoryInterface 
      */
     private $customerRepository;
 

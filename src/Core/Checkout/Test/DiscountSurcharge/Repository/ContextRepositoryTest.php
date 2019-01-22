@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
@@ -76,7 +76,7 @@ class ContextRepositoryTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $rules = $this->repository->read(new ReadCriteria([$id]), $this->context);
+        $rules = $this->repository->read(new Criteria([$id]), $this->context);
 
         $currencyRule = (new CurrencyRule())->assign(['currencyIds' => [$currencyId, $currencyId2]]);
 

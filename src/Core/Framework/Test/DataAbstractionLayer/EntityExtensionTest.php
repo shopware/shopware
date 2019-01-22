@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
@@ -125,7 +124,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -148,13 +147,13 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->hasExtension('myPrices'));
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.myPrices');
 
         /** @var ProductEntity $product */
@@ -166,7 +165,7 @@ class EntityExtensionTest extends TestCase
         static::assertInstanceOf(ProductPriceRuleCollection::class, $product->getExtension('myPrices'));
         static::assertCount(2, $product->getExtension('myPrices'));
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.extensions.myPrices');
 
         /** @var ProductEntity $product */
@@ -229,13 +228,13 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->hasExtension('myPrices'));
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.myPrices', new PaginationCriteria(1));
 
         /** @var ProductEntity $product */
@@ -303,7 +302,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -328,13 +327,13 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->hasExtension('myCategories'));
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.myCategories');
 
         /** @var ProductEntity $product */
@@ -346,7 +345,7 @@ class EntityExtensionTest extends TestCase
         static::assertInstanceOf(CategoryCollection::class, $product->getExtension('myCategories'));
         static::assertCount(2, $product->getExtension('myCategories'));
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.myCategories');
 
         /** @var ProductEntity $product */
@@ -413,13 +412,13 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->hasExtension('myCategories'));
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.extensions.myCategories', new PaginationCriteria(2));
 
         /** @var ProductEntity $product */
@@ -431,7 +430,7 @@ class EntityExtensionTest extends TestCase
         static::assertInstanceOf(CategoryCollection::class, $product->getExtension('myCategories'));
         static::assertCount(2, $product->getExtension('myCategories'));
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.myCategories', new PaginationCriteria(2));
 
         /** @var ProductEntity $product */

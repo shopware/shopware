@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
@@ -238,7 +237,7 @@ class CategoryRepositoryTest extends TestCase
 
         $this->repository->create($categories, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$parent]);
+        $criteria = new Criteria([$parent]);
         $criteria->addAssociation('children');
 
         /** @var CategoryCollection $result */
@@ -261,7 +260,7 @@ class CategoryRepositoryTest extends TestCase
         static::assertEquals($recordB, $childrenArray[1]->getId());
         static::assertEquals(2, $childrenArray[1]->getLevel());
 
-        $criteria = new ReadCriteria([$recordA]);
+        $criteria = new Criteria([$recordA]);
         $criteria->addAssociation('children');
 
         /** @var CategoryCollection $result */

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
@@ -156,7 +155,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 return Uuid::fromBytesToHex($bytes);
             }, $ids);
 
-            $data = $this->reader->read($aggregation->getDefinition(), new ReadCriteria($ids), $context);
+            $data = $this->reader->read($aggregation->getDefinition(), new Criteria($ids), $context);
 
             return new EntityAggregationResult($aggregation, $data);
         }

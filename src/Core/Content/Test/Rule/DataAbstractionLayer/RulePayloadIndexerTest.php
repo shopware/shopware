@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
@@ -79,10 +79,10 @@ class RulePayloadIndexerTest extends TestCase
         $this->repository->create([$data], $this->context);
 
         $this->connection->update('rule', ['payload' => null], ['1' => '1']);
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
@@ -121,7 +121,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
@@ -182,10 +182,10 @@ class RulePayloadIndexerTest extends TestCase
         $this->repository->create($data, $this->context);
 
         $this->connection->update('rule', ['payload' => null], ['1' => '1']);
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
-        $rules = $this->repository->read(new ReadCriteria([$id, $rule2Id]), $this->context);
+        $rules = $this->repository->read(new Criteria([$id, $rule2Id]), $this->context);
         $rule = $rules->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
@@ -253,7 +253,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create($data, $this->context);
 
-        $rules = $this->repository->read(new ReadCriteria([$id, $rule2Id]), $this->context);
+        $rules = $this->repository->read(new Criteria([$id, $rule2Id]), $this->context);
         $rule = $rules->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
@@ -307,10 +307,10 @@ class RulePayloadIndexerTest extends TestCase
         $this->repository->create([$data], $this->context);
 
         $this->connection->update('rule', ['payload' => null], ['1' => '1']);
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(AndRule::class, $rule->getPayload());
 
@@ -344,10 +344,10 @@ class RulePayloadIndexerTest extends TestCase
         $this->repository->create([$data], $this->context);
 
         $this->connection->update('rule', ['payload' => null], ['1' => '1']);
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
@@ -381,7 +381,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $rule = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $rule = $this->repository->read(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(

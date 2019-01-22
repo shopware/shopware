@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -63,7 +63,7 @@ class PaymentTransactionChainProcessor
      */
     public function process(string $orderId, Context $context, ?string $finishUrl = null): ?RedirectResponse
     {
-        $criteria = new ReadCriteria([$orderId]);
+        $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('order.transactions');
 
         /** @var OrderEntity|null $order */
@@ -102,7 +102,7 @@ class PaymentTransactionChainProcessor
      */
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
-        $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
+        $paymentMethods = $this->paymentMethodRepository->read(new Criteria([$paymentMethodId]), $context);
 
         $paymentMethod = $paymentMethods->get($paymentMethodId);
         if (!$paymentMethod) {

@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -90,10 +90,10 @@ class MediaFolderControllerTest extends TestCase
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
         static::assertEmpty($response->getContent());
 
-        $folder = $this->mediaFolderRepo->read(new ReadCriteria([$folderId]), $this->context)->get($folderId);
+        $folder = $this->mediaFolderRepo->read(new Criteria([$folderId]), $this->context)->get($folderId);
         static::assertNull($folder);
 
-        $config = $this->mediaFolderConfigRepo->read(new ReadCriteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->read(new Criteria([$configId]), $this->context)->get($configId);
         static::assertNull($config);
     }
 }

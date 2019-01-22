@@ -8,7 +8,6 @@ use Shopware\Core\Content\Category\Navigation;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -50,7 +49,7 @@ class StorefrontCategoryRepository
 
         if ($categoryId) {
             /** @var CategoryEntity|null $activeCategory */
-            $activeCategory = $this->categoryRepository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
+            $activeCategory = $this->categoryRepository->read(new Criteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {
                 $rootIds = array_merge($activeCategory->getPathArray(), [$categoryId]);

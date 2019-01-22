@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -81,7 +80,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$product1, $product2, $product3]);
+        $criteria = new Criteria([$product1, $product2, $product3]);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -180,7 +179,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$productId1, $productId2, $productId3]);
+        $criteria = new Criteria([$productId1, $productId2, $productId3]);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -753,7 +752,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria = new Criteria([$manufacturerId]);
         $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
@@ -769,7 +768,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertCount(4, $manufacturer->getProducts());
 
         //test if two of four products can be read if context contains no rule
-        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria = new Criteria([$manufacturerId]);
         $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(2));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
@@ -783,7 +782,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertCount(2, $manufacturer->getProducts());
 
         //test if two of four products can be read if context contains no rule
-        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria = new Criteria([$manufacturerId]);
         $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -48,7 +48,7 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->read(new ReadCriteria([$id]), $context);
+        $entities = $this->repository->read(new Criteria([$id]), $context);
 
         static::assertEquals(1, $entities->count());
         static::assertEquals('My app', $entities->first()->getLabel());

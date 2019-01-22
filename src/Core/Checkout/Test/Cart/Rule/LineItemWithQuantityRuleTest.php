@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -89,7 +89,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testValidateWithMissingQuantity()
@@ -292,7 +292,7 @@ class LineItemWithQuantityRuleTest extends TestCase
 
         static::assertCount(
             4, $this->conditionRepository->read(
-            new ReadCriteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]), $this->context
+            new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]), $this->context
         )
         );
     }
@@ -348,6 +348,6 @@ class LineItemWithQuantityRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 }

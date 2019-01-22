@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -84,7 +84,7 @@ class AndRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testIfRuleWithChildRulesIsConsistent()
@@ -110,9 +110,9 @@ class AndRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
         /** @var RuleEntity $ruleStruct */
-        $ruleStruct = $this->ruleRepository->read(new ReadCriteria([$ruleId]), $this->context)->get($ruleId);
+        $ruleStruct = $this->ruleRepository->read(new Criteria([$ruleId]), $this->context)->get($ruleId);
         static::assertEquals(new AndRule([new AndRule([new AndRule()])]), $ruleStruct->getPayload());
     }
 }

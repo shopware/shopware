@@ -19,7 +19,6 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -87,7 +86,7 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $media = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $context)->get($mediaId);
+        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $context)->get($mediaId);
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
@@ -121,7 +120,7 @@ class FileSaverTest extends TestCase
                 unlink($tempFile);
             }
         }
-        $media = $this->mediaRepository->read(new ReadCriteria([$media->getId()]), $context)->get($media->getId());
+        $media = $this->mediaRepository->read(new Criteria([$media->getId()]), $context)->get($media->getId());
 
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
         static::assertNotEquals($oldMediaFilePath, $path);
@@ -165,7 +164,7 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $media = $this->mediaRepository->read(new ReadCriteria([$mediaId]), $context)->get($mediaId);
+        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $context)->get($mediaId);
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
@@ -198,7 +197,7 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $updatedMedia = $this->mediaRepository->read(new ReadCriteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->read(new Criteria([$png->getId()]), $context)->get($png->getId());
         self::assertStringEndsWith($png->getFileName(), $updatedMedia->getFileName());
     }
 
@@ -238,7 +237,7 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $newMedia = $this->mediaRepository->read(new ReadCriteria([$newMediaId]), $context)->get($newMediaId);
+        $newMedia = $this->mediaRepository->read(new Criteria([$newMediaId]), $context)->get($newMediaId);
         self::assertStringEndsWith($png->getFileName() . ' (1)', $newMedia->getFileName());
     }
 
@@ -273,7 +272,7 @@ class FileSaverTest extends TestCase
             }
         }
 
-        $updated = $this->mediaRepository->read(new ReadCriteria([$png->getId()]), $context)->get($png->getId());
+        $updated = $this->mediaRepository->read(new Criteria([$png->getId()]), $context)->get($png->getId());
         static::assertStringEndsWith($longFileName, $updated->getFileName());
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updated)));
     }
@@ -357,7 +356,7 @@ class FileSaverTest extends TestCase
         $this->getPublicFilesystem()->put($oldThumbnailPath, 'test file content');
 
         $this->fileSaver->renameMedia($png->getId(), 'new destination', $context);
-        $updatedMedia = $this->mediaRepository->read(new ReadCriteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->read(new Criteria([$png->getId()]), $context)->get($png->getId());
         static::assertFalse($this->getPublicFilesystem()->has($oldMediaPath));
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
 
@@ -398,7 +397,7 @@ class FileSaverTest extends TestCase
         $this->getPublicFilesystem()->put($mediaPath, 'test file');
 
         $fileSaverWithFailingRepository->renameMedia($png->getId(), 'new file name', $context);
-        $updatedMedia = $this->mediaRepository->read(new ReadCriteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->read(new Criteria([$png->getId()]), $context)->get($png->getId());
 
         static::assertEquals($png->getFileName(), $updatedMedia->getFileName());
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));

@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
@@ -573,7 +573,7 @@ class StorefrontCustomerControllerTest extends TestCase
     private function readCustomer(string $userID): CustomerEntity
     {
         return $this->customerRepository->read(
-            new ReadCriteria([$userID]),
+            new Criteria([$userID]),
             Context::createDefaultContext()
         )->get($userID);
     }
@@ -581,7 +581,7 @@ class StorefrontCustomerControllerTest extends TestCase
     private function readCustomerAddress(string $addressId): ?CustomerAddressEntity
     {
         return $this->customerAddressRepository->read(
-            new ReadCriteria([$addressId]),
+            new Criteria([$addressId]),
             Context::createDefaultContext()
         )->get($addressId);
     }

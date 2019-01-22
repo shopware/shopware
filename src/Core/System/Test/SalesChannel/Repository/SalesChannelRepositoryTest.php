@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -120,7 +119,7 @@ class SalesChannelRepositoryTest extends TestCase
         ]], $context);
 
         /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$salesChannelId]), $context)->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->read(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
 
         self::assertEquals($name, $salesChannel->getName());
         self::assertEquals($accessKey, $salesChannel->getAccessKey());

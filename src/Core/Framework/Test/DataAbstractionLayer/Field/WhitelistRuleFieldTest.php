@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -78,7 +77,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$product1, $product2, $product3]);
+        $criteria = new Criteria([$product1, $product2, $product3]);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -177,7 +176,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$productId1, $productId2, $productId3]);
+        $criteria = new Criteria([$productId1, $productId2, $productId3]);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();

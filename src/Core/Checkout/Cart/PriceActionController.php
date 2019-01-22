@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -67,7 +67,7 @@ class PriceActionController extends AbstractController
         $output = $request->request->get('output', 'gross');
         $preCalculated = $request->request->getBoolean('calculated', true);
 
-        $taxes = $this->taxRepository->read(new ReadCriteria([$taxId]), $context);
+        $taxes = $this->taxRepository->read(new Criteria([$taxId]), $context);
         $tax = $taxes->get($taxId);
         if (!$tax instanceof TaxEntity) {
             throw new \InvalidArgumentException(sprintf('Tax rule with id %s not found taxId missing', $taxId));

@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\TreeIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -68,7 +68,7 @@ class TreeIndexerTest extends TestCase
 
         $categoryD = $this->createCategory($categoryC);
 
-        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         static::assertEquals(null, $categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
@@ -92,7 +92,7 @@ class TreeIndexerTest extends TestCase
         ├── Category D
         */
 
-        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         static::assertEquals(null, $categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
@@ -122,7 +122,7 @@ class TreeIndexerTest extends TestCase
         $categoryE = $this->createCategory($categoryD);
 
         $categories = $this->categoryRepository->read(
-            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
+            new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
             $this->context
         );
 
@@ -161,7 +161,7 @@ class TreeIndexerTest extends TestCase
         │  └── Category E
          */
         $categories = $this->categoryRepository->read(
-            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
+            new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
             $this->context
         );
 
@@ -193,7 +193,7 @@ class TreeIndexerTest extends TestCase
 
         $categoryD = $this->createCategory($categoryC);
 
-        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         static::assertEquals(null, $categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
@@ -209,7 +209,7 @@ class TreeIndexerTest extends TestCase
         $versionContext = $this->context->createWithVersionId($versionId);
 
         /** @var CategoryEntity $category */
-        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $versionContext)->first();
+        $category = $this->categoryRepository->read(new Criteria([$categoryD]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
 
@@ -220,11 +220,11 @@ class TreeIndexerTest extends TestCase
 
         /** @var CategoryEntity $category */
         //check that the path updated
-        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $versionContext)->first();
+        $category = $this->categoryRepository->read(new Criteria([$categoryD]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|', $category->getPath());
 
-        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $this->context)->first();
+        $category = $this->categoryRepository->read(new Criteria([$categoryD]), $this->context)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
 
@@ -232,7 +232,7 @@ class TreeIndexerTest extends TestCase
 
         //test after merge the path is updated too
         /** @var CategoryEntity $category */
-        $category = $this->categoryRepository->read(new ReadCriteria([$categoryD]), $this->context)->first();
+        $category = $this->categoryRepository->read(new Criteria([$categoryD]), $this->context)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|', $category->getPath());
     }
@@ -265,7 +265,7 @@ class TreeIndexerTest extends TestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
         foreach ($categories as $category) {
             static::assertEquals(0, $category->getLevel());
             static::assertNull($category->getPath());
@@ -273,7 +273,7 @@ class TreeIndexerTest extends TestCase
 
         $this->treeIndexer->index(new \DateTime());
 
-        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         static::assertEquals(null, $categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());

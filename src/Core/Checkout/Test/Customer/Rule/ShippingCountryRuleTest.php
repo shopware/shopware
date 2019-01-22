@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -85,7 +85,7 @@ class ShippingCountryRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testValidateWithMissingCountryIds()
@@ -207,7 +207,7 @@ class ShippingCountryRuleTest extends TestCase
 
         static::assertCount(
             2, $this->conditionRepository->read(
-            new ReadCriteria([$conditionIdEq, $conditionIdNEq]), $this->context
+            new Criteria([$conditionIdEq, $conditionIdNEq]), $this->context
         )
         );
     }
@@ -263,6 +263,6 @@ class ShippingCountryRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 }

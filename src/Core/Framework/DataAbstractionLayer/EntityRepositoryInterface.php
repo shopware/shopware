@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -20,7 +19,7 @@ interface EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult;
 
-    public function read(ReadCriteria $criteria, Context $context): EntityCollection;
+    public function read(Criteria $criteria, Context $context): EntityCollection;
 
     public function update(array $data, Context $context): EntityWrittenContainerEvent;
 

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\PlatformRequest;
@@ -128,7 +127,7 @@ class StorefrontCheckoutContextController extends AbstractController
             throw new CustomerNotLoggedInException();
         }
 
-        $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
+        $addresses = $this->customerAddressRepository->read(new Criteria([$addressId]), $context->getContext());
         /** @var CustomerAddressEntity|null $address */
         $address = $addresses->get($addressId);
 

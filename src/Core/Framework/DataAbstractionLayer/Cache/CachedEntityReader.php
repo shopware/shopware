@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -41,7 +41,7 @@ class CachedEntityReader implements EntityReaderInterface
         $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
-    public function read(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
+    public function read(string $definition, Criteria $criteria, Context $context): EntityCollection
     {
         $collection = $this->loadFromCache($definition, $criteria, $context);
 
@@ -65,7 +65,7 @@ class CachedEntityReader implements EntityReaderInterface
         return $loaded;
     }
 
-    private function loadFromCache(string $definition, ReadCriteria $criteria, Context $context): ?EntityCollection
+    private function loadFromCache(string $definition, Criteria $criteria, Context $context): ?EntityCollection
     {
         if (\count($criteria->getAssociations()) > 0 || $criteria->getFilters() || $criteria->getPostFilters()) {
             return null;

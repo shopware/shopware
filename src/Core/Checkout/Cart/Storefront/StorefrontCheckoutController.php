@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -166,7 +166,7 @@ class StorefrontCheckoutController extends AbstractController
      */
     private function getOrderById(string $orderId, CheckoutContext $context): OrderEntity
     {
-        $criteria = new ReadCriteria([$orderId]);
+        $criteria = new Criteria([$orderId]);
         $order = $this->orderRepository->read($criteria, $context->getContext())->get($orderId);
 
         if (!$order) {

@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -63,7 +63,7 @@ class ProductApiTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $context = Context::createDefaultContext();
-        $products = $this->repository->read(new ReadCriteria([$id]), $context);
+        $products = $this->repository->read(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -98,7 +98,7 @@ class ProductApiTest extends TestCase
         $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $products = $this->repository->read(new ReadCriteria([$id]), $context);
+        $products = $this->repository->read(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -132,7 +132,7 @@ class ProductApiTest extends TestCase
         $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $products = $this->repository->read(new ReadCriteria([$id]), $context);
+        $products = $this->repository->read(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */

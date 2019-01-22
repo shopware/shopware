@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\SourceContext;
@@ -115,7 +114,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $context = $this->getContext($salesChannelId, $options);
 
         /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$salesChannelId]), $context)
+        $salesChannel = $this->salesChannelRepository->read(new Criteria([$salesChannelId]), $context)
             ->get($salesChannelId);
 
         if (!$salesChannel) {
@@ -130,11 +129,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         //load active currency, fallback to shop currency
         $currency = $salesChannel->getCurrency();
         if (array_key_exists(CheckoutContextService::CURRENCY_ID, $options)) {
-            $currency = $this->currencyRepository->read(new ReadCriteria([$options[CheckoutContextService::CURRENCY_ID]]), $context)->get($options[CheckoutContextService::CURRENCY_ID]);
+            $currency = $this->currencyRepository->read(new Criteria([$options[CheckoutContextService::CURRENCY_ID]]), $context)->get($options[CheckoutContextService::CURRENCY_ID]);
         }
 
         //fallback customer group is hard coded to 'EK'
-        $customerGroups = $this->customerGroupRepository->read(new ReadCriteria([Defaults::FALLBACK_CUSTOMER_GROUP]), $context);
+        $customerGroups = $this->customerGroupRepository->read(new Criteria([Defaults::FALLBACK_CUSTOMER_GROUP]), $context);
         $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
         $customerGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
 
@@ -158,7 +157,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
         //customer group switched?
         if (array_key_exists(CheckoutContextService::CUSTOMER_GROUP_ID, $options)) {
-            $customerGroup = $this->customerGroupRepository->read(new ReadCriteria([$options[CheckoutContextService::CUSTOMER_GROUP_ID]]), $context)->get($options[CheckoutContextService::CUSTOMER_GROUP_ID]);
+            $customerGroup = $this->customerGroupRepository->read(new Criteria([$options[CheckoutContextService::CUSTOMER_GROUP_ID]]), $context)->get($options[CheckoutContextService::CUSTOMER_GROUP_ID]);
         }
 
         //loads tax rules based on active customer group and delivery address
@@ -196,11 +195,11 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     {
         //payment switched in checkout?
         if (array_key_exists(CheckoutContextService::PAYMENT_METHOD_ID, $options)) {
-            return $this->paymentMethodRepository->read(new ReadCriteria([$options[CheckoutContextService::PAYMENT_METHOD_ID]]), $context)->get($options[CheckoutContextService::PAYMENT_METHOD_ID]);
+            return $this->paymentMethodRepository->read(new Criteria([$options[CheckoutContextService::PAYMENT_METHOD_ID]]), $context)->get($options[CheckoutContextService::PAYMENT_METHOD_ID]);
         }
 
         if (!$customer) {
-            return $this->paymentMethodRepository->read(new ReadCriteria([$salesChannel->getPaymentMethodId()]), $context)
+            return $this->paymentMethodRepository->read(new Criteria([$salesChannel->getPaymentMethodId()]), $context)
                 ->get($salesChannel->getPaymentMethodId());
         }
 
@@ -218,7 +217,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $id = $options[CheckoutContextService::SHIPPING_METHOD_ID];
         }
 
-        return $this->shippingMethodRepository->read(new ReadCriteria([$id]), $context)->get($id);
+        return $this->shippingMethodRepository->read(new Criteria([$id]), $context)->get($id);
     }
 
     private function getContext(string $salesChannelId, array $session): Context
@@ -297,7 +296,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $customerId = $options[CheckoutContextService::CUSTOMER_ID];
 
         /** @var CustomerEntity|null $customer */
-        $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
+        $customer = $this->customerRepository->read(new Criteria([$customerId]), $context)->get($customerId);
 
         if (!$customer) {
             return null;
@@ -319,7 +318,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             return $customer;
         }
 
-        $addresses = $this->addressRepository->read(new ReadCriteria($addressIds), $context);
+        $addresses = $this->addressRepository->read(new Criteria($addressIds), $context);
 
         //billing address changed within checkout?
         if ($billingAddressId) {
@@ -341,10 +340,10 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if (array_key_exists(CheckoutContextService::STATE_ID, $options)) {
-            $state = $this->countryStateRepository->read(new ReadCriteria([$options[CheckoutContextService::STATE_ID]]), $context)
+            $state = $this->countryStateRepository->read(new Criteria([$options[CheckoutContextService::STATE_ID]]), $context)
                 ->get($options[CheckoutContextService::STATE_ID]);
 
-            $country = $this->countryRepository->read(new ReadCriteria([$state->getCountryId()]), $context)
+            $country = $this->countryRepository->read(new Criteria([$state->getCountryId()]), $context)
                 ->get($state->getCountryId());
 
             return new ShippingLocation($country, $state, null);
@@ -355,7 +354,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $countryId = $options[CheckoutContextService::COUNTRY_ID];
         }
 
-        $country = $this->countryRepository->read(new ReadCriteria([$countryId]), $context)
+        $country = $this->countryRepository->read(new Criteria([$countryId]), $context)
             ->get($countryId);
 
         return ShippingLocation::createFromCountry($country);

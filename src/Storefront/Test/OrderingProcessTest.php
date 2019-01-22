@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -72,7 +72,7 @@ class OrderingProcessTest extends TestCase
         self::assertTrue(Uuid::isValid($orderId));
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext())
+        $order = $this->orderRepository->read(new Criteria([$orderId]), Context::createDefaultContext())
             ->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());

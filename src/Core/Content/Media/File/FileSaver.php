@@ -22,7 +22,6 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -295,7 +294,7 @@ class FileSaver
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->update([$data], $context);
 
-        return $this->mediaRepository->read(new ReadCriteria([$media->getId()]), $context)->get($media->getId());
+        return $this->mediaRepository->read(new Criteria([$media->getId()]), $context)->get($media->getId());
     }
 
     /**

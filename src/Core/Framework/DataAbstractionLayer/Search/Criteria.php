@@ -70,6 +70,25 @@ class Criteria extends Struct
      */
     protected $associations = [];
 
+    /**
+     * @var string[]
+     */
+    protected $ids;
+
+    public function __construct(array $ids = [])
+    {
+        if (\count($ids) > \count(array_filter($ids))) {
+            throw new \RuntimeException('Inconsistent argument for Criteria. Please filter all invalid values first.');
+        }
+
+        $this->ids = $ids;
+    }
+
+    public function getIds(): array
+    {
+        return $this->ids;
+    }
+
     public function getOffset(): ?int
     {
         return $this->offset;
@@ -276,5 +295,10 @@ class Criteria extends Struct
         }
 
         return $fields;
+    }
+
+    public function setIds(array $ids): void
+    {
+        $this->ids = $ids;
     }
 }

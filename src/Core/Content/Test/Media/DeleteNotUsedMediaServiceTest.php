@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class DeleteNotUsedMediaServiceTest extends TestCase
@@ -74,7 +74,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $this->deleteMediaService->deleteNotUsedMedia($this->context);
 
         $result = $this->mediaRepo->read(
-            new ReadCriteria([
+            new Criteria([
                 $txt->getId(),
                 $png->getId(),
                 $withProduct->getId(),

@@ -13,7 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -484,7 +484,7 @@ class WriterTest extends TestCase
         );
 
         $media = $this->getMediaRepository()->read(
-            new ReadCriteria([$id]),
+            new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
         self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
@@ -519,7 +519,7 @@ class WriterTest extends TestCase
         );
 
         $media = $this->getMediaRepository()->read(
-            new ReadCriteria([$id]),
+            new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
         self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
@@ -686,7 +686,7 @@ class WriterTest extends TestCase
         ], Context::createDefaultContext());
 
         $manufacturer = $this->getContainer()->get('product_manufacturer.repository')
-            ->read(new ReadCriteria([$manufacturerId]), Context::createDefaultContext())
+            ->read(new Criteria([$manufacturerId]), Context::createDefaultContext())
             ->get($manufacturerId);
 
         static::assertNotNull($manufacturer);

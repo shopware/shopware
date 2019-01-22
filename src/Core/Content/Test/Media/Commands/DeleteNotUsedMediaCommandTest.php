@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -81,7 +81,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         static::assertInternalType('int', strpos($string, 'Successfully deleted 2 media files.'));
 
         $result = $this->mediaRepository->read(
-            new ReadCriteria([
+            new Criteria([
                 $txt->getId(),
                 $png->getId(),
                 $withProduct->getId(),
@@ -128,7 +128,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         static::assertInternalType('int', strpos($string, 'Aborting due to user input.'));
 
         $result = $this->mediaRepository->read(
-            new ReadCriteria([
+            new Criteria([
                 $txt->getId(),
                 $png->getId(),
                 $withProduct->getId(),

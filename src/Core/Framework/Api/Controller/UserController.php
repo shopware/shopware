@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +31,7 @@ class UserController extends AbstractController
     {
         $userId = $context->getSourceContext()->getUserId();
 
-        $users = $this->userRepository->read(new ReadCriteria([$userId]), $context);
+        $users = $this->userRepository->read(new Criteria([$userId]), $context);
 
         return $responseFactory->createDetailResponse($users->get($userId), UserDefinition::class, $request, $context);
     }

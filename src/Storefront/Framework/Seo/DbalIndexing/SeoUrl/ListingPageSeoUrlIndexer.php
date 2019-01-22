@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
@@ -173,7 +172,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
             return;
         }
 
-        $categories = $this->categoryRepository->read(new ReadCriteria($ids), $context);
+        $categories = $this->categoryRepository->read(new Criteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getSourceContext()->getSalesChannelId());
 

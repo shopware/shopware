@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfigura
 use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -127,7 +126,7 @@ class ProductDetailPageletLoader
     {
         $containerId = $product->getParentId() ?? $product->getId();
 
-        $criteria = new ReadCriteria([]);
+        $criteria = new Criteria([]);
         $criteria->addFilter(new EqualsFilter('product_configurator.productId', $containerId));
 
         /** @var ProductConfiguratorCollection $configurator */

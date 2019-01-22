@@ -8,7 +8,6 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Confi
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -34,14 +33,14 @@ class StorefrontProductRepository
     public function read(array $ids, CheckoutContext $context): ProductCollection
     {
         /** @var ProductCollection $basics */
-        $basics = $this->productRepository->read(new ReadCriteria($ids), $context->getContext());
+        $basics = $this->productRepository->read(new Criteria($ids), $context->getContext());
 
         return $this->loadListProducts($basics, $context);
     }
 
     public function readDetail(array $ids, CheckoutContext $context): ProductCollection
     {
-        $criteria = new ReadCriteria($ids);
+        $criteria = new Criteria($ids);
         $criteria->addAssociation('product.datasheet');
         $criteria->addAssociation('product.services');
 

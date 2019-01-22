@@ -4,7 +4,6 @@ namespace src\Core\Content\Test\Media\Aggregate\MediaFolderConfigurationThumbnai
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -35,7 +34,7 @@ class MediaFolderConfigurationThumbnailSizeTest extends TestCase
             ],
         ], $context);
 
-        $read = $repository->read(new ReadCriteria([$configurationId]), $context);
+        $read = $repository->read(new Criteria([$configurationId]), $context);
         $configuration = $read->get($configurationId);
 
         static::assertNotNull($configuration);

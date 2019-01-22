@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Match;
@@ -93,7 +93,7 @@ class RuleValidatorTest extends TestCase
             }
         }
 
-        static::assertNull($this->ruleRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNull($this->ruleRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testWriteRuleWithInconsistentRootCondition(): void
@@ -130,7 +130,7 @@ class RuleValidatorTest extends TestCase
             }
         }
 
-        static::assertNull($this->ruleRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNull($this->ruleRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testWriteRuleWithInconsistentCondition(): void
@@ -171,7 +171,7 @@ class RuleValidatorTest extends TestCase
             }
         }
 
-        static::assertNull($this->ruleRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNull($this->ruleRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testWriteMultiRulesWithOneInconsistentCondition(): void
@@ -210,7 +210,7 @@ class RuleValidatorTest extends TestCase
                 static::assertSame('/conditions/' . $conditionId . '/property', $exception->getViolations()->get(0)->getPropertyPath());
             }
         }
-        $result = $this->ruleRepository->read(new ReadCriteria([$ruleId, $ruleId2]), $this->context);
+        $result = $this->ruleRepository->read(new Criteria([$ruleId, $ruleId2]), $this->context);
 
         static::assertNull($result->get($ruleId));
         static::assertNull($result->get($ruleId2));
@@ -258,7 +258,7 @@ class RuleValidatorTest extends TestCase
             }
         }
 
-        static::assertNull($this->conditionRepository->read(new ReadCriteria([$conditionId1]), $this->context)->get($conditionId1));
+        static::assertNull($this->conditionRepository->read(new Criteria([$conditionId1]), $this->context)->get($conditionId1));
     }
 
     public function testWriteConditionWithInconsistentChildCondition(): void
@@ -302,7 +302,7 @@ class RuleValidatorTest extends TestCase
             }
         }
 
-        static::assertNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testWriteConditionWithInconsistentRootCondition(): void
@@ -344,7 +344,7 @@ class RuleValidatorTest extends TestCase
             }
         }
 
-        static::assertNull($this->conditionRepository->read(new ReadCriteria([$conditionId]), $this->context)->get($conditionId));
+        static::assertNull($this->conditionRepository->read(new Criteria([$conditionId]), $this->context)->get($conditionId));
     }
 
     public function testWriteConditionWithAdditionalFields(): void
@@ -384,7 +384,7 @@ class RuleValidatorTest extends TestCase
             }
         }
 
-        static::assertNull($this->conditionRepository->read(new ReadCriteria([$conditionId]), $this->context)->get($conditionId));
+        static::assertNull($this->conditionRepository->read(new Criteria([$conditionId]), $this->context)->get($conditionId));
     }
 
     public function testWriteRuleWithConsistentConditions(): void
@@ -408,7 +408,7 @@ class RuleValidatorTest extends TestCase
         ];
 
         $this->ruleRepository->create([$data], $this->context);
-        static::assertNotNull($this->ruleRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->ruleRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testWriteConditionWithConsistentChildren(): void
@@ -439,7 +439,7 @@ class RuleValidatorTest extends TestCase
         ];
 
         $this->conditionRepository->create([$data], $this->context);
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
     }
 
     private function addMockRules(Rule ...$rules)

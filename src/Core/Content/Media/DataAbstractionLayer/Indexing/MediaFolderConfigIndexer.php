@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -78,7 +77,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
             if (!(array_key_exists('parentId', $update) && $update['parentId'] !== null) && !array_key_exists('configurationId', $update)) {
                 continue;
             } elseif (array_key_exists('parentId', $update) && !array_key_exists('configurationId', $update)) {
-                $folders = $this->folderRepository->read(new ReadCriteria([$update['id'], $update['parentId']]), $event->getContext());
+                $folders = $this->folderRepository->read(new Criteria([$update['id'], $update['parentId']]), $event->getContext());
                 $child = $folders->get($update['id']);
                 $parent = $folders->get($update['parentId']);
 

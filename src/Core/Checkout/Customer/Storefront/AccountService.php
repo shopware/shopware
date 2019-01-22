@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -177,7 +176,7 @@ class AccountService
 
     public function getCountryList(CheckoutContext $context): array
     {
-        $criteria = new ReadCriteria([]);
+        $criteria = new Criteria([]);
         $criteria->addFilter(new EqualsFilter('country.active', true));
 
         /** @var CountryCollection $countries */
@@ -452,7 +451,7 @@ class AccountService
         }
 
         /** @var CustomerAddressEntity|null $address */
-        $address = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext())->get($addressId);
+        $address = $this->customerAddressRepository->read(new Criteria([$addressId]), $context->getContext())->get($addressId);
 
         if (!$address || $address->getCustomerId() !== $context->getCustomer()->getId()) {
             throw new AddressNotFoundException($addressId);

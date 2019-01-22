@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Kernel;
@@ -51,7 +51,7 @@ class StorefrontProxyController extends AbstractController
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context)
     {
         /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->read(new ReadCriteria([$salesChannelId]), $context)->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->read(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
 
         if (!$salesChannel) {
             throw new InvalidSalesChannelIdException($salesChannelId);

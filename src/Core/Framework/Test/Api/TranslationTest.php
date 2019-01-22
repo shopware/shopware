@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -117,7 +117,7 @@ class TranslationTest extends TestCase
     {
         $localeRepo = $this->getContainer()->get('locale.repository');
         /** @var LocaleEntity $locale */
-        $locale = $localeRepo->read(new ReadCriteria([Defaults::TRANSLATION_CODE_SYSTEM]), Context::createDefaultContext())->first();
+        $locale = $localeRepo->read(new Criteria([Defaults::TRANSLATION_CODE_SYSTEM]), Context::createDefaultContext())->first();
 
         $this->assertTranslation(
             ['name' => 'system translation'],

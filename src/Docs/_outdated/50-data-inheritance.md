@@ -72,7 +72,7 @@ Now we can query and read the data over the repository:
 /** @var EntityRepositoryInterface $repo */
 $repo = $this->get(HumanRepository::class);
 
-$humans = $repo->read(new ReadCriteria([$parentId, $childId]), ShopContext::createDefaultContext());
+$humans = $repo->read(new Criteria([$parentId, $childId]), ShopContext::createDefaultContext());
 
 $parent = $humans->get($parentId);
 $child = $humans->get($childId);

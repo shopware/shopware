@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
@@ -59,7 +59,7 @@ class MediaRepository extends EntityRepository
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        $affectedMedia = $this->read(new ReadCriteria($this->getRawIds($ids)), $context);
+        $affectedMedia = $this->read(new Criteria($this->getRawIds($ids)), $context);
 
         if ($affectedMedia->count() === 0) {
             $event = EntityWrittenContainerEvent::createWithDeletedEvents([], $context, []);

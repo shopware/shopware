@@ -12,7 +12,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
@@ -123,7 +122,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($data, $this->context);
         $ids = array_column($data, 'id');
-        $products = $this->repository->read(new ReadCriteria($ids), $this->context);
+        $products = $this->repository->read(new Criteria($ids), $this->context);
 
         $product = $products->get($ids[0]);
 
@@ -195,7 +194,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($data, $this->context);
         $ids = array_column($data, 'id');
-        $products = $this->repository->read(new ReadCriteria($ids), $this->context);
+        $products = $this->repository->read(new Criteria($ids), $this->context);
 
         $product = $products->get($ids[0]);
 
@@ -253,7 +252,7 @@ class ProductRepositoryTest extends TestCase
         $this->eventDispatcher->addListener('product.loaded', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);
 
-        $products = $this->repository->read(new ReadCriteria([$id->getHex()]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$id->getHex()]), Context::createDefaultContext());
 
         //check only provided id loaded
         static::assertCount(1, $products);
@@ -310,7 +309,7 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->create([$data], Context::createDefaultContext());
-        $products = $this->repository->read(new ReadCriteria([$id->getHex()]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$id->getHex()]), Context::createDefaultContext());
 
         static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(1, $products);
@@ -464,8 +463,8 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext());
-        $parents = $this->repository->read(new ReadCriteria([$parentId]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$redId, $greenId]), Context::createDefaultContext());
+        $parents = $this->repository->read(new Criteria([$parentId]), Context::createDefaultContext());
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -529,7 +528,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$id]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -555,7 +554,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$id, $child]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$id, $child]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
@@ -602,7 +601,7 @@ class ProductRepositoryTest extends TestCase
 
         static::assertNull($raw['parent_id']);
 
-        $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$child]), Context::createDefaultContext());
         $product = $products->get($child);
 
         /* @var ProductEntity $product */
@@ -636,7 +635,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert($data, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$id, $child]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$id, $child]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
@@ -684,7 +683,7 @@ class ProductRepositoryTest extends TestCase
 
         static::assertNull($raw['parent_id']);
 
-        $products = $this->repository->read(new ReadCriteria([$child]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$child]), Context::createDefaultContext());
         $product = $products->get($child);
 
         /* @var ProductEntity $product */
@@ -723,8 +722,8 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($products, $context);
 
-        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), $context);
-        $parents = $this->repository->read(new ReadCriteria([$parentId]), $context);
+        $products = $this->repository->read(new Criteria([$redId, $greenId]), $context);
+        $parents = $this->repository->read(new Criteria([$parentId]), $context);
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -826,11 +825,11 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$redId, $greenId]);
+        $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('media');
         $products = $this->repository->read($criteria, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$parentId]);
+        $criteria = new Criteria([$parentId]);
         $criteria->addAssociation('media');
         $parents = $this->repository->read($criteria, Context::createDefaultContext());
 
@@ -900,11 +899,11 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$redId, $greenId]);
+        $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('categories');
         $products = $this->repository->read($criteria, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$parentId]);
+        $criteria = new Criteria([$parentId]);
         $criteria->addAssociation('categories');
         $parents = $this->repository->read($criteria, Context::createDefaultContext());
 
@@ -1214,7 +1213,7 @@ class ProductRepositoryTest extends TestCase
 
         $repository->create($categories, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$productId]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$productId]), Context::createDefaultContext());
 
         static::assertCount(1, $products);
         static::assertTrue($products->has($productId));
@@ -1251,7 +1250,7 @@ class ProductRepositoryTest extends TestCase
 
         $repository->create($manufacturers, Context::createDefaultContext());
 
-        $products = $this->repository->read(new ReadCriteria([$productId]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$productId]), Context::createDefaultContext());
 
         static::assertCount(1, $products);
         static::assertTrue($products->has($productId));
@@ -1292,7 +1291,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('datasheet');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
@@ -1343,7 +1342,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('variations');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
@@ -1402,7 +1401,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('configurators');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
@@ -1466,7 +1465,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $criteria->addAssociation('services');
         $product = $this->repository->read($criteria, Context::createDefaultContext())->get($id);
 
@@ -1536,7 +1535,7 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->create([$data], Context::createDefaultContext());
-        $products = $this->repository->read(new ReadCriteria([$id]), Context::createDefaultContext());
+        $products = $this->repository->read(new Criteria([$id]), Context::createDefaultContext());
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -1592,7 +1591,7 @@ class ProductRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
         $this->repository->create([$data], $context);
 
-        $products = $this->repository->read(new ReadCriteria([$id]), $context);
+        $products = $this->repository->read(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -1626,7 +1625,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert([$data], $context);
 
-        $products = $this->repository->read(new ReadCriteria([$id]), $context);
+        $products = $this->repository->read(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -1659,7 +1658,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert([$data], $context);
 
-        $products = $this->repository->read(new ReadCriteria([$id]), $context);
+        $products = $this->repository->read(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -1700,7 +1699,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria = new Criteria([$manufacturerId]);
         $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
@@ -1716,7 +1715,7 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(4, $manufacturer->getProducts());
 
         //test if two of four products can be read if context contains no rule
-        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria = new Criteria([$manufacturerId]);
         $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(2));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
@@ -1730,7 +1729,7 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(2, $manufacturer->getProducts());
 
         //test if two of four products can be read if context contains no rule
-        $criteria = new ReadCriteria([$manufacturerId]);
+        $criteria = new Criteria([$manufacturerId]);
         $criteria->addAssociation('product_manufacturer.products', new PaginationCriteria(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');

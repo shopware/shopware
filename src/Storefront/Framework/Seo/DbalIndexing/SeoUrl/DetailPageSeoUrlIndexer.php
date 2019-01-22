@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
@@ -179,7 +178,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     {
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-        $products = $this->productRepository->read(new ReadCriteria($ids), $context);
+        $products = $this->productRepository->read(new Criteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($products->getIds(), $context->getSourceContext()->getSalesChannelId());
         $timestamp = new \DateTime();

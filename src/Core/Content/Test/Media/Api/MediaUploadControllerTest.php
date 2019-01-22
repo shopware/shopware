@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,7 +60,7 @@ class MediaUploadControllerTest extends TestCase
             ],
             file_get_contents(self::TEST_IMAGE)
         );
-        $media = $this->mediaRepository->read(new ReadCriteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->read(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
 
         $response = $this->getClient()->getResponse();
 
@@ -134,7 +134,7 @@ class MediaUploadControllerTest extends TestCase
             ],
             file_get_contents(self::TEST_IMAGE)
         );
-        $media = $this->mediaRepository->read(new ReadCriteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->read(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
         $response = $this->getClient()->getResponse();
 
@@ -217,7 +217,7 @@ class MediaUploadControllerTest extends TestCase
             unlink($target);
         }
 
-        $media = $this->mediaRepository->read(new ReadCriteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->read(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -328,7 +328,7 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getClient()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
-        $updatedMedia = $this->mediaRepository->read(new ReadCriteria([$media->getId()]), $context)->get($media->getId());
+        $updatedMedia = $this->mediaRepository->read(new Criteria([$media->getId()]), $context)->get($media->getId());
         self::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
         self::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
     }

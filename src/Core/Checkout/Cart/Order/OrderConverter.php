@@ -30,7 +30,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -214,7 +213,7 @@ class OrderConverter
 
         if ($customerId) {
             /** @var CustomerEntity|null $customer */
-            $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
+            $customer = $this->customerRepository->read(new Criteria([$customerId]), $context)->get($customerId);
             $customerGroupId = $customer->getGroupId() ?? null;
         }
 

@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -139,7 +138,7 @@ class MediaFolderService
 
     private function fetchFolder(string $folderId, Context $context)
     {
-        $folder = $this->mediaFolderRepo->read(new ReadCriteria([$folderId]), $context)->get($folderId);
+        $folder = $this->mediaFolderRepo->read(new Criteria([$folderId]), $context)->get($folderId);
 
         if ($folder === null) {
             throw new MediaFolderNotFoundException($folderId);

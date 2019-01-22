@@ -18,19 +18,15 @@ Component.register('sw-settings-snippet-list', {
             snippetSets: {},
             grid: [],
             metaId: '',
-            isCustomState: this.$route.query.isCustomState
+            isCustomState: this.$route.query.isCustomState,
             resetItems: [],
-            hasResetableItems: true,
-            modalResetSelection: []
+            hasResetableItems: true
         };
     },
 
     computed: {
         snippetSetStore() {
             return State.getStore('snippet_set');
-        },
-        snippetStore() {
-            return State.getStore('snippet');
         },
         queryIdCount() {
             return this.queryIds.length;
@@ -70,17 +66,19 @@ Component.register('sw-settings-snippet-list', {
         },
 
         prepareGrid(grid) {
-            const result = [];
-            Object.values(grid).forEach((items) => {
-                const content = {};
-                items.forEach((item) => {
-                    content[item.setId] = item;
-                });
+            function prepareContent(items) {
+                const content = items.reduce((acc, item) => {
+                    acc[item.setId] = item;
+                    return acc;
+                }, {});
                 content.id = items[0].translationKey;
-                result.push(content);
-            });
+                return content;
+            }
 
-            return result;
+            return Object.values(grid).reduce((accumulator, items) => {
+                accumulator.push(prepareContent(items));
+                return accumulator;
+            }, []);
         },
 
         onEdit(snippet) {
@@ -158,15 +156,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onReset(item) {
-            const keys = Object.keys(item);
-            let i = keys.length;
-            while (i) {
-                i -= 1;
-                if (keys[i] === 'id') {
-                    keys.splice(i, 1);
-                }
-            }
-
+            const keys = Object.keys(item).filter((name) => { return name !== 'id'; });
             const criteria = CriteriaFactory.equalsAny('id', keys);
             this.isLoading = true;
 
@@ -204,7 +194,7 @@ Component.register('sw-settings-snippet-list', {
             return name;
         },
 
-        onModalSelectionChanged(selection) {
+        onSelectionChanged(selection) {
             this.selection = selection;
             this.selectionCount = Object.keys(selection).length;
             this.hasResetableItems = this.selectionCount === 0;

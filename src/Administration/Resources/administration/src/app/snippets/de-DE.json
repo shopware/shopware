@@ -2,7 +2,7 @@
   "global": {
     "notification": {
       "notificationSaveErrorTitle": "Fehler",
-      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten." ,
+      "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
       "notificationSaveSuccessTitle": "Erfolgreich",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
@@ -959,11 +959,10 @@
       "textSnippetList": "Textbausteine von \"{setName}\" | Textbausteine",
       "titleDeleteSuccess": "Textbausteine",
       "titleSaveError": "Fehler: Textbausteine",
-      "titleSaveSuccess": "Textbausteine",
       "columnHeaderGridColumTitleSet": "Textbaustein-Set",
       "columnHeaderResetTo": "Original",
       "resetErrorMessage": "Der Textbaustein \"{key}\" konnte nicht zurückgesetzt werden.",
-      "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt."
+      "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt.",
       "titleSaveSuccess": "Textbausteine",
       "titleSidebarCustomItems": "Eigene Textbausteine",
       "titleSidebarItemRefresh": "Aktualisieren"

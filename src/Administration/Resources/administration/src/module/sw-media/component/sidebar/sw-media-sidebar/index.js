@@ -15,12 +15,20 @@ Component.register('sw-media-sidebar', {
                 });
                 return invalidElements.length === 0;
             }
+        },
+
+        currentFolder: {
+            type: Object,
+            required: false,
+            default: null,
+            validator(value) {
+                return value.entityName === 'media_folder';
+            }
         }
     },
 
     data() {
         return {
-            autoplay: false,
             showModalReplace: false,
             showModalDelete: false,
             showFolderSettings: false,
@@ -53,7 +61,7 @@ Component.register('sw-media-sidebar', {
             if (this.item) {
                 key = item.id;
             }
-            return key + this.autoplay;
+            return key;
         },
 
         mediaItems() {
@@ -78,10 +86,6 @@ Component.register('sw-media-sidebar', {
     },
 
     methods: {
-        showQuickInfo() {
-            this.$refs.quickInfoButton.openContent();
-        },
-
         openModalReplace() {
             this.showModalReplace = true;
         },

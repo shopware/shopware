@@ -1,6 +1,8 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
+$sw-media-quickinfo-color-headline:     $color-kashmir;
+$sw-media-quickinfo-font-size-headline: $font-size-large;
 $sw-media-quickinfo-color-divider:      $color-steam-cloud;
 $sw-media-quickinfo-icon-color:         $color-shopware-blue;
 $sw-media-quickinfo-icon-color-danger:  $color-crimson;
@@ -12,6 +14,13 @@ $sw-media-quickinfo-metadata-color:     $color-gutenberg;
 .sw-media-quickinfo {
     .sw-media-quickinfo__alert-file-missing {
         margin: 0 25px 25px;
+    }
+
+    .sw-media-quickinfo-headline {
+        .truncate();
+        margin: 25px;
+        font-size: 18px;
+        color: $sw-media-quickinfo-color-headline;
     }
 
     .sw-media-quickinfo__collapse {

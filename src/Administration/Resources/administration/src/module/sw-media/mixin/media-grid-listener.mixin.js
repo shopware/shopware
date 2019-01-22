@@ -21,7 +21,7 @@ Mixin.register('media-grid-listener', {
                 'sw-media-item-clicked': this.handleMediaItemClicked,
                 'sw-media-item-selection-add': this.handleMediaGridItemSelected,
                 'sw-media-item-selection-remove': this.handleMediaGridItemUnselected,
-                'sw-media-media-item-play': this.handleMediaGridItemPlay
+                'sw-media-media-item-play': this.handleMediaItemClicked
             };
         },
 
@@ -63,7 +63,7 @@ Mixin.register('media-grid-listener', {
                 return;
             }
 
-            this._showDetails(item, false);
+            this._singleSelect(item);
         },
 
         handleMediaGridItemSelected({ originalDomEvent, item }) {
@@ -76,15 +76,6 @@ Mixin.register('media-grid-listener', {
 
         handleMediaGridItemUnselected({ item }) {
             this._removeItemFromSelection(item);
-        },
-
-        handleMediaGridItemPlay({ item }) {
-            if (this.isListSelect) {
-                this._handleSelection(item);
-                return;
-            }
-
-            this._showDetails(item, true);
         },
 
         _singleSelect(item) {
@@ -157,20 +148,6 @@ Mixin.register('media-grid-listener', {
                 start: Math.min(firstIndex, secondIndex),
                 end: Math.max(firstIndex, secondIndex)
             };
-        },
-
-        _getMediaSidebar() {
-            return this.$refs.mediaSidebar;
-        },
-
-        _showDetails(item, autoplay) {
-            this._singleSelect(item);
-            const sidebar = this._getMediaSidebar();
-
-            if (sidebar !== null) {
-                sidebar.autoplay = autoplay;
-                sidebar.showQuickInfo();
-            }
         }
     }
 });

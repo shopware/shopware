@@ -21,12 +21,6 @@ Component.register('sw-media-quickinfo', {
             validator(value) {
                 return ['media', 'media_folder'].includes(value.entityName);
             }
-        },
-
-        autoplay: {
-            required: false,
-            type: Boolean,
-            default: false
         }
     },
 

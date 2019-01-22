@@ -120,10 +120,6 @@ Component.register('sw-media-index', {
             }, 100)();
         },
 
-        showDetails(mediaItem) {
-            this._showDetails(mediaItem, false);
-        },
-
         onUploadsAdded({ uploadTag, data }) {
             data.forEach((upload) => {
                 upload.entity.isLoading = true;

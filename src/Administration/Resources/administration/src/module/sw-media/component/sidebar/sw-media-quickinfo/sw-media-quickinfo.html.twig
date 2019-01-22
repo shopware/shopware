@@ -5,6 +5,7 @@
                 <sw-alert v-if="!item.hasFile" class="sw-media-quickinfo__alert-file-missing" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.titleMissingFile')">
                     {{ $tc('sw-media.sidebar.quickinfo.descriptionMissingFile') }}
                 </sw-alert>
+                <h3 class="sw-media-quickinfo-headline">{{ item | mediaName }}</h3>
             {% endblock %}
 
             {% block sw_media_quickinfo_quickactions %}
@@ -94,7 +95,7 @@
                         {% block sw_media_quickinfo_preview_content %}
                             <div class="sw-media-quickinfo__collapse-content">
                                 {% block sw_media_quickinfo_preview_item %}
-                                    <sw-media-preview class="sw-media-quickinfo__media-preview" :item="item" :showControls="true" :autoplay="autoplay" :useThumbnails="false">
+                                    <sw-media-preview class="sw-media-quickinfo__media-preview" :item="item" :showControls="true" :useThumbnails="false">
                                     </sw-media-preview>
                                 {% endblock %}
                             </div>
@@ -271,6 +272,10 @@
         </template>
 
         <template v-else>
+            {% block sw_media_quickinfo_folder_headline %}
+                <h3 class="sw-media-quickinfo-headline">{{ item.name }}</h3>
+            {% endblock %}
+
             {% block sw_media_quickinfo_folder_quickactions %}
                 <sw-media-collapse
                     class="sw-media-quickinfo__collapse"

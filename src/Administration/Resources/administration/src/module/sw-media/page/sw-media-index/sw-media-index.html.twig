@@ -238,6 +238,7 @@
                     <div class="sw-media-index__sidebar">
                         <sw-media-sidebar
                             :items="selectedItems"
+                            :currentFolder="routeFolderId ? currentFolder : null"
                             @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
                             @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
                             @sw-media-sidebar-items-moved="onMediaMoved"

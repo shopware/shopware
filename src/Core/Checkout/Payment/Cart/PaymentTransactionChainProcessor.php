@@ -67,7 +67,7 @@ class PaymentTransactionChainProcessor
         $criteria->addAssociation('order.transactions');
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->read($criteria, $context)->first();
+        $order = $this->orderRepository->search($criteria, $context)->first();
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
@@ -102,7 +102,7 @@ class PaymentTransactionChainProcessor
      */
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
-        $paymentMethods = $this->paymentMethodRepository->read(new Criteria([$paymentMethodId]), $context);
+        $paymentMethods = $this->paymentMethodRepository->search(new Criteria([$paymentMethodId]), $context);
 
         $paymentMethod = $paymentMethods->get($paymentMethodId);
         if (!$paymentMethod) {

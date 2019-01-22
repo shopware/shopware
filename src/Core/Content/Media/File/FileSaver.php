@@ -294,7 +294,7 @@ class FileSaver
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->update([$data], $context);
 
-        return $this->mediaRepository->read(new Criteria([$media->getId()]), $context)->get($media->getId());
+        return $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
     }
 
     /**

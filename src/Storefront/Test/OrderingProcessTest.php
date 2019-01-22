@@ -72,7 +72,7 @@ class OrderingProcessTest extends TestCase
         self::assertTrue(Uuid::isValid($orderId));
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->read(new Criteria([$orderId]), Context::createDefaultContext())
+        $order = $this->orderRepository->search(new Criteria([$orderId]), Context::createDefaultContext())
             ->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());

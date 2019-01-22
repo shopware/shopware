@@ -483,7 +483,7 @@ class WriterTest extends TestCase
             $writeContext
         );
 
-        $media = $this->getMediaRepository()->read(
+        $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
@@ -518,7 +518,7 @@ class WriterTest extends TestCase
             $this->createWriteContext()
         );
 
-        $media = $this->getMediaRepository()->read(
+        $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
@@ -686,7 +686,7 @@ class WriterTest extends TestCase
         ], Context::createDefaultContext());
 
         $manufacturer = $this->getContainer()->get('product_manufacturer.repository')
-            ->read(new Criteria([$manufacturerId]), Context::createDefaultContext())
+            ->search(new Criteria([$manufacturerId]), Context::createDefaultContext())
             ->get($manufacturerId);
 
         static::assertNotNull($manufacturer);

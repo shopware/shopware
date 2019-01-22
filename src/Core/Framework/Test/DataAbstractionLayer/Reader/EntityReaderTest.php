@@ -102,7 +102,7 @@ class EntityReaderTest extends TestCase
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
 
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
 
         /** @var ProductEntity $product */
         static::assertNull($product->getName());
@@ -161,7 +161,7 @@ class EntityReaderTest extends TestCase
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
 
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
 
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product->getViewData());
@@ -202,7 +202,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, Context::createDefaultContext());
 
-        $products = $this->productRepository->read(new Criteria([$parentId, $greenId, $redId]), Context::createDefaultContext());
+        $products = $this->productRepository->search(new Criteria([$parentId, $greenId, $redId]), Context::createDefaultContext());
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
@@ -315,7 +315,7 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, $context);
 
-        $products = $this->productRepository->read(new Criteria([$greenId, $parentId, $redId]), $context);
+        $products = $this->productRepository->search(new Criteria([$greenId, $parentId, $redId]), $context);
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
@@ -399,7 +399,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.priceRules', new PaginationCriteria(5));
 
-        $products = $this->productRepository->read($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
@@ -471,7 +471,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories');
 
-        $products = $this->productRepository->read($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context);
 
         $parent = $products->get($parentId);
         $red = $products->get($redId);
@@ -569,7 +569,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories', new PaginationCriteria(3));
 
-        $products = $this->productRepository->read($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context);
 
         $parent = $products->get($parentId);
         $red = $products->get($redId);
@@ -660,7 +660,7 @@ class EntityReaderTest extends TestCase
 
         /** @var CustomerEntity $customer */
         $criteria = new Criteria([$id]);
-        $customer = $repository->read($criteria, $context)->get($id);
+        $customer = $repository->search($criteria, $context)->get($id);
         static::assertNull($customer->getAddresses());
     }
 
@@ -713,7 +713,7 @@ class EntityReaderTest extends TestCase
         /** @var CustomerEntity $customer */
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('customer.addresses');
-        $customer = $repository->read($criteria, $context)->get($id);
+        $customer = $repository->search($criteria, $context)->get($id);
         static::assertInstanceOf(CustomerAddressCollection::class, $customer->getAddresses());
         static::assertCount(5, $customer->getAddresses());
     }
@@ -798,7 +798,7 @@ class EntityReaderTest extends TestCase
         $addressCriteria->addFilter(new EqualsFilter('customer_address.zipcode', 'B'));
         $criteria->addAssociation('customer.addresses', $addressCriteria);
 
-        $customers = $repository->read($criteria, $context);
+        $customers = $repository->search($criteria, $context);
 
         $customer1 = $customers->get($id1);
         $customer2 = $customers->get($id2);
@@ -892,7 +892,7 @@ class EntityReaderTest extends TestCase
         $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::ASCENDING));
         $criteria->addAssociation('customer.addresses', $addressCriteria);
 
-        $customers = $repository->read($criteria, $context);
+        $customers = $repository->search($criteria, $context);
 
         $customer1 = $customers->get($id1);
         $customer2 = $customers->get($id2);
@@ -918,7 +918,7 @@ class EntityReaderTest extends TestCase
         $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::DESCENDING));
         $criteria->addAssociation('customer.addresses', $addressCriteria);
 
-        $customers = $repository->read($criteria, $context);
+        $customers = $repository->search($criteria, $context);
 
         $customer1 = $customers->get($id1);
         $customer2 = $customers->get($id2);
@@ -980,13 +980,13 @@ class EntityReaderTest extends TestCase
         /** @var CustomerEntity $customer */
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('customer.addresses', new PaginationCriteria(1));
-        $customer = $repository->read($criteria, $context)->get($id);
+        $customer = $repository->search($criteria, $context)->get($id);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(1, $customer->getAddresses());
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('customer.addresses', new PaginationCriteria(3));
-        $customer = $repository->read($criteria, $context)->get($id);
+        $customer = $repository->search($criteria, $context)->get($id);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
     }
@@ -1040,7 +1040,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(4, $mapping);
 
         //test many to many not loaded automatically
-        $categories = $repository->read(new Criteria([$id1, $id2]), $context);
+        $categories = $repository->search(new Criteria([$id1, $id2]), $context);
 
         $category1 = $categories->get($id1);
         $category2 = $categories->get($id2);
@@ -1091,7 +1091,7 @@ class EntityReaderTest extends TestCase
         $manufacturerCriteria->addAssociation('product_manufacturer.products', $productCriteria);
 
         /** @var ProductManufacturerEntity $manufacturer */
-        $manufacturer = $manufacturerRepo->read($manufacturerCriteria, $context)->get($manufacturerId);
+        $manufacturer = $manufacturerRepo->search($manufacturerCriteria, $context)->get($manufacturerId);
         $products = $manufacturer->getProducts();
 
         static::assertEquals(1, $products->count());
@@ -1154,7 +1154,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id1, $id2]);
 
         $criteria->addAssociation('category.products');
-        $categories = $repository->read($criteria, $context);
+        $categories = $repository->search($criteria, $context);
 
         $category1 = $categories->get($id1);
         $category2 = $categories->get($id2);
@@ -1230,7 +1230,7 @@ class EntityReaderTest extends TestCase
         $productCriteria->addFilter(new EqualsFilter('product.active', true));
 
         $criteria->addAssociation('category.products', $productCriteria);
-        $categories = $repository->read($criteria, $context);
+        $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
         /** @var CategoryEntity $category2 */
@@ -1300,7 +1300,7 @@ class EntityReaderTest extends TestCase
         $productCriteria->addSorting(new FieldSorting('product.name', FieldSorting::ASCENDING));
 
         $criteria->addAssociation('category.products', $productCriteria);
-        $categories = $repository->read($criteria, $context);
+        $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
         /** @var CategoryEntity $category2 */
@@ -1331,7 +1331,7 @@ class EntityReaderTest extends TestCase
         $productCriteria->addSorting(new FieldSorting('product.name', FieldSorting::DESCENDING));
 
         $criteria->addAssociation('category.products', $productCriteria);
-        $categories = $repository->read($criteria, $context);
+        $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
         /** @var CategoryEntity $category2 */
@@ -1402,7 +1402,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id1, $id2]);
         $criteria->addAssociation('product.categories', new PaginationCriteria(3));
 
-        $products = $this->productRepository->read($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context);
 
         static::assertCount(2, $products);
 
@@ -1448,64 +1448,12 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
 
-        $products = $this->productRepository->read($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context);
         static::assertCount(2, $products);
 
         $criteria->addFilter(new EqualsFilter('product.active', true));
-        $products = $this->productRepository->read($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context);
         static::assertCount(1, $products);
-    }
-
-    public function testReadNotSupportsSorting(): void
-    {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-
-        $products = [
-            [
-                'id' => $id1,
-                'price' => ['gross' => 10, 'net' => 9],
-                'active' => true,
-                'manufacturer' => ['name' => 'test'],
-                'name' => 'B',
-                'tax' => ['taxRate' => 13, 'name' => 'green'],
-            ],
-            [
-                'id' => $id2,
-                'price' => ['gross' => 10, 'net' => 9],
-                'active' => false,
-                'manufacturer' => ['name' => 'test'],
-                'name' => 'A',
-                'tax' => ['taxRate' => 13, 'name' => 'green'],
-            ],
-        ];
-
-        $context = Context::createDefaultContext();
-
-        $this->productRepository->upsert($products, $context);
-
-        $criteria = new Criteria([$id1, $id2]);
-
-        $products = $this->productRepository->read($criteria, $context);
-        static::assertCount(2, $products);
-
-        $criteria = new Criteria([$id1, $id2]);
-        $criteria->addSorting(new FieldSorting('product.name', FieldSorting::ASCENDING));
-        $products = $this->productRepository->read($criteria, $context);
-
-        static::assertEquals(
-            [$id1, $id2],
-            array_values($products->getIds())
-        );
-
-        $criteria = new Criteria([$id1, $id2]);
-        $criteria->addSorting(new FieldSorting('product.name', FieldSorting::DESCENDING));
-        $products = $this->productRepository->read($criteria, $context);
-
-        static::assertEquals(
-            [$id1, $id2],
-            array_values($products->getIds())
-        );
     }
 
     public function testReadRelationWithNestedToManyRelations(): void
@@ -1534,7 +1482,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $this->productRepository->create([$data], $context);
-        $results = $this->productRepository->read(new Criteria([$data['id']]), $context);
+        $results = $this->productRepository->search(new Criteria([$data['id']]), $context);
 
         /** @var ProductEntity $product */
         $product = $results->first();
@@ -1569,7 +1517,7 @@ class EntityReaderTest extends TestCase
         $criteria->addAssociation('category.translations');
 
         /** @var CategoryEntity $cat */
-        $cat = $repo->read($criteria, Context::createDefaultContext())->first();
+        $cat = $repo->search($criteria, Context::createDefaultContext())->first();
         static::assertCount(2, $cat->getTranslations());
 
         /** @var CategoryTranslationEntity $transDe */

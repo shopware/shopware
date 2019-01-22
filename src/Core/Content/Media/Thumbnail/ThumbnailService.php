@@ -170,7 +170,7 @@ class ThumbnailService
 
         $criteria = new Criteria([$media->getMediaFolderId()]);
         /** @var MediaFolderEntity $folder */
-        $folder = $this->mediaFolderRepository->read($criteria, $context)->get($media->getMediaFolderId());
+        $folder = $this->mediaFolderRepository->search($criteria, $context)->get($media->getMediaFolderId());
         $media->setMediaFolder($folder);
     }
 

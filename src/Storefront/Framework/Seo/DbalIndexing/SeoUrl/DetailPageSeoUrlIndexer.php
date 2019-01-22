@@ -178,7 +178,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     {
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-        $products = $this->productRepository->read(new Criteria($ids), $context);
+        $products = $this->productRepository->search(new Criteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($products->getIds(), $context->getSourceContext()->getSalesChannelId());
         $timestamp = new \DateTime();

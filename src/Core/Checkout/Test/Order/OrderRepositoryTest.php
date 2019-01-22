@@ -70,7 +70,7 @@ class OrderRepositoryTest extends TestCase
         $criteria = new Criteria([$orderId]);
         //$criteria->addAssociation('order.orderCustomer', $nestedCriteria);
 
-        $order = $this->orderRepository->read($criteria, $defaultContext);
+        $order = $this->orderRepository->search($criteria, $defaultContext);
 
         static::assertEquals($orderId, $order->first()->get('id'));
         static::assertNotNull($order->first()->getOrderCustomer());

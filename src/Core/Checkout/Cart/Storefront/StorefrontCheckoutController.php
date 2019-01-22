@@ -167,7 +167,7 @@ class StorefrontCheckoutController extends AbstractController
     private function getOrderById(string $orderId, CheckoutContext $context): OrderEntity
     {
         $criteria = new Criteria([$orderId]);
-        $order = $this->orderRepository->read($criteria, $context->getContext())->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context->getContext())->get($orderId);
 
         if (!$order) {
             throw new OrderNotFoundException($orderId);

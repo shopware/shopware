@@ -241,7 +241,7 @@ class CategoryRepositoryTest extends TestCase
         $criteria->addAssociation('children');
 
         /** @var CategoryCollection $result */
-        $result = $this->repository->read($criteria, Context::createDefaultContext());
+        $result = $this->repository->search($criteria, Context::createDefaultContext());
 
         /** @var CategoryEntity $first */
         $first = $result->first();
@@ -264,7 +264,7 @@ class CategoryRepositoryTest extends TestCase
         $criteria->addAssociation('children');
 
         /** @var CategoryCollection $result */
-        $result = $this->repository->read($criteria, Context::createDefaultContext());
+        $result = $this->repository->search($criteria, Context::createDefaultContext());
 
         //Second Level Category should have Level 2
         static::assertEquals($recordA, $result->first()->getId());

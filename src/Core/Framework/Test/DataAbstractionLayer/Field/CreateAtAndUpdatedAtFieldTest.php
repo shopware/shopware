@@ -74,7 +74,7 @@ EOF;
         $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         static::assertTrue($entities->has($id));
 
@@ -100,7 +100,7 @@ EOF;
         $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         static::assertTrue($entities->has($id));
 
@@ -128,7 +128,7 @@ EOF;
         $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         static::assertTrue($entities->has($id));
 
@@ -148,7 +148,7 @@ EOF;
         $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
@@ -159,7 +159,7 @@ EOF;
 
         $context = Context::createDefaultContext();
         $this->repo->update([$data], $context);
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
@@ -176,7 +176,7 @@ EOF;
         $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
@@ -187,7 +187,7 @@ EOF;
 
         $context = Context::createDefaultContext();
         $this->repo->update([$data], $context);
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
@@ -206,7 +206,7 @@ EOF;
         $context = Context::createDefaultContext();
         $this->repo->create([$data], $context);
 
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));
@@ -217,7 +217,7 @@ EOF;
 
         $context = Context::createDefaultContext();
         $this->repo->update([$data], $context);
-        $entities = $this->repo->read(new Criteria([$id]), $context);
+        $entities = $this->repo->search(new Criteria([$id]), $context);
 
         /** @var ArrayEntity $entity */
         static::assertTrue($entities->has($id));

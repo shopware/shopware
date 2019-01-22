@@ -51,6 +51,47 @@ class EntityDefinitionQueryHelper
         return '`' . $string . '`';
     }
 
+    public static function getFieldsOfAccessor(string $definition, string $accessor): array
+    {
+        $parts = explode('.', $accessor);
+        array_shift($parts);
+
+        $accessorFields = [];
+
+        /** @var string|EntityDefinition $source */
+        $source = $definition;
+
+        foreach ($parts as $part) {
+            $fields = $source::getFields();
+
+            if ($part === 'extensions') {
+                continue;
+            }
+            $field = $fields->get($part);
+
+            if ($field instanceof TranslatedField) {
+                $source = $source::getTranslationDefinitionClass();
+                /** @var EntityDefinition|string $definition */
+                $fields = $source::getFields();
+                $accessorFields[] = $fields->get($part);
+                continue;
+            }
+
+            $accessorFields[] = $field;
+
+            if (!$field instanceof AssociationInterface) {
+                break;
+            }
+
+            $source = $field->getReferenceClass();
+            if ($field instanceof ManyToManyAssociationField) {
+                $source = $field->getReferenceDefinition();
+            }
+        }
+
+        return $accessorFields;
+    }
+
     /**
      * Returns the field instance of the provided fieldName.
      *

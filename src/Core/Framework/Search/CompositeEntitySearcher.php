@@ -137,7 +137,7 @@ class CompositeEntitySearcher
             $criteria = new Criteria(\array_keys($rows));
 
             /** @var EntityCollection $entities */
-            $entities = $repository->read($criteria, $context);
+            $entities = $repository->search($criteria, $context);
 
             foreach ($entities as $entity) {
                 $score = (float) $rows[$entity->getId()];

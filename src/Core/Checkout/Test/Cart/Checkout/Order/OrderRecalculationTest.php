@@ -105,7 +105,7 @@ class OrderRecalculationTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart);
 
-        $order = $this->orderRepository->read(new Criteria([$orderId]), $this->context)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         $convertedCart = $this->orderConverter->convertToCart($order, $this->context);
 
         // check name and token

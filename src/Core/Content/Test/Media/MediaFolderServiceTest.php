@@ -70,7 +70,7 @@ class MediaFolderServiceTest extends TestCase
         $media = $this->getJpgWithFolder();
 
         $configId = $this->mediaFolderRepo
-            ->read(new Criteria([$media->getMediaFolderId()]), $this->context)
+            ->search(new Criteria([$media->getMediaFolderId()]), $this->context)
             ->get($media->getMediaFolderId())
             ->getConfigurationId();
 
@@ -387,7 +387,7 @@ class MediaFolderServiceTest extends TestCase
     private function assertMediaFolderIsAtRootLevel(string $folderId): void
     {
         $folder = $this->mediaFolderRepo
-            ->read(new Criteria([$folderId]), $this->context)
+            ->search(new Criteria([$folderId]), $this->context)
             ->get($folderId);
         static::assertNull($folder->getParentId());
     }
@@ -395,32 +395,32 @@ class MediaFolderServiceTest extends TestCase
     private function assertMediaFolderIsDeleted(MediaEntity $media): void
     {
         $folder = $this->mediaFolderRepo
-            ->read(new Criteria([$media->getMediaFolderId()]), $this->context)
+            ->search(new Criteria([$media->getMediaFolderId()]), $this->context)
             ->get($media->getMediaFolderId());
         static::assertNull($folder);
     }
 
     private function assertMediaHasNoFolder(MediaEntity $media): void
     {
-        $media = $this->mediaRepo->read(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertNull($media->getMediaFolderId());
     }
 
     private function assertMediaHasParentFolder(MediaEntity $media, string $parentId): void
     {
-        $media = $this->mediaRepo->read(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertEquals($parentId, $media->getMediaFolderId());
     }
 
     private function assertConfigIsDeleted($configId): void
     {
-        $config = $this->mediaFolderConfigRepo->read(new Criteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
         static::assertNull($config);
     }
 
     private function assertConfigStillExists(string $configId): void
     {
-        $config = $this->mediaFolderConfigRepo->read(new Criteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
         static::assertNotNull($config);
     }
 

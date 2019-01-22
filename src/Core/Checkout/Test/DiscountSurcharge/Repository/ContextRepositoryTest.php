@@ -76,7 +76,7 @@ class ContextRepositoryTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $rules = $this->repository->read(new Criteria([$id]), $this->context);
+        $rules = $this->repository->search(new Criteria([$id]), $this->context);
 
         $currencyRule = (new CurrencyRule())->assign(['currencyIds' => [$currencyId, $currencyId2]]);
 

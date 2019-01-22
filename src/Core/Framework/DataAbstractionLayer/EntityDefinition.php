@@ -129,6 +129,9 @@ abstract class EntityDefinition
         return null;
     }
 
+    /**
+     * @return string|null|EntityDefinition
+     */
     public static function getTranslationDefinitionClass(): ?string
     {
         if (array_key_exists(static::class, static::$translationDefinitions)) {

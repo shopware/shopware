@@ -146,7 +146,7 @@ class ThumbnailServiceTest extends TestCase
         );
 
         /** @var MediaEntity $updatedMedia */
-        $updatedMedia = $this->mediaRepository->read(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertEquals(
@@ -188,7 +188,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
 
-        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media);
 
         self::assertSame(2, $media->getThumbnails()->count());
@@ -209,7 +209,7 @@ class ThumbnailServiceTest extends TestCase
         $this->thumbnailService->deleteThumbnails($media, $this->context);
 
         // refresh entity
-        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
         self::assertSame(0, $media->getThumbnails()->count());
         self::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
@@ -273,7 +273,7 @@ class ThumbnailServiceTest extends TestCase
             ],
         ], $this->context);
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
-        $media = $this->mediaRepository->read(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
@@ -282,7 +282,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->thumbnailService->updateThumbnails($media, $this->context);
 
-        $media = $this->mediaRepository->read(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function ($thumbnail) {

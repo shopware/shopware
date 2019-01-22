@@ -19,8 +19,6 @@ interface EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult;
 
-    public function read(Criteria $criteria, Context $context): EntityCollection;
-
     public function update(array $data, Context $context): EntityWrittenContainerEvent;
 
     public function upsert(array $data, Context $context): EntityWrittenContainerEvent;

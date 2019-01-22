@@ -92,7 +92,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
 
-        return $this->mediaRepository->read(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        return $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
     }
 
     private function createThumbnailFile(MediaEntity $media)

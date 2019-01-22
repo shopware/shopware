@@ -90,10 +90,10 @@ class MediaFolderControllerTest extends TestCase
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
         static::assertEmpty($response->getContent());
 
-        $folder = $this->mediaFolderRepo->read(new Criteria([$folderId]), $this->context)->get($folderId);
+        $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $this->context)->get($folderId);
         static::assertNull($folder);
 
-        $config = $this->mediaFolderConfigRepo->read(new Criteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
         static::assertNull($config);
     }
 }

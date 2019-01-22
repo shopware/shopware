@@ -85,7 +85,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testValidateWithMissingAmount()
@@ -136,7 +136,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testValidateWithIntAmount()
@@ -160,7 +160,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testAvailableOperators()
@@ -217,7 +217,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         );
 
         static::assertCount(
-            4, $this->conditionRepository->read(
+            4, $this->conditionRepository->search(
             new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]), $this->context
         )
         );
@@ -272,6 +272,6 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 }

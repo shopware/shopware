@@ -48,7 +48,7 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->read(new Criteria([$id]), $context);
+        $entities = $this->repository->search(new Criteria([$id]), $context);
 
         static::assertEquals(1, $entities->count());
         static::assertEquals('My app', $entities->first()->getLabel());

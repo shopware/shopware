@@ -48,7 +48,7 @@ trait EntityFixturesBase
 
         $repository->create([$fixtureData[$fixtureName]], $this->entityFixtureContext);
 
-        return $repository->read(new Criteria([$fixtureData[$fixtureName]['id']]), $this->entityFixtureContext)
+        return $repository->search(new Criteria([$fixtureData[$fixtureName]['id']]), $this->entityFixtureContext)
             ->get($fixtureData[$fixtureName]['id']);
     }
 

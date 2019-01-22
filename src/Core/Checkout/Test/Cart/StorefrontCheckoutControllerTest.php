@@ -235,7 +235,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->read(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());
@@ -308,7 +308,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->read(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());
@@ -444,7 +444,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->read(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());

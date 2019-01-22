@@ -49,7 +49,7 @@ class StorefrontCategoryRepository
 
         if ($categoryId) {
             /** @var CategoryEntity|null $activeCategory */
-            $activeCategory = $this->categoryRepository->read(new Criteria([$categoryId]), $context)->get($categoryId);
+            $activeCategory = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {
                 $rootIds = array_merge($activeCategory->getPathArray(), [$categoryId]);

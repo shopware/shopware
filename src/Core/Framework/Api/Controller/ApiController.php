@@ -146,7 +146,7 @@ class ApiController extends AbstractController
         }
 
         /** @var EntityRepositoryInterface $repository */
-        $entities = $repository->read(new Criteria([$id]), $context);
+        $entities = $repository->search(new Criteria([$id]), $context);
         $entity = $entities->get($id);
 
         if ($entity === null) {
@@ -457,7 +457,7 @@ class ApiController extends AbstractController
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
-            $entities = $repository->read(new Criteria($event->getIds()), $context);
+            $entities = $repository->search(new Criteria($event->getIds()), $context);
 
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
@@ -494,7 +494,7 @@ class ApiController extends AbstractController
 
             $repository = $this->getRepository($definition, $request);
 
-            $entities = $repository->read(new Criteria($event->getIds()), $context);
+            $entities = $repository->search(new Criteria($event->getIds()), $context);
 
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
@@ -521,7 +521,7 @@ class ApiController extends AbstractController
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
-            $entities = $repository->read(new Criteria($event->getIds()), $context);
+            $entities = $repository->search(new Criteria($event->getIds()), $context);
 
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
@@ -537,7 +537,7 @@ class ApiController extends AbstractController
 
         $repository = $this->getRepository($reference, $request);
 
-        $entities = $repository->read(new Criteria($event->getIds()), $context);
+        $entities = $repository->search(new Criteria($event->getIds()), $context);
 
         $entity = $entities->first();
 

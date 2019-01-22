@@ -84,39 +84,39 @@ class BlacklistRuleFieldTest extends TestCase
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($product1));
         static::assertTrue($products->has($product2));
         static::assertTrue($products->has($product3));
 
         //context with rule which isn't added to the product should return the product
         $context = $this->createContextWithRules([$rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($product1));
         static::assertFalse($products->has($product2));
         static::assertTrue($products->has($product3));
 
         //context with rule which is added to the product should return the product
         $context = $this->createContextWithRules([$rule1]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($product1));
         static::assertTrue($products->has($product2));
         static::assertTrue($products->has($product3));
 
         $context = $this->createContextWithRules([$rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($product1));
         static::assertTrue($products->has($product2));
         static::assertTrue($products->has($product3));
 
         $context = $this->createContextWithRules([$rule1, $rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($product1));
         static::assertTrue($products->has($product2));
         static::assertTrue($products->has($product3));
 
         $context = $this->createContextWithRules([$rule1, $rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($product1));
         static::assertFalse($products->has($product2));
         static::assertTrue($products->has($product3));
@@ -183,39 +183,39 @@ class BlacklistRuleFieldTest extends TestCase
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($productId1));
         static::assertTrue($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         //context with rule which isn't added to the product should return the product
         $context = $this->createContextWithRules([$rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($productId1));
         static::assertTrue($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         //context with rule which is added to the product should return the product
         $context = $this->createContextWithRules([$rule1]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($productId1));
         static::assertFalse($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         $context = $this->createContextWithRules([$rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($productId1));
         static::assertFalse($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         $context = $this->createContextWithRules([$rule1, $rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($productId1));
         static::assertFalse($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         $context = $this->createContextWithRules([$rule1, $rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($productId1));
         static::assertFalse($products->has($productId2));
         static::assertTrue($products->has($productId3));
@@ -758,7 +758,7 @@ class BlacklistRuleFieldTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContextWithRules();
-        $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
+        $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
         //test if all products can be read if context contains no rules
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
@@ -774,7 +774,7 @@ class BlacklistRuleFieldTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContextWithRules();
-        $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
+        $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
         /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
@@ -788,7 +788,7 @@ class BlacklistRuleFieldTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContextWithRules([$ruleId, $ruleId2]);
-        $manufacturer = $repo->read($criteria, $context)->get($manufacturerId);
+        $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
         /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);

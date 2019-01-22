@@ -85,7 +85,7 @@ class VariantGeneratorTest extends TestCase
 
         $criteria = new Criteria($productWritten->getIds());
         $criteria->addAssociation('product.variations');
-        $variants = $this->repository->read($criteria, Context::createDefaultContext());
+        $variants = $this->repository->search($criteria, Context::createDefaultContext());
 
         static::assertCount(2, $variants);
 
@@ -167,10 +167,13 @@ class VariantGeneratorTest extends TestCase
 
         static::assertCount(4, $productWritten->getIds());
 
-        $variants = $this->repository->read(new Criteria($productWritten->getIds()), $context);
+        $variants = $this->repository
+            ->search(new Criteria($productWritten->getIds()), $context)
+            ->getEntities();
+
         static::assertCount(4, $variants);
 
-        $parent = $this->repository->read(new Criteria([$id]), $context)
+        $parent = $this->repository->search(new Criteria([$id]), $context)
             ->get($id);
 
         /** @var ProductCollection $variants */
@@ -245,7 +248,7 @@ class VariantGeneratorTest extends TestCase
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
         static::assertCount(1, $productWritten->getIds());
 
-        $variants = $this->repository->read(new Criteria($productWritten->getIds()), $context);
+        $variants = $this->repository->search(new Criteria($productWritten->getIds()), $context);
         static::assertCount(1, $variants);
 
         $writtenEvent = $this->generator->generate($id, $context, 1, 1);
@@ -256,7 +259,7 @@ class VariantGeneratorTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.parentId', $id));
         $variants = $this->repository->search($criteria, $context);
 
-        $parent = $this->repository->read(new Criteria([$id]), $context)
+        $parent = $this->repository->search(new Criteria([$id]), $context)
             ->get($id);
 
         /** @var ProductEntity $variant */

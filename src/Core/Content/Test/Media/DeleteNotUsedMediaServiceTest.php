@@ -73,7 +73,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
 
         $this->deleteMediaService->deleteNotUsedMedia($this->context);
 
-        $result = $this->mediaRepo->read(
+        $result = $this->mediaRepo->search(
             new Criteria([
                 $txt->getId(),
                 $png->getId(),

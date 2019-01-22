@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -78,7 +79,7 @@ class Criteria extends Struct
     public function __construct(array $ids = [])
     {
         if (\count($ids) > \count(array_filter($ids))) {
-            throw new \RuntimeException('Inconsistent argument for Criteria. Please filter all invalid values first.');
+            throw new InconsistentCriteriaIdsException();
         }
 
         $this->ids = $ids;

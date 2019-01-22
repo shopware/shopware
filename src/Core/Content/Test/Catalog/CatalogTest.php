@@ -128,7 +128,7 @@ class CatalogTest extends TestCase
         static::assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
         static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->read(new Criteria([$id->getHex()]), $readContext);
+        $categories = $this->categoryRepository->search(new Criteria([$id->getHex()]), $readContext);
         static::assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
@@ -151,7 +151,7 @@ class CatalogTest extends TestCase
         static::assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
         static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->read(new Criteria([$id->getHex()]), $context);
+        $categories = $this->categoryRepository->search(new Criteria([$id->getHex()]), $context);
         static::assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
@@ -176,7 +176,7 @@ class CatalogTest extends TestCase
         static::assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
         static::assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->read(new Criteria([$id->getHex()]), $context);
+        $categories = $this->categoryRepository->search(new Criteria([$id->getHex()]), $context);
         static::assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
     }
 
@@ -211,7 +211,7 @@ class CatalogTest extends TestCase
             $context->getLanguageIdChain()
         );
 
-        $foundCategories = $this->categoryRepository->read(new Criteria(array_column($categories, 'id')), $context);
+        $foundCategories = $this->categoryRepository->search(new Criteria(array_column($categories, 'id')), $context);
         static::assertEquals(2, $foundCategories->count());
 
         // read with default and another two enabled catalogs
@@ -223,7 +223,7 @@ class CatalogTest extends TestCase
             [$context->getLanguageId()]
         );
 
-        $foundCategories = $this->categoryRepository->read(new Criteria(array_column($categories, 'id')), $context);
+        $foundCategories = $this->categoryRepository->search(new Criteria(array_column($categories, 'id')), $context);
         static::assertEquals(3, $foundCategories->count());
     }
 
@@ -282,7 +282,7 @@ class CatalogTest extends TestCase
 
         $criteria = new Criteria([$parentId->getHex()]);
         $criteria->addAssociation('children');
-        $categories = $this->categoryRepository->read($criteria, $context);
+        $categories = $this->categoryRepository->search($criteria, $context);
 
         static::assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
         static::assertEquals(2, $categories->first()->getChildren()->count());
@@ -353,12 +353,12 @@ class CatalogTest extends TestCase
         static::assertContains($productId2->getBytes(), array_column($products, 'product_id'));
 
         // should work with context used to create the entities
-        $products = $this->productRepository->read(new Criteria([$productId1->getHex(), $productId2->getHex()]), $context);
+        $products = $this->productRepository->search(new Criteria([$productId1->getHex(), $productId2->getHex()]), $context);
         static::assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
         $context = Context::createDefaultContext();
-        $products = $this->productRepository->read(new Criteria([$productId1->getHex(), $productId2->getHex()]), $context);
+        $products = $this->productRepository->search(new Criteria([$productId1->getHex(), $productId2->getHex()]), $context);
         static::assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 

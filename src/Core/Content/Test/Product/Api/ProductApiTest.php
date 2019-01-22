@@ -63,7 +63,7 @@ class ProductApiTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $context = Context::createDefaultContext();
-        $products = $this->repository->read(new Criteria([$id]), $context);
+        $products = $this->repository->search(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -98,7 +98,7 @@ class ProductApiTest extends TestCase
         $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $products = $this->repository->read(new Criteria([$id]), $context);
+        $products = $this->repository->search(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -132,7 +132,7 @@ class ProductApiTest extends TestCase
         $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $products = $this->repository->read(new Criteria([$id]), $context);
+        $products = $this->repository->search(new Criteria([$id]), $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */

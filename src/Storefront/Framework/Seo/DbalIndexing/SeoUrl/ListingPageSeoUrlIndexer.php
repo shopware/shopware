@@ -172,7 +172,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
             return;
         }
 
-        $categories = $this->categoryRepository->read(new Criteria($ids), $context);
+        $categories = $this->categoryRepository->search(new Criteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getSourceContext()->getSalesChannelId());
 

@@ -130,7 +130,7 @@ class ProductDetailPageletLoader
         $criteria->addFilter(new EqualsFilter('product_configurator.productId', $containerId));
 
         /** @var ProductConfiguratorCollection $configurator */
-        $configurator = $this->configuratorRepository->read($criteria, $context->getContext());
+        $configurator = $this->configuratorRepository->search($criteria, $context->getContext());
         $variationIds = $product->getVariationIds() ?? [];
 
         foreach ($configurator as $config) {

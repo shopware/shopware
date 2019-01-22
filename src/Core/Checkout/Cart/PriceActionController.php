@@ -67,7 +67,7 @@ class PriceActionController extends AbstractController
         $output = $request->request->get('output', 'gross');
         $preCalculated = $request->request->getBoolean('calculated', true);
 
-        $taxes = $this->taxRepository->read(new Criteria([$taxId]), $context);
+        $taxes = $this->taxRepository->search(new Criteria([$taxId]), $context);
         $tax = $taxes->get($taxId);
         if (!$tax instanceof TaxEntity) {
             throw new \InvalidArgumentException(sprintf('Tax rule with id %s not found taxId missing', $taxId));

@@ -119,7 +119,7 @@ class SalesChannelRepositoryTest extends TestCase
         ]], $context);
 
         /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $this->salesChannelRepository->read(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
 
         self::assertEquals($name, $salesChannel->getName());
         self::assertEquals($accessKey, $salesChannel->getAccessKey());

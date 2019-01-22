@@ -31,7 +31,7 @@ class UserController extends AbstractController
     {
         $userId = $context->getSourceContext()->getUserId();
 
-        $users = $this->userRepository->read(new Criteria([$userId]), $context);
+        $users = $this->userRepository->search(new Criteria([$userId]), $context);
 
         return $responseFactory->createDetailResponse($users->get($userId), UserDefinition::class, $request, $context);
     }

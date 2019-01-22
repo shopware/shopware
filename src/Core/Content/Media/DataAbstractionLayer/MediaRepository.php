@@ -59,7 +59,7 @@ class MediaRepository extends EntityRepository
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        $affectedMedia = $this->read(new Criteria($this->getRawIds($ids)), $context);
+        $affectedMedia = $this->search(new Criteria($this->getRawIds($ids)), $context);
 
         if ($affectedMedia->count() === 0) {
             $event = EntityWrittenContainerEvent::createWithDeletedEvents([], $context, []);

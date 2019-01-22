@@ -552,22 +552,13 @@ class EntityReader implements EntityReaderInterface
             $ids = array_unique(array_merge($ids, $parentIds));
         }
 
-        //create new read criteria for the association without pre fetched ids
-        $Criteria = new Criteria([]);
-        $Criteria->addFilter(...$fieldCriteria->getFilters());
-        $Criteria->addPostFilter(...$fieldCriteria->getPostFilters());
-        $Criteria->addSorting(...$fieldCriteria->getSorting());
-        $Criteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
-
-        foreach ($fieldCriteria->getAssociations() as $key => $associationCriteria) {
-            $Criteria->addAssociation($key, $associationCriteria);
-        }
+        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
 
         $data = $this->_read(
-            $Criteria,
+            $fieldCriteria,
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),
@@ -632,16 +623,15 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        //create new read criteria for the association
-        $Criteria = new Criteria($ids);
-        foreach ($fieldCriteria->getAssociations() as $key => $associationCriteria) {
-            $Criteria->addAssociation($key, $associationCriteria);
-        }
+        $fieldCriteria->setIds($ids);
+        $fieldCriteria->resetSorting();
+        $fieldCriteria->resetFilters();
+        $fieldCriteria->resetPostFilters();
 
         $referenceClass = $association->getReferenceClass();
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read(
-            $Criteria,
+            $fieldCriteria,
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),
@@ -772,16 +762,10 @@ class EntityReader implements EntityReaderInterface
         //build inverse accessor `product.categories.id`
         $accessor = $association->getReferenceDefinition()::getEntityName() . '.' . $reference->getPropertyName() . '.id';
 
-        $criteria = new Criteria([]);
-        $criteria->addSorting(...$fieldCriteria->getSorting());
-        $criteria->addFilter(...$fieldCriteria->getFilters());
-        $criteria->addPostFilter(...$fieldCriteria->getPostFilters());
-        $criteria->setLimit($fieldCriteria->getLimit());
-        $criteria->setOffset($fieldCriteria->getOffset());
-        $criteria->addFilter(new EqualsAnyFilter($accessor, $collection->getIds()));
+        $fieldCriteria->addFilter(new EqualsAnyFilter($accessor, $collection->getIds()));
 
         $root = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()::getEntityName() . '.' . $reference->getPropertyName() . '.mapping');
-        $query = $this->buildQueryByCriteria(new QueryBuilder($this->connection), $this->queryHelper, $this->parser, $association->getReferenceDefinition(), $criteria, $context);
+        $query = $this->buildQueryByCriteria(new QueryBuilder($this->connection), $this->queryHelper, $this->parser, $association->getReferenceDefinition(), $fieldCriteria, $context);
 
         $localColumn = EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn());
         $referenceColumn = EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn());
@@ -800,7 +784,7 @@ class EntityReader implements EntityReaderInterface
 
         $query->addGroupBy($root . '.' . $localColumn);
 
-        if ($criteria->getLimit() !== null) {
+        if ($fieldCriteria->getLimit() !== null) {
             $limitQuery = $this->buildManyToManyLimitQuery($association);
 
             $params = [
@@ -820,7 +804,7 @@ class EntityReader implements EntityReaderInterface
                      counter_table.id_count <= :limit'
                 )
             );
-            $query->setParameter('limit', $criteria->getLimit());
+            $query->setParameter('limit', $fieldCriteria->getLimit());
 
             $this->connection->executeQuery('SET @n = 0; SET @c = null;');
         }
@@ -837,15 +821,12 @@ class EntityReader implements EntityReaderInterface
         }
         unset($row);
 
-        $read = new Criteria($ids);
-        foreach ($fieldCriteria->getAssociations() as $fieldName => $associationCriteria) {
-            $read->addAssociation($fieldName, $associationCriteria);
-        }
+        $fieldCriteria->setIds($ids);
 
         $referenceClass = $association->getReferenceDefinition();
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read(
-            $read,
+            $fieldCriteria,
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),

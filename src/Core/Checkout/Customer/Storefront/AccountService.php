@@ -180,7 +180,7 @@ class AccountService
         $criteria->addFilter(new EqualsFilter('country.active', true));
 
         /** @var CountryCollection $countries */
-        $countries = $this->countryRepository->read($criteria, $context->getContext());
+        $countries = $this->countryRepository->search($criteria, $context->getContext());
 
         $countries->sortCountryAndStates();
 
@@ -451,7 +451,7 @@ class AccountService
         }
 
         /** @var CustomerAddressEntity|null $address */
-        $address = $this->customerAddressRepository->read(new Criteria([$addressId]), $context->getContext())->get($addressId);
+        $address = $this->customerAddressRepository->search(new Criteria([$addressId]), $context->getContext())->get($addressId);
 
         if (!$address || $address->getCustomerId() !== $context->getCustomer()->getId()) {
             throw new AddressNotFoundException($addressId);

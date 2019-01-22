@@ -132,13 +132,13 @@ class VersioningTest extends TestCase
         ], $versionContext);
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals(100, $product->getPrice()->getGross());
         static::assertEquals(10, $product->getPrice()->getNet());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), $versionContext)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals(1000, $product->getPrice()->getGross());
         static::assertEquals(1000, $product->getPrice()->getNet());
@@ -146,7 +146,7 @@ class VersioningTest extends TestCase
         $this->productRepository->merge($versionId, $context);
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals(1000, $product->getPrice()->getGross());
         static::assertEquals(1000, $product->getPrice()->getNet());
@@ -180,17 +180,17 @@ class VersioningTest extends TestCase
         ], $versionContext);
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals('2018-01-01', $product->getReleaseDate()->format('Y-m-d'));
 
-        $product = $this->productRepository->read(new Criteria([$id]), $versionContext)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
 
         $this->productRepository->merge($versionId, $context);
 
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
     }
@@ -255,7 +255,7 @@ class VersioningTest extends TestCase
         $repository->update([$updated], $versionContext);
 
         $entity = $repository
-                    ->read(new Criteria([$id]), $context)
+                    ->search(new Criteria([$id]), $context)
                     ->first();
 
         //check that the live entity contains the original price
@@ -271,7 +271,7 @@ class VersioningTest extends TestCase
 
         //check that the version entity is updated with the new price
         $entity = $repository
-            ->read(new Criteria([$id]), $versionContext)
+            ->search(new Criteria([$id]), $versionContext)
             ->first();
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
@@ -290,7 +290,7 @@ class VersioningTest extends TestCase
 
         //check that the version entity is updated with the new price
         $entity = $repository
-            ->read(new Criteria([$id]), $context)
+            ->search(new Criteria([$id]), $context)
             ->first();
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
@@ -337,7 +337,7 @@ class VersioningTest extends TestCase
         $versionContext = $context->createWithVersionId($versionId);
 
         /** @var CategoryEntity $category */
-        $category = $this->categoryRepository->read(new Criteria([$id3]), $versionContext)->first();
+        $category = $this->categoryRepository->search(new Criteria([$id3]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $id1 . '|' . $id2 . '|', $category->getPath());
 
@@ -348,11 +348,11 @@ class VersioningTest extends TestCase
 
         /** @var CategoryEntity $category */
         //check that the path updated
-        $category = $this->categoryRepository->read(new Criteria([$id3]), $versionContext)->first();
+        $category = $this->categoryRepository->search(new Criteria([$id3]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $id1 . '|', $category->getPath());
 
-        $category = $this->categoryRepository->read(new Criteria([$id3]), $context)->first();
+        $category = $this->categoryRepository->search(new Criteria([$id3]), $context)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $id1 . '|' . $id2 . '|', $category->getPath());
 
@@ -360,7 +360,7 @@ class VersioningTest extends TestCase
 
         //test after merge the path is updated too
         /** @var CategoryEntity $category */
-        $category = $this->categoryRepository->read(new Criteria([$id3]), $context)->first();
+        $category = $this->categoryRepository->search(new Criteria([$id3]), $context)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $id1 . '|', $category->getPath());
     }
@@ -709,16 +709,16 @@ class VersioningTest extends TestCase
         $this->productRepository->upsert([['id' => $id, 'ean' => 'updated']], $versionContext);
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), $versionContext)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('updated', $product->getEan());
 
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('EAN', $product->getEan());
 
         $this->productRepository->merge($versionId, $context);
-        $product = $this->productRepository->read(new Criteria([$id]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('updated', $product->getEan());
     }
@@ -784,7 +784,7 @@ class VersioningTest extends TestCase
 
         /* @var ProductEntity $product */
         $this->productRepository->update([$updated], $versionContext);
-        $product = $this->productRepository->read(new Criteria([$productId]), $versionContext)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
 
         //check if the prices are updated in the version scope
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -795,7 +795,7 @@ class VersioningTest extends TestCase
         static::assertEquals(99, $product->getPriceRules()->get($priceId2)->getPrice()->getNet());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         //check the prices of the live version are untouched
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -813,7 +813,7 @@ class VersioningTest extends TestCase
         ], $versionContext);
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         //live version scope should be untouched
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -821,7 +821,7 @@ class VersioningTest extends TestCase
 
         /** @var ProductEntity $product */
         //version scope should have no prices
-        $product = $this->productRepository->read(new Criteria([$productId]), $versionContext)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(0, $product->getPriceRules());
 
@@ -862,13 +862,13 @@ class VersioningTest extends TestCase
         //add new price matrix to product
         $this->productRepository->update([$updated], $versionContext);
 
-        $product = $this->productRepository->read(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getPriceRules());
 
-        $product = $this->productRepository->read(new Criteria([$productId]), $versionContext)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
 
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -876,7 +876,7 @@ class VersioningTest extends TestCase
 
         $this->productRepository->merge($versionId, $context);
 
-        $product = $this->productRepository->read(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -899,7 +899,7 @@ class VersioningTest extends TestCase
 
         $priceRepository->create([$data], $versionContext);
 
-        $price4 = $priceRepository->read(new Criteria([$newPriceId4]), $versionContext)->first();
+        $price4 = $priceRepository->search(new Criteria([$newPriceId4]), $versionContext)->first();
         static::assertInstanceOf(ProductPriceRuleEntity::class, $price4);
 
         /** @var ProductPriceRuleEntity $price4 */
@@ -943,7 +943,7 @@ class VersioningTest extends TestCase
         $criteria->addAssociation('product.categories');
 
         $product = $this->productRepository
-            ->read($criteria, $context)
+            ->search($criteria, $context)
             ->first();
 
         /** @var ProductEntity $product */
@@ -963,7 +963,7 @@ class VersioningTest extends TestCase
         }
 
         $product = $this->productRepository
-            ->read($criteria, $versionContext)
+            ->search($criteria, $versionContext)
             ->first();
 
         /** @var ProductEntity $product */
@@ -973,7 +973,7 @@ class VersioningTest extends TestCase
         $this->productRepository->merge($versionId, $context);
 
         $product = $this->productRepository
-            ->read($criteria, $context)
+            ->search($criteria, $context)
             ->first();
 
         /** @var ProductEntity $product */
@@ -1118,7 +1118,7 @@ class VersioningTest extends TestCase
         static::assertContains($productId, $result->getIds());
 
         $product = $this->productRepository
-            ->read(new Criteria([$productId]), $context)
+            ->search(new Criteria([$productId]), $context)
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -1174,7 +1174,7 @@ class VersioningTest extends TestCase
         $Criteria = new Criteria([$productId]);
         $Criteria->addAssociation('product.categories');
 
-        $product = $this->productRepository->read($Criteria, $versionContext)->first();
+        $product = $this->productRepository->search($Criteria, $versionContext)->first();
 
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -1550,7 +1550,7 @@ class VersioningTest extends TestCase
             $versionContext
         );
 
-        $products = $this->productRepository->read(new Criteria([$id1, $id2]), $versionContext);
+        $products = $this->productRepository->search(new Criteria([$id1, $id2]), $versionContext);
         //check both products updated
         static::assertCount(2, $products);
         static::assertTrue($products->has($id1));
@@ -1559,7 +1559,7 @@ class VersioningTest extends TestCase
         static::assertEquals('EAN-2-update', $products->get($id2)->getEan());
 
         //check existing live version not to be updated
-        $products = $this->productRepository->read(new Criteria([$id1, $id2]), $context);
+        $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context);
         static::assertCount(2, $products);
         static::assertTrue($products->has($id1));
         static::assertTrue($products->has($id2));
@@ -1570,7 +1570,7 @@ class VersioningTest extends TestCase
         $this->productRepository->merge($versionId, $context);
 
         //check both products are merged
-        $products = $this->productRepository->read(new Criteria([$id1, $id2]), $context);
+        $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context);
         static::assertCount(2, $products);
         static::assertTrue($products->has($id1));
         static::assertTrue($products->has($id2));

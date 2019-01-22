@@ -51,7 +51,7 @@ class MediaRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
@@ -91,7 +91,7 @@ class MediaRepositoryTest extends TestCase
         ],
             $this->context
         );
-        $media = $this->mediaRepository->read(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
@@ -135,7 +135,7 @@ class MediaRepositoryTest extends TestCase
         );
         $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
-        $read = $this->mediaRepository->read(
+        $read = $this->mediaRepository->search(
             new Criteria(
                 [
                     $firstId,

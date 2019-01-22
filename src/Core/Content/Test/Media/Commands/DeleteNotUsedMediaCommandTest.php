@@ -80,7 +80,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $string = $commandTester->getDisplay();
         static::assertInternalType('int', strpos($string, 'Successfully deleted 2 media files.'));
 
-        $result = $this->mediaRepository->read(
+        $result = $this->mediaRepository->search(
             new Criteria([
                 $txt->getId(),
                 $png->getId(),
@@ -127,7 +127,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $string = $commandTester->getDisplay();
         static::assertInternalType('int', strpos($string, 'Aborting due to user input.'));
 
-        $result = $this->mediaRepository->read(
+        $result = $this->mediaRepository->search(
             new Criteria([
                 $txt->getId(),
                 $png->getId(),

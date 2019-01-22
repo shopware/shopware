@@ -35,7 +35,7 @@ class VariantGenerator
 
     public function generate(string $productId, Context $context, $offset = null, $limit = null): EntityWrittenContainerEvent
     {
-        $products = $this->productRepository->read(new Criteria([$productId]), $context);
+        $products = $this->productRepository->search(new Criteria([$productId]), $context);
         $product = $products->get($productId);
 
         if (!$product) {

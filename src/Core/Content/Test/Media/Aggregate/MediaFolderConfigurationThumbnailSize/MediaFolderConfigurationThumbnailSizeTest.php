@@ -34,7 +34,7 @@ class MediaFolderConfigurationThumbnailSizeTest extends TestCase
             ],
         ], $context);
 
-        $read = $repository->read(new Criteria([$configurationId]), $context);
+        $read = $repository->search(new Criteria([$configurationId]), $context);
         $configuration = $read->get($configurationId);
 
         static::assertNotNull($configuration);

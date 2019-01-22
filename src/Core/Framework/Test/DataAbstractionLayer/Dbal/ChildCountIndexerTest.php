@@ -66,7 +66,7 @@ class ChildCountIndexerTest extends TestCase
 
         $categoryD = $this->createCategory($categoryC);
 
-        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         static::assertEquals(2, $categories->get($categoryA)->getChildCount());
         static::assertEquals(0, $categories->get($categoryB)->getChildCount());
@@ -85,7 +85,7 @@ class ChildCountIndexerTest extends TestCase
         ├── Category D
         */
 
-        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         static::assertEquals(3, $categories->get($categoryA)->getChildCount());
         static::assertEquals(0, $categories->get($categoryB)->getChildCount());
@@ -109,7 +109,7 @@ class ChildCountIndexerTest extends TestCase
         $categoryD = $this->createCategory($categoryA);
         $categoryE = $this->createCategory($categoryD);
 
-        $categories = $this->categoryRepository->read(
+        $categories = $this->categoryRepository->search(
             new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
             $this->context
         );
@@ -142,7 +142,7 @@ class ChildCountIndexerTest extends TestCase
         │  └── Category D
         │  └── Category E
          */
-        $categories = $this->categoryRepository->read(
+        $categories = $this->categoryRepository->search(
             new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
             $this->context
         );
@@ -182,14 +182,14 @@ class ChildCountIndexerTest extends TestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
         foreach ($categories as $category) {
             static::assertEquals(0, $category->getChildCount());
         }
 
         $this->childCountIndexer->index(new \DateTime());
 
-        $categories = $this->categoryRepository->read(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         static::assertEquals(2, $categories->get($categoryA)->getChildCount());
         static::assertEquals(0, $categories->get($categoryB)->getChildCount());

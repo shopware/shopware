@@ -68,7 +68,7 @@ class ProductActionControllerTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.configurators');
-        $product = $this->productRepository->read($criteria, $context)->get($id);
+        $product = $this->productRepository->search($criteria, $context)->get($id);
 
         /** @var ProductEntity $product */
         $configurators = $product->getConfigurators();
@@ -106,7 +106,7 @@ class ProductActionControllerTest extends TestCase
         static::assertArrayHasKey('data', $ids);
         static::assertCount(2, $ids['data']);
 
-        $products = $this->productRepository->read(new Criteria($ids['data']), $context);
+        $products = $this->productRepository->search(new Criteria($ids['data']), $context);
 
         foreach ($products as $product) {
             static::assertSame($id, $product->getParentId());

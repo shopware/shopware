@@ -207,7 +207,7 @@ class SalesChannelRuleTest extends TestCase
         );
 
         static::assertCount(
-            2, $this->conditionRepository->read(
+            2, $this->conditionRepository->search(
             new Criteria([$conditionIdEq, $conditionIdNEq]), $this->context
         )
         );
@@ -263,6 +263,6 @@ class SalesChannelRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 }

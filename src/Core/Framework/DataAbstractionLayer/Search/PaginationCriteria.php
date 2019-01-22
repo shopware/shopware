@@ -6,6 +6,7 @@ class PaginationCriteria extends Criteria
 {
     public function __construct(?int $limit, ?int $offset = null)
     {
+        parent::__construct();
         $this->limit = $limit;
         $this->offset = $offset;
     }

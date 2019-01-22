@@ -84,7 +84,7 @@ class AndRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testIfRuleWithChildRulesIsConsistent()
@@ -110,9 +110,9 @@ class AndRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
         /** @var RuleEntity $ruleStruct */
-        $ruleStruct = $this->ruleRepository->read(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $ruleStruct = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
         static::assertEquals(new AndRule([new AndRule([new AndRule()])]), $ruleStruct->getPayload());
     }
 }

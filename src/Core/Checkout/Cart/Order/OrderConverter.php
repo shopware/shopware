@@ -213,7 +213,7 @@ class OrderConverter
 
         if ($customerId) {
             /** @var CustomerEntity|null $customer */
-            $customer = $this->customerRepository->read(new Criteria([$customerId]), $context)->get($customerId);
+            $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
             $customerGroupId = $customer->getGroupId() ?? null;
         }
 

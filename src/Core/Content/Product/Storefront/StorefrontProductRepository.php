@@ -33,7 +33,9 @@ class StorefrontProductRepository
     public function read(array $ids, CheckoutContext $context): ProductCollection
     {
         /** @var ProductCollection $basics */
-        $basics = $this->productRepository->read(new Criteria($ids), $context->getContext());
+        $basics = $this->productRepository
+            ->search(new Criteria($ids), $context->getContext())
+            ->getEntities();
 
         return $this->loadListProducts($basics, $context);
     }
@@ -45,7 +47,7 @@ class StorefrontProductRepository
         $criteria->addAssociation('product.services');
 
         /** @var ProductCollection $basics */
-        $basics = $this->productRepository->read($criteria, $context->getContext());
+        $basics = $this->productRepository->search($criteria, $context->getContext());
 
         return $this->loadDetailProducts($context, $basics);
     }

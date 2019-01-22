@@ -112,7 +112,7 @@ class PaymentService
      */
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
-        $paymentMethods = $this->paymentMethodRepository->read(new Criteria([$paymentMethodId]), $context);
+        $paymentMethods = $this->paymentMethodRepository->search(new Criteria([$paymentMethodId]), $context);
 
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $paymentMethods->get($paymentMethodId);

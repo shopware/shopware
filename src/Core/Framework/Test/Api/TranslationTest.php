@@ -117,7 +117,7 @@ class TranslationTest extends TestCase
     {
         $localeRepo = $this->getContainer()->get('locale.repository');
         /** @var LocaleEntity $locale */
-        $locale = $localeRepo->read(new Criteria([Defaults::TRANSLATION_CODE_SYSTEM]), Context::createDefaultContext())->first();
+        $locale = $localeRepo->search(new Criteria([Defaults::TRANSLATION_CODE_SYSTEM]), Context::createDefaultContext())->first();
 
         $this->assertTranslation(
             ['name' => 'system translation'],

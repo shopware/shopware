@@ -124,7 +124,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -147,7 +147,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -157,7 +157,7 @@ class EntityExtensionTest extends TestCase
         $criteria->addAssociation('product.myPrices');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -169,7 +169,7 @@ class EntityExtensionTest extends TestCase
         $criteria->addAssociation('product.extensions.myPrices');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -228,7 +228,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -238,7 +238,7 @@ class EntityExtensionTest extends TestCase
         $criteria->addAssociation('product.myPrices', new PaginationCriteria(1));
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -302,7 +302,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -327,7 +327,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -337,7 +337,7 @@ class EntityExtensionTest extends TestCase
         $criteria->addAssociation('product.myCategories');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -349,7 +349,7 @@ class EntityExtensionTest extends TestCase
         $criteria->addAssociation('product.myCategories');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -412,7 +412,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -422,7 +422,7 @@ class EntityExtensionTest extends TestCase
         $criteria->addAssociation('product.extensions.myCategories', new PaginationCriteria(2));
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -434,7 +434,7 @@ class EntityExtensionTest extends TestCase
         $criteria->addAssociation('product.myCategories', new PaginationCriteria(2));
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->read($criteria, Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);

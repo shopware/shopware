@@ -127,7 +127,7 @@ class StorefrontCheckoutContextController extends AbstractController
             throw new CustomerNotLoggedInException();
         }
 
-        $addresses = $this->customerAddressRepository->read(new Criteria([$addressId]), $context->getContext());
+        $addresses = $this->customerAddressRepository->search(new Criteria([$addressId]), $context->getContext());
         /** @var CustomerAddressEntity|null $address */
         $address = $addresses->get($addressId);
 

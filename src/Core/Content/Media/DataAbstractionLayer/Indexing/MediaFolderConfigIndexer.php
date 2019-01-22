@@ -77,7 +77,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
             if (!(array_key_exists('parentId', $update) && $update['parentId'] !== null) && !array_key_exists('configurationId', $update)) {
                 continue;
             } elseif (array_key_exists('parentId', $update) && !array_key_exists('configurationId', $update)) {
-                $folders = $this->folderRepository->read(new Criteria([$update['id'], $update['parentId']]), $event->getContext());
+                $folders = $this->folderRepository->search(new Criteria([$update['id'], $update['parentId']]), $event->getContext());
                 $child = $folders->get($update['id']);
                 $parent = $folders->get($update['parentId']);
 

@@ -67,7 +67,7 @@ class StorefrontCategoryController extends AbstractController
      */
     public function detail(string $categoryId, Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {
-        $categories = $this->repository->read(new Criteria([$categoryId]), $checkoutContext->getContext());
+        $categories = $this->repository->search(new Criteria([$categoryId]), $checkoutContext->getContext());
         if (!$categories->has($categoryId)) {
             throw new CategoryNotFoundException($categoryId);
         }

@@ -51,7 +51,7 @@ class StorefrontProxyController extends AbstractController
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context)
     {
         /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->read(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
 
         if (!$salesChannel) {
             throw new InvalidSalesChannelIdException($salesChannelId);

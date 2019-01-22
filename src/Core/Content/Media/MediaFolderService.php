@@ -138,7 +138,7 @@ class MediaFolderService
 
     private function fetchFolder(string $folderId, Context $context)
     {
-        $folder = $this->mediaFolderRepo->read(new Criteria([$folderId]), $context)->get($folderId);
+        $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $context)->get($folderId);
 
         if ($folder === null) {
             throw new MediaFolderNotFoundException($folderId);

@@ -572,7 +572,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
     private function readCustomer(string $userID): CustomerEntity
     {
-        return $this->customerRepository->read(
+        return $this->customerRepository->search(
             new Criteria([$userID]),
             Context::createDefaultContext()
         )->get($userID);
@@ -580,7 +580,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
     private function readCustomerAddress(string $addressId): ?CustomerAddressEntity
     {
-        return $this->customerAddressRepository->read(
+        return $this->customerAddressRepository->search(
             new Criteria([$addressId]),
             Context::createDefaultContext()
         )->get($addressId);

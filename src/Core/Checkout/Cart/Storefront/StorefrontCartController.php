@@ -238,7 +238,7 @@ class StorefrontCartController extends AbstractController
         }
 
         if ($coverId !== null) {
-            $cover = $this->mediaRepository->read(new Criteria([$coverId]), $context)->get($coverId);
+            $cover = $this->mediaRepository->search(new Criteria([$coverId]), $context)->get($coverId);
 
             if (!$cover) {
                 throw new LineItemCoverNotFoundException($coverId, $lineItem->getKey());

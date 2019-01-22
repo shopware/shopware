@@ -71,19 +71,25 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        $ids = $this->searchIds($criteria, $context);
-
-        $Criteria = new Criteria($ids->getIds());
-        foreach ($criteria->getAssociations() as $key => $associationCriteria) {
-            $Criteria->addAssociation($key, $associationCriteria);
-        }
-
-        $entities = $this->read($Criteria, $context);
-
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context)->getAggregations();
         }
+
+        if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
+            $entities = $this->read($criteria, $context);
+
+            return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context);
+        }
+
+        $ids = $this->searchIds($criteria, $context);
+
+        $readCriteria = new Criteria($ids->getIds());
+        foreach ($criteria->getAssociations() as $key => $associationCriteria) {
+            $readCriteria->addAssociation($key, $associationCriteria);
+        }
+
+        $entities = $this->read($readCriteria, $context);
 
         $search = $ids->getData();
 
@@ -92,7 +98,13 @@ class EntityRepository implements EntityRepositoryInterface
             if (!array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;
             }
+
             $data = $search[$element->getUniqueIdentifier()];
+            unset($data['primary_key']);
+
+            if (empty($data)) {
+                continue;
+            }
 
             $element->addExtension('search', new ArrayEntity($data));
         }
@@ -178,17 +190,6 @@ class EntityRepository implements EntityRepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function read(Criteria $criteria, Context $context): EntityCollection
-    {
-        /** @var EntityCollection $entities */
-        $entities = $this->reader->read($this->definition, $criteria, $context);
-
-        $event = new EntityLoadedEvent($this->definition, $entities, $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
-
-        return $entities;
-    }
-
     public function clone(string $id, Context $context, string $newId = null): EntityWrittenContainerEvent
     {
         $newId = $newId ?? Uuid::uuid4()->getHex();
@@ -201,5 +202,16 @@ class EntityRepository implements EntityRepositoryInterface
         $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
+    }
+
+    private function read(Criteria $criteria, Context $context): EntityCollection
+    {
+        /** @var EntityCollection $entities */
+        $entities = $this->reader->read($this->definition, $criteria, $context);
+
+        $event = new EntityLoadedEvent($this->definition, $entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 }

@@ -59,7 +59,7 @@ class OrderConverterController extends AbstractController
     public function convertToCart(string $orderId, Context $context)
     {
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->read(new Criteria([$orderId]), $context)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->get($orderId);
 
         if (!$order) {
             throw new InvalidOrderException($orderId);

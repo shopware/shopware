@@ -519,9 +519,9 @@
       "labelDescription": "Beschreibung",
       "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
-      "placeholderTitle": "Gib einen Produktnamen ein...",
-      "placeholderDescription": "Gib eine Produktbeschreibung ein...",
-      "placeholderProductNumber": "Gib eine Produktnummer ein...",
+      "placeholderName": "Gib einen Produktnamen ein...",
+      "placeholderDescriptionLong": "Gib eine Produktbeschreibung ein...",
+      "placeholderId": "Gib eine Produktnummer ein...",
       "placeholderManufacturer": "Gib einen Produkthersteller ein..."
     },
     "categoryForm": {
@@ -559,7 +559,6 @@
       "labelMaxPurchase": "Maximalabnahme",
       "labelEan": "EAN",
       "labelManufacturerNumber": "Herstellernummer",
-      "labelPseudoSales": "Pseudoverkäufe",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",
@@ -574,8 +573,7 @@
       "placeholderMinPurchase": "Mindestabnahme...",
       "placeholderMaxPurchase": "Maximalabnahme...",
       "placeholderEan": "Gib die EAN Nummer ein...",
-      "placeholderManufacturerNumber": "Gib die Herstellernummer ein...",
-      "placeholderPseudoSales": "Gib die Anzahl der Pseudoverkäufe ein..."
+      "placeholderManufacturerNumber": "Gib die Herstellernummer ein..."
     },
     "detailBase": {
       "cardTitleProductInfo": "Informationen",
@@ -780,6 +778,8 @@
       "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
       "buttonCloseDeleteModal": "Abbrechen",
       "buttonConfirmDelete": "Löschen",
+      "textHeadline": "Neuer Verkaufskanal",
+      "placeholderName": "Gib einen Namen für den Verkaufskanal ein...",
       "titleDomains": "Domänen",
       "labelInputCurrency": "Währung",
       "labelInputLanguage": "Sprache",
@@ -1084,15 +1084,21 @@
       "textHeadline": "Sprachen",
       "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache {name} löschen möchtest?",
       "columnName": "Name",
-      "columnLocaleName": "Sprachcode",
+      "columnLocaleName": "Lokalisierung",
+      "columnIsoCode": "ISO Code ",
       "columnInherit": "Erbt von",
+      "columnDefault": "Standard",
       "buttonAddLanguage": "Sprache anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Sprache löschen",
       "titleDeleteSuccess": "Sprachen",
       "messageDeleteSuccess": "Die Sprache {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "titleSidebarFilter": "Filter",
+      "titleSidebarQuickFilter": "Quick Filter",
+      "textFilterRootLanguages": "Zeige nur \"Root\"-Sprachen",
+      "textFilterInheritedLanguages": "Zeige nur vererbte Sprachen"
     },
     "detail": {
       "textHeadline": "Neue Sprache",
@@ -1100,18 +1106,21 @@
       "titleSaveSuccess": "Sprachen",
       "messageSaveSuccess": "Die Sprache {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
-      "labelLocale": "Sprachcode",
+      "labelLocale": "Lokalisierung",
       "labelParent": "Erben von",
+      "labelIsoCode": "ISO Code",
+      "labelDefault": "Als Standard System Sprache benutzen",
       "placeholderName": "Namen eingeben...",
       "placeholderPleaseSelect": "Bitte wählen...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "tooltipLanguageNotChoosable": "Es kann nur von einer Sprache geerbt werden, welche nicht bereits selbst erbt.",
-      "tooltipLocaleNotChoosable": "Es können nur ungenutzte Sprachcodes verwendet werden.",
+      "tooltipIsoCodeNotChoosable": "Es können nur ungenutzte Sprachcodes verwendet werden.",
       "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
       "titleAlertChangeParent": "Achtung",
-      "textLocaleIsInUse": "Dieser Sprachcode wird bereits verwendet.",
-      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen."
+      "textIsoCodeIsInUse": "Dieser ISO Code wird bereits verwendet.",
+      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen.",
+      "helpTextDefaultField": "Das Ändern der System Standard Sprache ist zur Zeit leider noch nicht möglich."
     }
   },
   "sw-settings-payment": {
@@ -1309,5 +1318,17 @@
   "sw-property-assignment": {
     "columnGroup": "Eigenschaft",
     "columnOptions": "Optionen"
+  },
+  "sw-language-info": {
+    "infoTextChildLanguage": "Übersetzung von \"{entityDescription}\" in der Sprache \"{language}\". Diese erbt von",
+    "infoTextRootLanguage": "Übersetzung von \"{entityDescription}\" in der Sprache \"{language}\". Der Fallback ist die Systemstandardsprache",
+    "infoTextNewEntity": "\"{entityDescription}\" wird in der Systemstandardsprache angezeigt. Neue Daten müssen in der Standardsprache immer gepflegt sein."
+  },
+  "sw-language-switch": {
+    "messageModalUnsavedChanges": "Du hast in der aktuellen Sprache noch ungespeicherte Änderungen. Möchtest Du diese jetzt speichern?",
+    "titleModalUnsavedChanges": "Nicht gespeicherte Änderungen",
+    "titleModalButtonCancelUnsavedChanges": "Abbrechen",
+    "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
+    "titleModalButtonSaveChanges": "Speichern"
   }
 }

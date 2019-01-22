@@ -56,7 +56,8 @@ export const Entity = {
     getRawEntityObject: Shopware.Entity.getRawEntityObject,
     getPropertyBlacklist: Shopware.Entity.getPropertyBlacklist,
     getRequiredProperties: Shopware.Entity.getRequiredProperties,
-    getAssociatedProperties: Shopware.Entity.getAssociatedProperties
+    getAssociatedProperties: Shopware.Entity.getAssociatedProperties,
+    getTranslatableProperties: Shopware.Entity.getTranslatableProperties
 };
 
 export const ApiService = {

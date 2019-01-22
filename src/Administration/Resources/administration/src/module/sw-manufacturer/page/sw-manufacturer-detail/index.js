@@ -7,6 +7,7 @@ Component.register('sw-manufacturer-detail', {
     template,
 
     mixins: [
+        Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
         Mixin.getByName('discard-detail-page-changes')('manufacturer')
     ],
@@ -57,13 +58,30 @@ Component.register('sw-manufacturer-detail', {
                 if (this.manufacturer.isLocal) {
                     return;
                 }
-                this.manufacturerStore.getByIdAsync(this.manufacturerId).then((manufacturer) => {
-                    this.manufacturer = manufacturer;
-                    if (manufacturer.mediaId) {
-                        this.mediaItem = this.mediaStore.getById(this.manufacturer.mediaId);
-                    }
-                });
+
+                this.loadEntityData();
             }
+        },
+
+        loadEntityData() {
+            this.manufacturerStore.getByIdAsync(this.manufacturerId).then((manufacturer) => {
+                this.manufacturer = manufacturer;
+                if (manufacturer.mediaId) {
+                    this.mediaItem = this.mediaStore.getById(this.manufacturer.mediaId);
+                }
+            });
+        },
+
+        abortOnLanguageChange() {
+            return this.manufacturer.hasChanges();
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
         },
 
         onUploadAdded({ uploadTag }) {
@@ -91,7 +109,7 @@ Component.register('sw-manufacturer-detail', {
         },
 
         onSave() {
-            const manufacturerName = this.manufacturer.name;
+            const manufacturerName = this.manufacturer.name || this.manufacturer.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-manufacturer.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-manufacturer.detail.messageSaveSuccess', 0, { name: manufacturerName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

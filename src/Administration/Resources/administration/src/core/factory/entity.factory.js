@@ -1,7 +1,7 @@
 /**
  * @module core/factory/entity
  */
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import { hasOwnProperty, deepCopyObject } from 'src/core/service/utils/object.utils';
 
 export default {
     addEntityDefinition,
@@ -10,7 +10,8 @@ export default {
     getRawEntityObject,
     getPropertyBlacklist,
     getRequiredProperties,
-    getAssociatedProperties
+    getAssociatedProperties,
+    getTranslatableProperties
 };
 
 /**
@@ -70,7 +71,7 @@ function getRawEntityObject(schema, deep = true) {
         obj[property] = getRawPropertyValue(propSchema, deep);
     });
 
-    return obj;
+    return Object.assign(obj, { meta: { viewData: deepCopyObject(obj) } });
 }
 
 /**
@@ -163,6 +164,22 @@ function getRequiredProperties(entityName) {
     });
 
     return requiredFields;
+}
+
+/**
+ * Get a list of all entity properties which are translatable.
+ *
+ * @param {String} entityName
+ * @return {Array}
+ */
+function getTranslatableProperties(entityName) {
+    if (!entityDefinitions.has(entityName)) {
+        return [];
+    }
+
+    const definition = entityDefinitions.get(entityName);
+
+    return definition.translatable;
 }
 
 /**

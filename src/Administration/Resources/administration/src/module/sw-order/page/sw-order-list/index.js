@@ -44,6 +44,10 @@ Component.register('sw-order-list', {
             });
         },
 
+        onChangeLanguage() {
+            this.getList();
+        },
+
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();

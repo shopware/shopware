@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-sales-channel-create.html.twig';
 
@@ -13,10 +13,20 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
         next();
     },
 
+    computed: {
+        languageStore() {
+            return State.getStore('language');
+        }
+    },
+
     methods: {
         createdComponent() {
             if (!this.$route.params.typeId) {
                 return;
+            }
+
+            if (this.languageStore.getCurrentId() !== this.languageStore.defaultLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.defaultLanguageId);
             }
 
             this.salesChannel = this.salesChannelStore.create(this.$route.params.id);
@@ -28,7 +38,6 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
 
         onSave() {
             this.$super.onSave().then(() => {
-                this.$root.$emit('changedSalesChannels');
                 this.$router.push({ name: 'sw.sales.channel.detail', params: { id: this.salesChannel.id } });
             });
         }

@@ -8,3 +8,16 @@
         </sw-tabs-item>
     </sw-tabs>
 {% endblock %}
+
+{% block sw_product_detail_language_switch %}
+    <sw-language-switch slot="language-switch"
+                        disabled>
+    </sw-language-switch>
+{% endblock %}
+
+{% block sw_product_detail_content_language_info %}
+    <sw-language-info
+            :entityDescription="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"
+            isNewEntity>
+    </sw-language-info>
+{% endblock %}

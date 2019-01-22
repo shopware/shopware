@@ -24,8 +24,22 @@
             </template>
         {% endblock %}
 
+        {% block sw_settings_country_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+        {% endblock %}
+
         {% block sw_settings_country_detail_content %}
             <sw-card-view slot="content">
+
+                {% block sw_settings_country_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
 
                 {% block sw_settings_country_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-country.detail.titleCard')">
@@ -34,15 +48,17 @@
                             {% block sw_settings_country_detail_content_field_name %}
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-country.detail.labelName')"
-                                          :placeholder="$tc('sw-settings-country.detail.placeholderName')"
+                                          :placeholder="placeholder(country, 'name', $tc('sw-settings-country.detail.placeholderName'))"
                                           v-model="country.name">
                                 </sw-field>
                             {% endblock %}
 
-                            <sw-field type="boolean"
-                                      :label="$tc('sw-settings-country.detail.labelActive')"
-                                      v-model="country.active">
-                            </sw-field>
+                            {% block sw_settings_country_detail_content_field_active %}
+                                <sw-field type="boolean"
+                                          :label="$tc('sw-settings-country.detail.labelActive')"
+                                          v-model="country.active">
+                                </sw-field>
+                            {% endblock %}
                         </sw-container>
                     </sw-card>
                 {% endblock %}

@@ -3,8 +3,7 @@
 
         {% block sw_product_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="product.name">{{ product.name }}</h2>
-                <h2 v-else>{{ $tc('sw-product.detail.textHeadline') }}</h2>
+                <h2>{{ placeholder(product, 'name', $tc('sw-product.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
 
@@ -24,8 +23,23 @@
             </template>
         {% endblock %}
 
+        {% block sw_product_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+        {% endblock %}
+
         {% block sw_product_detail_content %}
             <sw-card-view slot="content" sidebar>
+
+                {% block sw_product_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
+
                 {% block sw_product_detail_content_tabs %}
                     <sw-tabs class="sw-product-detail-page__tabs">
                         {% block sw_product_detail_content_tabs_general %}

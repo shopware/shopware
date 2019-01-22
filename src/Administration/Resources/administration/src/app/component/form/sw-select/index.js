@@ -44,8 +44,9 @@ export default {
             required: false,
             default: 'name'
         },
+        // Only required if this is a single select, multi select values are handled over the association store
         value: {
-            required: true
+            required: false
         },
         label: {
             type: String,
@@ -93,6 +94,17 @@ export default {
             type: String,
             required: false,
             default: ''
+        },
+        // In Single Selections
+        showSearch: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+        required: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -104,7 +116,8 @@ export default {
             // for multi select
             selections: [],
             activeResultPosition: 0,
-            isLoading: true,
+            isLoading: false,
+            isLoadingSelections: false,
             hasError: false,
             // for a single selection
             singleSelection: {}
@@ -117,7 +130,8 @@ export default {
                 'has--error': !this.isValid || this.hasError,
                 'is--disabled': this.disabled,
                 'is--expanded': this.isExpanded,
-                'sw-select--multi': this.multi
+                'sw-select--multi': this.multi,
+                'is--searchable': this.showSearch
             };
         }
     },
@@ -126,13 +140,18 @@ export default {
         '$route.params.id'() {
             this.createdComponent();
         },
-
-        disabled: 'loadPreviewResults',
-        criteria: 'loadPreviewResults',
         // load data of the selected option when it changes
-        value(value) {
-            if (typeof value === 'string') {
+        value() {
+            if (!this.multi) {
                 this.loadSelections();
+            }
+        },
+        // Show loading indicator while selected option is being fetched in single selections
+        'singleSelection.isLoading': {
+            handler(value) {
+                if (!this.multi) {
+                    this.isLoadingSelections = value;
+                }
             }
         }
     },
@@ -150,9 +169,6 @@ export default {
             this.selections = [];
             this.results = [];
 
-            if (!this.disabled) {
-                this.loadPreviewResults();
-            }
             this.loadSelections();
             this.addEventListeners();
         },
@@ -164,26 +180,29 @@ export default {
         addEventListeners() {
             this.$on('sw-select-option-clicked', this.addSelection);
             this.$on('sw-select-option-mouse-over', this.setActiveResultPosition);
+            // Reload selections when global language changes
+            this.$root.$on('on-change-application-language', this.loadSelections);
             document.addEventListener('click', this.closeOnClickOutside);
             document.addEventListener('keyup', this.closeOnClickOutside);
         },
 
 
         removeEventListeners() {
+            this.$root.$off('on-change-application-language', this.loadSelections);
             document.removeEventListener('click', this.closeOnClickOutside);
             document.removeEventListener('keyup', this.closeOnClickOutside);
         },
 
         loadSelections() {
-            this.isLoading = true;
-
             if (this.multi) {
+                this.isLoadingSelections = true;
+
                 this.associationStore.getList({
                     page: 1,
                     limit: 500 // ToDo: The concept of assigning a large amount of relations needs a special solution.
                 }).then((response) => {
                     this.selections = response.items;
-                    this.isLoading = false;
+                    this.isLoadingSelections = false;
                 });
             } else {
                 // return if the value is not set yet(*note the watcher on value)
@@ -191,11 +210,12 @@ export default {
                     return;
                 }
                 this.singleSelection = this.store.getById(this.value);
-                this.isLoading = false;
             }
         },
 
         loadResults() {
+            this.isLoading = true;
+
             this.store.getList({
                 page: 1,
                 limit: this.resultsLimit,
@@ -203,26 +223,40 @@ export default {
                 criteria: this.criteria
             }).then((response) => {
                 this.results = response.items;
-                this.isLoading = false;
                 // Reset active position index after search
                 this.setActiveResultPosition({ index: 0 });
-
                 this.scrollToResultsTop();
+                // Finish loading after next render tick
+                this.$nextTick(() => {
+                    this.isLoading = false;
+                });
             });
         },
 
         loadPreviewResults() {
+            this.isLoading = true;
+            this.results = [];
+
             this.store.getList({
                 page: 1,
                 limit: this.previewResultsLimit,
                 criteria: this.criteria
             }).then((response) => {
+                // Abort if a search is done atm
+                if (this.searchTerm !== '') {
+                    return;
+                }
                 this.results = response.items;
-                this.isLoading = false;
+                this.$nextTick(() => {
+                    this.isLoading = false;
+                });
             });
         },
 
         openResultList() {
+            if (this.isExpanded === false) {
+                this.loadPreviewResults();
+            }
             this.isExpanded = true;
             this.emitActiveResultPosition();
         },
@@ -231,6 +265,14 @@ export default {
             this.$nextTick(() => {
                 this.isExpanded = false;
             });
+
+            this.activeResultPosition = 0;
+            this.searchTerm = '';
+
+            if (!this.showSearch) {
+                return;
+            }
+
             this.$refs.swSelectInput.blur();
         },
 
@@ -305,6 +347,10 @@ export default {
             }
 
             this.openResultList();
+
+            if (!this.showSearch) {
+                return;
+            }
             // since the input is not visible at first we need to wait a tick until the
             // result list with the input is visible
             this.$nextTick(() => {
@@ -433,6 +479,16 @@ export default {
             if (typeof this.defaultItemId !== 'undefined') {
                 this.$emit('default_changed', id);
             }
+        },
+
+        onClickIndicatorDismiss() {
+            if (this.multi) {
+                this.selections = [];
+            }
+
+            this.singleSelection = {};
+
+            this.$emit('input', null);
         }
     }
 };

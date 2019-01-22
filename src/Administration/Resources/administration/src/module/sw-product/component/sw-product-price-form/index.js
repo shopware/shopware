@@ -1,9 +1,13 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.less';
 
 Component.register('sw-product-price-form', {
     template,
+
+    mixins: [
+        Mixin.getByName('placeholder')
+    ],
 
     props: {
         product: {

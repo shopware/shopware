@@ -9,7 +9,7 @@
                           validation="required"
                           v-model="product.taxId">
                     {% block sw_product_price_form_tax_field_options %}
-                        <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
+                        <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.meta.viewData.name }}</option>
                     {% endblock %}
                 </sw-field>
             {% endblock %}
@@ -60,7 +60,7 @@
             {% block sw_product_price_form_pack_unit_field %}
                 <sw-field type="text"
                           :label="$tc('sw-product.priceForm.labelPackUnit')"
-                          :placeholder="$tc('sw-product.priceForm.placeholderPackUnit')"
+                          :placeholder="placeholder(product, 'packUnit', $tc('sw-product.priceForm.placeholderPackUnit'))"
                           v-model="product.packUnit">
                 </sw-field>
             {% endblock %}

@@ -67,6 +67,9 @@ export default {
             if (value !== this.editor.root.innerHTML) {
                 this.setText(value);
             }
+        },
+        placeholder(value) {
+            this.editor.root.dataset.placeholder = value;
         }
     },
 
@@ -98,7 +101,12 @@ export default {
         },
 
         setText(value, silent = false) {
-            if (value !== null && value.length && value !== '<h2><br></h2>') {
+            if (value === null || value.length < 1) {
+                this.editor.setText('', silent ? 'silent' : 'api');
+                return;
+            }
+
+            if (value !== '<h2><br></h2>') {
                 if (this.htmlContent) {
                     this.editor.clipboard.dangerouslyPasteHTML(value, silent ? 'silent' : 'api');
                 } else {

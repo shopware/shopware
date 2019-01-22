@@ -2,18 +2,19 @@ import EntityStore from 'src/core/data/EntityStore';
 import EntityProxy from 'src/core/data/EntityProxy';
 import stringUtil from 'src/core/service/utils/string.utils';
 import ApiService from 'src/core/service/api.service';
+import LanguageStore from 'src/core/data/LanguageStore';
 
 export default function initializeEntities(container) {
     const factoryContainer = this.getContainer('factory');
     const serviceContainer = this.getContainer('service');
     const application = this;
-
     const httpClient = container.httpClient;
-
+    const loginService = serviceContainer.loginService;
     const entityFactory = factoryContainer.entity;
     const stateFactory = factoryContainer.state;
     const apiServiceFactory = factoryContainer.apiService;
-    const loginService = serviceContainer.loginService;
+
+    const languageId = localStorage.getItem('sw-admin-current-language');
 
     /**
      * Instantiate entity store and registers an entity store to the associated state factory
@@ -66,8 +67,25 @@ export default function initializeEntities(container) {
 
             const apiService = registerApiService(entityName);
             registerEntityDefinition(entityName, entityDefinition);
+
+            // Register custom language entity store
+            if (entityName === 'language') {
+                const languageStore = new LanguageStore(
+                    'languageService',
+                    EntityProxy,
+                    languageId
+                );
+                stateFactory.registerStore(entityName, languageStore);
+                return;
+            }
+
             registerEntityStore(entityName, apiService);
         });
+
+        if (loginService.isLoggedIn()) {
+            // init the language store if logged in
+            stateFactory.getStore('language').init();
+        }
 
         return entityFactory;
     });

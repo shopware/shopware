@@ -1,4 +1,4 @@
-import { Application } from 'src/core/shopware';
+import { Application, State } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, hasOwnProperty } from 'src/core/service/utils/object.utils';
 
@@ -39,18 +39,31 @@ export default class EntityStore {
      * @memberOf module:core/data/EntityStore
      * @param {String} id
      * @param {Boolean} [force=false]
+     * @param {String} [languageId]
      * @return {EntityProxy}
      */
-    getById(id, force = false) {
+    getById(id, force = false, languageId = '') {
+        if (!languageId || languageId.length < 1) {
+            languageId = this.getLanguageStore().getCurrentId();
+        }
+
         if (this.hasId(id) && force !== true) {
-            return this.store[id];
+            // return directly from store if entity language fits or the entity has no translatable properties
+            if (this.store[id].currentLanguageId === languageId || this.store[id].translatableProperties.length < 1) {
+                return this.store[id];
+            }
         }
 
         const entity = this.create(id);
 
         entity.isLoading = true;
-        this.apiService.getById(id).then((response) => {
-            entity.setData(response.data);
+
+        this.apiService.getById(
+            id,
+            {},
+            EntityStore.getLanguageHeader(languageId)
+        ).then((response) => {
+            entity.setData(response.data, true, true, languageId);
             entity.isLoading = false;
         });
 
@@ -62,9 +75,14 @@ export default class EntityStore {
      *
      * @memberOf module:core/data/EntityStore
      * @param {String} id
+     * @param {String} [languageId]
      * @return {Promise<never> | Promise<any>}
      */
-    getByIdAsync(id) {
+    getByIdAsync(id, languageId = '') {
+        if (!languageId || languageId.length < 1) {
+            languageId = this.getLanguageStore().getCurrentId();
+        }
+
         if (!id || !id.length) {
             return Promise.reject();
         }
@@ -72,8 +90,12 @@ export default class EntityStore {
         const entity = this.create(id);
 
         entity.isLoading = true;
-        return this.apiService.getById(id).then((response) => {
-            entity.setData(response.data);
+        return this.apiService.getById(
+            id,
+            {},
+            EntityStore.getLanguageHeader(languageId)
+        ).then((response) => {
+            entity.setData(response.data, true, false, languageId);
             entity.isLoading = false;
 
             return entity;
@@ -86,12 +108,22 @@ export default class EntityStore {
      * @memberOf module:core/data/EntityStore
      * @param {Object} params
      * @param {Boolean} keepAssociations
+     * @param languageId
      * @return {Promise}
      */
-    getList(params, keepAssociations = false) {
+    getList(params, keepAssociations = false, languageId = '') {
         this.isLoading = true;
 
-        return this.apiService.getList(params).then((response) => {
+        if (!languageId || languageId.length < 1) {
+            languageId = this.getLanguageStore().getCurrentId();
+        }
+
+        const parameter = Object.assign(
+            { headers: EntityStore.getLanguageHeader(languageId) },
+            params
+        );
+
+        return this.apiService.getList(parameter).then((response) => {
             const total = response.meta.total;
             const items = [];
             const aggregations = response.aggregations;
@@ -100,12 +132,16 @@ export default class EntityStore {
 
             response.data.forEach((item) => {
                 const entity = this.create(item.id);
-                entity.setData(item, !keepAssociations, keepAssociations, keepAssociations);
+                entity.setData(item, !keepAssociations, keepAssociations, keepAssociations, languageId);
                 items.push(entity);
             });
 
             return { items, total, aggregations };
         });
+    }
+
+    getLanguageStore() {
+        return State.getStore('language');
     }
 
     /**
@@ -120,7 +156,12 @@ export default class EntityStore {
             return this.store[id];
         }
 
-        this.store[id] = new this.EntityClass(this.entityName, this.apiService, id, this);
+        this.store[id] = new this.EntityClass(
+            this.entityName,
+            this.apiService,
+            id,
+            this
+        );
         return this.store[id];
     }
 
@@ -258,9 +299,13 @@ export default class EntityStore {
      *
      * @memberOf module:core/data/EntityStore
      * @param {Boolean} deletionsOnly
+     * @param {String} [languageId='']
      * @return {Promise<any[]>}
      */
-    sync(deletionsOnly = false) {
+    sync(deletionsOnly = false, languageId = '') {
+        if (!languageId || languageId.length < 1) {
+            languageId = this.getLanguageStore().getCurrentId();
+        }
         const serviceContainer = Application.getContainer('service');
         const syncService = serviceContainer.syncService;
         let payload = this.getDeletionPayload();
@@ -271,7 +316,11 @@ export default class EntityStore {
 
         this.isLoading = true;
 
-        return syncService.sync(payload).then(() => {
+        return syncService.sync(
+            payload,
+            {},
+            EntityStore.getLanguageHeader(languageId)
+        ).then(() => {
             this.isLoading = false;
         });
     }
@@ -398,5 +447,9 @@ export default class EntityStore {
         });
 
         return updateQueue;
+    }
+
+    static getLanguageHeader(languageId) {
+        return { 'x-sw-language-id': languageId };
     }
 }

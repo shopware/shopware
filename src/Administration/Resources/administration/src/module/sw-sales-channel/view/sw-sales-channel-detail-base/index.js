@@ -6,7 +6,8 @@ Component.register('sw-sales-channel-detail-base', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
     ],
 
     inject: [

@@ -8,6 +8,7 @@
                     {% block sw_sales_channel_detail_base_general_input_name %}
                         <sw-field type="text"
                                   validation="required"
+                                  :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
                                   :label="$tc('sw-sales-channel.detail.labelInputName')"
                                   v-model="salesChannel.name">
                         </sw-field>
@@ -31,7 +32,6 @@
                                :store="paymentMethodStore"
                                entityName="paymentMethod"
                                :defaultItemId="salesChannel.paymentMethodId"
-                               v-model="salesChannel.paymentMethods"
                                @default_changed="changeDefaultPaymentMethod">
                     </sw-select>
                 {% endblock %}
@@ -46,7 +46,6 @@
                                :store="shippingMethodStore"
                                entityName="shippingMethod"
                                :defaultItemId="salesChannel.shippingMethodId"
-                               v-model="salesChannel.shippingMethods"
                                @default_changed="changeDefaultShippingMethod">
                     </sw-select>
                 {% endblock %}
@@ -61,7 +60,6 @@
                                :store="countryStore"
                                entityName="country"
                                :defaultItemId="salesChannel.countryId"
-                               v-model="salesChannel.countries"
                                @default_changed="changeDefaultCountry">
                     </sw-select>
                 {% endblock %}
@@ -76,7 +74,6 @@
                                :store="currencyStore"
                                entityName="currency"
                                :defaultItemId="salesChannel.currencyId"
-                               v-model="salesChannel.currencies"
                                @default_changed="changeDefaultCurrency"
                                v-if="!next1387 || !isStoreFront">
                     </sw-select>
@@ -92,7 +89,6 @@
                                :store="languageStore"
                                entityName="language"
                                :defaultItemId="salesChannel.languageId"
-                               v-model="salesChannel.languages"
                                @default_changed="changeDefaultLanguage"
                                v-if="!next1387 || !isStoreFront">
                     </sw-select>
@@ -105,8 +101,7 @@
                                :label="$tc('sw-sales-channel.detail.labelInputCatalogs')"
                                :associationStore="catalogAssociationStore"
                                :store="catalogStore"
-                               entityName="catalog"
-                               v-model="salesChannel.catalogs">
+                               entityName="catalog">
                     </sw-select>
                 {% endblock %}
             </sw-card>

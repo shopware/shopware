@@ -89,6 +89,10 @@ Component.register('sw-product-list', {
             });
         },
 
+        onChangeLanguage() {
+            this.getList();
+        },
+
         onDeleteProduct(id) {
             this.showDeleteModal = id;
         },

@@ -24,8 +24,20 @@
             </template>
         {% endblock %}
 
+        {% block sw_settings_language_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage">
+            </sw-language-switch>
+        {% endblock %}
+
         {% block sw_settings_language_detail_content %}
             <sw-card-view slot="content">
+
+                {% block sw_settings_language_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="language.name">
+                    </sw-language-info>
+                {% endblock %}
 
                 {% block sw_settings_language_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-language.detail.titleCard')">
@@ -40,18 +52,53 @@
                                 </sw-field>
                             {% endblock %}
 
-                            {% block sw_settings_language_detail_content_field_localeId %}
+                            {% block sw_settings_language_detail_content_field_parentId %}
                                 <sw-select
-                                        id="locales"
-                                        class="sw-settings-language-detail__select-locale"
-                                        :label="$tc('sw-settings-language.detail.labelLocale')"
-                                        :store="localeStore"
+                                        id="inherit"
+                                        class="sw-settings-language-detail__select-parent"
+                                        :label="$tc('sw-settings-language.detail.labelParent')"
+                                        :store="languageStore"
                                         :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                        :helpText="$tc('sw-settings-language.detail.tooltipLocaleNotChoosable')"
-                                        v-model="language.localeId">
+                                        :helpText="$tc('sw-settings-language.detail.tooltipLanguageNotChoosable')"
+                                        @input="onInputLanguage"
+                                        v-model="language.parentId">
+
+                                    <template slot="result_items" slot-scope="{index, item}">
+                                        <template v-if="showOption(item)">
+                                            <sw-select-option
+                                                    v-if="item.parentId !== null"
+                                                    disabled
+                                                    v-tooltip="{
+                                                        showDelay: 300,
+                                                        message: $tc('sw-settings-language.detail.textLanguageHasParent'),
+                                                    }"
+                                                    :index="index"
+                                                    :item="item">
+                                                {{ item.name }}
+                                            </sw-select-option>
+                                            <sw-select-option v-else
+                                                              :index="index"
+                                                              :item="item">
+                                                {{ item.name }}
+                                            </sw-select-option>
+                                        </template>
+                                    </template>
+                                </sw-select>
+                            {% endblock %}
+
+                            {% block sw_settings_language_detail_content_field_iso_code %}
+                                <sw-select
+                                        id="iso-codes"
+                                        class="sw-settings-language-detail__select-iso-code"
+                                        :label="$tc('sw-settings-language.detail.labelIsoCode')"
+                                        :store="localeStore"
+                                        :required="isIsoCodeRequired"
+                                        :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                                        :helpText="$tc('sw-settings-language.detail.tooltipIsoCodeNotChoosable')"
+                                        v-model="language.translationCodeId">
                                     <template slot="selected_option" slot-scope="{ item }">
-                                        <span v-if="item.name.length">
-                                            {{ item.name }}, {{ item.territory }} ({{ item.code }})
+                                        <span v-if="item !== undefined">
+                                           {{ item.code }}
                                         </span>
                                     </template>
 
@@ -62,56 +109,60 @@
                                                 disabled
                                                 v-tooltip="{
                                                     showDelay: 300,
-                                                    message: $tc('sw-settings-language.detail.textLocaleIsInUse')
+                                                    message: $tc('sw-settings-language.detail.textIsoCodeIsInUse')
                                                 }"
                                                 :index="index"
                                                 :item="item">
-                                            {{ item.name }}, {{ item.territory }} ({{ item.code }})
+                                            {{ item.code }}
                                         </sw-select-option>
                                         <sw-select-option
                                                 v-else
                                                 :index="index"
                                                 :item="item">
-                                            {{ item.name }}, {{ item.territory }} ({{ item.code }})
+                                            {{ item.code }}
                                         </sw-select-option>
                                     </template>
                                 </sw-select>
                             {% endblock %}
-                        </sw-container>
 
-                        {% block sw_settings_language_detail_content_field_parentId %}
-                            <sw-select
-                                    id="inherit"
-                                    class="sw-settings-language-detail__select-parent"
-                                    :label="$tc('sw-settings-language.detail.labelParent')"
-                                    :store="languageStore"
-                                    :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                    :helpText="$tc('sw-settings-language.detail.tooltipLanguageNotChoosable')"
-                                    @input="onInputLanguage"
-                                    v-model="language.parentId">
+                            {% block sw_settings_language_detail_content_field_localeId %}
+                                <sw-select
+                                        id="locales"
+                                        required
+                                        class="sw-settings-language-detail__select-locale"
+                                        :label="$tc('sw-settings-language.detail.labelLocale')"
+                                        :store="localeStore"
+                                        :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                                        v-model="language.localeId">
+                                    <template slot="selected_option" slot-scope="{ item }">
+                                        <span v-if="item.meta !== undefined">
+                                            {{ item.meta.viewData.name }}, {{ item.meta.viewData.territory }}
+                                        </span>
+                                    </template>
 
-                                <template slot="result_items" slot-scope="{index, item}">
-                                    <template v-if="showOption(item)">
+                                    <template slot="result_items"
+                                              slot-scope="{index, item}">
                                         <sw-select-option
-                                                v-if="item.parentId !== null"
-                                                disabled
-                                                v-tooltip="{
-                                                    showDelay: 300,
-                                                    message: $tc('sw-settings-language.detail.textLanguageHasParent'),
-                                                }"
                                                 :index="index"
                                                 :item="item">
-                                            {{ item.name }}
-                                        </sw-select-option>
-                                        <sw-select-option v-else
-                                                          :index="index"
-                                                          :item="item">
-                                            {{ item.name }}
+                                            {{ item.meta.viewData.name }}, {{ item.meta.viewData.territory }}
                                         </sw-select-option>
                                     </template>
-                                </template>
-                            </sw-select>
+                                </sw-select>
+                            {% endblock %}
 
+                            {% block sw_settings_language_detail_content_field_default %}
+                                <div class="sw-settings-language-detail__field_default">
+                                    <sw-field type="boolean"
+                                              disabled
+                                              :label="$tc('sw-settings-language.detail.labelDefault')"
+                                              v-model="language.active">
+                                    </sw-field>
+                                    <sw-help-text :text="$tc('sw-settings-language.detail.helpTextDefaultField')"></sw-help-text>
+                                </div>
+                            {% endblock %}
+                        </sw-container>
+                        {% block sw_settings_language_detail_content_alert_change_parent %}
                             <sw-alert v-if="showAlertForChangeParentLanguage"
                                       class="sw-settings-language--alert-change-parent"
                                       :title="$tc('sw-settings-language.detail.titleAlertChangeParent')"

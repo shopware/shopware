@@ -34,7 +34,7 @@
                                         <template>
                                             {% block sw_select_selection_item_text %}
                                                 <span class="sw-select__selection-item">
-                                                    {{ selection.name }}
+                                                    {{ selection.meta.viewData.name }}
                                                 </span>
                                             {% endblock %}
                                         </template>
@@ -69,9 +69,10 @@
                     <template v-else>
                         <div class="sw-select__single-selection">
                             {% block sw_select_single_selection_inner %}
-                                <slot v-if="singleSelection[displayName]" name="selected_option" :item="singleSelection">
+                                <slot v-if="Object.keys(singleSelection).length > 0"
+                                      name="selected_option" :item="singleSelection">
                                     {% block sw_select_single_selection_slot_label %}
-                                        {{ singleSelection[displayName] }}
+                                        {{ singleSelection.meta.viewData[displayName] }}
                                     {% endblock %}
                                 </slot>
 
@@ -84,15 +85,28 @@
                 {% block sw_select_indicators %}
                     <div class="sw-select__indicators">
                         {% block sw_select__indicators_loader %}
-                            <sw-loader v-if="isLoading" size="16px"></sw-loader>
+                            <sw-loader class="sw-select__indicator" v-if="isLoading || isLoadingSelections" size="16px"></sw-loader>
+                        {% endblock %}
+
+                        {% block sw_select_indicators_dismiss %}
+                            <sw-icon v-if="!required && !multi"
+                                     class="sw-select__indicator sw-select__indicator-button"
+                                     name="small-default-x-line-small"
+                                     @click="onClickIndicatorDismiss"
+                                     small>
+                            </sw-icon>
                         {% endblock %}
 
                         {% block sw_select_indicators_helptext %}
-                            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
+                            <sw-help-text v-if="helpText" class="sw-select__indicator" :text="helpText"></sw-help-text>
                         {% endblock %}
 
                         {% block sw_select_indicators_arrow %}
-                            <sw-icon v-if="!multi" name="small-arrow-medium-down" small></sw-icon>
+                            <sw-icon v-if="!multi"
+                                     class="sw-select__indicator sw-select__indicator-button"
+                                     name="small-arrow-medium-down"
+                                     small>
+                            </sw-icon>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -102,7 +116,7 @@
                         {% block sw_select_results %}
                             <div class="sw-select__results" v-if="isExpanded">
                                 {% block sw_select_results_single_input %}
-                                    <div v-if="!multi"
+                                    <div v-if="!multi && showSearch"
                                          class="sw-select__input-single-wrapper">
                                         <input ref="swSelectInput"
                                                class="sw-select__input-single"
@@ -124,7 +138,7 @@
                                                          <sw-select-option
                                                             :index="index"
                                                             :item="item">
-                                                            {{ item[displayName] }}
+                                                            {{ item.meta.viewData[displayName] }}
                                                          </sw-select-option>
                                                      {% endblock %}
                                                  </slot>
@@ -134,7 +148,7 @@
                                 {% endblock %}
 
                                 {% block sw_select_results_empty %}
-                                    <div v-if="results.length <= 0" class="sw-select__results-empty-message">
+                                    <div v-if="results.length <= 0 && !isLoading" class="sw-select__results-empty-message">
                                         {% block sw_select_results_empty_icon %}
                                             <sw-icon name="default-action-search" size="20px"></sw-icon>
                                         {% endblock %}

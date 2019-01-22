@@ -25,60 +25,63 @@ export default class EntityProxy {
      * @param {EntityStore} [store=null]
      * @return {Proxy}
      */
-    constructor(entityName, apiService, id = utils.createId(), store = null) {
-        const that = this;
-
-        that.id = id;
-        that.entityName = entityName;
+    constructor(
+        entityName,
+        apiService,
+        id = utils.createId(),
+        store = null
+    ) {
+        this.id = id;
+        this.entityName = entityName;
 
         /**
          * The API service for operating CRUD operations for the entity.
          *
          * @type ApiService
          */
-        that.apiService = apiService;
+        this.apiService = apiService;
 
         /**
          * The corresponding store, which holds the entity.
          *
          * @type EntityStore
          */
-        that.store = store;
+        this.store = store;
 
         /**
          * Shows if there is an async action working on the entity.
          *
          * @type {boolean}
          */
-        that.isLoading = false;
+        this.isLoading = false;
 
         /**
          * Symbolizes if the entity was never synchronized with the server.
          *
          * @type {boolean}
          */
-        that.isLocal = true;
+        this.isLocal = true;
 
         /**
-         * Symbolizes that the entity was deleted locally but was not already deleted on the server.
+         * Symbolizes this the entity was deleted locally but was not already deleted on the server.
          *
          * @type {boolean}
          */
-        that.isDeleted = false;
+        this.isDeleted = false;
 
         /**
          * Holds all exceptions related to this entity.
          *
          * @type {Array}
          */
-        that.errors = [];
+        this.errors = [];
 
         /**
          * A registry of all OneToMany associated stores of this entity.
          *
          * @type {Object}
          */
-        that.associations = {};
+        this.associations = {};
 
         /**
          * The original data of the entity.
@@ -86,8 +89,8 @@ export default class EntityProxy {
          *
          * @type {Object}
          */
-        that.original = Entity.getRawEntityObject(this.entitySchema);
-        that.original.id = id;
+        this.original = Entity.getRawEntityObject(this.entitySchema);
+        this.original.id = id;
 
         /**
          * The draft data of the entity on which local changes are applied.
@@ -95,11 +98,15 @@ export default class EntityProxy {
          *
          * @type {Object}
          */
-        that.draft = deepCopyObject(that.original);
+        this.draft = deepCopyObject(this.original);
 
-        that.createAssociatedStores();
+        this.currentLanguageId = State.getStore('language').getCurrentId();
 
-        return new Proxy(that.exposedData, {
+        this.createAssociatedStores();
+
+        const that = this;
+
+        return new Proxy(this.exposedData, {
             get(target, property) {
                 // The normal getter for the raw data.
                 if (property in target) {
@@ -151,10 +158,15 @@ export default class EntityProxy {
      * @param {Object} data
      * @param {Boolean} [removeAssociationKeysFromData=true]
      * @param {Boolean} [populateAssociations=false]
-     * @param {Boolean} [keepChanges=true]
+     * @param {Boolean} [keepChanges=false]
+     * @param {String} [languageId='']
      * @return {void}
      */
-    setData(data, removeAssociationKeysFromData = true, populateAssociations = false, keepChanges = false) {
+    setData(data, removeAssociationKeysFromData = true, populateAssociations = false, keepChanges = false, languageId = '') {
+        if (languageId && languageId.length > 0) {
+            this.currentLanguageId = languageId;
+        }
+
         const associatedProps = this.associatedEntityPropNames;
 
         if (populateAssociations === true) {
@@ -285,11 +297,15 @@ export default class EntityProxy {
 
         this.isLoading = true;
 
-        return this.apiService.create(changes, { _response: true }).then((response) => {
+        return this.apiService.create(
+            changes,
+            { _response: true },
+            { 'x-sw-language-id': this.currentLanguageId }
+        ).then((response) => {
             this.isLoading = false;
 
             if (response.data) {
-                this.setData(response.data);
+                this.setData(response.data, true, false, false, this.currentLanguageId);
             }
 
             this.refreshAssociations(changedAssociations);
@@ -313,11 +329,16 @@ export default class EntityProxy {
     sendUpdateRequest(changes, changedAssociations = {}) {
         this.isLoading = true;
 
-        return this.apiService.updateById(this.id, changes, { _response: true }).then((response) => {
+        return this.apiService.updateById(
+            this.id,
+            changes,
+            { _response: true },
+            { 'x-sw-language-id': this.currentLanguageId }
+        ).then((response) => {
             this.isLoading = false;
 
             if (response.data) {
-                this.setData(response.data);
+                this.setData(response.data, true, false, false, this.currentLanguageId);
             }
 
             this.refreshAssociations(changedAssociations);
@@ -464,7 +485,13 @@ export default class EntityProxy {
                 apiEndPoint
             );
 
-            this.associations[prop] = new AssociationStore(definition.entity, apiService, EntityProxy, this, prop);
+            this.associations[prop] = new AssociationStore(
+                definition.entity,
+                apiService,
+                EntityProxy,
+                this,
+                prop
+            );
 
             if (this.draft[prop] && this.draft[prop].length > 0) {
                 this.populateAssociatedStore(prop, this.draft[prop]);
@@ -501,7 +528,7 @@ export default class EntityProxy {
 
         items.forEach((item) => {
             const entity = store.create(item.id);
-            entity.setData(item);
+            entity.setData(item, true, false, false, this.currentLanguageId);
         });
 
         return store;
@@ -653,8 +680,8 @@ export default class EntityProxy {
         }
 
         return Object.keys(b).reduce((acc, key) => {
-            // The key is not part of the schema, or it is blacklisted
-            if (!propertyList.includes(key) || blacklist.includes(key)) {
+            // The key is not part of the schema, or it is blacklisted or it is readonly
+            if (!propertyList.includes(key) || blacklist.includes(key) || properties[key].readOnly) {
                 return acc;
             }
 
@@ -775,6 +802,24 @@ export default class EntityProxy {
     }
 
     /**
+     * Checks if the entity has any changes. It also checks for deleted associations and changed associations
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {Boolean}
+     */
+    hasChanges() {
+        if (this.getDeletedAssociationsPayload().length > 0) {
+            return true;
+        }
+
+        if (Object.keys(this.getChangedAssociations()).length > 0) {
+            return true;
+        }
+
+        return Object.keys(this.getChanges()).length > 0;
+    }
+
+    /**
      * Validates the property structure of an object against an entity schema.
      * Removes also all properties which are blacklisted.
      *
@@ -841,6 +886,16 @@ export default class EntityProxy {
      */
     get requiredProperties() {
         return Entity.getRequiredProperties(this.entityName);
+    }
+
+    /**
+     * A list with names of all translatable properties of the entity.
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {*}
+     */
+    get translatableProperties() {
+        return Entity.getTranslatableProperties(this.entityName);
     }
 
     /**

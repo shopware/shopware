@@ -3,8 +3,7 @@
 
         {% block sw_manufacturer_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="manufacturer.name">{{ manufacturer.name }}</h2>
-                <h2 v-else class="sw-manufacturer-detail__empty-title">{{ $tc('sw-manufacturer.detail.textHeadline') }}</h2>
+                <h2>{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
 
@@ -24,15 +23,30 @@
             </template>
         {% endblock %}
 
+        {% block sw_manufacturer_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+        {% endblock %}
+
         {% block sw_manufacturer_detail_content %}
             <sw-card-view slot="content" sidebar>
+
+                {% block sw_manufacturer_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
+
                 {% block sw_manufacturer_detail_base_basic_info_card %}
                     <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturer.isLoading">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                             {% block sw_manufacturer_detail_base_info_field_name %}
                                 <sw-field type="text"
                                           :label="$tc('sw-manufacturer.detail.labelName')"
-                                          :placeholder="$tc('sw-manufacturer.detail.placeholderName')"
+                                          :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
                                           name="name"
                                           validation="required"
                                           v-model="manufacturer.name">
@@ -83,7 +97,7 @@
                         {% block sw_manufacturer_detail_base_info_field_description %}
                             <sw-text-editor
                                       :label="$tc('sw-manufacturer.detail.labelDescription')"
-                                      :placeholder="$tc('sw-manufacturer.detail.placeholderDescription')"
+                                      :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderDescription'))"
                                       name="description"
                                       v-model="manufacturer.description">
                             </sw-text-editor>

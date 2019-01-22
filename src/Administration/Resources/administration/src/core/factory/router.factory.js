@@ -68,8 +68,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      */
     function beforeRouterInterceptor(router) {
         router.beforeEach((to, from, next) => {
-            const bearerAuthExpiry = LoginService.getExpiry();
-            const loggedIn = LoginService.validateExpiry(bearerAuthExpiry);
+            const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new RefreshTokenHelper();
 
             if (to.meta && to.meta.forceRoute === true) {

@@ -26,7 +26,8 @@ export default function createLoginService(httpClient) {
         getBearerAuthentication,
         clearBearerAuthentication,
         getLocalStorageKey,
-        setLocalStorageKey
+        setLocalStorageKey,
+        isLoggedIn
     };
 
     /**
@@ -189,5 +190,16 @@ export default function createLoginService(httpClient) {
         localStorageKey = storageKey;
 
         return localStorageKey;
+    }
+
+    /**
+     * Checks if the user is logged in using the expiry time provided by the authentication end point.
+     *
+     * @memberOf module:core/service/login
+     * @returns {Boolean}
+     */
+    function isLoggedIn() {
+        const bearerAuthExpiry = getExpiry();
+        return validateExpiry(bearerAuthExpiry);
     }
 }

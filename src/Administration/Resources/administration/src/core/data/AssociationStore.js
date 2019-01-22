@@ -19,7 +19,13 @@ export default class AssociationStore extends EntityStore {
      * @param {EntityProxy} [parentEntity=null]
      * @param {String} [associationKey=null]
      */
-    constructor(entityName, apiService, EntityClass, parentEntity = null, associationKey = null) {
+    constructor(
+        entityName,
+        apiService,
+        EntityClass,
+        parentEntity = null,
+        associationKey = null
+    ) {
         super(entityName, apiService, EntityClass);
 
         this.parentEntity = parentEntity;
@@ -33,10 +39,11 @@ export default class AssociationStore extends EntityStore {
      * @memberOf module:core/data/AssociationStore
      * @param {Object} params
      * @param {Boolean} populateParent
+     * @param {String} [languageId='']
      * @return {Promise<{}>}
      */
-    getList(params, populateParent = true) {
-        return super.getList(params).then((response) => {
+    getList(params, populateParent = true, languageId = '') {
+        return super.getList(params, false, languageId).then((response) => {
             if (populateParent === true && response.items && response.items.length) {
                 this.populateParentEntity(response.items);
             }

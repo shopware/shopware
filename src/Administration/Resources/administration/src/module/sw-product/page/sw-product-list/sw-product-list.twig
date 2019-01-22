@@ -38,6 +38,10 @@
             </template>
         {% endblock %}
 
+        {% block sw_product_list_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
         <template slot="content">
             {% block sw_product_list_content %}
                 <div class="sw-product-list__content">
@@ -69,7 +73,7 @@
                                                 {% block sw_product_list_grid_columns_name_link %}
                                                     <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                                                         {% block sw_product_list_grid_columns_name_label %}
-                                                            {{ item.name }}
+                                                            {{ item.meta.viewData.name }}
                                                         {% endblock %}
                                                     </router-link>
                                                 {% endblock %}
@@ -88,7 +92,7 @@
                                                             sortable
                                                             truncate
                                                             editable>
-                                                {{ item.manufacturer.name }}
+                                                {{ item.manufacturer.meta.viewData.name }}
 
                                                 {% block sw_product_list_grid_columns_manufacturer_editor %}
                                                     <sw-field type="text" v-model="item.manufacturer.name" slot="inline-edit"></sw-field>
@@ -104,7 +108,11 @@
                                                             sortable
                                                             truncate
                                                             editable>
-                                                <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
+                                                <sw-icon name="small-default-checkmark-line-medium"
+                                                         small
+                                                         v-if="item.active"
+                                                         class="is--active">
+                                                </sw-icon>
                                                 <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
 
                                                 {% block sw_product_list_grid_columns_active_editor %}
@@ -169,7 +177,7 @@
                                                   variant="small">
                                             {% block sw_product_list_delete_modal_confirm_delete_text %}
                                                 <p class="sw-product-list__confirm-delete-text">
-                                                    {{ $tc('sw-product.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                    {{ $tc('sw-product.list.textDeleteConfirm', 0, { name: item.meta.viewData.name }) }}
                                                 </p>
                                             {% endblock %}
 

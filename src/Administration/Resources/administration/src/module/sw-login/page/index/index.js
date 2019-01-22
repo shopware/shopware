@@ -51,10 +51,16 @@ Component.register('sw-login', {
         handleLoginSuccess() {
             this.isLoginSuccess = true;
 
-            setTimeout(() => {
+            const animationPromise = new Promise((resolve) => {
+                setTimeout(resolve, 300);
+            });
+            Promise.all([
+                animationPromise,
+                State.getStore('language').init()
+            ]).then(() => {
                 this.isLoginSuccess = false;
                 this.forwardLogin();
-            }, 300);
+            });
         },
 
         handleLoginError() {

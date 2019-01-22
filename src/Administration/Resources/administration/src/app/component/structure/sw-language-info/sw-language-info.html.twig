@@ -1,0 +1,12 @@
+{% block sw_language_info %}
+    <div class="sw-language-info" v-if="infoText">
+        {% block sw_language_info_text %}
+            <p>
+                <span v-html="infoText"></span>
+                <span v-if="infoParent"
+                      @click="onClickParentLanguage"
+                      class="sw-language-info__link-parent">"{{ infoParent }}".</span>
+            </p>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -57,7 +57,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
 
         $item->set($result);
 
-        $tags = $this->cacheKeyGenerator->getSearchTags($definition, $criteria, $context);
+        $tags = $this->cacheKeyGenerator->getSearchTags($definition, $criteria);
         if (!$item instanceof CacheItem) {
             throw new \RuntimeException(sprintf('Cache adapter has to return instance of %s', CacheItem::class));
         }

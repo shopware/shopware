@@ -113,7 +113,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $tags = $this->generator->getSearchTags(ProductDefinition::class, $criteria, $context);
+        $tags = $this->generator->getSearchTags(ProductDefinition::class, $criteria);
 
         static::assertCount(9, $tags, print_r($tags, true));
         static::assertContains('product.id', $tags);

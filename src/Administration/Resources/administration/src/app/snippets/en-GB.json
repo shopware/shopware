@@ -774,7 +774,13 @@
       "deleteModalTitle": "Delete sales channel",
       "textConfirmDelete": "Are you sure you want to delete this sales channel?",
       "buttonCloseDeleteModal": "Cancel",
-      "buttonConfirmDelete": "Delete"
+      "buttonConfirmDelete": "Delete",
+      "titleDomains": "Domains",
+      "labelInputCurrency": "Currency",
+      "labelInputLanguage": "Language",
+      "labelInputSnippet": "Snippet",
+      "buttonDeleteDomain": "Delete domain",
+      "buttonAddDomain": "Add domain"
     }
   },
   "sw-media": {

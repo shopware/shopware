@@ -776,7 +776,13 @@
       "deleteModalTitle": "Verkaufskanal löschen",
       "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
       "buttonCloseDeleteModal": "Abbrechen",
-      "buttonConfirmDelete": "Löschen"
+      "buttonConfirmDelete": "Löschen",
+      "titleDomains": "Domänen",
+      "labelInputCurrency": "Währung",
+      "labelInputLanguage": "Sprache",
+      "labelInputSnippet": "Snippet",
+      "buttonDeleteDomain": "Domäne löschen",
+      "buttonAddDomain": "Domäne hinzufügen"
     }
   },
   "sw-media": {

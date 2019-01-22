@@ -49,7 +49,6 @@ CREATE TABLE `_test_nullable_reference` (
 CREATE TABLE `_test_nullable_translation` (
   `_test_nullable_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_parent_id` binary(16) NULL,
   `protected` varchar(255) NULL,
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),

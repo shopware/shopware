@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
@@ -86,53 +84,6 @@ class WriteContext
         $mapping = $this->getLanguageCodeToIdMapping();
 
         return $mapping[strtolower($identifier)] ?? null;
-    }
-
-    public function isRootLanguage(string $identifier): bool
-    {
-        if ($identifier === Defaults::LANGUAGE_SYSTEM) {
-            return true;
-        }
-        $id = $this->getLanguageId($identifier);
-        if (!$id) {
-            throw new LanguageNotFoundException($identifier);
-        }
-        $lang = $this->getLanguages()[$identifier];
-
-        return !$lang['parentId'];
-    }
-
-    public function getParentLanguageId(string $identifier): ?string
-    {
-        $languages = $this->getLanguages();
-        $lang = $languages[$this->getLanguageId($identifier)];
-
-        return $lang['parentId'] ? $languages[$lang['parentId']]['id'] : null;
-    }
-
-    public function getRootLanguageId(string $languageId): ?string
-    {
-        if ($languageId === Defaults::LANGUAGE_SYSTEM) {
-            return null;
-        }
-        if ($languageId === Defaults::LANGUAGE_DE) {
-            return null;
-        }
-
-        $currentId = $this->getLanguageId($languageId);
-        if ($this->isRootLanguage($currentId)) {
-            return null;
-        }
-        $parentId = $this->getParentLanguageId($currentId);
-        if (!$parentId) {
-            throw new \RuntimeException('Non-root language should have a parent.');
-        }
-        $parentParentId = $this->getParentLanguageId($parentId);
-        if ($parentParentId) {
-            throw new \RuntimeException('Parent language should not have a parent.');
-        }
-
-        return $parentId;
     }
 
     public static function createFromContext(Context $context): self

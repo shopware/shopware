@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LanguageParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -219,10 +218,7 @@ class DefinitionValidator
         $functionViolations = [];
 
         foreach ($fields as $field) {
-            if ($field instanceof VersionField ||
-                $field instanceof ReferenceVersionField ||
-                $field instanceof LanguageParentFkField
-            ) {
+            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 continue;
             }
 

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LanguageParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -60,7 +59,6 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         $baseFields = [
             (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            new LanguageParentFkField($translatedDefinition),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition, false),

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -58,8 +59,7 @@ trait FieldValidatorTrait
         }
 
         if (\is_subclass_of($existence->getDefinition(), EntityTranslationDefinition::class)) {
-            $isRoot = $parameters->getContext()->isRootLanguage($parameters->getCurrentWriteLanguageId());
-            if (!$isRoot) {
+            if ($parameters->getCurrentWriteLanguageId() !== Defaults::LANGUAGE_SYSTEM) {
                 return false;
             }
         }

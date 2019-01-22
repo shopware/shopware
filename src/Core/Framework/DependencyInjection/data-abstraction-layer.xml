@@ -1307,9 +1307,5 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <tag name="shopware.field_serializer"/>
         </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LanguageParentFkFieldSerializer">
-            <tag name="shopware.field_serializer"/>
-        </service>
     </services>
 </container>

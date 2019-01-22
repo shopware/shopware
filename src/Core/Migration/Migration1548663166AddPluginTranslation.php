@@ -18,7 +18,6 @@ class Migration1548663166AddPluginTranslation extends MigrationStep
 CREATE TABLE `plugin_translation` (
     `plugin_id`          BINARY(16)  NOT NULL,
     `language_id`        BINARY(16)  NOT NULL,
-    `language_parent_id` BINARY(16)  NULL,
     `label`              VARCHAR(255) COLLATE utf8mb4_unicode_ci,
     `description`        LONGTEXT COLLATE utf8mb4_unicode_ci,
     `manufacturer_link`  TEXT COLLATE utf8mb4_unicode_ci,
@@ -28,8 +27,7 @@ CREATE TABLE `plugin_translation` (
     `updated_at`         DATETIME(3) NULL,
     PRIMARY KEY (`plugin_id`, `language_id`),
     CONSTRAINT `fk.plugin_translation.plugin_id` FOREIGN KEY (`plugin_id`) REFERENCES `plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT `fk.plugin_translation.language_id` FOREIGN KEY (`language_id`, `language_parent_id`) REFERENCES `language` (`id`, `parent_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT `fk.plugin_translation.language_parent_id` FOREIGN KEY (`plugin_id`, `language_parent_id`) REFERENCES `plugin_translation` (`plugin_id`, `language_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk.plugin_translation.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `json.changelog` CHECK (JSON_VALID(`changelog`))
 )
     ENGINE = InnoDB

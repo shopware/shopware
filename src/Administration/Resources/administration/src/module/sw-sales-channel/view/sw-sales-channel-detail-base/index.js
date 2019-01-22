@@ -154,11 +154,6 @@ Component.register('sw-sales-channel-detail-base', {
                     return x.id !== domain.id;
                 });
             });
-        },
-        onSave() {
-            this.$super.onSave().then(() => {
-                console.debug('saved');
-            });
         }
     }
 });

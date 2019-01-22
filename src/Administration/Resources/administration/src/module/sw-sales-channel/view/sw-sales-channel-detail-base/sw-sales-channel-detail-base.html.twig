@@ -112,36 +112,46 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_domains %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleDomains')" v-if="next1387 && isStoreFront">
+                <div class="sw-sales-channel-detail-base__domain-container" v-for="domain, index in salesChannel.domains">
+                    {% block sw_sales_channel_detail_base_domains_input_url %}
+                        <sw-field type="text" label="Url" v-model="domain.url"></sw-field>
+                    {% endblock %}
+                    {% block sw_sales_channel_detail_base_domains_input_language %}
+                        <sw-select
+                                :store="languageStore"
+                                v-model="domain.languageId"
+                                id="domainLanguage"
+                                :label="$tc('sw-sales-channel.detail.labelInputLanguage')">
+                        </sw-select>
+                    {% endblock %}
+                    {% block sw_sales_channel_detail_base_domains_input_currency %}
+                        <sw-select
+                                :store="currencyStore"
+                                v-model="domain.currencyId"
+                                id="domainCurrency"
+                                :label="$tc('sw-sales-channel.detail.labelInputCurrency')">
+                        </sw-select>
+                    {% endblock %}
+                    {% block sw_sales_channel_detail_base_domains_input_snippet_set %}
+                        <sw-select v-if="next717"
+                                :store="snippetSetStore"
+                                v-model="domain.snippetSetId"
+                                id="domainSnippet"
+                                :label="$tc('sw-sales-channel.detail.labelInputSnippet')">
+                        </sw-select>
+                    {% endblock %}
+                    {% block sw_sales_channel_detail_base_domains_delete_button %}
+                        <sw-button variant="danger" @click="onClickDeleteDomain(domain)">{{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}</sw-button>
+                    {% endblock %}
+                </div>
 
-
-
-        <sw-card title="Domains" v-if="next1387 && isStoreFront">
-            <div class="sw-sales-channel-detail-base__domain-container" v-for="domain, index in salesChannel.domains">
-                <sw-field type="text" label="Url" v-model="domain.url"></sw-field>
-                <sw-select
-                        :store="languageStore"
-                        v-model="domain.languageId"
-                        id="domainLanguage"
-                        label="Sprache">
-                </sw-select>
-                <sw-select
-                        :store="currencyStore"
-                        v-model="domain.currencyId"
-                        id="domainCurrency"
-                        label="Währung">
-                </sw-select>
-                <sw-select v-if="next717"
-                        :store="snippetSetStore"
-                        v-model="domain.snippetSetId"
-                        id="domainSnippet"
-                        label="Snippets">
-                </sw-select>
-                <sw-button variant="danger" @click="onClickDeleteDomain(domain)">Delete Domain</sw-button>
-            </div>
-            <sw-button variant="primary" @click="onClickAddDomain">Add Domain</sw-button>
-
-        </sw-card>
-
+                {% block sw_sales_channel_detail_base_domains_add_button %}
+                    <sw-button variant="primary" @click="onClickAddDomain">{{ $tc('sw-sales-channel.detail.buttonAddDomain') }}</sw-button>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
 
         {% block sw_sales_channel_detail_base_options %}
             <sw-card :title="$tc('sw-sales-channel.detail.titleOptionsCard')">

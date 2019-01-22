@@ -24,6 +24,9 @@ Component.register('sw-sales-channel-detail', {
         },
         salesChannelCurrenciesStore() {
             return this.salesChannel.getAssociation('currencies');
+        },
+        isStoreFront() {
+            return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
         }
     },
 
@@ -93,8 +96,13 @@ Component.register('sw-sales-channel-detail', {
                 });
             });
         },
+        /**
+         * For storefront sales channels, the possible languages and currencies are determined by those in the domains
+         * instead of salesChannel.`languages`/`currencies`. Theses mappings are still required by the backend, so we
+         * need to add the missing ones, that are only set in the domains.
+         */
         syncWithDomains() {
-            if (!this.next1387 || !this.salesChannel.domains) {
+            if (!this.next1387 || !this.isStoreFront || !this.salesChannel.domains) {
                 return;
             }
             this.salesChannel.domains.forEach((domain) => {

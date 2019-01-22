@@ -36,8 +36,8 @@ Component.register('sw-media-modal-folder-dissolve', {
 
         dissolveSelection() {
             const dissolvePromises = [];
-            const notificationMessageSuccess = this.$tc('global.sw-media-modal-delete.notificationSuccessOverall');
-            const notificationMessageError = this.$tc('global.sw-media-modal-delete.notificationErrorOverall');
+            const notificationMessageSuccess = this.$tc('global.sw-media-modal-folder-dissolve.notificationSuccessOverall');
+            const notificationMessageError = this.$tc('global.sw-media-modal-folder-dissolve.notificationErrorOverall');
 
             this.itemsToDissolve.forEach((item) => {
                 const messages = this._getNotificationMessages(item);

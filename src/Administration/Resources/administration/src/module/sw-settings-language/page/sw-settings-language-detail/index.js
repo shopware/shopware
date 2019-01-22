@@ -6,7 +6,8 @@ Component.register('sw-settings-language-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('discard-detail-page-changes')('language')
     ],
 
     data() {

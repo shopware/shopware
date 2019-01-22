@@ -7,7 +7,8 @@ Component.register('sw-manufacturer-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('discard-detail-page-changes')('manufacturer')
     ],
 
     data() {

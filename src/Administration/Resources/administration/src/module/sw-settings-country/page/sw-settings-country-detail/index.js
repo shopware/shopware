@@ -6,7 +6,8 @@ Component.register('sw-settings-country-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('discard-detail-page-changes')('country')
     ],
 
     data() {

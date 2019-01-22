@@ -49,7 +49,7 @@ class CartPersisterTest extends TestCase
             [new StructNormalizer(), new JsonSerializableNormalizer(), new DateTimeNormalizer(), new DateIntervalNormalizer(), new ArrayDenormalizer(), new ObjectNormalizer(), new PropertyNormalizer()],
             [
                 new ChainDecoder([
-                    new JsonDecode(true),
+                    new JsonDecode([JsonDecode::ASSOCIATIVE => true]),
                 ]),
                 new ChainEncoder([
                     new JsonEncode(), new YamlEncoder(), new CsvEncoder(), new XmlEncoder(),

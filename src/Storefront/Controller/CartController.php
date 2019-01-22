@@ -86,8 +86,8 @@ class CartController extends StorefrontController
         $quantity = $request->request->getInt('quantity', 1);
         $target = $request->request->get('target');
         $type = $request->request->get('type');
-        $removable = $request->request->getBoolean('removable', null);
-        $stackable = $request->request->getBoolean('stackable', null);
+        $removable = $request->request->getBoolean('removable');
+        $stackable = $request->request->getBoolean('stackable');
 
         if (!($identifier && $quantity && $type)) {
             return new JsonResponse([

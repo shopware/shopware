@@ -16,7 +16,7 @@ class JsonApiDecoder implements DecoderInterface
      */
     public function decode($data, $format, array $context = [])
     {
-        $decoder = new JsonDecode(true);
+        $decoder = new JsonDecode([JsonDecode::ASSOCIATIVE => true]);
         $data = $decoder->decode($data, 'json');
 
         if (!\is_array($data) || !array_key_exists('data', $data) || !\is_array($data)) {

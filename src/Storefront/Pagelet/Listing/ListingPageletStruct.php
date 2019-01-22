@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Pagelet\Listing;
 
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\Listing\ListingSortingCollection;
@@ -61,39 +60,10 @@ class ListingPageletStruct extends PageletStruct
      */
     protected $navigationId;
 
-    /**
-     * @var CategoryEntity
-     */
-    protected $category;
-
-    public function __construct(
-        ?string $navigationId,
-        CategoryEntity $category,
-        EntitySearchResult $products,
-        Criteria $criteria,
-        int $currentPage = 1,
-        int $pageCount = 1,
-        bool $showListing = true,
-        ?string $currentSorting = null,
-        string $productBoxLayout = 'basic',
-        ?AggregationViewCollection $aggregations = null,
-        ?ListingSortingCollection $sortings = null
-    ) {
-        $this->products = $products;
-        $this->criteria = $criteria;
-        $this->showListing = $showListing;
-        $this->currentPage = $currentPage;
-        $this->pageCount = $pageCount;
-        $this->currentSorting = $currentSorting;
-        $this->productBoxLayout = $productBoxLayout;
-
-        $aggregations = $aggregations ?? new AggregationViewCollection();
-        $sortings = $sortings ?? new ListingSortingCollection();
-
-        $this->aggregations = $aggregations;
-        $this->sortings = $sortings;
-        $this->navigationId = $navigationId;
-        $this->category = $category;
+    public function __construct()
+    {
+        $this->aggregations = new AggregationViewCollection();
+        $this->sortings = new ListingSortingCollection();
     }
 
     public function getProducts(): ?EntitySearchResult
@@ -189,15 +159,5 @@ class ListingPageletStruct extends PageletStruct
     public function setNavigationId(?string $navigationId): void
     {
         $this->navigationId = $navigationId;
-    }
-
-    public function setCategory(CategoryEntity $category)
-    {
-        $this->category = $category;
-    }
-
-    public function getCategory(): CategoryEntity
-    {
-        return $this->category;
     }
 }

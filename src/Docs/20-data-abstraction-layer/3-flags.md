@@ -31,13 +31,20 @@ Flags are attributes to a field in a definition. They provide additional informa
 You have to add the flags to fields in your definition in order to use them. You can even modify the field's flags by creating [definition extensions](./4-extensions.md).
 
 ```php
-(new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required())
+(new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())
+```
+
+You can also use setFlags to overwrite the Default Flags which could be set.
+Be Careful to not overwrite Essential Flags for a specific Field
+
+```php
+(new IdField('id', 'id'))->setFlags(new Required())
 ```
 
 ### PrimaryKey
 
 ```php
-(new IdField('id', 'id'))->setFlags(new PrimaryKey())
+(new IdField('id', 'id'))->addFlags(new PrimaryKey())
 ```
 
 The field is part of the primary key for this entity.
@@ -47,7 +54,7 @@ This flag does not have any parameters.
 ### ReadOnly
 
 ```php
-(new IdField('id', 'id'))->setFlags(new ReadOnly())
+(new IdField('id', 'id'))->addFlags(new ReadOnly())
 ```
 
 Fields with this flag cannot be written.
@@ -57,7 +64,7 @@ This flag does not have any parameters.
 ### WriteOnly
 
 ```php
-(new IdField('id', 'id'))->setFlags(new WriteOnly())
+(new IdField('id', 'id'))->addFlags(new WriteOnly())
 ```
 
 Fields with this flag cannot be read and are not part of any struct of the entity.
@@ -67,13 +74,13 @@ This flag does not have any parameters.
 ### WriteProtected
 
 ```php
-(new StringField('file_extension', 'fileExtension'))->setFlags(new WriteProtected('permission_key_example'))
+(new StringField('file_extension', 'fileExtension'))->addFlags(new WriteProtected('permission_key_example'))
 ```
 
 In some cases, you want to restrict the write access to individual fields, so that they can't be manipulated. For example, if you have to
 run some custom logic before you can update a field's value.
 
-This can be accomplished with the `WriteProtected` flag. If you set this flag, you have to define a permission key, that has to be set
+This can be accomplished with the `WriteProtected` flag. If you add this flag, you have to define a permission key, that has to be set
 in the write-protection extension of the write operations context.
 
 ```php
@@ -86,7 +93,7 @@ a `InsufficientWritePermissionException` exception.
 ### Deferred
 
 ```php
-(new StringField('url', 'url'))->setFlags(new Deferred())
+(new StringField('url', 'url'))->addFlags(new Deferred())
 ```
 
 Defines that the data of the field will be loaded deferred by an event subscriber or other service class.
@@ -97,7 +104,7 @@ This flag does not have any parameters.
 ### Extension
 
 ```php
-(new StringField('url', 'url'))->setFlags(new Extension())
+(new StringField('url', 'url'))->addFlags(new Extension())
 ```
 
 Defines that the data of this field is stored in the `Entity::$extension` property and are not part of the struct itself.
@@ -107,7 +114,7 @@ This flag does not have any parameters.
 ### Required
 
 ```php
-(new StringField('url', 'url'))->setFlags(new Required())
+(new StringField('url', 'url'))->addFlags(new Required())
 ```
 
 The field is required when creating the entity.
@@ -117,7 +124,7 @@ This flag does not have any parameters.
 ### Inherited
 
 ```php
-(new LongTextField('description', 'description'))->setFlags(new Inherited())
+(new LongTextField('description', 'description'))->addFlags(new Inherited())
 ```
 
 The field is part of the parent/child concept and may receive the value of its parent.
@@ -127,7 +134,7 @@ This flag does not have any parameters.
 ### ReverseInherited
 
 ```php
-(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false))->setFlags(new ReverseInherited('tax'))
+(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false))->addFlags(new ReverseInherited('tax'))
 ```
 
 Reverse side flag for relations that point to a definition with inheritance enabled. The first parameter `$name` must be the association field name
@@ -136,7 +143,7 @@ in the foreign definition.
 ### SearchRanking
 
 ```php
-(new StringField('name', 'name'))->setFlags(new SearchRanking(5))
+(new StringField('name', 'name'))->addFlags(new SearchRanking(5))
 ```
 
 Defines the weight for a search query on the entity for this field. The first parameter `$ranking` defines the multiplier which will be applied.
@@ -145,7 +152,7 @@ The multiplier can also lessen the value, too.
 ### RestrictDelete
 
 ```php
-(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false))->setFlags(new RestrictDelete())
+(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false))->addFlags(new RestrictDelete())
 ```
 
 Associated data with this flag, restricts the delete of the entity in case that a record with the primary key exists.
@@ -155,7 +162,7 @@ This flag does not have any parameters.
 ### CascadeDelete
 
 ```php
-(new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete())
+(new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->addFlags(new CascadeDelete())
 ```
 
 In case the referenced association data will be deleted, the related data will be deleted too

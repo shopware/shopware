@@ -21,9 +21,9 @@ class WriteProtectedRelationDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),
-            (new OneToManyAssociationField('wp', WriteProtectedDefinition::class, 'relation_id', false, 'id'))->setFlags(new WriteProtected('WriteProtected')),
-            (new ManyToManyAssociationField('wps', WriteProtectedDefinition::class, WriteProtectedReferenceDefinition::class, false, 'relation_id', 'wp_id'))->setFlags(new WriteProtected('WriteProtected')),
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new OneToManyAssociationField('wp', WriteProtectedDefinition::class, 'relation_id', false, 'id'))->addFlags(new WriteProtected('WriteProtected')),
+            (new ManyToManyAssociationField('wps', WriteProtectedDefinition::class, WriteProtectedReferenceDefinition::class, false, 'relation_id', 'wp_id'))->addFlags(new WriteProtected('WriteProtected')),
         ]);
     }
 }

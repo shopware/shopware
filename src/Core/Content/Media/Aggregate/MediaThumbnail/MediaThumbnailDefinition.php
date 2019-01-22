@@ -43,15 +43,15 @@ class MediaThumbnailDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new IntField('width', 'width'))->setFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
-            (new IntField('height', 'height'))->setFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
-            (new StringField('url', 'url'))->setFlags(new Deferred()),
+            (new IntField('width', 'width'))->addFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
+            (new IntField('height', 'height'))->addFlags(new Required(), new WriteProtected(MediaProtectionFlags::WRITE_THUMBNAILS)),
+            (new StringField('url', 'url'))->addFlags(new Deferred()),
 
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
         ]);

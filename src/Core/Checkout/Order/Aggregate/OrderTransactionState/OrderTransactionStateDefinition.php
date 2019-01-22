@@ -40,13 +40,13 @@ class OrderTransactionStateDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new VersionField(),
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new IntField('position', 'position'))->setFlags(new Required()),
-            (new BoolField('has_mail', 'hasMail'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IntField('position', 'position'))->addFlags(new Required()),
+            (new BoolField('has_mail', 'hasMail'))->addFlags(new Required()),
             new TranslatedField('description'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(OrderTransactionStateTranslationDefinition::class, 'order_transaction_state_id'))->setFlags(new Required(), new RestrictDelete()),
+            (new TranslationsAssociationField(OrderTransactionStateTranslationDefinition::class, 'order_transaction_state_id'))->addFlags(new Required(), new RestrictDelete()),
             new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'order_transaction_state_id', false, 'id'),
         ]);
     }

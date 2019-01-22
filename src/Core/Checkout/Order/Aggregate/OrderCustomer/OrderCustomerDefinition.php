@@ -44,21 +44,21 @@ class OrderCustomerDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
             new FkField('customer_id', 'customerId', CustomerDefinition::class),
 
-            (new StringField('email', 'email'))->setFlags(new Required()),
-            (new StringField('first_name', 'firstName'))->setFlags(new Required()),
-            (new StringField('last_name', 'lastName'))->setFlags(new Required()),
+            (new StringField('email', 'email'))->addFlags(new Required()),
+            (new StringField('first_name', 'firstName'))->addFlags(new Required()),
+            (new StringField('last_name', 'lastName'))->addFlags(new Required()),
             new StringField('salutation', 'salutation'),
             new StringField('title', 'title'),
             new StringField('customer_number', 'customerNumber'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false))->setFlags(new SearchRanking(0.5)),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_customer_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false))->addFlags(new SearchRanking(0.5)),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_customer_id', false, 'id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

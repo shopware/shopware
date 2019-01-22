@@ -45,17 +45,17 @@ class ProductServiceDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(ProductDefinition::class),
-            (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new Required()),
-            (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
+            (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->addFlags(new Required()),
+            (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Required()),
             new PriceField('price', 'price'),
             new PriceRulesJsonField('prices', 'prices'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->setFlags(new ReverseInherited('services')),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->addFlags(new ReverseInherited('services')),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
         ]);

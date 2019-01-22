@@ -131,6 +131,6 @@ class IntFieldTest extends TestCase
     {
         $field = new IntField('count', 'count');
 
-        return $required ? $field->setFlags(new Required()) : $field;
+        return $required ? $field->addFlags(new Required()) : $field;
     }
 }

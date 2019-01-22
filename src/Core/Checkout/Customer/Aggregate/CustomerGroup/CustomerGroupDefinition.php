@@ -41,8 +41,8 @@ class CustomerGroupDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('display_gross', 'displayGross'),
             new BoolField('input_gross', 'inputGross'),
             new BoolField('has_global_discount', 'hasGlobalDiscount'),
@@ -51,9 +51,9 @@ class CustomerGroupDefinition extends EntityDefinition
             new FloatField('minimum_order_amount_surcharge', 'minimumOrderAmountSurcharge'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customer_group_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customer_group_id'))->addFlags(new Required()),
         ]);
     }
 }

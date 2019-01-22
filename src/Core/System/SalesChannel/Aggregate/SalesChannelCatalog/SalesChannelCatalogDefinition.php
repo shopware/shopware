@@ -23,8 +23,8 @@ class SalesChannelCatalogDefinition extends MappingEntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('catalog_id', 'catalogId', CatalogDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('catalog_id', 'catalogId', CatalogDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),

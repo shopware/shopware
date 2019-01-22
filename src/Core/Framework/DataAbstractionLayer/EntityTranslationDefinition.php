@@ -57,8 +57,8 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         $propertyBaseName = \lcfirst(\implode($propertyBaseName));
 
         $baseFields = [
-            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition, false),

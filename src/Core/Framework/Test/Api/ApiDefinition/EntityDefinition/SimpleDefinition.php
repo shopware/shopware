@@ -31,8 +31,8 @@ class SimpleDefinition extends EntityDefinition
                 new IdField('id_field', 'idField'),
                 new ChildCountField(),
 
-                (new StringField('required_field', 'requiredField'))->setFlags(new Required()),
-                (new StringField('read_only_field', 'readOnlyField'))->setFlags(new ReadOnly()),
+                (new StringField('required_field', 'requiredField'))->addFlags(new Required()),
+                (new StringField('read_only_field', 'readOnlyField'))->addFlags(new ReadOnly()),
             ]
         );
     }

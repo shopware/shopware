@@ -39,10 +39,10 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->setFlags(new Required()),
-            (new FloatField('percentage_discount', 'percentageDiscount'))->setFlags(new Required()),
-            (new FloatField('minimum_cart_amount', 'minimumCartAmount'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('customer_group_id', 'customerGroupId', CustomerGroupDefinition::class))->addFlags(new Required()),
+            (new FloatField('percentage_discount', 'percentageDiscount'))->addFlags(new Required()),
+            (new FloatField('minimum_cart_amount', 'minimumCartAmount'))->addFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),

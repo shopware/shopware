@@ -33,8 +33,8 @@ class CurrencyTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('short_name', 'shortName'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('short_name', 'shortName'))->addFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
         ]);
     }
 }

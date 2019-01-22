@@ -1679,9 +1679,9 @@ CREATE TABLE `calculated_price_field_test` (
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new CalculatedPriceField('calculated_price', 'price'))->setFlags(new Required()),
+            (new CalculatedPriceField('calculated_price', 'price'))->addFlags(new Required()),
         ]);
     }
 }

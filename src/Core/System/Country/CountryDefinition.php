@@ -46,26 +46,26 @@ class CountryDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('iso', 'iso'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('iso', 'iso'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('shipping_free', 'shippingFree'),
             new BoolField('tax_free', 'taxFree'),
             new BoolField('taxfree_for_vat_id', 'taxfreeForVatId'),
             new BoolField('taxfree_vatid_checked', 'taxfreeVatidChecked'),
             new BoolField('active', 'active'),
-            (new StringField('iso3', 'iso3'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new StringField('iso3', 'iso3'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new BoolField('display_state_in_registration', 'displayStateInRegistration'),
             new BoolField('force_state_in_registration', 'forceStateInRegistration'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CountryTranslationDefinition::class, 'country_id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'country_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(CountryTranslationDefinition::class, 'country_id'))->addFlags(new Required()),
+            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->addFlags(new RestrictDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, false, 'country_id', 'sales_channel_id'),
         ]);
     }

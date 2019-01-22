@@ -60,11 +60,11 @@ class MediaFolderDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             new BoolField('use_parent_configuration', 'useParentConfiguration'),
 
-            (new FkField('media_folder_configuration_id', 'configurationId', MediaFolderConfigurationDefinition::class))->setFlags(new Required()),
+            (new FkField('media_folder_configuration_id', 'configurationId', MediaFolderConfigurationDefinition::class))->addFlags(new Required()),
 
             new ParentFkField(self::class),
             new ParentAssociationField(self::class, false),

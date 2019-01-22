@@ -46,11 +46,11 @@ class ShippingMethodDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new IntField('type', 'type'))->setFlags(new Required()),
-            (new BoolField('bind_shippingfree', 'bindShippingfree'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IntField('type', 'type'))->addFlags(new Required()),
+            (new BoolField('bind_shippingfree', 'bindShippingfree'))->addFlags(new Required()),
             new BoolField('bind_laststock', 'bindLaststock'),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new IntField('position', 'position'),
             new IntField('calculation', 'calculation'),
@@ -73,12 +73,12 @@ class ShippingMethodDefinition extends EntityDefinition
             new LongTextField('calculation_sql', 'calculationSql'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslatedField('description'))->setFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new TranslatedField('comment'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new TranslatedField('description'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new TranslatedField('comment'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->addFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, false, 'shipping_method_id', 'sales_channel_id'),
         ]);
     }

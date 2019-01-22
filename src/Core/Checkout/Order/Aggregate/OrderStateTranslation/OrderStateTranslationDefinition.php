@@ -33,7 +33,7 @@ class OrderStateTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('description', 'description'))->setFlags(new Required()),
+            (new StringField('description', 'description'))->addFlags(new Required()),
         ]);
     }
 }

@@ -38,15 +38,15 @@ class ConfigurationGroupDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new TranslatedField('name'),
             new IntField('position', 'position'),
             new BoolField('filterable', 'filterable'),
             new BoolField('comparable', 'comparable'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class, 'configuration_group_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class, 'configuration_group_id'))->addFlags(new Required()),
         ]);
     }
 }

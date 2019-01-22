@@ -108,10 +108,10 @@ class ScoreBuilderTestDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
-            (new StringField('description', 'description'))->setFlags(new SearchRanking(200)),
+            (new StringField('name', 'name'))->addFlags(new SearchRanking(100)),
+            (new StringField('description', 'description'))->addFlags(new SearchRanking(200)),
             new StringField('long_description', 'longDescription'),
-            (new ManyToOneAssociationField('nested', 'nested_id', NestedDefinition::class, true))->setFlags(new SearchRanking(0.5)),
+            (new ManyToOneAssociationField('nested', 'nested_id', NestedDefinition::class, true))->addFlags(new SearchRanking(0.5)),
         ]);
     }
 }
@@ -126,7 +126,7 @@ class NestedDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
+            (new StringField('name', 'name'))->addFlags(new SearchRanking(100)),
         ]);
     }
 }

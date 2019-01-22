@@ -51,7 +51,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             new BoolField('create_thumbnails', 'createThumbnails'),
             new BoolField('keep_aspect_ratio', 'keepAspectRatio'),

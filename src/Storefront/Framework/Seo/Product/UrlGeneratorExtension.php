@@ -28,7 +28,7 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new StringField('url', 'url'))->setFlags(new Deferred(), new ReadOnly())
+            (new StringField('url', 'url'))->addFlags(new Deferred(), new ReadOnly())
         );
     }
 

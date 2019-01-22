@@ -21,7 +21,7 @@ class CanonicalUrlAssociationField extends ManyToOneAssociationField
         string $routeName
     ) {
         parent::__construct($propertyName, $storageName, SeoUrlDefinition::class, $loadInBasic, 'foreign_key');
-        $this->setFlags(new ReadOnly(), new Extension());
+        $this->addFlags(new ReadOnly(), new Extension());
         $this->routeName = $routeName;
     }
 

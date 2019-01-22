@@ -27,14 +27,14 @@ class SalesChannelDomainDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new StringField('url', 'url', 255))->setFlags(new Required()),
+            (new StringField('url', 'url', 255))->addFlags(new Required()),
 
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
-            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
-            (new FkField('snippet_set_id', 'snippetSetId', SnippetSetDefinition::class))->setFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
+            (new FkField('snippet_set_id', 'snippetSetId', SnippetSetDefinition::class))->addFlags(new Required()),
 
             new CreatedAtField(),
             new UpdatedAtField(),

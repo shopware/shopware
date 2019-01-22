@@ -19,9 +19,9 @@ class WriteProtectedReferenceDefinition extends MappingEntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
             new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, false),
             new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, false),

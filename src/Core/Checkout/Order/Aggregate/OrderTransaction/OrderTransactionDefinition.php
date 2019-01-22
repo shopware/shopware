@@ -45,20 +45,20 @@ class OrderTransactionDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderDefinition::class))->setFlags(new Required()),
-            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
-            (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderTransactionStateDefinition::class))->setFlags(new Required()),
-            (new ObjectField('amount', 'amount'))->setFlags(new Required()),
+            (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(OrderDefinition::class))->addFlags(new Required()),
+            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
+            (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(OrderTransactionStateDefinition::class))->addFlags(new Required()),
+            (new ObjectField('amount', 'amount'))->addFlags(new Required()),
             new JsonField('details', 'details'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
-            (new ManyToOneAssociationField('orderTransactionState', 'order_transaction_state_id', OrderTransactionStateDefinition::class, false))->setFlags(new RestrictDelete()),
+            (new ManyToOneAssociationField('orderTransactionState', 'order_transaction_state_id', OrderTransactionStateDefinition::class, false))->addFlags(new RestrictDelete()),
         ]);
     }
 }

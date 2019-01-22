@@ -37,7 +37,7 @@ class ProductManufacturerTranslationDefinition extends EntityTranslationDefiniti
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
             new StringField('meta_title', 'metaTitle'),
             new StringField('meta_description', 'metaDescription'),

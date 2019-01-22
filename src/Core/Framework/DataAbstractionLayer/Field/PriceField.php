@@ -9,9 +9,9 @@ class PriceField extends JsonField
     public function __construct(string $storageName, string $propertyName)
     {
         $propertyMapping = [
-            (new FloatField('gross', 'gross'))->setFlags(new Required()),
-            (new FloatField('net', 'net'))->setFlags(new Required()),
-            (new BoolField('linked', 'linked'))->setFlags(new Required()),
+            (new FloatField('gross', 'gross'))->addFlags(new Required()),
+            (new FloatField('net', 'net'))->addFlags(new Required()),
+            (new BoolField('linked', 'linked'))->addFlags(new Required()),
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);

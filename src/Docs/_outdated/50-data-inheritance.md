@@ -14,8 +14,8 @@ public static function getParentPropertyName(): string
 * A parent child association is configured:
 ```
 new FkField('parent_id', 'parentId', self::class),
-new ParentAssociationField(self::class, false))->setFlags(new WriteOnly(),
-new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete(),
+new ParentAssociationField(self::class, false))->addFlags(new WriteOnly(),
+new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->addFlags(new CascadeDelete(),
 ```
 
 If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited`.
@@ -32,10 +32,10 @@ class HumanDefinition extends EntityDefinition
     public static function getFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new FkField('parent_id', 'parentId', self::class),
             new StringField('name', 'name'),
-            (new StringField('last_name', 'lastName'))->setFlags(new Inherited()),
+            (new StringField('last_name', 'lastName'))->addFlags(new Inherited()),
             new ParentAssociationField(self::class, false),
             new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'),
         ]);
@@ -121,10 +121,10 @@ class HumanDefinition extends EntityDefinition
     public static function getFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             //...
                         
-            (new OneToManyAssociationField('pets', PetDefinition::class, 'human_id', false))->setFlags(new CascadeDelete(), new Inherited())
+            (new OneToManyAssociationField('pets', PetDefinition::class, 'human_id', false))->addFlags(new CascadeDelete(), new Inherited())
         ]);
     }
 }

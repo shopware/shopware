@@ -77,7 +77,7 @@ class EntityExtensionTest extends TestCase
     public function testICanWriteOneToManyAssociationsExtensions()
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', true))
-            ->setFlags(new Extension());
+            ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -114,7 +114,7 @@ class EntityExtensionTest extends TestCase
     public function testICanReadOneToManyAssociationsExtensionsInBasic()
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', true))
-            ->setFlags(new Extension());
+            ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -137,7 +137,7 @@ class EntityExtensionTest extends TestCase
     public function testICanReadOneToManyAssociationsExtensionsNotInBasic()
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
-            ->setFlags(new Extension());
+            ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -182,7 +182,7 @@ class EntityExtensionTest extends TestCase
     public function testICanSearchOneToManyAssociationsExtensions()
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
-            ->setFlags(new Extension());
+            ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -218,7 +218,7 @@ class EntityExtensionTest extends TestCase
     public function testICanReadPaginatedOneToManyAssociationsExtensions()
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
-            ->setFlags(new Extension());
+            ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -253,7 +253,7 @@ class EntityExtensionTest extends TestCase
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
             ProductCategoryDefinition::class, false, 'product_id', 'category_id'
-        ))->setFlags(new Extension());
+        ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -292,7 +292,7 @@ class EntityExtensionTest extends TestCase
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
             ProductCategoryDefinition::class, true, 'product_id', 'category_id'
-        ))->setFlags(new Extension());
+        ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -317,7 +317,7 @@ class EntityExtensionTest extends TestCase
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
             ProductCategoryDefinition::class, false, 'product_id', 'category_id'
-        ))->setFlags(new Extension());
+        ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -364,7 +364,7 @@ class EntityExtensionTest extends TestCase
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
             ProductCategoryDefinition::class, false, 'product_id', 'category_id'
-        ))->setFlags(new Extension());
+        ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 
@@ -402,7 +402,7 @@ class EntityExtensionTest extends TestCase
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
             ProductCategoryDefinition::class, false, 'product_id', 'category_id'
-        ))->setFlags(new Extension());
+        ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
 

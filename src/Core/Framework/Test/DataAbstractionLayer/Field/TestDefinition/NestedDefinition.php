@@ -22,9 +22,9 @@ class NestedDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             new JsonField('data', 'data', [
-                (new FloatField('gross', 'gross'))->setFlags(new Required()),
+                (new FloatField('gross', 'gross'))->addFlags(new Required()),
                 new FloatField('net', 'net'),
                 new JsonField('foo', 'foo', [
                     new StringField('bar', 'bar'),

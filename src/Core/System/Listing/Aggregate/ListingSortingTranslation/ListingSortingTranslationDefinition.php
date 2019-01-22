@@ -33,7 +33,7 @@ class ListingSortingTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('label', 'label'))->setFlags(new Required()),
+            (new StringField('label', 'label'))->addFlags(new Required()),
         ]);
     }
 }

@@ -37,7 +37,7 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('meta_keywords', 'metaKeywords'),
             new StringField('meta_title', 'metaTitle'),
             new LongTextField('meta_description', 'metaDescription'),

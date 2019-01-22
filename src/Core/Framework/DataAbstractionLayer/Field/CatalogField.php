@@ -13,7 +13,7 @@ class CatalogField extends FkField
     {
         parent::__construct('catalog_id', 'catalogId', CatalogDefinition::class);
 
-        $this->setFlags(new Required());
+        $this->addFlags(new Required());
     }
 
     public function getExtractPriority(): int

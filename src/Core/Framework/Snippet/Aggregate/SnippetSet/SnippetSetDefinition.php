@@ -36,14 +36,14 @@ class SnippetSetDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
-            (new StringField('base_file', 'baseFile'))->setFlags(new Required()),
-            (new StringField('iso', 'iso'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
+            (new StringField('base_file', 'baseFile'))->addFlags(new Required()),
+            (new StringField('iso', 'iso'))->addFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'snippet_set_id', false))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'snippet_set_id', false))->addFlags(new RestrictDelete()),
         ]);
     }
 }

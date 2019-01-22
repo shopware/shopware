@@ -9,6 +9,6 @@ class ChildCountField extends IntField
     public function __construct()
     {
         parent::__construct('child_count', 'childCount');
-        $this->setFlags(new ReadOnly());
+        $this->addFlags(new ReadOnly());
     }
 }

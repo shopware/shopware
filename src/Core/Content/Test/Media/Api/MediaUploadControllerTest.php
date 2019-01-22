@@ -8,8 +8,8 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +20,7 @@ class MediaUploadControllerTest extends TestCase
 
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
-    /** @var RepositoryInterface */
+    /** @var EntityRepositoryInterface */
     private $mediaRepository;
 
     /** @var UrlGeneratorInterface */

@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceEntity;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 class StorefrontProductRepository
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
@@ -25,7 +25,7 @@ class StorefrontProductRepository
      */
     private $priceCalculator;
 
-    public function __construct(RepositoryInterface $repository, QuantityPriceCalculator $priceCalculator)
+    public function __construct(EntityRepositoryInterface $repository, QuantityPriceCalculator $priceCalculator)
     {
         $this->productRepository = $repository;
         $this->priceCalculator = $priceCalculator;

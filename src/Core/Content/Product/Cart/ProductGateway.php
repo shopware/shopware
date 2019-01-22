@@ -4,17 +4,17 @@ namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
-    public function __construct(RepositoryInterface $repository)
+    public function __construct(EntityRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }

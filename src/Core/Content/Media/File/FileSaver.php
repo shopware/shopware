@@ -21,8 +21,8 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -31,7 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 class FileSaver
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     protected $mediaRepository;
 
@@ -66,7 +66,7 @@ class FileSaver
     private $fileNameValidator;
 
     public function __construct(
-        RepositoryInterface $mediaRepository,
+        EntityRepositoryInterface $mediaRepository,
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,

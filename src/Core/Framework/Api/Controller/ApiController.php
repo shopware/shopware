@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
@@ -23,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -146,7 +146,7 @@ class ApiController extends AbstractController
             $repository = $this->getRepository($definition, $request);
         }
 
-        /** @var RepositoryInterface $repository */
+        /** @var EntityRepositoryInterface $repository */
         $entities = $repository->read(new ReadCriteria([$id]), $context);
         $entity = $entities->get($id);
 
@@ -561,14 +561,14 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @param RepositoryInterface $repository
-     * @param array               $payload
-     * @param Context             $context
-     * @param string              $type
+     * @param EntityRepositoryInterface $repository
+     * @param array                     $payload
+     * @param Context                   $context
+     * @param string                    $type
      *
      * @return EntityWrittenContainerEvent
      */
-    private function executeWriteOperation(RepositoryInterface $repository, array $payload, Context $context, string $type): EntityWrittenContainerEvent
+    private function executeWriteOperation(EntityRepositoryInterface $repository, array $payload, Context $context, string $type): EntityWrittenContainerEvent
     {
         if ($type === self::WRITE_CREATE) {
             return $repository->create([$payload], $context);
@@ -753,9 +753,9 @@ class ApiController extends AbstractController
      *
      * @throws UnknownRepositoryVersionException
      *
-     * @return RepositoryInterface
+     * @return EntityRepositoryInterface
      */
-    private function getRepository(string $definition, Request $request): RepositoryInterface
+    private function getRepository(string $definition, Request $request): EntityRepositoryInterface
     {
         $repositoryClass = $definition::getEntityName() . '.repository';
 
@@ -763,7 +763,7 @@ class ApiController extends AbstractController
             throw new UnknownRepositoryVersionException($definition::getEntityName(), (int) $request->get('version'));
         }
 
-        /** @var RepositoryInterface $repo */
+        /** @var EntityRepositoryInterface $repo */
         $repo = $this->get($definition::getEntityName() . '.repository');
 
         return $repo;

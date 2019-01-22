@@ -5,23 +5,23 @@ namespace Shopware\Core\Content\Media;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class DeleteNotUsedMediaService
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     protected $mediaRepo;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $defaultFolderRepo;
 
-    public function __construct(RepositoryInterface $mediaRepo, RepositoryInterface $defaultFolderRepo)
+    public function __construct(EntityRepositoryInterface $mediaRepo, EntityRepositoryInterface $defaultFolderRepo)
     {
         $this->mediaRepo = $mediaRepo;
         $this->defaultFolderRepo = $defaultFolderRepo;

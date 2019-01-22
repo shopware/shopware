@@ -9,10 +9,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -23,7 +23,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 class MediaFolderConfigIndexer implements IndexerInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $folderRepository;
 
@@ -44,7 +44,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
 
     public function __construct(
         Connection $connection,
-        RepositoryInterface $folderRepository,
+        EntityRepositoryInterface $folderRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache
     ) {

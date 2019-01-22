@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
-interface RepositoryInterface
+interface EntityRepositoryInterface
 {
     public function aggregate(Criteria $criteria, Context $context): AggregatorResult;
 

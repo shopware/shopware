@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -107,7 +107,7 @@ trait StorefrontApiTestBehaviour
     {
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 
-        /** @var RepositoryInterface $salesChannelRepository */
+        /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $storefrontApiClient
             ->getContainer()
             ->get('sales_channel.repository');

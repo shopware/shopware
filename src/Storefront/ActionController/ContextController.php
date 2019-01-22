@@ -5,7 +5,7 @@ namespace Shopware\Storefront\ActionController;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
@@ -27,20 +27,20 @@ class ContextController extends StorefrontController
     private $checkoutContextService;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
     public function __construct(
         CheckoutContextPersister $contextPersister,
         CheckoutContextService $checkoutContextService,
-        RepositoryInterface $currencyRepository,
-        RepositoryInterface $languageRepository
+        EntityRepositoryInterface $currencyRepository,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->contextPersister = $contextPersister;
         $this->checkoutContextService = $checkoutContextService;

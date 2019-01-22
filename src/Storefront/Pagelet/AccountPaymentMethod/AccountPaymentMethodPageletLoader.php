@@ -4,18 +4,18 @@ namespace Shopware\Storefront\Pagelet\AccountPaymentMethod;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class AccountPaymentMethodPageletLoader
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $paymentMethodRepository;
 
-    public function __construct(RepositoryInterface $paymentMethodRepository)
+    public function __construct(EntityRepositoryInterface $paymentMethodRepository)
     {
         $this->paymentMethodRepository = $paymentMethodRepository;
     }

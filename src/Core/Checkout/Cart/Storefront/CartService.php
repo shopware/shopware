@@ -19,7 +19,7 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
@@ -52,7 +52,7 @@ class CartService
     private $enrichment;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
@@ -61,7 +61,7 @@ class CartService
         Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        RepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository
     ) {
         $this->processor = $processor;
         $this->persister = $persister;

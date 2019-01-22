@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class PriceActionController extends AbstractController
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $taxRepository;
 
@@ -35,7 +35,7 @@ class PriceActionController extends AbstractController
     private $grossCalculator;
 
     public function __construct(
-        RepositoryInterface $taxRepository,
+        EntityRepositoryInterface $taxRepository,
         NetPriceCalculator $netCalculator,
         GrossPriceCalculator $grossCalculator
     ) {

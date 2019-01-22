@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
@@ -15,7 +15,7 @@ class RepositoryIterator
     private $criteria;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -24,7 +24,7 @@ class RepositoryIterator
      */
     private $context;
 
-    public function __construct(RepositoryInterface $repository, Context $context, Criteria $criteria = null)
+    public function __construct(EntityRepositoryInterface $repository, Context $context, Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();

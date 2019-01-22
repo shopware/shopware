@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -23,11 +23,11 @@ class DiscountSurchargeCollector implements CollectorInterface
 
     public const DATA_KEY = 'discount-surcharge';
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
-    public function __construct(RepositoryInterface $discountSurchargeRepository)
+    public function __construct(EntityRepositoryInterface $discountSurchargeRepository)
     {
         $this->repository = $discountSurchargeRepository;
     }

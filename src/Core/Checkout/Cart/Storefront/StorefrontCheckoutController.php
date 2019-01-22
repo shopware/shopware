@@ -15,8 +15,8 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Storefront\Action\AccountRegistration\AccountRegistrationRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -58,7 +58,7 @@ class StorefrontCheckoutController extends AbstractController
     private $serializer;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
@@ -69,7 +69,7 @@ class StorefrontCheckoutController extends AbstractController
         CheckoutContextFactory $checkoutContextFactory,
         AccountService $accountService,
         Serializer $serializer,
-        RepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository
     ) {
         $this->paymentService = $paymentService;
         $this->cartService = $cartService;

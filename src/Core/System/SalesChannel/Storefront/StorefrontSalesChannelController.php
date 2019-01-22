@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
@@ -24,42 +24,42 @@ use Symfony\Component\Routing\Annotation\Route;
 class StorefrontSalesChannelController extends AbstractController
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $countryStateRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $paymentMethodRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
 
     public function __construct(
-        RepositoryInterface $currencyRepository,
-        RepositoryInterface $languageRepository,
-        RepositoryInterface $countryRepository,
-        RepositoryInterface $countryStateRepository,
-        RepositoryInterface $paymentMethodRepository,
-        RepositoryInterface $shippingMethodRepository
+        EntityRepositoryInterface $currencyRepository,
+        EntityRepositoryInterface $languageRepository,
+        EntityRepositoryInterface $countryRepository,
+        EntityRepositoryInterface $countryStateRepository,
+        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $shippingMethodRepository
     ) {
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;

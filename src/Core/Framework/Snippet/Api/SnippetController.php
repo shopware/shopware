@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -29,11 +29,11 @@ class SnippetController extends AbstractController
     private $criteriaBuilder;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $userRepository;
 
-    public function __construct(SnippetServiceInterface $snippetService, RequestCriteriaBuilder $criteriaBuilder, RepositoryInterface $userRepository)
+    public function __construct(SnippetServiceInterface $snippetService, RequestCriteriaBuilder $criteriaBuilder, EntityRepositoryInterface $userRepository)
     {
         $this->snippetService = $snippetService;
         $this->criteriaBuilder = $criteriaBuilder;

@@ -12,8 +12,8 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +31,7 @@ class PaymentService
     private $tokenFactory;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $paymentMethodRepository;
 
@@ -43,7 +43,7 @@ class PaymentService
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
         TokenFactoryInterface $tokenFactory,
-        RepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $paymentMethodRepository,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
         $this->paymentProcessor = $paymentProcessor;

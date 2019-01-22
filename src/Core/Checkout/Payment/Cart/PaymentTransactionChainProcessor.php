@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -24,12 +24,12 @@ class PaymentTransactionChainProcessor
     private $tokenFactory;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $paymentMethodRepository;
 
@@ -45,8 +45,8 @@ class PaymentTransactionChainProcessor
 
     public function __construct(
         TokenFactoryInterface $tokenFactory,
-        RepositoryInterface $orderRepository,
-        RepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $orderRepository,
+        EntityRepositoryInterface $paymentMethodRepository,
         RouterInterface $router,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {

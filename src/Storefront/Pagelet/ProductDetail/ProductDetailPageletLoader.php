@@ -8,8 +8,8 @@ use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -23,7 +23,7 @@ class ProductDetailPageletLoader
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $configuratorRepository;
 
@@ -44,7 +44,7 @@ class ProductDetailPageletLoader
 
     public function __construct(
         StorefrontProductRepository $productRepository,
-        RepositoryInterface $configuratorRepository,
+        EntityRepositoryInterface $configuratorRepository,
         CartService $cartService,
         StorefrontCategoryRepository $categoryService
     ) {

@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Kernel;
@@ -24,7 +24,7 @@ class StorefrontProxyController extends AbstractController
     private $kernel;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $salesChannelRepository;
 
@@ -35,7 +35,7 @@ class StorefrontProxyController extends AbstractController
 
     public function __construct(
         Kernel $kernel,
-        RepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $salesChannelRepository,
         SalesChannelRequestContextResolver $requestContextResolver
     ) {
         $this->kernel = $kernel;

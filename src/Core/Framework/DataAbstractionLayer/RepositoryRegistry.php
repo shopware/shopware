@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class RepositoryRegistry
 {
     /**
-     * @var RepositoryInterface[]
+     * @var EntityRepositoryInterface[]
      */
     private $repositories;
 

@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\Test\Media\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -16,7 +16,7 @@ class MediaFolderControllerTest extends TestCase
     use AdminFunctionalTestBehaviour, MediaFixtures;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaFolderRepo;
 
@@ -26,7 +26,7 @@ class MediaFolderControllerTest extends TestCase
     private $context;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaFolderConfigRepo;
 

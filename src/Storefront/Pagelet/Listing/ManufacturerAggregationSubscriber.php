@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Pagelet\Listing;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,11 +25,11 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     public const AGGREGATION_NAME = 'manufacturer';
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $manufacturerRepository;
 
-    public function __construct(RepositoryInterface $manufacturerRepository)
+    public function __construct(EntityRepositoryInterface $manufacturerRepository)
     {
         $this->manufacturerRepository = $manufacturerRepository;
     }

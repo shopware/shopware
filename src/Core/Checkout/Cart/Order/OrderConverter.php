@@ -29,8 +29,8 @@ use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -47,17 +47,17 @@ class OrderConverter
     private $taxDetector;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderLineItemRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
@@ -68,9 +68,9 @@ class OrderConverter
 
     public function __construct(
         TaxDetector $taxDetector,
-        RepositoryInterface $orderRepository,
-        RepositoryInterface $orderLineItemRepository,
-        RepositoryInterface $customerRepository,
+        EntityRepositoryInterface $orderRepository,
+        EntityRepositoryInterface $orderLineItemRepository,
+        EntityRepositoryInterface $customerRepository,
         CheckoutContextFactory $checkoutContextFactory
     ) {
         $this->taxDetector = $taxDetector;

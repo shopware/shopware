@@ -47,7 +47,7 @@ class HumanDefinition extends EntityDefinition
 Now we create a parent and a child in the storage:
 
 ```
-/** @var RepositoryInterface $repo */
+/** @var EntityRepositoryInterface $repo */
 $repo = $this->get(HumanRepository::class);
 
 $parentId = Uuid::uuid4()->toString();
@@ -69,7 +69,7 @@ $repo->create([
 
 Now we can query and read the data over the repository:
 ```
-/** @var RepositoryInterface $repo */
+/** @var EntityRepositoryInterface $repo */
 $repo = $this->get(HumanRepository::class);
 
 $humans = $repo->read(new ReadCriteria([$parentId, $childId]), ShopContext::createDefaultContext());
@@ -97,7 +97,7 @@ object(Human)#2 (2) {
 
 The DataAbstractionLayer also allows to query this information in search requests:
 ```
-/** @var RepositoryInterface $repo */
+/** @var EntityRepositoryInterface $repo */
 $repo = $this->get(HumanRepository::class);
 
 $criteria = new Criteria();

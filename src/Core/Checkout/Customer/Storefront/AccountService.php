@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -31,17 +31,17 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 class AccountService
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerAddressRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
@@ -51,9 +51,9 @@ class AccountService
     private $contextPersister;
 
     public function __construct(
-        RepositoryInterface $countryRepository,
-        RepositoryInterface $customerAddressRepository,
-        RepositoryInterface $customerRepository,
+        EntityRepositoryInterface $countryRepository,
+        EntityRepositoryInterface $customerAddressRepository,
+        EntityRepositoryInterface $customerRepository,
         CheckoutContextPersister $contextPersister
     ) {
         $this->countryRepository = $countryRepository;

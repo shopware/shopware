@@ -9,8 +9,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -48,7 +48,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $eventIdExtractor;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $ruleRepository;
 
@@ -76,7 +76,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
-        RepositoryInterface $ruleRepository,
+        EntityRepositoryInterface $ruleRepository,
         Serializer $serializer,
         RuleConditionRegistry $ruleConditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,

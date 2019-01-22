@@ -11,8 +11,8 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\SourceContext;
@@ -23,47 +23,47 @@ use Shopware\Core\System\Tax\TaxCollection;
 class CheckoutContextFactory implements CheckoutContextFactoryInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $salesChannelRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerGroupRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $taxRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $addressRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $paymentMethodRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
 
@@ -73,7 +73,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private $connection;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $countryStateRepository;
 
@@ -83,17 +83,17 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private $taxDetector;
 
     public function __construct(
-        RepositoryInterface $salesChannelRepository,
-        RepositoryInterface $currencyRepository,
-        RepositoryInterface $customerRepository,
-        RepositoryInterface $customerGroupRepository,
-        RepositoryInterface $countryRepository,
-        RepositoryInterface $taxRepository,
-        RepositoryInterface $addressRepository,
-        RepositoryInterface $paymentMethodRepository,
-        RepositoryInterface $shippingMethodRepository,
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $currencyRepository,
+        EntityRepositoryInterface $customerRepository,
+        EntityRepositoryInterface $customerGroupRepository,
+        EntityRepositoryInterface $countryRepository,
+        EntityRepositoryInterface $taxRepository,
+        EntityRepositoryInterface $addressRepository,
+        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $shippingMethodRepository,
         Connection $connection,
-        RepositoryInterface $countryStateRepository,
+        EntityRepositoryInterface $countryStateRepository,
         TaxDetector $taxDetector
     ) {
         $this->salesChannelRepository = $salesChannelRepository;

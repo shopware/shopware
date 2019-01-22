@@ -4,18 +4,18 @@ namespace Shopware\Storefront\Pagelet\AccountAddress;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class AccountAddressPageletLoader
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerAddressRepository;
 
-    public function __construct(RepositoryInterface $customerAddressRepository)
+    public function __construct(EntityRepositoryInterface $customerAddressRepository)
     {
         $this->customerAddressRepository = $customerAddressRepository;
     }

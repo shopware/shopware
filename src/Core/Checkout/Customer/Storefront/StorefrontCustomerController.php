@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -47,7 +47,7 @@ class StorefrontCustomerController extends AbstractController
     private $checkoutContextService;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
@@ -55,7 +55,7 @@ class StorefrontCustomerController extends AbstractController
         Serializer $serializer,
         AccountService $accountService,
         CheckoutContextService $checkoutContextService,
-        RepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;

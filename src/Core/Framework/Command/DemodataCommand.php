@@ -36,7 +36,7 @@ use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -86,17 +86,17 @@ class DemodataCommand extends Command
     private $variantGenerator;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $ruleRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $categoryRepository;
 
@@ -128,7 +128,7 @@ class DemodataCommand extends Command
     private $processor;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $taxRepository;
 
@@ -148,7 +148,7 @@ class DemodataCommand extends Command
     private $projectDir;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $defaultFolderRepository;
 
@@ -160,11 +160,11 @@ class DemodataCommand extends Command
         CheckoutContextFactory $contextFactory,
         Processor $calculator,
         FileSaver $mediaUpdater,
-        RepositoryInterface $productRepository,
-        RepositoryInterface $ruleRepository,
-        RepositoryInterface $categoryRepository,
-        RepositoryInterface $taxRepository,
-        RepositoryInterface $defaultFolderRepository,
+        EntityRepositoryInterface $productRepository,
+        EntityRepositoryInterface $ruleRepository,
+        EntityRepositoryInterface $categoryRepository,
+        EntityRepositoryInterface $taxRepository,
+        EntityRepositoryInterface $defaultFolderRepository,
         string $kernelEnv,
         string $projectDir
     ) {

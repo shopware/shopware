@@ -4,7 +4,7 @@ namespace SwagExample\Command;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,11 +13,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CustomerPrintCommand extends Command
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
-    public function __construct(RepositoryInterface $customerRepository, $name = null)
+    public function __construct(EntityRepositoryInterface $customerRepository, $name = null)
     {
         parent::__construct($name);
         $this->customerRepository = $customerRepository;

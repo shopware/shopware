@@ -19,13 +19,13 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 class ThumbnailService
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaRepository;
 
@@ -50,7 +50,7 @@ class ThumbnailService
     private $mediaFolderRepository;
 
     public function __construct(
-        RepositoryInterface $mediaRepository,
+        EntityRepositoryInterface $mediaRepository,
         MediaThumbnailRepository $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,

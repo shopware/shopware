@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class EntityRepository implements RepositoryInterface
+class EntityRepository implements EntityRepositoryInterface
 {
     /**
      * @var EntityReaderInterface

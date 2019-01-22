@@ -22,7 +22,7 @@ return [
         'de_DE' => [
                 'snippets' => [
                         'general.disabledCookiesNotice' => 'Es wurde festgestellt, dass Cookies in Ihrem Browser deaktiviert sind. Um {$sShopname|escapeJs} in vollem Umfang nutzen zu können, empfehlen wir Ihnen, Cookies in Ihrem Browser zu aktiveren.',
-                        'general.disabledJavascriptNotice' => 'Um {$sShopname|escapeHtmlAttr} in vollem Umfang nutzen zu k&ouml;nnen, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren.',
+                        'general.disabledJavascriptNotice' => 'Um {$sShopname|escapeHtmlAttr} in vollem Umfang nutzen zu können, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren.',
                         'general.homeLink' => 'Home',
                         'general.menuCategoryHeadline' => 'Kategorien',
                         'general.menuClose' => 'Menü schließen',

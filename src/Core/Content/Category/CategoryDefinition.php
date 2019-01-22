@@ -56,6 +56,14 @@ class CategoryDefinition extends EntityDefinition
         return CategoryEntity::class;
     }
 
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        $defaults = parent::getDefaults($existence);
+        $defaults['displayNestedProducts'] = true;
+
+        return $defaults;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -103,14 +111,4 @@ class CategoryDefinition extends EntityDefinition
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReadOnly()),
         ]);
     }
-
-    public static function getDefaults(EntityExistence $existence): array
-    {
-        $defaults = parent::getDefaults($existence);
-        $defaults['displayNestedProducts'] = true;
-
-        return $defaults;
-    }
-
-
 }

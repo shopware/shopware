@@ -77,7 +77,7 @@ Component.register('sw-category-detail', {
 
         getCategories() {
             const params = { page: 1, limit: 500 };
-            return this.categoryStore.getList(params).then(response => {
+            return this.categoryStore.getList(params).then((response) => {
                 this.isLoading = false;
                 this.categories = response.items;
                 return response.items;

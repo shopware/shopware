@@ -9,10 +9,12 @@ import initRouter from 'src/app/init/router.init';
 import initFilter from 'src/app/init/filter.init';
 import initDirectives from 'src/app/init/directive.init';
 import initLocale from 'src/app/init/locale.init';
+import initApiServices from 'src/app/init/api-services.init';
 
 export default {
     contextService: initContext,
     httpClient: initHttpClient,
+    apiServices: initApiServices,
     coreState: initState,
     coreMixin: initMixin,
     coreDirectives: initDirectives,

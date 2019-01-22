@@ -16,6 +16,22 @@ interface SnippetServiceInterface
     public function getList(Criteria $criteria, Context $context): array;
 
     /**
+     * @param Criteria $criteria
+     * @param string   $author
+     *
+     * @return array
+     */
+    public function getCustomList(Criteria $criteria, string $author): array;
+
+    /**
+     * @param string $translationKey
+     * @param string $author
+     *
+     * @return array
+     */
+    public function getDbSnippetByKey(string $translationKey, string $author): array;
+
+    /**
      * @param MessageCatalogueInterface $catalog
      * @param string                    $snippetSetId
      *

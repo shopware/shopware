@@ -24,11 +24,11 @@ class SnippetApiService extends ApiService {
     /**
      * @returns {Promise<T>}
      */
-    getByKey(translationKey, page, limit) {
+    getByKey(translationKey, page, limit, isCustom = false) {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}`, { translationKey, page, limit }, { headers })
+            .post(`/_action/${this.getApiBasePath()}`, { translationKey, page, limit, isCustom }, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

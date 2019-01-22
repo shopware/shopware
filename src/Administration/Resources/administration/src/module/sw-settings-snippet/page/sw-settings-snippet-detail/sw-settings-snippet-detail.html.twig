@@ -29,7 +29,7 @@
                 {% endblock %}
 
                 {% block sw_settings_snippet_detail_actions_save %}
-                    <sw-button :disabled="isLoading"
+                    <sw-button :disabled="isLoading || !this.translationKey || !this.isSavable"
                                @click.prevent="onSave"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.detail.buttonSave') }}
@@ -53,7 +53,9 @@
                                                           :label="$tc('sw-settings-snippet.detail.labelName')"
                                                           :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                                                           v-model="translationKey"
-                                                          :disabled="!isCreate">
+                                                          @input="debouncedTranslationKeyChange"
+                                                          :disabled="!isCreate && !isCustomState"
+                                                          :errorMessage="invalidKeyErrorMessage">
                                                 </sw-field>
                                             {% endblock %}
                                         </sw-container>
@@ -64,8 +66,7 @@
 
                         {% block sw_settings_snippet_set_detail_card_snippets %}
                             <sw-card :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
-                                     :isLoading="isLoading"
-                                     v-if="!isCreate">
+                                     :isLoading="isLoading">
                                 <div class="snippet-overview-card">
                                     {% block sw_settings_snippet_set_detail_card_snippets_container %}
                                         <sw-container>
@@ -73,9 +74,10 @@
                                                 <sw-field type="text"
                                                           v-for="snippet, index in snippets"
                                                           v-model="snippet.value"
+                                                          :disabled="isCreate"
                                                           :key="snippet.setId"
                                                           :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[index].name })"
-                                                          :placeholder="snippet.origin">
+                                                          :placeholder="snippet.origin || $tc('sw-settings-snippet.detail.placeholderValue')">
                                                 </sw-field>
                                             {% endblock %}
                                         </sw-container>

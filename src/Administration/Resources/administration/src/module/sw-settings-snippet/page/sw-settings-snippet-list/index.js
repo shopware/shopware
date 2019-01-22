@@ -16,7 +16,9 @@ Component.register('sw-settings-snippet-list', {
         return {
             entityName: 'snippets',
             snippetSets: {},
-            metaId: ''
+            grid: [],
+            metaId: '',
+            isCustomState: this.$route.query.isCustomState
         };
     },
 
@@ -33,18 +35,21 @@ Component.register('sw-settings-snippet-list', {
     },
 
     methods: {
+        getList() {
+            this.initializeSnippetSet();
+        },
+
         initializeSnippetSet() {
             if (!this.$route.query.ids || this.$route.query.ids.length <= 0) {
                 this.$router.back();
 
                 return;
             }
-
             this.isLoading = true;
             this.queryIds = this.$route.query.ids;
             const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
 
-            this.snippetSetService.getCustomList(this.page, this.limit, this.term).then((response) => {
+            this.snippetSetService.getCustomList(this.page, this.limit, this.term, this.isCustomState).then((response) => {
                 this.snippetSetStore.getList({ criteria }).then((sets) => {
                     this.snippetSets = sets.items;
                     this.metaId = this.queryIds[0];
@@ -68,10 +73,6 @@ Component.register('sw-settings-snippet-list', {
             });
 
             return result;
-        },
-
-        getList() {
-            this.initializeSnippetSet();
         },
 
         onEdit(snippet) {
@@ -108,6 +109,16 @@ Component.register('sw-settings-snippet-list', {
                 this.inlineSaveErrorMessage(key);
                 this.getList();
             });
+        },
+
+        onEmptyClick() {
+            this.isCustomState = false;
+            this.getList();
+        },
+
+        onChangeCustomItems(customItemState) {
+            this.isCustomState = customItemState === true;
+            this.getList();
         },
 
         inlineSaveSuccessMessage(key) {
@@ -148,9 +159,12 @@ Component.register('sw-settings-snippet-list', {
             this.initializeSnippetSet();
         },
 
-        onInlineEditCancel(result, upperIndex) {
-            // ToDo: @m.Brode && @d.Garding Implement method
-            console.log('WIP: InlineCancel ; result: ', result, '; index: ', upperIndex);
+        onInlineEditCancel(rowItems) {
+            Object.keys(rowItems).forEach((itemKey) => {
+                const item = rowItems[itemKey];
+
+                item.value = item.resetTo;
+            });
         }
     }
 });

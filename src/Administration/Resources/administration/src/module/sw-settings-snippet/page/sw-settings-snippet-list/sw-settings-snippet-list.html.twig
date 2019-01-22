@@ -33,7 +33,7 @@
         {% block sw_settings_snippet_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_snippet_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } }"
+                    <sw-button :routerLink="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page, isCustomState: 'true' } }"
                                :disabled="isLoading"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.list.buttonAdd') }}
@@ -53,6 +53,7 @@
                         <sw-grid v-if="total"
                                  :items="grid"
                                  :isFullpage="true"
+                                 :sidebar="true"
                                  @edit="onEdit"
                                  @inline-edit-cancel="onInlineEditCancel"
                                  @inline-edit-finish="onInlineEditSave">
@@ -66,7 +67,11 @@
                                                             truncate
                                                             editable>
                                                 {% block sw_settings_snippet_list_column_key_link %}
-                                                    <router-link :to="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey }, query: { ids: queryIds, limit, page } }">
+                                                    <router-link :to="{
+                                                            name: 'sw.settings.snippet.detail',
+                                                            params: { key: item[metaId].translationKey },
+                                                            query: { ids: queryIds, limit, page, isCustomState }
+                                                    }">
                                                         {% block sw_settings_snippet_list_column_key_label %}
                                                             {{ item[metaId].translationKey }}
                                                         {% endblock %}
@@ -105,7 +110,11 @@
                                             <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
                                                     {% block sw_settings_snippet_list_grid_column_actions_edit %}
-                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.snippet.detail', params: { key: item[metaId].translationKey }, query: { ids: queryIds, limit, page } }">
+                                                        <sw-context-menu-item :routerLink="{
+                                                            name: 'sw.settings.snippet.detail',
+                                                            params: { key: item[metaId].translationKey },
+                                                            query: { ids: queryIds, limit, page, isCustomState }
+                                                        }">
                                                             {{ $tc('sw-settings-snippet.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
@@ -164,8 +173,45 @@
                                         </sw-pagination>
                                     {% endblock %}
                                 </template>
+
+                                {% block sw_settings_snippet_list_grid_sidebar %}
+                                    <sw-sidebar slot="sidebar">
+                                        {% block sw_settings_snippet_list_grid_sidebar_refresh %}
+                                            <sw-sidebar-item
+                                                    icon="default-arrow-360-left"
+                                                    :title="$tc('sw-settings-snippet.list.titleSidebarItemRefresh')"
+                                                    @click="getList">
+                                            </sw-sidebar-item>
+                                        {% endblock %}
+
+                                        {% block sw_settings_snippet_list_grid_sidebar_custom_snippets %}
+                                            <sw-sidebar-item
+                                                    icon="default-action-filter"
+                                                    :title="$tc('sw-settings-snippet.list.titleSidebarCustomItems')">
+                                                <sw-field type="switch"
+                                                          class="sidebar__custom-snippet-switch"
+                                                          :label="$tc('sw-settings-snippet.list.textSidebarCustomItems')"
+                                                          v-model="isCustomState"
+                                                          @change="onChangeCustomItems">
+                                                </sw-field>
+                                            </sw-sidebar-item>
+                                        {% endblock %}
+                                    </sw-sidebar>
+                                {% endblock %}
                             {% endblock %}
                         </sw-grid>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_list_empty_state %}
+                        <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-settings-snippet.list.messageEmpty')">
+                            <sw-button @click="onEmptyClick">
+                                {{ $tc('sw-settings-snippet.list.buttonEmpty') }}
+                            </sw-button>
+                        </sw-empty-state>
+                    {% endblock %}
+
+                    {% block sw_settings_snippet_list_grid_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
                     {% endblock %}
                 </div>
             </template>

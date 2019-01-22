@@ -47,6 +47,7 @@ class SnippetDefinition extends EntityDefinition
             (new FkField('snippet_set_id', 'setId', SnippetSetDefinition::class))->setFlags(new Required()),
             (new StringField('translation_key', 'translationKey'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new LongTextField('value', 'value'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('author', 'author'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),

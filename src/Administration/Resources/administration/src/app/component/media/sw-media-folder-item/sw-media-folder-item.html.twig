@@ -63,13 +63,6 @@
 
                         {% block sw_media_folder_item_context_group_quick_actions %}
                             <div class="defaultContextMenuClass">
-
-                                {% block sw_media_folder_item_context_item_move %}
-                                    <sw-context-menu-item @click="openMoveModal">
-                                        {{ $tc('global.sw-media-folder-item.labelContextMenuMove') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-
                                 {% block sw_media_folder_item_context_item_show_media %}
                                     <sw-context-menu-item class="sw-media-context-item__show-media-action" @click="navigateToFolder">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
@@ -79,6 +72,12 @@
                                 {% block sw_media_folder_item_context_item_show_settings %}
                                     <sw-context-menu-item class="sw-media-context-item__open-settings-action" @click="openSettings">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuShowSettings') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_media_folder_item_context_item_move %}
+                                    <sw-context-menu-item class="sw-media-context-item__move-folder-action" @click="openMoveModal">
+                                        {{ $tc('global.sw-media-folder-item.labelContextMenuMove') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 

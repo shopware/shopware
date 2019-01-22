@@ -15,10 +15,10 @@ module.exports = {
             .waitForElementNotVisible('.sw-admin-menu__user-type')
             .click('.sw-admin-menu__toggle')
             .waitForElementVisible('.sw-admin-menu__user-type')
-            .click('.sw-admin-menu__footer .sw-admin-menu__navigation-list .sw-admin-menu__navigation-link:nth-child(1)')
-            .assert.containsText('.sw-admin-menu__footer .sw-admin-menu__navigation-list .sw-admin-menu__navigation-link:nth-child(1)', 'Sprache wechseln')
-            .click('.sw-admin-menu__footer .sw-admin-menu__navigation-list .sw-admin-menu__navigation-link:nth-child(1)')
-            .assert.containsText('.sw-admin-menu__footer .sw-admin-menu__navigation-list .sw-admin-menu__navigation-link:nth-child(1)', 'Change language');
+            .click('.sw-admin-menu__change-language-action')
+            .assert.containsText('.sw-admin-menu__change-language-action', 'Sprache wechseln')
+            .click('.sw-admin-menu__change-language-action')
+            .assert.containsText('.sw-admin-menu__change-language-action', 'Change language');
     },
     after: (browser) => {
         browser.end();

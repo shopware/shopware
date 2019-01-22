@@ -12,13 +12,11 @@ import ValidationService from 'src/core/service/validation.service';
 import MediaUploadService from 'src/core/service/media-upload.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import 'src/app/decorator/condition-type-data-provider';
-import apiServices from 'src/core/service/api';
 
 /** Import global styles */
 import 'src/app/assets/less/all.less';
 
 const factoryContainer = Application.getContainer('factory');
-const apiServiceFactory = factoryContainer.apiService;
 
 // Add initializers
 Object.keys(initializers).forEach((key) => {
@@ -48,17 +46,3 @@ Application
     .addServiceProvider('ruleConditionDataProviderService', () => {
         return RuleConditionService();
     });
-
-// Add custom api service providers
-apiServices.forEach((ApiService) => {
-    const serviceContainer = Application.getContainer('service');
-    const initContainer = Application.getContainer('init');
-
-    const service = new ApiService(initContainer.httpClient, serviceContainer.loginService);
-    const serviceName = service.name;
-    apiServiceFactory.register(serviceName, service);
-
-    Application.addServiceProvider(serviceName, () => {
-        return service;
-    });
-});

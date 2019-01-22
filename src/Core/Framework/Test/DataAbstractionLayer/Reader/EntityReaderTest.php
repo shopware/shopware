@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
@@ -1543,5 +1544,41 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($product->getCover(), 'Cover was not fetched.');
         static::assertNotNull($product->getCover()->getMedia(), 'Media for cover was not fetched.');
         static::assertCount(3, $product->getCover()->getMedia()->getThumbnails()->getElements(), 'Thumbnails were not fetched or is incomplete.');
+    }
+
+    public function testAddTranslationsAssociation(): void
+    {
+        $repo = $this->getContainer()->get('category.repository');
+
+        $id = Uuid::uuid4()->getHex();
+
+        $cats = [
+            [
+                'id' => $id,
+                'name' => 'system',
+                'translations' => [
+                    'de_DE' => [
+                        'name' => 'deutsch',
+                    ],
+                ],
+            ],
+        ];
+
+        $repo->create($cats, Context::createDefaultContext());
+
+        $criteria = new ReadCriteria([$id]);
+        $criteria->addAssociation('category.translations');
+
+        /** @var CategoryEntity $cat */
+        $cat = $repo->read($criteria, Context::createDefaultContext())->first();
+        static::assertCount(2, $cat->getTranslations());
+
+        /** @var CategoryTranslationEntity $transDe */
+        $transDe = $cat->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_DE)->first();
+        static::assertEquals('deutsch', $transDe->getName());
+
+        /** @var CategoryTranslationEntity $transSystem */
+        $transSystem = $cat->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('system', $transSystem->getName());
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
+use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
@@ -345,7 +345,7 @@ class DefinitionValidator
         /** @var string|EntityDefinition $definition */
         $reverseSide = $reference::getFields()->filter(
             function (Field $field) use ($association, $definition) {
-                if (!$field instanceof OneToManyAssociationField && !$field instanceof TranslationsAssociationField) {
+                if (!$field instanceof OneToManyAssociationField) {
                     return false;
                 }
                 $reference = $field->getReferenceClass();
@@ -402,7 +402,7 @@ class DefinitionValidator
             }
         )->first();
 
-        if (!$reverseSide) {
+        if (!$reverseSide && $definition !== CatalogDefinition::class) {
             $associationViolations[$definition][] = sprintf(
                 'Association %s.%s has no reverse association in definition %s',
                 $definition::getEntityName(),

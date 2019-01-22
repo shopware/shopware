@@ -2,17 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LanguageParentFkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
-use Shopware\Core\System\Language\LanguageDefinition;
 
-class WriteProtectedTranslationDefinition extends EntityDefinition
+class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
 {
     public static function getEntityName(): string
     {
@@ -24,15 +18,15 @@ class WriteProtectedTranslationDefinition extends EntityDefinition
         return WriteProtectedTranslatedDefinition::class;
     }
 
+    public static function getParentDefinitionClass(): string
+    {
+        return WriteProtectedTranslatedDefinition::class;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('wp_id', 'wpId', WriteProtectedTranslatedDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            new LanguageParentFkField(static::getDefinition()),
             new StringField('protected', 'protected'),
-            new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedTranslatedDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
     }
 }

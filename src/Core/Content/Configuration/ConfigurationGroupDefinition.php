@@ -46,7 +46,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(ConfigurationGroupTranslationDefinition::class, 'configuration_group_id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }
 }

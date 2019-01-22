@@ -49,7 +49,7 @@ class SalesChannelTypeDefinition extends EntityDefinition
             new TranslatedField('descriptionLong'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class, 'sales_channel_type_id'))->setFlags(new Required(), new CascadeDelete()),
 
             new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'type_id', false, 'id'),
         ]);

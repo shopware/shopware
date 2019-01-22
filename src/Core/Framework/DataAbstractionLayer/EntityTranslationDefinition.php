@@ -67,7 +67,7 @@ abstract class EntityTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ];
 
-        if ($translatedDefinition::isVersionAware()) {
+        if (static::isVersionAware()) {
             $baseFields[] = (new ReferenceVersionField($translatedDefinition))->setFlags(new PrimaryKey(), new Required());
         }
 

@@ -51,7 +51,7 @@ class OrderStateDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslationsAssociationField(OrderStateTranslationDefinition::class))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(OrderStateTranslationDefinition::class, 'order_state_id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }
 }

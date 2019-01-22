@@ -23,7 +23,7 @@ class WriteProtectedTranslatedDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),
             (new TranslatedField('protected'))->setFlags(new WriteProtected('WriteProtected')),
-            new TranslationsAssociationField(WriteProtectedTranslationDefinition::class),
+            new TranslationsAssociationField(WriteProtectedTranslationDefinition::class, 'wp_id'),
         ]);
     }
 }

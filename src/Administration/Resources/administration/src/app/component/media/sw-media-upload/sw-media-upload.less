@@ -4,10 +4,10 @@
 @sw-media-upload-color-highlighted:            @color-shopware-blue;
 @sw-media-upload-color-switch-mode:            @color-shopware-blue;
 @sw-media-upload-border-radius:                @border-radius-default;
-@sw-media-upload-upload-background-color:      #F9FAFB;
-@sw-media-upload-background-color-highlighted: #E8F6FF;
+@sw-media-upload-upload-background-color:      @color-light-gray;
+@sw-media-upload-background-color-highlighted: @color-cadet-blue;
 @sw-media-upload-caption-font-size:            @font-size-large;
-@sw-media-upload-caption-icon-color:           #9AA8B5;
+@sw-media-upload-caption-icon-color:           @color-steam-cloud;
 
 .sw-media-upload {
 
@@ -27,7 +27,7 @@
         user-select: none;
     }
 
-    .sw-media-upload__switch {
+    .sw-media-upload__switch-mode {
         color: @sw-media-upload-color-switch-mode;
         margin-left: auto;
         cursor: pointer;
@@ -41,7 +41,7 @@
         grid-template-columns: 96px 1fr;
         grid-template-rows: 1fr;
         align-items: center;
-        justify-items: flex-end;
+        justify-items: end;
         border: 2px dashed @sw-media-upload-border-color;
         border-radius: @sw-media-upload-border-radius;
         background-color: @sw-media-upload-upload-background-color;

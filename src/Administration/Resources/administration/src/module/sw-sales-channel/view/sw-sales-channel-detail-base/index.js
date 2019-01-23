@@ -21,10 +21,18 @@ Component.register('sw-sales-channel-detail-base', {
         }
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.getDomains();
+        }
+    },
+
     data() {
         return {
             showDeleteModal: false,
-            defaultSnippetSetId: '71a916e745114d72abafbfdc51cbd9d0'
+            defaultSnippetSetId: '71a916e745114d72abafbfdc51cbd9d0',
+            isLoadingDomains: false,
+            deleteDomain: null
         };
     },
 
@@ -92,10 +100,18 @@ Component.register('sw-sales-channel-detail-base', {
     },
 
     created() {
-        this.domainAssociationStore.getList({});
+        this.getDomains();
     },
 
     methods: {
+        getDomains() {
+            this.isLoadingDomains = true;
+
+            this.domainAssociationStore.getList({}, true).then(() => {
+                this.isLoadingDomains = false;
+            });
+        },
+
         onGenerateKeys() {
             this.salesChannelService.generateKey().then((response) => {
                 this.salesChannel.accessKey = response.accessKey;
@@ -149,11 +165,24 @@ Component.register('sw-sales-channel-detail-base', {
             this.salesChannel.domains.push(newDomain);
         },
         onClickDeleteDomain(domain) {
-            domain.delete().then(() => {
-                this.salesChannel.domains = this.salesChannel.domains.filter((x) => {
-                    return x.id !== domain.id;
+            if (domain.isLocal) {
+                this.onConfirmDeleteDomain(domain);
+            } else {
+                this.deleteDomain = domain;
+            }
+        },
+        onConfirmDeleteDomain(domain) {
+            this.deleteDomain = null;
+            this.$nextTick(() => {
+                domain.delete(true).then(() => {
+                    this.salesChannel.domains = this.salesChannel.domains.filter((x) => {
+                        return x.id !== domain.id;
+                    });
                 });
             });
+        },
+        onCloseDeleteDomainModal() {
+            this.deleteDomain = null;
         }
     }
 });

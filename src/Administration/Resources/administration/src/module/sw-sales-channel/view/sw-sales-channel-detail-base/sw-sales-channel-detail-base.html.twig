@@ -113,7 +113,7 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_domains %}
-            <sw-card :title="$tc('sw-sales-channel.detail.titleDomains')" v-if="next1387 && isStoreFront">
+            <sw-card :isLoading="isLoadingDomains" :title="$tc('sw-sales-channel.detail.titleDomains')" v-if="next1387 && isStoreFront">
                 <div class="sw-sales-channel-detail-base__domain-container" v-for="domain, index in salesChannel.domains">
                     {% block sw_sales_channel_detail_base_domains_input_url %}
                         <sw-field type="text" label="Url" v-model="domain.url"></sw-field>
@@ -142,8 +142,32 @@
                                 :label="$tc('sw-sales-channel.detail.labelInputSnippet')">
                         </sw-select>
                     {% endblock %}
-                    {% block sw_sales_channel_detail_base_domains_delete_button %}
+                    {% block sw_sales_channel_detail_base_domains_delete %}
                         <sw-button variant="danger" @click="onClickDeleteDomain(domain)">{{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}</sw-button>
+
+                        {% block sw_sales_channel_detail_base_domains_delete_modal %}
+                        <sw-modal v-if="deleteDomain"
+                                  ref="modal"
+                                  :title="$tc('sw-sales-channel.detail.deleteDomainModalTitle')"
+                                  @closeModal="onCloseDeleteDomainModal">
+                            {% block sw_sales_channel_detail_base_domains_delete_modal_confirm_text %}
+                                {{  $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: deleteDomain.url }) }}
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_base_domains_delete_modal_footer %}
+                            <template slot="modal-footer">
+                                <sw-button size="small" @click="onCloseDeleteDomainModal">
+                                    {{ $tc('sw-sales-channel.detail.buttonCloseDeleteDomainModal') }}
+                                </sw-button>
+                                <sw-button size="small"
+                                           variant="danger"
+                                           @click="onConfirmDeleteDomain(deleteDomain)">
+                                    {{ $tc('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
+                                </sw-button>
+                            </template>
+                            {% endblock %}
+                        </sw-modal>
+                        {% endblock %}
                     {% endblock %}
                 </div>
 

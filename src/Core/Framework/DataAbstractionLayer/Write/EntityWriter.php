@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -185,7 +186,7 @@ class EntityWriter implements EntityWriterInterface
                         $payload = ['id' => $key];
                     }
 
-                    return ['primaryKey' => $key, 'payload' => $payload];
+                    return new EntityWriteResult($key, $payload, null);
                 }, $cascade);
             }
         }
@@ -199,11 +200,7 @@ class EntityWriter implements EntityWriterInterface
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
             if (!$existence->exists()) {
-                $skipped[$definition][] = [
-                    'primaryKey' => $mapped,
-                    'payload' => $mapped,
-                    'existence' => $existence,
-                ];
+                $skipped[$definition][] = new EntityWriteResult($mapped, $mapped, $existence);
                 continue;
             }
 
@@ -242,11 +239,7 @@ class EntityWriter implements EntityWriterInterface
                 $primaryKey = $this->getCommandPrimaryKey($command);
                 $payload = $this->getCommandPayload($command);
 
-                $identifiers[$resource][] = [
-                    'primaryKey' => $primaryKey,
-                    'payload' => $payload,
-                    'existence' => $command->getEntityExistence(),
-                ];
+                $identifiers[$resource][] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
             }
         }
 

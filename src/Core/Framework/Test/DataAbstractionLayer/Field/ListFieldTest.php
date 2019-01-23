@@ -148,7 +148,7 @@ EOF;
 
         static::assertArrayHasKey(SalesChannelTypeDefinition::class, $written);
         static::assertCount(1, $written[SalesChannelTypeDefinition::class]);
-        $payload = $written[SalesChannelTypeDefinition::class][0]['payload'];
+        $payload = $written[SalesChannelTypeDefinition::class][0]->getPayload();
         static::assertCount(1, $payload['screenshotUrls']);
         static::assertEquals('😄', $payload['screenshotUrls'][0]);
     }

@@ -308,7 +308,7 @@ EOF;
 
         static::assertArrayHasKey(JsonDefinition::class, $written);
         static::assertCount(1, $written[JsonDefinition::class]);
-        $payload = $written[JsonDefinition::class][0]['payload'];
+        $payload = $written[JsonDefinition::class][0]->getPayload();
 
         static::assertArrayHasKey('data', $payload);
         static::assertArrayHasKey('a', $payload['data']);

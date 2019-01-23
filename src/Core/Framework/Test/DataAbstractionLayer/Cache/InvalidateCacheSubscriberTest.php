@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\InvalidateCacheSubscriber;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -32,29 +33,29 @@ class InvalidateCacheSubscriberTest extends TestCase
         $events = new NestedEventCollection([
             new EntityWrittenEvent(
                 ProductDefinition::class,
-                [$id],
-                [['name' => 'test', 'id' => $id, 'stock' => 15, 'manufacturerId' => $id]],
-                [
-                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, []),
-                ],
+                [new EntityWriteResult(
+                    $id,
+                    ['name' => 'test', 'id' => $id, 'stock' => 15, 'manufacturerId' => $id],
+                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, [])
+                )],
                 $context
             ),
             new EntityWrittenEvent(
                 ProductManufacturerDefinition::class,
-                [$id],
-                [['name' => 'test', 'id' => $id, 'active' => true]],
-                [
-                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, []),
-                ],
+                [new EntityWriteResult(
+                    $id,
+                    ['name' => 'test', 'id' => $id, 'active' => true],
+                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, [])
+                )],
                 $context
             ),
             new EntityWrittenEvent(
                 ProductCategoryDefinition::class,
-                [$id],
-                [['productId' => $id, 'categoryId' => $id]],
-                [
-                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, []),
-                ],
+                [new EntityWriteResult(
+                    $id,
+                    ['productId' => $id, 'categoryId' => $id],
+                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, [])
+                )],
                 $context
             ),
         ]);

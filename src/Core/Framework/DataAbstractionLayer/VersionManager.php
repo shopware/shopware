@@ -511,11 +511,11 @@ class VersionManager
             }
 
             foreach ($items as $item) {
-                $payload = $item['payload'];
+                $payload = $item->getPayload();
 
-                $primary = $item['primaryKey'];
+                $primary = $item->getPrimaryKey();
                 if (!\is_array($primary)) {
-                    $primary = ['id' => $item['primaryKey']];
+                    $primary = ['id' => $item->getPrimaryKey()];
                 }
                 $primary['versionId'] = $versionId;
 

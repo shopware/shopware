@@ -9,13 +9,11 @@ class EntityDeletedEvent extends EntityWrittenEvent
 {
     public function __construct(
         string $definition,
-        array $ids,
-        array $payload,
-        array $existences,
+        array $entityWriteResult,
         Context $context,
         array $errors = []
     ) {
-        parent::__construct($definition, $ids, $payload, $existences, $context, $errors);
+        parent::__construct($definition, $entityWriteResult, $context, $errors);
 
         /* @var string|EntityDefinition $definition */
         $this->name = $definition::getEntityName() . '.deleted';

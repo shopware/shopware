@@ -67,13 +67,11 @@ class EntityWrittenContainerEvent extends NestedEvent
         $events = new NestedEventCollection();
 
         /** @var EntityDefinition|string $definition */
-        foreach ($identifiers as $definition => $data) {
+        foreach ($identifiers as $definition => $entityWrittenResult) {
             $events->add(
                 new EntityWrittenEvent(
                     $definition,
-                    array_column($data, 'primaryKey'),
-                    array_column($data, 'payload'),
-                    array_column($data, 'existence'),
+                    $entityWrittenResult,
                     $context,
                     $errors
                 )
@@ -92,9 +90,7 @@ class EntityWrittenContainerEvent extends NestedEvent
             $events->add(
                 new EntityDeletedEvent(
                     $definition,
-                    array_column($data, 'primaryKey'),
-                    array_column($data, 'payload'),
-                    array_column($data, 'existence'),
+                    $data,
                     $context,
                     $errors
                 )

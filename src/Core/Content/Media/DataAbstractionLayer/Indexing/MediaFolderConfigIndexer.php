@@ -73,7 +73,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
 
     private function updateConfigOnRefresh(EntityWrittenEvent $event): void
     {
-        foreach ($event->getPayload() as $update) {
+        foreach ($event->getPayloads() as $update) {
             if (!(array_key_exists('parentId', $update) && $update['parentId'] !== null) && !array_key_exists('configurationId', $update)) {
                 continue;
             } elseif (array_key_exists('parentId', $update) && !array_key_exists('configurationId', $update)) {

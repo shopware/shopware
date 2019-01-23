@@ -55,7 +55,7 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
 
                 $definition = $writtenEvent->getDefinition();
 
-                foreach ($writtenEvent->getPayload() as $payload) {
+                foreach ($writtenEvent->getPayloads() as $payload) {
                     foreach ($payload as $propertyName => $value) {
                         $field = $definition::getFields()->get($propertyName);
 

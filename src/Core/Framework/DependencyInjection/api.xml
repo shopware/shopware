@@ -74,9 +74,7 @@
             <!-- <tag name="shopware.rest.response_type"/> -->
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder">
-            <argument type="service" id="serializer"/>
-        </service>
+        <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder" public="true">
             <argument type="service" id="serializer"/>

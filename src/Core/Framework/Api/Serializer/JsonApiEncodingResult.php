@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-class SerializedCollection implements \JsonSerializable
+class JsonApiEncodingResult implements \JsonSerializable
 {
     /**
-     * @var SerializedEntity[]
+     * @var Record[]
      */
     protected $data = [];
 
     /**
-     * @var SerializedEntity[]
+     * @var Record[]
      */
     protected $included = [];
 
@@ -24,6 +24,26 @@ class SerializedCollection implements \JsonSerializable
      */
     protected $single = false;
 
+    /**
+     * @var array
+     */
+    protected $metaData = [];
+
+    /**
+     * @var string
+     */
+    protected $baseUrl;
+
+    public function __construct(string $baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
+    }
+
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
     public function getData(): array
     {
         return $this->data;
@@ -34,7 +54,7 @@ class SerializedCollection implements \JsonSerializable
         return $this->included;
     }
 
-    public function addData(SerializedEntity $entity): void
+    public function addEntity(Record $entity): void
     {
         $key = $entity->getId() . '-' . $entity->getType();
 
@@ -47,7 +67,7 @@ class SerializedCollection implements \JsonSerializable
         $this->keyCollection[$key] = 1;
     }
 
-    public function addIncluded(SerializedEntity $entity): void
+    public function addIncluded(Record $entity): void
     {
         $key = $entity->getId() . '-' . $entity->getType();
 
@@ -60,21 +80,6 @@ class SerializedCollection implements \JsonSerializable
         $this->keyCollection[$key] = 1;
     }
 
-    public function get(string $id, string $type): ?SerializedEntity
-    {
-        $key = $id . '-' . $type;
-
-        if (isset($this->data[$key])) {
-            return $this->data[$key];
-        }
-
-        if (isset($this->included[$key])) {
-            return $this->included[$key];
-        }
-
-        return null;
-    }
-
     public function contains(string $id, string $type): bool
     {
         $key = $id . '-' . $type;
@@ -84,18 +89,16 @@ class SerializedCollection implements \JsonSerializable
 
     public function jsonSerialize()
     {
-        $data = get_object_vars($this);
+        $output = [
+            'data' => $this->isSingle() ? array_shift($this->data) : array_values($this->data),
+            'included' => array_values($this->included),
+        ];
 
-        unset($data['single'], $data['keyCollection']);
-
-        $data['data'] = array_values($data['data']);
-        if ($this->isSingle()) {
-            $data['data'] = array_shift($data['data']);
+        if (!empty($this->metaData)) {
+            $output = array_merge($output, $this->metaData);
         }
 
-        $data['included'] = array_values($data['included']);
-
-        return $data;
+        return $output;
     }
 
     public function isSingle(): bool
@@ -103,8 +106,18 @@ class SerializedCollection implements \JsonSerializable
         return $this->single;
     }
 
-    public function setSingle(bool $single): void
+    public function setSingleResult(bool $single): void
     {
         $this->single = $single;
+    }
+
+    public function setMetaData(array $metaData): void
+    {
+        $this->metaData = $metaData;
+    }
+
+    public function getMetaData(): array
+    {
+        return $this->metaData;
     }
 }

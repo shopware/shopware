@@ -27,7 +27,7 @@ return [
             ],
             'relationships' => [
                 'translations' => [
-                    'data' => null,
+                    'data' => [],
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/translations',
                     ],
@@ -102,7 +102,7 @@ return [
             ],
             'relationships' => [
                 'translations' => [
-                    'data' => null,
+                    'data' => [],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c-0245-4a40-abf2-50f764d16248/translations',
                     ],

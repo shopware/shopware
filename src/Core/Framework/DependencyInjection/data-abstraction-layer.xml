@@ -13,22 +13,22 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher"
-                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
-                 decoration-priority="1500">
+        <!--<service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher"-->
+                 <!--decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"-->
+                 <!--decoration-priority="1500">-->
 
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher.inner"/>
-        </service>
+            <!--<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>-->
+            <!--<argument type="service" id="shopware.cache"/>-->
+            <!--<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher.inner"/>-->
+        <!--</service>-->
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"
-                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
+        <!--<service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"-->
+                 <!--decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">-->
 
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-        </service>
+            <!--<argument type="service" id="shopware.cache"/>-->
+            <!--<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>-->
+            <!--<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>-->
+        <!--</service>-->
 
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">

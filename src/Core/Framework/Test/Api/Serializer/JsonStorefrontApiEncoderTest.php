@@ -8,13 +8,10 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
 class JsonStorefrontApiEncoderTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     /**
      * @var JsonStorefrontApiEncoder
      */
@@ -22,7 +19,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->encoder = $this->getContainer()->get(JsonStorefrontApiEncoder::class);
+        $this->encoder = new JsonStorefrontApiEncoder();
     }
 
     public function emptyInputProvider(): array
@@ -59,9 +56,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
         $struct->setMimeType('image/png');
         $struct->setFileExtension('png');
         $struct->setFileSize(310818);
-
         $struct->setAlt('A media object description');
-
         $struct->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
 
         $expected = [
@@ -142,10 +137,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
 
     private function removeRelationships(array $data): array
     {
-        foreach ($data['included'] as $key => $value) {
-            $value['relationships'] = [];
-            $data['included'][$key] = $value;
-        }
+        $data['included'] = [];
 
         if (isset($data['data']['attributes'])) {
             $data['data']['relationships'] = [];

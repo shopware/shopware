@@ -78,7 +78,7 @@ return [
             'meta' => null,
             'relationships' => [
                 'translations' => [
-                    'data' => null,
+                    'data' => [],
                     'links' => [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/translations',
                     ],

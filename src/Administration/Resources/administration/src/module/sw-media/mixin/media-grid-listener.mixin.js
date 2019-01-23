@@ -52,6 +52,17 @@ Mixin.register('media-grid-listener', {
             this.listSelectionStartItem = null;
         },
 
+        navigateToFolder({ item }) {
+            this.$router.push({
+                name: 'sw.media.index',
+                params: { folderId: item.id }
+            });
+        },
+
+        showDetails(gridItem) {
+            this._singleSelect(gridItem);
+        },
+
         handleMediaItemClicked({ originalDomEvent, item }) {
             if (originalDomEvent.shiftKey) {
                 this._handleShiftSelect(item);
@@ -79,6 +90,10 @@ Mixin.register('media-grid-listener', {
         },
 
         _singleSelect(item) {
+            if (item.entityName === 'media_folder') {
+                this.navigateToFolder({ item });
+            }
+
             this.selectedItems = [item];
             this.listSelectionStartItem = null;
         },

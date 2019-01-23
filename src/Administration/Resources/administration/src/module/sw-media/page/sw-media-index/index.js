@@ -54,10 +54,6 @@ Component.register('sw-media-index', {
             return State.getStore('media_folder_configuration');
         },
 
-        mediaSidebar() {
-            return this.$refs.mediaSidebar;
-        },
-
         selectableItems() {
             return [
                 ...this.subFolders,

@@ -1,6 +1,5 @@
 {% block sw_media_folder_item %}
-    <div class="sw-media-folder-item"
-         @dblclick="navigateToFolder">
+    <div class="sw-media-folder-item">
         {% block sw_media_folder_base_item %}
             <sw-media-base-item
                     ref="innerComponent"
@@ -57,18 +56,18 @@
 
                 {% block sw_media_folder_item_context_menu %}
                     <template slot="media-item-context-menu">
+                        {% block sw_media_folder_item_context_item_show_media %}
+                            <sw-context-menu-item class="sw-media-context-item__show-media-action" @click="navigateToFolder">
+                                {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+
                         <slot>
                             {% block sw_media_folder_item_additional_context_menu_slot %}{% endblock %}
                         </slot>
 
                         {% block sw_media_folder_item_context_group_quick_actions %}
-                            <div class="defaultContextMenuClass">
-                                {% block sw_media_folder_item_context_item_show_media %}
-                                    <sw-context-menu-item class="sw-media-context-item__show-media-action" @click="navigateToFolder">
-                                        {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-
+                            <div class="sw-context-menu__group">
                                 {% block sw_media_folder_item_context_item_show_settings %}
                                     <sw-context-menu-item class="sw-media-context-item__open-settings-action" @click="openSettings">
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuShowSettings') }}

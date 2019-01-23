@@ -179,7 +179,8 @@
                                                         :item="parentFolder"
                                                         :showContextMenuButton="false"
                                                         :editable="false"
-                                                        isParent>
+                                                        isParent
+                                                        @sw-media-item-clicked="navigateToFolder">
                                                     </sw-media-folder-item>
                                                 {% endblock %}
 
@@ -235,16 +236,13 @@
                 {% endblock %}
 
                 {% block sw_media_index_sidebar %}
-                    <div class="sw-media-index__sidebar">
-                        <sw-media-sidebar
-                            :items="selectedItems"
-                            :currentFolder="routeFolderId ? currentFolder : null"
-                            @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
-                            @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
-                            @sw-media-sidebar-items-moved="onMediaMoved"
-                            ref="mediaSidebar">
-                        </sw-media-sidebar>
-                    </div>
+                    <sw-media-sidebar
+                        :items="selectedItems"
+                        :currentFolder="routeFolderId ? currentFolder : null"
+                        @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
+                        @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
+                        @sw-media-sidebar-items-moved="onMediaMoved">
+                    </sw-media-sidebar>
                 {% endblock %}
 
                 {% block sw_media_index_list_grid_loader %}

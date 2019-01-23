@@ -2205,9 +2205,9 @@ export interface NightwatchCustomCommands {
      * ```
      *
      * @param {String} selector
-     * @param {String} value
+     * @param {Boolean} checked
      */
-    tickCheckbox(selector: string, value: string): this,
+    tickCheckbox(selector: string, checked: boolean): this,
 
     /**
      * Finds a sw-select component in the Administration. The method uses a css selector to find the element on the page,

@@ -14,11 +14,7 @@ class SnippetSetApiService extends ApiService {
     /**
      * @returns {Promise<T>}
      */
-    getCustomList(
-        page = 1,
-        limit = 25,
-        filters = {}
-    ) {
+    getCustomList(page = 1, limit = 25, filters = {}) {
         const headers = this.getBasicHeaders();
         const defaultFilters = {
             isCustom: false,
@@ -42,13 +38,19 @@ class SnippetSetApiService extends ApiService {
     }
 
     /**
-     * Call the API to clone the SnippetSet with the given id
+     * Call the API to get all available BaseFiles
      *
-     * @param {string} id
      * @returns {Promise<T>}
      */
-    cloneSnippetSet(id) {
-        return this.clone(id);
+    getBaseFiles() {
+        const params = {};
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/getBaseFiles`, { params, headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
 

@@ -21,13 +21,13 @@ class en_US_e2 implements SnippetFileInterface
         return 'en_US';
     }
 
+    public function getAuthor(): string
+    {
+        return 'testUSe2';
+    }
+
     public function isBase(): bool
     {
         return SnippetFileInterface::BASE_LANGUAGE_FILE;
-    }
-
-    public function getAuthor(): string
-    {
-        return 'unitTests';
     }
 }

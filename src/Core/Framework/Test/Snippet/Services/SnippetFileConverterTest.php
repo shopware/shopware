@@ -67,10 +67,10 @@ class SnippetFileConverterTest extends TestCase
     public function dataProviderForTestGetFileContent(): array
     {
         return [
-            [new LanguageFileMock(__DIR__ . '/../_fixtures/contentFile_1.json'), []],
-            [new LanguageFileMock(__DIR__ . '/../_fixtures/contentFile_2.json'), []],
-            [new LanguageFileMock(__DIR__ . '/../_fixtures/contentFile_3.json'), ['index' => []]],
-            [new LanguageFileMock(__DIR__ . '/../_fixtures/testLanguage.json'), ['frontend' => ['AccountLoginTitle' => 'Login']]],
+            [new SnippetFileMock(__DIR__ . '/../_fixtures/contentFile_1.json'), []],
+            [new SnippetFileMock(__DIR__ . '/../_fixtures/contentFile_2.json'), []],
+            [new SnippetFileMock(__DIR__ . '/../_fixtures/contentFile_3.json'), ['index' => []]],
+            [new SnippetFileMock(__DIR__ . '/../_fixtures/testLanguage.json'), ['frontend' => ['AccountLoginTitle' => 'Login']]],
         ];
     }
 
@@ -83,22 +83,25 @@ class SnippetFileConverterTest extends TestCase
     }
 }
 
-class LanguageFileMock implements SnippetFileInterface
+class SnippetFileMock implements SnippetFileInterface
 {
     public $path;
     public $name;
     public $iso;
+    public $author;
     public $isBase;
 
     public function __construct(
         string $path = __DIR__ . '/../_fixtures/test_three.json',
-        string $name = 'LanguageFileMock',
+        string $name = 'SnippetFileMock',
         string $iso = 'en_GB',
+        string $author = 'tests/shopware',
         bool $isBase = true
     ) {
         $this->path = $path;
         $this->name = $name;
         $this->iso = $iso;
+        $this->author = $author;
         $this->isBase = $isBase;
     }
 
@@ -117,13 +120,13 @@ class LanguageFileMock implements SnippetFileInterface
         return $this->iso;
     }
 
+    public function getAuthor(): string
+    {
+        return $this->author;
+    }
+
     public function isBase(): bool
     {
         return $this->isBase;
-    }
-
-    public function getAuthor(): string
-    {
-        return 'unitTests';
     }
 }

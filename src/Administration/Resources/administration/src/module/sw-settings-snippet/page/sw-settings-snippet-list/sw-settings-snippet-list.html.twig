@@ -56,8 +56,7 @@
                                  :sidebar="true"
                                  @edit="onEdit"
                                  @inline-edit-cancel="onInlineEditCancel"
-                                 @inline-edit-finish="onInlineEditSave"
-                                 table>
+                                 @inline-edit-finish="onInlineEditSave">
                             {% block sw_settings_snippet_list_grid_slots %}
                                 <template slot="columns" slot-scope="{ item }">
                                     {% block sw_settings_snippet_list_columns %}

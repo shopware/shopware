@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\Snippet\_fixtures;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
-class TestLanguageExtensionFile_de_DE implements SnippetFileInterface
+class TestSnippetExtensionFile_de_DE implements SnippetFileInterface
 {
     public function getName(): string
     {
@@ -22,13 +21,13 @@ class TestLanguageExtensionFile_de_DE implements SnippetFileInterface
         return 'de_DE';
     }
 
+    public function getAuthor(): string
+    {
+        return 'TestExtensionCompany';
+    }
+
     public function isBase(): bool
     {
         return SnippetFileInterface::PLUGIN_LANGUAGE_EXTENSION_FILE;
-    }
-
-    public function getAuthor(): string
-    {
-        return Defaults::SNIPPET_AUTHOR;
     }
 }

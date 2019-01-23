@@ -33,7 +33,7 @@ export default {
                 if (!value.length) {
                     return true;
                 }
-                return ['success', 'danger', 'warning'].includes(value);
+                return ['success', 'danger', 'warning', 'headline'].includes(value);
             }
         }
     },
@@ -42,13 +42,13 @@ export default {
         contextMenuItemStyles() {
             return {
                 [`sw-context-menu-item--${this.variant}`]: this.variant,
-                'is--disabled': this.disabled,
+                'is--disabled': this.disabled && this.variant !== 'headline',
                 'sw-context-menu-item--icon': this.icon
             };
         },
 
         contextListeners() {
-            return this.disabled ? {} : this.$listeners;
+            return (this.disabled || this.variant === 'headline') ? {} : this.$listeners;
         }
     }
 };

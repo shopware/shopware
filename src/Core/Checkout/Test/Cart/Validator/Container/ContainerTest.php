@@ -20,7 +20,7 @@ class ContainerTest extends TestCase
             $container->getRules()
         );
 
-        $container->setRules([
+        $container->setChildren([
             new FalseRule(),
         ]);
 

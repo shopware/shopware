@@ -7,20 +7,22 @@
         <service id="Shopware\Core\Content\ProductStream\ProductStreamDefinition">
             <tag name="shopware.entity.definition" entity="product_stream"/>
         </service>
-        <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamCondition\ProductStreamConditionDefinition">
-            <tag name="shopware.entity.definition" entity="product_stream_condition"/>
+        <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition">
+            <tag name="shopware.entity.definition" entity="product_stream_filter"/>
         </service>
 
-        <service class="Shopware\Core\Content\ConditionTree\ConditionTreeValidator" id="product_stream.condition_tree_validator">
-            <argument type="service" id="validator"/>
-            <argument type="service" id="product_stream.condition_registry"/>
-            <argument>Shopware\Core\Content\ProductStream\Aggregate\ProductStreamCondition\ProductStreamConditionDefinition</argument>
+        <service id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
 
-            <tag name="shopware.validator"/>
-        </service>
+        <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamFilterIndexer">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
+            <argument type="service" id="product_stream.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
 
-        <service id="Shopware\Core\Content\ProductStream\ProductStreamProductCondition">
-            <tag name="product_stream.definition"/>
+            <tag name="shopware.dbal_indexing.indexer"/>
         </service>
     </services>
 </container>

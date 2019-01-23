@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\ConditionTree\ConditionInterface;
+use Shopware\Core\Framework\ConditionTree\ContainerInterface;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 
 /**
  * AbstractContainer implements setRule and addRule of the container interface
  */
-abstract class Container extends Rule
+abstract class Container extends Rule implements ContainerInterface
 {
-    /**
-     * @var Rule[]
-     */
     protected $rules = [];
 
     /**
@@ -27,15 +26,15 @@ abstract class Container extends Rule
      */
     public function __construct(array $rules = [])
     {
-        array_map([$this, 'addRule'], $rules);
+        array_map([$this, 'addChild'], $rules);
     }
 
-    public function setRules(array $rules): void
+    public function setChildren(array $rules): void
     {
         $this->rules = $rules;
     }
 
-    public function addRule(Rule $rule): void
+    public function addChild(ConditionInterface $rule): void
     {
         $this->rules[] = $rule;
     }

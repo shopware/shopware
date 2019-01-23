@@ -3,497 +3,291 @@
 namespace Shopware\Core\Content\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Rule\RuleValidator;
+use Shopware\Core\Content\ConditionTree\ConditionTreeValidator;
+use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\ConditionTree\ConditionRegistry;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 class RuleValidatorTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
-     * @var Context
+     * @var ConditionTreeValidator
+     */
+    private $treeValidator;
+
+    /**
+     * @var WriteContext
      */
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var ConditionRegistry
      */
-    private $ruleRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
-
-    /**
-     * @var RuleValidator
-     */
-    private $ruleValidator;
+    private $conditionRegistry;
 
     protected function setUp()
     {
-        $this->context = Context::createDefaultContext();
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
-        $this->ruleValidator = $this->getContainer()->get(RuleValidator::class);
-        $this->addMockRules(new MockIntRule(), new MockOptionalStringArrayRule());
-    }
-
-    public function testWriteRuleWithInconsistentSubChild(): void
-    {
-        $id = Uuid::uuid4()->getHex();
-        $conditionId = Uuid::uuid4()->getHex();
-
-        $data = [
-            'id' => $id,
-            'name' => 'test rule',
-            'priority' => 1,
-            'conditions' => [
-                [
-                    'type' => (new MockOptionalStringArrayRule())->getName(),
-                    'children' => [
-                        [
-                            'type' => (new MockOptionalStringArrayRule())->getName(),
-                            'children' => [
-                                [
-                                    'id' => $conditionId,
-                                    'type' => (new MockIntRule())->getName(),
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-        try {
-            $this->ruleRepository->create([$data], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId . '/property', $exception->getViolations()->get(0)->getPropertyPath());
-            }
-        }
-
-        static::assertNull($this->ruleRepository->search(new Criteria([$id]), $this->context)->get($id));
-    }
-
-    public function testWriteRuleWithInconsistentRootCondition(): void
-    {
-        $id = Uuid::uuid4()->getHex();
-        $conditionId = Uuid::uuid4()->getHex();
-
-        $data = [
-            'id' => $id,
-            'name' => 'test rule',
-            'priority' => 1,
-            'conditions' => [
-                [
-                    'id' => $conditionId,
-                    'type' => (new MockIntRule())->getName(),
-                    'children' => [
-                        [
-                            'type' => (new MockOptionalStringArrayRule())->getName(),
-                        ],
-                    ],
-                ],
-            ],
-        ];
-        try {
-            $this->ruleRepository->create([$data], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId . '/property', $exception->getViolations()->get(0)->getPropertyPath());
-            }
-        }
-
-        static::assertNull($this->ruleRepository->search(new Criteria([$id]), $this->context)->get($id));
-    }
-
-    public function testWriteRuleWithInconsistentCondition(): void
-    {
-        $id = Uuid::uuid4()->getHex();
-        $conditionId1 = Uuid::uuid4()->getHex();
-        $conditionId2 = Uuid::uuid4()->getHex();
-
-        $data = [
-            'id' => $id,
-            'name' => 'test rule',
-            'priority' => 1,
-            'conditions' => [
-                [
-                    'id' => $conditionId1,
-                    'type' => (new MockIntRule())->getName(),
-                    'children' => [
-                        [
-                            'id' => $conditionId2,
-                            'type' => (new MockIntRule())->getName(),
-                        ],
-                    ],
-                ],
-            ],
-        ];
-        try {
-            $this->ruleRepository->create([$data], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(2, $exception->getViolations());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId1 . '/property', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
-                static::assertSame('/conditions/' . $conditionId2 . '/property', $exception->getViolations()->get(1)->getPropertyPath());
-            }
-        }
-
-        static::assertNull($this->ruleRepository->search(new Criteria([$id]), $this->context)->get($id));
-    }
-
-    public function testWriteMultiRulesWithOneInconsistentCondition(): void
-    {
-        $ruleId = Uuid::uuid4()->getHex();
-        $ruleId2 = Uuid::uuid4()->getHex();
-        $conditionId = Uuid::uuid4()->getHex();
-
-        $data = [
-            'id' => $ruleId,
-            'name' => 'test rule',
-            'priority' => 1,
-            'conditions' => [
-                [
-                    'id' => $conditionId,
-                    'type' => (new MockIntRule())->getName(),
-                ],
-            ],
-        ];
-
-        $data2 = [
-            'id' => $ruleId2,
-            'name' => 'test rule 2',
-            'priority' => 2,
-        ];
-
-        try {
-            $this->ruleRepository->create([$data, $data2], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId . '/property', $exception->getViolations()->get(0)->getPropertyPath());
-            }
-        }
-        $result = $this->ruleRepository->search(new Criteria([$ruleId, $ruleId2]), $this->context);
-
-        static::assertNull($result->get($ruleId));
-        static::assertNull($result->get($ruleId2));
-    }
-
-    public function testWriteConditionWithInconsistentConditions(): void
-    {
-        $ruleId = Uuid::uuid4()->getHex();
-        $this->ruleRepository->create(
-            [
-                [
-                    'id' => $ruleId,
-                    'name' => 'test rule',
-                    'priority' => 1,
-                ],
-            ], $this->context
+        $this->context = WriteContext::createFromContext(Context::createDefaultContext());
+        $symfonyValidator = $this->getContainer()->get('validator');
+        $this->conditionRegistry = $this->createMock(ConditionRegistry::class);
+        $this->treeValidator = new ConditionTreeValidator(
+            $symfonyValidator, $this->conditionRegistry, RuleDefinition::class
         );
-        $conditionId1 = Uuid::uuid4()->getHex();
-        $conditionId2 = Uuid::uuid4()->getHex();
-
-        $data = [
-            'id' => $conditionId1,
-            'ruleId' => $ruleId,
-            'type' => (new MockIntRule())->getName(),
-            'children' => [
-                [
-                    'id' => $conditionId2,
-                    'ruleId' => $ruleId,
-                    'type' => (new MockIntRule())->getName(),
-                ],
-            ],
-        ];
-        try {
-            $this->conditionRepository->create([$data], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(2, $exception->getViolations());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId1 . '/property', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
-                static::assertSame('/conditions/' . $conditionId2 . '/property', $exception->getViolations()->get(1)->getPropertyPath());
-            }
-        }
-
-        static::assertNull($this->conditionRepository->search(new Criteria([$conditionId1]), $this->context)->get($conditionId1));
     }
 
-    public function testWriteConditionWithInconsistentChildCondition(): void
+    public function testInsertInvalidType()
     {
-        $ruleId = Uuid::uuid4()->getHex();
-        $this->ruleRepository->create(
-            [
-                [
-                    'id' => $ruleId,
-                    'name' => 'test rule',
-                    'priority' => 1,
-                ],
-            ], $this->context
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new InsertCommand(
+            RuleDefinition::class, ['type' => 'false'], ['id' => $id],
+            $this->createMock(EntityExistence::class)
+        );
+        static::expectException(ConstraintViolationException::class);
+        try {
+            $this->treeValidator->preValidate($commands, $this->context);
+            $this->fail('Exception was not thrown');
+        } catch (ConstraintViolationException $constraintViolationException) {
+            static::assertCount(1, $constraintViolationException->getViolations());
+            static::assertSame(
+                'This "type" value (false) is invalid.',
+                $constraintViolationException->getViolations()->get(0)->getMessage()
+            );
+            throw $constraintViolationException;
+        }
+    }
+
+    public function testUpdateInvalidType()
+    {
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new UpdateCommand(
+            RuleDefinition::class, ['id' => $id], ['type' => 'false'],
+            $this->createMock(EntityExistence::class)
+        );
+        static::expectException(ConstraintViolationException::class);
+        try {
+            $this->treeValidator->preValidate($commands, $this->context);
+            $this->fail('Exception was not thrown');
+        } catch (ConstraintViolationException $constraintViolationException) {
+            static::assertCount(1, $constraintViolationException->getViolations());
+            static::assertSame(
+                'This "type" value (false) is invalid.',
+                $constraintViolationException->getViolations()->get(0)->getMessage()
+            );
+            throw $constraintViolationException;
+        }
+    }
+
+    public function testInsertRequiredField()
+    {
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new InsertCommand(
+            RuleDefinition::class, ['type' => 'type'], ['id' => $id], $this->createMock(EntityExistence::class)
         );
 
-        $id = Uuid::uuid4()->getHex();
-        $conditionId2 = Uuid::uuid4()->getHex();
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
 
-        $data = [
-            'id' => $id,
-            'ruleId' => $ruleId,
-            'type' => (new MockOptionalStringArrayRule())->getName(),
-            'children' => [
-                [
-                    'id' => $conditionId2,
-                    'ruleId' => $ruleId,
-                    'type' => (new MockIntRule())->getName(),
-                ],
-            ],
-        ];
+        static::expectException(ConstraintViolationException::class);
         try {
-            $this->conditionRepository->create([$data], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId2 . '/property', $exception->getViolations()->get(0)->getPropertyPath());
-            }
+            $this->treeValidator->preValidate($commands, $this->context);
+            $this->fail('Exception was not thrown');
+        } catch (ConstraintViolationException $constraintViolationException) {
+            static::assertCount(1, $constraintViolationException->getViolations());
+            static::assertSame(
+                'This value should not be blank.', $constraintViolationException->getViolations()->get(0)->getMessage()
+            );
+            static::assertSame(
+                '/conditions/' . Uuid::fromBytesToHex($id) . '/field',
+                $constraintViolationException->getViolations()->get(0)->getPropertyPath()
+            );
+            throw $constraintViolationException;
         }
-
-        static::assertNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testWriteConditionWithInconsistentRootCondition(): void
+    public function testUpdateRequiredField()
     {
-        $ruleId = Uuid::uuid4()->getHex();
-        $this->ruleRepository->create(
-            [
-                [
-                    'id' => $ruleId,
-                    'name' => 'test rule',
-                    'priority' => 1,
-                ],
-            ], $this->context
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new UpdateCommand(
+            RuleDefinition::class, ['id' => $id], ['type' => 'type'], $this->createMock(EntityExistence::class)
         );
 
-        $conditionId = Uuid::uuid4()->getHex();
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
 
-        $data = [
-            'id' => $conditionId,
-            'ruleId' => $ruleId,
-            'type' => (new MockIntRule())->getName(),
-            'children' => [
-                [
-                    'ruleId' => $ruleId,
-                    'type' => (new MockOptionalStringArrayRule())->getName(),
-                ],
-            ],
-        ];
+        static::expectException(ConstraintViolationException::class);
         try {
-            $this->conditionRepository->create([$data], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId . '/property', $exception->getViolations()->get(0)->getPropertyPath());
-            }
+            $this->treeValidator->preValidate($commands, $this->context);
+            $this->fail('Exception was not thrown');
+        } catch (ConstraintViolationException $constraintViolationException) {
+            static::assertCount(1, $constraintViolationException->getViolations());
+            static::assertSame(
+                'This value should not be blank.', $constraintViolationException->getViolations()->get(0)->getMessage()
+            );
+            static::assertSame(
+                '/conditions/' . Uuid::fromBytesToHex($id) . '/field',
+                $constraintViolationException->getViolations()->get(0)->getPropertyPath()
+            );
+            throw $constraintViolationException;
         }
-
-        static::assertNull($this->conditionRepository->search(new Criteria([$conditionId]), $this->context)->get($conditionId));
     }
 
-    public function testWriteConditionWithAdditionalFields(): void
+    public function testInsertOptionalField()
     {
-        $ruleId = Uuid::uuid4()->getHex();
-        $this->ruleRepository->create(
-            [
-                [
-                    'id' => $ruleId,
-                    'name' => 'test rule',
-                    'priority' => 1,
-                ],
-            ], $this->context
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new InsertCommand(
+            RuleDefinition::class, ['type' => 'type'], ['id' => $id], $this->createMock(EntityExistence::class)
         );
 
-        $conditionId = Uuid::uuid4()->getHex();
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(
+            ['field' => [new Type('string'), new Choice(['=', '!='])]]
+        );
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
 
-        $data = [
-            'id' => $conditionId,
-            'ruleId' => $ruleId,
-            'type' => (new MockIntRule())->getName(),
-            'value' => [
-                'property' => 42,
-                'invalidProp' => 23,
-            ],
-        ];
-        try {
-            $this->conditionRepository->create([$data], $this->context);
-            static::fail('Exception should be thrown');
-        } catch (WriteStackException $stackException) {
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertInstanceOf(ConstraintViolationException::class, $exception);
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('The property "invalidProp" is not allowed.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId . '/invalidProp', $exception->getViolations()->get(0)->getPropertyPath());
-            }
-        }
-
-        static::assertNull($this->conditionRepository->search(new Criteria([$conditionId]), $this->context)->get($conditionId));
+        $this->treeValidator->preValidate($commands, $this->context);
     }
 
-    public function testWriteRuleWithConsistentConditions(): void
+    public function testUpdateOptionalField()
     {
-        $id = Uuid::uuid4()->getHex();
-
-        $data = [
-            'id' => $id,
-            'name' => 'test rule',
-            'priority' => 1,
-            'conditions' => [
-                [
-                    'type' => (new MockOptionalStringArrayRule())->getName(),
-                    'children' => [
-                        [
-                            'type' => (new MockOptionalStringArrayRule())->getName(),
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $this->ruleRepository->create([$data], $this->context);
-        static::assertNotNull($this->ruleRepository->search(new Criteria([$id]), $this->context)->get($id));
-    }
-
-    public function testWriteConditionWithConsistentChildren(): void
-    {
-        $ruleId = Uuid::uuid4()->getHex();
-        $this->ruleRepository->create(
-            [
-                [
-                    'id' => $ruleId,
-                    'name' => 'test rule',
-                    'priority' => 1,
-                ],
-            ], $this->context
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new UpdateCommand(
+            RuleDefinition::class, ['id' => $id], ['type' => 'type'], $this->createMock(EntityExistence::class)
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(
+            ['field' => [new Type('string'), new Choice(['=', '!='])]]
+        );
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
 
-        $data = [
-            'id' => $id,
-            'ruleId' => $ruleId,
-            'type' => (new MockOptionalStringArrayRule())->getName(),
-            'children' => [
-                [
-                    'ruleId' => $ruleId,
-                    'type' => (new MockOptionalStringArrayRule())->getName(),
-                ],
-            ],
-        ];
-
-        $this->conditionRepository->create([$data], $this->context);
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        $this->treeValidator->preValidate($commands, $this->context);
     }
 
-    private function addMockRules(Rule ...$rules)
+    public function testInsertWithOptionalField()
     {
-        $registry = $this->getContainer()->get(RuleConditionRegistry::class);
-        $reflectionClass = new \ReflectionClass(RuleConditionRegistry::class);
-        $property = $reflectionClass->getProperty('rules');
-        $property->setAccessible(true);
-        $taggedRules = $property->getValue($registry);
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new InsertCommand(
+            RuleDefinition::class, ['type' => 'type', 'value' => json_encode(['field' => 'invalid'])],
+            ['id' => $id], $this->createMock(EntityExistence::class)
+        );
 
-        foreach ($rules as $rule) {
-            $taggedRules[$rule->getName()] = $rule;
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(
+            ['field' => [new Type('string'), new Choice(['valid'])]]
+        );
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
+
+        static::expectException(ConstraintViolationException::class);
+        try {
+            $this->treeValidator->preValidate($commands, $this->context);
+            $this->fail('Exception was not thrown');
+        } catch (ConstraintViolationException $constraintViolationException) {
+            static::assertCount(1, $constraintViolationException->getViolations());
+            static::assertSame(
+                'The value you selected is not a valid choice.',
+                $constraintViolationException->getViolations()->get(0)->getMessage()
+            );
+            static::assertSame(
+                '/conditions/' . Uuid::fromBytesToHex($id) . '/field',
+                $constraintViolationException->getViolations()->get(0)->getPropertyPath()
+            );
+            throw $constraintViolationException;
         }
-
-        $property->setValue($registry, $taggedRules);
-    }
-}
-
-class MockOptionalStringArrayRule extends Rule
-{
-    public function match(RuleScope $scope): Match
-    {
-        return new Match(true);
     }
 
-    public function getConstraints(): array
+    public function testUpdateWithOptionalField()
     {
-        return [
-            'property' => [new ArrayOfType('string')],
-        ];
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new UpdateCommand(
+            RuleDefinition::class, ['id' => $id],
+            ['type' => 'type', 'value' => json_encode(['field' => 'invalid'])],
+            $this->createMock(EntityExistence::class)
+        );
+
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(
+            ['field' => [new Type('string'), new Choice(['valid'])]]
+        );
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
+
+        static::expectException(ConstraintViolationException::class);
+        try {
+            $this->treeValidator->preValidate($commands, $this->context);
+            $this->fail('Exception was not thrown');
+        } catch (ConstraintViolationException $constraintViolationException) {
+            static::assertCount(1, $constraintViolationException->getViolations());
+            static::assertSame(
+                'The value you selected is not a valid choice.',
+                $constraintViolationException->getViolations()->get(0)->getMessage()
+            );
+            static::assertSame(
+                '/conditions/' . Uuid::fromBytesToHex($id) . '/field',
+                $constraintViolationException->getViolations()->get(0)->getPropertyPath()
+            );
+            throw $constraintViolationException;
+        }
     }
 
-    public function getName(): string
+    public function testInsertValid()
     {
-        return 'mockOptionalString';
-    }
-}
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new InsertCommand(
+            RuleDefinition::class, ['type' => 'type', 'value' => json_encode(['field' => 'valid'])],
+            ['id' => $id], $this->createMock(EntityExistence::class)
+        );
 
-class MockIntRule extends Rule
-{
-    public function match(RuleScope $scope): Match
-    {
-        return new Match(true);
-    }
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
 
-    public function getConstraints(): array
-    {
-        return [
-            'property' => [new NotBlank(), new Type('int')],
-        ];
+        $this->treeValidator->preValidate($commands, $this->context);
     }
 
-    public function getName(): string
+    public function testUpdateValid()
     {
-        return 'mockInt';
+        $id = Uuid::uuid4()->getBytes();
+        $commands = [];
+        $commands[] = new UpdateCommand(
+            RuleDefinition::class, ['id' => $id],
+            ['type' => 'type', 'value' => json_encode(['field' => 'valid'])], $this->createMock(EntityExistence::class)
+        );
+
+        $instance = $this->createMock(Rule::class);
+        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects($this->once())->method('getInstance')->with('type')->willReturn($instance);
+
+        $this->treeValidator->preValidate($commands, $this->context);
     }
 }

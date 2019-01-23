@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
-use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamCondition\ProductStreamConditionCollection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\ProductStream\ProductStream;
 
 class ProductStreamEntity extends Entity
 {
@@ -26,9 +25,9 @@ class ProductStreamEntity extends Entity
     protected $priority;
 
     /**
-     * @var ProductStream|null
+     * @var array|null
      */
-    protected $payload;
+    protected $filter;
 
     /**
      * @var \DateTime
@@ -41,9 +40,9 @@ class ProductStreamEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @var ProductStreamConditionCollection|null
+     * @var ProductStreamFilterCollection|null
      */
-    protected $conditions;
+    protected $filters;
 
     /**
      * @var bool
@@ -90,14 +89,14 @@ class ProductStreamEntity extends Entity
         $this->priority = $priority;
     }
 
-    public function getPayload(): ?ProductStream
+    public function getFilter(): ?array
     {
-        return $this->payload;
+        return $this->filter;
     }
 
-    public function setPayload(?ProductStream $payload): void
+    public function setFilter(?array $filter): void
     {
-        $this->payload = $payload;
+        $this->filter = $filter;
     }
 
     public function getUpdatedAt(): ?\DateTime
@@ -110,14 +109,14 @@ class ProductStreamEntity extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getConditions(): ?ProductStreamConditionCollection
+    public function getFilters(): ?ProductStreamFilterCollection
     {
-        return $this->conditions;
+        return $this->filters;
     }
 
-    public function setConditions(ProductStreamConditionCollection $conditions): void
+    public function setFilters(ProductStreamFilterCollection $filters): void
     {
-        $this->conditions = $conditions;
+        $this->filters = $filters;
     }
 
     public function isInvalid(): bool

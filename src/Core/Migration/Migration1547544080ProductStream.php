@@ -18,15 +18,14 @@ class Migration1547544080ProductStream extends MigrationStep
             CREATE TABLE `product_stream` (
               `id` binary(16) NOT NULL,
               `name` varchar(500) NOT NULL,
-              `type` VARCHAR(256) NULL,
               `description` LONGTEXT NULL,
               `priority` int(11) NOT NULL,
-              `payload` JSON NULL,
+              `filter` JSON NULL,
               `invalid` TINYINT(1) NULL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
+              CONSTRAINT `json.filter` CHECK (JSON_VALID(`filter`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

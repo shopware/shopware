@@ -42,6 +42,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Faker\Commerce;
@@ -59,6 +60,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
+use function Flag\next739;
 
 class DemodataCommand extends Command
 {
@@ -220,6 +222,10 @@ class DemodataCommand extends Command
         $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', 100);
         $this->addOption('properties', '', InputOption::VALUE_REQUIRED, 'Property group count (option count rand(30-300)', 10);
 
+        if (next739()) {
+            $this->addOption('product-streams', 'ps', InputOption::VALUE_REQUIRED, 'Product streams count', 10);
+        }
+
         $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 0);
         $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables services for products', 1);
         $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
@@ -242,8 +248,6 @@ class DemodataCommand extends Command
 
         $ruleIds = $this->createRules();
 
-        //$this->createProductStreams();
-
         $this->createCustomer($input->getOption('customers'));
 
         try {
@@ -258,7 +262,7 @@ class DemodataCommand extends Command
 
         $manufacturer = $this->createManufacturer($input->getOption('manufacturers'));
 
-        $this->createProduct(
+        $products = $this->createProduct(
             $categories,
             $manufacturer,
             $ruleIds,
@@ -267,6 +271,10 @@ class DemodataCommand extends Command
             (int) $input->getOption('with-configurator') === 1,
             (int) $input->getOption('with-services') === 1
         );
+
+        if (next739()) {
+            $this->createProductStreams((int) $input->getOption('product-streams'), $categories, $manufacturer, $products);
+        }
 
         $this->createOrders((int) $input->getOption('orders'));
 
@@ -456,7 +464,8 @@ class DemodataCommand extends Command
         bool $withMedia = false,
         bool $withConfigurator = false,
         bool $withServices = false
-    ): void {
+    ): array {
+        $productIds = [];
         $payload = [];
         $productImages = [];
 
@@ -583,6 +592,7 @@ class DemodataCommand extends Command
             if (\count($payload) >= 50) {
                 $this->io->progressAdvance(\count($payload));
                 $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
+                $productIds = array_merge($productIds, array_column($payload, 'id'));
                 $importImages();
                 $payload = [];
             }
@@ -590,10 +600,13 @@ class DemodataCommand extends Command
 
         if (!empty($payload)) {
             $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
+            $productIds = array_merge($productIds, array_column($payload, 'id'));
             $importImages();
         }
 
         $this->io->progressFinish();
+
+        return $productIds;
     }
 
     private function createManufacturer($count = 50)
@@ -691,74 +704,52 @@ class DemodataCommand extends Command
         return array_column($payload, 'id');
     }
 
-    /** TODO: change demo data (rule clone) */
-    private function createProductStreams(): void
+    private function createProductStreams(int $count, array $categories, array $manufacturer, array $products): void
     {
-        $ids = $this->productStreamRepository->searchIds(new Criteria(), Context::createDefaultContext());
-
-        if (!empty($ids->getIds())) {
-            return;
-        }
+        $this->io->section(sprintf('Generating %d product streams...', $count));
+        $this->io->progressStart($count);
 
         $pool = [
-            [
-                'rule' => new IsNewCustomerRule(),
-                'name' => 'New customer',
-            ],
-            [
-                'rule' => (new DateRangeRule())->assign(['fromDate' => new DateTime(), 'toDate' => (new DateTime())->modify('+2 day')]),
-                'name' => 'Next two days',
-            ],
-            [
-                'rule' => (new GoodsPriceRule())->assign(['amount' => 5000, 'operator' => GoodsPriceRule::OPERATOR_GTE]),
-                'name' => 'Cart >= 5000',
-            ],
-            [
-                'rule' => (new CustomerGroupRule())->assign(['customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]),
-                'name' => 'Default group',
-            ],
-            [
-                'rule' => (new CurrencyRule())->assign(['currencyIds' => [Defaults::CURRENCY]]),
-                'name' => 'Default currency',
-            ],
+            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::GTE => rand(1, 1000)]],
+            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::GTE => rand(1, 1000)]],
+            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GTE => rand(1, 1000)]],
+            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::LTE => rand(1, 1000)]],
+            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::LTE => rand(1, 1000)]],
+            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::LTE => rand(1, 1000)]],
+            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::GT => rand(1, 500), RangeFilter::LT => rand(500, 1000)]],
+            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::GT => rand(1, 500), RangeFilter::LT => rand(500, 1000)]],
+            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GT => rand(1, 500), RangeFilter::LT => rand(500, 1000)]],
+            ['field' => 'stock', 'type' => 'equals', 'value' => '1000'],
+            ['field' => 'maxDeliveryTime', 'type' => 'range', 'parameters' => [RangeFilter::LT => rand(0, 5)]],
+            ['field' => 'name', 'type' => 'contains', 'value' => 'Awesome'],
+            ['field' => 'categories.id', 'type' => 'equalsAny', 'value' => join('|', [$categories[random_int(0, \count($categories) - 1)], $categories[random_int(0, \count($categories) - 1)]])],
+            ['field' => 'id', 'type' => 'equalsAny', 'value' => join('|', [$products[random_int(0, \count($products) - 1)], $products[random_int(0, \count($products) - 1)]])],
+            ['field' => 'manufacturerId', 'type' => 'equals', 'value' => $manufacturer[random_int(0, \count($manufacturer) - 1)]],
         ];
+
+        $pool[] = ['type' => 'multi', 'queries' => [$pool[random_int(0, \count($pool) - 1)], $pool[random_int(0, \count($pool) - 1)]]];
+        $pool[] = ['type' => 'multi', 'operator' => 'OR', 'queries' => [$pool[random_int(0, \count($pool) - 1)], $pool[random_int(0, \count($pool) - 1)]]];
 
         $payload = [];
-        for ($i = 0; $i < 20; ++$i) {
-            $rules = \array_slice($pool, random_int(0, \count($pool) - 2), random_int(1, 2));
+        for ($i = 0; $i < $count; ++$i) {
+            $filters = [];
 
-            $classes = array_column($rules, 'rule');
-            $names = array_column($rules, 'name');
+            for ($j = 0; $j < random_int(1, 5); ++$j) {
+                $filters[] = $pool[random_int(0, \count($pool) - 1)];
+            }
 
-            $ruleData = [
+            $payload[] = [
                 'id' => Uuid::uuid4()->getHex(),
-                'priority' => $i,
-                'name' => implode(' + ', $names),
+                'priority' => $this->faker->numberBetween(0, 200),
+                'name' => $this->faker->productName,
                 'description' => $this->faker->text(),
+                'filters' => [['type' => 'multi', 'operator' => 'OR', 'queries' => $filters]],
             ];
-
-            $ruleData['conditions'][] = $this->buildChildRule(null, (new OrRule())->assign(['rules' => $classes]));
-
-            $payload[] = $ruleData;
         }
 
-        // nested condition
-        $nestedRule = new OrRule();
-
-        $nestedRuleData = [
-            'id' => Uuid::uuid4()->getHex(),
-            'priority' => 20,
-            'name' => 'nested rule',
-            'description' => $this->faker->text(),
-        ];
-
-        $this->buildNestedRule($nestedRule, $pool, 0, 6);
-
-        $nestedRuleData['conditions'][] = $this->buildChildRule(null, $nestedRule);
-
-        $payload[] = $nestedRuleData;
-
         $this->writer->insert(ProductStreamDefinition::class, $payload, $this->getContext());
+
+        $this->io->progressFinish();
     }
 
     private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule

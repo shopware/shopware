@@ -1165,6 +1165,11 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\QueriesAssociationFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\PayloadIndexer;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -31,7 +32,7 @@ class RulePayloadIndexerTest extends TestCase
     private $repository;
 
     /**
-     * @var RulePayloadIndexer
+     * @var PayloadIndexer
      */
     private $indexer;
 

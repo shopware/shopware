@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ConditionTree;
+namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Framework\ConditionTree\ConditionRegistry;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
 use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
@@ -16,7 +18,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class ConditionTreeValidator implements WriteCommandValidatorInterface
+class RuleValidator implements WriteCommandValidatorInterface
 {
     /**
      * @var ValidatorInterface
@@ -24,23 +26,14 @@ class ConditionTreeValidator implements WriteCommandValidatorInterface
     private $validator;
 
     /**
-     * @var ConditionRegistry
+     * @var RuleConditionRegistry
      */
-    private $conditionRegistry;
+    private $ruleConditionRegistry;
 
-    /**
-     * @var string
-     */
-    private $conditionDefinitionClass;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ConditionRegistry $conditionRegistry,
-        string $conditionDefinitionClass
-    ) {
+    public function __construct(ValidatorInterface $validator, RuleConditionRegistry $ruleConditionRegistry)
+    {
         $this->validator = $validator;
-        $this->conditionRegistry = $conditionRegistry;
-        $this->conditionDefinitionClass = $conditionDefinitionClass;
+        $this->ruleConditionRegistry = $ruleConditionRegistry;
     }
 
     /**
@@ -50,7 +43,7 @@ class ConditionTreeValidator implements WriteCommandValidatorInterface
     {
         $violationList = new ConstraintViolationList();
         foreach ($commands as $command) {
-            if (!($command instanceof InsertCommand || $command instanceof UpdateCommand) || $command->getDefinition() !== $this->conditionDefinitionClass) {
+            if (!($command instanceof InsertCommand || $command instanceof UpdateCommand) || $command->getDefinition() !== RuleConditionDefinition::class) {
                 continue;
             }
 
@@ -64,7 +57,7 @@ class ConditionTreeValidator implements WriteCommandValidatorInterface
                 $type = $payload['type'];
             }
 
-            if (!$this->isConditionTree($type)) {
+            if (!$this->isRule($type)) {
                 $violationList->add(
                     $this->buildViolation(
                         'This "type" value (%value%) is invalid.',
@@ -76,8 +69,9 @@ class ConditionTreeValidator implements WriteCommandValidatorInterface
                 continue;
             }
 
-            $conditionTree = $this->conditionRegistry->getInstance($type);
-            $validations = $conditionTree->getConstraints();
+            /** @var Rule $rule */
+            $rule = $this->ruleConditionRegistry->getRuleInstance($type);
+            $validations = $rule->getConstraints();
 
             $violationList->addAll($this->validateConsistence($basePath, $validations, $this->extractValue($payload)));
         }
@@ -100,13 +94,13 @@ class ConditionTreeValidator implements WriteCommandValidatorInterface
         }
     }
 
-    private function isConditionTree(?string $type): bool
+    private function isRule(?string $type): bool
     {
         if (!$type) {
             return false;
         }
 
-        return $this->conditionRegistry->has($type);
+        return $this->ruleConditionRegistry->has($type);
     }
 
     private function extractValue(array $payload): array

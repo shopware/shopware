@@ -6,4 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class ProductStreamFilterCollection extends EntityCollection
 {
+    protected function getExpectedClass(): string
+    {
+        return ProductStreamFilterEntity::class;
+    }
 }

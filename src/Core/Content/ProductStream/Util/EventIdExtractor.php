@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Content\ProductStream\Util;
 
-use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\EventIdExtractorInterface;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\ProductStream\ProductStreamCondition;
 
-class EventIdExtractor implements EventIdExtractorInterface
+class EventIdExtractor
 {
-    public function getEntityIds(EntityWrittenContainerEvent $generic): array
+    public function getProductStreamIds(EntityWrittenContainerEvent $generic): array
     {
         $ids = [];
 
-        $event = $generic->getEventByDefinition(ProductStreamCondition::class);
+        $event = $generic->getEventByDefinition(ProductStreamDefinition::class);
         if ($event) {
             $ids = $event->getIds();
         }

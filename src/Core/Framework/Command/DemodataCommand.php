@@ -740,7 +740,6 @@ class DemodataCommand extends Command
 
             $payload[] = [
                 'id' => Uuid::uuid4()->getHex(),
-                'priority' => $this->faker->numberBetween(0, 200),
                 'name' => $this->faker->productName,
                 'description' => $this->faker->text(),
                 'filters' => [['type' => 'multi', 'operator' => 'OR', 'queries' => $filters]],

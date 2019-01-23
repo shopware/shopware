@@ -3,18 +3,17 @@
 namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\EventIdExtractorInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -53,19 +52,19 @@ class ProductStreamFilterIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var EventIdExtractorInterface
+     * @var EventIdExtractor
      */
     private $eventIdExtractor;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractorInterface $eventIdExtractor,
-        RepositoryInterface $repository,
+        EventIdExtractor $eventIdExtractor,
+        EntityRepositoryInterface $repository,
         Connection $connection,
         Serializer $serializer,
         EntityCacheKeyGenerator $cacheKeyGenerator,
@@ -107,7 +106,7 @@ class ProductStreamFilterIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $ids = $this->eventIdExtractor->getEntityIds($event);
+        $ids = $this->eventIdExtractor->getProductStreamIds($event);
         $this->update($ids);
     }
 
@@ -171,9 +170,6 @@ class ProductStreamFilterIndexer implements IndexerInterface
         $this->cache->invalidateTags($tags);
     }
 
-    /**
-     * @throws UnsupportedOperatorException
-     */
     protected function buildNested(array $entities, ?string $parentId): array
     {
         $nested = [];

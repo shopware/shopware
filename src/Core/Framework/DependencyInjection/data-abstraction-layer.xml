@@ -880,8 +880,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product_stream_condition.repository" public="true">
-            <argument>Shopware\Core\Content\ProductStream\Aggregate\ProductStreamCondition\ProductStreamConditionDefinition</argument>
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product_stream_filter.repository" public="true">
+            <argument>Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
@@ -1161,11 +1161,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ChildrenAssociationFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\QueriesAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <tag name="shopware.field_serializer"/>
         </service>

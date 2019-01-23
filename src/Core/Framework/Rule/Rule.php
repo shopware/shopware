@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Framework\ConditionTree\ConditionInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
-abstract class Rule extends Struct implements ConditionInterface
+abstract class Rule extends Struct
 {
     public const OPERATOR_GTE = '>=';
 

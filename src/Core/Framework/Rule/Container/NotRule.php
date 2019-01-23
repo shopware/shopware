@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
-use Shopware\Core\Framework\ConditionTree\ConditionInterface;
 use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
@@ -11,15 +11,15 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class NotRule extends Container
 {
-    public function addChild(ConditionInterface $rule): void
+    public function addRule(Rule $rule): void
     {
-        parent::addChild($rule);
+        parent::addRule($rule);
         $this->checkRules();
     }
 
-    public function setChildren(array $rules): void
+    public function setRules(array $rules): void
     {
-        parent::setChildren(array_values($rules));
+        parent::setRules(array_values($rules));
         $this->checkRules();
     }
 

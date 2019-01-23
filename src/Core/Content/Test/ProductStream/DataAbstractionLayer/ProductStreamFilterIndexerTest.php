@@ -5,15 +5,14 @@ namespace Shopware\Core\Content\Test\ProductStream\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\EventIdExtractorInterface;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamFilterIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
-use Shopware\Core\Framework\ConditionTree\ConditionRegistry;
+use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -28,19 +27,14 @@ class ProductStreamFilterIndexerTest extends TestCase
         DatabaseTransactionBehaviour;
 
     /**
-     * @var EventIdExtractorInterface|MockObject
+     * @var EventIdExtractor|MockObject
      */
     private $eventIdExtractor;
 
     /**
-     * @var RepositoryInterface|MockObject
+     * @var EntityRepositoryInterface|MockObject
      */
     private $repository;
-
-    /**
-     * @var ConditionRegistry|MockObject
-     */
-    private $conditionRegistry;
 
     /**
      * @var ProductStreamFilterIndexer
@@ -53,7 +47,7 @@ class ProductStreamFilterIndexerTest extends TestCase
     private $connection;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepo;
 
@@ -67,8 +61,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->productRepo = $this->getContainer()->get('product.repository');
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->eventIdExtractor = $this->createMock(EventIdExtractorInterface::class);
-        $this->conditionRegistry = $this->createMock(ConditionRegistry::class);
+        $this->eventIdExtractor = $this->createMock(EventIdExtractor::class);
         $this->repository = $this->getContainer()->get('product_stream.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $serializer = $this->getContainer()->get('serializer');
@@ -96,7 +89,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         );
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, priority, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', 1, NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
         );
         $this->connection->exec(
             sprintf(
@@ -105,11 +98,11 @@ class ProductStreamFilterIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getEntityIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($entity->getFilter());
         static::assertCount(1, $entity->getFilter());
         static::assertSame('equals', $entity->getFilter()[0]['type']);
@@ -134,7 +127,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         );
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, priority, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', 1, NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -150,11 +143,11 @@ class ProductStreamFilterIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getEntityIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($entity->getFilter());
         static::assertCount(1, $entity->getFilter());
         static::assertSame('multi', $entity->getFilter()[0]['type']);
@@ -182,7 +175,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         );
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, priority, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', 1, NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -192,12 +185,12 @@ class ProductStreamFilterIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getEntityIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($entity->getFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -218,7 +211,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         );
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, priority, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', 1, NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -228,12 +221,12 @@ class ProductStreamFilterIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getEntityIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($entity->getFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -254,7 +247,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         );
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, priority, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', 1, NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -264,12 +257,12 @@ class ProductStreamFilterIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getEntityIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($entity->getFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -290,7 +283,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         );
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, priority, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', 1, NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -300,12 +293,12 @@ class ProductStreamFilterIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getEntityIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->repository->read(new ReadCriteria([$id]), $this->context)->get($id);
+        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($entity->getFilter());
         static::assertCount(1, $entity->getFilter());
         static::assertSame('range', $entity->getFilter()[0]['type']);

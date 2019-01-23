@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Content\Rule\Util;
 
-use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\EventIdExtractorInterface;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 
-class EventIdExtractor implements EventIdExtractorInterface
+class EventIdExtractor
 {
-    public function getEntityIds(EntityWrittenContainerEvent $generic): array
+    public function getRuleIds(EntityWrittenContainerEvent $generic): array
     {
         $ids = [];
 

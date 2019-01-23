@@ -3,28 +3,34 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
-use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\EventIdExtractorInterface;
-use Shopware\Core\Content\ConditionTree\DataAbstractionLayer\Indexing\PayloadIndexer;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\ConditionTree\ConditionRegistry;
+use Shopware\Core\Content\Rule\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\Serializer;
 
-class RulePayloadIndexer extends PayloadIndexer implements EventSubscriberInterface
+class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 {
     /**
      * @var Connection
@@ -32,35 +38,58 @@ class RulePayloadIndexer extends PayloadIndexer implements EventSubscriberInterf
     private $connection;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var EventIdExtractor
+     */
+    private $eventIdExtractor;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $ruleRepository;
+
+    /**
      * @var Serializer
      */
     private $serializer;
 
     /**
-     * @var EntityCacheKeyGenerator
+     * @var RuleConditionRegistry
      */
-    private $cacheKeyGenerator;
+    private $ruleConditionRegistry;
 
     /**
      * @var TagAwareAdapter
      */
     private $cache;
 
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
+
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        EventIdExtractorInterface $eventIdExtractor,
-        RepositoryInterface $repository,
-        ConditionRegistry $conditionRegistry,
         Connection $connection,
+        EventDispatcherInterface $eventDispatcher,
+        EventIdExtractor $eventIdExtractor,
+        EntityRepositoryInterface $ruleRepository,
         Serializer $serializer,
+        RuleConditionRegistry $ruleConditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache
     ) {
-        parent::__construct($eventDispatcher, $eventIdExtractor, $repository, $conditionRegistry);
         $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->eventIdExtractor = $eventIdExtractor;
+        $this->ruleRepository = $ruleRepository;
         $this->serializer = $serializer;
-        $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->ruleConditionRegistry = $ruleConditionRegistry;
         $this->cache = $cache;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
     public static function getSubscribedEvents()
@@ -68,6 +97,37 @@ class RulePayloadIndexer extends PayloadIndexer implements EventSubscriberInterf
         return [
             '/** TODO **/' => 'refreshPlugin',
         ];
+    }
+
+    public function index(\DateTime $timestamp): void
+    {
+        $context = Context::createDefaultContext();
+
+        $iterator = $this->createIterator($context);
+
+        $this->eventDispatcher->dispatch(
+            ProgressStartedEvent::NAME,
+            new ProgressStartedEvent('Start indexing rules', $iterator->getTotal())
+        );
+
+        while ($ids = $iterator->fetchIds()) {
+            $this->update($ids);
+            $this->eventDispatcher->dispatch(
+                ProgressAdvancedEvent::NAME,
+                new ProgressAdvancedEvent(\count($ids))
+            );
+        }
+
+        $this->eventDispatcher->dispatch(
+            ProgressFinishedEvent::NAME,
+            new ProgressFinishedEvent('Finished indexing rules')
+        );
+    }
+
+    public function refresh(EntityWrittenContainerEvent $event): void
+    {
+        $ids = $this->eventIdExtractor->getRuleIds($event);
+        $this->update($ids);
     }
 
     public function refreshPlugin(Context $context): void
@@ -78,22 +138,22 @@ class RulePayloadIndexer extends PayloadIndexer implements EventSubscriberInterf
                 MultiFilter::CONNECTION_OR, [
                     new NotFilter(
                         NotFilter::CONNECTION_AND,
-                        [new EqualsAnyFilter('rule.conditions.type', $this->conditionRegistry->getNames())]
+                        [new EqualsAnyFilter('rule.conditions.type', $this->ruleConditionRegistry->getNames())]
                     ),
                     new EqualsFilter('rule.invalid', true),
                 ]
             )
         );
 
-        $this->update($this->repository->searchIds($criteria, $context)->getIds());
+        $this->update($this->ruleRepository->searchIds($criteria, $context)->getIds());
     }
 
-    protected function getEntityDescription(): string
+    private function createIterator(Context $context): RepositoryIterator
     {
-        return 'rule';
+        return new RepositoryIterator($this->ruleRepository, $context);
     }
 
-    protected function update(array $ids): void
+    private function update(array $ids): void
     {
         if (empty($ids)) {
             return;
@@ -142,5 +202,38 @@ class RulePayloadIndexer extends PayloadIndexer implements EventSubscriberInterf
         }
 
         $this->cache->invalidateTags($tags);
+    }
+
+    private function buildNested(array $rules, ?string $parentId): array
+    {
+        $nested = [];
+        foreach ($rules as $rule) {
+            if ($rule['parent_id'] !== $parentId) {
+                continue;
+            }
+
+            if (!$this->ruleConditionRegistry->has($rule['type'])) {
+                throw new ConditionTypeNotFound($rule['type']);
+            }
+
+            $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['type']);
+            $object = new $ruleClass();
+
+            if ($rule['value'] !== null) {
+                /* @var Rule $object */
+                $object->assign(json_decode($rule['value'], true));
+            }
+
+            if ($object instanceof Container) {
+                $children = $this->buildNested($rules, $rule['id']);
+                foreach ($children as $child) {
+                    $object->addRule($child);
+                }
+            }
+
+            $nested[] = $object;
+        }
+
+        return $nested;
     }
 }

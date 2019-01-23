@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ConditionTree;
+namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\ShopwareException;
 

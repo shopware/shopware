@@ -24,11 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
 class RuleDefinition extends EntityDefinition
 {
-    const ENTITY_NAME = 'rule';
-
     public static function getEntityName(): string
     {
-        return self::ENTITY_NAME;
+        return 'rule';
     }
 
     public static function getCollectionClass(): string

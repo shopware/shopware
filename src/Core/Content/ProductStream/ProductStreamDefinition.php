@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -41,7 +40,6 @@ class ProductStreamDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            (new IntField('priority', 'priority'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
             (new JsonField('filter', 'filter'))->setFlags(new ReadOnly()),
             (new BoolField('invalid', 'invalid'))->setFlags(new ReadOnly()),

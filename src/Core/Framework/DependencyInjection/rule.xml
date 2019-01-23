@@ -3,8 +3,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service class="Shopware\Core\Framework\ConditionTree\ConditionRegistry"
-                 id="rule.condition_registry">
+        <service id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry">
             <argument type="tagged" tag="rule.definition"/>
         </service>
 

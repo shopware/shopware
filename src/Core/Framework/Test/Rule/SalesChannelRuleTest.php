@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
@@ -20,12 +20,12 @@ class SalesChannelRuleTest extends TestCase
         DatabaseTransactionBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $ruleRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $conditionRepository;
 
@@ -207,8 +207,8 @@ class SalesChannelRuleTest extends TestCase
         );
 
         static::assertCount(
-            2, $this->conditionRepository->read(
-            new ReadCriteria([$conditionIdEq, $conditionIdNEq]), $this->context
+            2, $this->conditionRepository->search(
+            new Criteria([$conditionIdEq, $conditionIdNEq]), $this->context
         )
         );
     }
@@ -263,6 +263,6 @@ class SalesChannelRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 }

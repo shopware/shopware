@@ -159,9 +159,9 @@ To limit the number of results returned, you can use the `setOffset` and `setLim
 <?php declare(strict_types=1);
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
-/** @var RepositoryInterface $repository */
+/** @var EntityRepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
 
 $criteria = new Criteria();
@@ -237,9 +237,9 @@ Let's start with a simple filtered list of products and filter products which ar
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
-/** @var RepositoryInterface $repository */
+/** @var EntityRepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
 
 $criteria = new Criteria();
@@ -493,9 +493,8 @@ The following script shows two ways:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -510,7 +509,7 @@ $ids = $repository->searchIds(
 
 // batch variant
 $basics = $repository->read(
-    new ReadCriteria($ids->getIds()), 
+    new Criteria($ids->getIds()), 
     $context
 );
 
@@ -518,7 +517,7 @@ $basics = $repository->read(
 // loop variant
 foreach ($ids->getIds() as $id) {
     $basics = $repository->read(
-        new ReadCriteria([$id]), 
+        new Criteria([$id]), 
         $context
     );
 }
@@ -581,7 +580,7 @@ that no read operation must take place before the data is written:
 <?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -608,7 +607,7 @@ To link an existing manufacturer or tax rate, you can simply supply the correspo
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -633,7 +632,7 @@ the corresponding foreign key must be sent along with the associated data array:
 <?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
@@ -1039,18 +1038,18 @@ be iterated to easily handle all records:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
 $ids = [
     '3aa78661e1ab4a2b94bb5e6ea85fdba7',
     '71d5b7df613f44e2a96ca3190a2b8173',
 ];
 
-/** @var RepositoryInterface $repository */
+/** @var EntityRepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
 
-$products = $repository->read(new ReadCriteria($ids), $context);
+$products = $repository->read(new Criteria($ids), $context);
 
 foreach ($products as $product) {
     echo $product->getName();
@@ -1061,8 +1060,8 @@ the collection's aggregated data:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Content\Product\ProductCollection;
 
 $ids = [
@@ -1071,11 +1070,11 @@ $ids = [
 ];
 
 
-/** @var RepositoryInterface $repository */
+/** @var EntityRepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
 
 /** @var ProductCollection $products */
-$products = $repository->read(new ReadCriteria($ids), $context);
+$products = $repository->read(new Criteria($ids), $context);
 
 $taxes = $products->getTaxes();
 

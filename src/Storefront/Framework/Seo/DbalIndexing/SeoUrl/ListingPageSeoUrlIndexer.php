@@ -10,9 +10,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
@@ -46,7 +45,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $applicationRepository;
 
@@ -56,7 +55,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $categoryRepository;
 
@@ -74,8 +73,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         Connection $connection,
         SlugifyInterface $slugify,
         RouterInterface $router,
-        RepositoryInterface $categoryRepository,
-        RepositoryInterface $applicationRepository,
+        EntityRepositoryInterface $categoryRepository,
+        EntityRepositoryInterface $applicationRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         CheckoutContextFactoryInterface $checkoutContextFactory
@@ -173,7 +172,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
             return;
         }
 
-        $categories = $this->categoryRepository->read(new ReadCriteria($ids), $context);
+        $categories = $this->categoryRepository->search(new Criteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getSourceContext()->getSalesChannelId());
 

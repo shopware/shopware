@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Tax\TaxCollection;
@@ -64,7 +64,7 @@ class CachedEntityReaderTest extends TestCase
 
         $cachedReader = new CachedEntityReader($cache, $dbalReader, $generator);
 
-        $criteria = new ReadCriteria([$id1, $id2]);
+        $criteria = new Criteria([$id1, $id2]);
 
         $context = Context::createDefaultContext();
 

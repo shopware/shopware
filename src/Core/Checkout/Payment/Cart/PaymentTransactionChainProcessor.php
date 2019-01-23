@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -24,12 +24,12 @@ class PaymentTransactionChainProcessor
     private $tokenFactory;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $paymentMethodRepository;
 
@@ -45,8 +45,8 @@ class PaymentTransactionChainProcessor
 
     public function __construct(
         TokenFactoryInterface $tokenFactory,
-        RepositoryInterface $orderRepository,
-        RepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $orderRepository,
+        EntityRepositoryInterface $paymentMethodRepository,
         RouterInterface $router,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
@@ -63,11 +63,11 @@ class PaymentTransactionChainProcessor
      */
     public function process(string $orderId, Context $context, ?string $finishUrl = null): ?RedirectResponse
     {
-        $criteria = new ReadCriteria([$orderId]);
+        $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('order.transactions');
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->read($criteria, $context)->first();
+        $order = $this->orderRepository->search($criteria, $context)->first();
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
@@ -102,7 +102,7 @@ class PaymentTransactionChainProcessor
      */
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
-        $paymentMethods = $this->paymentMethodRepository->read(new ReadCriteria([$paymentMethodId]), $context);
+        $paymentMethods = $this->paymentMethodRepository->search(new Criteria([$paymentMethodId]), $context);
 
         $paymentMethod = $paymentMethods->get($paymentMethodId);
         if (!$paymentMethod) {

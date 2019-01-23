@@ -6,8 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
@@ -19,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class StorefrontCategoryController extends AbstractController
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -29,7 +28,7 @@ class StorefrontCategoryController extends AbstractController
     private $criteriaBuilder;
 
     public function __construct(
-        RepositoryInterface $repository,
+        EntityRepositoryInterface $repository,
         RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->repository = $repository;
@@ -68,7 +67,7 @@ class StorefrontCategoryController extends AbstractController
      */
     public function detail(string $categoryId, Request $request, CheckoutContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
     {
-        $categories = $this->repository->read(new ReadCriteria([$categoryId]), $checkoutContext->getContext());
+        $categories = $this->repository->search(new Criteria([$categoryId]), $checkoutContext->getContext());
         if (!$categories->has($categoryId)) {
             throw new CategoryNotFoundException($categoryId);
         }

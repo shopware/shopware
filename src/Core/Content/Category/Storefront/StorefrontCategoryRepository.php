@@ -7,8 +7,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Navigation;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -17,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class StorefrontCategoryRepository
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $categoryRepository;
 
@@ -26,7 +25,7 @@ class StorefrontCategoryRepository
      */
     private $navigation;
 
-    public function __construct(RepositoryInterface $repository)
+    public function __construct(EntityRepositoryInterface $repository)
     {
         $this->categoryRepository = $repository;
         $this->navigation = [];
@@ -50,7 +49,7 @@ class StorefrontCategoryRepository
 
         if ($categoryId) {
             /** @var CategoryEntity|null $activeCategory */
-            $activeCategory = $this->categoryRepository->read(new ReadCriteria([$categoryId]), $context)->get($categoryId);
+            $activeCategory = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->get($categoryId);
 
             if ($activeCategory) {
                 $rootIds = array_merge($activeCategory->getPathArray(), [$categoryId]);

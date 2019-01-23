@@ -10,8 +10,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaFolderService;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -27,17 +26,17 @@ class MediaFolderServiceTest extends TestCase
     private $mediaFolderService;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaRepo;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaFolderRepo;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaFolderConfigRepo;
 
@@ -71,7 +70,7 @@ class MediaFolderServiceTest extends TestCase
         $media = $this->getJpgWithFolder();
 
         $configId = $this->mediaFolderRepo
-            ->read(new ReadCriteria([$media->getMediaFolderId()]), $this->context)
+            ->search(new Criteria([$media->getMediaFolderId()]), $this->context)
             ->get($media->getMediaFolderId())
             ->getConfigurationId();
 
@@ -388,7 +387,7 @@ class MediaFolderServiceTest extends TestCase
     private function assertMediaFolderIsAtRootLevel(string $folderId): void
     {
         $folder = $this->mediaFolderRepo
-            ->read(new ReadCriteria([$folderId]), $this->context)
+            ->search(new Criteria([$folderId]), $this->context)
             ->get($folderId);
         static::assertNull($folder->getParentId());
     }
@@ -396,32 +395,32 @@ class MediaFolderServiceTest extends TestCase
     private function assertMediaFolderIsDeleted(MediaEntity $media): void
     {
         $folder = $this->mediaFolderRepo
-            ->read(new ReadCriteria([$media->getMediaFolderId()]), $this->context)
+            ->search(new Criteria([$media->getMediaFolderId()]), $this->context)
             ->get($media->getMediaFolderId());
         static::assertNull($folder);
     }
 
     private function assertMediaHasNoFolder(MediaEntity $media): void
     {
-        $media = $this->mediaRepo->read(new ReadCriteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertNull($media->getMediaFolderId());
     }
 
     private function assertMediaHasParentFolder(MediaEntity $media, string $parentId): void
     {
-        $media = $this->mediaRepo->read(new ReadCriteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertEquals($parentId, $media->getMediaFolderId());
     }
 
     private function assertConfigIsDeleted($configId): void
     {
-        $config = $this->mediaFolderConfigRepo->read(new ReadCriteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
         static::assertNull($config);
     }
 
     private function assertConfigStillExists(string $configId): void
     {
-        $config = $this->mediaFolderConfigRepo->read(new ReadCriteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
         static::assertNotNull($config);
     }
 

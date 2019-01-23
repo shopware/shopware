@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -78,43 +77,43 @@ class WhitelistRuleFieldTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$product1, $product2, $product3]);
+        $criteria = new Criteria([$product1, $product2, $product3]);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($product1));
         static::assertFalse($products->has($product2));
         static::assertTrue($products->has($product3));
 
         //context with rule which isn't added to the product should return the product
         $context = $this->createContextWithRules([$rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($product1));
         static::assertTrue($products->has($product2));
         static::assertTrue($products->has($product3));
 
         //context with rule which is added to the product should return the product
         $context = $this->createContextWithRules([$rule1]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($product1));
         static::assertFalse($products->has($product2));
         static::assertTrue($products->has($product3));
 
         $context = $this->createContextWithRules([$rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($product1));
         static::assertFalse($products->has($product2));
         static::assertTrue($products->has($product3));
 
         $context = $this->createContextWithRules([$rule1, $rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($product1));
         static::assertFalse($products->has($product2));
         static::assertTrue($products->has($product3));
 
         $context = $this->createContextWithRules([$rule1, $rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($product1));
         static::assertTrue($products->has($product2));
         static::assertTrue($products->has($product3));
@@ -177,43 +176,43 @@ class WhitelistRuleFieldTest extends TestCase
 
         $this->repository->create($products, Context::createDefaultContext());
 
-        $criteria = new ReadCriteria([$productId1, $productId2, $productId3]);
+        $criteria = new Criteria([$productId1, $productId2, $productId3]);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($productId1));
         static::assertFalse($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         //context with rule which isn't added to the product should return the product
         $context = $this->createContextWithRules([$rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertFalse($products->has($productId1));
         static::assertFalse($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         //context with rule which is added to the product should return the product
         $context = $this->createContextWithRules([$rule1]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($productId1));
         static::assertTrue($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         $context = $this->createContextWithRules([$rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($productId1));
         static::assertTrue($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         $context = $this->createContextWithRules([$rule1, $rule2]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($productId1));
         static::assertTrue($products->has($productId2));
         static::assertTrue($products->has($productId3));
 
         $context = $this->createContextWithRules([$rule1, $rule3]);
-        $products = $this->repository->read($criteria, $context);
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($productId1));
         static::assertTrue($products->has($productId2));
         static::assertTrue($products->has($productId3));

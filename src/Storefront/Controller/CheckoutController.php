@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
@@ -35,7 +35,7 @@ class CheckoutController extends StorefrontController
     private $cartService;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
@@ -61,7 +61,7 @@ class CheckoutController extends StorefrontController
 
     public function __construct(
         CartService $cartService,
-        RepositoryInterface $orderRepository,
+        EntityRepositoryInterface $orderRepository,
         CheckoutPaymentMethodPageletLoader $paymentMethodLoader,
         CheckoutContextPersister $contextPersister,
         PaymentService $paymentService,

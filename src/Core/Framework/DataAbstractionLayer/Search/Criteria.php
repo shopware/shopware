@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -69,6 +70,25 @@ class Criteria extends Struct
      * @var Criteria[]
      */
     protected $associations = [];
+
+    /**
+     * @var string[]
+     */
+    protected $ids;
+
+    public function __construct(array $ids = [])
+    {
+        if (\count($ids) > \count(array_filter($ids))) {
+            throw new InconsistentCriteriaIdsException();
+        }
+
+        $this->ids = $ids;
+    }
+
+    public function getIds(): array
+    {
+        return $this->ids;
+    }
 
     public function getOffset(): ?int
     {
@@ -276,5 +296,10 @@ class Criteria extends Struct
         }
 
         return $fields;
+    }
+
+    public function setIds(array $ids): void
+    {
+        $this->ids = $ids;
     }
 }

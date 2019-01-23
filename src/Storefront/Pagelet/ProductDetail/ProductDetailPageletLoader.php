@@ -8,8 +8,7 @@ use Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -23,7 +22,7 @@ class ProductDetailPageletLoader
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $configuratorRepository;
 
@@ -44,7 +43,7 @@ class ProductDetailPageletLoader
 
     public function __construct(
         StorefrontProductRepository $productRepository,
-        RepositoryInterface $configuratorRepository,
+        EntityRepositoryInterface $configuratorRepository,
         CartService $cartService,
         StorefrontCategoryRepository $categoryService
     ) {
@@ -127,11 +126,11 @@ class ProductDetailPageletLoader
     {
         $containerId = $product->getParentId() ?? $product->getId();
 
-        $criteria = new ReadCriteria([]);
+        $criteria = new Criteria([]);
         $criteria->addFilter(new EqualsFilter('product_configurator.productId', $containerId));
 
         /** @var ProductConfiguratorCollection $configurator */
-        $configurator = $this->configuratorRepository->read($criteria, $context->getContext());
+        $configurator = $this->configuratorRepository->search($criteria, $context->getContext());
         $variationIds = $product->getVariationIds() ?? [];
 
         foreach ($configurator as $config) {

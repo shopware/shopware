@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class CheckoutRuleLoader
@@ -29,7 +29,7 @@ class CheckoutRuleLoader
     private $cache;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -52,7 +52,7 @@ class CheckoutRuleLoader
         CartPersisterInterface $cartPersister,
         Processor $processor,
         CacheItemPoolInterface $cache,
-        RepositoryInterface $repository,
+        EntityRepositoryInterface $repository,
         CartService $storeFrontCartService
     ) {
         $this->cartPersister = $cartPersister;

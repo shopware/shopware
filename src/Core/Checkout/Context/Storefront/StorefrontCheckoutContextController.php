@@ -8,8 +8,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\PlatformRequest;
@@ -23,17 +22,17 @@ use Symfony\Component\Serializer\Serializer;
 class StorefrontCheckoutContextController extends AbstractController
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     protected $paymentMethodRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     protected $shippingMethodRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     protected $customerAddressRepository;
 
@@ -48,9 +47,9 @@ class StorefrontCheckoutContextController extends AbstractController
     protected $serializer;
 
     public function __construct(
-        RepositoryInterface $paymentMethodRepository,
-        RepositoryInterface $shippingMethodRepository,
-        RepositoryInterface $customerAddressRepository,
+        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $shippingMethodRepository,
+        EntityRepositoryInterface $customerAddressRepository,
         CheckoutContextPersister $contextPersister,
         Serializer $serializer
     ) {
@@ -128,7 +127,7 @@ class StorefrontCheckoutContextController extends AbstractController
             throw new CustomerNotLoggedInException();
         }
 
-        $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
+        $addresses = $this->customerAddressRepository->search(new Criteria([$addressId]), $context->getContext());
         /** @var CustomerAddressEntity|null $address */
         $address = $addresses->get($addressId);
 

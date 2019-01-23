@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -22,7 +21,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class EntityRepository implements RepositoryInterface
+class EntityRepository implements EntityRepositoryInterface
 {
     /**
      * @var EntityReaderInterface
@@ -72,19 +71,25 @@ class EntityRepository implements RepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
+        $aggregations = null;
+        if ($criteria->getAggregations()) {
+            $aggregations = $this->aggregate($criteria, $context)->getAggregations();
+        }
+
+        if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
+            $entities = $this->read($criteria, $context);
+
+            return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context);
+        }
+
         $ids = $this->searchIds($criteria, $context);
 
-        $readCriteria = new ReadCriteria($ids->getIds());
+        $readCriteria = new Criteria($ids->getIds());
         foreach ($criteria->getAssociations() as $key => $associationCriteria) {
             $readCriteria->addAssociation($key, $associationCriteria);
         }
 
         $entities = $this->read($readCriteria, $context);
-
-        $aggregations = null;
-        if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $context)->getAggregations();
-        }
 
         $search = $ids->getData();
 
@@ -93,7 +98,13 @@ class EntityRepository implements RepositoryInterface
             if (!array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;
             }
+
             $data = $search[$element->getUniqueIdentifier()];
+            unset($data['primary_key']);
+
+            if (empty($data)) {
+                continue;
+            }
 
             $element->addExtension('search', new ArrayEntity($data));
         }
@@ -179,17 +190,6 @@ class EntityRepository implements RepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function read(ReadCriteria $criteria, Context $context): EntityCollection
-    {
-        /** @var EntityCollection $entities */
-        $entities = $this->reader->read($this->definition, $criteria, $context);
-
-        $event = new EntityLoadedEvent($this->definition, $entities, $context);
-        $this->eventDispatcher->dispatch($event->getName(), $event);
-
-        return $entities;
-    }
-
     public function clone(string $id, Context $context, string $newId = null): EntityWrittenContainerEvent
     {
         $newId = $newId ?? Uuid::uuid4()->getHex();
@@ -202,5 +202,16 @@ class EntityRepository implements RepositoryInterface
         $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
+    }
+
+    private function read(Criteria $criteria, Context $context): EntityCollection
+    {
+        /** @var EntityCollection $entities */
+        $entities = $this->reader->read($this->definition, $criteria, $context);
+
+        $event = new EntityLoadedEvent($this->definition, $entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 }

@@ -20,8 +20,8 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -49,7 +49,7 @@ class OrderRecalculationTest extends TestCase
     private $checkoutContext;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
@@ -74,7 +74,7 @@ class OrderRecalculationTest extends TestCase
     private $processor;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
@@ -105,7 +105,7 @@ class OrderRecalculationTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart);
 
-        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $this->context)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         $convertedCart = $this->orderConverter->convertToCart($order, $this->context);
 
         // check name and token

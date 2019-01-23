@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -20,12 +20,12 @@ class LineItemUnitPriceRuleTest extends TestCase
         DatabaseTransactionBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $ruleRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $conditionRepository;
 
@@ -85,7 +85,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testValidateWithMissingAmount()
@@ -136,7 +136,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testValidateWithIntAmount()
@@ -160,7 +160,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     public function testAvailableOperators()
@@ -217,8 +217,8 @@ class LineItemUnitPriceRuleTest extends TestCase
         );
 
         static::assertCount(
-            4, $this->conditionRepository->read(
-            new ReadCriteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]), $this->context
+            4, $this->conditionRepository->search(
+            new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]), $this->context
         )
         );
     }
@@ -272,6 +272,6 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 }

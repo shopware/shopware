@@ -14,8 +14,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\SourceContext;
@@ -32,17 +32,17 @@ class TranslationTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
@@ -481,7 +481,7 @@ class TranslationTest extends TestCase
         $categoryRepository->create([$category], $this->context);
 
         /** @var CategoryEntity $catSystem */
-        $catSystem = $categoryRepository->read(new ReadCriteria([$category['id']]), $this->context)->first();
+        $catSystem = $categoryRepository->search(new Criteria([$category['id']]), $this->context)->first();
 
         static::assertNotNull($catSystem);
         static::assertEquals('system', $catSystem->getName());
@@ -490,7 +490,7 @@ class TranslationTest extends TestCase
 
         $deDeContext = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
         /** @var CategoryEntity $catDeDe */
-        $catDeDe = $categoryRepository->read(new ReadCriteria([$category['id']]), $deDeContext)->first();
+        $catDeDe = $categoryRepository->search(new Criteria([$category['id']]), $deDeContext)->first();
 
         static::assertNotNull($catDeDe);
         static::assertNull($catDeDe->getName());
@@ -525,7 +525,7 @@ class TranslationTest extends TestCase
         $categoryTranslationRepository->delete([$deleteId], $this->context);
 
         /* @var CategoryEntity $categoryResult */
-        $categoryResult = $categoryRepository->read(new ReadCriteria(['id' => $catId]), $this->context)->first();
+        $categoryResult = $categoryRepository->search(new Criteria(['id' => $catId]), $this->context)->first();
 
         $translations = $categoryResult->getTranslations();
         static::assertCount(1, $translations);

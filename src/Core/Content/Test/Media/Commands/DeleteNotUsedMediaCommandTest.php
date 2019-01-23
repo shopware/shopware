@@ -8,8 +8,8 @@ use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -20,7 +20,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaRepository;
 
@@ -80,8 +80,8 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $string = $commandTester->getDisplay();
         static::assertInternalType('int', strpos($string, 'Successfully deleted 2 media files.'));
 
-        $result = $this->mediaRepository->read(
-            new ReadCriteria([
+        $result = $this->mediaRepository->search(
+            new Criteria([
                 $txt->getId(),
                 $png->getId(),
                 $withProduct->getId(),
@@ -127,8 +127,8 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $string = $commandTester->getDisplay();
         static::assertInternalType('int', strpos($string, 'Aborting due to user input.'));
 
-        $result = $this->mediaRepository->read(
-            new ReadCriteria([
+        $result = $this->mediaRepository->search(
+            new Criteria([
                 $txt->getId(),
                 $png->getId(),
                 $withProduct->getId(),

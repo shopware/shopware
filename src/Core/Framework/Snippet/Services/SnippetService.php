@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Snippet\Services;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,7 +35,7 @@ class SnippetService implements SnippetServiceInterface
     private $snippetFlattener;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $snippetRepository;
 
@@ -43,7 +43,7 @@ class SnippetService implements SnippetServiceInterface
         Connection $connection,
         SnippetFlattenerInterface $snippetFlattener,
         LanguageFileCollection $languageFileCollection,
-        RepositoryInterface $snippetRepository
+        EntityRepositoryInterface $snippetRepository
     ) {
         $this->connection = $connection;
         $this->languageFileCollection = $languageFileCollection;

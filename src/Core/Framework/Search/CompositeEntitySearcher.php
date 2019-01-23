@@ -9,8 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -29,7 +28,7 @@ class CompositeEntitySearcher
     private $container;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $changesRepository;
 
@@ -41,7 +40,7 @@ class CompositeEntitySearcher
     public function __construct(
         ContainerInterface $container,
         SearchBuilder $searchBuilder,
-        RepositoryInterface $changesRepository
+        EntityRepositoryInterface $changesRepository
     ) {
         $this->container = $container;
         $this->changesRepository = $changesRepository;
@@ -131,14 +130,14 @@ class CompositeEntitySearcher
             $name = $definition::getEntityName();
 
             $repository = $this->container->get($name . '.repository');
-            if (!$repository instanceof RepositoryInterface) {
+            if (!$repository instanceof EntityRepositoryInterface) {
                 continue;
             }
 
-            $criteria = new ReadCriteria(\array_keys($rows));
+            $criteria = new Criteria(\array_keys($rows));
 
             /** @var EntityCollection $entities */
-            $entities = $repository->read($criteria, $context);
+            $entities = $repository->search($criteria, $context);
 
             foreach ($entities as $entity) {
                 $score = (float) $rows[$entity->getId()];
@@ -196,7 +195,7 @@ class CompositeEntitySearcher
 
             $this->searchBuilder->build($criteria, $term, $definition, $context);
 
-            /** @var RepositoryInterface $repository */
+            /** @var EntityRepositoryInterface $repository */
             $repository = $this->container->get($definition::getEntityName() . '.repository');
 
             $results[$definition] = $repository->searchIds($criteria, $context);

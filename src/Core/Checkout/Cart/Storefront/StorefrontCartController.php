@@ -15,8 +15,8 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Exception\MissingParameterException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,7 +33,7 @@ class StorefrontCartController extends AbstractController
     private $cartService;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaRepository;
 
@@ -44,7 +44,7 @@ class StorefrontCartController extends AbstractController
 
     public function __construct(
         CartService $service,
-        RepositoryInterface $mediaRepository,
+        EntityRepositoryInterface $mediaRepository,
         Serializer $serializer
     ) {
         $this->serializer = $serializer;
@@ -238,7 +238,7 @@ class StorefrontCartController extends AbstractController
         }
 
         if ($coverId !== null) {
-            $cover = $this->mediaRepository->read(new ReadCriteria([$coverId]), $context)->get($coverId);
+            $cover = $this->mediaRepository->search(new Criteria([$coverId]), $context)->get($coverId);
 
             if (!$cover) {
                 throw new LineItemCoverNotFoundException($coverId, $lineItem->getKey());

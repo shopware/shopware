@@ -12,10 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -55,12 +54,12 @@ class SearchKeywordIndexer implements IndexerInterface
     private $indexTableOperator;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $catalogRepository;
 
@@ -81,8 +80,8 @@ class SearchKeywordIndexer implements IndexerInterface
         EventDispatcherInterface $eventDispatcher,
         SearchAnalyzerRegistry $analyzerRegistry,
         IndexTableOperator $indexTableOperator,
-        RepositoryInterface $languageRepository,
-        RepositoryInterface $catalogRepository
+        EntityRepositoryInterface $languageRepository,
+        EntityRepositoryInterface $catalogRepository
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -239,7 +238,7 @@ class SearchKeywordIndexer implements IndexerInterface
         /** @var EntityRepository $repository */
         $repository = $this->container->get($definition::getEntityName() . '.repository');
 
-        $entities = $repository->read(new ReadCriteria($ids), $context);
+        $entities = $repository->search(new Criteria($ids), $context);
 
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
 

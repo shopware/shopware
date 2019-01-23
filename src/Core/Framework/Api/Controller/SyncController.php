@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -57,7 +57,7 @@ class SyncController extends AbstractController
 
             $definition = $this->registry->get($entity);
 
-            /** @var RepositoryInterface $repository */
+            /** @var EntityRepositoryInterface $repository */
             $repository = $this->container->get($definition::getEntityName() . '.repository');
 
             switch ($action) {

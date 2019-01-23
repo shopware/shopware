@@ -9,8 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Pricing\Price;
@@ -22,7 +21,7 @@ class VariantGeneratorTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -84,9 +83,9 @@ class VariantGeneratorTest extends TestCase
 
         static::assertCount(2, $productWritten->getIds());
 
-        $criteria = new ReadCriteria($productWritten->getIds());
+        $criteria = new Criteria($productWritten->getIds());
         $criteria->addAssociation('product.variations');
-        $variants = $this->repository->read($criteria, Context::createDefaultContext());
+        $variants = $this->repository->search($criteria, Context::createDefaultContext());
 
         static::assertCount(2, $variants);
 
@@ -168,10 +167,13 @@ class VariantGeneratorTest extends TestCase
 
         static::assertCount(4, $productWritten->getIds());
 
-        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), $context);
+        $variants = $this->repository
+            ->search(new Criteria($productWritten->getIds()), $context)
+            ->getEntities();
+
         static::assertCount(4, $variants);
 
-        $parent = $this->repository->read(new ReadCriteria([$id]), $context)
+        $parent = $this->repository->search(new Criteria([$id]), $context)
             ->get($id);
 
         /** @var ProductCollection $variants */
@@ -246,7 +248,7 @@ class VariantGeneratorTest extends TestCase
         $productWritten = $writtenEvent->getEventByDefinition(ProductDefinition::class);
         static::assertCount(1, $productWritten->getIds());
 
-        $variants = $this->repository->read(new ReadCriteria($productWritten->getIds()), $context);
+        $variants = $this->repository->search(new Criteria($productWritten->getIds()), $context);
         static::assertCount(1, $variants);
 
         $writtenEvent = $this->generator->generate($id, $context, 1, 1);
@@ -257,7 +259,7 @@ class VariantGeneratorTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.parentId', $id));
         $variants = $this->repository->search($criteria, $context);
 
-        $parent = $this->repository->read(new ReadCriteria([$id]), $context)
+        $parent = $this->repository->search(new Criteria([$id]), $context)
             ->get($id);
 
         /** @var ProductEntity $variant */

@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -19,12 +19,12 @@ class LineItemsInCartRuleTest extends TestCase
         DatabaseTransactionBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $ruleRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $conditionRepository;
 
@@ -165,6 +165,6 @@ class LineItemsInCartRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->read(new ReadCriteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 }

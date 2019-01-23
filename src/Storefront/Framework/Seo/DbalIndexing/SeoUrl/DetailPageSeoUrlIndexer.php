@@ -10,9 +10,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
@@ -47,12 +46,12 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $salesChannelRepository;
 
@@ -75,8 +74,8 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         Connection $connection,
         SlugifyInterface $slugify,
         RouterInterface $router,
-        RepositoryInterface $productRepository,
-        RepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $productRepository,
+        EntityRepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         CheckoutContextFactoryInterface $checkoutContextFactory
@@ -179,7 +178,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     {
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-        $products = $this->productRepository->read(new ReadCriteria($ids), $context);
+        $products = $this->productRepository->search(new Criteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($products->getIds(), $context->getSourceContext()->getSalesChannelId());
         $timestamp = new \DateTime();

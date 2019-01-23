@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,7 +16,7 @@ class SumAggregationTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $taxRepository;
 

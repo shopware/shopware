@@ -7,8 +7,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -16,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 class StorefrontProductRepository
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
@@ -25,7 +24,7 @@ class StorefrontProductRepository
      */
     private $priceCalculator;
 
-    public function __construct(RepositoryInterface $repository, QuantityPriceCalculator $priceCalculator)
+    public function __construct(EntityRepositoryInterface $repository, QuantityPriceCalculator $priceCalculator)
     {
         $this->productRepository = $repository;
         $this->priceCalculator = $priceCalculator;
@@ -34,19 +33,21 @@ class StorefrontProductRepository
     public function read(array $ids, CheckoutContext $context): ProductCollection
     {
         /** @var ProductCollection $basics */
-        $basics = $this->productRepository->read(new ReadCriteria($ids), $context->getContext());
+        $basics = $this->productRepository
+            ->search(new Criteria($ids), $context->getContext())
+            ->getEntities();
 
         return $this->loadListProducts($basics, $context);
     }
 
     public function readDetail(array $ids, CheckoutContext $context): ProductCollection
     {
-        $criteria = new ReadCriteria($ids);
+        $criteria = new Criteria($ids);
         $criteria->addAssociation('product.datasheet');
         $criteria->addAssociation('product.services');
 
         /** @var ProductCollection $basics */
-        $basics = $this->productRepository->read($criteria, $context->getContext());
+        $basics = $this->productRepository->search($criteria, $context->getContext());
 
         return $this->loadDetailProducts($context, $basics);
     }

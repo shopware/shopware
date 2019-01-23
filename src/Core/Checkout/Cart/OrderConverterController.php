@@ -13,8 +13,8 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,14 +32,14 @@ class OrderConverterController extends AbstractController
     private $cartPersister;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
     public function __construct(
         OrderConverter $orderConverter,
         CartPersisterInterface $cartPersister,
-        RepositoryInterface $orderRepository)
+        EntityRepositoryInterface $orderRepository)
     {
         $this->orderConverter = $orderConverter;
         $this->cartPersister = $cartPersister;
@@ -59,7 +59,7 @@ class OrderConverterController extends AbstractController
     public function convertToCart(string $orderId, Context $context)
     {
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $context)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->get($orderId);
 
         if (!$order) {
             throw new InvalidOrderException($orderId);

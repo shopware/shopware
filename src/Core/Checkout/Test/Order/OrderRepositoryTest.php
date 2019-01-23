@@ -14,8 +14,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,7 +24,7 @@ class OrderRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
@@ -40,7 +39,7 @@ class OrderRepositoryTest extends TestCase
     private $processor;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
@@ -68,10 +67,10 @@ class OrderRepositoryTest extends TestCase
         $nestedCriteria2 = new Criteria();
         $nestedCriteria2->addAssociation('customer.addresses');
 
-        $criteria = new ReadCriteria([$orderId]);
+        $criteria = new Criteria([$orderId]);
         //$criteria->addAssociation('order.orderCustomer', $nestedCriteria);
 
-        $order = $this->orderRepository->read($criteria, $defaultContext);
+        $order = $this->orderRepository->search($criteria, $defaultContext);
 
         static::assertEquals($orderId, $order->first()->get('id'));
         static::assertNotNull($order->first()->getOrderCustomer());

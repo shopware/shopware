@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,12 +20,12 @@ class StorefrontCustomerControllerTest extends TestCase
     use StorefrontFunctionalTestBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
@@ -35,12 +35,12 @@ class StorefrontCustomerControllerTest extends TestCase
     private $serializer;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $countryStateRepository;
 
@@ -50,7 +50,7 @@ class StorefrontCustomerControllerTest extends TestCase
     private $context;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerAddressRepository;
 
@@ -572,16 +572,16 @@ class StorefrontCustomerControllerTest extends TestCase
 
     private function readCustomer(string $userID): CustomerEntity
     {
-        return $this->customerRepository->read(
-            new ReadCriteria([$userID]),
+        return $this->customerRepository->search(
+            new Criteria([$userID]),
             Context::createDefaultContext()
         )->get($userID);
     }
 
     private function readCustomerAddress(string $addressId): ?CustomerAddressEntity
     {
-        return $this->customerAddressRepository->read(
-            new ReadCriteria([$addressId]),
+        return $this->customerAddressRepository->search(
+            new Criteria([$addressId]),
             Context::createDefaultContext()
         )->get($addressId);
     }

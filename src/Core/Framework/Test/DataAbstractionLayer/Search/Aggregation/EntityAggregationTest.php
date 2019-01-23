@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,7 +18,7 @@ class EntityAggregationTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $taxRepository;
 
@@ -28,7 +28,7 @@ class EntityAggregationTest extends TestCase
     private $connection;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 

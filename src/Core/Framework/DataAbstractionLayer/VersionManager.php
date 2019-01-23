@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -175,7 +174,7 @@ class VersionManager
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
 
         $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $writeContext->getContext());
-        $commits = $this->entityReader->read(VersionCommitDefinition::class, new ReadCriteria($commitIds->getIds()), $writeContext->getContext());
+        $commits = $this->entityReader->read(VersionCommitDefinition::class, new Criteria($commitIds->getIds()), $writeContext->getContext());
 
         $allChanges = [];
         $entities = [];
@@ -325,7 +324,7 @@ class VersionManager
         WriteContext $context
     ): array {
         /** @var string|EntityDefinition $definition */
-        $criteria = new ReadCriteria([$id]);
+        $criteria = new Criteria([$id]);
         $this->addCloneAssociations($definition, $criteria);
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();

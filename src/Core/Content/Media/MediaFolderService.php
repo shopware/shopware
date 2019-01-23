@@ -6,8 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -15,24 +14,24 @@ use Shopware\Core\Framework\Struct\Uuid;
 class MediaFolderService
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaRepo;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaFolderRepo;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $mediaFolderConfigRepo;
 
     public function __construct(
-        RepositoryInterface $mediaRepo,
-        RepositoryInterface $mediaFolderRepo,
-        RepositoryInterface $mediaFolderConfigRepo
+        EntityRepositoryInterface $mediaRepo,
+        EntityRepositoryInterface $mediaFolderRepo,
+        EntityRepositoryInterface $mediaFolderConfigRepo
     ) {
         $this->mediaRepo = $mediaRepo;
         $this->mediaFolderRepo = $mediaFolderRepo;
@@ -139,7 +138,7 @@ class MediaFolderService
 
     private function fetchFolder(string $folderId, Context $context)
     {
-        $folder = $this->mediaFolderRepo->read(new ReadCriteria([$folderId]), $context)->get($folderId);
+        $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $context)->get($folderId);
 
         if ($folder === null) {
             throw new MediaFolderNotFoundException($folderId);

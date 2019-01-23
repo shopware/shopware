@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Command;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -19,11 +19,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class SalesChannelCreateCommand extends Command
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $salesChannelRepository;
 
-    public function __construct(RepositoryInterface $salesChannelRepository)
+    public function __construct(EntityRepositoryInterface $salesChannelRepository)
     {
         parent::__construct();
 

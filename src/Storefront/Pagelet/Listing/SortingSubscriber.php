@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Listing;
 
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Listing\ListingSortingEntity;
@@ -14,11 +14,11 @@ class SortingSubscriber implements EventSubscriberInterface
     public const SORTING_PARAMETER = 'o';
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
-    public function __construct(RepositoryInterface $repository)
+    public function __construct(EntityRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }

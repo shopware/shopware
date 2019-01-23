@@ -8,13 +8,13 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 
 class OrderPersister implements OrderPersisterInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -23,7 +23,7 @@ class OrderPersister implements OrderPersisterInterface
      */
     private $converter;
 
-    public function __construct(RepositoryInterface $repository, OrderConverter $converter)
+    public function __construct(EntityRepositoryInterface $repository, OrderConverter $converter)
     {
         $this->repository = $repository;
         $this->converter = $converter;

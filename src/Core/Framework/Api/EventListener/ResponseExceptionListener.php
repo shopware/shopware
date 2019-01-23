@@ -9,9 +9,20 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\EventListener\ExceptionListener;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class ResponseExceptionListener extends ExceptionListener
 {
+    public static function getSubscribedEvents()
+    {
+        return [
+            KernelEvents::EXCEPTION => [
+                ['logKernelException'],
+                ['onKernelException'],
+            ],
+        ];
+    }
+
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
         $exception = $event->getException();

@@ -20,13 +20,13 @@
 
                     <li v-for="folder in subFolders"
                         :key="folder.id"
+                        :class="{'is--selected': folder.id === selectedId}"
+                        @click="emitInput(folder)"
                         class="sw-media-folder-content__list-item">
 
                         {% block sw_media_folder_content_button_folder %}
                             {% block sw_media_folder_content_button_folder_button %}
-                                <button class="sw-media-folder-content__button sw-media-folder-content__folder-button"
-                                        :class="{'is--selected': folder.id === selectedId}"
-                                        @click="emitInput(folder)">
+                                <button class="sw-media-folder-content__button sw-media-folder-content__folder-button">
                                     {% block sw_media_folder_content_folder_icon %}
                                         <sw-icon class="sw-media-folder-content__folder-icon"
                                                  name="folder-thumbnail"

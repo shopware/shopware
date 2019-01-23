@@ -60,6 +60,7 @@ trait AdminApiTestBehaviour
         }
 
         $apiClient = KernelLifecycleManager::createClient($kernel, $enableReboot);
+        $apiClient->followRedirects();
         $apiClient->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],

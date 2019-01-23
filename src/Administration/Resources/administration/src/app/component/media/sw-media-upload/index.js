@@ -137,7 +137,7 @@ Component.register('sw-media-upload', {
         isDragActiveClass() {
             return {
                 'is--active': this.isDragActive,
-                'is--multi': this.variant === 'regular' && !!this.allowMultiSelect
+                'is--multi': this.variant === 'regular' && !!this.multiSelect
             };
         }
     },

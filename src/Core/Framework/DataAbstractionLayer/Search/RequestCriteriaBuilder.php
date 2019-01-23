@@ -149,6 +149,7 @@ class RequestCriteriaBuilder
         $sortings = [];
         foreach ($sorting as $sort) {
             $order = $sort['order'] ?? 'asc';
+            $naturalSorting = $sort['naturalSorting'] ?? false;
 
             if (strcasecmp($order, 'desc') === 0) {
                 $order = FieldSorting::DESCENDING;
@@ -156,7 +157,11 @@ class RequestCriteriaBuilder
                 $order = FieldSorting::ASCENDING;
             }
 
-            $sortings[] = new FieldSorting($this->buildFieldName($definition, $sort['field']), $order);
+            $sortings[] = new FieldSorting(
+                $this->buildFieldName($definition, $sort['field']),
+                $order,
+                (bool) $naturalSorting
+            );
         }
 
         return $sortings;

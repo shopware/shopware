@@ -7,6 +7,7 @@ import './component/sw-product-media-form';
 import './view/sw-product-detail-base';
 import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';
+import './view/sw-product-detail-properties';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 import './page/sw-product-create';
@@ -64,6 +65,13 @@ Module.register('sw-product', {
                 prices: {
                     component: 'sw-product-detail-context-prices',
                     path: 'prices',
+                    meta: {
+                        parentPath: 'sw.product.index'
+                    }
+                },
+                properties: {
+                    component: 'sw-product-detail-properties',
+                    path: 'properties',
                     meta: {
                         parentPath: 'sw.product.index'
                     }

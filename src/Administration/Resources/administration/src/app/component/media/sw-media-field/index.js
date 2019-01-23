@@ -129,6 +129,7 @@ Component.register('sw-media-field', {
 
         mediaItemChanged(newMediaId) {
             this.$emit('mediaIdChanged', newMediaId);
+            this.onTogglePicker();
         },
 
         removeLink() {

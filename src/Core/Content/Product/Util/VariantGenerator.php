@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Util;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorEntity;
 use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
@@ -64,15 +65,8 @@ class VariantGenerator
                 }
             );
 
-            $options->sortByGroup();
-
-            $names = $options->map(function (ProductConfiguratorEntity $config) {
-                return $config->getOption()->getName();
-            });
-
             $variant = [
                 'parentId' => $productId,
-                'name' => $product->getName() . ' ' . implode(' ', $names),
                 'variations' => $mapping,
                 'variationIds' => array_values($options->getOptionIds()),
                 'price' => $this->buildPrice($product, $options),
@@ -98,8 +92,9 @@ class VariantGenerator
     private function buildCombinations(ProductConfiguratorCollection $configurator): array
     {
         $groupedOptions = [];
+        /** @var ConfigurationGroupOptionEntity $option */
         foreach ($configurator->getOptions() as $option) {
-            $groupedOptions[$option->getGroup()->getId()][] = $option->getId();
+            $groupedOptions[$option->getGroupId()][] = $option->getId();
         }
         $groupedOptions = array_values($groupedOptions);
 

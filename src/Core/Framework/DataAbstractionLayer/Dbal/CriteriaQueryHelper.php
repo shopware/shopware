@@ -107,15 +107,13 @@ trait CriteriaQueryHelper
                 continue;
             }
 
-            $query->addOrderBy(
-                $queryHelper->getFieldAccessor(
-                    $sorting->getField(),
-                    $definition,
-                    $definition::getEntityName(),
-                    $context
-                ),
-                $sorting->getDirection()
-            );
+            $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition::getEntityName(), $context);
+
+            if ($sorting->getNaturalSorting()) {
+                $query->addOrderBy('LENGTH(' . $accessor . ')');
+            }
+
+            $query->addOrderBy($accessor, $sorting->getDirection());
         }
     }
 

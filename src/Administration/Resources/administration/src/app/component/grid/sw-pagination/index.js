@@ -29,14 +29,20 @@ Component.register('sw-pagination', {
             type: Number,
             required: false,
             default: 7
+        },
+        steps: {
+            type: Array,
+            required: false,
+            default() {
+                return [25, 50, 75, 100];
+            }
         }
     },
 
     data() {
         return {
             currentPage: this.page,
-            perPage: this.limit,
-            steps: [25, 50, 75, 100]
+            perPage: this.limit
         };
     },
 

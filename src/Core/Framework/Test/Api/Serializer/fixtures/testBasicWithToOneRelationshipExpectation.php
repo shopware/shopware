@@ -70,6 +70,12 @@ return [
                     'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/media-folder',
                 ],
             ],
+            'configurationGroupOptions' => [
+                'data' => [],
+                'links' => [
+                    'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/configuration-group-options',
+                ],
+            ],
         ],
         'meta' => null,
     ],

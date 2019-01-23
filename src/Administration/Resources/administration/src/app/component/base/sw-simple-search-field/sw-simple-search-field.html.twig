@@ -4,6 +4,7 @@
             <sw-field type="text"
                       class="sw-simple-search-field__input"
                       :placeholder="fallbackPlaceholder"
+                      v-on="$listeners"
                       @input="onSearchTermChanged">
             </sw-field>
         {% endblock %}

@@ -957,6 +957,10 @@
       "textSnippetList": "Snippets of \"{setName}\" | Snippets",
       "titleDeleteSuccess": "Snippets",
       "titleSaveError": "Error: Snippets",
+      "columnHeaderGridColumTitleSet": "Snippet set",
+      "columnHeaderResetTo": "Original",
+      "resetErrorMessage": "Snippet \"{key}\" could not be reset.",
+      "resetSuccessMessage": "Snippet \"{key}\" has been reset successfully to \"{value}\".",
       "titleSaveSuccess": "Snippets",
       "titleSidebarCustomItems": "Custom snippets",
       "titleSidebarItemRefresh": "Refresh"

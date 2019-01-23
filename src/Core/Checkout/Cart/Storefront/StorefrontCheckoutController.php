@@ -81,16 +81,6 @@ class StorefrontCheckoutController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function createOrderDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->createOrder($request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/checkout/order", name="storefront-api.checkout.order.create", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -109,16 +99,6 @@ class StorefrontCheckoutController extends AbstractController
         return new JsonResponse(
             $this->serialize($order)
         );
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/guest-order", name="storefront.api.checkout.guest-order.deprecated", methods={"POST"})
-     *
-     * @deprecated
-     */
-    public function createGuestOrderDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->createGuestOrder($request, $context);
     }
 
     /**
@@ -149,16 +129,6 @@ class StorefrontCheckoutController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/checkout/guest-order/{id}", name="storefront.api.checkout.guest-order.deep-link.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getDeepLinkOrderDeprecated(string $id, Request $request, Context $context): Response
-    {
-        return $this->getDeepLinkOrder($id, $request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/checkout/guest-order/{id}", name="storefront-api.checkout.guest-order.detail", methods={"GET"})
      *
      * @throws OrderNotFoundException
@@ -171,16 +141,6 @@ class StorefrontCheckoutController extends AbstractController
         return new JsonResponse(
             $this->serialize($order)
         );
-    }
-
-    /**
-     * @Route("/storefront-api/checkout/pay/order/{orderId}", name="storefront.api.checkout.pay.order.deprecated", methods={"POST"})
-     *
-     * @deprecated use payOrder instead
-     */
-    public function payOrderDeprecated(string $orderId, Request $request, CheckoutContext $context): Response
-    {
-        return $this->payOrder($orderId, $request, $context);
     }
 
     /**

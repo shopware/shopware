@@ -41,7 +41,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     {
         $originalCurrency = $this->addCurrency();
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/currencies');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/currency');
         $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
@@ -64,7 +64,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     {
         $originalLanguage = $this->addLanguage();
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/languages');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/language');
         $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -87,7 +87,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     {
         $originalCountry = $this->addCountry();
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/countries');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/country');
         $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -111,7 +111,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $originalCountryWithStates = $this->addCountryWithStates();
         $countryId = $originalCountryWithStates['id'];
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/country/states', ['countryId' => $countryId]);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/country/' . $countryId . '/state');
         $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -130,7 +130,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     {
         $originalPaymentMethod = $this->addPaymentMethod();
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/payment-methods');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/payment-method');
         $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -153,7 +153,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     {
         $originalShippingMethod = $this->addShippingMethod();
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/sales-channel/shipping-methods');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/shipping-method');
         $response = $this->getStorefrontClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 

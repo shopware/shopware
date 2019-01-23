@@ -131,10 +131,10 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->getClient()->request('GET', $this->url . '/product-manufacturer',
             [
                 'sort' => 'product_manufacturer.link,product_manufacturer.description',
-                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+                'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],
             ]
         );
-        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), print_r($this->getClient()->getRequest()->getContent(), true));
         $content = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         $expectedSort = [$manufacturer1, $manufacturer2, $manufacturer3];
@@ -148,7 +148,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->getClient()->request('GET', $this->url . '/product-manufacturer',
             [
                 'sort' => 'product_manufacturer.link,-product_manufacturer.description',
-                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+                'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],
             ]
         );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
@@ -165,7 +165,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->getClient()->request('GET', $this->url . '/product-manufacturer',
             [
                 'sort' => '-product_manufacturer.link,product_manufacturer.description',
-                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+                'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],
             ]
         );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
@@ -182,7 +182,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->getClient()->request('GET', $this->url . '/product-manufacturer',
             [
                 'sort' => '-product_manufacturer.link,-product_manufacturer.description',
-                'filter' => [['field' => 'description', 'type' => 'match', 'value' => $filterid]],
+                'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],
             ]
         );
         static::assertSame(200, $this->getClient()->getResponse()->getStatusCode());
@@ -421,10 +421,10 @@ class SearchCriteriaBuilderTest extends TestCase
             'page' => '',
             'filter' => [
                 ['type' => 'bar'],
-                ['type' => 'term', 'field' => 'foo', 'value' => ''],
-                ['type' => 'nested', 'queries' => [
+                ['type' => 'equals', 'field' => 'foo', 'value' => ''],
+                ['type' => 'multi', 'queries' => [
                     ['type' => 'foo'],
-                    ['type' => 'terms', 'value' => 'wusel'],
+                    ['type' => 'equalsAny', 'value' => 'wusel'],
                 ]],
             ],
         ];

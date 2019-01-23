@@ -44,7 +44,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/product');
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/product');
 
         self::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
 
@@ -82,7 +82,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->getStorefrontClient()->request('GET', '/storefront-api/product/' . $productId);
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/product/' . $productId);
 
         self::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
 

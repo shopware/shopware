@@ -397,7 +397,7 @@ EOF;
             ],
             'filter' => [
                 [
-                    'type' => 'nested',
+                    'type' => 'multi',
                     'queries' => [
                         [
                             'type' => 'range',
@@ -408,12 +408,12 @@ EOF;
                             ],
                         ],
                         [
-                            'type' => 'term',
+                            'type' => 'equals',
                             'field' => 'product.manufacturer.name',
                             'value' => 'Shopware AG',
                         ],
                         [
-                            'type' => 'terms',
+                            'type' => 'equalsAny',
                             'field' => 'product.id',
                             'value' => $id,
                         ],
@@ -424,7 +424,7 @@ EOF;
                 [
                     'type' => 'score',
                     'query' => [
-                        'type' => 'match',
+                        'type' => 'contains',
                         'field' => 'product.name',
                         'value' => 'Cotton',
                     ],
@@ -436,6 +436,7 @@ EOF;
         $response = $this->getClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
+        static::assertArrayHasKey('meta', $content, print_r($content, true));
         static::assertEquals(1, $content['meta']['total']);
         static::assertEquals($id, $content['data'][0]['id']);
 
@@ -495,7 +496,7 @@ EOF;
         $filter = [
             'filter' => [
                 [
-                    'type' => 'term',
+                    'type' => 'equals',
                     'field' => 'product_price_rule.ruleId',
                     'value' => $ruleA,
                 ],
@@ -613,7 +614,7 @@ EOF;
         $filter = [
             'filter' => [
                 [
-                    'type' => 'term',
+                    'type' => 'equals',
                     'field' => 'category.name',
                     'value' => 'A',
                 ],
@@ -699,10 +700,10 @@ EOF;
             ],
             'filter' => [
                 [
-                    'type' => 'nested',
+                    'type' => 'multi',
                     'queries' => [
                         [
-                            'type' => 'term',
+                            'type' => 'equals',
                             'field' => 'product.manufacturer.name',
                             'value' => $manufacturerName,
                         ],
@@ -807,7 +808,7 @@ EOF;
 
         $translations = $catData['relationships']['translations'];
         static::assertCount(1, $translations['data']);
-        static::assertEquals($id . '-' . Defaults::LANGUAGE_EN, $translations['data'][0]['id']);
+        static::assertEquals($id . '-' . Defaults::LANGUAGE_SYSTEM, $translations['data'][0]['id']);
         static::assertEquals('category_translation', $translations['data'][0]['type']);
     }
 

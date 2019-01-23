@@ -70,16 +70,6 @@ class StorefrontSalesChannelController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/sales-channel/currencies", name="storefront.api.sales-channel.currencies.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getCurrenciesDeprecated(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->getCurrencies($request, $context, $responseFactory);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/currency", name="storefront-api.currency.list", methods={"GET"})
      */
     public function getCurrencies(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
@@ -93,16 +83,6 @@ class StorefrontSalesChannelController extends AbstractController
             $request,
             $context->getContext()
         );
-    }
-
-    /**
-     * @Route("/storefront-api/sales-channel/languages", name="storefront.api.sales-channel.languages.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getLanguagesDeprecated(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->getLanguages($request, $context, $responseFactory);
     }
 
     /**
@@ -122,16 +102,6 @@ class StorefrontSalesChannelController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/sales-channel/countries", name="storefront.api.sales-channel.countries.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getCountriesDeprecated(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->getCountries($request, $context, $responseFactory);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/country", name="storefront-api.country.list", methods={"GET"})
      */
     public function getCountries(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
@@ -145,22 +115,6 @@ class StorefrontSalesChannelController extends AbstractController
             $request,
             $context->getContext()
         );
-    }
-
-    /**
-     * @Route("/storefront-api/sales-channel/country/states", name="storefront.api.sales-channel.country.states.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getCountryStatesDeprecated(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
-    {
-        $countryId = $request->query->get('countryId');
-
-        if (!Uuid::isValid($countryId)) {
-            throw new InvalidParameterException($countryId);
-        }
-
-        return $this->getCountryStates($countryId, $request, $context, $responseFactory);
     }
 
     /**
@@ -196,16 +150,6 @@ class StorefrontSalesChannelController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/sales-channel/payment-methods", name="storefront.api.sales-channel.payment-methods.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getPaymentMethodsDeprecated(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->getPaymentMethods($request, $context, $responseFactory);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/payment-method", name="storefront-api.payment-method.list", methods={"GET"})
      */
     public function getPaymentMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
@@ -219,16 +163,6 @@ class StorefrontSalesChannelController extends AbstractController
             $request,
             $context->getContext()
         );
-    }
-
-    /**
-     * @Route("/storefront-api/sales-channel/shipping-methods", name="storefront.api.sales-channel.shipping-methods.deprecated", methods={"GET"})
-     *
-     * @deprecated
-     */
-    public function getShippingMethodsDeprecated(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
-    {
-        return $this->getShippingMethods($request, $context, $responseFactory);
     }
 
     /**

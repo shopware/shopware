@@ -62,16 +62,6 @@ class StorefrontCheckoutContextController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/context", name="storefront-api.context.update.deprecated", methods={"PUT"})
-     *
-     * @deprecated
-     */
-    public function updateDeprecated(Request $request, CheckoutContext $context): JsonResponse
-    {
-        return $this->update($request, $context);
-    }
-
-    /**
      * @Route("/storefront-api/v{version}/context", name="storefront-api.context.update", methods={"PATCH"})
      *
      * @throws AddressNotFoundException

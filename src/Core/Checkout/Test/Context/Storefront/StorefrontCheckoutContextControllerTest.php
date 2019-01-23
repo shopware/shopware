@@ -47,7 +47,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         /*
          * Shipping method
          */
-        $this->getStorefrontClient()->request('PUT', '/storefront-api/context', ['shippingMethodId' => $testId]);
+        $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['shippingMethodId' => $testId]);
         static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
@@ -59,7 +59,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         /*
          * Payment method
          */
-        $this->getStorefrontClient()->request('PUT', '/storefront-api/context', ['paymentMethodId' => $testId]);
+        $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['paymentMethodId' => $testId]);
         static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
@@ -76,7 +76,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         /*
          * Billing address
          */
-        $this->getStorefrontClient()->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
+        $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['billingAddressId' => $testId]);
         static::assertSame(403, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
@@ -88,7 +88,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         /*
          * Shipping address
          */
-        $this->getStorefrontClient()->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
+        $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['shippingAddressId' => $testId]);
         static::assertSame(403, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
@@ -107,7 +107,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         /*
          * Billing address
          */
-        $this->getStorefrontClient()->request('PUT', '/storefront-api/context', ['billingAddressId' => $testId]);
+        $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['billingAddressId' => $testId]);
 
         static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
@@ -120,7 +120,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         /*
          * Shipping address
          */
-        $this->getStorefrontClient()->request('PUT', '/storefront-api/context', ['shippingAddressId' => $testId]);
+        $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['shippingAddressId' => $testId]);
         static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
@@ -140,14 +140,14 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          * Billing address
          */
         $this->getStorefrontClient()
-            ->request('PUT', '/storefront-api/context', ['billingAddressId' => $billingId]);
+            ->request('PATCH', '/storefront-api/v1/context', ['billingAddressId' => $billingId]);
         static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode());
 
         /*
          * Shipping address
          */
         $this->getStorefrontClient()
-            ->request('PUT', '/storefront-api/context', ['shippingAddressId' => $shippingId]);
+            ->request('PATCH', '/storefront-api/v1/context', ['shippingAddressId' => $shippingId]);
         static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode());
     }
 
@@ -156,7 +156,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
         $customerId = $this->createCustomer($email, $password);
 
-        $this->getStorefrontClient()->request('POST', '/storefront-api/customer/login', [
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);

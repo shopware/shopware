@@ -744,7 +744,7 @@ class LanguageValidatorTest extends TestCase
     public function testDeleteGermanViolation(): void
     {
         // -de
-        $deDe = ['id' => Defaults::LANGUAGE_DE];
+        $deDe = ['id' => Defaults::LANGUAGE_SYSTEM_DE];
 
         $this->assertDeleteViolations(
             [$deDe],
@@ -775,7 +775,7 @@ class LanguageValidatorTest extends TestCase
     {
         // -en, -de
         $enGb = ['id' => Defaults::LANGUAGE_SYSTEM];
-        $deDe = ['id' => Defaults::LANGUAGE_DE];
+        $deDe = ['id' => Defaults::LANGUAGE_SYSTEM_DE];
 
         $this->assertDeleteViolations(
             [$enGb, $deDe],

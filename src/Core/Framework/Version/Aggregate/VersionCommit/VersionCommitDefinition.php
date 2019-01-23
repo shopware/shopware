@@ -64,15 +64,15 @@ class VersionCommitDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('version_id', 'versionId', VersionDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('version_id', 'versionId', VersionDefinition::class))->addFlags(new Required()),
             new IdField('user_id', 'userId'),
             new IdField('integration_id', 'integrationId'),
-            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
             new BoolField('is_merge', 'isMerge'),
-            (new StringField('message', 'message'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('message', 'message'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
-            (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),
         ]);
     }

@@ -21,9 +21,9 @@ class NamedDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
 
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
 
             new FkField('optional_group_id', 'optionalGroupId', NamedOptionalGroupDefinition::class),
 

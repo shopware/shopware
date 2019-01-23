@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
@@ -40,15 +39,15 @@ class DiscountSurchargeDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new TranslatedField('name'),
-            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
-            (new ObjectField('filter_rule', 'filterRule'))->setFlags(new Required()),
-            (new StringField('type', 'type'))->setFlags(new Required()),
-            (new FloatField('amount', 'amount'))->setFlags(new Required()),
+            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
+            (new ObjectField('filter_rule', 'filterRule'))->addFlags(new Required()),
+            (new StringField('type', 'type'))->addFlags(new Required()),
+            (new FloatField('amount', 'amount'))->addFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(DiscountSurchargeTranslationDefinition::class, 'discount_surcharge_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(DiscountSurchargeTranslationDefinition::class, 'discount_surcharge_id'))->addFlags(new Required()),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
         ]);
     }

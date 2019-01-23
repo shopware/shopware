@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
+
 class WhitelistRuleField extends ListField
 {
     public function __construct()
     {
         parent::__construct('whitelist_ids', 'whitelistIds', IdField::class);
+        $this->addFlags(new Inherited());
     }
 }

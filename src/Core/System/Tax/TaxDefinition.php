@@ -39,13 +39,13 @@ class TaxDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FloatField('tax_rate', 'taxRate'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FloatField('tax_rate', 'taxRate'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('name', 'name'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->setFlags(new RestrictDelete(), new ReverseInherited('tax')),
-            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('tax')),
+            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'tax_id', false, 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

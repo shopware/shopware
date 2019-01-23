@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
@@ -42,16 +41,16 @@ class OrderStateDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new TranslatedField('description'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('description'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('has_mail', 'hasMail'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslationsAssociationField(OrderStateTranslationDefinition::class, 'order_state_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new TranslationsAssociationField(OrderStateTranslationDefinition::class, 'order_state_id'))->addFlags(new Required()),
         ]);
     }
 }

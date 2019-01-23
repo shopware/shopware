@@ -9,6 +9,6 @@ class UpdatedAtField extends DateField
     public function __construct()
     {
         parent::__construct('updated_at', 'updatedAt');
-        $this->setFlags(new Required());
+        $this->addFlags(new Required());
     }
 }

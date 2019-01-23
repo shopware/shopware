@@ -20,7 +20,7 @@ class DateTimeDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
             new StringField('name', 'name'),
             new CreatedAtField(),
             new UpdatedAtField(),

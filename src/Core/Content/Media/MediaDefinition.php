@@ -52,32 +52,32 @@ class MediaDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             new FkField('user_id', 'userId', UserDefinition::class),
             new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class),
 
-            (new StringField('mime_type', 'mimeType'))->setFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING), new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new StringField('file_extension', 'fileExtension'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new DateField('uploaded_at', 'uploadedAt'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new LongTextField('file_name', 'fileName'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new IntField('file_size', 'fileSize'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new ObjectField('meta_data', 'metaData'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new ObjectField('media_type', 'mediaType'))->setFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new StringField('mime_type', 'mimeType'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING), new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new StringField('file_extension', 'fileExtension'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new DateField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IntField('file_size', 'fileSize'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new ObjectField('meta_data', 'metaData'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            (new ObjectField('media_type', 'mediaType'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslatedField('alt'))->setFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField('title'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('url', 'url'))->setFlags(new Deferred()),
+            (new TranslatedField('alt'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('title'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('url', 'url'))->addFlags(new Deferred()),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
 
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'),
             new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'),
-            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id', true))->setFlags(new CascadeDelete()),
-            (new BoolField('has_file', 'hasFile'))->setFlags(new Deferred()),
+            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->addFlags(new Required()),
+            (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id', true))->addFlags(new CascadeDelete()),
+            (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),
         ]);
     }

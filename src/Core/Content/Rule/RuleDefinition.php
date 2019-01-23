@@ -42,18 +42,18 @@ class RuleDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
-            (new IntField('priority', 'priority'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
+            (new IntField('priority', 'priority'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            (new ObjectField('payload', 'payload'))->setFlags(new ReadOnly(), new Internal()),
-            (new BoolField('invalid', 'invalid'))->setFlags(new ReadOnly()),
+            (new ObjectField('payload', 'payload'))->addFlags(new ReadOnly(), new Internal()),
+            (new BoolField('invalid', 'invalid'))->addFlags(new ReadOnly()),
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'rule_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

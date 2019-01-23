@@ -57,22 +57,22 @@ class SalesChannelDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('type_id', 'typeId', SalesChannelTypeDefinition::class))->setFlags(new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
-            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
-            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
-            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
-            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
-            (new StringField('type', 'type'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('type_id', 'typeId', SalesChannelTypeDefinition::class))->addFlags(new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
+            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
+            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required()),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
+            (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
-            (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
+            (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
             new StringField('tax_calculation_type', 'taxCalculationType'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('catalogs', CatalogDefinition::class, SalesChannelCatalogDefinition::class, true, 'sales_channel_id', 'catalog_id'),
             new ManyToManyAssociationField('currencies', CurrencyDefinition::class, SalesChannelCurrencyDefinition::class, false, 'sales_channel_id', 'currency_id'),
             new ManyToManyAssociationField('languages', LanguageDefinition::class, SalesChannelLanguageDefinition::class, false, 'sales_channel_id', 'language_id'),
@@ -87,7 +87,7 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
             new OneToManyAssociationField('orders', OrderDefinition::class, 'sales_channel_id', false, 'id'),
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', false, 'id'),
-            (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', false, 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

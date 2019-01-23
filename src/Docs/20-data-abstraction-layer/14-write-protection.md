@@ -5,7 +5,7 @@ For example if you have to run some custom logic before you can update a fields 
 If you set this Flag you have to define a permission key, that has to be set in the write-protection extension of the write operations context.
 
 ```
-(new StringField('protected', 'protected'))->setFlags(new WriteProtected('permission_key_example'));
+(new StringField('protected', 'protected'))->addFlags(new WriteProtected('permission_key_example'));
 ```
 
 In your own controller with your custom logic you can easily add the required permission key to the context.

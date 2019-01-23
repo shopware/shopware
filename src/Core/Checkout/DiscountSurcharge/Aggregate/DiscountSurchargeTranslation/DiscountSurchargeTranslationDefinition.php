@@ -33,7 +33,7 @@ class DiscountSurchargeTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
         ]);
     }
 }

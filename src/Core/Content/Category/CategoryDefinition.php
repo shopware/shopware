@@ -58,16 +58,16 @@ class CategoryDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new CatalogField(),
 
             new ParentFkField(self::class),
-            new ReferenceVersionField(self::class, 'parent_version_id'),
+            (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
 
             new FkField('media_id', 'mediaId', MediaDefinition::class),
 
-            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
             new TreePathField('path', 'path'),
             new IntField('position', 'position'),
             new TreeLevelField('level', 'level'),
@@ -85,8 +85,8 @@ class CategoryDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('metaKeywords'))->setFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('metaKeywords'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             new TranslatedField('metaTitle'),
             new TranslatedField('metaDescription'),
             new TranslatedField('cmsHeadline'),
@@ -94,11 +94,11 @@ class CategoryDefinition extends EntityDefinition
 
             new ParentAssociationField(self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
-            (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),
-            (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->setFlags(new Required(), new CascadeDelete()),
-            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'id'))->setFlags(new CascadeDelete(), new ReverseInherited('categories')),
+            new ChildrenAssociationField(self::class),
+            (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
-            (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new ReadOnly()),
+            (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReadOnly()),
         ]);
     }
 }

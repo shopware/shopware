@@ -33,12 +33,12 @@ class SearchDocumentDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new IdField('entity_id', 'entityId'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('entity', 'entity'))->setFlags(new Required()),
-            (new StringField('keyword', 'keyword'))->setFlags(new Required()),
-            (new FloatField('ranking', 'ranking'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('entity_id', 'entityId'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('entity', 'entity'))->addFlags(new Required()),
+            (new StringField('keyword', 'keyword'))->addFlags(new Required()),
+            (new FloatField('ranking', 'ranking'))->addFlags(new Required()),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
     }

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
@@ -51,11 +50,11 @@ class PaymentMethodDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
-            (new StringField('technical_name', 'technicalName'))->setFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('additionalDescription'),
             new StringField('template', 'template'),
             new StringField('class', 'class'),
@@ -67,13 +66,13 @@ class PaymentMethodDefinition extends EntityDefinition
             new LongTextField('risk_rules', 'riskRules'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, false, 'payment_method_id', 'sales_channel_id'),
         ]);
     }

@@ -21,8 +21,8 @@ class WriteProtectedTranslatedDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new Required(), new PrimaryKey()),
-            (new TranslatedField('protected'))->setFlags(new WriteProtected('WriteProtected')),
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new TranslatedField('protected'))->addFlags(new WriteProtected('WriteProtected')),
             new TranslationsAssociationField(WriteProtectedTranslationDefinition::class, 'wp_id'),
         ]);
     }

@@ -41,10 +41,10 @@ class UserAccessKeyDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('user_id', 'userId', UserDefinition::class))->setFlags(new Required()),
-            (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
-            (new PasswordField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()),
+            (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
+            (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
             new BoolField('write_access', 'writeAccess'),
             new CreatedAtField(),
             new DateField('last_usage_at', 'lastUsageAt'),

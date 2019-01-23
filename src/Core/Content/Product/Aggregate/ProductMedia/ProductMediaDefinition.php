@@ -45,19 +45,19 @@ class ProductMediaDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new CatalogField(),
 
-            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(ProductDefinition::class))->setFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
 
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
 
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->setFlags(new ReverseInherited('media')),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->addFlags(new ReverseInherited('media')),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);

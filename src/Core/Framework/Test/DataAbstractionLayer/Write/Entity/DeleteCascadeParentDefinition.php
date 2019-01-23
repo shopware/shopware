@@ -26,7 +26,7 @@ class DeleteCascadeParentDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
 
             new VersionField(),
 
@@ -34,7 +34,7 @@ class DeleteCascadeParentDefinition extends EntityDefinition
             new ManyToOneAssociationField('manyToOne', 'delete_cascade_many_to_one_id', DeleteCascadeManyToOneDefinition::class, false),
 
             new StringField('name', 'name'),
-            (new OneToManyAssociationField('cascades', DeleteCascadeChildDefinition::class, 'delete_cascade_parent_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('cascades', DeleteCascadeChildDefinition::class, 'delete_cascade_parent_id', false))->addFlags(new CascadeDelete()),
         ]);
     }
 }
@@ -49,10 +49,10 @@ class DeleteCascadeChildDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
 
-            (new FkField('delete_cascade_parent_id', 'deleteCascadeParentId', DeleteCascadeParentDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(DeleteCascadeParentDefinition::class))->setFlags(new Required()),
+            (new FkField('delete_cascade_parent_id', 'deleteCascadeParentId', DeleteCascadeParentDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(DeleteCascadeParentDefinition::class))->addFlags(new Required()),
 
             new StringField('name', 'name'),
             new ManyToOneAssociationField('deleteCascadeParent', 'delete_cascade_parent_id', DeleteCascadeParentDefinition::class, false),
@@ -70,10 +70,10 @@ class DeleteCascadeManyToOneDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
 
             new StringField('name', 'name'),
-            (new OneToManyAssociationField('parents', DeleteCascadeParentDefinition::class, 'delete_cascade_many_to_one_id', false))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('parents', DeleteCascadeParentDefinition::class, 'delete_cascade_many_to_one_id', false))->addFlags(new CascadeDelete()),
         ]);
     }
 }

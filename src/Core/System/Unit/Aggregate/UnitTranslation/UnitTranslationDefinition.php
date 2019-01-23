@@ -33,8 +33,8 @@ class UnitTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('short_code', 'shortCode'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('short_code', 'shortCode'))->addFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
         ]);
     }
 }

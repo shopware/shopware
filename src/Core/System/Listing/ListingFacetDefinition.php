@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
@@ -39,17 +38,17 @@ class ListingFacetDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required()),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('unique_key', 'uniqueKey'))->addFlags(new Required()),
+            (new LongTextField('payload', 'payload'))->addFlags(new Required()),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new BoolField('deletable', 'deletable'),
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new TranslationsAssociationField(ListingFacetTranslationDefinition::class, 'listing_facet_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField(ListingFacetTranslationDefinition::class, 'listing_facet_id'))->addFlags(new Required()),
         ]);
     }
 }

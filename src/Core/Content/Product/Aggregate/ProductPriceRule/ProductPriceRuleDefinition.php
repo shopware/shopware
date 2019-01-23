@@ -45,18 +45,18 @@ class ProductPriceRuleDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(ProductDefinition::class),
-            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
-            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
-            (new PriceField('price', 'price'))->setFlags(new Required()),
-            (new IntField('quantity_start', 'quantityStart'))->setFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
+            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
+            (new PriceField('price', 'price'))->addFlags(new Required()),
+            (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required()),
             new IntField('quantity_end', 'quantityEnd'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'id'))->setFlags(new ReverseInherited('priceRules')),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'id'))->addFlags(new ReverseInherited('priceRules')),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),
         ]);

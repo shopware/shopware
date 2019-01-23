@@ -54,8 +54,8 @@ class VersionDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             new UpdatedAtField(),
             new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),

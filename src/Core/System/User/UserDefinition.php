@@ -42,12 +42,12 @@ class UserDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
-            (new StringField('username', 'username'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new PasswordField('password', 'password'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->addFlags(new Required()),
+            (new StringField('username', 'username'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new PasswordField('password', 'password'))->addFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new DateField('last_login', 'lastLogin'),
             new BoolField('active', 'active'),
             new IntField('failed_logins', 'failedLogins'),

@@ -53,18 +53,18 @@ class OrderLineItemDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
-            (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderDefinition::class))->setFlags(new Required()),
+            (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(OrderDefinition::class))->addFlags(new Required()),
 
             new ParentFkField(self::class),
-            new ReferenceVersionField(self::class, 'parent_version_id'),
+            (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
 
-            (new StringField('identifier', 'identifier'))->setFlags(new Required()),
-            (new IntField('quantity', 'quantity'))->setFlags(new Required()),
-            (new StringField('label', 'label'))->setFlags(new Required()),
+            (new StringField('identifier', 'identifier'))->addFlags(new Required()),
+            (new IntField('quantity', 'quantity'))->addFlags(new Required()),
+            (new StringField('label', 'label'))->addFlags(new Required()),
             (new JsonField('payload', 'payload')),
             new BoolField('good', 'good'),
             new BoolField('removable', 'removable'),
@@ -74,14 +74,14 @@ class OrderLineItemDefinition extends EntityDefinition
             new ObjectField('price', 'price'),
             (new ObjectField('price_definition', 'priceDefinition')),
 
-            (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
-            (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
+            (new FloatField('unit_price', 'unitPrice'))->addFlags(new Required()),
+            (new FloatField('total_price', 'totalPrice'))->addFlags(new Required()),
             new StringField('description', 'description'),
             new StringField('type', 'type'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
-            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->setFlags(new CascadeDelete(), new ReadOnly()),
+            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->addFlags(new CascadeDelete(), new ReadOnly()),
             new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),
         ]);

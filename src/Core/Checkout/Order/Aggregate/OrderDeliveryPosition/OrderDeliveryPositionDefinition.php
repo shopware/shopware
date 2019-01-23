@@ -42,18 +42,18 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
-            (new FkField('order_delivery_id', 'orderDeliveryId', OrderDeliveryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderDeliveryDefinition::class))->setFlags(new Required()),
+            (new FkField('order_delivery_id', 'orderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(OrderDeliveryDefinition::class))->addFlags(new Required()),
 
-            (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(OrderLineItemDefinition::class))->setFlags(new Required()),
+            (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(OrderLineItemDefinition::class))->addFlags(new Required()),
 
-            (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
-            (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
-            (new FloatField('quantity', 'quantity'))->setFlags(new Required()),
+            (new FloatField('unit_price', 'unitPrice'))->addFlags(new Required()),
+            (new FloatField('total_price', 'totalPrice'))->addFlags(new Required()),
+            (new FloatField('quantity', 'quantity'))->addFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, false),

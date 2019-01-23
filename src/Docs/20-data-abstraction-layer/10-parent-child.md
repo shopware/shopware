@@ -46,7 +46,7 @@ public static function allowInheritance(): bool
 ### 5. Flag fields as inheritable
 
 ```php
-(new StringField('supervisor', 'supervisor'))->setFlags(new Inherited())
+(new StringField('supervisor', 'supervisor'))->addFlags(new Inherited())
 ```
 
 ## Translations
@@ -70,6 +70,6 @@ your definition and add the `Inherited` flag to your translated fields and
 the translation association.
 
 ```php
-(new TranslatedField('supervisor'))->setFlags(new Inherited()),
-(new TranslationsAssociationField(EmployeeTranslationDefinition::class))->setFlags(new Inherited()),
+(new TranslatedField('supervisor'))->addFlags(new Inherited()),
+(new TranslationsAssociationField(EmployeeTranslationDefinition::class))->addFlags(new Inherited()),
 ```

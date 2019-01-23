@@ -39,13 +39,13 @@ class ShippingMethodPriceDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
+            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required()),
 
-            (new FloatField('quantity_from', 'quantityFrom'))->setFlags(new Required()),
-            (new FloatField('price', 'price'))->setFlags(new Required()),
-            (new FloatField('factor', 'factor'))->setFlags(new Required()),
+            (new FloatField('quantity_from', 'quantityFrom'))->addFlags(new Required()),
+            (new FloatField('price', 'price'))->addFlags(new Required()),
+            (new FloatField('factor', 'factor'))->addFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),

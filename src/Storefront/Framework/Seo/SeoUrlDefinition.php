@@ -35,12 +35,12 @@ class SeoUrlDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
-            (new IdField('foreign_key', 'foreignKey'))->setFlags(new Required()),
-            (new StringField('path_info', 'pathInfo'))->setFlags(new Required()),
-            (new StringField('seo_path_info', 'seoPathInfo'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
+            (new IdField('foreign_key', 'foreignKey'))->addFlags(new Required()),
+            (new StringField('path_info', 'pathInfo'))->addFlags(new Required()),
+            (new StringField('seo_path_info', 'seoPathInfo'))->addFlags(new Required()),
             new BoolField('is_canonical', 'isCanonical'),
             new BoolField('is_modified', 'isModified'),
             new CreatedAtField(),

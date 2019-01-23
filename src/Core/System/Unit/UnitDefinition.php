@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
@@ -39,13 +38,13 @@ class UnitDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField('shortCode'))->setFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new TranslatedField('shortCode'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->setFlags(new RestrictDelete(), new ReverseInherited('unit')),
-            (new TranslationsAssociationField(UnitTranslationDefinition::class, 'unit_id'))->setFlags(new Required(), new CascadeDelete()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('unit')),
+            (new TranslationsAssociationField(UnitTranslationDefinition::class, 'unit_id'))->addFlags(new Required()),
         ]);
     }
 }

@@ -800,7 +800,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 protected static function defineFields(): FieldCollection
 {
     return new FieldCollection([
-       (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),  
+       (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),  
        // ...
     ]);
 }
@@ -1255,7 +1255,7 @@ class PromotionExtension implements EntityExtensionInterface, EventSubscriberInt
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new OneToManyAssociationField('promotion', PromotionDefinition::class, 'product_id', true))->setFlags(new Extension())
+            (new OneToManyAssociationField('promotion', PromotionDefinition::class, 'product_id', true))->addFlags(new Extension())
         );
     }
 

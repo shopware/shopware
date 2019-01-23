@@ -90,7 +90,7 @@ class PasswordFieldTest extends TestCase
     public function testValueIsRequiredOnInsert(): void
     {
         $field = clone $this->field;
-        $field->setFlags(new Required());
+        $field->addFlags(new Required());
 
         $existence = new EntityExistence(UserDefinition::class, [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
@@ -119,7 +119,7 @@ class PasswordFieldTest extends TestCase
     public function testValueIsRequiredOnUpdate(): void
     {
         $field = clone $this->field;
-        $field->setFlags(new Required());
+        $field->addFlags(new Required());
 
         $existence = new EntityExistence(UserDefinition::class, [], true, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);

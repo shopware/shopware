@@ -42,9 +42,9 @@ class RuleConditionDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('type', 'type'))->setFlags(new Required()),
-            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('type', 'type'))->addFlags(new Required()),
+            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
             new ParentFkField(self::class),
             new JsonField('value', 'value'),
             new IntField('position', 'position'),

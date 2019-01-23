@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\Version\VersionDefinition;
 
 class ReferenceVersionField extends FkField
@@ -25,7 +24,6 @@ class ReferenceVersionField extends FkField
 
         parent::__construct($storageName, $propertyName, VersionDefinition::class);
 
-        $this->setFlags(new Required());
         $this->versionReference = $definition;
     }
 

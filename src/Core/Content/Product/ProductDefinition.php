@@ -99,17 +99,17 @@ class ProductDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new CatalogField(),
 
             new ParentFkField(self::class),
-            new ReferenceVersionField(self::class, 'parent_version_id'),
+            (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
 
-            (new BlacklistRuleField())->setFlags(new Inherited()),
-            (new WhitelistRuleField())->setFlags(new Inherited()),
+            new BlacklistRuleField(),
+            new WhitelistRuleField(),
 
-            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
 
             //not inherited fields
             new BoolField('active', 'active'),
@@ -118,83 +118,83 @@ class ProductDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             //inherited foreign keys with version fields
-            (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->setFlags(new Inherited(), new Required()),
-            (new ReferenceVersionField(ProductManufacturerDefinition::class))->setFlags(new Inherited(), new Required()),
+            (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->addFlags(new Inherited(), new Required()),
+            (new ReferenceVersionField(ProductManufacturerDefinition::class))->addFlags(new Inherited(), new Required()),
 
-            (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new Inherited()),
-            (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Inherited(), new Required()),
+            (new FkField('unit_id', 'unitId', UnitDefinition::class))->addFlags(new Inherited()),
+            (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Inherited(), new Required()),
 
-            (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->setFlags(new Inherited()),
-            (new ReferenceVersionField(ProductMediaDefinition::class))->setFlags(new Inherited()),
+            (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->addFlags(new Inherited()),
+            (new ReferenceVersionField(ProductMediaDefinition::class))->addFlags(new Inherited()),
 
             //inherited data fields
-            (new PriceField('price', 'price'))->setFlags(new Inherited(), new Required()),
-            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited(), new ReadOnly()),
+            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
+            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new ReadOnly()),
 
-            (new StringField('manufacturer_number', 'manufacturerNumber'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('ean', 'ean'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
-            (new IntField('min_stock', 'minStock'))->setFlags(new Inherited()),
-            (new IntField('purchase_steps', 'purchaseSteps'))->setFlags(new Inherited()),
-            (new IntField('max_purchase', 'maxPurchase'))->setFlags(new Inherited()),
-            (new IntField('min_purchase', 'minPurchase'))->setFlags(new Inherited()),
-            (new FloatField('purchase_unit', 'purchaseUnit'))->setFlags(new Inherited()),
-            (new FloatField('reference_unit', 'referenceUnit'))->setFlags(new Inherited()),
-            (new BoolField('shipping_free', 'shippingFree'))->setFlags(new Inherited()),
-            (new FloatField('purchase_price', 'purchasePrice'))->setFlags(new Inherited()),
-            (new BoolField('mark_as_topseller', 'markAsTopseller'))->setFlags(new Inherited()),
-            (new IntField('sales', 'sales'))->setFlags(new Inherited()),
-            (new IntField('position', 'position'))->setFlags(new Inherited()),
-            (new FloatField('weight', 'weight'))->setFlags(new Inherited()),
-            (new FloatField('width', 'width'))->setFlags(new Inherited()),
-            (new FloatField('height', 'height'))->setFlags(new Inherited()),
-            (new FloatField('length', 'length'))->setFlags(new Inherited()),
-            (new BoolField('allow_notification', 'allowNotification'))->setFlags(new Inherited()),
-            (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
-            (new ListField('category_tree', 'categoryTree', IdField::class))->setFlags(new Inherited(), new ReadOnly()),
-            (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->setFlags(new Inherited()),
+            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
+            (new IntField('min_stock', 'minStock'))->addFlags(new Inherited()),
+            (new IntField('purchase_steps', 'purchaseSteps'))->addFlags(new Inherited()),
+            (new IntField('max_purchase', 'maxPurchase'))->addFlags(new Inherited()),
+            (new IntField('min_purchase', 'minPurchase'))->addFlags(new Inherited()),
+            (new FloatField('purchase_unit', 'purchaseUnit'))->addFlags(new Inherited()),
+            (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new Inherited()),
+            (new BoolField('shipping_free', 'shippingFree'))->addFlags(new Inherited()),
+            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited()),
+            (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new Inherited()),
+            (new IntField('sales', 'sales'))->addFlags(new Inherited()),
+            (new IntField('position', 'position'))->addFlags(new Inherited()),
+            (new FloatField('weight', 'weight'))->addFlags(new Inherited()),
+            (new FloatField('width', 'width'))->addFlags(new Inherited()),
+            (new FloatField('height', 'height'))->addFlags(new Inherited()),
+            (new FloatField('length', 'length'))->addFlags(new Inherited()),
+            (new BoolField('allow_notification', 'allowNotification'))->addFlags(new Inherited()),
+            (new DateField('release_date', 'releaseDate'))->addFlags(new Inherited()),
+            (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new Inherited(), new ReadOnly()),
+            (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->addFlags(new Inherited()),
             new ListField('variation_ids', 'variationIds', IdField::class),
-            (new IntField('min_delivery_time', 'minDeliveryTime'))->setFlags(new Inherited()),
-            (new IntField('max_delivery_time', 'maxDeliveryTime'))->setFlags(new Inherited()),
-            (new IntField('restock_time', 'restockTime'))->setFlags(new Inherited()),
+            (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
+            (new IntField('max_delivery_time', 'maxDeliveryTime'))->addFlags(new Inherited()),
+            (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
 
             //translatable fields
-            (new TranslatedField('additionalText'))->setFlags(new Inherited()),
-            (new TranslatedField('name'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('keywords'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new TranslatedField('description'))->setFlags(new Inherited()),
-            (new TranslatedField('descriptionLong'))->setFlags(new Inherited()),
-            (new TranslatedField('metaTitle'))->setFlags(new Inherited()),
-            (new TranslatedField('packUnit'))->setFlags(new Inherited()),
+            (new TranslatedField('additionalText'))->addFlags(new Inherited()),
+            (new TranslatedField('name'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('keywords'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('description'))->addFlags(new Inherited()),
+            (new TranslatedField('descriptionLong'))->addFlags(new Inherited()),
+            (new TranslatedField('metaTitle'))->addFlags(new Inherited()),
+            (new TranslatedField('packUnit'))->addFlags(new Inherited()),
 
             //parent - child inheritance
             new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),
 
             //inherited associations and associations which are loaded immediately
-            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->setFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->setFlags(new Inherited()),
-            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->setFlags(new Inherited()),
-            (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->addFlags(new Inherited()),
+            (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->addFlags(new CascadeDelete(), new Inherited()),
 
             //inherited associations which are not loaded immediately
-            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete(), new Inherited()),
-            (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->addFlags(new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             //associations which are not loaded immediately
-            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             //association for special keyword mapping for search algorithm
             new SearchKeywordAssociationField(),
 
             //not inherited associations
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new ReadOnly()),
-            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new ReadOnly()),
+            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new Inherited(), new Required()),
 
-            (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
         ]);
     }

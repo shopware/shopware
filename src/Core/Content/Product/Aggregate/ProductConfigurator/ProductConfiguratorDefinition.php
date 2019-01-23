@@ -43,11 +43,11 @@ class ProductConfiguratorDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(ProductDefinition::class),
-            (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
+            (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->addFlags(new Required()),
             new PriceField('price', 'price'),
             new PriceRulesJsonField('prices', 'prices'),
             new CreatedAtField(),

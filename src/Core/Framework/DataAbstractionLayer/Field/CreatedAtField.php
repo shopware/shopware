@@ -9,6 +9,6 @@ class CreatedAtField extends DateField
     public function __construct()
     {
         parent::__construct('created_at', 'createdAt');
-        $this->setFlags(new Required());
+        $this->addFlags(new Required());
     }
 }

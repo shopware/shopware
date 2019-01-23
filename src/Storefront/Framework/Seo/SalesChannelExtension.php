@@ -14,7 +14,7 @@ class SalesChannelExtension implements EntityExtensionInterface
     {
         $collection->add(
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'sales_channel_id', false, 'id'))
-                ->setFlags(new Extension())
+                ->addFlags(new Extension())
         );
     }
 

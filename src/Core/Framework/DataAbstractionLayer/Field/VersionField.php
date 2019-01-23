@@ -12,6 +12,6 @@ class VersionField extends FkField
     {
         parent::__construct('version_id', 'versionId', VersionDefinition::class);
 
-        $this->setFlags(new PrimaryKey(), new Required());
+        $this->addFlags(new PrimaryKey(), new Required());
     }
 }

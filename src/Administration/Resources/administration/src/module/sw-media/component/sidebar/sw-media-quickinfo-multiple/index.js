@@ -27,9 +27,7 @@ Component.register('sw-media-quickinfo-multiple', {
         },
 
         getFileSizeLabel() {
-            return `${this.$tc('sw-media.sidebar.metadata.fileCount', this.items.length, { count: this.items.length })}, 
-                    ${this.$tc('sw-media.sidebar.metadata.totalSize')}: 
-                    ${this.getFileSize}`;
+            return `${this.$tc('sw-media.sidebar.metadata.totalSize')}: ${this.getFileSize}`;
         },
 
         hasFolder() {

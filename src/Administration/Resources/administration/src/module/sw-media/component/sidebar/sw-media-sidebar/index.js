@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Filter } from 'src/core/shopware';
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
 
@@ -38,6 +38,10 @@ Component.register('sw-media-sidebar', {
     },
 
     computed: {
+        mediaNameFilter() {
+            return Filter.getByName('mediaName');
+        },
+
         hasItems() {
             return this.items.length > 0;
         },
@@ -50,18 +54,27 @@ Component.register('sw-media-sidebar', {
             return this.items.length > 1;
         },
 
-        getKey() {
-            if (!this.isSingleFile) {
-                return '';
+        headLine() {
+            if (this.isSingleFile) {
+                if (this.firstEntity.entityName === 'media') {
+                    return this.mediaNameFilter(this.firstEntity);
+                }
+                return this.firstEntity.name;
             }
 
-            const item = this.items[0];
-            let key = '';
-
-            if (this.item) {
-                key = item.id;
+            if (this.isMultipleFile) {
+                return this.getSelectedFilesCount;
             }
-            return key;
+
+            if (this.currentFolder) {
+                return this.currentFolder.name;
+            }
+
+            return '';
+        },
+
+        getSelectedFilesCount() {
+            return `${this.$tc('sw-media.sidebar.labelHeadlineMultiple', this.items.length, { count: this.items.length })}`;
         },
 
         mediaItems() {
@@ -76,12 +89,8 @@ Component.register('sw-media-sidebar', {
             });
         },
 
-        showDeleteButton() {
-            return this.hasItems && !this.hasFolder;
-        },
-
         firstEntity() {
-            return this.items[0].entityName;
+            return this.items[0];
         }
     },
 

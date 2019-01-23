@@ -12,15 +12,12 @@ $sw-media-quickinfo-border-radius:      $border-radius-default;
 $sw-media-quickinfo-metadata-color:     $color-gutenberg;
 
 .sw-media-quickinfo {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
     .sw-media-quickinfo__alert-file-missing {
         margin: 0 25px 25px;
-    }
-
-    .sw-media-quickinfo-headline {
-        .truncate();
-        margin: 25px;
-        font-size: 18px;
-        color: $sw-media-quickinfo-color-headline;
     }
 
     .sw-media-quickinfo__collapse {

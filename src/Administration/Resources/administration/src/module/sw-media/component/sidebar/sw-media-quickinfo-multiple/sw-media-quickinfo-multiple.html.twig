@@ -3,7 +3,7 @@
         {% block sw_media_quickinfo_multiple_quickactions %}
             <sw-media-collapse
                 class="sw-media-quickinfo-multiple__collapse"
-                :title="$tc('sw-media.sidebar.quickinfo.actions')"
+                :title="$tc('sw-media.sidebar.sections.actions')"
                 :expandOnLoading="true">
 
                 <template slot="content">
@@ -33,7 +33,7 @@
                                     {% endblock %}
 
                                     {% block sw_media_quickinfo_multiple_quickactions_delete_label %}
-                                        {{ $tc('sw-media.sidebar.quickinfo.delete') }}
+                                        {{ $tc('sw-media.sidebar.actions.delete') }}
                                     {% endblock %}
                                 </li>
                             {% endblock %}
@@ -58,25 +58,24 @@
 
         {% block sw_media_quickinfo_multiple_file_names %}
             <sw-media-collapse
-                    class="sw-media-quickinfo-multiple__collapse sw-media-quickinfo-multiple__collapse-streched"
-                    :expandOnLoading="true"
-                    :title="getFileSizeLabel">
+                class="sw-media-quickinfo-multiple__collapse sw-media-quickinfo-multiple__collapse-streched"
+                :expandOnLoading="true"
+                title="Ausgewählte Dateien">
 
-                <template slot="content">
-                    {% block sw_media_quickinfo_multiple_file_names_content %}
-                        <div class="sw-media-quickinfo-multiple__collapse-content">
-                            <sw-media-entity-mapper
-                                v-for="mediaItem in items"
-                                :key="mediaItem.id"
-                                :item="mediaItem"
-                                :selected="false"
-                                :isList="true"
-                                :showContextMenuButton="false"
-                                :showSelectionIndicator="false">
-                            </sw-media-entity-mapper>
-                        </div>
-                    {% endblock %}
-                </template>
+                {% block sw_media_quickinfo_multiple_file_names_content %}
+                    <div slot="content" class="sw-media-quickinfo-multiple__collapse-content">
+                        <span>{{ getFileSizeLabel }}</span>
+                        <sw-media-entity-mapper
+                            v-for="mediaItem in items"
+                            :key="mediaItem.id"
+                            :item="mediaItem"
+                            :selected="false"
+                            :isList="true"
+                            :showContextMenuButton="false"
+                            :showSelectionIndicator="false">
+                        </sw-media-entity-mapper>
+                    </div>
+                {% endblock %}
             </sw-media-collapse>
         {% endblock %}
     </div>

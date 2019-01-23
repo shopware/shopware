@@ -2,16 +2,15 @@
     <div class="sw-media-quickinfo">
         <template v-if="isMediaObject">
             {% block sw_media_quickinfo_broken_file %}
-                <sw-alert v-if="!item.hasFile" class="sw-media-quickinfo__alert-file-missing" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.titleMissingFile')">
-                    {{ $tc('sw-media.sidebar.quickinfo.descriptionMissingFile') }}
+                <sw-alert v-if="!item.hasFile" class="sw-media-quickinfo__alert-file-missing" variant="warning" :title="$tc('sw-media.sidebar.infoMissingFile.titleMissingFile')">
+                    {{ $tc('sw-media.sidebar.infoMissingFile.descriptionMissingFile') }}
                 </sw-alert>
-                <h3 class="sw-media-quickinfo-headline">{{ item | mediaName }}</h3>
             {% endblock %}
 
             {% block sw_media_quickinfo_quickactions %}
                 <sw-media-collapse
                     class="sw-media-quickinfo__collapse"
-                    :title="$tc('sw-media.sidebar.quickinfo.actions')"
+                    :title="$tc('sw-media.sidebar.sections.actions')"
                     :expandOnLoading="true">
 
                     <template slot="content">
@@ -24,7 +23,7 @@
                                                  name="small-copy"
                                                  class="sw-media-quickinfo__quickactions-icon">
                                         </sw-icon>
-                                        {{ $tc('sw-media.sidebar.quickinfo.replace') }}
+                                        {{ $tc('sw-media.sidebar.actions.replace') }}
                                     </li>
                                 {% endblock %}
 
@@ -38,7 +37,7 @@
                                                      name="default-action-cloud-download"
                                                      class="sw-media-quickinfo__quickactions-icon">
                                             </sw-icon>
-                                            {{ $tc('sw-media.sidebar.quickinfo.download') }}
+                                            {{ $tc('sw-media.sidebar.actions.download') }}
                                         </a>
                                     </li>
                                 {% endblock %}
@@ -62,7 +61,7 @@
                                                  name="default-action-trash"
                                                  class="sw-media-quickinfo__quickactions-icon is--danger">
                                         </sw-icon>
-                                        {{ $tc('sw-media.sidebar.quickinfo.delete') }}
+                                        {{ $tc('sw-media.sidebar.actions.delete') }}
                                     </li>
                                 {% endblock %}
 
@@ -74,7 +73,7 @@
                                                  name="default-web-link"
                                                  class="sw-media-quickinfo__quickactions-icon">
                                         </sw-icon>
-                                        {{ $tc('sw-media.sidebar.quickinfo.copyLink') }}
+                                        {{ $tc('sw-media.sidebar.actions.copyLink') }}
                                     </li>
                                 {% endblock %}
                             </ul>
@@ -89,7 +88,7 @@
                     class="sw-media-quickinfo__collapse"
                     v-if="item.hasFile"
                     :expandOnLoading="true"
-                    :title="$tc('sw-media.sidebar.quickinfo.preview')">
+                    :title="$tc('sw-media.sidebar.sections.preview')">
 
                     <template slot="content">
                         {% block sw_media_quickinfo_preview_content %}
@@ -110,7 +109,7 @@
                     class="sw-media-quickinfo__collapse"
                     v-if="item.hasFile"
                     :expandOnLoading="true"
-                    :title="$tc('sw-media.sidebar.quickinfo.metadata')">
+                    :title="$tc('sw-media.sidebar.sections.metadata')">
 
                     {% block sw_media_quickinfo_metadata_content %}
                          <dl slot="content" class="sw-media-quickinfo__collapse-content sw-media-quickinfo__metadata-list">
@@ -264,7 +263,7 @@
                     class="sw-media-quickinfo__collapse"
                     v-if="item.hasFile"
                     :expandOnLoading="true"
-                    :title="$tc('sw-media.sidebar.quickinfo.usage')">
+                    :title="$tc('sw-media.sidebar.sections.usage')">
 
                     <sw-media-quickinfo-usage slot="content" :item="item"></sw-media-quickinfo-usage>
                 </sw-media-collapse>
@@ -272,14 +271,10 @@
         </template>
 
         <template v-else>
-            {% block sw_media_quickinfo_folder_headline %}
-                <h3 class="sw-media-quickinfo-headline">{{ item.name }}</h3>
-            {% endblock %}
-
             {% block sw_media_quickinfo_folder_quickactions %}
                 <sw-media-collapse
                     class="sw-media-quickinfo__collapse"
-                    :title="$tc('sw-media.sidebar.quickinfo.actions')"
+                    :title="$tc('sw-media.sidebar.sections.actions')"
                     :expandOnLoading="true">
 
                     {% block sw_media_quickinfo_folder_quickactions_content %}
@@ -324,7 +319,7 @@
                     <sw-media-collapse
                             class="sw-media-quickinfo__collapse"
                             :expandOnLoading="true"
-                            :title="$tc('sw-media.sidebar.quickinfo.metadata')">
+                            :title="$tc('sw-media.sidebar.sections.metadata')">
                         {% block sw_media_quickinfo_folder_metadata_content %}
                             <dl slot="content" class="sw-media-quickinfo__collapse-content sw-media-quickinfo__metadata-list">
                                 {% block sw_media_quickinfo_folder_metadata_content_base %}

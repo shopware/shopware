@@ -115,7 +115,8 @@
       "buttonSwitchToUrlUpload": "Datei von Url hochladen",
       "buttonOpenMedia": "Medien öffnen",
       "notificationSuccess": "Datei erfolgreich gespeichert",
-      "notificationFailure": "Fehler beim Hochladen"
+      "notificationFailure": "Fehler beim Hochladen",
+      "caption": "Dateien zum Hochladen hierhin ziehen"
     },
     "sw-media-url-form": {
       "title": "Datei über URL hochladen",
@@ -633,7 +634,6 @@
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
     "mediaForm": {
-      "uploadCaption": "Dateien zum Hochladen hierhin ziehen",
       "errorNoImage": "\"{file}\" ist kein Bild",
       "errorMediaItemDuplicated": "Medium bereits verwendet"
     },
@@ -678,7 +678,6 @@
       "placeholderLink": "Gib die Herstellerwebseite ein...",
       "titleSaveSuccess": "Hersteller",
       "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert.",
-      "addLogoCaption": "Logo hinzufügen",
       "labelUseAsLogo": "Als Logo nutzen"
     }
   },

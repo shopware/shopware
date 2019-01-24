@@ -18,7 +18,6 @@ import './sw-media-upload.less';
  *     variant="regular"
  *     autoUpload="true"
  *     label="My image-upload">
- *     caption="Select a picture to upload">
  * </sw-media-upload>
  */
 Component.register('sw-media-upload', {
@@ -54,11 +53,6 @@ Component.register('sw-media-upload', {
         },
 
         label: {
-            required: false,
-            type: String
-        },
-
-        caption: {
             required: false,
             type: String
         },

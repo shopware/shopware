@@ -72,9 +72,9 @@
 
                         <div v-else class="sw-media-upload__content">
                             {% block sw_media_upload_regular_caption %}
-                                <div v-if="caption" class="sw-media-upload__upload-caption">
+                                <div class="sw-media-upload__upload-caption">
                                     <sw-icon name="default-action-cloud-upload" medium></sw-icon>
-                                    {{ caption }}
+                                    {{ $tc('global.sw-media-upload.caption') }}
                                 </div>
                             {% endblock %}
                         </div>

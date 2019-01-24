@@ -115,7 +115,8 @@
       "buttonSwitchToUrlUpload": "Upload file from url",
       "buttonOpenMedia": "Open media",
       "notificationSuccess": "File has been saved successfully",
-      "notificationFailure": "Error uploading"
+      "notificationFailure": "Error uploading",
+      "caption": "Drag files here to upload them"
     },
     "sw-media-url-form": {
       "title": "Upload file from URL",
@@ -631,7 +632,6 @@
       "messageUploadSuccess": "{count} of {total} files saved."
     },
     "mediaForm": {
-      "uploadCaption": "Drop files here to upload them",
       "errorNoImage": "\"{file}\" is not an image",
       "errorMediaItemDuplicated": "Media item already assigned"
     },
@@ -676,7 +676,6 @@
       "placeholderLink": "Enter manufacturer website.",
       "titleSaveSuccess": "Manufacturer",
       "messageSaveSuccess": "Manufacturer \"{name}\" has been saved successfully.",
-      "addLogoCaption": "Add logo",
       "labelUseAsLogo": "Use as Logo"
     }
   },

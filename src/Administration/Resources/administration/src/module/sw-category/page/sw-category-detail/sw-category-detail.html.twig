@@ -16,33 +16,28 @@
             {% endblock %}
         </template>
 
-        <template slot="additional">
-            {% block sw_category_additional %}
-                <div class="sw-category__tree" v-if="!isMobileViewport || isMobileViewport && !category">
-                    <sw-category-tree
-                        v-if="categories"
-                        :categories="categories"
-                        @sw-category-on-save="onSaveCategories"
-                        @sw-category-on-refresh="onRefreshCategories"
-                        @sw-category-on-duplicate="onDuplicateCategory"
-                        @sw-category-on-reset-details="resetCategory"
-                    ></sw-category-tree>
-                </div>
+        <template slot="side-content">
+            {% block sw_category_side_content %}
+                <sw-category-tree
+                    v-if="!isMobileViewport || isMobileViewport && !category"
+                    :categories="categories"
+                    @sw-category-on-save="onSaveCategories"
+                    @sw-category-on-refresh="onRefreshCategories"
+                    @sw-category-on-duplicate="onDuplicateCategory"
+                    @sw-category-on-reset-details="resetCategory"
+                ></sw-category-tree>
             {% endblock %}
         </template>
 
         <template slot="content">
             {% block sw_category_content %}
-                <div class="sw-category__content" v-if="!isMobileViewport || isMobileViewport && category">
-                    <sw-category-view
-                        v-if="category"
-                        :category="category"
-                        :mediaItem="mediaItem"
-                        :isLoading="isLoading"
-                        @sw-category-view-on-set-media="setMediaItem"
-                        @sw-category-view-on-upload-media="onUploadAdded"
-                    ></sw-category-view>
-                </div>
+                <sw-category-view v-if="!isMobileViewport || isMobileViewport && category"
+                    :category="category"
+                    :mediaItem="mediaItem"
+                    :isLoading="isLoading"
+                    @sw-category-view-on-set-media="setMediaItem"
+                    @sw-category-view-on-upload-media="onUploadAdded"
+                ></sw-category-view>
             {% endblock %}
 
             {% block sw_category_loader %}

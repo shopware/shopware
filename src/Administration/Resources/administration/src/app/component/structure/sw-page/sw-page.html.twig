@@ -71,13 +71,21 @@
         {% endblock %}
 
         {% block sw_page_content %}
-            <div class="sw-page__content" ref="swPageContent" :class="{ 'is--split' : hasAdditionalSlot }">
-                <slot name="additional">
-                    {% block sw_page_slot_additional %}{% endblock %}
-                </slot>
-                <slot name="content">
-                    {% block sw_page_slot_content %}{% endblock %}
-                </slot>
+            <div class="sw-page__content" ref="swPageContent" :class="pageContentClasses">
+                <div v-if="hasSideContentSlot" class="sw-page__side-content">
+                    <div class="sw-page__side-content-inner">
+                        <slot name="side-content">
+                            {% block sw_page_slot_side_content %}{% endblock %}
+                        </slot>
+                    </div>
+                </div>
+                <div class="sw-page__main-content">
+                    <div class="sw-page__main-content-inner">
+                        <slot name="content">
+                            {% block sw_page_slot_content %}{% endblock %}
+                        </slot>
+                    </div>
+                </div>
             </div>
         {% endblock %}
     </div>

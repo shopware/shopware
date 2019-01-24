@@ -488,25 +488,25 @@
   },
   "sw-category": {
     "general": {
-      "mainMenuItemIndex": "Kategorien",
-      "mainMenuItemList": "Übersicht",
-      "headlineCategories": "Kategorien",
-      "headlineInformationCard": "Kategorieinformationen",
-      "buttonCreateCategory": "Kategorie erstellen",
-      "buttonSafeCategory": "Speichern",
-      "isCategoryActiveLabel": "Kategorien ist aktiv",
-      "descriptionLabel": "Beschreibung",
-      "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
+      "mainMenuItemIndex": "Categories",
+      "mainMenuItemList": "Overview",
+      "headlineCategories": "Categories",
+      "headlineInformationCard": "Category information",
+      "buttonCreateCategory": "Create category",
+      "buttonSafeCategory": "Save",
+      "isCategoryActiveLabel": "Category is active",
+      "descriptionLabel": "Description",
+      "showSubcategoryProductsLabel": "Includes products from subcategories",
       "categoryNameLabel": "Name",
-      "titleSaveSuccess": "Kategorien",
-      "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert",
-      "useAsLogo": "Als Logo verwenden",
-      "treeHeadline": "Kategoriestruktur",
+      "titleSaveSuccess": "Categories",
+      "messageSaveSuccess": "The category \"{name}\" was successfully saved",
+      "useAsLogo": "Use as logo",
+      "treeHeadline": "Category structure",
       "actions": {
-          "create": "Neue Subkategorie",
-          "edit": "Bearbeiten",
-          "duplicate": "Duplizieren",
-          "delete": "Löschen"
+        "create": "New subcategory",
+        "edit": "Edit",
+        "duplicate": "Duplicate",
+        "delete": "Delete"
       }
     }
   },

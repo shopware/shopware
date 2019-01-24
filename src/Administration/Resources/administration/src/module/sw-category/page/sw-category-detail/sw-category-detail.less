@@ -1,14 +1,8 @@
 @import "~less/variables";
 
 .sw-category {
-    .sw-category__content {
-        position: relative;
-        height: 100%;
-        width: 100%;
-
-        .sw-card-view .sw-card-view__content {
-            padding: 30px;
-        }
+    .sw-loader {
+        background: unset;
     }
 
     // remove back button with css
@@ -21,11 +15,12 @@
         &.has--category .sw-page__back-btn-container {
             display: block;
         }
-        .sw-page__content.is--split {
+        .sw-page__content.has--side-content {
             grid-template-columns: 1fr;
-        }
-        .sw-category-tree {
-            width: unset;
+
+            .sw-page__side-content {
+                display: none;
+            }
         }
     }
 }

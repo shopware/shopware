@@ -25,6 +25,9 @@ import './sw-page.less';
  *             Action
  *         </sw-button>
  *     </template>
+ *     <template slot="side-content">
+ *         <sw-tree>...</sw-tree>
+ *     </template>
  *     <template slot="content">
  *         <sw-card-view>
  *             <sw-card title="Card1" large></sw-card>
@@ -64,13 +67,20 @@ export default {
             return (this.module !== null) ? this.module.color : '#d8dde6';
         },
 
-        hasAdditionalSlot() {
-            return !!this.$slots.additional;
+        hasSideContentSlot() {
+            return !!this.$slots['side-content'];
         },
 
         pageContainerClasses() {
             return {
                 'has--smart-bar': this.showSmartBar
+            };
+        },
+
+        pageContentClasses() {
+            return {
+                'has--smart-bar': !!this.showSmartBar,
+                'has--side-content': !!this.hasSideContentSlot
             };
         },
 

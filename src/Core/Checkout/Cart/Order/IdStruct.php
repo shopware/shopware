@@ -1,0 +1,28 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Cart\Order;
+
+use Shopware\Core\Framework\Struct\Struct;
+
+class IdStruct extends Struct
+{
+    /**
+     * @vars string
+     */
+    protected $id;
+
+    public function __construct(string $id)
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+}

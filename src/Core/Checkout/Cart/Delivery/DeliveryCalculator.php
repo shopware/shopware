@@ -59,6 +59,18 @@ class DeliveryCalculator
 
     private function calculateDelivery(Delivery $delivery, CheckoutContext $context): void
     {
+        if ($delivery->getShippingCosts()->getUnitPrice() > 0) {
+            $costs = $this->calculateShippingCosts(
+                $delivery->getShippingCosts()->getTotalPrice(),
+                $delivery->getPositions()->getLineItems(),
+                $context
+            );
+
+            $delivery->setShippingCosts($costs);
+
+            return;
+        }
+
         switch ($delivery->getShippingMethod()->getCalculation()) {
             case self::CALCULATION_BY_WEIGHT:
                 $costs = $this->calculateShippingCosts(

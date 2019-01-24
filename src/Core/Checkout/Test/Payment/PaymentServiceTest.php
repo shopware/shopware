@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -184,17 +185,13 @@ class PaymentServiceTest extends TestCase
         Context $context
     ): string {
         $orderId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::uuid4()->getHex();
 
         $order = [
             'id' => $orderId,
             'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => 100,
-            'amountNet' => 100,
-            'positionPrice' => 100,
-            'shippingTotal' => 5,
-            'shippingNet' => 5,
-            'isNet' => true,
-            'isTaxFree' => true,
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
@@ -206,14 +203,18 @@ class PaymentServiceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'billingAddress' => [
-                'salutation' => 'mr',
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'street' => 'Ebbinghoff 10',
-                'zipcode' => '48624',
-                'city' => 'Schöppingen',
-                'countryId' => Defaults::COUNTRY,
+            'billingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'salutation' => 'mr',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                    'countryId' => Defaults::COUNTRY,
+                ],
             ],
             'lineItems' => [],
             'deliveries' => [],

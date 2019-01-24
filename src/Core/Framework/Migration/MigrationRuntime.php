@@ -110,7 +110,7 @@ class MigrationRuntime
         $this->connection->update(
             'migration',
             [
-                '`message`' => $message,
+                '`message`' => utf8_encode($message),
             ],
             [
                 '`class`' => \get_class($migration),

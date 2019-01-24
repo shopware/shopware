@@ -27,7 +27,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Search\CompositeEntitySearcher;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Exception\InvalidVersionNameException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -81,7 +86,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"})
+     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"}, requirements={"version"="\d+"})
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
@@ -96,7 +101,12 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"})
+     * @Route("/api/v{version}/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"}, requirements={
+     *     "version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
+     * })
+     *
+     * @throws UnknownRepositoryVersionException
+     * @throws DefinitionNotFoundException
      */
     public function clone(Request $request, Context $context, string $entity, string $id)
     {
@@ -117,6 +127,66 @@ class ApiController extends AbstractController
         $newId = array_shift($ids);
 
         return new JsonResponse(['id' => $newId]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/version/{entity}/{id}", name="api.createVersion", methods={"POST"},
+     *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
+     * })
+     *
+     * @throws InvalidUuidException
+     * @throws InvalidVersionNameException
+     * @throws UnknownRepositoryVersionException
+     */
+    public function createVersion(Request $request, Context $context, string $entity, string $id): Response
+    {
+        $versionId = $request->query->get('version_id');
+        $versionName = $request->query->get('version_name');
+
+        if ($versionId !== null && !Uuid::isValid($versionId)) {
+            throw new InvalidUuidException($versionId);
+        }
+
+        if ($versionName !== null && !ctype_alnum($versionName)) {
+            throw new InvalidVersionNameException();
+        }
+
+        try {
+            $entityDefinition = $this->definitionRegistry->get($entity);
+        } catch (DefinitionNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        }
+
+        $repository = $this->getRepository($entityDefinition, $request);
+        $versionId = $repository->createVersion($id, $context, $versionName, $versionId);
+
+        return new JsonResponse([
+            'version_id' => $versionId,
+            'version_name' => $versionName,
+            'id' => $id,
+            'entity' => $entity,
+        ]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/version/merge/{entity}/{versionId}", name="api.mergeVersion", methods={"POST"},
+     *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "versionId"="[0-9a-f]{32}"
+     * })
+     *
+     * @throws InvalidUuidException
+     * @throws UnknownRepositoryVersionException
+     */
+    public function mergeVersion(Request $request, Context $context, string $entity, string $versionId): JsonResponse
+    {
+        if (!Uuid::isValid($versionId)) {
+            throw new InvalidUuidException($versionId);
+        }
+
+        $entityDefinition = $this->getEntityDefinition($entity);
+        $repository = $this->getRepository($entityDefinition, $request);
+        $repository->merge($versionId, $context);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
@@ -773,5 +843,21 @@ class ApiController extends AbstractController
         $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
 
         return isset($scopes[$scopeIdentifier]);
+    }
+
+    /**
+     * @param string $entityName
+     *
+     * @return EntityDefinition|string
+     */
+    private function getEntityDefinition(string $entityName)
+    {
+        try {
+            $entityDefinition = $this->definitionRegistry->get($entityName);
+        } catch (DefinitionNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        }
+
+        return $entityDefinition;
     }
 }

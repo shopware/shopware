@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -59,6 +61,11 @@ class OrderEntity extends Entity
     protected $date;
 
     /**
+     * @var CartPrice
+     */
+    protected $price;
+
+    /**
      * @var float
      */
     protected $amountTotal;
@@ -72,6 +79,16 @@ class OrderEntity extends Entity
      * @var float
      */
     protected $positionPrice;
+
+    /**
+     * @var string
+     */
+    protected $taxStatus;
+
+    /**
+     * @var CalculatedPrice
+     */
+    protected $shippingCosts;
 
     /**
      * @var float
@@ -124,9 +141,9 @@ class OrderEntity extends Entity
     protected $salesChannel;
 
     /**
-     * @var OrderAddressEntity
+     * @var OrderAddressCollection
      */
-    protected $billingAddress;
+    protected $addresses;
 
     /**
      * @var OrderDeliveryCollection|null
@@ -238,14 +255,19 @@ class OrderEntity extends Entity
         $this->date = $date;
     }
 
+    public function getPrice(): CartPrice
+    {
+        return $this->price;
+    }
+
+    public function setPrice(CartPrice $price): void
+    {
+        $this->price = $price;
+    }
+
     public function getAmountTotal(): float
     {
         return $this->amountTotal;
-    }
-
-    public function setAmountTotal(float $amountTotal): void
-    {
-        $this->amountTotal = $amountTotal;
     }
 
     public function getAmountNet(): float
@@ -253,49 +275,29 @@ class OrderEntity extends Entity
         return $this->amountNet;
     }
 
-    public function setAmountNet(float $amountNet): void
-    {
-        $this->amountNet = $amountNet;
-    }
-
     public function getPositionPrice(): float
     {
         return $this->positionPrice;
     }
 
-    public function setPositionPrice(float $positionPrice): void
+    public function getTaxStatus(): string
     {
-        $this->positionPrice = $positionPrice;
+        return $this->taxStatus;
+    }
+
+    public function getShippingCosts(): CalculatedPrice
+    {
+        return $this->shippingCosts;
+    }
+
+    public function setShippingCosts(CalculatedPrice $shippingCosts): void
+    {
+        $this->shippingCosts = $shippingCosts;
     }
 
     public function getShippingTotal(): float
     {
         return $this->shippingTotal;
-    }
-
-    public function setShippingTotal(float $shippingTotal): void
-    {
-        $this->shippingTotal = $shippingTotal;
-    }
-
-    public function getIsNet(): bool
-    {
-        return $this->isNet;
-    }
-
-    public function setIsNet(bool $isNet): void
-    {
-        $this->isNet = $isNet;
-    }
-
-    public function getIsTaxFree(): bool
-    {
-        return $this->isTaxFree;
-    }
-
-    public function setIsTaxFree(bool $isTaxFree): void
-    {
-        $this->isTaxFree = $isTaxFree;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -368,9 +370,14 @@ class OrderEntity extends Entity
         $this->salesChannel = $salesChannel;
     }
 
-    public function getBillingAddress(): OrderAddressEntity
+    public function getAddresses(): OrderAddressCollection
     {
-        return $this->billingAddress;
+        return $this->addresses;
+    }
+
+    public function setAddresses(OrderAddressCollection $addresses): void
+    {
+        $this->addresses = $addresses;
     }
 
     public function getDeliveries(): ?OrderDeliveryCollection
@@ -421,11 +428,6 @@ class OrderEntity extends Entity
     public function setAutoIncrement(int $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
-    }
-
-    public function setBillingAddress(OrderAddressEntity $billingAddress): void
-    {
-        $this->billingAddress = $billingAddress;
     }
 
     public function getSearchKeywords(): ?SearchDocumentCollection

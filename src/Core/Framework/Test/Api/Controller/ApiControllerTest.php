@@ -80,7 +80,7 @@ EOF;
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getClient()->getResponse();
 
         /* @var Response $response */
@@ -99,7 +99,7 @@ EOF;
 
         $data = ['id' => $id, 'name' => $id];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -114,7 +114,7 @@ EOF;
             'shortCode' => 'test',
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country/' . $id . '/states/', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country/' . $id . '/states/', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -147,7 +147,7 @@ EOF;
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
         static::assertNotEmpty($response->headers->get('Location'));
@@ -159,7 +159,7 @@ EOF;
             'link' => 'https://www.shopware.com',
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/manufacturer', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/manufacturer', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id . "\n" . $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -188,7 +188,7 @@ EOF;
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -199,7 +199,7 @@ EOF;
             'name' => 'Category - 1',
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -229,7 +229,7 @@ EOF;
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -256,7 +256,7 @@ EOF;
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -285,7 +285,7 @@ EOF;
                 'name' => 'Gramm',
             ],
         ];
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/named', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/named', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -317,7 +317,7 @@ EOF;
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -343,21 +343,21 @@ EOF;
         $data = ['id' => $id->getHex(), 'name' => $id->getHex(), 'taxRate' => 50];
 
         // create without response
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), $response->headers->get('Location'));
 
         // update without response
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), [], [], [], json_encode(['name' => 'foo']));
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), ['name' => 'foo']);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
         static::assertNotEmpty($response->headers->get('Location'));
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), $response->headers->get('Location'));
 
         // with response
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex() . '?_response=1', [], [], [], json_encode(['name' => 'foo']));
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex() . '?_response=1', ['name' => 'foo']);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         static::assertNull($response->headers->get('Location'));
@@ -375,7 +375,7 @@ EOF;
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -432,7 +432,7 @@ EOF;
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
         $response = $this->getClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -504,7 +504,7 @@ EOF;
         ];
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/priceRules';
-        $this->getClient()->request('POST', $path, [], [], [], json_encode($filter));
+        $this->getClient()->request('POST', $path, $filter);
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -572,7 +572,7 @@ EOF;
         ];
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/priceRules';
-        $this->getClient()->request('POST', $path, [], [], [], json_encode($filter));
+        $this->getClient()->request('POST', $path, $filter);
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -622,7 +622,7 @@ EOF;
         ];
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/categories';
-        $this->getClient()->request('POST', $path, [], [], [], json_encode($filter));
+        $this->getClient()->request('POST', $path, $filter);
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -644,7 +644,7 @@ EOF;
             'price' => ['gross' => 8300, 'net' => 8300],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -678,7 +678,7 @@ EOF;
             'price' => ['gross' => 8300, 'net' => 8300],
             'stock' => 50,
         ];
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         static::assertEquals(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
 
         $productB = Uuid::uuid4()->getHex();
@@ -690,7 +690,7 @@ EOF;
             'price' => ['gross' => 8300, 'net' => 8300],
             'stock' => 100,
         ];
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         static::assertEquals(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
 
         $data = [
@@ -713,7 +713,7 @@ EOF;
         ];
 
         $this->getClient()->setServerParameter('HTTP_ACCEPT', 'application/json');
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
         $response = $this->getClient()->getResponse();
 
         $content = json_decode($response->getContent(), true);
@@ -762,7 +762,7 @@ EOF;
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/language', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/language', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
@@ -845,6 +845,34 @@ EOF;
         static::assertEquals('category', $data[1]['type']);
         static::assertEquals($insertData[1]['name'], $data[1]['attributes']['name']);
         static::assertEquals($insertData[1]['name'], $data[1]['meta']['viewData']['name']);
+    }
+
+    public function testCreateNewVersion(): void
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $data = ['id' => $id, 'name' => 'test category'];
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', $data);
+        $response = $this->getClient()->getResponse();
+
+        /* @var Response $response */
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        static::assertNotEmpty($response->headers->get('Location'));
+
+        $this->getClient()->request(
+            'POST',
+            sprintf('/api/v%s/_action/version/category/%s', PlatformRequest::API_VERSION, $id)
+        );
+        $response = $this->getClient()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertTrue(Uuid::isValid($content['version_id']));
+        static::assertNull($content['version_name']);
+        static::assertEquals($id, $content['id']);
+        static::assertEquals('category', $content['entity']);
     }
 
     public function testCloneEntity()

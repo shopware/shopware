@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -21,6 +22,11 @@ class OrderDeliveryPositionEntity extends Entity
     protected $orderLineItemId;
 
     /**
+     * @var CalculatedPrice|null
+     */
+    protected $price;
+
+    /**
      * @var float
      */
     protected $unitPrice;
@@ -31,7 +37,7 @@ class OrderDeliveryPositionEntity extends Entity
     protected $totalPrice;
 
     /**
-     * @var float
+     * @var int
      */
     protected $quantity;
 
@@ -75,6 +81,16 @@ class OrderDeliveryPositionEntity extends Entity
         $this->orderLineItemId = $orderLineItemId;
     }
 
+    public function getPrice(): ?CalculatedPrice
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?CalculatedPrice $price): void
+    {
+        $this->price = $price;
+    }
+
     public function getUnitPrice(): float
     {
         return $this->unitPrice;
@@ -95,12 +111,12 @@ class OrderDeliveryPositionEntity extends Entity
         $this->totalPrice = $totalPrice;
     }
 
-    public function getQuantity(): float
+    public function getQuantity(): int
     {
         return $this->quantity;
     }
 
-    public function setQuantity(float $quantity): void
+    public function setQuantity(int $quantity): void
     {
         $this->quantity = $quantity;
     }

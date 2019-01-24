@@ -444,12 +444,12 @@ class EntityDefinitionQueryHelper
         $connection = $query->getConnection();
         $versionQuery = $connection->createQueryBuilder();
         $versionQuery->select([
-            'COALESCE(draft.`id`, live.`id`) as id',
+            'DISTINCT COALESCE(draft.`id`, live.`id`) as id',
             'COALESCE(draft.`version_id`, live.`version_id`) as version_id',
         ]);
         $versionQuery->from(self::escape($table), 'live');
         $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version');
-        $versionQuery->andWhere('live.`version_id` = :liveVersion');
+        $versionQuery->andWhere('live.`version_id` = :liveVersion OR draft.version_id = :version');
 
         $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));

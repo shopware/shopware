@@ -62,7 +62,7 @@ class ProductActionControllerTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
 
         static::assertSame(204, $this->getClient()->getResponse()->getStatusCode());
 

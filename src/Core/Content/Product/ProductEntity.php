@@ -37,7 +37,7 @@ class ProductEntity extends Entity
     protected $parentId;
 
     /**
-     * @var int
+     * @var string
      */
     protected $catalogId;
 
@@ -1084,12 +1084,12 @@ class ProductEntity extends Entity
         $this->autoIncrement = $autoIncrement;
     }
 
-    public function getCatalogId(): int
+    public function getCatalogId(): string
     {
         return $this->catalogId;
     }
 
-    public function setCatalogId(int $catalogId): void
+    public function setCatalogId(string $catalogId): void
     {
         $this->catalogId = $catalogId;
     }

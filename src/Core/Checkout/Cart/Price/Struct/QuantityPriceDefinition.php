@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -37,6 +38,26 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
         $this->isCalculated = $isCalculated;
+    }
+
+    public static function fromArray(array $data): self
+    {
+        $taxRules = array_map(
+            function (array $tax) {
+                return new TaxRule(
+                    (float) $tax['taxRate'],
+                    (float) $tax['percentage']
+                );
+            },
+            $data['taxRules']
+        );
+
+        return new self(
+            (float) $data['price'],
+            new TaxRuleCollection($taxRules),
+            (int) $data['quantity'],
+            (bool) $data['isCalculated']
+        );
     }
 
     public function getPrice(): float

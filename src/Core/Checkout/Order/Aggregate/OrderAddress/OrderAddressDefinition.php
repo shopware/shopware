@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -53,6 +54,9 @@ class OrderAddressDefinition extends EntityDefinition
 
             new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
 
+            (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->setFlags(new Required()),
+
             new StringField('salutation', 'salutation'),
             (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -70,8 +74,8 @@ class OrderAddressDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -191,11 +191,16 @@ class CartService
         return $this->calculate($cart, $context);
     }
 
-    private function calculate(Cart $cart, CheckoutContext $context): Cart
+    public function refresh(Cart $cart, CheckoutContext $context): Cart
+    {
+        return $this->calculate($cart, $context, true);
+    }
+
+    private function calculate(Cart $cart, CheckoutContext $context, bool $refresh = false): Cart
     {
         $cart = $this->enrichment->enrich($cart, $context);
 
-        $cart = $this->processor->process($cart, $context);
+        $cart = $this->processor->process($cart, $context, $refresh);
 
         $this->persister->save($cart, $context);
 

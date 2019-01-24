@@ -118,6 +118,10 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                 )
             );
 
+            foreach ($versionQuery->getParameters() as $key => $value) {
+                $query->setParameter($key, $value, $query->getParameterType($key));
+            }
+
             return;
         }
 

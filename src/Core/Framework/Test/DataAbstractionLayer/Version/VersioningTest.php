@@ -4,11 +4,19 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Version;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
@@ -62,11 +70,47 @@ class VersioningTest extends TestCase
      */
     private $categoryRepository;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $customerRepository;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var CheckoutContextFactory
+     */
+    private $checkoutContextFactory;
+
+    /**
+     * @var Processor
+     */
+    private $processor;
+
+    /**
+     * @var OrderPersister
+     */
+    private $orderPersister;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
     public function setUp()
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->processor = $this->getContainer()->get(Processor::class);
+        $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testChangelogOnlyWrittenForVersionawareEntities()
@@ -1596,6 +1640,79 @@ class VersioningTest extends TestCase
 
         static::assertCount(1, $writtenProductTranslations);
         static::assertEquals('😄', $writtenProductTranslations[0]['name']);
+    }
+
+    public function testCreateOrderVersion()
+    {
+        $token = Uuid::uuid4()->getHex();
+        $cart = new Cart('test', $token);
+
+        $cart->add(
+            (new LineItem('test', 'test'))
+                ->setLabel('test')
+                ->setGood(true)
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))
+        );
+
+        $customerId = $this->createCustomer();
+
+        $context = $this->checkoutContextFactory->create(
+            Uuid::uuid4()->getHex(),
+            Defaults::SALES_CHANNEL,
+            [
+                CheckoutContextService::CUSTOMER_ID => $customerId,
+            ]);
+
+        $cart = $this->processor->process($cart, $context);
+
+        $result = $this->orderPersister->persist($cart, $context);
+
+        $orders = $result->getEventByDefinition(OrderDefinition::class);
+        $orders = $orders->getIds();
+        $id = array_shift($orders);
+
+        $versionId = $this->orderRepository->createVersion($id, $this->context);
+
+        static::assertTrue(Uuid::isValid($versionId));
+    }
+
+    private function createCustomer(): string
+    {
+        $customerId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::uuid4()->getHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutation' => 'Mr',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => Defaults::COUNTRY,
+                    'salutation' => 'Mr',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->customerRepository->upsert([$customer], Context::createDefaultContext());
+
+        return $customerId;
     }
 
     private function getVersionData(string $entity, string $id, string $versionId): array

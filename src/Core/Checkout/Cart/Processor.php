@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
@@ -28,12 +27,12 @@ class Processor
     /**
      * @var AmountCalculator
      */
-    private $amountCalculator;
+    protected $amountCalculator;
 
     /**
      * @var TransactionProcessor
      */
-    private $transactionProcessor;
+    protected $transactionProcessor;
 
     public function __construct(
         Calculator $calculator,
@@ -49,7 +48,7 @@ class Processor
         $this->transactionProcessor = $transactionProcessor;
     }
 
-    public function process(Cart $original, CheckoutContext $context): Cart
+    public function process(Cart $original, CheckoutContext $context, bool $refresh = false): Cart
     {
         $cart = new Cart($original->getName(), $original->getToken());
 
@@ -59,8 +58,9 @@ class Processor
         );
 
         //add line items to deliveries and calculate deliveries
+
         $cart->setDeliveries(
-            $this->deliveryProcessor->process($cart, $context)
+            $this->deliveryProcessor->process($refresh ? $original : $cart, $cart->getLineItems(), $context, $refresh)
         );
 
         $cart->addErrors(
@@ -78,6 +78,8 @@ class Processor
         $cart->setTransactions(
             $this->transactionProcessor->process($cart, $context)
         );
+
+        $cart->setExtensions($original->getExtensions());
 
         return $cart;
     }

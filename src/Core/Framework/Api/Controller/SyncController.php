@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
@@ -39,13 +38,8 @@ class SyncController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/sync", name="api.action.sync", methods={"POST"})
-     *
-     * @param Request $request
-     * @param Context $context
-     *
-     * @return Response
      */
-    public function sync(Request $request, Context $context): Response
+    public function sync(Request $request, Context $context): JsonResponse
     {
         $payload = $this->serializer->decode($request->getContent(), 'json');
 

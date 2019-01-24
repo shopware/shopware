@@ -16,6 +16,11 @@ class Entity extends Struct
      */
     protected $viewData;
 
+    /**
+     * @var string|null
+     */
+    protected $versionId;
+
     public function setUniqueIdentifier(string $identifier): void
     {
         $this->_uniqueIdentifier = $identifier;
@@ -24,6 +29,16 @@ class Entity extends Struct
     public function getUniqueIdentifier(): string
     {
         return $this->_uniqueIdentifier;
+    }
+
+    public function getVersionId(): ?string
+    {
+        return $this->versionId;
+    }
+
+    public function setVersionId(string $versionId): void
+    {
+        $this->versionId = $versionId;
     }
 
     public function get(string $property)

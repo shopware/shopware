@@ -14,11 +14,9 @@ use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Processor;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -105,6 +103,16 @@ class DemodataCommand extends Command
     private $categoryRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerGroupRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $shippingMethodPriceRepository;
+
+    /**
      * Images to be deleted after generating data
      *
      * @var string[]
@@ -127,11 +135,6 @@ class DemodataCommand extends Command
     private $contextFactory;
 
     /**
-     * @var Processor
-     */
-    private $processor;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $taxRepository;
@@ -150,6 +153,11 @@ class DemodataCommand extends Command
      * @var string
      */
     private $projectDir;
+
+    /**
+     * @var CartService
+     */
+    private $cartService;
 
     /**
      * @var EntityRepositoryInterface
@@ -171,18 +179,25 @@ class DemodataCommand extends Command
      */
     private $fileNameProvider;
 
+    /**
+     * @var Context
+     */
+    private $context;
+
     public function __construct(
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
         OrderConverter $orderConverter,
         Connection $connection,
         CheckoutContextFactory $contextFactory,
-        Processor $calculator,
         FileSaver $mediaUpdater,
         EntityRepositoryInterface $productRepository,
         EntityRepositoryInterface $ruleRepository,
         EntityRepositoryInterface $categoryRepository,
         EntityRepositoryInterface $taxRepository,
+        EntityRepositoryInterface $customerGroupRepository,
+        EntityRepositoryInterface $shippingMethodPriceRepository,
+        CartService $cartService,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $configurationGroupRepository,
         EntityRepositoryInterface $productStreamRepository,
@@ -192,19 +207,21 @@ class DemodataCommand extends Command
     ) {
         parent::__construct();
         $this->writer = $writer;
-
         $this->variantGenerator = $variantGenerator;
+        $this->orderConverter = $orderConverter;
+        $this->connection = $connection;
+        $this->contextFactory = $contextFactory;
+        $this->mediaUpdater = $mediaUpdater;
         $this->productRepository = $productRepository;
         $this->ruleRepository = $ruleRepository;
         $this->categoryRepository = $categoryRepository;
         $this->taxRepository = $taxRepository;
-        $this->orderConverter = $orderConverter;
-        $this->connection = $connection;
-        $this->contextFactory = $contextFactory;
-        $this->processor = $calculator;
-        $this->mediaUpdater = $mediaUpdater;
+        $this->customerGroupRepository = $customerGroupRepository;
+        $this->shippingMethodPriceRepository = $shippingMethodPriceRepository;
+        $this->cartService = $cartService;
         $this->kernelEnv = $kernelEnv;
         $this->projectDir = $projectDir;
+        $this->context = Context::createDefaultContext();
         $this->configurationGroupRepository = $configurationGroupRepository;
         $this->defaultFolderRepository = $defaultFolderRepository;
         $this->productStreamRepository = $productStreamRepository;
@@ -258,6 +275,8 @@ class DemodataCommand extends Command
 
         $this->createProperties((int) $input->getOption('properties'));
 
+        $this->createShippingMethodPrice();
+
         $categories = $this->createCategory((int) $input->getOption('categories'));
 
         $manufacturer = $this->createManufacturer($input->getOption('manufacturers'));
@@ -287,11 +306,22 @@ class DemodataCommand extends Command
         $this->io->success('Successfully created demodata.');
     }
 
-    private function getContext(): WriteContext
+    private function getWriteContext(): WriteContext
     {
-        return WriteContext::createFromContext(
-            Context::createDefaultContext()
-        );
+        return WriteContext::createFromContext($this->context);
+    }
+
+    private function createShippingMethodPrice()
+    {
+        $data = [
+            'id' => '572decf9581e4de0acd52f80499f0e9b',
+            'shippingMethodId' => Defaults::SHIPPING_METHOD,
+            'quantityFrom' => 0,
+            'price' => '10.00',
+            'factor' => 0,
+        ];
+
+        $this->shippingMethodPriceRepository->upsert([$data], $this->context);
     }
 
     private function createCategory(int $count = 10)
@@ -323,7 +353,7 @@ class DemodataCommand extends Command
         $this->io->progressStart($count);
 
         foreach (array_chunk($payload, 100) as $chunk) {
-            $this->categoryRepository->upsert($chunk, Context::createDefaultContext());
+            $this->categoryRepository->upsert($chunk, $this->context);
             $this->io->progressAdvance(\count($chunk));
         }
 
@@ -333,6 +363,22 @@ class DemodataCommand extends Command
         return array_column($payload, 'id');
     }
 
+    private function createNetCustomerGroup(): string
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'displayGross' => false,
+            'inputGross' => false,
+            'hasGlobalDiscount' => false,
+            'name' => 'Net price customer group',
+        ];
+
+        $this->customerGroupRepository->create([$data], $this->context);
+
+        return $id;
+    }
+
     private function createCustomer($count = 500): void
     {
         $number = $this->faker->randomNumber();
@@ -340,31 +386,24 @@ class DemodataCommand extends Command
         $this->io->section(sprintf('Generating %d customers...', $count));
         $this->io->progressStart($count);
 
+        $netCustomerGroupId = $this->createNetCustomerGroup();
+        $customerGroups = [Defaults::FALLBACK_CUSTOMER_GROUP, $netCustomerGroupId];
+
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $id = Uuid::uuid4()->getHex();
-            $addressId = Uuid::uuid4()->getHex();
             $firstName = $this->faker->firstName;
             $lastName = $this->faker->lastName;
             $salutation = $this->faker->title;
+            $countries = [Defaults::COUNTRY, 'ffe61e1c99154f9597014a310ab5482d'];
 
-            $addresses = [
-                [
-                    'id' => $addressId,
-                    'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
-                    'salutation' => $salutation,
-                    'firstName' => $firstName,
-                    'lastName' => $lastName,
-                    'street' => $this->faker->streetName,
-                    'zipcode' => $this->faker->postcode,
-                    'city' => $this->faker->city,
-                ],
-            ];
+            $addresses = [];
 
             $aCount = random_int(2, 5);
             for ($x = 1; $x < $aCount; ++$x) {
                 $addresses[] = [
-                    'countryId' => Defaults::COUNTRY,
+                    'id' => Uuid::uuid4()->getHex(),
+                    'countryId' => $countries[array_rand($countries)],
                     'salutation' => $salutation,
                     'firstName' => $firstName,
                     'lastName' => $lastName,
@@ -383,24 +422,24 @@ class DemodataCommand extends Command
                 'email' => $id . $this->faker->safeEmail,
                 'password' => 'shopware',
                 'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => $customerGroups[array_rand($customerGroups)],
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultBillingAddressId' => $addressId,
-                'defaultShippingAddressId' => $addressId,
+                'defaultBillingAddressId' => $addresses[array_rand($addresses)]['id'],
+                'defaultShippingAddressId' => $addresses[array_rand($addresses)]['id'],
                 'addresses' => $addresses,
             ];
 
             $payload[] = $customer;
 
             if (\count($payload) >= 100) {
-                $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
+                $this->writer->upsert(CustomerDefinition::class, $payload, $this->getWriteContext());
                 $this->io->progressAdvance(\count($payload));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->writer->upsert(CustomerDefinition::class, $payload, $this->getContext());
+            $this->writer->upsert(CustomerDefinition::class, $payload, $this->getWriteContext());
             $this->io->progressAdvance(\count($payload));
         }
 
@@ -453,7 +492,7 @@ class DemodataCommand extends Command
             ],
         ];
 
-        $this->writer->upsert(CustomerDefinition::class, [$customer], $this->getContext());
+        $this->writer->upsert(CustomerDefinition::class, [$customer], $this->getWriteContext());
     }
 
     private function createProduct(
@@ -482,9 +521,7 @@ class DemodataCommand extends Command
             $services = $this->createServices();
         }
 
-        $context = Context::createDefaultContext();
-
-        $importImages = function () use (&$productImages, $context) {
+        $importImages = function () use (&$productImages) {
             foreach ($productImages as $id => $file) {
                 $this->mediaUpdater->persistFileToMedia(
                     new MediaFile(
@@ -500,7 +537,7 @@ class DemodataCommand extends Command
                         $context
                     ),
                     $id,
-                    $context
+                    $this->context
                 );
             }
 
@@ -510,10 +547,10 @@ class DemodataCommand extends Command
         $mediaFolderId = null;
 
         if (next1207()) {
-            $mediaFolderId = $this->getOrCreateDefaultFolder($context);
+            $mediaFolderId = $this->getOrCreateDefaultFolder($this->context);
         }
 
-        $taxes = array_values($this->taxRepository->search(new Criteria(), $context)->getIds());
+        $taxes = array_values($this->taxRepository->search(new Criteria(), $this->context)->getIds());
 
         $properties = $this->getProperties();
 
@@ -558,9 +595,9 @@ class DemodataCommand extends Command
             if ($isConfigurator) {
                 $this->io->progressAdvance();
 
-                $this->productRepository->upsert([$product], $context);
+                $this->productRepository->upsert([$product], $this->context);
 
-                $variantEvent = $this->variantGenerator->generate($product['id'], $context);
+                $variantEvent = $this->variantGenerator->generate($product['id'], $this->context);
                 $productEvents = $variantEvent->getEventByDefinition(ProductDefinition::class);
                 $variantProductIds = $productEvents->getIds();
 
@@ -582,7 +619,7 @@ class DemodataCommand extends Command
                     $productImages[$mediaId] = $imagePath;
                 }
 
-                $this->productRepository->update($variantImagePayload, $context);
+                $this->productRepository->update($variantImagePayload, $this->context);
 
                 continue;
             }
@@ -591,7 +628,7 @@ class DemodataCommand extends Command
 
             if (\count($payload) >= 50) {
                 $this->io->progressAdvance(\count($payload));
-                $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
+                $this->writer->upsert(ProductDefinition::class, $payload, $this->getWriteContext());
                 $productIds = array_merge($productIds, array_column($payload, 'id'));
                 $importImages();
                 $payload = [];
@@ -599,7 +636,7 @@ class DemodataCommand extends Command
         }
 
         if (!empty($payload)) {
-            $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
+            $this->writer->upsert(ProductDefinition::class, $payload, $this->getWriteContext());
             $productIds = array_merge($productIds, array_column($payload, 'id'));
             $importImages();
         }
@@ -624,7 +661,7 @@ class DemodataCommand extends Command
         }
 
         foreach (array_chunk($payload, 100) as $chunk) {
-            $this->writer->upsert(ProductManufacturerDefinition::class, $chunk, $this->getContext());
+            $this->writer->upsert(ProductManufacturerDefinition::class, $chunk, $this->getWriteContext());
             $this->io->progressAdvance(\count($chunk));
         }
 
@@ -635,7 +672,7 @@ class DemodataCommand extends Command
 
     private function createRules(): array
     {
-        $ids = $this->ruleRepository->searchIds(new Criteria(), Context::createDefaultContext());
+        $ids = $this->ruleRepository->searchIds(new Criteria(), $this->context);
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();
@@ -699,7 +736,7 @@ class DemodataCommand extends Command
 
         $payload[] = $nestedRuleData;
 
-        $this->writer->insert(RuleDefinition::class, $payload, $this->getContext());
+        $this->writer->insert(RuleDefinition::class, $payload, $this->getWriteContext());
 
         return array_column($payload, 'id');
     }
@@ -859,14 +896,6 @@ class DemodataCommand extends Command
         return $categoryName;
     }
 
-    /**
-     * @param array $categories
-     * @param array $manufacturer
-     * @param array $rules
-     * @param array $taxes
-     *
-     * @return array
-     */
     private function createSimpleProduct(array $categories, array $manufacturer, array $rules, array $taxes): array
     {
         $price = random_int(1, 1000);
@@ -877,11 +906,11 @@ class DemodataCommand extends Command
             'name' => $this->faker->productName,
             'description' => $this->faker->text(),
             'descriptionLong' => $this->generateRandomHTML(10, ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite']),
-            'taxId' => $taxes[random_int(0, \count($taxes) - 1)],
-            'manufacturerId' => $manufacturer[random_int(0, \count($manufacturer) - 1)],
+            'taxId' => $taxes[array_rand($taxes)],
+            'manufacturerId' => $manufacturer[array_rand($manufacturer)],
             'active' => true,
             'categories' => [
-                ['id' => $categories[random_int(0, \count($categories) - 1)]],
+                ['id' => $categories[array_rand($categories)]],
             ],
             'stock' => $this->faker->randomNumber(),
             'priceRules' => $this->createPrices($rules),
@@ -938,16 +967,11 @@ class DemodataCommand extends Command
             ],
         ];
 
-        $this->writer->insert(ConfigurationGroupDefinition::class, $data, $this->getContext());
+        $this->writer->insert(ConfigurationGroupDefinition::class, $data, $this->getWriteContext());
 
         return $data;
     }
 
-    /**
-     * @param array $groups
-     *
-     * @return array
-     */
     private function buildProductConfigurator(array $groups): array
     {
         $optionIds = $this->getRandomOptions($groups);
@@ -1010,7 +1034,7 @@ class DemodataCommand extends Command
             ],
         ];
 
-        $this->writer->insert(ConfigurationGroupDefinition::class, $data, $this->getContext());
+        $this->writer->insert(ConfigurationGroupDefinition::class, $data, $this->getWriteContext());
 
         return $data;
     }
@@ -1024,7 +1048,7 @@ class DemodataCommand extends Command
 
             return [
                 'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
-                'taxId' => $taxes[random_int(0, \count($taxes) - 1)],
+                'taxId' => $taxes[array_rand($taxes)],
                 'optionId' => $optionId,
             ];
         }, $optionIds);
@@ -1041,7 +1065,7 @@ class DemodataCommand extends Command
         $images = array_values(iterator_to_array($images));
 
         if (\count($images)) {
-            return $images[random_int(0, \count($images) - 1)]->getPathname();
+            return $images[array_rand($images)]->getPathname();
         }
 
         if (!$text) {
@@ -1077,28 +1101,12 @@ class DemodataCommand extends Command
             function ($product) {
                 $id = $product['id'];
 
-                if (!$product['price']) {
-                    $price = random_int(20, 2000);
-                } else {
-                    $raw = json_decode((string) $product['price'], true);
-                    $price = $raw['gross'];
-                }
-
                 $quantity = random_int(1, 10);
-
-                $price = new QuantityPriceDefinition(
-                    $price,
-                    new TaxRuleCollection([
-                        new TaxRule($this->faker->randomElement([19, 7])),
-                    ]),
-                    $quantity,
-                    true
-                );
 
                 return (new LineItem($id, ProductCollector::LINE_ITEM_TYPE, $quantity))
                     ->setPayload(['id' => $id])
-                    ->setPriceDefinition($price)
-                    ->setLabel($product['name']);
+                    ->setStackable(true)
+                    ->setRemovable(true);
             },
             $products
         );
@@ -1121,6 +1129,8 @@ class DemodataCommand extends Command
                 $context = $contexts[$customerId];
             } else {
                 $context = $this->contextFactory->create($token, Defaults::SALES_CHANNEL, $options);
+                $taxStates = [CartPrice::TAX_STATE_FREE, CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET];
+                $context->setTaxState($taxStates[array_rand($taxStates)]);
                 $contexts[$customerId] = $context;
             }
 
@@ -1130,22 +1140,22 @@ class DemodataCommand extends Command
 
             $new = $lineItems->slice($offset, $itemCount);
 
-            $cart = new Cart('shopware', $token);
+            $cart = $this->cartService->createNew($token, 'demo-data');
             $cart->addLineItems($new);
 
-            $cart = $this->processor->process($cart, $context);
+            $cart = $this->cartService->recalculate($cart, $context);
 
             $payload[] = $this->orderConverter->convertToOrder($cart, $context);
 
             if (\count($payload) >= 20) {
-                $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());
+                $this->writer->upsert(OrderDefinition::class, $payload, $this->getWriteContext());
                 $this->io->progressAdvance(\count($payload));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->writer->upsert(OrderDefinition::class, $payload, $this->getContext());
+            $this->writer->upsert(OrderDefinition::class, $payload, $this->getWriteContext());
         }
 
         $this->io->progressFinish();
@@ -1153,8 +1163,7 @@ class DemodataCommand extends Command
 
     private function createMedia(int $limit): void
     {
-        $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->io->section("Generating {$limit} media items...");
         $this->io->progressStart($limit);
@@ -1166,7 +1175,7 @@ class DemodataCommand extends Command
             $this->writer->insert(
                 MediaDefinition::class,
                 [['id' => $mediaId, 'name' => "File #{$i}: {$file}"]],
-                $this->getContext()
+                $this->getWriteContext()
             );
 
             $this->mediaUpdater->persistFileToMedia(
@@ -1183,7 +1192,7 @@ class DemodataCommand extends Command
                     $context
                 ),
                 $mediaId,
-                $context
+                $this->context
             );
 
             $this->io->progressAdvance(1);
@@ -1200,7 +1209,7 @@ class DemodataCommand extends Command
             ->getIterator()
         ));
 
-        return $files[random_int(0, \count($files) - 1)];
+        return $files[array_rand($files)];
     }
 
     private function getOrCreateDefaultFolder(Context $context): ?string

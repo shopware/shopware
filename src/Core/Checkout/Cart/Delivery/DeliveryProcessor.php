@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 
 class DeliveryProcessor
@@ -11,12 +12,12 @@ class DeliveryProcessor
     /**
      * @var DeliveryBuilder
      */
-    private $builder;
+    protected $builder;
 
     /**
      * @var DeliveryCalculator
      */
-    private $deliveryCalculator;
+    protected $deliveryCalculator;
 
     public function __construct(DeliveryBuilder $builder, DeliveryCalculator $deliveryCalculator)
     {
@@ -24,13 +25,19 @@ class DeliveryProcessor
         $this->deliveryCalculator = $deliveryCalculator;
     }
 
-    public function process(Cart $cart, CheckoutContext $context): DeliveryCollection
-    {
+    public function process(
+        Cart $cart,
+        LineItemCollection $lineItems,
+        CheckoutContext $context,
+        bool $refresh = false
+    ): DeliveryCollection {
         $deliveries = $cart->getDeliveries();
 
-        $deliveries = $this->builder->build($deliveries, $cart->getLineItems(), $context);
+        if ($refresh === false) {
+            $deliveries = $this->builder->build($deliveries, $lineItems, $context, false);
+        }
 
-        $this->deliveryCalculator->calculate($cart->getDeliveries(), $context);
+        $this->deliveryCalculator->calculate($deliveries, $context);
 
         return $deliveries;
     }

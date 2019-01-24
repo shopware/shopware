@@ -17,7 +17,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Cart\CartPersister">
+        <service id="Shopware\Core\Checkout\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="serializer"/>
         </service>
@@ -25,7 +25,7 @@
         <service id="Shopware\Core\Checkout\Cart\Storefront\CartService" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
             <argument type="service" id="order.repository"/>
         </service>
@@ -130,12 +130,12 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Enrichment">
-            <argument type="tagged" tag="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
+            <argument type="tagged" tag="Shopware\Core\Checkout\Cart\CollectorInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductCollector">
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
-            <tag name="Shopware\Core\Checkout\Cart\Cart\CollectorInterface"/>
+            <tag name="Shopware\Core\Checkout\Cart\CollectorInterface"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor">
@@ -155,13 +155,27 @@
 
         <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
 
-        <service id="Shopware\Core\Checkout\Cart\OrderConverterController" public="true">
+        <service id="Shopware\Core\Checkout\Cart\Order\OrderConverterController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="order.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Order\OrderRecalculationController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\RecalculationService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Order\RecalculationService">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\AddressTransformer"/>
         </service>
     </services>
 </container>

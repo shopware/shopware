@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -22,24 +21,24 @@ class Calculator
     /**
      * @var QuantityPriceCalculator
      */
-    private $priceCalculator;
+    protected $quantityPriceCalculator;
 
     /**
      * @var PercentagePriceCalculator
      */
-    private $percentagePriceCalculator;
+    protected $percentagePriceCalculator;
 
     /**
      * @var AbsolutePriceCalculator
      */
-    private $absolutePriceCalculator;
+    protected $absolutePriceCalculator;
 
     public function __construct(
-        QuantityPriceCalculator $priceCalculator,
+        QuantityPriceCalculator $quantityPriceCalculator,
         PercentagePriceCalculator $percentagePriceCalculator,
         AbsolutePriceCalculator $absolutePriceCalculator
     ) {
-        $this->priceCalculator = $priceCalculator;
+        $this->quantityPriceCalculator = $quantityPriceCalculator;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
     }
@@ -122,7 +121,7 @@ class Calculator
         if ($definition instanceof QuantityPriceDefinition) {
             $definition->setQuantity($lineItem->getQuantity());
 
-            return $this->priceCalculator->calculate($definition, $context);
+            return $this->quantityPriceCalculator->calculate($definition, $context);
         }
 
         throw new MissingLineItemPriceException($lineItem->getKey());

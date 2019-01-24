@@ -48,6 +48,15 @@ trait ExtendableTrait
         return null;
     }
 
+    public function getExtensionOfType(string $name, string $type): ?Struct
+    {
+        if ($this->hasExtensionOfType($name, $type)) {
+            return $this->getExtension($name);
+        }
+
+        return null;
+    }
+
     /**
      * Helper function which checks if an associated
      * extension exists.
@@ -55,6 +64,11 @@ trait ExtendableTrait
     public function hasExtension(string $name): bool
     {
         return isset($this->extensions[$name]);
+    }
+
+    public function hasExtensionOfType(string $name, string $type): bool
+    {
+        return $this->hasExtension($name) && get_class($this->getExtension($name)) === $type;
     }
 
     /**

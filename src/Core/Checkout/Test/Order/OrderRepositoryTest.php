@@ -4,11 +4,15 @@ namespace Shopware\Core\Checkout\Test\Order;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
-use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -86,7 +90,7 @@ class OrderRepositoryTest extends TestCase
             (new LineItem('test', 'test'))
                 ->setLabel('test')
                 ->setGood(true)
-                ->setPriceDefinition(new AbsolutePriceDefinition(10))
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))
         );
 
         $customerId = $this->createCustomer();
@@ -166,13 +170,8 @@ class OrderRepositoryTest extends TestCase
             [
                 'id' => $orderId,
                 'date' => date(DATE_ISO8601),
-                'amountTotal' => 0,
-                'amountNet' => 0,
-                'positionPrice' => 0,
-                'shippingTotal' => 0,
-                'shippingNet' => 0,
-                'isNet' => true,
-                'isTaxFree' => false,
+                'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 'stateId' => Defaults::ORDER_STATE_OPEN,
                 'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
                 'currencyId' => Defaults::CURRENCY,
@@ -182,6 +181,7 @@ class OrderRepositoryTest extends TestCase
                     [
                         'orderStateId' => Defaults::ORDER_STATE_OPEN,
                         'shippingMethodId' => Defaults::SHIPPING_METHOD,
+                        'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(DATE_ISO8601),
                         'shippingDateLatest' => date(DATE_ISO8601),
                         'shippingOrderAddress' => [
@@ -198,10 +198,8 @@ class OrderRepositoryTest extends TestCase
                         ],
                         'positions' => [
                             [
+                                'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                                 'orderLineItemId' => $orderLineItemId,
-                                'unitPrice' => 1,
-                                'totalPrice' => 1,
-                                'quantity' => 1,
                             ],
                         ],
                     ],
@@ -211,10 +209,10 @@ class OrderRepositoryTest extends TestCase
                         'id' => $orderLineItemId,
                         'identifier' => 'test',
                         'quantity' => 1,
-                        'unitPrice' => 1,
-                        'totalPrice' => 1,
                         'type' => 'test',
                         'label' => 'test',
+                        'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
                         'priority' => 100,
                         'good' => true,
                     ],
@@ -265,15 +263,18 @@ class OrderRepositoryTest extends TestCase
                         ],
                     ],
                 ],
-                'billingAddress' => [
-                    'salutation' => 'mr',
-                    'firstName' => 'Floy',
-                    'lastName' => 'Glover',
-                    'zipcode' => '59438-0403',
-                    'city' => 'Stellaberg',
-                    'street' => 'street',
-                    'countryId' => Defaults::COUNTRY,
-                    'id' => $addressId,
+                'billingAddressId' => $addressId,
+                'addresses' => [
+                    [
+                        'salutation' => 'mr',
+                        'firstName' => 'Floy',
+                        'lastName' => 'Glover',
+                        'zipcode' => '59438-0403',
+                        'city' => 'Stellaberg',
+                        'street' => 'street',
+                        'countryId' => Defaults::COUNTRY,
+                        'id' => $addressId,
+                    ],
                 ],
             ],
         ];

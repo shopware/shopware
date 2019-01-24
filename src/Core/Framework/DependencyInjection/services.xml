@@ -53,12 +53,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="tax.repository"/>
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="shipping_method_price.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="media_default_folder.repository"/>
             <argument type="service" id="configuration_group.repository"/>
             <argument type="service" id="product_stream.repository"/>

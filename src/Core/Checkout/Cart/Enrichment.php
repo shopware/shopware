@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Cart\CollectorInterface;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Struct\StructCollection;
 

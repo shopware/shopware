@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 class OrderDeliveryEntity extends Entity
 {
@@ -34,6 +35,11 @@ class OrderDeliveryEntity extends Entity
     protected $shippingMethodId;
 
     /**
+     * @var string|null
+     */
+    protected $trackingCode;
+
+    /**
      * @var \DateTime
      */
     protected $shippingDateEarliest;
@@ -44,9 +50,9 @@ class OrderDeliveryEntity extends Entity
     protected $shippingDateLatest;
 
     /**
-     * @var string|null
+     * @var CalculatedPrice
      */
-    protected $trackingCode;
+    protected $shippingCosts;
 
     /**
      * @var \DateTime|null
@@ -79,7 +85,7 @@ class OrderDeliveryEntity extends Entity
     protected $order;
 
     /**
-     * @var EntitySearchResult|null
+     * @var OrderDeliveryPositionCollection|null
      */
     protected $positions;
 
@@ -123,6 +129,16 @@ class OrderDeliveryEntity extends Entity
         $this->shippingMethodId = $shippingMethodId;
     }
 
+    public function getTrackingCode(): ?string
+    {
+        return $this->trackingCode;
+    }
+
+    public function setTrackingCode(?string $trackingCode): void
+    {
+        $this->trackingCode = $trackingCode;
+    }
+
     public function getShippingDateEarliest(): \DateTime
     {
         return $this->shippingDateEarliest;
@@ -143,14 +159,14 @@ class OrderDeliveryEntity extends Entity
         $this->shippingDateLatest = $shippingDateLatest;
     }
 
-    public function getTrackingCode(): ?string
+    public function getShippingCosts(): CalculatedPrice
     {
-        return $this->trackingCode;
+        return $this->shippingCosts;
     }
 
-    public function setTrackingCode(?string $trackingCode): void
+    public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
-        $this->trackingCode = $trackingCode;
+        $this->shippingCosts = $shippingCosts;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -213,12 +229,12 @@ class OrderDeliveryEntity extends Entity
         $this->order = $order;
     }
 
-    public function getPositions(): ?EntitySearchResult
+    public function getPositions(): ?OrderDeliveryPositionCollection
     {
         return $this->positions;
     }
 
-    public function setPositions(EntitySearchResult $positions): void
+    public function setPositions(OrderDeliveryPositionCollection $positions): void
     {
         $this->positions = $positions;
     }

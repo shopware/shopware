@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 class DeliveryCollection extends Collection
@@ -69,6 +70,20 @@ class DeliveryCollection extends Collection
                 return $delivery->getShippingCosts();
             })
         );
+    }
+
+    public function getAddresses(): CustomerAddressCollection
+    {
+        $addresses = new CustomerAddressCollection();
+        /** @var Delivery $delivery */
+        foreach ($this->elements as $delivery) {
+            $address = $delivery->getLocation()->getAddress();
+            if ($address !== null) {
+                $addresses->add($delivery->getLocation()->getAddress());
+            }
+        }
+
+        return $addresses;
     }
 
     protected function getExpectedClass(): ?string

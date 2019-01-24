@@ -856,7 +856,8 @@
         "actions": "Aktionen",
         "preview": "Vorschau",
         "metadata": "Metadaten",
-        "usage": "Wird verwendet in"
+        "usage": "Wird verwendet in",
+        "selectedFiles": "Ausgewählte Dateien"
       },
       "infoMissingFile": {
         "titleMissingFile": "Datei nicht gefunden",

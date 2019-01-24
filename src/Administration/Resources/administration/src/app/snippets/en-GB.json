@@ -856,7 +856,8 @@
         "actions": "Actions",
         "preview": "Preview",
         "metadata": "Meta data",
-        "usage": "Used in"
+        "usage": "Used in",
+        "selectedFiles": "Selected files"
       },
       "infoMissingFile": {
         "titleMissingFile": "File not found",

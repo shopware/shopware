@@ -2,69 +2,53 @@
     <div class="sw-media-quickinfo-multiple">
         {% block sw_media_quickinfo_multiple_quickactions %}
             <sw-media-collapse
-                class="sw-media-quickinfo-multiple__collapse"
                 :title="$tc('sw-media.sidebar.sections.actions')"
                 :expandOnLoading="true">
 
-                <template slot="content">
-                    {% block sw_media_quickinfo_multiple_quickactions_content %}
-                        <ul class="sw-media-quickinfo-multiple__collapse-content sw-media-quickinfo-multiple__two-columns">
-                            {% block sw_media_quickinfo_multiple_quickactions_move %}
-                                <li v-if="next1207"
-                                    class="sw-media-quickinfo-multiple__quickaction quickaction--move"
-                                    @click="emitOpenFolderMove">
-                                    <sw-icon small
-                                             name="default-action-move-file"
-                                             class="sw-media-quickinfo-multiple__quickactions-icon">
-                                    </sw-icon>
-                                    {{ $tc('sw-media.sidebar.actions.move') }}
-                                </li>
-                            {% endblock %}
+                {% block sw_media_quickinfo_multiple_quickactions_content %}
+                    <ul slot="content" class="sw-media-sidebar__two-columns">
+                        {% block sw_media_quickinfo_multiple_quickactions_move %}
+                            <li v-if="next1207"
+                                class="sw-media-sidebar__quickaction quickaction--move"
+                                @click="openModalMove">
 
-                            {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                                <li v-if="!hasFolder"
-                                    class="sw-media-quickinfo-multiple__quickaction is--danger"
-                                    @click="emitOpenModalDelete">
-                                    {% block sw_media_quickinfo_multiple_quickactions_delete_icon %}
-                                        <sw-icon small
-                                                 name="default-action-trash"
-                                                 class="sw-media-quickinfo-multiple__quickactions-icon is--danger">
-                                        </sw-icon>
-                                    {% endblock %}
+                                <sw-icon small name="default-action-move-file" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.move') }}
+                            </li>
+                        {% endblock %}
 
-                                    {% block sw_media_quickinfo_multiple_quickactions_delete_label %}
-                                        {{ $tc('sw-media.sidebar.actions.delete') }}
-                                    {% endblock %}
-                                </li>
-                            {% endblock %}
+                        {% block sw_media_quickinfo_multiple_quickactions_delete %}
+                            <li v-if="!hasFolder"
+                                class="sw-media-sidebar__quickaction is--danger"
+                                @click="openModalDelete">
 
-                            {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                                <li v-if="!hasMedia"
-                                    class="sw-media-quickinfo-multiple__quickaction quickaction--dissolve"
-                                    @click="emitOpenFolderDissolve">
-                                    <sw-icon small
-                                             name="default-web-loading-star"
-                                             class="sw-media-quickinfo-multiple__quickactions-icon">
-                                    </sw-icon>
-                                    {{ $tc('sw-media.sidebar.actions.dissolve') }}
-                                </li>
-                            {% endblock %}
-                        </ul>
-                    {% endblock %}
-                </template>
+                                <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.delete') }}
+                            </li>
+                        {% endblock %}
 
+                        {% block sw_media_quickinfo_folder_quickactions_dissolve %}
+                            <li v-if="!hasMedia"
+                                class="sw-media-sidebar__quickaction quickaction--dissolve"
+                                @click="openFolderDissolve">
+
+                                <sw-icon small name="default-web-loading-star" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.dissolve') }}
+                            </li>
+                        {% endblock %}
+                    </ul>
+                {% endblock %}
             </sw-media-collapse>
         {% endblock %}
 
         {% block sw_media_quickinfo_multiple_file_names %}
             <sw-media-collapse
-                class="sw-media-quickinfo-multiple__collapse sw-media-quickinfo-multiple__collapse-streched"
                 :expandOnLoading="true"
-                title="Ausgewählte Dateien">
+                :title="$tc('sw-media.sidebar.sections.selectedFiles')">
 
                 {% block sw_media_quickinfo_multiple_file_names_content %}
-                    <div slot="content" class="sw-media-quickinfo-multiple__collapse-content">
-                        <span>{{ getFileSizeLabel }}</span>
+                    <template slot="content">
+                        <label class="sw-media-quickinf-multiple__second-headline">{{ getFileSizeLabel }}</label>
                         <sw-media-entity-mapper
                             v-for="mediaItem in items"
                             :key="mediaItem.id"
@@ -74,9 +58,36 @@
                             :showContextMenuButton="false"
                             :showSelectionIndicator="false">
                         </sw-media-entity-mapper>
-                    </div>
+                    </template>
                 {% endblock %}
             </sw-media-collapse>
+        {% endblock %}
+
+        {% block sw_media_sidebar_modal_delete %}
+            <sw-media-modal-delete
+                v-if="!hasFolder && showModalDelete"
+                :itemsToDelete="items"
+                @sw-media-modal-delete-close="closeModalDelete"
+                @sw-media-modal-delete-items-deleted="deleteSelectedItems">
+            </sw-media-modal-delete>
+        {% endblock %}
+
+        {% block sw_media_sidebar_folder_dissolve_modal %}
+            <sw-media-modal-folder-dissolve
+                v-if="!hasMedia && showFolderDissolve"
+                :itemsToDissolve="items"
+                @sw-media-modal-folder-dissolve-items-dissolved="onFolderDissolved"
+                @sw-media-modal-folder-dissolve-close="closeFolderDissolve">
+            </sw-media-modal-folder-dissolve>
+        {% endblock %}
+
+        {% block sw_media_sidebar_folder_move_modal %}
+            <sw-media-modal-move
+                v-if="showModalMove"
+                :itemsToMove="items"
+                @sw-media-modal-move-close="closeModalMove"
+                @sw-media-modal-move-items-moved="onFolderMoved">
+            </sw-media-modal-move>
         {% endblock %}
     </div>
 {% endblock %}

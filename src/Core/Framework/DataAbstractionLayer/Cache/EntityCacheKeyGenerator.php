@@ -19,10 +19,22 @@ use Shopware\Core\System\Language\LanguageDefinition;
 
 class EntityCacheKeyGenerator
 {
-    public function getEntityContextCacheKey(string $id, string $definition, Context $context): string
+    public function getEntityContextCacheKey(string $id, string $definition, Context $context, ?Criteria $criteria = null): string
     {
         /** @var string|EntityDefinition $definition */
         $keys = [$definition::getEntityName(), $id, $this->getContextHash($context)];
+
+        if ($criteria && \count($criteria->getAssociations()) > 0) {
+            $keys[] = md5(json_encode($criteria->getAssociations()));
+        }
+
+        return implode('-', $keys);
+    }
+
+    public function getReadCriteriaCacheKey(string $definition, Criteria $criteria, Context $context): string
+    {
+        /** @var string|EntityDefinition $definition */
+        $keys = [$definition::getEntityName(), $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
 
         return implode('-', $keys);
     }
@@ -43,7 +55,7 @@ class EntityCacheKeyGenerator
         return implode('-', $keys);
     }
 
-    public function getSearchTags(string $definition, Criteria $criteria, Context $context): array
+    public function getSearchTags(string $definition, Criteria $criteria): array
     {
         /** @var string|EntityDefinition $definition */
         $tags = [$definition::getEntityName() . '.id'];
@@ -131,6 +143,16 @@ class EntityCacheKeyGenerator
         }
 
         return array_keys(array_flip($keys));
+    }
+
+    private function getReadCriteriaHash(Criteria $criteria): string
+    {
+        return md5(json_encode([
+            $criteria->getIds(),
+            $criteria->getFilters(),
+            $criteria->getPostFilters(),
+            $criteria->getAssociations(),
+        ]));
     }
 
     private function getFieldsOfAccessor(string $definition, string $accessor): array

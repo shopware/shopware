@@ -8,26 +8,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class CachedEntitySearcherTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
 
-    public function testCacheHit()
+    /**
+     * @dataProvider searchCases
+     *
+     * @param Criteria $criteria
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function testCacheHits(Criteria $criteria, array $expectedTags)
     {
+        $expectedTags = array_combine($expectedTags, $expectedTags);
+
         $dbalSearcher = $this->createMock(EntitySearcher::class);
 
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
 
-        $criteria = new Criteria();
         $context = Context::createDefaultContext();
-        $dbalSearcher->expects(static::exactly(2))
+
+        $dbalSearcher->expects(static::exactly(1))
             ->method('search')
             ->will(
                 $this->returnValue(
@@ -44,13 +55,10 @@ class CachedEntitySearcherTest extends TestCase
             );
 
         $cache = $this->getContainer()->get('shopware.cache');
-        $cache->clear();
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
         $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher);
-
-        $context = Context::createDefaultContext();
 
         //first call should not match and the expects of the dbal searcher should called
         $databaseResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
@@ -60,9 +68,61 @@ class CachedEntitySearcherTest extends TestCase
 
         static::assertEquals($databaseResult, $cachedResult);
 
-        $criteria->addSorting(new FieldSorting('tax.name'));
+        $cacheItem = $cache->getItem(
+            $generator->getSearchCacheKey(TaxDefinition::class, $criteria, $context)
+        );
 
-        //after changing the criteria, the cache shouldn't hit
-        $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
+        static::assertInstanceOf(IdSearchResult::class, $cacheItem->get());
+
+        $metaData = $cacheItem->getMetadata();
+        static::assertArrayHasKey('tags', $metaData);
+        static::assertEquals($expectedTags, $metaData['tags']);
+    }
+
+    public function searchCases()
+    {
+        return [
+            //test case that filters considered
+            [
+                (new Criteria())->addFilter(new EqualsFilter('tax.name', 'Test')),
+
+                ['tax.name', 'tax.id'], //expected tags
+            ],
+            //test case that multiple filters considered
+            [
+                (new Criteria())->addFilter(new EqualsFilter('tax.name', 'Test'))
+                                ->addFilter(new EqualsFilter('tax.id', 'Test'))
+                                ->addFilter(new EqualsFilter('tax.products.id', 'Test')),
+
+                ['tax.name', 'product.id', 'tax.id', 'product.tax_id'], //expected tags
+            ],
+            //test case that sortings considered
+            [
+                (new Criteria())->addSorting(new FieldSorting('tax.name')),
+
+                ['tax.name', 'tax.id'], //expected tags
+            ],
+
+            //test case that multiple sortings considered
+            [
+                (new Criteria())->addSorting(new FieldSorting('tax.name'))
+                                ->addSorting(new FieldSorting('tax.products.cover.id')),
+
+                ['tax.name', 'tax.id', 'product.tax_id', 'product.product_media_id', 'product_media.id'], //expected tags
+            ],
+
+            //test case that multiple post-filters considered
+            [
+                (new Criteria())->addPostFilter(new EqualsFilter('tax.name', 'Test'))
+                                ->addPostFilter(new EqualsFilter('tax.taxRate', 'Test')),
+
+                ['tax.id', 'tax.name', 'tax.tax_rate'], //expected tags
+            ],
+            //test case that pagination is considered
+            [
+                new PaginationCriteria(0, 10),
+                ['tax.id'],
+            ],
+        ];
     }
 }

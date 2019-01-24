@@ -56,7 +56,7 @@ module.exports = {
 };
 
 /**
- * Provide corrensponding log entries if the tests will be launched on DEVPORT
+ * Provide corresponding log entries if the tests will be launched on DEVPORT
  *
  */
 function renderWatcherUsage() {
@@ -78,11 +78,12 @@ function clearDatabase() {
 }
 
 /**
- * Clears the cache of the application using a child process in the shell of the system.
+ * Clears the cache of the application via API route.
  *
  * @async
  * @returns {Promise<String|void>}
  */
 function clearCache() {
-    return exec(`rm -rf ${process.env.PROJECT_ROOT}var/cache`);
+    return global.FixtureService.apiClient.clearCache();
 }
+

@@ -35,11 +35,11 @@ export default class FixtureService {
                         value: finalRawData.name,
                     }]
                 });
-            }).catch((err) => {
-                global.logger.error(err);
-                global.logger.lineBreak();
             }).then((data) => {
                 global.logger.success(data.id);
+                global.logger.lineBreak();
+            }).catch((err) => {
+                global.logger.error(err);
                 global.logger.lineBreak();
             });
     }
@@ -59,7 +59,6 @@ export default class FixtureService {
         } catch (err) {
             global.logger.error(err);
         }
-
     }
 }
 

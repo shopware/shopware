@@ -122,6 +122,22 @@ class Criteria extends Struct
     }
 
     /**
+     * @param string $name
+     *
+     * @return Aggregation|null
+     */
+    public function getAggregationByName(string $name): ?Aggregation
+    {
+        foreach ($this->aggregations as $aggregation) {
+            if ($aggregation->getName() == $name) {
+                return $aggregation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return Filter[]
      */
     public function getFilters(): array

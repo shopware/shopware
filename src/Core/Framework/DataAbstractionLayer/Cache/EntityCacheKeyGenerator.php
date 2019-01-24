@@ -47,6 +47,45 @@ class EntityCacheKeyGenerator
         return implode('-', $keys);
     }
 
+    public function getAggregatorResultContextCacheKey(?string $aggregationDefinition, string $entityDefinition, Criteria $criteria, Context $context): string
+    {
+        /** @var string|EntityDefinition $entityDefinition */
+        $keys = [
+            $aggregationDefinition,
+            $entityDefinition::getEntityName(),
+            $this->getAggregationHash($criteria),
+            $this->getContextHash($context),
+        ];
+
+        return implode('-', $keys);
+    }
+
+    public function getAggregatorResultContextCacheKeys(string $entityDefinition, Criteria $criteria, Context $context): array
+    {
+        $keys = [];
+        foreach ($criteria->getAggregations() as $aggregation) {
+            $keys[] = $this->getAggregatorResultContextCacheKey(
+                $aggregation->getName(), $entityDefinition, $criteria, $context
+            );
+        }
+
+        return $keys;
+    }
+
+    public function getCacheKeyEntityId(string $entityCacheKey)
+    {
+        $cacheKeyParts = explode('-', $entityCacheKey);
+
+        return $cacheKeyParts[1] ?: '';
+    }
+
+    public function getCacheKeyAggregationName(string $aggregationCacheKey)
+    {
+        $cacheKeyParts = explode('-', $aggregationCacheKey);
+
+        return $cacheKeyParts[0] ?: '';
+    }
+
     public function getEntityTag(string $id, string $definition): string
     {
         /** @var string|EntityDefinition $definition */
@@ -218,6 +257,14 @@ class EntityCacheKeyGenerator
             $criteria->getLimit(),
             $criteria->getOffset(),
             $criteria->getTotalCountMode(),
+            $criteria->getExtensions(),
+        ]));
+    }
+
+    private function getAggregationHash(Criteria $criteria): string
+    {
+        return md5(json_encode([
+            $criteria->getFilters(),
             $criteria->getExtensions(),
         ]));
     }

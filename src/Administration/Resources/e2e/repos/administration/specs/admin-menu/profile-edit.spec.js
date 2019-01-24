@@ -11,8 +11,6 @@ module.exports = {
             .assert.containsText('.smart-bar__header', 'Your profile')
             .fillField('input[name=sw-field--user-name]', 'Super Richie', true)
             .fillField('input[name=sw-field--user-email]', 'mail@shopware.com', true)
-            .fillField('input[name=sw-field--newPassword]', 'sicheresPasswort1234')
-            .fillField('input[name=sw-field--newPasswordConfirm]', 'sicheresPasswort1234')
             .click('.sw-button--primary')
             .checkNotification('Profile information has been saved successfully.')
             .waitForElementVisible('.sw-admin-menu__user-name')
@@ -24,7 +22,7 @@ module.exports = {
     },
     'log in user with updated credentials': (browser) => {
         const page = loginPage(browser);
-        page.login('admin', 'sicheresPasswort1234');
+        page.login('admin', 'shopware');
     },
     'verify login with new credentials': (browser) => {
         const page = loginPage(browser);

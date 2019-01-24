@@ -47,4 +47,11 @@ export default class AdminApiService extends ApiService {
             }
         });
     }
+
+    clearCache() {
+        return super.delete('/v1/_action/cache').catch((err) => {
+            global.logger.error(err);
+            global.logger.lineBreak();
+        })
+    }
 }

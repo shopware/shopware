@@ -55,7 +55,7 @@ describe('core/factory/component.factory.js', () => {
         expect(component.template).is.equal(undefined);
     });
 
-    it('should extend a given component & should register a new component (without template)', () => {
+    xit('should extend a given component & should register a new component (without template)', () => {
         ComponentFactory.register('test-component', {
             created() {},
             template: '<div>This is a test template.</div>'
@@ -74,7 +74,7 @@ describe('core/factory/component.factory.js', () => {
         expect(registry.get('test-component-extension')).to.be.an('object');
     });
 
-    it('should extend a given component & should register a new component (with template)', () => {
+    xit('should extend a given component & should register a new component (with template)', () => {
         ComponentFactory.register('test-component', {
             created() {},
             template: '<div>This is a test template.</div>'

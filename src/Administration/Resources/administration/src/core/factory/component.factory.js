@@ -113,21 +113,6 @@ function register(componentName, componentConfiguration = {}) {
 function extend(componentName, extendComponentName, componentConfiguration) {
     const config = componentConfiguration;
 
-    if (config.template) {
-        /**
-         * Register the main template of the component based on the extended component.
-         */
-        TemplateFactory.extendComponentTemplate(componentName, extendComponentName, config.template);
-
-        /**
-         * Delete the template string from the component config.
-         * The complete rendered template including all overrides will be added later.
-         */
-        delete config.template;
-    } else {
-        TemplateFactory.extendComponentTemplate(componentName, extendComponentName);
-    }
-
     config.name = componentName;
     config.extends = extendComponentName;
 
@@ -198,6 +183,21 @@ function build(componentName, skipTemplate = false) {
     }
 
     let config = Object.create(componentRegistry.get(componentName));
+
+    if (config.extends && config.template) {
+        /**
+         * Register the main template of the component based on the extended component.
+         */
+        TemplateFactory.extendComponentTemplate(componentName, config.extends, config.template);
+
+        /**
+         * Delete the template string from the component config.
+         * The complete rendered template including all overrides will be added later.
+         */
+        delete config.template;
+    } else if (config.extends) {
+        TemplateFactory.extendComponentTemplate(componentName, config.extends);
+    }
 
     if (config.extends) {
         const extendComp = build(config.extends, true);

@@ -15,13 +15,54 @@
     </php>
 
     <testsuites>
-        <testsuite name="Administration Testsuite">
+        <testsuite name="administration">
             <directory>src/Administration/Test</directory>
         </testsuite>
-        <testsuite name="Core Testsuite">
-            <directory>src/Core/**/Test</directory>
+
+        <testsuite name="checkout">
+            <directory>src/Core/Checkout</directory>
         </testsuite>
-        <testsuite name="Storefront Testsuite">
+
+        <testsuite name="content">
+            <directory>src/Core/Content</directory>
+        </testsuite>
+
+
+        <testsuite name="dal">
+            <directory>src/Core/Framework/Test/DataAbstractionLayer/</directory>
+        </testsuite>
+
+        <testsuite name="api">
+            <directory>src/Core/Framework/Test/Api/</directory>
+        </testsuite>
+
+        <testsuite name="framework">
+            <directory>src/Core/Framework/Test/Serializer</directory>
+            <directory>src/Core/Framework/Test/Rule</directory>
+            <directory>src/Core/Framework/Test/Migration</directory>
+            <directory>src/Core/Framework/Test/Translation</directory>
+            <directory>src/Core/Framework/Test/Command</directory>
+            <directory>src/Core/Framework/Test/Plugin</directory>
+            <directory>src/Core/Framework/Test/FeatureFlag</directory>
+            <directory>src/Core/Framework/Test/Struct</directory>
+            <directory>src/Core/Framework/Test/TestCaseBase</directory>
+            <directory>src/Core/Framework/Test/Snippet</directory>
+
+            <file>src/Core/Framework/Test/ClassNamespaceTest.php</file>
+            <file>src/Core/Framework/Test/ServiceDefinitionTest.php</file>
+        </testsuite>
+
+
+        <testsuite name="migration">
+            <directory>src/Core/Migration</directory>
+        </testsuite>
+
+        <testsuite name="system">
+            <directory>src/Core/System</directory>
+        </testsuite>
+
+
+        <testsuite name="storefront">
             <directory>src/Storefront/Test</directory>
         </testsuite>
     </testsuites>

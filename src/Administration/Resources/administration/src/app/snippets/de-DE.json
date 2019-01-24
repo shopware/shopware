@@ -786,7 +786,11 @@
       "labelInputLanguage": "Sprache",
       "labelInputSnippet": "Snippet",
       "buttonDeleteDomain": "Domäne löschen",
-      "buttonAddDomain": "Domäne hinzufügen"
+      "buttonAddDomain": "Domäne hinzufügen",
+      "deleteDomainModalTitle": "Domäne löschen",
+      "textConfirmDeleteDomain": "Möchtest Du diese Domäne wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich!",
+      "buttonCloseDeleteDomainModal": "Abbrechen",
+      "buttonConfirmDeleteDomain": "Löschen"
     }
   },
   "sw-media": {

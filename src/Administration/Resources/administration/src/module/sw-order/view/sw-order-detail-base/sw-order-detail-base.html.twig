@@ -1,89 +1,322 @@
 {% block sw_order_detail_base %}
+
     <div class="sw-order-detail-base">
 
-        {% block sw_order_detail_base_info_card %}
-            <sw-user-card :title="$tc('sw-order.detailBase.cardTitleDetails')"
-                          :user="order.orderCustomer"
-                          :isLoading="order.isLoading">
+        {% block sw_order_detail_base_address_modal %}
+            <sw-order-address-modal v-if="addressBeingEdited"
+                                    :countries="countries"
+                                    :address="addressBeingEdited"
+                                    :orderCustomer="currentOrder.orderCustomer"
+                                    @sw-address-modal-selected-address="onAddressModalAddressSelected"
+                                    @sw-address-modal-close="onAddressModalClose"
+                                    @sw-address-modal-save="onAddressModalSave">
+            </sw-order-address-modal>
+        {% endblock %}
 
-                {% block sw_order_detail_base_info_card_actions %}
-                    <template slot="actions">
-                        {% block sw_order_detail_base_info_card_action_print %}
-                            <sw-button size="small" disabled>
-                                <sw-icon name="default-device-printer" small></sw-icon>
-                                {{ $tc('sw-order.detailBase.buttonPrint') }}
-                            </sw-button>
-                        {% endblock %}
+        {% block sw_order_detail_base_leave_page_modal %}
+            <sw-order-leave-page-modal v-if="displayLeavePageWarning"
+                                       @leave-page-cancel = "onLeaveModalClose"
+                                       @leave-page-confirm = "onLeaveModalConfirm">
+            </sw-order-leave-page-modal>
+        {% endblock %}
 
-                        {% block sw_order_detail_base_info_card_action_archive %}
-                            <sw-button size="small" disabled>
-                                <sw-icon name="small-documentation-map-closed" small></sw-icon>
-                                {{ $tc('sw-order.detailBase.buttonArchive') }}
-                            </sw-button>
-                        {% endblock %}
+        {% block sw_order_detail_base_existing_version_warning %}
+            <sw-alert v-if="isShowingVersionExistsWarning"
+                      variant="warning"
+                      :showIcon="true"
+                      :closable="true"
+                      class="sw-order-detail-base__version-notification"
+                      @swAlertClose="isShowingVersionExistsWarning = false">
 
-                        {% block sw_order_detail_base_info_card_action_cancel %}
-                            <sw-button size="small" disabled>
-                                <sw-icon name="small-default-x-line-medium" small></sw-icon>
-                                {{ $tc('sw-order.detailBase.buttonCancel') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
+                {{ $tc('sw-order.detailBase.labelOrderVersionAlreadyExists') }}
+                <span v-if="isShowingVersionEditedByDifferentUserWarning">
+                    {% block sw_order_detail_base_existing_version_edited_by_other_user_warning %}
+                        {{ $tc('sw-order.detailBase.labelOrderVersionEditedByOtherUser') }}
+                    {% endblock %}
+                </span>
+                {% block w_order_detail_base_load_existing_version_button %}
+                    <sw-button class="sw-order-detail-base__continue-work-alert"
+                               size="small"
+                               @click="onLoadLastVersion">
+                        {{ $tc('sw-order.detailBase.buttonContinueOnVersionedOrder') }}
+                    </sw-button>
                 {% endblock %}
+            </sw-alert>
+        {% endblock %}
 
-                {% block sw_order_detail_base_info_card_order_overview %}
+        {% block sw_order_detail_base_order_overview %}
+            <sw-user-card :title="$tc('sw-order.detailBase.cardTitleDetails')"
+                          :user="currentOrder.orderCustomer"
+                          :isLoading="isLoading"
+                          v-if="hasAssociations">
+
+                <template slot="data-additional">
+                    {% block sw_order_detail_base_order_overview_columns %}
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
+
+                            {% block sw_order_detail_base_order_overview_left_column %}
+                                <sw-description-list columns = "1fr" grid = "1fr">
+
+                                    {% block sw_order_detail_base_order_overview_email %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}</dt>
+                                        <dd>
+                                            <sw-order-saveable-field type="text"
+                                                                     :editable="isEditing"
+                                                                     :value="currentOrder.orderCustomer.email"
+                                                                     :truncateable="true"
+                                                                     @valueChanged="onCustomerEmailEdited">
+                                            </sw-order-saveable-field>
+                                        </dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_billing_address %}
+                                        <span @mouseover="isHoveringBillingAddress = true" @mouseleave="isHoveringBillingAddress = false">
+                                            <dt>
+                                                {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                                                <sw-button v-show="isHoveringBillingAddress && isEditing"
+                                                           class="sw-order-detail-base__address-edit-button"
+                                                           size="small"
+                                                           @click="onEditBillingAddress">
+                                                    {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                                </sw-button>
+                                            </dt>
+                                            <dd>
+                                                <sw-address :address="billingAddress" >
+                                                </sw-address>
+                                            </dd>
+                                        </span>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_left_column_slot %}
+                                    {% endblock %}
+
+                                </sw-description-list>
+                            {% endblock %}
+
+                            {% block sw_order_detail_base_order_overview_right_column %}
+                                <sw-description-list columns = "1fr" grid = "1fr">
+                                    {% block sw_order_detail_base_order_overview_phone_number %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
+                                        <dd>
+                                            <sw-order-saveable-field type="text"
+                                                                     :editable="isEditing"
+                                                                     :value="billingAddress.phoneNumber"
+                                                                     :placeholder="$tc('sw-order.detailBase.labelNoPhoneNumber')"
+                                                                     @valueChanged="onCustomerPhoneNumberEdited">
+                                            </sw-order-saveable-field>
+                                        </dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_shipping_address %}
+                                        <span @mouseover="isHoveringShippingAddress = true" @mouseleave="isHoveringShippingAddress = false">
+                                            <dt>
+                                                {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
+                                                <sw-button v-show="isHoveringShippingAddress &&
+                                                                hasDifferentBillingAndShippingAddress && isEditing"
+                                                           class="sw-order-detail-base__address-edit-button"
+                                                           size="small"
+                                                           @click="onEditDeliveryAddress">
+                                                    {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                                </sw-button>
+
+                                            </dt>
+                                            <dd>
+
+                                                <span v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
+                                                    <span style="padding-bottom: 30px">
+                                                        {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
+                                                    </span>
+
+                                                    <sw-button v-show="isHoveringShippingAddress &&
+                                                                       !hasDifferentBillingAndShippingAddress &&
+                                                                       isEditing"
+                                                                   class="sw-order-detail-base__address-add-button"
+                                                                   size="small"
+                                                                   block
+                                                               @click="onAddNewDeliveryAddress">
+                                                        {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
+                                                    </sw-button>
+                                                </span>
+
+                                                <sw-address v-else-if="hasDeliveries" :address="currentOrder.deliveries[0].shippingOrderAddress">
+                                                </sw-address>
+
+                                                <span v-else>{{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }} </span>
+                                            </dd>
+                                        </span>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_right_column_slot %}
+                                    {% endblock %}
+
+                                </sw-description-list>
+                            {% endblock %}
+                        </sw-container>
+
+                        {% block  sw_order_detail_base_order_actions %}
+                            {% block  sw_order_detail_base_order_action_print %}
+                                <sw-button size = "small" square :disabled="true">
+                                    <sw-icon name="default-device-printer" small></sw-icon>
+                                </sw-button>
+                            {% endblock %}
+                            {% block sw_order_detail_base_order_action_cancel %}
+                                <sw-button size = "small" :disabled="true">
+                                    {{ $tc('sw-order.detailBase.buttonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+                            {% block sw_order_detail_base_order_action_delete %}
+                                <sw-button size = "small" :disabled="true">
+                                    {{ $tc('sw-order.detailBase.buttonDelete') }}
+                                </sw-button>
+                            {% endblock %}
+                        {% endblock %}
+
+                    {% endblock %}
+                </template>
+
+                <template slot="summary">
+                    {% block  sw_order_detail_base_info_summary %}
+                        <sw-description-list class="sw-order-detail-base__user-summary-data" columns = "1fr" grid = "1fr">
+                            {% block  sw_order_detail_base_info_summary_entries %}
+                                <dt>{{ currentOrder.amountTotal | currency(currentOrder.currency.meta.viewData.shortName) }}</dt>
+                                <dd>{{ orderDate }}</dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+                </template>
+
+                {% block sw_order_detail_base_secondary_info_order_overview %}
                     <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
-                        {% block sw_order_detail_base_info_card_order_metadata %}
-                            <sw-description-list>
-                                <dt>{{ $tc('sw-order.detailBase.labelOrderStatus') }}</dt>
-                                <dd>{{ order.state.meta.viewData.description }}</dd>
-                                <dt>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</dt>
-                                <dd>{{ order.amountTotal | currency(order.currency.meta.viewData.shortName) }}</dd>
-                                <dt>{{ $tc('sw-order.detailBase.labelOrderDate') }}</dt>
-                                <dd>{{ order.date | date }}</dd>
-                                <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
-                                <dd>{{ order.salesChannel.meta.viewData.name }}</dd>
+                        {% block sw_order_detail_base_secondary_info_order_overview_contents %}
+                            <sw-description-list columns = "1fr" grid = "1fr">
+                                {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
+
+                                    {% block sw_order_detail_base_secondary_info_sales_channel %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
+                                        <dd>{{ currentOrder.salesChannel.meta.viewData.name }}</dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_secondary_info_payment %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
+                                        <dd>
+                                            <sw-order-saveable-field type="select"
+                                                                     :editable="isEditing"
+                                                                     :value="currentOrder.paymentMethod"
+                                                                     :selectStore="paymentMethodStore"
+                                                                     @valueChanged="onPaymentMethodEdited">
+                                            </sw-order-saveable-field>
+
+                                        </dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_secondary_info_delivery %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelDeliveryMethod') }}</dt>
+                                        <dd>{{ hasDeliveries ? currentOrder.deliveries[0].shippingMethod.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
+                                    {% endblock %}
+
+                                {% endblock %}
+                            </sw-description-list>
+
+                            <sw-description-list columns = "1fr" grid = "1fr">
+                                {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
+
+                                    {% block sw_order_detail_base_secondary_info_order_language %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
+                                        <dd>{{ currentOrder.salesChannel.language.name }}</dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_secondary_info_last_change %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>
+                                        <dd>{{ lastChangedDate }}</dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_secondary_info_tracking_code %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelTrackingCode') }}</dt>
+                                        <dd>{{ hasDeliveryTrackingCode ? currentOrder.deliveries[0].trackingCode :$tc('sw-order.detailBase.labelNoDeliveryTrackingCodeYet') }}</dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_secondary_info_order_overview_right_column_slot %}
+                                    {% endblock %}
+
+                                {% endblock %}
                             </sw-description-list>
                         {% endblock %}
 
-                        {% block sw_order_detail_base_info_card_billing_address %}
-                            <sw-address :headline="$tc('sw-order.detailBase.headlineBillingAddress')"
-                                        :address="order.billingAddress">
-                            </sw-address>
-                        {% endblock %}
                     </sw-container>
                 {% endblock %}
-
             </sw-user-card>
         {% endblock %}
 
         {% block sw_order_detail_base_line_items_card %}
             <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
-                     :isLoading="order.isLoading">
+                     v-if="hasAssociations"
+                     :isLoading="isLoading"
+                     class = "sw-order-detail-base__line-item-grid-card">
 
                 {% block sw_order_detail_base_line_items_card_rows %}
-                    <sw-container slot="grid" type="row">
+                    <sw-container isLoading="isLoading"
+                                  slot="grid"
+                                  type="row">
                         {% block sw_order_detail_base_line_items_grid %}
-                            <sw-order-line-items-grid :orderLineItems="order.lineItems" :order="order"></sw-order-line-items-grid>
+                            <sw-order-line-items-grid :order="currentOrder"
+                                                      :editable="isEditing"
+                                                      ref="sw-order-line-item-grid"
+                                                      @sw-order-line-items-grid-item-edited="onLineItemChanges">
+                            </sw-order-line-items-grid>
                         {% endblock %}
 
-                        {% block sw_order_detail_base_line_items_row_summary %}
+                        {% block sw_order_detail_base_line_items_summary %}
                             <sw-card-section divider="top" secondary slim>
                                 <sw-container columns="1fr 440px"
                                               class="sw-order-detail-base__summary">
-                                    {% block sw_order_detail_base_line_items_summary %}
-                                        <sw-description-list columns="265px 1fr"
-                                                             class="sw-order-detail-base__summary-data">
-                                            <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                                            <dd>{{ order.positionPrice | currency(order.currency.meta.viewData.shortName) }}</dd>
-                                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
-                                            <dd>{{ order.shippingTotal | currency(order.currency.meta.viewData.shortName) }}</dd>
-                                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                            <dd>
-                                                <strong>{{ order.amountTotal | currency(order.currency.meta.viewData.shortName) }}</strong>
-                                            </dd>
-                                        </sw-description-list>
-                                    {% endblock %}
+                                    <sw-description-list columns="265px 1fr"
+                                                         class="sw-order-detail-base__summary-data">
+                                        {% block sw_order_detail_base_line_items_summary_entries %}
+
+                                            {% block sw_order_detail_base_line_items_summary_amount %}
+                                                <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
+                                                <dd>{{ currentOrder.positionPrice | currency(order.currency.meta.viewData.shortName) }}</dd>
+                                            {% endblock %}
+
+                                            {% block sw_order_detail_base_line_items_summary_shipping_cost %}
+                                                <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                                                <dd>
+                                                    <sw-order-saveable-field type="number"
+                                                                             v-tooltip="{
+                                                                                 showDelay: 300,
+                                                                                 message: shippingCostsDetail,
+                                                                             }"
+                                                                             :editable="isEditing"
+                                                                             :value="currentOrder.deliveries[0].shippingCosts.unitPrice | currency(order.currency.shortName)"
+                                                                             @valueChanged="onShippingChargeEdited">
+                                                    </sw-order-saveable-field>
+                                                </dd>
+                                            {% endblock %}
+
+                                            {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
+                                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                                                <dd><strong>{{ currentOrder.amountNet | currency(order.currency.meta.viewData.shortName) }}</strong></dd>
+                                            {% endblock %}
+
+                                            {% block sw_order_detail_base_line_items_summary_taxes %}
+                                                <template v-for="calculatedTax in sortedCalculatedTaxes">
+                                                    <dt>{{ $t('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }) }}</dt>
+                                                    <dd>{{ calculatedTax.tax | currency(order.currency.meta.viewData.shortName)}}</dd>
+                                                </template>
+                                            {% endblock %}
+
+                                            {% block sw_order_detail_base_line_items_summary_slot %}
+                                            {% endblock %}
+
+                                            {% block sw_order_detail_base_line_items_summary_amount %}
+                                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                                                <dd><strong>{{ currentOrder.amountTotal | currency(order.currency.shortName) }}</strong></dd>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </sw-description-list>
                                 </sw-container>
                             </sw-card-section>
                         {% endblock %}
@@ -91,5 +324,16 @@
                 {% endblock %}
             </sw-card>
         {% endblock %}
+
+        {% block sw_order_detail_delivery_metadata %}
+            <sw-order-delivery-metadata v-if="hasDeliveries"
+                                        class="sw-order-delivery-metadata"
+                                       :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
+                                       :isLoading="isLoading"
+                                       :order="currentOrder"
+                                       :delivery="currentOrder.deliveries[0]">
+            </sw-order-delivery-metadata>
+        {% endblock %}
+
     </div>
 {% endblock %}

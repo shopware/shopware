@@ -54,7 +54,7 @@ class ExtensionHelper
         }
 
         if ($object instanceof Struct) {
-            $properties = $this->propertyInfoExtractor->getProperties($object);
+            $properties = $this->propertyInfoExtractor->getProperties(get_class($object));
 
             foreach ($properties as $property) {
                 if (in_array($property, self::IGNORED_PROPERTIES)) {

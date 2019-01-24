@@ -15,7 +15,7 @@ Cart collectors are registered via the Symfony DI container tag named `cart.proc
 To define the order of the calculation queue, the tag supports the `priority` attribute:
 ```xml
 <service id="Shopware\Core\Content\Product\Cart\ProductCollector">
-    <tag name="Shopware\Core\Checkout\Cart\Cart\CollectorInterface" priority="1000" />
+    <tag name="Shopware\Core\Checkout\Cart\CollectorInterface" priority="1000" />
 </service>
 ```
 A high `priority` implies an early invocation of the collector. The `priority` defaults to `0`.
@@ -27,7 +27,7 @@ Currently the following processors are registered.
 | 0 | Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector | handle vouchers, discounts and surcharges added to the cart |
 
 ## How a collector (should) work
-A collector should only add information to line items. The `Shopware\Core\Checkout\Cart\Cart\CollectorInterface`
+A collector should only add information to line items. The `Shopware\Core\Checkout\Cart\CollectorInterface`
 has three methods:
 
 - prepare: Identify all line items which you need later on. Since all prepare 
@@ -57,8 +57,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Cart\CollectorInterface;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CollectorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;

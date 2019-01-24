@@ -70,6 +70,12 @@ export default {
         hasActionSlot() {
             return !!this.$slots.actions;
         },
+        hasAdditionalDataSlot() {
+            return !!this.$slots['data-additional'];
+        },
+        hasSummarySlot() {
+            return !!this.$slots.summary;
+        },
 
         moduleColor() {
             if (!this.$route.meta.$module) {

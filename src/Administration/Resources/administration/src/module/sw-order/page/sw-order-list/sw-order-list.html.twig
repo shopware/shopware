@@ -65,6 +65,21 @@
                                 {% block sw_order_list_grid_slots %}
                                     <template slot="columns" slot-scope="{ item }">
 
+
+                                        {% block sw_order_list_grid_columns_order_number%}
+                                        <sw-grid-column flex="minmax(100px, 110px)"
+                                                        :label="$tc('sw-order.list.columnOrderNumber')"
+                                                        dataIndex="id"
+                                                        truncate
+                                                        sortable>
+                                            {% block sw_order_list_grid_columns_order_number_label %}
+                                            <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }" class="sw-order-list__column-order-number">
+                                                {{ item.id }}
+                                            </router-link>
+                                            {% endblock %}
+                                        </sw-grid-column>
+                                        {% endblock %}
+
                                         {% block sw_order_list_grid_columns_customer_name %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-order.list.columnCustomerName')"

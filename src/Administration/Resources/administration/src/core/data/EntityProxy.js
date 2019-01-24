@@ -298,10 +298,17 @@ export default class EntityProxy {
 
         this.isLoading = true;
 
+        const additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
+        if (this.versionId) {
+            additionalHeaders['x-sw-version-id'] = this.versionId;
+        }
+
+
+
         return this.apiService.create(
             changes,
             { _response: true },
-            EntityStore.getLanguageHeader(this.currentLanguageId)
+            additionalHeaders
         ).then((response) => {
             this.isLoading = false;
 
@@ -330,11 +337,16 @@ export default class EntityProxy {
     sendUpdateRequest(changes, changedAssociations = {}) {
         this.isLoading = true;
 
+        const additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
+        if (this.versionId) {
+            additionalHeaders['x-sw-version-id'] = this.versionId;
+        }
+
         return this.apiService.updateById(
             this.id,
             changes,
             { _response: true },
-            EntityStore.getLanguageHeader(this.currentLanguageId)
+            additionalHeaders
         ).then((response) => {
             this.isLoading = false;
 
@@ -370,7 +382,7 @@ export default class EntityProxy {
             const criteria = CriteriaFactory.equalsAny('id', associationIds);
 
             for (let i = 1; i <= pages; i += 1) {
-                association.getList({ page: i, limit, criteria }, false);
+                association.getList({ page: i, limit, criteria, versionId: this.versionId }, false);
             }
         });
     }
@@ -394,7 +406,12 @@ export default class EntityProxy {
             return Promise.resolve();
         }
 
-        return this.apiService.delete(this.id).then(() => {
+        const additionalHeaders = {};
+        if (this.versionId) {
+            additionalHeaders['x-sw-version-id'] = this.versionId;
+        }
+
+        return this.apiService.delete(this.id, {}, additionalHeaders).then(() => {
             this.remove();
         }).catch((exception) => {
             // delete is idempotent so 404 is no error
@@ -748,6 +765,10 @@ export default class EntityProxy {
                     return acc;
                 }
 
+                if (typeof b[key].id !== 'undefined') {
+                    changes.id = b[key].id;
+                }
+
                 return { ...acc, [key]: changes };
             }
 
@@ -861,7 +882,8 @@ export default class EntityProxy {
         return {
             isDeleted: this.isDeleted,
             isLoading: this.isLoading,
-            errors: this.errors
+            errors: this.errors,
+            versionId: this.versionId
         };
     }
 

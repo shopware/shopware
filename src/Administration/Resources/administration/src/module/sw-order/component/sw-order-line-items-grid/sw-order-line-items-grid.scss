@@ -1,6 +1,14 @@
+@import "~less/variables";
+
 .sw-order-line-items-grid {
     .sw-icon {
         width: 16px;
         height: 16px;
     }
+}
+
+.sw-order-line-items-grid__actions-container
+{
+    padding: 24px;
+    border-bottom: 1px solid @color-steam-cloud;
 }

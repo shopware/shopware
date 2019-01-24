@@ -10,7 +10,6 @@ use Faker\Factory;
 use Faker\Generator;
 use function Flag\next1207;
 use function Flag\next739;
-use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;

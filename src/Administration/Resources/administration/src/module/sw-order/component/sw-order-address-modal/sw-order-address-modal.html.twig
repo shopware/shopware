@@ -1,0 +1,64 @@
+{% block sw_order_address_modal %}
+    <sw-modal :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
+              @closeModal="onClose">
+        {% block sw_order_address_modal_content %}
+            <sw-tabs class = "sw-order-address-modal">
+                {% block sw_order_address_modal_tabs %}
+                    {% block sw_order_address_modal_tab_edit_address %}
+                        <sw-tabs-item @click="currentlyShowing='edit'">
+                            {{ $tc('sw-order.addressSelection.headlineTabEditAddress') }}
+                        </sw-tabs-item>
+                    {%  endblock %}
+                    {% block sw_order_address_modal_tab_select_address %}
+                        <sw-tabs-item @click="currentlyShowing='overview'">
+                            {{ $tc('sw-order.addressSelection.headlineTabSelectAddress') }}
+                        </sw-tabs-item>
+                    {% endblock %}
+                {% endblock %}
+
+                <template slot="content">
+                    {% block sw_order_address_modal_tabs_content %}
+                        <div v-else v-if="currentlyShowing==='edit'">
+                            {% block sw_order_address_modal_tabs_content_edit_address %}
+                                <sw-customer-address-form :address="address"
+                                                          :countries="countries">
+                                </sw-customer-address-form>
+                            {% endblock %}
+                        </div>
+                        <div v-else>
+                            {% block sw_order_address_modal_tabs_content_select_address %}
+                                <sw-button v-for="(address, index) in this.availableAddresses"
+                                        block
+                                        class="sw-order-address-modal__entry"
+                                        @click="onExistingAddressSelected(address)">
+                                    {{ address.company }} <br>
+                                    {{ address.salutation}} {{ address.firstName }} {{ address.lastName }}<br>
+                                    {{ address.street }} <br>
+                                    {{ address.zipcode }} {{ address.city }}<br>
+                                    {{ address.country.name }}<br>
+                                </sw-button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </template>
+            </sw-tabs>
+        {% endblock %}
+
+        {% block sw_order_address_modal_actions %}
+            <template slot="modal-footer">
+                {% block sw_order_address_modal_action_close %}
+                    <sw-button size="small" @click="onClose">
+                        {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_order_address_modal_actions_apply %}
+                    <sw-button variant="primary" size="small" @click="onSave">
+                        {{ $tc('sw-customer.detailAddresses.buttonApply') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}
+

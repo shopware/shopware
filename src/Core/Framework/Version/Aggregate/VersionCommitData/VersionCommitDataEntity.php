@@ -150,7 +150,7 @@ class VersionCommitDataEntity extends Entity
     }
 
     /**
-     * @return null|array
+     * @return array|null
      */
     public function getPayload(): ?array
     {
@@ -158,7 +158,7 @@ class VersionCommitDataEntity extends Entity
     }
 
     /**
-     * @param null|array $payload
+     * @param array|null $payload
      */
     public function setPayload(?array $payload): void
     {

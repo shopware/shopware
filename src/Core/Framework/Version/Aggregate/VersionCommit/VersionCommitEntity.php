@@ -105,7 +105,7 @@ class VersionCommitEntity extends Entity
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getUserId(): ?string
     {
@@ -113,7 +113,7 @@ class VersionCommitEntity extends Entity
     }
 
     /**
-     * @param null|string $userId
+     * @param string|null $userId
      */
     public function setUserId(?string $userId): void
     {

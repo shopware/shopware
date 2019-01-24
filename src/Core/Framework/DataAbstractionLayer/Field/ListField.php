@@ -24,7 +24,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 class ListField extends JsonField
 {
     /**
-     * @var null|string
+     * @var string|null
      */
     private $fieldType;
 

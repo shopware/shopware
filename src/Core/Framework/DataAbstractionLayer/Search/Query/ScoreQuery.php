@@ -17,7 +17,7 @@ class ScoreQuery extends Filter
     protected $query;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $scoreField;
 

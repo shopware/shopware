@@ -129,22 +129,22 @@ class OrderEntity extends Entity
     protected $billingAddress;
 
     /**
-     * @var null|OrderDeliveryCollection
+     * @var OrderDeliveryCollection|null
      */
     protected $deliveries;
 
     /**
-     * @var null|OrderLineItemCollection
+     * @var OrderLineItemCollection|null
      */
     protected $lineItems;
 
     /**
-     * @var null|OrderTransactionCollection
+     * @var OrderTransactionCollection|null
      */
     protected $transactions;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $deepLinkCode;
 

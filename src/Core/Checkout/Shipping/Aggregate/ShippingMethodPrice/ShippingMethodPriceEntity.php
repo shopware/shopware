@@ -40,7 +40,7 @@ class ShippingMethodPriceEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @var null|ShippingMethodEntity
+     * @var ShippingMethodEntity|null
      */
     protected $shippingMethod;
 

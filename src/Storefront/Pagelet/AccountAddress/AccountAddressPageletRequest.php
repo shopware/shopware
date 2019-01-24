@@ -7,12 +7,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class AccountAddressPageletRequest extends Struct
 {
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $addressId;
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getAddressId(): ?string
     {
@@ -20,7 +20,7 @@ class AccountAddressPageletRequest extends Struct
     }
 
     /**
-     * @param null|string $addressId
+     * @param string|null $addressId
      */
     public function setAddressId(?string $addressId): void
     {

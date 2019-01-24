@@ -16,7 +16,7 @@ class TaxRule extends Struct
      */
     protected $percentage;
 
-    public function __construct(float $taxRate, float $percentage = 100)
+    public function __construct(float $taxRate, float $percentage = 100.0)
     {
         $this->taxRate = $taxRate;
         $this->percentage = $percentage;

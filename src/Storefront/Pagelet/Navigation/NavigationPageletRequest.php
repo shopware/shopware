@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class NavigationPageletRequest extends Struct
 {
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $navigationId;
 
@@ -54,7 +54,7 @@ class NavigationPageletRequest extends Struct
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getNavigationId(): ?string
     {
@@ -62,7 +62,7 @@ class NavigationPageletRequest extends Struct
     }
 
     /**
-     * @param null|string $navigationId
+     * @param string|null $navigationId
      */
     public function setNavigationId(?string $navigationId): void
     {

@@ -130,7 +130,7 @@ abstract class EntityDefinition
     }
 
     /**
-     * @return string|null|EntityDefinition
+     * @return string|EntityDefinition|null
      */
     public static function getTranslationDefinitionClass(): ?string
     {

@@ -8,7 +8,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 class TreeBuilder
 {
     /**
-     * @param null|string        $parentId
+     * @param string|null        $parentId
      * @param CategoryCollection $categories
      *
      * @return TreeItem[]

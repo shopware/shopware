@@ -44,7 +44,7 @@ class CreatePageCommand extends Command
             $this->createFiles($name, $output, realpath($directory), $namespace);
             $output->writeln('Creating page Done!');
 
-            return;
+            return null;
         }
     }
 

@@ -14,7 +14,7 @@ class SearchTerm
      */
     protected $score;
 
-    public function __construct(string $term, float $score = 1)
+    public function __construct(string $term, float $score = 1.0)
     {
         $this->term = $term;
         $this->score = $score;

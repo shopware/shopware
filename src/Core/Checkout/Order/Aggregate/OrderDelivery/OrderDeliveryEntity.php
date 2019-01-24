@@ -79,7 +79,7 @@ class OrderDeliveryEntity extends Entity
     protected $order;
 
     /**
-     * @var null|EntitySearchResult
+     * @var EntitySearchResult|null
      */
     protected $positions;
 

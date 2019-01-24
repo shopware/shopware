@@ -9,7 +9,7 @@ use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletRequest;
 class AccountAddressPageRequest extends Struct
 {
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $redirectTo;
 
@@ -38,7 +38,7 @@ class AccountAddressPageRequest extends Struct
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getRedirectTo(): ?string
     {
@@ -46,7 +46,7 @@ class AccountAddressPageRequest extends Struct
     }
 
     /**
-     * @param null|string $redirectTo
+     * @param string|null $redirectTo
      */
     public function setRedirectTo(?string $redirectTo): void
     {

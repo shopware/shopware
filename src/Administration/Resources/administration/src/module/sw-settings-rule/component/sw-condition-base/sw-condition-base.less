@@ -39,17 +39,24 @@
     }
 
     .field--select {
-        width: 124px;
+        width: 136px;
         border-top: 1px solid @sw-condition-base-color-border;
         border-bottom: 1px solid @sw-condition-base-color-border;
 
-        .sw-field__select select {
-            outline: none;
-            box-shadow: none;
-            border: 0;
-            padding: 7px 0;
-            background: @sw-condition-base-color-background;
-            height: 38px;
+        .sw-field__select {
+            .sw-icon {
+                top: 12px;
+                right: 5px;
+            }
+
+            select {
+                outline: none;
+                box-shadow: none;
+                border: 0;
+                padding: 7px 0;
+                background: @sw-condition-base-color-background;
+                height: 38px;
+            }
         }
 
         &.field--condition {
@@ -71,6 +78,7 @@
                 select {
                     background: transparent;
                     color: @sw-condition-base-color-primary-text;
+                    width: 140px;
                 }
             }
 
@@ -150,7 +158,7 @@
 
         .sw-select__inner, .sw-tagged-field__inner {
             border: none;
-            padding: 0 45px 0 13px;
+            padding: 0 20px 0 20px;
             min-height: 38px;
 
             .sw-select__input, .sw-tagged-field__input {
@@ -158,6 +166,8 @@
                 margin-bottom: 7px;
                 padding: 0 8px;
                 line-height: 24px;
+                min-width: 80px;
+                width: 80px;
             }
 
             .sw-label {
@@ -208,6 +218,15 @@
             height: 100%;
             display: flex;
             align-items: center;
+
+            .sw-context-button__button {
+                padding: 0 11px;
+            }
+        }
+
+        .sw-icon {
+            width: 16px;
+            height: 16px;
         }
     }
 
@@ -313,5 +332,10 @@
     .sw-condition-base__error-container {
         display: block;
         color: @sw-condition-base-color-error;
+    }
+
+    .sw-icon.sw-icon--small {
+        width: 15px;
+        height: 15px;
     }
 }

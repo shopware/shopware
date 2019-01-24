@@ -17,7 +17,7 @@ import './sw-media-upload.less';
  *     allowMultiSelect="false"
  *     variant="regular"
  *     autoUpload="true"
- *     caption="Lorem ipsum dolor sit amet">
+ *     label="My image-upload">
  * </sw-media-upload>
  */
 Component.register('sw-media-upload', {
@@ -52,7 +52,7 @@ Component.register('sw-media-upload', {
             default: 'regular'
         },
 
-        caption: {
+        label: {
             required: false,
             type: String
         },
@@ -122,12 +122,6 @@ Component.register('sw-media-upload', {
             return Object.keys(this.$listeners).includes('sw-media-upload-open-sidebar');
         },
 
-        openMediaSidebarClass() {
-            return {
-                'is--single-button': !this.hasOpenSidebarButtonListener
-            };
-        },
-
         previewClass() {
             return {
                 'has--preview': this.showPreview
@@ -136,7 +130,8 @@ Component.register('sw-media-upload', {
 
         isDragActiveClass() {
             return {
-                'is--active': this.isDragActive
+                'is--active': this.isDragActive,
+                'is--multi': this.variant === 'regular' && !!this.multiSelect
             };
         }
     },

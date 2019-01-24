@@ -7,9 +7,11 @@
     <services>
         <service id="Shopware\Core\Framework\MessageQueue\AsyncDispatcher">
             <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="message_queue_size.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\MessageHandler">
+        <service id="Shopware\Core\Framework\MessageQueue\MessageHandler\DefaultMessageHandler">
+            <argument type="service" id="message_queue_size.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="messenger.message_handler"/>
         </service>

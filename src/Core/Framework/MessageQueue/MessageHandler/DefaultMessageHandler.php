@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\MessageQueue;
+namespace Shopware\Core\Framework\MessageQueue\MessageHandler;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\MessageQueue\Message;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-class MessageHandler implements MessageSubscriberInterface
+class DefaultMessageHandler extends AbstractMessageHandler
 {
     /**
      * @var EventDispatcherInterface
@@ -13,12 +14,14 @@ class MessageHandler implements MessageSubscriberInterface
     private $eventDispatcher;
 
     public function __construct(
+        EntityRepositoryInterface $messageQueueSizeRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
+        parent::__construct($messageQueueSizeRepository);
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function __invoke(Message $msg)
+    public function handle(Message $msg): void
     {
         $this->eventDispatcher->dispatch($msg->getEventName(), $msg);
     }

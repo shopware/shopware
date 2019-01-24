@@ -46,6 +46,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.sw-grid-row:first-child')
             .assert.containsText('.sw-grid-row:first-child', 'shopware AG')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');

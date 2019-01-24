@@ -84,5 +84,5 @@ function clearDatabase() {
  * @returns {Promise<String|void>}
  */
 function clearCache() {
-    return exec(`rm -rf ${process.env.PROJECT_ROOT}/var/cache`);
+    return exec(`rm -rf ${process.env.PROJECT_ROOT}var/cache`);
 }

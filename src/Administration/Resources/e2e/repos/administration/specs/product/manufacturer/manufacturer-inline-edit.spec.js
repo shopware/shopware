@@ -14,8 +14,11 @@ module.exports = {
     'inline edit manufacturer name and website and verify edits': (browser) => {
         browser
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
+            .expect.element('.sw-grid-row:first-child .sw-manufacturer-list_column-manufacturer-name').to.have.text.that.equals('MAN-U-FACTURE');
+
+        browser
             .moveToElement('.sw-grid-row:first-child', 5, 5).doubleClick()
-            .waitForElementVisible('.sw-grid-row__inline-edit-action')
+            .waitForElementVisible('.is--inline-editing')
             .fillField('input[name=sw-field--item-name]', 'I am Groot', true)
             .waitForElementVisible('.sw-grid-row__inline-edit-action')
             .click('.sw-grid-row__inline-edit-action')

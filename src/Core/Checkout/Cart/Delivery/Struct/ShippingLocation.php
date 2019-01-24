@@ -15,12 +15,12 @@ class ShippingLocation extends Struct
     protected $country;
 
     /**
-     * @var null|CountryStateEntity
+     * @var CountryStateEntity|null
      */
     protected $state;
 
     /**
-     * @var null|CustomerAddressEntity
+     * @var CustomerAddressEntity|null
      */
     protected $address;
 

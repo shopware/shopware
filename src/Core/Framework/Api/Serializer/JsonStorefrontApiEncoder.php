@@ -17,7 +17,7 @@ class JsonStorefrontApiEncoder extends JsonApiEncoder
     private $allowedRelationships = [];
 
     /**
-     * @param null|Entity|EntityCollection $value
+     * @param Entity|EntityCollection|null $value
      */
     protected function addRelationships(
         SerializedEntity $serialized,

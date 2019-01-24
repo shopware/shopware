@@ -9,7 +9,7 @@ use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletStruct;
 class AccountLoginPageStruct extends Struct
 {
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $redirectTo;
 

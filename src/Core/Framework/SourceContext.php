@@ -16,12 +16,12 @@ class SourceContext
     private $origin;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $userId;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $integrationId;
 

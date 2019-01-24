@@ -14,7 +14,7 @@ class ValidatableDefinition extends Struct implements Validatable
     protected $rule;
 
     /**
-     * @param null|Rule $rule
+     * @param Rule|null $rule
      */
     public function __construct($rule)
     {

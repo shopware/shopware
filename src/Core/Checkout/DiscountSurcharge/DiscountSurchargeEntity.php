@@ -52,7 +52,7 @@ class DiscountSurchargeEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @var null|EntitySearchResult
+     * @var EntitySearchResult|null
      */
     protected $translations;
 

@@ -99,7 +99,7 @@ class XmlPluginInfoReader
      * @param \DOMNode $node
      * @param mixed    $name
      *
-     * @return null|\DOMElement
+     * @return \DOMElement|null
      */
     private function getFirstChild(\DOMNode $node, $name): ?\DOMElement
     {

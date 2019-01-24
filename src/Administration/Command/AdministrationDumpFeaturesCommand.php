@@ -32,7 +32,7 @@ class AdministrationDumpFeaturesCommand extends Command
             ->setDescription('Creating json file with feature config for administration testing and hot reloading capabilities.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         file_put_contents(
             $this->kernel->getCacheDir() . '/../../config_administration_features.json',

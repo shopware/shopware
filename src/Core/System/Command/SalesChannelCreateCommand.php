@@ -94,7 +94,7 @@ class SalesChannelCreateCommand extends Command
 
             $io->listing($messages);
 
-            return;
+            return null;
         }
 
         $io->text('Access tokens:');

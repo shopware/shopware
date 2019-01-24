@@ -20,7 +20,7 @@ class ControllerInfo
     private $name;
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getAction(): ?string
     {
@@ -28,7 +28,7 @@ class ControllerInfo
     }
 
     /**
-     * @param null|string $action
+     * @param string|null $action
      */
     public function setAction(?string $action): void
     {
@@ -36,7 +36,7 @@ class ControllerInfo
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getNamespace(): ?string
     {
@@ -44,7 +44,7 @@ class ControllerInfo
     }
 
     /**
-     * @param null|string $namespace
+     * @param string|null $namespace
      */
     public function setNamespace(?string $namespace): void
     {
@@ -52,7 +52,7 @@ class ControllerInfo
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getName(): ?string
     {
@@ -60,7 +60,7 @@ class ControllerInfo
     }
 
     /**
-     * @param null|string $name
+     * @param string|null $name
      */
     public function setName(?string $name): void
     {

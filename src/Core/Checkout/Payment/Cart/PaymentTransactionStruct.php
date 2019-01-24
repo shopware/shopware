@@ -36,7 +36,7 @@ class PaymentTransactionStruct extends Struct
     protected $paymentMethodId;
 
     /**
-     * @var null|PaymentMethodEntity
+     * @var PaymentMethodEntity|null
      */
     protected $paymentMethod;
 

@@ -53,7 +53,7 @@ class CreateMigrationCommand extends Command
         if ($directory) {
             $this->createMigrationFile($name, $output, realpath($directory), $namespace);
 
-            return;
+            return null;
         }
 
         $plugin = $input->getOption('plugin');

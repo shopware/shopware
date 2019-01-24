@@ -20,7 +20,7 @@ class EntityWriteResult
     protected $payload;
 
     /**
-     * @var null|EntityExistence
+     * @var EntityExistence|null
      */
     protected $existence;
 

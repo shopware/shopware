@@ -1,6 +1,7 @@
 parameters:
     reportUnmatchedIgnoredErrors: false
     excludes_analyse:
+        - %rootDir%/../../../../../src/**/*Test.php
         - %rootDir%/../../src/**/*Test.php
         - %rootDir%/../../src/**/*TestCase.php
         - %rootDir%/../../src/**/_fixture/feature_*.php

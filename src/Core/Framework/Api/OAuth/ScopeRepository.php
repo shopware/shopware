@@ -47,7 +47,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param ScopeEntityInterface[] $scopes
      * @param string                 $grantType
      * @param ClientEntityInterface  $clientEntity
-     * @param null|string            $userIdentifier
+     * @param string|null            $userIdentifier
      *
      * @return ScopeEntityInterface[]
      */

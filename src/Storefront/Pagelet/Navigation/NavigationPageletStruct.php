@@ -35,7 +35,7 @@ class NavigationPageletStruct extends PageletStruct
     }
 
     /**
-     * @return null|CategoryEntity
+     * @return CategoryEntity|null
      */
     public function getActiveCategory(): ?CategoryEntity
     {
@@ -43,7 +43,7 @@ class NavigationPageletStruct extends PageletStruct
     }
 
     /**
-     * @param null|CategoryEntity $activeCategory
+     * @param CategoryEntity|null $activeCategory
      */
     public function setActiveCategory(?CategoryEntity $activeCategory): void
     {

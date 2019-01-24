@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Test\FeatureFlag;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator;
-use Shopware\Core\Framework\Twig\FeatureFlagExtension;
-use Twig_Environment;
-use Twig_Loader_Filesystem;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101Call;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix101;
+use Shopware\Core\Framework\Twig\FeatureFlagExtension;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 
 class FeatureTest extends TestCase
 {

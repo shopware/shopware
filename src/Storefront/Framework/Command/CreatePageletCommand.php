@@ -44,7 +44,7 @@ class CreatePageletCommand extends Command
             $this->createFiles($name, $output, realpath($directory), $namespace);
             $output->writeln('Creating pagelet Done!');
 
-            return;
+            return null;
         }
     }
 

@@ -108,7 +108,9 @@ class PluginService
             $plugins[] = $pluginData;
         }
 
-        $this->pluginRepo->upsert($plugins, $shopwareContext);
+        if ($plugins) {
+            $this->pluginRepo->upsert($plugins, $shopwareContext);
+        }
 
         // delete plugins, which are in storage but not in filesystem anymore
         $deletePluginIds = $installedPlugins->getIds();

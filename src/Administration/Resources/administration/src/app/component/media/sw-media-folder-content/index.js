@@ -1,9 +1,10 @@
-import { Component, State } from 'src/core/shopware';
+import { State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-folder-content.html.twig';
 import './sw-media-folder-content.less';
 
-Component.register('sw-media-folder-content', {
+export default {
+    name: 'sw-media-folder-content',
     template,
 
     inject: [
@@ -99,4 +100,4 @@ Component.register('sw-media-folder-content', {
             this.$emit('selected', folder);
         }
     }
-});
+};

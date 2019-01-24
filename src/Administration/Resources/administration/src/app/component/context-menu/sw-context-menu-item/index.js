@@ -1,11 +1,11 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-context-menu-item.html.twig';
 import './sw-context-menu-item.less';
 
 /**
  * @private
  */
-Component.register('sw-context-menu-item', {
+export default {
+    name: 'sw-context-menu-item',
     template,
 
     props: {
@@ -51,4 +51,4 @@ Component.register('sw-context-menu-item', {
             return this.disabled ? {} : this.$listeners;
         }
     }
-});
+};

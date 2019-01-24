@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import './sw-label.less';
 import template from './sw-label.html.twig';
 
@@ -11,7 +10,8 @@ import template from './sw-label.html.twig';
  *     Text
  * </sw-label>
  */
-Component.register('sw-label', {
+export default {
+    name: 'sw-label',
     template,
 
     props: {
@@ -54,4 +54,4 @@ Component.register('sw-label', {
             };
         }
     }
-});
+};

@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-card.html.twig';
 import './sw-card.less';
 
@@ -12,7 +11,8 @@ import './sw-card.less';
  *     Your content
  * </sw-card>
  */
-Component.register('sw-card', {
+export default {
+    name: 'sw-card',
     template,
 
     props: {
@@ -52,4 +52,4 @@ Component.register('sw-card', {
             };
         }
     }
-});
+};

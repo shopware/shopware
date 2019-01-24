@@ -10,6 +10,7 @@ import initFilter from 'src/app/init/filter.init';
 import initDirectives from 'src/app/init/directive.init';
 import initLocale from 'src/app/init/locale.init';
 import initApiServices from 'src/app/init/api-services.init';
+import initComponents from 'src/app/init/component.init';
 
 export default {
     contextService: initContext,
@@ -19,6 +20,7 @@ export default {
     coreMixin: initMixin,
     coreDirectives: initDirectives,
     coreFilter: initFilter,
+    baseComponents: initComponents,
     coreModuleRoutes: initCoreModules,
     view: initView,
     router: initRouter,

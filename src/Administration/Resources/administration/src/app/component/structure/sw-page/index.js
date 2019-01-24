@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-page.html.twig';
 import './sw-page.less';
@@ -33,7 +32,8 @@ import './sw-page.less';
  *     </template>
  * </sw-page>
  */
-Component.register('sw-page', {
+export default {
+    name: 'sw-page',
     template,
 
     props: {
@@ -146,4 +146,4 @@ Component.register('sw-page', {
             }
         }
     }
-});
+};

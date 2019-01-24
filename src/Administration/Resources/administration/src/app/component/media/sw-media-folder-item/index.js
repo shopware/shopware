@@ -1,8 +1,9 @@
-import { Application, Component, Mixin } from 'src/core/shopware';
+import { Application, Mixin } from 'src/core/shopware';
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.less';
 
-Component.register('sw-media-folder-item', {
+export default {
+    name: 'sw-media-folder-item',
     template,
 
     mixins: [
@@ -180,4 +181,4 @@ Component.register('sw-media-folder-item', {
             this.showMoveModal = false;
         }
     }
-});
+};

@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-media-url-form.html.twig';
 
 /**
@@ -9,7 +8,8 @@ import template from './sw-media-url-form.html.twig';
  * <sw-media-url-form variant="inline">
  * </sw-media-url-form>
  */
-Component.register('sw-media-url-form', {
+export default {
+    name: 'sw-media-url-form',
     template,
 
     props: {
@@ -101,4 +101,4 @@ Component.register('sw-media-url-form', {
             this.$emit('closeModal');
         }
     }
-});
+};

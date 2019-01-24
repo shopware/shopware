@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-price-field.html.twig';
 import './sw-price-field.less';
 
@@ -9,7 +8,8 @@ import './sw-price-field.less';
  * @component-example
  * <sw-price-field :price="{ net: 10, gross: 11.90 }" :currency="{ symbol: '€' }"></sw-price-field>
  */
-Component.register('sw-price-field', {
+export default {
+    name: 'sw-price-field',
     template,
 
     inheritAttrs: false,
@@ -114,4 +114,4 @@ Component.register('sw-price-field', {
             return (this.taxRate.taxRate / 100) + 1;
         }
     }
-});
+};

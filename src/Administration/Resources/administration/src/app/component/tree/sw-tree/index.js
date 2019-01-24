@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-tree.html.twig';
 import './sw-tree.less';
@@ -11,7 +10,8 @@ import './sw-tree.less';
  * <sw-tree>
  * </sw-tree>
  */
-Component.register('sw-tree', {
+export default {
+    name: 'sw-tree',
     template,
 
     props: {
@@ -202,4 +202,4 @@ Component.register('sw-tree', {
             });
         }
     }
-});
+};

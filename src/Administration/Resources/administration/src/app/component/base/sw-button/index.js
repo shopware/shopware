@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import './sw-button.less';
 import template from './sw-button.html.twig';
 
@@ -12,7 +11,8 @@ import template from './sw-button.html.twig';
  *     Button
  * </sw-button>
  */
-Component.register('sw-button', {
+export default {
+    name: 'sw-button',
     template,
 
     props: {
@@ -76,4 +76,4 @@ Component.register('sw-button', {
             };
         }
     }
-});
+};

@@ -1,13 +1,13 @@
-import { Component, State } from 'src/core/shopware';
+import { State } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.less';
 
-
 /**
  * @private
  */
-Component.register('sw-admin-menu', {
+export default {
+    name: 'sw-admin-menu',
     template,
 
     inject: ['menuService', 'loginService', 'userService'],
@@ -219,4 +219,4 @@ Component.register('sw-admin-menu', {
             this.scrollbarOffset = `-${offset}px`;
         }
     }
-});
+};

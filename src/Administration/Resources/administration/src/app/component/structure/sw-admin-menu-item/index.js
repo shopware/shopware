@@ -1,10 +1,10 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-admin-menu-item.html.twig';
 
 /**
  * @private
  */
-Component.register('sw-admin-menu-item', {
+export default {
+    name: 'sw-admin-menu-item',
     template,
 
     props: {
@@ -60,4 +60,4 @@ Component.register('sw-admin-menu-item', {
             return menuItemName.replace(/\./g, '-');
         }
     }
-});
+};

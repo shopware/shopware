@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-tabs.html.twig';
 import './sw-tabs.less';
@@ -40,7 +39,8 @@ import './sw-tabs.less';
  *     </sw-tabs-item>
  * </sw-tabs>
  */
-Component.register('sw-tabs', {
+export default {
+    name: 'sw-tabs',
     template,
 
     props: {
@@ -128,4 +128,4 @@ Component.register('sw-tabs', {
             }
         }
     }
-});
+};

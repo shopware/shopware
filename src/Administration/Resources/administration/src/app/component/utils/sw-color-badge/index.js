@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-color-badge.html.twig';
 import './sw-color-badge.less';
 
@@ -18,7 +17,8 @@ import './sw-color-badge.less';
  *     <sw-color-badge color="red" rounded></sw-color-badge>
  * </div>
  */
-Component.register('sw-color-badge', {
+export default {
+    name: 'sw-color-badge',
     template,
 
     props: {
@@ -53,4 +53,4 @@ Component.register('sw-color-badge', {
             };
         }
     }
-});
+};

@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-user-card.html.twig';
 import './sw-user-card.less';
 
@@ -43,7 +42,8 @@ import './sw-user-card.less';
  * </template>
  * </sw-user-card>
  */
-Component.register('sw-user-card', {
+export default {
+    name: 'sw-user-card',
     template,
 
     props: {
@@ -93,4 +93,4 @@ Component.register('sw-user-card', {
             return `${salutation} ${title} ${firstName} ${lastName}`;
         }
     }
-});
+};

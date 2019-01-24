@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.less';
@@ -10,7 +9,8 @@ import './sw-search-bar.less';
  * @status ready
  * @example-type code-only
  */
-Component.register('sw-search-bar', {
+export default {
+    name: 'sw-search-bar',
     template,
 
     inject: ['searchService'],
@@ -175,4 +175,4 @@ Component.register('sw-search-bar', {
             this.showResultsContainer = true;
         }
     }
-});
+};

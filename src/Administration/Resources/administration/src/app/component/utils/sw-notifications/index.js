@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { State } from 'src/core/shopware';
 import template from './sw-notifications.html.twig';
 import './sw-notifications.less';
 
@@ -9,7 +9,8 @@ import './sw-notifications.less';
  * @status ready
  * @example-type code-only
  */
-Component.register('sw-notifications', {
+export default {
+    name: 'sw-notifications',
     template,
 
     props: {
@@ -71,4 +72,4 @@ Component.register('sw-notifications', {
             State.getStore('notification').removeNotification(notification);
         }
     }
-});
+};

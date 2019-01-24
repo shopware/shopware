@@ -1,6 +1,5 @@
-import { Component } from 'src/core/shopware';
-
-Component.register('sw-media-entity-mapper', {
+export default {
+    name: 'sw-media-entity-mapper',
     functional: true,
 
     render(createElement, context) {
@@ -29,4 +28,4 @@ Component.register('sw-media-entity-mapper', {
             }
         }
     }
-});
+};

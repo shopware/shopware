@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import { debug } from 'src/core/service/util.service';
 import template from './sw-icon.html.twig';
 import './sw-icon.less';
@@ -20,7 +19,8 @@ import './sw-icon.less';
  *     <sw-icon name="default-default-bell-bell" color="#f1c40f"></sw-icon>
  * </div>
  */
-Component.register('sw-icon', {
+export default {
+    name: 'sw-icon',
     template,
 
     props: {
@@ -107,4 +107,4 @@ Component.register('sw-icon', {
             }
         }
     }
-});
+};

@@ -1,12 +1,11 @@
-import { Component } from 'src/core/shopware';
-
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.less';
 
 /**
  * @private
  */
-Component.register('sw-tabs-item', {
+export default {
+    name: 'sw-tabs-item',
     template,
 
     props: {
@@ -53,4 +52,4 @@ Component.register('sw-tabs-item', {
             this.$parent.active = this.name;
         }
     }
-});
+};

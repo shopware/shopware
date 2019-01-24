@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-field.html.twig';
 import './sw-media-field.less';
@@ -10,7 +10,8 @@ import './sw-media-field.less';
  * @component-example
  * <sw-media-field v-model="manufacturer.mediaId"></sw-media-field>
  */
-Component.register('sw-media-field', {
+export default {
+    name: 'sw-media-field',
     template,
 
     model: {
@@ -167,4 +168,4 @@ Component.register('sw-media-field', {
             this.showPicker = false;
         }
     }
-});
+};

@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-media-preview.html.twig';
 import './sw-media-preview.less';
 
@@ -10,7 +9,8 @@ import './sw-media-preview.less';
  * <sw-media-preview :item="item" :showControls="true" :autoplay="false" :useThumbnails="false">
  * </sw-media-preview>
  */
-Component.register('sw-media-preview', {
+export default {
+    name: 'sw-media-preview',
     template,
 
     props: {
@@ -159,4 +159,4 @@ Component.register('sw-media-preview', {
             return regEx.test(this.item.mimeType);
         }
     }
-});
+};

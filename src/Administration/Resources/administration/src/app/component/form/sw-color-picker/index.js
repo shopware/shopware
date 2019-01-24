@@ -1,9 +1,9 @@
-import { Component } from 'src/core/shopware';
 import Picker from 'vanilla-picker';
 import template from './sw-color-picker.html.twig';
 import './sw-color-picker.less';
 
-Component.register('sw-color-picker', {
+export default {
+    name: 'sw-color-picker',
     template,
 
     props: {
@@ -106,4 +106,4 @@ Component.register('sw-color-picker', {
             this.$emit('input', this.color);
         }
     }
-});
+};

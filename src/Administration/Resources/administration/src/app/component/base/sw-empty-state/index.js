@@ -1,11 +1,11 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-empty-state.html.twig';
 import './sw-empty-state.less';
 
 /**
  * @private
  */
-Component.register('sw-empty-state', {
+export default {
+    name: 'sw-empty-state',
     template,
 
     props: {
@@ -33,4 +33,4 @@ Component.register('sw-empty-state', {
             return !!this.$slots.actions;
         }
     }
-});
+};

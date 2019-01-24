@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-help-text.html.twig';
 import './sw-help-text.less';
 
@@ -10,7 +9,8 @@ import './sw-help-text.less';
  * @component-example
  * <sw-help-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr"></sw-help-text>
  */
-Component.register('sw-help-text', {
+export default {
+    name: 'sw-help-text',
     template,
 
     props: {
@@ -42,4 +42,4 @@ Component.register('sw-help-text', {
             required: false
         }
     }
-});
+};

@@ -8,8 +8,6 @@ import DeviceHelper from 'src/core/plugins/device-helper.plugin';
 import { Component, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 
-import 'src/app/component/components';
-
 /**
  * Contains the global Vue.js components
  * @type {{}}

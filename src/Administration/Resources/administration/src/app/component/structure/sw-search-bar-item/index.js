@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.less';
 
@@ -12,7 +11,8 @@ import './sw-search-bar-item.less';
  * <sw-search-bar-item :item="{ type: 'customer', entity: [{ name: 'customer name', id: 'uuid' }]}">
  * </sw-search-bar-item>
  */
-Component.register('sw-search-bar-item', {
+export default {
+    name: 'sw-search-bar-item',
     template,
 
     props: {
@@ -24,4 +24,4 @@ Component.register('sw-search-bar-item', {
             }
         }
     }
-});
+};

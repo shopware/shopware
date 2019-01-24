@@ -1,11 +1,12 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Mixin, State } from 'src/core/shopware';
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.less';
 
 /**
  * @private
  */
-Component.register('sw-media-modal-folder-settings', {
+export default {
+    name: 'sw-media-modal-folder-settings',
     template,
 
     mixins: [
@@ -256,4 +257,4 @@ Component.register('sw-media-modal-folder-settings', {
             });
         }
     }
-});
+};

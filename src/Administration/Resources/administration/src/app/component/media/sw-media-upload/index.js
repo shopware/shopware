@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Mixin, State } from 'src/core/shopware';
 import util, { fileReader } from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import { next1207 } from 'src/flag/feature_next1207';
@@ -20,7 +20,8 @@ import './sw-media-upload.less';
  *     label="My image-upload">
  * </sw-media-upload>
  */
-Component.register('sw-media-upload', {
+export default {
+    name: 'sw-media-upload',
     template,
 
     inject: ['mediaUploadService'],
@@ -418,4 +419,4 @@ Component.register('sw-media-upload', {
             mediaEntity.delete(true);
         }
     }
-});
+};

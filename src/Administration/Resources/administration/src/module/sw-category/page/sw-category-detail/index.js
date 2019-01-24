@@ -62,12 +62,8 @@ Component.register('sw-category-detail', {
         },
 
         registerListener() {
-            const that = this;
             this.$device.onResize({
-                listener() {
-                    that.checkViewport();
-                },
-                component: this
+                listener: this.checkViewport.bind(this)
             });
         },
 

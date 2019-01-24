@@ -1,0 +1,42 @@
+{% block sw_radio_panel %}
+    <label class="sw-radio-panel">
+        {% block sw_radio_panel_input %}
+            <input type="radio"
+                   :id="id"
+                   :name="name"
+                   :required="required"
+                   :disabled="disabled"
+                   :value="value"
+                   @change="toggle"
+                   :checked="checked">
+        {% endblock %}
+
+        {% block sw_radio_panel_body %}
+            <span class="sw-radio-panel__body">
+                {% block sw_radio_panel_body_radio %}
+                    <span class="sw-radio-panel__radio"></span>
+                {% endblock %}
+
+                {% block sw_radio_panel_body_slot %}
+                    <slot>
+                        {% block sw_radio_panel_body_image %}
+                            <span class="sw-radio-panel__image">
+                                <sw-icon :name="icon" size="30px"></sw-icon>
+                            </span>
+                        {% endblock %}
+                        {% block sw_radio_panel_body_title %}
+                            <span class="sw-radio-panel__title" :class="{ 'is--truncate': truncate }" role="heading">
+                                {{ title }}
+                            </span>
+                        {% endblock %}
+                        {% block sw_radio_panel_body_description %}
+                            <span class="sw-radio-panel__description" :class="{ 'is--truncate': truncate }">
+                                {{ description }}
+                            </span>
+                        {% endblock %}
+                    </slot>
+                {% endblock %}
+            </span>
+        {% endblock %}
+    </label>
+{% endblock %}

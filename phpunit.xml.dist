@@ -12,6 +12,9 @@
         <env name="APP_DEBUG" value="1" />
         <env name="APP_SECRET" value="s$cretf0rt3st" />
         <env name="SHELL_VERBOSITY" value="-1" />
+        <!--because of https://github.com/symfony/symfony/issues/29915-->
+        <!--we can't remove the deprecated Symfony\Component\Translation\Translator-->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="2" />
     </php>
 
     <testsuites>

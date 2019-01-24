@@ -15,7 +15,6 @@ class ManufacturerPageObject {
 
     addManufacturerLogo(imagePath) {
         this.browser
-            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
             .click('.sw-media-upload__switch-mode')
             .waitForElementVisible('.sw-media-url-form__url-input')
             .fillField('input[name=sw-field--url]', imagePath)

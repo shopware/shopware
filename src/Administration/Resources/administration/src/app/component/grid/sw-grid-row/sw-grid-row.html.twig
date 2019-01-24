@@ -7,7 +7,7 @@
                         <sw-button @click="onInlineEditCancel(id, index)" size="small">
                             {{ $tc('global.sw-grid-row.buttonInlineEditCancel') }}
                         </sw-button>
-                        <sw-button variant="primary" @click="onInlineEditFinish" size="small">
+                        <sw-button class="sw-grid-row__inline-edit-action" variant="primary" @click="onInlineEditFinish" size="small">
                             {{ $tc('global.sw-grid-row.buttonInlineEditSave') }}
                         </sw-button>
                     {% endblock %}

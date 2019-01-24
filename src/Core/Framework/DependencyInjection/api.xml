@@ -116,6 +116,11 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Controller\CacheController" public="true">
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="serializer"/>
+        </service>
+
         <!-- API OAuth Repositories -->
         <service id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
         <service id="Shopware\Core\Framework\Api\OAuth\ClientRepository">

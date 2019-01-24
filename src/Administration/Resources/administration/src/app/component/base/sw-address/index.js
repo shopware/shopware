@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-address.html.twig';
 import './sw-address.less';
 
@@ -19,7 +18,8 @@ import './sw-address.less';
  *     country: { name: 'Germany' }
  * }"></sw-address>
  */
-Component.register('sw-address', {
+export default {
+    name: 'sw-address',
     template,
 
     props: {
@@ -63,4 +63,4 @@ Component.register('sw-address', {
             };
         }
     }
-});
+};

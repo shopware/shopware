@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-alert.html.twig';
 import './sw-alert.less';
 
@@ -14,7 +13,8 @@ import './sw-alert.less';
  *    Sample text
  * </sw-alert>
  */
-Component.register('sw-alert', {
+export default {
+    name: 'sw-alert',
     template,
 
     props: {
@@ -77,4 +77,4 @@ Component.register('sw-alert', {
             return iconConfig[this.variant] || 'default-bell-bell';
         }
     }
-});
+};

@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { State } from 'src/core/shopware';
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
 import template from './sw-datepicker.html.twig';
@@ -39,7 +39,8 @@ const allEvents = [
  * @on-change="myOnChangeEventHandlingMethod">
  * </sw-field>
  */
-Component.register('sw-datepicker', {
+export default {
+    name: 'sw-datepicker',
     template,
 
     props: {
@@ -358,4 +359,4 @@ Component.register('sw-datepicker', {
             });
         }
     }
-});
+};

@@ -1,5 +1,3 @@
-import { Component } from 'src/core/shopware';
-
 /**
  * @status ready
  * @description The <u>sw-media-replace</u> component extends the <u>sw-media-upload</u> component. It is
@@ -9,7 +7,9 @@ import { Component } from 'src/core/shopware';
  * <sw-media-replace itemToReplace="mediaItem" variant="regular">
  * </sw-media-replace>
  */
-Component.extend('sw-media-replace', 'sw-media-upload', {
+export default {
+    name: 'sw-media-replace',
+    extendsFrom: 'sw-media-upload',
     props: {
         itemToReplace: {
             type: Object,
@@ -32,4 +32,4 @@ Component.extend('sw-media-replace', 'sw-media-upload', {
             this.createNotificationError({ message });
         }
     }
-});
+};

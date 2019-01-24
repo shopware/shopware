@@ -1,6 +1,5 @@
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
-import { Component } from 'src/core/shopware';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.less';
 
@@ -12,7 +11,8 @@ import './sw-text-editor.less';
  * <sw-text-editor label="Description" placeholder="Enter your description...">
  * </sw-text-editor>
  */
-Component.register('sw-text-editor', {
+export default {
+    name: 'sw-text-editor',
     template,
 
     props: {
@@ -129,4 +129,4 @@ Component.register('sw-text-editor', {
             this.textLength = textValue.length - 1;
         }
     }
-});
+};

@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-description-list.html.twig';
 import './sw-description-list.less';
 
@@ -17,7 +16,8 @@ import './sw-description-list.less';
  *     <dd>Lorem ipsum dolor sit amet, consetetur sadipscing elitr</dd>
  * </sw-description-list>
  */
-Component.register('sw-description-list', {
+export default {
+    name: 'sw-description-list',
     template,
 
     props: {
@@ -35,4 +35,4 @@ Component.register('sw-description-list', {
             };
         }
     }
-});
+};

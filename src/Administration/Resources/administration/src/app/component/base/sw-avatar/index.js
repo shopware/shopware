@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import { md5 } from 'src/core/service/utils/format.utils';
 import template from './sw-avatar.html.twig';
 import './sw-avatar.less';
@@ -15,7 +14,8 @@ import './sw-avatar.less';
  *     useGravatar: false
  * }"></sw-avatar>
  */
-Component.register('sw-avatar', {
+export default {
+    name: 'sw-avatar',
     template,
 
     props: {
@@ -123,4 +123,4 @@ Component.register('sw-avatar', {
             return `https://www.gravatar.com/avatar/${md5(this.user.email)}?s=100`;
         }
     }
-});
+};

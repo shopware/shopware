@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import './sw-error.less';
 import template from './sw-error.html.twig';
 
@@ -12,7 +11,8 @@ import template from './sw-error.html.twig';
  * <sw-error :errorObject="{ message: 'Could not load the page' }">
  * </sw-error>
  */
-Component.register('sw-error', {
+export default {
+    name: 'sw-error',
     template,
 
     props: {
@@ -80,4 +80,4 @@ Component.register('sw-error', {
             }
         }
     }
-});
+};

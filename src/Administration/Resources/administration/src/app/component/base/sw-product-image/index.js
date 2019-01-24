@@ -1,4 +1,4 @@
-import { Component, Filter } from 'src/core/shopware';
+import { Filter } from 'src/core/shopware';
 import template from './sw-product-image.html.twig';
 import './sw-product-image.less';
 
@@ -10,7 +10,8 @@ import './sw-product-image.less';
  * @component-example
  * <sw-image :item="item" isCover="true"></sw-image>
  */
-Component.register('sw-product-image', {
+export default {
+    name: 'sw-product-image',
     template,
 
     props: {
@@ -44,4 +45,4 @@ Component.register('sw-product-image', {
             return Filter.getByName('mediaName');
         }
     }
-});
+};

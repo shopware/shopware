@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
+export default {
+    name: 'sw-condition-value',
+    extendsFrom: 'sw-select',
 
-Component.extend('sw-condition-value', 'sw-select', {
     methods: {
         loadSelections() {
             this.isLoading = true;
@@ -28,4 +29,4 @@ Component.extend('sw-condition-value', 'sw-select', {
             this.$emit('input', itemIds);
         }
     }
-});
+};

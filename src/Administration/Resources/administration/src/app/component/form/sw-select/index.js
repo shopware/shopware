@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import './sw-select.less';
 import template from './sw-select.html.twig';
@@ -15,7 +15,8 @@ import template from './sw-select.html.twig';
  * <sw-select multi id="language" label="Language" :store="languageStore" :associationStore="languageAssociationStore">
  * </sw-select>
  */
-Component.register('sw-select', {
+export default {
+    name: 'sw-select',
     template,
 
     mixins: [
@@ -434,4 +435,4 @@ Component.register('sw-select', {
             }
         }
     }
-});
+};

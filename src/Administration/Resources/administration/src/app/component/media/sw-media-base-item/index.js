@@ -1,5 +1,3 @@
-import Vue from 'vue';
-import { Component } from 'src/core/shopware';
 import template from './sw-media-base-item.html.twig';
 import './sw-media-base-item.less';
 
@@ -13,7 +11,8 @@ import './sw-media-base-item.less';
  *     :isLoading="item.isLoading">
  * </sw-media-base-item>
  */
-Component.register('sw-media-base-item', {
+export default {
+    name: 'sw-media-base-item',
     template,
 
     inject: [
@@ -179,7 +178,7 @@ Component.register('sw-media-base-item', {
         onCancelRenaming() {
             this.renamingCanceled = true;
             this.endInlineEdit();
-            Vue.nextTick(() => {
+            this.$nextTick(() => {
                 this.rejectRenaming('canceled');
             });
         },
@@ -197,7 +196,7 @@ Component.register('sw-media-base-item', {
             const inputField = this.$refs.inputItemName;
             if (!inputField.currentValue || !inputField.currentValue.trim()) {
                 this.endInlineEdit();
-                Vue.nextTick(() => {
+                this.$nextTick(() => {
                     this.rejectRenaming('empty-name');
                 });
                 return;
@@ -208,4 +207,4 @@ Component.register('sw-media-base-item', {
             });
         }
     }
-});
+};

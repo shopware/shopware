@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-version.html.twig';
 import './sw-version.less';
 
@@ -12,6 +11,7 @@ import './sw-version.less';
  *     <sw-version class="collapsible-text"></sw-version>
  * </div>
  */
-Component.register('sw-version', {
+export default {
+    name: 'sw-version',
     template
-});
+};

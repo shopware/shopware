@@ -1,9 +1,10 @@
-import { Component, State } from 'src/core/shopware';
+import { State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-property-search.html.twig';
 import './sw-property-search.less';
 
-Component.register('sw-property-search', {
+export default {
+    name: 'sw-property-search',
     template,
 
     props: {
@@ -267,4 +268,4 @@ Component.register('sw-property-search', {
             });
         }
     }
-});
+};

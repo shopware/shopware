@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Mixin, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-field.html.twig';
 import './sw-field.less';
@@ -11,7 +11,8 @@ import './sw-field.less';
  * @component-example
  * <sw-field type="text" label="Name" placeholder="Enter your name..."></sw-field>
  */
-Component.register('sw-field', {
+export default {
+    name: 'sw-field',
     template,
 
     mixins: [
@@ -350,4 +351,4 @@ Component.register('sw-field', {
             this.$refs.swDatepicker.openDatepicker();
         }
     }
-});
+};

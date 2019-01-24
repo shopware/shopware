@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-grid.html.twig';
 import './sw-grid.less';
@@ -25,7 +24,8 @@ import './sw-grid.less';
  *     </template>
  * </sw-grid>
  */
-Component.register('sw-grid', {
+export default {
+    name: 'sw-grid',
     template,
 
     props: {
@@ -257,4 +257,4 @@ Component.register('sw-grid', {
             this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swGridBody);
         }
     }
-});
+};

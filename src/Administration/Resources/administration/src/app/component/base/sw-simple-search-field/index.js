@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-simple-search-field.html.twig';
 import './sw-simple-search-field.less';
@@ -12,7 +11,8 @@ import './sw-simple-search-field.less';
  * {# renders a simple search field that binds the term to my termVariable at a delay of 1 second.#}
  * <sw-simple-search-field v-model="myTermVariable" :delay="1000"></sw-simple-search-field>
  */
-Component.register('sw-simple-search-field', {
+export default {
+    name: 'sw-simple-search-field',
     template,
 
     model: {
@@ -56,4 +56,4 @@ Component.register('sw-simple-search-field', {
             }, this.delay);
         }
     }
-});
+};

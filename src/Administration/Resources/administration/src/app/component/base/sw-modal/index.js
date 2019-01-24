@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-modal.html.twig';
 import './sw-modal.less';
 
@@ -12,7 +11,8 @@ import './sw-modal.less';
  *     Lorem Ipsum
  * </sw-modal>
  */
-Component.register('sw-modal', {
+export default {
+    name: 'sw-modal',
     template,
 
     inheritAttrs: false,
@@ -107,4 +107,4 @@ Component.register('sw-modal', {
             }
         }
     }
-});
+};

@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-collapse.html.twig';
 
 /**
@@ -12,7 +11,8 @@ import template from './sw-collapse.html.twig';
  *     <div slot="content">Content slot</div>
  * </sw-collapse>
  */
-Component.register('sw-collapse', {
+export default {
+    name: 'sw-collapse',
     template,
 
     props: {
@@ -34,4 +34,4 @@ Component.register('sw-collapse', {
             this.expanded = !this.expanded;
         }
     }
-});
+};

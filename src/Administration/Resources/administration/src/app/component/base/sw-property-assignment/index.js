@@ -1,8 +1,9 @@
-import { Component, State } from 'src/core/shopware';
+import { State } from 'src/core/shopware';
 import template from './sw-property-assignment.html.twig';
 import './sw-property-assignment.less';
 
-Component.register('sw-property-assignment', {
+export default {
+    name: 'sw-property-assignment',
     template,
 
     props: {
@@ -114,4 +115,4 @@ Component.register('sw-property-assignment', {
             this.groups = groupedData;
         }
     }
-});
+};

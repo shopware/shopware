@@ -1,4 +1,3 @@
-import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-grid-row.html.twig';
 import './sw-grid-row.less';
@@ -6,7 +5,8 @@ import './sw-grid-row.less';
 /**
  * @private
  */
-Component.register('sw-grid-row', {
+export default {
+    name: 'sw-grid-row',
     template,
 
     props: {
@@ -88,4 +88,4 @@ Component.register('sw-grid-row', {
             this.$emit('inline-edit-finish', this.item);
         }
     }
-});
+};

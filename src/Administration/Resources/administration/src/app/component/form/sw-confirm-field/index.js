@@ -1,8 +1,8 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-confirm-field.html.twig';
 import './sw-confirm-field.less';
 
-Component.register('sw-confirm-field', {
+export default {
+    name: 'sw-confirm-field',
     template,
 
     props: {
@@ -94,4 +94,4 @@ Component.register('sw-confirm-field', {
             this.isEditing = false;
         }
     }
-});
+};

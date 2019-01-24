@@ -121,7 +121,7 @@ Component.register('sw-language-switch', {
             } else {
                 debug.warn('sw-language-switch', 'You need to implement an own save function to save the changes!');
             }
-            Promise.resolve(save).then(() => {
+            return Promise.resolve(save).then(() => {
                 this.changeToNewLanguage();
                 this.onCloseChangesModal();
             });

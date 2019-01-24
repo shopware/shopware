@@ -5,7 +5,7 @@ import './sw-language-info.less';
 /**
  * @public
  * @description
- * Renders an information text about the actual language
+ * Renders information text about the current language
  * @status ready
  * @example-type code-only
  * @component-example
@@ -122,7 +122,7 @@ Component.register('sw-language-info', {
         },
 
         isSystemDefaultLanguage(languageId) {
-            return languageId === this.languageStore.defaultLanguageId;
+            return languageId === this.languageStore.systemLanguageId;
         },
 
         refreshLanguage() {
@@ -130,7 +130,7 @@ Component.register('sw-language-info', {
         },
 
         refreshParentLanguage() {
-            if (this.language.id.length < 1 || this.language.id === this.languageStore.defaultLanguageId) {
+            if (this.language.id.length < 1 || this.language.id === this.languageStore.systemLanguageId) {
                 this.parentLanguage = { name: '' };
                 return;
             }
@@ -140,7 +140,7 @@ Component.register('sw-language-info', {
                 return;
             }
 
-            this.parentLanguage = this.languageStore.getById(this.languageStore.defaultLanguageId);
+            this.parentLanguage = this.languageStore.getById(this.languageStore.systemLanguageId);
         },
 
         onClickParentLanguage() {

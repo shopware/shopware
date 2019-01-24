@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, Application } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.less';
@@ -14,7 +14,7 @@ Component.register('sw-settings-language-list', {
         return {
             entityName: 'language',
             sortBy: 'language.name',
-            defaultLanguageIds: ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc'],
+            defaultLanguageIds: [],
             filterRootLanguages: false
         };
     },
@@ -43,7 +43,15 @@ Component.register('sw-settings-language-list', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.defaultLanguageIds = Application.getContainer('init').contextService.defaultLanguageIds;
+        },
+
         isDefault(id) {
             return this.defaultLanguageIds.includes(id);
         },

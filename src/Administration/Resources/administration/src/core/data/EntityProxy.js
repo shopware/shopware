@@ -6,6 +6,7 @@ import type from 'src/core/service/utils/types.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import ApiService from 'src/core/service/api.service';
 import AssociationStore from './AssociationStore';
+import EntityStore from './EntityStore';
 
 /**
  * @module core/data/EntityProxy
@@ -300,12 +301,12 @@ export default class EntityProxy {
         return this.apiService.create(
             changes,
             { _response: true },
-            { 'x-sw-language-id': this.currentLanguageId }
+            EntityStore.getLanguageHeader(this.currentLanguageId)
         ).then((response) => {
             this.isLoading = false;
 
             if (response.data) {
-                this.setData(response.data, true, false, false, this.currentLanguageId);
+                this.setData(response.data);
             }
 
             this.refreshAssociations(changedAssociations);
@@ -333,12 +334,12 @@ export default class EntityProxy {
             this.id,
             changes,
             { _response: true },
-            { 'x-sw-language-id': this.currentLanguageId }
+            EntityStore.getLanguageHeader(this.currentLanguageId)
         ).then((response) => {
             this.isLoading = false;
 
             if (response.data) {
-                this.setData(response.data, true, false, false, this.currentLanguageId);
+                this.setData(response.data);
             }
 
             this.refreshAssociations(changedAssociations);
@@ -528,7 +529,7 @@ export default class EntityProxy {
 
         items.forEach((item) => {
             const entity = store.create(item.id);
-            entity.setData(item, true, false, false, this.currentLanguageId);
+            entity.setData(item);
         });
 
         return store;

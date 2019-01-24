@@ -66,7 +66,7 @@ Component.register('sw-sales-channel-detail', {
             this.syncWithDomains();
 
             return this.salesChannel.save().then(() => {
-                this.$root.$emit('changedSalesChannels');
+                this.$root.$emit('changed-sales-channel');
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

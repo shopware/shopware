@@ -54,7 +54,7 @@ Component.register('sw-login', {
             const animationPromise = new Promise((resolve) => {
                 setTimeout(resolve, 300);
             });
-            Promise.all([
+            return Promise.all([
                 animationPromise,
                 State.getStore('language').init()
             ]).then(() => {

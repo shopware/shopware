@@ -21,8 +21,8 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
 
     methods: {
         createdComponent() {
-            if (this.languageStore.getCurrentId() !== this.languageStore.defaultLanguageId) {
-                this.languageStore.setCurrentId(this.languageStore.defaultLanguageId);
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }
 
             if (this.$route.params.id) {

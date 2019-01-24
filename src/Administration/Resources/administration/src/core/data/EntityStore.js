@@ -95,7 +95,7 @@ export default class EntityStore {
             {},
             EntityStore.getLanguageHeader(languageId)
         ).then((response) => {
-            entity.setData(response.data, true, false, languageId);
+            entity.setData(response.data, true, false, false, languageId);
             entity.isLoading = false;
 
             return entity;
@@ -140,6 +140,12 @@ export default class EntityStore {
         });
     }
 
+    /**
+     * Get the language store
+     *
+     * @memberOf module:core/data/EntityStore
+     * @return {EntityStore}
+     */
     getLanguageStore() {
         return State.getStore('language');
     }
@@ -449,6 +455,13 @@ export default class EntityStore {
         return updateQueue;
     }
 
+    /**
+     * Gets the language header for api requests
+     *
+     * @memberOf module:core/data/EntityStore
+     * @param {String} languageId
+     * @return {Object}
+     */
     static getLanguageHeader(languageId) {
         return { 'x-sw-language-id': languageId };
     }

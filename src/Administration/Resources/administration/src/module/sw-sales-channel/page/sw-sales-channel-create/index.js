@@ -25,8 +25,8 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
                 return;
             }
 
-            if (this.languageStore.getCurrentId() !== this.languageStore.defaultLanguageId) {
-                this.languageStore.setCurrentId(this.languageStore.defaultLanguageId);
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }
 
             this.salesChannel = this.salesChannelStore.create(this.$route.params.id);

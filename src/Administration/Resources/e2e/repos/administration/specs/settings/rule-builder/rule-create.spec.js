@@ -1,4 +1,4 @@
-const ruleBuilderPage = require('administration/page-objects/sw-rule.page-object.js');
+const ruleBuilderPage = require('administration/page-objects/module/sw-rule.page-object.js');
 
 module.exports = {
     '@tags': ['settings', 'rule', 'rule-create', 'create'],
@@ -14,7 +14,7 @@ module.exports = {
             .click('a[href="#/sw/settings/rule/create"]')
             .waitForElementVisible('.sw-settings-rule-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/rule/create')
-            .assert.containsText('.smart-bar__header h2', 'New rule');
+            .assert.containsText(`${page.elements.smartBarHeader} h2`, 'New rule');
 
         page.createBasicRule('Rule 1st');
     },
@@ -22,14 +22,14 @@ module.exports = {
         const page = ruleBuilderPage(browser);
 
         browser
-            .click('a.smart-bar__back-btn')
-            .waitForElementNotPresent('.sw-loader')
+            .click(page.elements.smartBarBack)
+            .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(page.elements.columnName)
             .assert.containsText(page.elements.columnName, 'Rule 1st')
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/rule/index', 'Rules')
             .fillGlobalSearchField('Rule them all')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(1)');
     },
     after: (browser) => {
         browser.end();

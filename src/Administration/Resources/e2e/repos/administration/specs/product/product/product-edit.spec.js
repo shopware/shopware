@@ -1,3 +1,5 @@
+const productPage = require('administration/page-objects/module/sw-product.page-object.js');
+
 module.exports = {
     '@tags': ['product', 'product-edit', 'edit'],
     before: (browser, done) => {
@@ -9,26 +11,30 @@ module.exports = {
         });
     },
     'open product listing': (browser) => {
+        const page = productPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/product/index', 'Products')
             .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(1)');
     },
     'edit product': (browser) => {
+        const page = productPage(browser);
+
         browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementVisible('.sw-context-menu')
-            .click('.sw-context-menu .sw-context-menu-item__text')
-            .waitForElementNotPresent('.sw-loader')
+            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
+            .click(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(page.elements.contextMenu)
+            .click('.sw-context-menu-item__text')
+            .waitForElementNotPresent(page.elements.loader)
             .fillField('input[name=sw-field--product-name]', 'Geändertes, immernoch supergeiles Produkt', true)
             .fillField('.ql-editor', 'Cant you see this is a great product?', true, 'editor')
-            .click('.sw-product-detail__save-action')
+            .click(page.elements.productSaveAction)
             .checkNotification('Product "Geändertes, immernoch supergeiles Produkt" has been saved successfully.')
             .click('.smart-bar__actions .sw-button__content')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(1)');
 },
     after: (browser) => {
         browser.end();

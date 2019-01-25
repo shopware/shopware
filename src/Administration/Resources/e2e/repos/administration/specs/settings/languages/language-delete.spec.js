@@ -1,3 +1,5 @@
+const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
+
 module.exports = {
     '@tags': ['setting', 'language-delete', 'language', 'delete'],
     before: (browser, done) => {
@@ -6,20 +8,24 @@ module.exports = {
         });
     },
     'open language module and look for language to be deleted': (browser) => {
+        const page = settingsPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', global.LanguageFixtureService.languageFixture.name);
+            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.languageColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.languageColumnName}`, global.LanguageFixtureService.languageFixture.name);
     },
     'delete language': (browser) => {
+        const page = settingsPage(browser);
+
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:last-child')
-            .waitForElementVisible('.sw-modal')
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}:last-child`)
+            .waitForElementVisible(page.elements.modal)
             .assert.containsText(
                 '.sw-modal .sw-modal__body',
                 'Are you sure you want to delete the language "Philippine English"?'
             )
-            .click('.sw-modal__footer button.sw-button--primary')
+            .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification('Language "Philippine English" has been deleted successfully.');
     },
     after: (browser) => {

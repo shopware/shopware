@@ -1,3 +1,5 @@
+const integrationPage = require('../../../page-objects/module/sw-integration.page-object.js');
+
 module.exports = {
     '@tags': ['integration-edit', 'integration', 'edit'],
     before: (browser, done) => {
@@ -6,45 +8,53 @@ module.exports = {
         });
     },
     'open integration module and look for the integration to be edited': (browser) => {
+        const page = integrationPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
-            .waitForElementVisible('.sw-integration-list__welcome-headline')
-            .assert.containsText('.sw-integration-list__welcome-headline', 'Welcome to the integration management')
-            .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', global.IntegrationFixtureService.integrationFixture.name);
+            .waitForElementVisible(page.elements.listHeadline)
+            .assert.containsText(page.elements.listHeadline, 'Welcome to the integration management')
+            .waitForElementPresent(page.elements.listColumnName)
+            .assert.containsText(`${page.elements.listColumnName} .sw-grid__cell-content`, global.IntegrationFixtureService.integrationFixture.name);
     },
     'edit integration': (browser) => {
+        const page = integrationPage(browser);
+
         browser
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
+            .click(page.elements.contextMenuButton)
+            .waitForElementVisible(`body > ${page.elements.contextMenu}`)
             .waitForElementVisible('.sw_integration_list__edit-action')
             .click('.sw_integration_list__edit-action')
-            .waitForElementVisible('.sw-modal__title')
+            .waitForElementVisible(page.elements.modalTitle)
             .assert.containsText('.sw-modal__title', 'Integration')
-            .fillField('input[name=sw-field--currentIntegration-label]', 'Once again: Edits integration', true)
-            .click('.sw-integration-detail-modal__save-action')
+            .fillField(page.elements.integrationName, 'Once again: Edits integration', true)
+            .click(page.elements.integrationSaveAction)
             .checkNotification('Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify saving of edited integration': (browser) => {
+        const page = integrationPage(browser);
+
         browser
             .refresh()
-            .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .click('.sw-context-button__button')
-            .waitForElementVisible('body > .sw-context-menu')
+            .waitForElementPresent(page.elements.listColumnName)
+            .click(page.elements.contextMenuButton)
+            .waitForElementVisible(`body > ${page.elements.contextMenu}`)
             .waitForElementVisible('.sw_integration_list__edit-action')
             .click('.sw_integration_list__edit-action')
-            .waitForElementVisible('.sw-modal__title')
-            .waitForElementVisible('input[name=sw-field--currentIntegration-label]')
-            .expect.element('input[name=sw-field--currentIntegration-label]').value.to.equal('Once again: Edits integration');
+            .waitForElementVisible(page.elements.modalTitle)
+            .waitForElementVisible(page.elements.integrationName)
+            .expect.element(page.elements.integrationName).value.to.equal('Once again: Edits integration');
     },
     'close modal without saving': (browser) => {
+        const page = integrationPage(browser);
+
         browser
-            .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .click('.sw-modal__close')
-            .waitForElementNotPresent('.sw-modal')
-            .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'Once again: Edits integration');
+            .waitForElementPresent(page.elements.listColumnName)
+            .click(`${page.elements.modal}__close`)
+            .waitForElementNotPresent(page.elements.modal)
+            .waitForElementPresent(page.elements.listColumnName)
+            .assert.containsText(`${page.elements.listColumnName} .sw-grid__cell-content`, 'Once again: Edits integration');
     },
     after: (browser) => {
         browser.end();

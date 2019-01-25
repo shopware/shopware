@@ -1,4 +1,4 @@
-const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
+const salesChannelPage = require('administration/page-objects/module/sw-sales-channel.page-object.js');
 
 const userFixture = {
     name: '2nd Epic Sales Channel',
@@ -13,30 +13,36 @@ module.exports = {
         });
     },
     'verify creation of sales channel to be edited': (browser) => {
+        const page = salesChannelPage(browser);
+
         browser
             .refresh()
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', userFixture.name);
+            .waitForElementVisible(`${page.elements.salesChannelMenuName} .collapsible-text`)
+            .assert.containsText(`${page.elements.salesChannelMenuName} .collapsible-text`, userFixture.name);
     },
     'edit name of sales channel': (browser) => {
+        const page = salesChannelPage(browser);
+
         browser
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item:first-child')
-            .click('.sw-admin-menu__sales-channel-item:first-child')
-            .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', userFixture.name)
-            .fillField('input[name=sw-field--salesChannel-name]', '2nd Epic Sales Channel at all', true)
-            .waitForElementVisible('.sw-sales-channel-detail__save-action')
-            .click('.sw-sales-channel-detail__save-action');
+            .waitForElementVisible(`${page.elements.salesChannelMenuName}:first-child`)
+            .click(`${page.elements.salesChannelMenuName}:first-child`)
+            .waitForElementVisible(page.elements.smartBarHeader)
+            .assert.containsText(`${page.elements.smartBarHeader} h2`, userFixture.name)
+            .fillField(page.elements.salesChannelNameInput, '2nd Epic Sales Channel at all', true)
+            .waitForElementVisible(page.elements.salesChannelSaveAction)
+            .click(page.elements.salesChannelSaveAction);
     },
     'check if the data of the sales channel is assigned correctly': (browser) => {
+        const page = salesChannelPage(browser);
+
         browser
             .refresh();
-        const page = salesChannelPage(browser);
+
         page.openSalesChannel('2nd Epic Sales Channel at all');
         browser
-            .waitForElementNotPresent('.sw-loader')
-            .waitForElementVisible('input[name=sw-field--salesChannel-name]')
-            .expect.element('input[name=sw-field--salesChannel-name]').to.have.value.that.equals('2nd Epic Sales Channel at all');
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(page.elements.salesChannelNameInput)
+            .expect.element(page.elements.salesChannelNameInput).to.have.value.that.equals('2nd Epic Sales Channel at all');
     },
     after: (browser) => {
         browser.end();

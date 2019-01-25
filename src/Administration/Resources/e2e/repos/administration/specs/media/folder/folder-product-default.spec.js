@@ -1,5 +1,5 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
-const productPage = require('administration/page-objects/sw-product.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
+const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
 const fixtures = {
     name: 'Products for the good'
@@ -24,8 +24,8 @@ module.exports = {
             .click('.sw-media-base-item__preview-container')
             .waitForElementVisible('.quickaction--settings')
             .click('.quickaction--settings')
-            .waitForElementVisible('.sw-modal__title')
-            .assert.containsText('.sw-modal__title', 'Products for the good');
+            .waitForElementVisible(`${page.elements.modal}__title`)
+            .assert.containsText(`${page.elements.modal}__title`, 'Products for the good');
     },
     'set as default for products': (browser) => {
         const page = mediaPage(browser);
@@ -50,12 +50,14 @@ module.exports = {
             .waitForElementVisible('.icon--default-symbol-products');
     },
     'check if the folder is used as default location when uploading in products': (browser) => {
+        const page = mediaPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/product/index', 'Products')
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', global.ProductFixtureService.productFixture.name)
-            .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button')
+            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton)
             .expect.element('.smart-bar__header h2').to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
     },
     'upload product image and verify location in sidebar': (browser) => {
@@ -65,8 +67,8 @@ module.exports = {
         productPageObject.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, global.ProductFixtureService.productFixture.name);
 
         browser
-            .waitForElementVisible('.sw-media-preview__item')
-            .getAttribute('.sw-media-preview__item', 'src', function (result) {
+            .waitForElementVisible(mediaPageObject.previewItem)
+            .getAttribute(mediaPageObject.previewItem, 'src', function (result) {
                 this.assert.ok(result.value);
                 this.assert.notEqual(result.value, `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
             })

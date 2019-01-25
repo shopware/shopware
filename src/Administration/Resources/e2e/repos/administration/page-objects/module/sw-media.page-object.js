@@ -1,18 +1,21 @@
-class MediaPageObject {
-    constructor(browser) {
-        this.browser = browser;
+const GeneralPageObject = require('../sw-general.page-object');
 
-        this.elements = {
+class MediaPageObject extends GeneralPageObject {
+    constructor(browser) {
+        super(browser);
+
+        this.elements = Object.assign(this.elements,{
             previewItem: '.sw-media-preview__item',
             folderPreviewItem: '.sw-media-base-item__preview-container',
             baseItem: '.sw-media-base-item',
             folderNameInput: 'input[name=media-item-name]',
             folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
+            folderBreadcrumbBack: '.icon--folder-breadcrumbs-dropdown',
             mediaNameLabel: '.sw-media-media-item .sw-media-base-item__name',
             showMediaAction: '.sw-media-context-item__show-media-action',
             showSettingsAction: '.sw-media-context-item__open-settings-action',
             saveSettingsAction: '.sw-media-modal-folder-settings__confirm'
-        };
+        });
     }
 
     uploadImageViaURL(imgPath) {
@@ -20,25 +23,25 @@ class MediaPageObject {
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', imgPath)
-            .click('.sw-modal__footer .sw-button--primary')
-            .waitForElementVisible('.sw-alert--success')
-            .click('.sw-alert__close')
+            .click(`${this.elements.modal}__footer .sw-button--primary`)
+            .waitForElementVisible(`${this.elements.alert}--success`)
+            .click(`${this.elements.alert}__close`)
             .waitForElementVisible(this.elements.previewItem);
     }
 
     deleteImage() {
         this.browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button')
-            .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
+            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton)
+            .waitForElementVisible(`div.${this.elements.modal}.${this.elements.modal}--small.sw-media-modal-delete`)
+            .waitForElementVisible(`${this.elements.modal}__footer .sw-media-modal-delete__confirm`)
             .click('.sw-media-modal-delete__confirm')
-            .waitForElementNotPresent('.sw-modal__footer');
+            .waitForElementNotPresent(`${this.elements.modal}__footer`);
     }
 
     openMediaIndex() {
         this.browser
             .openMainMenuEntry('#/sw/media/index', 'Media')
-            .assert.containsText('.sw-admin-menu__navigation-list-item.sw-media span.collapsible-text', 'Media')
+            .assert.containsText(`${this.elements.adminMenu}__navigation-list-item.sw-media span.collapsible-text`, 'Media')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]');
     }
 

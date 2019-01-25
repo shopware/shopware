@@ -1,4 +1,4 @@
-const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
+const salesChannelPage = require('administration/page-objects/module/sw-sales-channel.page-object.js');
 
 const fixture = {
     name: '3rd Epic Sales Channel',
@@ -13,29 +13,33 @@ module.exports = {
         });
     },
     'verify existence of sales channel to be edited': (browser) => {
+        const page = salesChannelPage(browser);
+
         browser
             .refresh()
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', fixture.name);
+            .waitForElementVisible(`${page.elements.salesChannelMenuName} .collapsible-text`)
+            .assert.containsText(`${page.elements.salesChannelMenuName} .collapsible-text`, fixture.name);
     },
     'edit api credentials': (browser) => {
-        browser
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item:first-child')
-            .click('.sw-admin-menu__sales-channel-item:first-child')
-            .waitForElementVisible('.smart-bar__header');
-
         const page = salesChannelPage(browser);
+
+        browser
+            .waitForElementVisible(`${page.elements.salesChannelMenuName}:first-child`)
+            .click(`${page.elements.salesChannelMenuName}:first-child`)
+            .waitForElementVisible(page.elements.smartBarHeader);
+
         page.checkClipboard();
         page.changeApiCredentials(fixture.name);
     },
     'check if the api credentials of the sales channel are changed correctly': (browser) => {
+        const page = salesChannelPage(browser);
+
         browser
             .refresh();
 
-        const page = salesChannelPage(browser);
         page.openSalesChannel(fixture.name);
         browser
-            .waitForElementNotPresent('.sw-loader');
+            .waitForElementNotPresent(page.elements.loader);
         page.verifyChangedApiCredentials();
     },
     after: (browser) => {

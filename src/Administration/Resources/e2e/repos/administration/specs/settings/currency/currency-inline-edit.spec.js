@@ -1,3 +1,5 @@
+const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
+
 const fixture = {
     shortName: 'AD',
     name: 'Aserbaidschanische Drachme',
@@ -17,22 +19,26 @@ module.exports = {
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies');
     },
     'inline edit currency': (browser) => {
+        const page = settingsPage(browser);
+
         browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .moveToElement('.sw-grid-row:first-child', 5, 5).doubleClick()
+            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
+            .moveToElement(`${page.elements.gridRow}:first-child`, 5, 5).doubleClick()
             .fillField('input[name=sw-field--item-name]', 'Galactic Credits', true)
             .fillField('input[name=sw-field--item-shortName]', 'GCr', true)
             .fillField('input[name=sw-field--item-symbol]', '%', true)
             .fillField('input[name=sw-field--item-factor]', '2.58', true)
-            .waitForElementVisible('.sw-grid-row__inline-edit-action')
-            .click('.sw-grid-row__inline-edit-action')
+            .waitForElementVisible(`${page.elements.gridRow}__inline-edit-action`)
+            .click(`${page.elements.gridRow}__inline-edit-action`)
             .waitForElementNotPresent('.is--inline-editing ');
     },
     'verify edited currency': (browser) => {
+        const page = settingsPage(browser);
+
         browser
             .waitForElementVisible('.sw-settings-currency-list-grid')
-            .waitForElementVisible('.sw-grid-row:first-child .sw-currency-list__column-name')
-            .assert.containsText('.sw-grid-row:first-child .sw-currency-list__column-name', 'Galactic Credits');
+            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.currencyColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}:first-child ${page.elements.currencyColumnName}`, 'Galactic Credits');
     },
     after: (browser) => {
         browser.end();

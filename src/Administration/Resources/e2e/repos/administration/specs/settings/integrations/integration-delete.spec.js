@@ -1,4 +1,4 @@
-const integrationPage = require('../../../page-objects/sw-integration.page-object.js');
+const integrationPage = require('../../../page-objects/module/sw-integration.page-object.js');
 
 module.exports = {
     '@tags': ['integration-delete', 'integration', 'delete'],
@@ -8,10 +8,11 @@ module.exports = {
         });
     },
     'open integration module and look for the integration to be deleted': (browser) => {
+        const page = integrationPage(browser);
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
-            .waitForElementVisible('.sw-integration-list__welcome-headline')
-            .assert.containsText('.sw-integration-list__welcome-headline', 'Welcome to the integration management')
+            .waitForElementVisible(page.elements.listHeadline)
+            .assert.containsText(page.elements.listHeadline, 'Welcome to the integration management')
             .assert.urlContains('#/sw/integration/index');
     },
     'delete integration and verify deletion': (browser) => {

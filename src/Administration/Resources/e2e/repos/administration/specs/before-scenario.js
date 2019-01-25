@@ -1,4 +1,4 @@
-const loginPage = require('../page-objects/sw-login.page-object.js');
+const loginPage = require('../page-objects/module/sw-login.page-object.js');
 const symfonyToolbarButtonSelector = '.hide-button';
 
 module.exports = {

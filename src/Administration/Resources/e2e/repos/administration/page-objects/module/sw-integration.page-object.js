@@ -1,9 +1,16 @@
-class IntegrationPageObject {
+const GeneralPageObject = require('../sw-general.page-object');
+
+class IntegrationPageObject extends GeneralPageObject {
     constructor(browser) {
-        this.browser = browser;
-        this.elements = {};
-        this.elements.integrationName = 'input[name=sw-field--currentIntegration-label]';
-        this.elements.apiAccessKeyField = 'input[name=sw-field--currentIntegration-accessKey]';
+        super(browser);
+
+        this.elements = Object.assign(this.elements, {
+            integrationName: 'input[name=sw-field--currentIntegration-label]',
+            integrationSaveAction: '.sw-integration-detail-modal__save-action',
+            apiAccessKeyField: 'input[name=sw-field--currentIntegration-accessKey]',
+            listColumnName: '.sw-integration-list__column-integration-name',
+            listHeadline: '.sw-integration-list__welcome-headline'
+        });
 
         this.accessKeyId = '';
         this.newAccessKeyId = '';
@@ -12,7 +19,7 @@ class IntegrationPageObject {
     checkClipboard() {
         const me = this;
 
-        this.browser.getValue('input[name=sw-field--currentIntegration-accessKey]', function checkValuePresent(result) {
+        this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
             me.accessKeyId = result.value;
 
             me.browser
@@ -25,9 +32,9 @@ class IntegrationPageObject {
         });
 
         this.browser
-            .waitForElementPresent('.sw-modal__close')
-            .click('.sw-modal__close')
-            .waitForElementNotPresent('.sw-modal__title');
+            .waitForElementPresent(`${this.elements.modal}__close`)
+            .click(`${this.elements.modal}__close`)
+            .waitForElementNotPresent(this.elements.modalTitle);
     }
 
     changeApiCredentials() {
@@ -64,19 +71,19 @@ class IntegrationPageObject {
         });
 
         this.browser
-            .waitForElementPresent('.sw-modal__close')
-            .click('.sw-modal__close')
-            .waitForElementNotPresent('.sw-modal__title');
+            .waitForElementPresent(`${this.elements.modal}__close`)
+            .click(`${this.elements.modal}__close`)
+            .waitForElementNotPresent(`${this.elements.modal}__title`);
     }
 
     deleteSingleIntegration(integrationName) {
         this.browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button','.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal__body', `Are you sure you want to delete this integration? ${integrationName}`)
-            .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-modal')
-            .waitForElementNotPresent('.sw-integration-list__column-integration-name')
+            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, '.sw-grid-row:first-child')
+            .waitForElementVisible(this.elements.modal)
+            .assert.containsText(`${this.elements.modal}__body`, `Are you sure you want to delete this integration? ${integrationName}`)
+            .click(`${this.elements.modal} button.sw-button--primary`)
+            .waitForElementNotPresent(this.elements.modal)
+            .waitForElementNotPresent(this.elements.listColumnName)
             .waitForElementPresent('.sw-empty-state__title')
             .assert.containsText('.sw-empty-state__title', 'No integrations yet');
     }

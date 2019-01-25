@@ -1,4 +1,4 @@
-const loginPage = require('administration/page-objects/sw-login.page-object.js');
+const loginPage = require('administration/page-objects/module/sw-login.page-object.js');
 
 module.exports = {
     '@tags': ['profile-edit', 'profile', 'edit'],
@@ -10,7 +10,6 @@ module.exports = {
             .click('.sw-admin-menu__profile-item')
             .assert.containsText('.smart-bar__header', 'Your profile')
             .fillField('input[name=sw-field--user-name]', 'Super Richie', true)
-            .fillField('input[name=sw-field--user-email]', 'mail@shopware.com', true)
             .click('.sw-button--primary')
             .checkNotification('Profile information has been saved successfully.')
             .waitForElementVisible('.sw-admin-menu__user-name')
@@ -34,7 +33,7 @@ module.exports = {
             .clickUserActionMenu('Super Richie')
             .click('.sw-admin-menu__profile-item')
             .assert.containsText('.smart-bar__header', 'Your profile')
-            .expect.element('input[name=sw-field--user-email]').to.have.value.that.equals('mail@shopware.com');
+            .expect.element('input[name=sw-field--user-name]').to.have.value.that.equals('Super Richie');
     },
     after: (browser) => {
         browser.end();

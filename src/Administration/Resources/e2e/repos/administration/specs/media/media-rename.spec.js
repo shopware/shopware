@@ -1,4 +1,4 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['media', 'rename', 'media-rename'],

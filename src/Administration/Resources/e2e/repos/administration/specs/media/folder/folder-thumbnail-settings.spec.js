@@ -1,4 +1,4 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-thumbnails', 'thumbnails'],
@@ -128,7 +128,7 @@ module.exports = {
             });
 
         browser.expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals('1920x1080');
-        browser.expect.element('input[name=thumbnail-size-active]').to.be.selected;
+        browser.expect.element('input[name=thumbnail-size-active]').to.be.selected.before(500);
     },
     after: (browser) => {
         browser.end();

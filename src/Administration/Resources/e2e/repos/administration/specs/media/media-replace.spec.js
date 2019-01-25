@@ -1,5 +1,5 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
-const productPage = require('administration/page-objects/sw-product.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
+const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
 
 module.exports = {

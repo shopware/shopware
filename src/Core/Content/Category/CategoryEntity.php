@@ -148,6 +148,11 @@ class CategoryEntity extends Entity
     protected $cmsDescription;
 
     /**
+     * @var bool
+     */
+    protected $displayNestedProducts;
+
+    /**
      * @var CategoryEntity|null
      */
     protected $parent;
@@ -530,5 +535,15 @@ class CategoryEntity extends Entity
     public function setNestedProducts(ProductCollection $nestedProducts): void
     {
         $this->nestedProducts = $nestedProducts;
+    }
+
+    public function getDisplayNestedProducts(): bool
+    {
+        return $this->displayNestedProducts;
+    }
+
+    public function setDisplayNestedProducts(bool $displayNestedProducts): void
+    {
+        $this->displayNestedProducts = $displayNestedProducts;
     }
 }

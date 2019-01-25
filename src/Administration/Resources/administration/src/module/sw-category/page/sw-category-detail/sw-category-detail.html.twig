@@ -1,0 +1,49 @@
+{% block sw_category %}
+    <sw-page class="sw-category" :class="pageClasses">
+
+        <template slot="smart-bar-header">
+            {% block sw_category_smart_bar_header %}
+                <h2 v-if="category && !isLoading">{{ category.name }}</h2>
+                <h2 v-else>{{ $tc('sw-category.general.headlineCategories') }}</h2>
+            {% endblock %}
+        </template>
+
+        <template slot="smart-bar-actions">
+            {% block sw_category_smart_bar_actions %}
+                <sw-button v-if="category" variant="primary" @click.prevent="onSave">
+                    {{ $tc('sw-category.general.buttonSafeCategory') }}
+                </sw-button>
+            {% endblock %}
+        </template>
+
+        <template slot="side-content">
+            {% block sw_category_side_content %}
+                <sw-category-tree
+                    v-if="!isMobileViewport || isMobileViewport && !category"
+                    :categories="categories"
+                    @sw-category-on-save="onSaveCategories"
+                    @sw-category-on-refresh="onRefreshCategories"
+                    @sw-category-on-duplicate="onDuplicateCategory"
+                    @sw-category-on-reset-details="resetCategory"
+                ></sw-category-tree>
+            {% endblock %}
+        </template>
+
+        <template slot="content">
+            {% block sw_category_content %}
+                <sw-category-view v-if="!isMobileViewport || isMobileViewport && category"
+                    :category="category"
+                    :mediaItem="mediaItem"
+                    :isLoading="isLoading"
+                    @sw-category-view-on-set-media="setMediaItem"
+                    @sw-category-view-on-upload-media="onUploadAdded"
+                ></sw-category-view>
+            {% endblock %}
+
+            {% block sw_category_loader %}
+                <sw-loader v-if="!categories"></sw-loader>
+            {% endblock %}
+        </template>
+
+    </sw-page>
+{% endblock %}

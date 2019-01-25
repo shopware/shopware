@@ -47,31 +47,37 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
 
         /** @var EntityWrittenEvent $writtenEvent */
         foreach ($events as $writtenEvent) {
-            foreach ($writtenEvent->getIds() as $id) {
-                if (\is_array($id)) {
-                    $id = implode('-', $id);
-                }
-                $keys[] = $this->cacheKeyGenerator->getEntityTag($id, $writtenEvent->getDefinition());
+            foreach ($writtenEvent->getWriteResults() as $result) {
+                $id = $result->getPrimaryKey();
 
                 $definition = $writtenEvent->getDefinition();
 
-                foreach ($writtenEvent->getPayloads() as $payload) {
-                    foreach ($payload as $propertyName => $value) {
-                        $field = $definition::getFields()->get($propertyName);
+                if (\is_array($id)) {
+                    $id = implode('-', $id);
+                }
 
-                        if ($field instanceof TranslatedField) {
-                            $field = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
-                        }
+                $keys[] = $this->cacheKeyGenerator->getEntityTag($id, $writtenEvent->getDefinition());
 
-                        if (!$field instanceof StorageAware) {
-                            continue;
-                        }
-                        $keys[] = $writtenEvent->getDefinition()::getEntityName() . '.' . $field->getStorageName();
+                foreach ($result->getPayload() as $propertyName => $value) {
+                    $field = $definition::getFields()->get($propertyName);
+
+                    if ($field instanceof TranslatedField) {
+                        $field = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
                     }
+
+                    if (!$field instanceof StorageAware) {
+                        continue;
+                    }
+                    $keys[] = $writtenEvent->getDefinition()::getEntityName() . '.' . $field->getStorageName();
                 }
             }
         }
 
+        $this->invalidateTags($keys);
+    }
+
+    private function invalidateTags(array $keys): void
+    {
         $keys = array_keys(array_flip($keys));
         $this->cache->invalidateTags($keys);
     }

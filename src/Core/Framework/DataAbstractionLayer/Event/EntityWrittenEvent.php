@@ -44,7 +44,7 @@ class EntityWrittenEvent extends NestedEvent
     /**
      * @var EntityWriteResult[]
      */
-    protected $entityWriteResults;
+    protected $writeResults;
 
     /**
      * @var EntityExistence[]
@@ -58,7 +58,7 @@ class EntityWrittenEvent extends NestedEvent
 
     public function __construct(
         string $definition,
-        array $entityWriteResults,
+        array $writeResults,
         Context $context,
         array $errors = []
     ) {
@@ -66,7 +66,7 @@ class EntityWrittenEvent extends NestedEvent
         $this->context = $context;
         $this->errors = $errors;
         $this->definition = $definition;
-        $this->entityWriteResults = $entityWriteResults;
+        $this->writeResults = $writeResults;
 
         /* @var string|EntityDefinition $definition */
         $this->name = $definition::getEntityName() . '.written';
@@ -99,7 +99,7 @@ class EntityWrittenEvent extends NestedEvent
     {
         if (empty($this->ids)) {
             $this->ids = [];
-            foreach ($this->entityWriteResults as $entityWriteResult) {
+            foreach ($this->writeResults as $entityWriteResult) {
                 $this->ids[] = $entityWriteResult->getPrimaryKey();
             }
         }
@@ -121,7 +121,7 @@ class EntityWrittenEvent extends NestedEvent
     {
         if (empty($this->payloads)) {
             $this->payloads = [];
-            foreach ($this->entityWriteResults as $entityWriteResult) {
+            foreach ($this->writeResults as $entityWriteResult) {
                 $this->payloads[] = $entityWriteResult->getPayload();
             }
         }
@@ -136,7 +136,7 @@ class EntityWrittenEvent extends NestedEvent
     {
         if (empty($this->existences)) {
             $this->existences = [];
-            foreach ($this->entityWriteResults as $entityWriteResult) {
+            foreach ($this->writeResults as $entityWriteResult) {
                 if ($entityWriteResult->getExistence()) {
                     $this->existences[] = $entityWriteResult->getExistence();
                 }
@@ -144,5 +144,13 @@ class EntityWrittenEvent extends NestedEvent
         }
 
         return $this->existences;
+    }
+
+    /**
+     * @return EntityWriteResult[]
+     */
+    public function getWriteResults(): array
+    {
+        return $this->writeResults;
     }
 }

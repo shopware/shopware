@@ -469,17 +469,17 @@ class DemodataCommand extends Command
             foreach ($productImages as $id => $file) {
                 $this->mediaUpdater->persistFileToMedia(
                     new MediaFile(
-                        $this->fileNameProvider->provide(
-                            $file,
-                            pathinfo($file, PATHINFO_EXTENSION),
-                            $id,
-                            $context
-                        ),
+                        $file,
                         mime_content_type($file),
                         pathinfo($file, PATHINFO_EXTENSION),
                         filesize($file)
                     ),
-                    pathinfo($file, PATHINFO_FILENAME),
+                    $this->fileNameProvider->provide(
+                        pathinfo($file, PATHINFO_FILENAME),
+                        pathinfo($file, PATHINFO_EXTENSION),
+                        $id,
+                        $context
+                    ),
                     $id,
                     $context
                 );
@@ -1106,7 +1106,12 @@ class DemodataCommand extends Command
                     pathinfo($file, PATHINFO_EXTENSION),
                     filesize($file)
                 ),
-                pathinfo($file, PATHINFO_FILENAME),
+                $this->fileNameProvider->provide(
+                    pathinfo($file, PATHINFO_FILENAME),
+                    pathinfo($file, PATHINFO_EXTENSION),
+                    $mediaId,
+                    $context
+                ),
                 $mediaId,
                 $context
             );

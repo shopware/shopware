@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-media-sidebar.html.twig';
-import './sw-media-sidebar.less';
+import './sw-media-sidebar.scss';
 
 Component.register('sw-media-sidebar', {
     template,

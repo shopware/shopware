@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-condition-not-found.html.twig';
-import './sw-condition-not-found.less';
+import './sw-condition-not-found.scss';
 
 /**
  * @public

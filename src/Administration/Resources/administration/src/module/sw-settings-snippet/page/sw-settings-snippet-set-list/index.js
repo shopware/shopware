@@ -1,6 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-settings-snippet-set-list.html.twig';
-import './sw-settings-snippet-set-list.less';
+import './sw-settings-snippet-set-list.scss';
 
 Component.register('sw-settings-snippet-set-list', {
     template,

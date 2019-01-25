@@ -1,6 +1,6 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-simple-search-field.html.twig';
-import './sw-simple-search-field.less';
+import './sw-simple-search-field.scss';
 
 /**
  * @public

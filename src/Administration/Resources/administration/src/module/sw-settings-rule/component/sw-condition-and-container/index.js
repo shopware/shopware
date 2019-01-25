@@ -1,6 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-condition-and-container.html.twig';
-import './sw-condition-and-container.less';
+import './sw-condition-and-container.scss';
 
 const PLACEHOLDER_NAME = 'placeholder';
 const OR_CONTAINER_NAME = 'orContainer';

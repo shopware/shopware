@@ -1,5 +1,5 @@
 import template from './sw-media-add-thumbnail-form.html.twig';
-import './sw-media-add-thumbnail-form.less';
+import './sw-media-add-thumbnail-form.scss';
 
 /**
  * @private

@@ -1,6 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-condition-line-item-with-quantity.html.twig';
-import './sw-condition-line-item-with-quantity.less';
+import './sw-condition-line-item-with-quantity.scss';
 
 /**
  * @public

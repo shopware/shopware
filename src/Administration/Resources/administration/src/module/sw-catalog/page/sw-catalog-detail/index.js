@@ -2,7 +2,7 @@ import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-catalog-detail.html.twig';
-import './sw-catalog-detail.less';
+import './sw-catalog-detail.scss';
 
 Component.register('sw-catalog-detail', {
     template,

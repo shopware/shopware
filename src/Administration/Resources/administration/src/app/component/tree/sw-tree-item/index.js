@@ -1,5 +1,5 @@
 import template from './sw-tree-item.html.twig';
-import './sw-tree-item.less';
+import './sw-tree-item.scss';
 
 /**
  * @private

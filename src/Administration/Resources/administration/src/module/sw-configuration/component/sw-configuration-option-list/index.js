@@ -1,6 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-configuration-option-list.html.twig';
-import './sw-configuration-option-list.less';
+import './sw-configuration-option-list.scss';
 
 Component.register('sw-configuration-option-list', {
     template,

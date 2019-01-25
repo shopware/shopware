@@ -1,7 +1,7 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-category-detail.html.twig';
-import './sw-category-detail.less';
+import './sw-category-detail.scss';
 
 Component.register('sw-category-detail', {
     template,

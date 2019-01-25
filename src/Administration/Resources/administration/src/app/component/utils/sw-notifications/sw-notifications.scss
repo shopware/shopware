@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+$sw-notifications-gap: 20px;
+$sw-notifications-z-index: $z-index-notifications;
+$sw-notifications-width: 400px;
+$sw-notifications-transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+.sw-notifications {
+    position: absolute;
+    top: $sw-notifications-gap;
+    right: $sw-notifications-gap;
+    width: $sw-notifications-width;
+    z-index: $sw-notifications-z-index;
+    max-height: calc(100% - #{$sw-notifications-gap});
+    overflow: hidden;
+
+    .sw-alert {
+        width: 100%;
+    }
+}
+
+// Vue.js Transitions
+.sw-notifications-slide-fade-enter-active {
+    transition: all $sw-notifications-transition;
+}
+
+// Vue.js Transitions
+.sw-notifications-slide-fade-leave-active {
+    transition: all $sw-notifications-transition;
+}
+
+// Vue.js Transitions
+.sw-notifications-slide-fade-enter,
+.sw-notifications-slide-fade-leave-to {
+    transform: translateX(50px);
+    opacity: 0;
+}

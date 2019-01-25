@@ -1,6 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-catalog-list.html.twig';
-import './sw-catalog-list.less';
+import './sw-catalog-list.scss';
 
 Component.register('sw-catalog-list', {
     template,

@@ -1,7 +1,7 @@
 import { State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-folder-content.html.twig';
-import './sw-media-folder-content.less';
+import './sw-media-folder-content.scss';
 
 export default {
     name: 'sw-media-folder-content',

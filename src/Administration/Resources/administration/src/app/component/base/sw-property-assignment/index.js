@@ -1,6 +1,6 @@
 import { State } from 'src/core/shopware';
 import template from './sw-property-assignment.html.twig';
-import './sw-property-assignment.less';
+import './sw-property-assignment.scss';
 
 export default {
     name: 'sw-property-assignment',

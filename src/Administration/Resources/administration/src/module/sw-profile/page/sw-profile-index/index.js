@@ -1,7 +1,7 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { md5 } from 'src/core/service/utils/format.utils';
 import template from './sw-profile-index.html.twig';
-import './sw-profile-index.less';
+import './sw-profile-index.scss';
 
 Component.register('sw-profile-index', {
     template,

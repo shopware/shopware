@@ -1,6 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-language-info.html.twig';
-import './sw-language-info.less';
+import './sw-language-info.scss';
 
 /**
  * @public

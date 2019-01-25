@@ -1,5 +1,5 @@
 import template from './sw-address.html.twig';
-import './sw-address.less';
+import './sw-address.scss';
 
 /**
  * @public

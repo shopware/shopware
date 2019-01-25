@@ -48,6 +48,7 @@ module.exports = {
             'src': resolve('src'),
             'module': resolve('src/module'),
             'less': resolve('src/app/assets/less'),
+            'scss': resolve('src/app/assets/scss'),
             'assets': resolve('static')
         }
     },

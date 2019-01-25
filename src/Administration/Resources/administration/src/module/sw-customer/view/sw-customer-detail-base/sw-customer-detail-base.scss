@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+$sw-customer-detail-base-color-text: $color-gutenberg;
+
+.sw-customer-detail-base {
+    .sw-field.sw-customer-detail-base__active-field {
+        margin: 0;
+
+        label {
+            color: $sw-customer-detail-base-color-text;
+        }
+    }
+}

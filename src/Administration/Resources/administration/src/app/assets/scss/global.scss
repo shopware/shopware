@@ -1,0 +1,25 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: $font-family-default;
+    font-size: $font-size-default;
+    color: $color-deep-cove;
+    background: $color-iron;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #app {
+    height: 100%;
+    overflow: hidden;
+}
+
+.sw-drag-select-box {
+    position: absolute;
+    background: $color-drag-select-box;
+    z-index: $z-index-drag-select-box;
+}

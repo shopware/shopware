@@ -2,7 +2,7 @@ import { Component, Entity } from 'src/core/shopware';
 import { object } from 'src/core/service/util.service';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
-import './sw-customer-detail-addresses.less';
+import './sw-customer-detail-addresses.scss';
 
 Component.register('sw-customer-detail-addresses', {
     template,

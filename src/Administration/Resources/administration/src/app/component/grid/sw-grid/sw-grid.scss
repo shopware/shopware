@@ -1,0 +1,150 @@
+@import "~scss/variables";
+
+$sw-grid-item-color-border:               $color-steam-cloud;
+$sw-grid-item-color-background:           $color-light-gray;
+$sw-grid-item-even-color-background:      $color-white;
+$sw-grid-item-color-background-deleted:   $color-crimson;
+$sw-grid-item-color-background-new:       $color-emerald;
+$sw-grid-item-active-color-border:        $color-shopware-blue;
+$sw-grid-item-active-color-background:    $color-cadet-blue;
+$sw-grid-item-active-color-text:          $color-black;
+$sw-grid-header-color-background:         $color-white;
+$sw-grid-header-color-border:             $color-steam-cloud;
+$sw-grid-header-color-text:               $color-kashmir;
+$sw-grid-actions-icon-color:              $color-gutenberg;
+$sw-grid-actions-icon-hover-color:        $color-shopware-blue;
+$sw-grid-table-row-color-background:      $color-white;
+
+.sw-grid {
+    display: grid;
+    overflow: hidden;
+    position: relative;
+    grid-template-rows: 100%;
+    border: 1px solid $sw-grid-item-color-border;
+
+    &.sw-grid--sidebar {
+        grid-template-columns: 1fr auto;
+    }
+
+    &.sw-grid--fullpage {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        border: 0 none;
+    }
+
+    &.sw-grid--table {
+        border: 0 none;
+
+        .sw-grid__header {
+            background: 0 none;
+        }
+
+        .sw-grid-row {
+            background-color: $sw-grid-table-row-color-background;
+
+            &.is--selected {
+                background-color: $sw-grid-item-active-color-background;
+            }
+
+            &.is--deleted {
+                background-color: lighten($sw-grid-item-color-background-deleted, 45%);
+            }
+
+            &.is--new {
+                background-color: lighten($sw-grid-item-color-background-new, 45%);
+            }
+        }
+
+        .sw-grid-column {
+            border-right: 0 none;
+        }
+    }
+
+    .sw-grid__content {
+        display: grid;
+        grid-template-rows: auto;
+
+        &.sw-grid__content--header {
+            grid-template-rows: 64px 1fr;
+        }
+
+        &.sw-grid__content--pagination {
+            grid-template-rows: 1fr 64px;
+        }
+
+        &.sw-grid__content--header.sw-grid__content--pagination {
+            grid-template-rows: 64px 1fr 64px;
+        }
+    }
+
+    .sw-grid__header {
+        display: grid;
+        grid-auto-flow: column;
+        background-color: $sw-grid-header-color-background;
+        border-bottom: 1px solid $sw-grid-header-color-border;
+
+        .sw-grid-column {
+            font-size: 16px;
+            font-weight: bold;
+
+            .sw-grid__cell-content {
+                color: $sw-grid-header-color-text
+            }
+
+            &.is--sortable {
+                cursor: pointer;
+            }
+
+            &.is--sorted {
+                .sw-grid__cell-content {
+                    color: darken($sw-grid-header-color-text, 10%);
+                    display: grid;
+                    grid-template-columns: 1fr 10px;
+                    grid-gap: 5px;
+                }
+            }
+        }
+
+        .sw-grid__cell-label {
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .sw-grid__body {
+        justify-self: stretch;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sw-grid__action-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        outline: none;
+        font-size: 20px;
+        color: $sw-grid-actions-icon-color;
+
+        &:hover {
+            color: $sw-grid-actions-icon-hover-color;
+        }
+    }
+
+    .sw-grid__pagination {
+        background: $sw-grid-item-color-background;
+        border-top: 1px solid $sw-grid-item-color-border;
+    }
+
+    .sw-grid__cell-content {
+        .sw-media-field {
+            margin-bottom: 0;
+        }
+        .sw-media-field-picker .sw-simple-search-field {
+            margin-bottom: 15px;
+        }
+    }
+}

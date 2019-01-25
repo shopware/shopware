@@ -1,4 +1,4 @@
-import './sw-button-group.less';
+import './sw-button-group.scss';
 import template from './sw-button-group.html.twig';
 
 /**

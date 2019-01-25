@@ -1,6 +1,6 @@
 import { Application, Mixin } from 'src/core/shopware';
 import template from './sw-media-folder-item.html.twig';
-import './sw-media-folder-item.less';
+import './sw-media-folder-item.scss';
 
 export default {
     name: 'sw-media-folder-item',

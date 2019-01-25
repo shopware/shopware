@@ -1,0 +1,180 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-color-picker-color-border: $color-steam-cloud;
+$sw-color-picker-color-focus: $color-shopware-blue;
+$sw-color-picker-color-text: $color-gutenberg;
+$sw-color-picker-color-background: $color-white;
+$sw-color-picker-transition: border-color 0.3s ease-out;
+$sw-color-picker-border-radius: $border-radius-default;
+$sw-color-picker-color-placeholder: lighten($sw-color-picker-color-text, 25%);
+$sw-color-picker-color-label: $color-kashmir;
+$sw-color-picker-color-error: $color-crimson;
+$sw-color-picker-font-family: $font-family-default;
+$sw-color-picker-font-size: 14px;
+
+.sw-color-picker {
+
+    .sw-color-picker__field {
+        border-radius: $sw-color-picker-border-radius;
+        border: 1px solid $sw-color-picker-color-border;
+        background: $sw-color-picker-color-background;
+        display: grid;
+        grid-template-columns: 1fr 48px;
+        margin-bottom: 22px;
+        height: 45px;
+        line-height: 27px;
+        transition: $sw-color-picker-transition;
+        width: 100%;
+    }
+
+    .sw-color-picker__label {
+        display: block;
+        line-height: 16px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: $sw-color-picker-color-label;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .sw-color-picker__icon {
+        color: $sw-color-picker-color-text;
+        @include size(20px);
+    }
+
+    .sw-color-picker__trigger {
+        border-left: 1px solid $sw-color-picker-color-border;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .sw-color-picker__preview {
+        border-radius: 2px;
+        margin: 4px;
+    }
+
+    &.is--open {
+        .sw-color-picker__field {
+            border-color: $sw-color-picker-color-focus;
+            color: $sw-color-picker-color-focus;
+            box-shadow: 0 0 4px lighten($sw-color-picker-color-focus, 30%);
+            outline: none;
+        }
+    }
+
+    &.is--disabled {
+        .sw-color-picker__field {
+            background: $color-light-gray;
+            border-color: $color-steam-cloud;
+            color: lighten($sw-color-picker-color-text, 40%);
+        }
+        .sw-color-picker__trigger {
+            cursor: default;
+        }
+        .sw-color-picker__icon {
+            color: lighten($sw-color-picker-color-text, 40%);
+        }
+    }
+
+    // colorpicker adjustments
+    .sw-color-picker__field {
+        .picker_wrapper {
+            border: 1px solid $sw-color-picker-color-border;
+            border-radius: $sw-color-picker-border-radius;
+            background: $sw-color-picker-color-background;
+            padding: 10px;
+            box-shadow: 0 3px 6px 0 rgba(120,138,155,0.5);
+
+            &.popup_left {
+                top: 0;
+                right: 0px;
+                margin-top: 35px;
+                margin-right: 6px;
+            }
+
+            &::after {
+                content: '';
+                top: -6px;
+                right: 7px;
+                position: absolute;
+                border-bottom: 10px solid $sw-color-picker-color-background;
+                border-top: 10px solid transparent;
+                border-right: 10px solid transparent;
+                transform: rotate(135deg);
+                z-index: 3;
+                width: 0;
+                height: 0;
+            }
+            &::before {
+                content: '';
+                top: -7px;
+                right: 7px;
+                position: absolute;
+                border-bottom: 10px solid $sw-color-picker-color-border;
+                border-top: 10px solid transparent;
+                border-right: 10px solid transparent;
+                transform: rotate(135deg);
+                z-index: 2;
+                width: 0;
+                height: 0;
+            }
+        }
+        .layout_default .picker_editor {
+            order: 2;
+        }
+        .picker_hue.picker_slider {
+            order: 1;
+        }
+        .picker_done,
+        .picker_arrow {
+            display: none;
+        }
+        .picker_hue,
+        .picker_sl {
+            border-radius: $sw-color-picker-border-radius;
+            box-shadow: none;
+        }
+        .picker_hue .picker_slider {
+            padding: 8px 0;
+            margin-top: 4px;
+        }
+        .picker_hue .picker_selector {
+            padding: 10px 0px;
+            border: 3px solid $color-white;
+            box-shadow: 0 0 0 1px $color-steam-cloud;
+        }
+        .picker_sl .picker_selector {
+            border: 3px solid $color-white;
+            padding: 6px;
+        }
+        .picker_sample {
+            border-radius: $sw-color-picker-border-radius;
+            box-shadow: none;
+            overflow: hidden;
+            max-width: 32px;
+            height: 32px;
+        }
+        .picker_editor {
+            flex: 1;
+
+            input {
+                font-size: $sw-color-picker-font-size;
+                font-family: $sw-color-picker-font-family;
+                color: $sw-color-picker-color-text;
+                border-radius: $sw-color-picker-border-radius;
+                border: 1px solid $sw-color-picker-color-border;
+                padding: 0 10px;
+                max-height: 32px;
+                margin-top: 0;
+                outline: none;
+
+                &:focus {
+                    border-color: $sw-color-picker-color-focus;
+                }
+            }
+        }
+    }
+}

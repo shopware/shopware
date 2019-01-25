@@ -1,5 +1,5 @@
 import template from './sw-price-field.html.twig';
-import './sw-price-field.less';
+import './sw-price-field.scss';
 
 /**
  * @public

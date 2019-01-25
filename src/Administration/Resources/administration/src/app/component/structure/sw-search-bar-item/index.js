@@ -1,5 +1,5 @@
 import template from './sw-search-bar-item.html.twig';
-import './sw-search-bar-item.less';
+import './sw-search-bar-item.scss';
 
 /**
  * @public

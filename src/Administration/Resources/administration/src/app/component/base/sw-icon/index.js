@@ -1,6 +1,6 @@
 import { debug } from 'src/core/service/util.service';
 import template from './sw-icon.html.twig';
-import './sw-icon.less';
+import './sw-icon.scss';
 
 /**
  * @public

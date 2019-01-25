@@ -1,4 +1,4 @@
-import './sw-pagination.less';
+import './sw-pagination.scss';
 import template from './sw-pagination.html.twig';
 
 /**

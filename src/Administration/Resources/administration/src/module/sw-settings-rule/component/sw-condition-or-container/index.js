@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-condition-or-container.html.twig';
-import './sw-condition-or-container.less';
+import './sw-condition-or-container.scss';
 
 const AND_CONTAINER_NAME = 'andContainer';
 

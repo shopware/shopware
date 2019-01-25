@@ -1,5 +1,5 @@
 import template from './sw-context-button.html.twig';
-import './sw-context-button.less';
+import './sw-context-button.scss';
 
 /**
  * @public

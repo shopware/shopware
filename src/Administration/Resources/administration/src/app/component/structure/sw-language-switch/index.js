@@ -1,7 +1,7 @@
 import { Component, State } from 'src/core/shopware';
 import { debug } from 'src/core/service/util.service';
 import template from './sw-language-switch.html.twig';
-import './sw-language-switch.less';
+import './sw-language-switch.scss';
 
 /**
  * @public

@@ -1,4 +1,3 @@
-import './sw-admin.less';
 import template from './sw-admin.html.twig';
 
 /**

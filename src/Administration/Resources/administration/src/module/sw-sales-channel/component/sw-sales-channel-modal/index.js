@@ -1,6 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-sales-channel-modal.html.twig';
-import './sw-sales-channel-modal.less';
+import './sw-sales-channel-modal.scss';
 
 Component.register('sw-sales-channel-modal', {
     template,

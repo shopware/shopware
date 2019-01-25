@@ -1,6 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-condition-base.html.twig';
-import './sw-condition-base.less';
+import './sw-condition-base.scss';
 
 const PLACEHOLDER_NAME = 'placeholder';
 

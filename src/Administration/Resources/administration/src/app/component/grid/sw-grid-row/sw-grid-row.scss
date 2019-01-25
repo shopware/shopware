@@ -1,0 +1,95 @@
+@import "~scss/variables";
+
+$sw-grid-row-color-border: $color-shopware-blue;
+$sw-grid-row-color-background: $color-cadet-blue;
+$sw-grid-item-color-border: $color-steam-cloud;
+$sw-grid-item-color-background: $color-light-gray;
+$sw-grid-item-even-color-background: $color-white;
+$sw-grid-item-active-color-border: $color-shopware-blue;
+$sw-grid-item-hover-color-link: $color-shopware-blue;
+$sw-grid-item-active-color-background: $color-cadet-blue;
+$sw-grid-item-active-color-text: $color-black;
+$sw-grid-row-inline-edit-border-radius: $border-radius-default;
+
+.sw-grid-row {
+    display: grid;
+    grid-auto-flow: column;
+    border-bottom: 1px solid $sw-grid-item-color-border;
+    background: $sw-grid-item-color-background;
+    position: relative;
+
+    &:nth-child(even) {
+        background: $sw-grid-item-even-color-background;
+    }
+
+    &:last-child {
+        border-bottom-color: transparent;
+    }
+
+    &:hover {
+        background: lighten($sw-grid-item-active-color-background, 2%);
+
+        .sw-grid__cell-content a {
+            color: $sw-grid-item-hover-color-link;
+        }
+    }
+
+    &.is--selected {
+        background: $sw-grid-item-active-color-background;
+        border-bottom: 1px solid $sw-grid-item-active-color-border;
+        box-shadow: 0 -1px 0 0 $sw-grid-item-active-color-border;
+    }
+
+    &:first-child.is--selected {
+        box-shadow: inset 0 1px 0 0 $sw-grid-item-active-color-border;
+    }
+
+    &.is--inline-editing {
+        background: $sw-grid-item-active-color-background;
+        border-bottom: 1px solid $sw-grid-item-active-color-border;
+        box-shadow: 0 -1px 0 0 $sw-grid-item-active-color-border;
+
+        .sw-grid__cell-content {
+            display: none;
+        }
+
+        .sw-grid-column {
+            border-right-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .sw-grid__cell-inline-editing {
+            display: grid;
+            grid-auto-flow: column;
+            align-items: center;
+            justify-items: stretch;
+            justify-content: stretch;
+            grid-gap: 10px;
+            height: 100%;
+            line-height: 24px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .sw-grid-row__actions {
+            display: block;
+        }
+    }
+
+    .sw-grid__cell-inline-editing {
+        display: none;
+    }
+
+    .sw-grid-row__actions {
+        display: none;
+        position: absolute;
+        left: 50%;
+        bottom: -53px;
+        transform: translate(-50%, 0);
+        z-index: 10;
+        padding: 10px 16px;
+        background: $sw-grid-row-color-background;
+        border: 1px solid $sw-grid-row-color-border;
+        border-top: 0 none;
+        border-radius: 0 0 $sw-grid-row-inline-edit-border-radius $sw-grid-row-inline-edit-border-radius;
+    }
+}

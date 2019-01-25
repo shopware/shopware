@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-order-delivery.html.twig';
-import './sw-order-delivery.less';
+import './sw-order-delivery.scss';
 
 Component.register('sw-order-delivery', {
     template,

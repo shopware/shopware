@@ -1,0 +1,36 @@
+@import "~scss/variables";
+
+$sw-product-media-form-border-color: $color-steam-cloud;
+$sw-product-media-form-border-radius: $border-radius-default;
+$sw-product-media-form-upload-background-color: $color-light-gray;
+
+.sw-product-media-form {
+
+    .sw-product-media-form__file-input {
+        display: none;
+    }
+
+    .sw-product-media-form__upload-button {
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 20px;
+    }
+
+    .sw-product-media-form__grid {
+        border-radius: $sw-product-media-form-border-radius;
+        border: 1px solid $sw-product-media-form-border-color;
+        display: grid;
+        padding: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        grid-gap: 10px;
+        grid-auto-flow: dense;
+        margin-top: 20px;
+    }
+
+    .sw-product-image.is--cover {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 1;
+        grid-row-end: 3;
+    }
+}

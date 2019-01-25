@@ -1,0 +1,16 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-icon {
+    @include size(24px);
+    fill: currentColor;
+    vertical-align: middle;
+
+    &.sw-icon--small {
+        @include size(16px);
+    }
+
+    &.sw-icon--large {
+        @include size(32px);
+    }
+}

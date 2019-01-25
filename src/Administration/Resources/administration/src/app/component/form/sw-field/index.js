@@ -1,7 +1,7 @@
 import { Mixin, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-field.html.twig';
-import './sw-field.less';
+import './sw-field.scss';
 
 /**
  * @public

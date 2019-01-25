@@ -1,6 +1,6 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-container.html.twig';
-import './sw-container.less';
+import './sw-container.scss';
 
 /**
  * @public

@@ -2,7 +2,7 @@ import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import Utils from 'src/core/service/util.service';
 import template from './sw-media-index.html.twig';
-import './sw-media-index.less';
+import './sw-media-index.scss';
 
 Component.register('sw-media-index', {
     template,

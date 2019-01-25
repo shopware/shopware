@@ -14,7 +14,7 @@ import RuleConditionService from 'src/app/service/rule-condition.service';
 import 'src/app/decorator/condition-type-data-provider';
 
 /** Import global styles */
-import 'src/app/assets/less/all.less';
+import 'src/app/assets/scss/all.scss';
 
 const factoryContainer = Application.getContainer('factory');
 

@@ -1,5 +1,5 @@
 import template from './sw-alert.html.twig';
-import './sw-alert.less';
+import './sw-alert.scss';
 
 /**
  * @description

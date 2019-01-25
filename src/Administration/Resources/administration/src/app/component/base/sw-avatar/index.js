@@ -1,6 +1,6 @@
 import { md5 } from 'src/core/service/utils/format.utils';
 import template from './sw-avatar.html.twig';
-import './sw-avatar.less';
+import './sw-avatar.scss';
 
 /**
  * @description The component helps adding a properly formatted gravatar, custom user image or initials to the

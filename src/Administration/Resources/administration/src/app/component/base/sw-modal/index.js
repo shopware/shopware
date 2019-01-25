@@ -1,5 +1,5 @@
 import template from './sw-modal.html.twig';
-import './sw-modal.less';
+import './sw-modal.scss';
 
 /**
  * @public

@@ -1,5 +1,5 @@
 import template from './sw-media-base-item.html.twig';
-import './sw-media-base-item.less';
+import './sw-media-base-item.scss';
 
 /**
  * @status ready

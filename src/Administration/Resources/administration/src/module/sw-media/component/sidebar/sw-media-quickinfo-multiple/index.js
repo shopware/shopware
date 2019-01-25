@@ -1,7 +1,7 @@
 import { Component } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import template from './sw-media-quickinfo-multiple.html.twig';
-import './sw-media-quickinfo-multiple.less';
+import './sw-media-quickinfo-multiple.scss';
 
 Component.register('sw-media-quickinfo-multiple', {
     template,

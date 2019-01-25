@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-category-view.html.twig';
-import './sw-category-view.less';
+import './sw-category-view.scss';
 
 Component.register('sw-category-view', {
     template,

@@ -1,7 +1,7 @@
 import { State } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-page.html.twig';
-import './sw-page.less';
+import './sw-page.scss';
 
 /**
  * @public

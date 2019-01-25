@@ -1,0 +1,26 @@
+@import "~scss/variables";
+
+.sw-user-card {
+    .sw-user-card__metadata-user-name {
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .sw-user-card__metadata-item {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .sw-user-card__actions {
+        padding-top: 10px;
+
+        .sw-button {
+            margin-right: 6px;
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+        }
+    }
+}

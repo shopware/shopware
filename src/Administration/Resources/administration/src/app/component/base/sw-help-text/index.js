@@ -1,5 +1,5 @@
 import template from './sw-help-text.html.twig';
-import './sw-help-text.less';
+import './sw-help-text.scss';
 
 /**
  * @public

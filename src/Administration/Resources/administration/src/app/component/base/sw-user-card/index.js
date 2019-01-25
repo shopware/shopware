@@ -1,5 +1,5 @@
 import template from './sw-user-card.html.twig';
-import './sw-user-card.less';
+import './sw-user-card.scss';
 
 /**
  * @public

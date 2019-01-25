@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+$sw-country-list-color-error: $color-crimson;
+$sw-country-list-color-success: $color-emerald;
+
+.sw-settings-country-list {
+    .is--inactive {
+        color: $sw-country-list-color-error;
+    }
+
+    .is--active {
+        color: $sw-country-list-color-success;
+    }
+}

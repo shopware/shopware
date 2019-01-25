@@ -3,7 +3,7 @@ import util, { fileReader } from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import { next1207 } from 'src/flag/feature_next1207';
 import template from './sw-media-upload.html.twig';
-import './sw-media-upload.less';
+import './sw-media-upload.scss';
 
 /**
  * @status ready

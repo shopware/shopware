@@ -2,7 +2,7 @@ import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import utils from 'src/core/service/util.service';
 import template from './sw-settings-rule-detail.html.twig';
-import './sw-settings-rule-detail.less';
+import './sw-settings-rule-detail.scss';
 
 const AND_CONTAINER_NAME = 'andContainer';
 const OR_CONTAINER_NAME = 'orContainer';

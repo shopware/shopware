@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class ProductStreamFilterTest extends TestCase
+class ProductStreamFilterRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 

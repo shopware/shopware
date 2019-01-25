@@ -110,7 +110,7 @@ class ProductStreamFilterIndexer implements IndexerInterface
         $this->update($ids);
     }
 
-    protected function update(array $ids): void
+    private function update(array $ids): void
     {
         if (empty($ids)) {
             return;
@@ -123,7 +123,7 @@ class ProductStreamFilterIndexer implements IndexerInterface
         $bytes = array_values(array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids));
 
         $filters = $this->connection->fetchAll(
-            'SELECT psc.product_stream_id as array_key, psc.* FROM product_stream_filter psc  WHERE psc.product_stream_id IN (:ids) ORDER BY psc.product_stream_id',
+            'SELECT product_stream_id as array_key, product_stream_filter.* FROM product_stream_filter  WHERE product_stream_id IN (:ids) ORDER BY product_stream_id',
             ['ids' => $bytes],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -170,7 +170,7 @@ class ProductStreamFilterIndexer implements IndexerInterface
         $this->cache->invalidateTags($tags);
     }
 
-    protected function buildNested(array $entities, ?string $parentId): array
+    private function buildNested(array $entities, ?string $parentId): array
     {
         $nested = [];
         foreach ($entities as $entity) {

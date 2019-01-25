@@ -615,7 +615,7 @@ class VersionManager
             /** @var OneToManyAssociationField $cascade */
             $reference = $cascade->getReferenceClass();
 
-            $childrenAware = $reference::getFields()->get('children') instanceof ChildrenAssociationField;
+            $childrenAware = $reference::isChildrenAware();
 
             //first level of parent-child tree?
             if ($childrenAware && $reference !== $definition) {

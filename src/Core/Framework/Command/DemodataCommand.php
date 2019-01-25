@@ -9,6 +9,7 @@ use Exception;
 use Faker\Factory;
 use Faker\Generator;
 use function Flag\next1207;
+use function Flag\next739;
 use Shopware\Core\Checkout\Cart\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -60,7 +61,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
-use function Flag\next739;
 
 class DemodataCommand extends Command
 {

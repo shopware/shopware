@@ -19,7 +19,7 @@ class EventIdExtractor
 
         $event = $generic->getEventByDefinition(ProductStreamFilterDefinition::class);
         if ($event) {
-            foreach ($event->getPayload() as $id) {
+            foreach ($event->getPayloads() as $id) {
                 if (isset($id['productStreamId'])) {
                     $ids[] = $id['productStreamId'];
                 }

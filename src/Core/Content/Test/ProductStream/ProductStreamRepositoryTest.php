@@ -7,10 +7,11 @@ use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class ProductStreamTest extends TestCase
+class ProductStreamRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -112,5 +113,96 @@ class ProductStreamTest extends TestCase
         static::assertSame('Test stream', $entity->getName());
         static::assertSame($id, $entity->getId());
         static::assertEquals($data['filters'], $entity->getFilter());
+    }
+
+    public function testFetchFilters()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'Test stream',
+            'filters' => [
+                [
+                    'type' => 'multi',
+                    'operator' => 'OR',
+                    'queries' => [
+                        [
+                            'type' => 'multi',
+                            'operator' => 'AND',
+                            'queries' => [
+                                [
+                                    'type' => 'multi',
+                                    'operator' => 'OR',
+                                    'queries' => [
+                                        [
+                                            'type' => 'equals',
+                                            'field' => 'product.name',
+                                            'value' => 'awesome',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->repository->upsert([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('filters');
+        /** @var ProductStreamEntity $entity */
+        $entity = $this->repository->search($criteria, $this->context)->get($id);
+
+        static::assertCount(4, $entity->getFilters());
+        static::assertCount(1, $entity->getFilters()->filterByProperty('field', 'product.name'));
+        static::assertCount(3, $entity->getFilters()->filterByProperty('type', 'multi'));
+        static::assertCount(1, $entity->getFilters()->filterByProperty('type', 'multi')->filterByProperty('operator', 'AND'));
+        static::assertCount(2, $entity->getFilters()->filterByProperty('type', 'multi')->filterByProperty('operator', 'OR'));
+    }
+
+    public function testFetchWithQueriesFilter()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            'id' => $id,
+            'name' => 'Test stream',
+            'filters' => [
+                [
+                    'type' => 'multi',
+                    'operator' => 'OR',
+                    'queries' => [
+                        [
+                            'type' => 'multi',
+                            'operator' => 'AND',
+                            'queries' => [
+                                [
+                                    'type' => 'multi',
+                                    'operator' => 'OR',
+                                    'queries' => [
+                                        [
+                                            'type' => 'equals',
+                                            'field' => 'product.name',
+                                            'value' => 'awesome',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->repository->upsert([$data], $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product_stream.filters.queries.queries.queries.field', 'product.name'));
+        /** @var ProductStreamEntity $entity */
+        $entity = $this->repository->search($criteria, $this->context)->get($id);
+
+        static::assertNotNull($entity);
+        static::assertSame('Test stream', $entity->getName());
     }
 }

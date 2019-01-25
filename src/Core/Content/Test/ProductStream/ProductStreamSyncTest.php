@@ -1,0 +1,57 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Test\ProductStream;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\Api\Controller\SyncController;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\PlatformRequest;
+
+class ProductStreamSyncTest extends TestCase
+{
+    use AdminFunctionalTestBehaviour;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function setUp()
+    {
+        $this->connection = $this->getContainer()->get(Connection::class);
+    }
+
+    public function testSyncProductStream()
+    {
+        $id1 = Uuid::uuid4();
+        $id2 = Uuid::uuid4();
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => ProductStreamDefinition::getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $id1->getHex(),
+                        'name' => 'Test stream',
+                    ],
+                    [
+                        'id' => $id2->getHex(),
+                        'name' => 'Test stream - 2',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $response = $this->getClient()->getResponse();
+
+        self::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $result = $this->connection->executeQuery('SELECT * from product_stream order by name');
+        static::assertEquals('Test stream', $result->fetch()['name']);
+        static::assertEquals('Test stream - 2', $result->fetch()['name']);
+    }
+}

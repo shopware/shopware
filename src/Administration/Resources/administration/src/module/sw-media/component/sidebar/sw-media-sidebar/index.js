@@ -56,7 +56,7 @@ Component.register('sw-media-sidebar', {
                 return this.currentFolder.name;
             }
 
-            return '';
+            return null;
         },
 
         getSelectedFilesCount() {

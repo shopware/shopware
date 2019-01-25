@@ -1,7 +1,7 @@
 {% block sw_media_sidebar %}
     <div class="sw-media-sidebar">
         {% block sw_media_sidebar_headline %}
-            <h3 class="sw-media-sidebar__headline">{{ headLine }}</h3>
+            <h3 v-if="headLine" class="sw-media-sidebar__headline">{{ headLine }}</h3>
         {% endblock %}
 
         {% block sw_media_sidebar_item_quickinfo_content %}

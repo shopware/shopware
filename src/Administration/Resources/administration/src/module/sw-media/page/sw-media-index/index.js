@@ -324,7 +324,20 @@ Component.register('sw-media-index', {
             });
         },
 
-        onMediaFoldersDissolved() {
+        onMediaFoldersDissolved(ids) {
+            if (ids.includes(this.routeFolderId)) {
+                let routeId = null;
+                if (this.parentFolder) {
+                    routeId = this.parentFolder.id;
+                }
+
+                this.$router.push({
+                    name: 'sw.media.index',
+                    params: {
+                        folderId: routeId
+                    }
+                });
+            }
             this.getList();
         },
 

@@ -15,6 +15,11 @@ module.exports = {
             .assert.urlContains('#/login')
             .assert.containsText('.sw-login__form-headline', 'Log in to your Shopware store');
     },
+    'attempt to log in using invalid credentials': (browser) => {
+        const page = loginPage(browser);
+        page.login('fakeAdmin', 'shopware');
+        page.verifyFailedLogin('Incorrect user credentials.');
+    },
     'log in admin user': (browser) => {
         const page = loginPage(browser);
         page.login('admin', 'shopware');

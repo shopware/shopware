@@ -19,10 +19,7 @@
 
                 {% block sw_select_multi_selections %}
                     <template v-if="multi">
-                        <transition-group name="sw-select-magnify"
-                                          tag="ul"
-                                          class="sw-select__selections"
-                                          mode="out-in">
+                        <ul class="sw-select__selections">
                             <li :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
                                 v-for="selection in selections"
                                 :key="selection.id"
@@ -61,7 +58,7 @@
                                     {% endblock %}
                                 </li>
                             {% endblock %}
-                        </transition-group>
+                        </ul>
                     </template>
                 {% endblock %}
 

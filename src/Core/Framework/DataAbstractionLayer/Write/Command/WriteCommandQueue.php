@@ -147,11 +147,15 @@ class WriteCommandQueue
      */
     public function getCommandsForEntity(string $definition, array $primaryKey): array
     {
-        $commands = $this->getCommandsInOrder();
+        if (!isset($this->commands[$definition])) {
+            return [];
+        }
+
+        $commands = $this->commands[$definition];
 
         $filtered = [];
         foreach ($commands as $command) {
-            if ($command->getDefinition() === $definition && $command->getPrimaryKey() == $primaryKey) {
+            if ($command->getPrimaryKey() == $primaryKey) {
                 $filtered[] = $command;
             }
         }

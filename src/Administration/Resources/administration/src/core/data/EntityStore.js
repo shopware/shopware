@@ -116,7 +116,7 @@ export default class EntityStore {
      * @return {EntityProxy}
      */
     create(id = utils.createId()) {
-        if (this.hasId(id)) {
+        if (this.hasId(id) && !this.store[id].deleted) {
             return this.store[id];
         }
 
@@ -273,6 +273,11 @@ export default class EntityStore {
 
         return syncService.sync(payload).then(() => {
             this.isLoading = false;
+            payload.forEach((update) => {
+                update.payload.forEach((entity) => {
+                    this.store[entity.id].isLocal = false;
+                });
+            });
         });
     }
 
@@ -287,7 +292,6 @@ export default class EntityStore {
 
         Object.keys(this.store).forEach((id) => {
             const entity = this.store[id];
-
             if (entity.isDeleted) {
                 deletionQueue.push(new Promise((resolve, reject) => {
                     entity.delete(true)
@@ -312,7 +316,12 @@ export default class EntityStore {
             const entity = this.store[id];
 
             if (entity.isDeleted) {
-                deletionPayload.push({ id: id });
+                const payload = { id: id };
+                if (entity.versionId) {
+                    payload.versionId = entity.versionId;
+                }
+
+                deletionPayload.push(payload);
             }
         });
 

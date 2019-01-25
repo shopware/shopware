@@ -1,4 +1,4 @@
-import { Mixin, State } from 'src/core/shopware';
+import { Filter, Mixin, State } from 'src/core/shopware';
 import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.less';
@@ -14,7 +14,7 @@ import './sw-media-media-item.less';
  *     :item="mediaItem"
  *     :selected="false"
  *     :showSelectionIndicator="false"
- *     isList="false">
+ *     :isList="false">
  *
  *       <sw-context-menu-item @click="showDetails(mediaItem)"
  *             slot="additional-context-menu-items">
@@ -93,6 +93,26 @@ export default {
 
         baseComponent() {
             return this.$refs.innerComponent;
+        },
+
+        dateFilter() {
+            return Filter.getByName('date');
+        },
+
+        fileSizeFilter() {
+            return Filter.getByName('fileSize');
+        },
+
+        getMetaData() {
+            const metadata = [
+                this.dateFilter(this.item.uploadedAt, this.locale, { year: 'numeric', month: 'long', day: 'numeric' })
+            ];
+
+            if (this.item.fileSize) {
+                metadata.push(this.fileSizeFilter(this.item.fileSize, this.locale));
+            }
+
+            return metadata.join(', ');
         }
     },
 

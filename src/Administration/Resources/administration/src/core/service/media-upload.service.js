@@ -10,8 +10,21 @@ export default function createMediaUploadService(mediaService) {
         splitFileNameAndExtension
     };
 
-    function uploadFileToMedia(file, mediaEntity) {
+    function uploadFileToMedia(file, mediaEntity, fileName = '') {
         const pathinfo = splitFileNameAndExtension(file.name);
+
+        if (fileName) {
+            pathinfo.fileName = fileName;
+        }
+
+        fileReader.readAsDataURL(file).then((dataUrl) => {
+            mediaEntity.fileName = pathinfo.fileName;
+            mediaEntity.fileExtension = pathinfo.extension;
+            mediaEntity.hasFile = true;
+            mediaEntity.mimeType = file.type;
+            mediaEntity.url = dataUrl;
+            mediaEntity.uploadedAt = new Date();
+        });
 
         return fileReader.readAsArrayBuffer(file).then((buffer) => {
             return mediaService.uploadMediaById(
@@ -24,7 +37,7 @@ export default function createMediaUploadService(mediaService) {
         });
     }
 
-    function uploadUrlToMedia(url, mediaEntity, fileExtension = '') {
+    function uploadUrlToMedia(url, mediaEntity, fileExtension = '', fileName = '') {
         const pathinfo = splitFileNameAndExtension(url.href.split('/').pop());
         const indexOfQueryIndicator = pathinfo.fileName.indexOf('?');
 
@@ -35,6 +48,15 @@ export default function createMediaUploadService(mediaService) {
         if (fileExtension) {
             pathinfo.extension = fileExtension;
         }
+        if (fileName) {
+            pathinfo.fileName = fileName;
+        }
+
+        mediaEntity.fileName = pathinfo.fileName;
+        mediaEntity.fileExtension = pathinfo.extension;
+        mediaEntity.hasFile = true;
+        mediaEntity.url = url.href;
+        mediaEntity.uploadedAt = new Date();
 
         return mediaService.uploadMediaFromUrl(
             mediaEntity.id,

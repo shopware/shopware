@@ -10,6 +10,8 @@
                     :defaultFolder="product.entityName"
                     @sw-media-upload-media-upload-success="successfulUpload"
                     @sw-media-upload-new-uploads-added="onUploadsAdded"
+                    @sw-media-upload-media-upload-failure="onUploadFailed"
+                    @sw-media-upload-media-replaced="onMediaReplaced"
                     @sw-media-upload-open-sidebar="onMediaUploadButtonOpenSidebar">
             </sw-media-upload>
         {% endblock %}

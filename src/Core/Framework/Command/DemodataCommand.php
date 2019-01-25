@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -157,6 +158,11 @@ class DemodataCommand extends Command
      */
     private $defaultFolderRepository;
 
+    /**
+     * @var FileNameProvider
+     */
+    private $fileNameProvider;
+
     public function __construct(
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
@@ -171,6 +177,7 @@ class DemodataCommand extends Command
         EntityRepositoryInterface $taxRepository,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $configurationGroupRepository,
+        FileNameProvider $fileNameProvider,
         string $kernelEnv,
         string $projectDir
     ) {
@@ -191,6 +198,7 @@ class DemodataCommand extends Command
         $this->projectDir = $projectDir;
         $this->configurationGroupRepository = $configurationGroupRepository;
         $this->defaultFolderRepository = $defaultFolderRepository;
+        $this->fileNameProvider = $fileNameProvider;
     }
 
     protected function configure(): void
@@ -461,7 +469,12 @@ class DemodataCommand extends Command
             foreach ($productImages as $id => $file) {
                 $this->mediaUpdater->persistFileToMedia(
                     new MediaFile(
-                        $file,
+                        $this->fileNameProvider->provide(
+                            $file,
+                            pathinfo($file, PATHINFO_EXTENSION),
+                            $id,
+                            $context
+                        ),
                         mime_content_type($file),
                         pathinfo($file, PATHINFO_EXTENSION),
                         filesize($file)

@@ -78,6 +78,7 @@
             <argument>%shopware.cdn.strategy%</argument>
         </service>
 
+        <!--File Services-->
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
         </service>
 
@@ -89,6 +90,11 @@
             <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
             <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\File\FileNameProvider" class="Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider">
+            <argument type="service" id="media.repository"/>
+        </service>
+
 
         <!-- Commands -->
         <service id="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand">
@@ -110,7 +116,22 @@
             <tag name="console.command"/>
         </service>
 
-        <!-- Pathname strategies -->
+        <!-- Pathname -->
+        <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
+            <argument type="service" id="request_stack"/>
+            <argument>%shopware.cdn.url%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory">
+            <argument type="tagged" tag="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface">
+            <factory service="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory" method="factory"/>
+            <argument>%shopware.cdn.strategy%</argument>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy">
             <tag name="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
         </service>
@@ -123,6 +144,7 @@
         <service id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -141,10 +141,20 @@ Component.register('sw-media-index', {
                 return mediaItem !== upload;
             });
 
-            if (this.mediaFolderId === mediaItem.mediaFolderId) {
+            if (this.mediaFolderId === mediaItem.mediaFolderId &&
+                !this.mediaItems.some((item) => {
+                    return item.id === mediaItem.id;
+                })
+            ) {
                 this.mediaItems.unshift(mediaItem);
             }
             mediaItem.isLoading = false;
+        },
+
+        onUploadFailed(mediaItem) {
+            this.uploadedItems = this.uploadedItems.filter((upload) => {
+                return mediaItem !== upload;
+            });
         },
 
         getFolderEntities() {

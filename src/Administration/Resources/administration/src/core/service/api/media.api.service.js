@@ -62,6 +62,19 @@ class MediaApiService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    provideName(fileName, extension, mediaId = null) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/provide-name`;
+        return this.httpClient.get(
+            apiRoute,
+            {
+                params: { fileName, extension, mediaId },
+                headers: this.getBasicHeaders()
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 export default MediaApiService;

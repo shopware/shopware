@@ -375,6 +375,13 @@ export default class EntityProxy {
         return this.apiService.delete(this.id).then(() => {
             this.remove();
         }).catch((exception) => {
+            // delete is idempotent so 404 is no error
+            if (exception.response.status === 404) {
+                this.remove();
+
+                return Promise.resolve();
+            }
+
             return Promise.reject(this.handleException(exception));
         });
     }

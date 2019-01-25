@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\File;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
@@ -23,9 +24,9 @@ use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 
 class FileSaver
 {
@@ -82,25 +83,51 @@ class FileSaver
     }
 
     /**
-     * @throws MediaNotFoundException
+     * @throws DuplicatedMediaFileNameException
      * @throws EmptyMediaFilenameException
      * @throws IllegalFileNameException
+     * @throws MediaNotFoundException
      */
-    public function persistFileToMedia(MediaFile $mediaFile, string $destination, string $mediaId, Context $context): void
-    {
-        $destination = rtrim($destination);
-        $this->fileNameValidator->validateFileName($destination);
+    public function persistFileToMedia(
+        MediaFile $mediaFile,
+        string $destination,
+        string $mediaId,
+        Context $context
+    ): void {
+        $currentMedia = null;
+        try {
+            $currentMedia = $this->findMediaById($mediaId, $context);
+            $destination = $this->validateFileName($destination);
+            $this->ensureFileNameIsUnique(
+                $currentMedia,
+                $destination,
+                $mediaFile->getFileExtension(),
+                $context
+            );
+        } catch (
+            DuplicatedMediaFileNameException |
+            EmptyMediaFilenameException |
+            IllegalFileNameException $e
+        ) {
+            if ($currentMedia !== null && !$currentMedia->hasFile()) {
+                $this->mediaRepository->delete([['id' => $currentMedia->getId()]], $context);
+            }
 
-        $mediaWithRelatedFilename = $this->searchMediaByFilename($mediaId, $destination, $context);
-        $currentMedia = $this->popCurrentMedia($mediaWithRelatedFilename, $mediaId);
-
-        $destination = $this->getPossibleFileName($mediaWithRelatedFilename, $mediaId, $destination);
+            throw $e;
+        }
 
         $this->removeOldMediaData($currentMedia, $context);
         $mediaType = $this->typeDetector->detect($mediaFile);
         $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile, $mediaType);
 
-        $media = $this->updateMediaEntity($mediaFile, $destination, $currentMedia, $rawMetadata, $mediaType, $context);
+        $media = $this->updateMediaEntity(
+            $mediaFile,
+            $destination,
+            $currentMedia,
+            $rawMetadata,
+            $mediaType,
+            $context
+        );
         $this->saveFileToMediaDir($mediaFile, $media);
 
         $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
@@ -110,7 +137,6 @@ class FileSaver
      * @throws CouldNotRenameFileException
      * @throws DuplicatedMediaFileNameException
      * @throws FileExistsException
-     * @throws FileNotFoundException
      * @throws MediaNotFoundException
      * @throws MissingFileException
      * @throws EmptyMediaFilenameException
@@ -118,11 +144,8 @@ class FileSaver
      */
     public function renameMedia(string $mediaId, string $destination, Context $context): void
     {
-        $destination = rtrim($destination);
-        $this->fileNameValidator->validateFileName($destination);
-
-        $mediaWithRelatedFileName = $this->searchMediaByFilename($mediaId, $destination, $context);
-        $currentMedia = $this->popCurrentMedia($mediaWithRelatedFileName, $mediaId);
+        $destination = $this->validateFileName($destination);
+        $currentMedia = $this->findMediaById($mediaId, $context);
 
         if (!$currentMedia->hasFile()) {
             throw new MissingFileException($mediaId);
@@ -132,43 +155,41 @@ class FileSaver
             return;
         }
 
-        foreach ($mediaWithRelatedFileName as $media) {
-            if ($media->hasFile()) {
-                if ($destination === $media->getFileName()) {
-                    throw new DuplicatedMediaFileNameException($destination);
-                }
-            }
-        }
+        $this->ensureFileNameIsUnique(
+            $currentMedia,
+            $destination,
+            $currentMedia->getFileExtension(),
+            $context
+        );
 
+        $this->doRenameMedia($currentMedia, $destination, $context);
+    }
+
+    /**
+     * @throws CouldNotRenameFileException
+     * @throws FileExistsException
+     * @throws FileNotFoundException
+     */
+    private function doRenameMedia(MediaEntity $currentMedia, string $destination, Context $context): void
+    {
         $updatedMedia = clone $currentMedia;
         $updatedMedia->setFileName($destination);
         $updatedMedia->setUploadedAt(new \DateTime());
 
-        $renamedFiles = [];
         try {
-            $this->renameFile(
+            $renamedFiles = $this->renameFile(
                 $this->urlGenerator->getRelativeMediaUrl($currentMedia),
-                $this->urlGenerator->getRelativeMediaUrl($updatedMedia),
-                $renamedFiles
+                $this->urlGenerator->getRelativeMediaUrl($updatedMedia)
             );
         } catch (\Exception $e) {
-            throw new CouldNotRenameFileException($mediaId, $currentMedia->getFileName());
+            throw new CouldNotRenameFileException($currentMedia->getId(), $currentMedia->getFileName());
         }
 
         foreach ($currentMedia->getThumbnails() as $thumbnail) {
             try {
-                $this->renameFile(
-                    $this->urlGenerator->getRelativeThumbnailUrl(
-                        $currentMedia,
-                        $thumbnail->getWidth(),
-                        $thumbnail->getHeight()
-                    ),
-                    $this->urlGenerator->getRelativeThumbnailUrl(
-                        $updatedMedia,
-                        $thumbnail->getWidth(),
-                        $thumbnail->getHeight()
-                    ),
-                    $renamedFiles
+                $renamedFiles = array_merge(
+                    $renamedFiles,
+                    $this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)
                 );
             } catch (\Exception $e) {
                 $this->rollbackRenameAction($currentMedia, $renamedFiles);
@@ -189,64 +210,28 @@ class FileSaver
         }
     }
 
-    private function popCurrentMedia(MediaCollection $relatedMedia, $mediaId): MediaEntity
-    {
-        $currentMedia = $relatedMedia->get($mediaId);
-        if ($currentMedia === null) {
-            throw new MediaNotFoundException($mediaId);
-        }
-        $relatedMedia->remove($mediaId);
-
-        return $currentMedia;
-    }
-
-    private function searchMediaByFilename(string $mediaId, string $destination, Context $context): MediaCollection
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_OR,
-            [
-               new ContainsFilter('fileName', $destination),
-               new EqualsFilter('id', $mediaId),
-           ]
-        ));
-
-        $search = $this->mediaRepository->search($criteria, $context);
-
-        /** @var MediaCollection $mediaCollection */
-        $mediaCollection = $search->getEntities();
-
-        return $mediaCollection;
-    }
-
-    private function getPossibleFileName(MediaCollection $relatedMedia, string $mediaId, string $preferredFileName): string
-    {
-        return $this->getNextPossibleFileName($relatedMedia, $mediaId, $preferredFileName, 0);
-    }
-
-    private function getNextPossibleFileName(
-        MediaCollection $relatedMedia,
-        string $mediaId,
-        string $preferredFileName,
-        int $iteration
-    ): string {
-        $nextFileName = $preferredFileName . $this->getIterationExtension($iteration);
-
-        /** @var MediaEntity $media */
-        foreach ($relatedMedia as $media) {
-            if ($media->hasFile()) {
-                if ($media->getFileName() === $nextFileName) {
-                    return $this->getNextPossibleFileName($relatedMedia, $mediaId, $preferredFileName, $iteration + 1);
-                }
-            }
-        }
-
-        return $nextFileName;
-    }
-
-    private function getIterationExtension(int $iteration): string
-    {
-        return $iteration === 0 ? '' : " ($iteration)";
+    /**
+     * @throws CouldNotRenameFileException
+     * @throws FileExistsException
+     * @throws FileNotFoundException
+     */
+    private function renameThumbnail(
+        MediaThumbnailEntity $thumbnail,
+        MediaEntity $currentMedia,
+        MediaEntity $updatedMedia
+    ): array {
+        return $this->renameFile(
+            $this->urlGenerator->getRelativeThumbnailUrl(
+                $currentMedia,
+                $thumbnail->getWidth(),
+                $thumbnail->getHeight()
+            ),
+            $this->urlGenerator->getRelativeThumbnailUrl(
+                $updatedMedia,
+                $thumbnail->getWidth(),
+                $thumbnail->getHeight()
+            )
+        );
     }
 
     private function removeOldMediaData(MediaEntity $media, Context $context): void
@@ -256,7 +241,11 @@ class FileSaver
         }
 
         $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $this->filesystem->delete($oldMediaFilePath);
+        try {
+            $this->filesystem->delete($oldMediaFilePath);
+        } catch (FileNotFoundException $e) {
+            //nth
+        }
 
         $this->thumbnailService->deleteThumbnails($media, $context);
     }
@@ -298,13 +287,14 @@ class FileSaver
     }
 
     /**
-     * @throws \League\Flysystem\FileExistsException
-     * @throws \League\Flysystem\FileNotFoundException
+     * @throws FileExistsException
+     * @throws FileNotFoundException
      */
-    private function renameFile($source, $destination, array &$fileNames): void
+    private function renameFile($source, $destination): array
     {
         $this->filesystem->rename($source, $destination);
-        $fileNames[$source] = $destination;
+
+        return [$source => $destination];
     }
 
     /**
@@ -319,5 +309,87 @@ class FileSaver
         }
 
         throw new CouldNotRenameFileException($oldMedia->getId(), $oldMedia->getFileName());
+    }
+
+    /**
+     * @throws MediaNotFoundException
+     */
+    private function findMediaById(string $mediaId, Context $context): MediaEntity
+    {
+        $currentMedia = $this->mediaRepository
+            ->search(new Criteria([$mediaId]), $context)
+            ->get($mediaId);
+
+        if ($currentMedia === null) {
+            throw new MediaNotFoundException($mediaId);
+        }
+
+        return $currentMedia;
+    }
+
+    /**
+     * @throws EmptyMediaFilenameException
+     * @throws IllegalFileNameException
+     */
+    private function validateFileName(string $destination): string
+    {
+        $destination = rtrim($destination);
+        $this->fileNameValidator->validateFileName($destination);
+
+        return $destination;
+    }
+
+    /**
+     * @throws DuplicatedMediaFileNameException
+     */
+    private function ensureFileNameIsUnique(
+        MediaEntity $currentMedia,
+        string $destination,
+        string $fileExtension,
+        Context $context
+    ): void {
+        $mediaWithRelatedFileName = $this->searchRelatedMediaByFileName(
+            $currentMedia,
+            $destination,
+            $fileExtension,
+            $context
+        );
+
+        foreach ($mediaWithRelatedFileName as $media) {
+            if ($media->hasFile()) {
+                if ($destination === $media->getFileName()) {
+                    throw new DuplicatedMediaFileNameException(
+                        $destination,
+                        $fileExtension
+                    );
+                }
+            }
+        }
+    }
+
+    private function searchRelatedMediaByFileName(
+        MediaEntity $media,
+        string $destination,
+        string $fileExtension,
+        Context $context
+    ): MediaCollection {
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(
+            MultiFilter::CONNECTION_AND,
+            [
+                new EqualsFilter('fileName', $destination),
+                new EqualsFilter('fileExtension', $fileExtension),
+                new NotFilter(NotFilter::CONNECTION_AND, [
+                    new EqualsFilter('id', $media->getId()),
+                ]),
+            ]
+        ));
+
+        $search = $this->mediaRepository->search($criteria, $context);
+
+        /** @var MediaCollection $mediaCollection */
+        $mediaCollection = $search->getEntities();
+
+        return $mediaCollection;
     }
 }

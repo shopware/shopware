@@ -24,13 +24,23 @@ export default {
     name: 'sw-media-upload',
     template,
 
-    inject: ['mediaUploadService'],
+    inject: ['mediaUploadService', 'mediaService'],
 
     mixins: [
         Mixin.getByName('notification')
     ],
 
     props: {
+        variant: {
+            type: String,
+            required: true,
+            validValues: ['compact', 'regular'],
+            validator(value) {
+                return ['compact', 'regular'].includes(value);
+            },
+            default: 'regular'
+        },
+
         uploadTag: {
             required: false,
             type: String,
@@ -41,16 +51,6 @@ export default {
             required: false,
             type: Boolean,
             default: true
-        },
-
-        variant: {
-            type: String,
-            required: true,
-            validValues: ['compact', 'regular'],
-            validator(value) {
-                return ['compact', 'regular'].includes(value);
-            },
-            default: 'regular'
         },
 
         label: {
@@ -80,7 +80,11 @@ export default {
             showUrlInput: false,
             previewMediaEntity: null,
             isDragActive: false,
-            defaultFolderPromise: Promise.resolve(null)
+            defaultFolderPromise: Promise.resolve(null),
+            showDuplicatedMediaModal: false,
+            errorFiles: [],
+            retryBatchAction: null,
+            localStorageKey: 'sw-duplicate-media-resolve-option'
         };
     },
 
@@ -363,28 +367,28 @@ export default {
             return folder;
         },
 
-        buildFileUpload(file, mediaEntity) {
+        buildFileUpload(file, mediaEntity, fileName = '') {
             const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
             const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
-                return this.mediaUploadService.uploadFileToMedia(file, mediaEntity).then(() => {
+                return this.mediaUploadService.uploadFileToMedia(file, mediaEntity, fileName).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
-                }).catch(() => {
-                    return this.cleanUpFailure(mediaEntity, failureMessage);
+                }).catch((error) => {
+                    this.handleError(error, mediaEntity, failureMessage, file);
                 });
             };
         },
 
-        buildUrlUpload(url, fileExtension, mediaEntity) {
+        buildUrlUpload(url, fileExtension, mediaEntity, fileName = '') {
             const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
             const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
 
             return () => {
-                return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension).then(() => {
+                return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension, fileName).then(() => {
                     this.notifyMediaUpload(mediaEntity, successMessage);
-                }).catch(() => {
-                    return this.cleanUpFailure(mediaEntity, failureMessage);
+                }).catch((error) => {
+                    return this.handleError(error, mediaEntity, failureMessage, url);
                 });
             };
         },
@@ -414,9 +418,175 @@ export default {
             });
         },
 
-        cleanUpFailure(mediaEntity, message) {
-            this.createNotificationError({ message });
+        /*
+         * Handling for duplicated file names
+         */
+        handleError(error, mediaEntity, message, src) {
+            if (this.hasDuplicateMediaError(error)) {
+                this.handleDuplicateMediaError(mediaEntity, src);
+            } else {
+                this.createNotificationError({ message });
+            }
+
+            this.$emit('media-upload-failure', mediaEntity);
+            this.previewMediaEntity = null;
             mediaEntity.delete(true);
+        },
+
+        handleDuplicateMediaError(mediaEntity, src) {
+            mediaEntity.isLoading = false;
+
+            if (this.retryBatchAction) {
+                this.retrySingle(
+                    this.retryBatchAction,
+                    mediaEntity.fileName,
+                    mediaEntity.fileExtension,
+                    src
+                );
+            } else {
+                this.errorFiles.push({
+                    id: mediaEntity.id,
+                    entity: mediaEntity,
+                    src: src
+                });
+
+                this.showDuplicatedMediaModal = true;
+            }
+            this.$emit('sw-media-upload-media-upload-failure', mediaEntity);
+            this.previewMediaEntity = null;
+            mediaEntity.delete(true);
+        },
+
+        hasDuplicateMediaError(error) {
+            return error.response.data.errors.some((err) => {
+                return err.code === 'DUPLICATED_MEDIA_FILE_NAME_EXCEPTION';
+            });
+        },
+
+        retryUpload({ action, id, saveSelection, entityToReplace, newName }) {
+            window.localStorage.setItem(this.localStorageKey, action);
+
+            if (action !== 'Skip') {
+                const errorFile = this.errorFiles.find((error) => {
+                    return error.id === id;
+                });
+
+                if (action === 'Replace') {
+                    this.handleReplace(errorFile.entity.fileExtension, errorFile.src, entityToReplace);
+                } else if (action === 'Rename') {
+                    this.handleRename(errorFile.entity.fileExtension, errorFile.src, newName);
+                }
+            }
+
+            this.errorFiles = this.errorFiles.filter((error) => {
+                return error.id !== id;
+            });
+
+            this.closeDuplicateMediaModal(saveSelection);
+
+            if (saveSelection) {
+                if (!this.uploadStore.isTagMissing(this.uploadTag)) {
+                    this.retryBatchAction = action;
+                }
+                this.retryBatch(action);
+            }
+        },
+
+        handleReplace(fileExtension, src, entityToReplace) {
+            if (src instanceof URL) {
+                this.buildUrlUpload(src, fileExtension, entityToReplace)();
+            } else {
+                this.buildFileUpload(src, entityToReplace)();
+            }
+
+            this.$emit('sw-media-upload-media-replaced', entityToReplace);
+        },
+
+        handleRename(fileExtension, src, newName) {
+            this.getMediaEntityForUpload().then((entity) => {
+                entity.save().then(() => {
+                    if (src instanceof URL) {
+                        this.buildUrlUpload(src, fileExtension, entity, newName)();
+                    } else {
+                        this.buildFileUpload(src, entity, newName)();
+                    }
+
+                    this.$emit('sw-media-upload-new-uploads-added', {
+                        uploadTag: this.uploadTag,
+                        data: [{
+                            entity: entity,
+                            src: src
+                        }]
+                    });
+                });
+            });
+        },
+
+        retryBatch(action) {
+            if (action !== 'Skip') {
+                this.errorFiles.forEach((error) => {
+                    if (action === 'Replace') {
+                        this.replaceByFileName(error.entity.fileName, error.entity.fileExtension, error.src);
+                    } else {
+                        this.renameFile(error.entity.fileName, error.entity.fileExtension, error.src);
+                    }
+                });
+            }
+
+            this.errorFiles = [];
+        },
+
+        retrySingle(action, fileName, fileExtension, src) {
+            if (action === 'Replace') {
+                this.replaceByFileName(fileName, fileExtension, src);
+            } else {
+                this.renameFile(fileName, fileExtension, src);
+            }
+        },
+
+        replaceByFileName(fileName, fileExtension, src) {
+            this.mediaItemStore.getList({
+                page: 1,
+                limit: 1,
+                criteria: CriteriaFactory.multi('AND',
+                    CriteriaFactory.equals('fileName', fileName),
+                    CriteriaFactory.equals('fileExtension', fileExtension))
+            }).then((response) => {
+                this.handleReplace(fileExtension, src, response.items[0]);
+            });
+        },
+
+        renameFile(fileName, fileExtension, src) {
+            this.mediaService.provideName(fileName, fileExtension)
+                .then((response) => {
+                    this.handleRename(fileExtension, src, response.fileName);
+                });
+        },
+
+        cancelDuplicateMedia({ id }) {
+            this.errorFiles = this.errorFiles.filter((error) => {
+                return error.id !== id;
+            });
+
+            this.closeDuplicateMediaModal();
+        },
+
+        closeDuplicateMediaModal(stayClosed) {
+            this.showDuplicatedMediaModal = false;
+
+            if (this.errorFiles.length > 0 && !stayClosed) {
+                util.debounce(() => {
+                    this.showDuplicatedMediaModal = true;
+                }, 300)();
+            }
+        },
+
+        onUploadsFinished() {
+            this.retryBatchAction = null;
+        },
+
+        getDefaultDuplicateMediaOption() {
+            return window.localStorage.getItem(this.localStorageKey) || 'Replace';
         }
     }
 };

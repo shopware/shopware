@@ -1,16 +1,16 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-index-font-size-navigation: $font-size-large;
-$sw-media-index-color-breadcrumb-icon: $color-gutenberg;
-$sw-media-index-color-navigation-parent: $color-steam-cloud;
+$sw-media-index-font-size-navigation:     $font-size-large;
+$sw-media-index-color-breadcrumb-icon:    $color-gutenberg;
+$sw-media-index-color-navigation-parent:  $color-steam-cloud;
 $sw-media-index-color-navigation-current: $color-kashmir;
-$sw-media-index-page-background-color: $color-white;
+$sw-media-index-page-background-color:    $color-white;
 
 .sw-media-index {
     .sw-media-index__navigation {
         display: grid;
-        grid-template-columns: auto auto 1fr;
+        grid-template-columns: auto 1fr;
         grid-column-gap: 8px;
         align-items: center;
         padding-left: 20px;
@@ -20,8 +20,6 @@ $sw-media-index-page-background-color: $color-white;
 
     .sw-media-index__navigation-breadcrumb {
         color: $sw-media-index-color-breadcrumb-icon;
-        width: 16px;
-        height: 16px;
     }
 
     .sw-media-index__navigation-label {

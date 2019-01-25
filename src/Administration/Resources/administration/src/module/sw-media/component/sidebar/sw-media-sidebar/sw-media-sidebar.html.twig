@@ -1,5 +1,5 @@
 {% block sw_media_sidebar %}
-    <div class="sw-media-sidebar">
+    <div class="sw-media-sidebar" :class="mediaSidebarClasses">
         {% block sw_media_sidebar_headline %}
             <h3 v-if="headLine" class="sw-media-sidebar__headline">{{ headLine }}</h3>
         {% endblock %}
@@ -30,7 +30,10 @@
                     v-on="$listeners">
                 </sw-media-folder-info>
 
-                <div v-else class="sw-media-sidebar__item-info"> TODO: Illustration keine Medien sobald verfügbar...</div>
+                <div v-else class="sw-media-sidebar__empty-state">
+                    <img :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset" :alt="$tc('sw-media.sidebar.labelNoMediaSelected')">
+                    <div class="sw-media-sidebar__empty-state-label">{{ $tc('sw-media.sidebar.labelNoMediaSelected') }}</div>
+                </div>
             </div>
         {% endblock %}
     </div>

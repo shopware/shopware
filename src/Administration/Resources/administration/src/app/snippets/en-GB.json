@@ -843,6 +843,7 @@
     },
     "sidebar": {
       "labelHeadlineMultiple": "{count} files selected",
+      "labelNoMediaSelected": "No media selected",
       "actions": {
         "copyLink": "Copy link",
         "delete": "Delete",

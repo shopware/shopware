@@ -29,7 +29,6 @@
                         {% endblock %}
 
                         {% block sw_media_index_bread_crumb_navigation_parent%}
-                            <sw-icon name="small-arrow-medium-right" class="sw-media-index__navigation-breadcrumb"></sw-icon>
                             <router-link class="sw-media-index__navigation-label"
                                          :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
                                 {{ this.parentFolderName }}

@@ -32,6 +32,12 @@ Component.register('sw-media-sidebar', {
             return Filter.getByName('mediaName');
         },
 
+        mediaSidebarClasses() {
+            return {
+                'no-headline': !this.headLine
+            };
+        },
+
         isSingleFile() {
             return this.items.length === 1;
         },

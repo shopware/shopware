@@ -76,6 +76,13 @@ Component.register('sw-media-index', {
 
         dragSelectorClass() {
             return 'sw-media-entity';
+        },
+
+        rootFolder() {
+            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
+            root.name = this.$tc('sw-media.index.rootFolderName');
+
+            return root;
         }
     },
 
@@ -156,10 +163,10 @@ Component.register('sw-media-index', {
                 this.mediaFolderStore.getByIdAsync(this.currentFolder.parentId).then((parent) => {
                     this.parentFolder = parent;
                 }).catch(() => {
-                    this.parentFolder = this.getRootFolder();
+                    this.parentFolder = this.rootFolder;
                 });
             }).catch(() => {
-                this.currentFolder = this.getRootFolder();
+                this.currentFolder = this.rootFolder;
                 this.parentFolder = null;
             });
         },
@@ -343,13 +350,6 @@ Component.register('sw-media-index', {
 
         onMediaMoved() {
             this.getList();
-        },
-
-        getRootFolder() {
-            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
-            root.name = this.$tc('sw-media.index.rootFolderName');
-
-            return root;
         }
     }
 });

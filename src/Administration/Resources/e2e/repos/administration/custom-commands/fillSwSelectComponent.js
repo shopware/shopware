@@ -42,8 +42,9 @@ exports.command = function fillSwSelectComponent(
     // type in the search term if available
     if (searchTerm) {
         this.setValue(`${selector} ${inputCssSelector}`, searchTerm);
-        this.waitForElementNotPresent(`${selector} ${swSelectLoaderCssSelector}`);
     }
+
+    this.waitForElementNotPresent(`${selector} ${swSelectLoaderCssSelector}`);
 
     // select the first result
     this.keys(this.Keys.ENTER);
@@ -51,7 +52,7 @@ exports.command = function fillSwSelectComponent(
     if (!isMulti) {
         // expect the placeholder for an empty select field not be shown and search for the value
         this.waitForElementNotPresent(`${selector} ${swSelectPlaceholderCssSelector}`);
-        this.expect.element(swSelectLabelCssSelector).to.have.text.that.contains(value);
+        this.expect.element(`${selector} ${swSelectLabelCssSelector}`).to.have.text.that.contains(value);
 
         return this;
     }

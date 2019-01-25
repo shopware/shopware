@@ -1,3 +1,4 @@
+import { State } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-page.html.twig';
 import './sw-page.less';
@@ -49,11 +50,16 @@ export default {
             parentRoute: null,
             sidebarOffset: 0,
             scrollbarOffset: 0,
-            hasFullWidthHeader: false
+            hasFullWidthHeader: false,
+            languageId: ''
         };
     },
 
     computed: {
+        languageStore() {
+            return State.getStore('language');
+        },
+
         pageColor() {
             return (this.module !== null) ? this.module.color : '#d8dde6';
         },

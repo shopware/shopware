@@ -5,7 +5,7 @@
             {% block sw_product_basic_form_title_field %}
                 <sw-field type="text"
                           :label="$tc('sw-product.basicForm.labelTitle')"
-                          :placeholder="$tc('sw-product.basicForm.placeholderTitle')"
+                          :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))"
                           v-model="product.name">
                 </sw-field>
             {% endblock %}
@@ -20,7 +20,7 @@
 
         {% block sw_product_basic_form_description_field %}
             <sw-text-editor :label="$tc('sw-product.basicForm.labelDescription')"
-                            :placeholder="$tc('sw-product.basicForm.placeholderDescription')"
+                            :placeholder="placeholder(product, 'descriptionLong', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                             v-model="product.descriptionLong">
             </sw-text-editor>
         {% endblock %}
@@ -29,7 +29,7 @@
             {% block sw_product_basic_form_id_field %}
                 <sw-field type="text"
                           :label="$tc('sw-product.basicForm.labelProductNumber')"
-                          :placeholder="$tc('sw-product.basicForm.placeholderProductNumber')"
+                          :placeholder="$tc('sw-product.basicForm.placeholderId')"
                           :value="product.id">
                 </sw-field>
             {% endblock %}
@@ -41,7 +41,12 @@
                           validation="required"
                           v-model="product.manufacturerId">
                     {% block sw_product_basic_form_manufacturer_field_options %}
-                        <option slot="options" v-for="manufacturer in manufacturers" :value="manufacturer.id">{{ manufacturer.name }}</option>
+                        <option
+                                slot="options"
+                                v-for="manufacturer in manufacturers"
+                                :value="manufacturer.id">
+                            {{ manufacturer.meta.viewData.name }}
+                        </option>
                     {% endblock %}
                 </sw-field>
             {% endblock %}

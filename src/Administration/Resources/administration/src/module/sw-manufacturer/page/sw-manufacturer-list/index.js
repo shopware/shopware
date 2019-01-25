@@ -33,6 +33,10 @@ Component.register('sw-manufacturer-list', {
             });
         },
 
+        onChangeLanguage(languageId) {
+            this.getList(languageId);
+        },
+
         onDeleteManufacturer(id) {
             this.showDeleteModal = id;
         },

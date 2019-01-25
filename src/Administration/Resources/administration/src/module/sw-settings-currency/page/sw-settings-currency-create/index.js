@@ -1,7 +1,11 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import template from './sw-settings-currency-create.html.twig';
+
 
 Component.extend('sw-settings-currency-create', 'sw-settings-currency-detail', {
+    template,
+
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.settings.currency.create') && !to.params.id) {
             to.params.id = utils.createId();
@@ -10,8 +14,18 @@ Component.extend('sw-settings-currency-create', 'sw-settings-currency-detail', {
         next();
     },
 
+    computed: {
+        languageStore() {
+            return State.getStore('language');
+        }
+    },
+
     methods: {
         createdComponent() {
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             if (this.$route.params.id) {
                 this.currencyStore.create(this.$route.params.id);
             }

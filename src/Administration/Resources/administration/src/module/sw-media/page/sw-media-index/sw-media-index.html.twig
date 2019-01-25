@@ -59,6 +59,12 @@
             </template>
         {% endblock %}
 
+        {% block sw_media_index_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage">
+            </sw-language-switch>
+        {% endblock %}
+
         {% block sw_media_index_page_content %}
             <div slot="content"class="sw-media-index__page-content">
                 {% block sw_media_index_content_container %}

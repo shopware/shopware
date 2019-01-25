@@ -7,6 +7,7 @@ Component.register('sw-settings-language-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('language')
     ],
 
@@ -24,9 +25,11 @@ Component.register('sw-settings-language-detail', {
         languageStore() {
             return State.getStore('language');
         },
-
         localeStore() {
             return State.getStore('locale');
+        },
+        isIsoCodeRequired() {
+            return !this.language.parentId || this.language.parentId.length < 1;
         }
     },
 
@@ -38,7 +41,7 @@ Component.register('sw-settings-language-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.languageId = this.$route.params.id;
-                this.language = this.languageStore.getById(this.languageId);
+                this.loadEntityData();
             }
 
             this.languageStore.getList({
@@ -48,6 +51,10 @@ Component.register('sw-settings-language-detail', {
             }).then((response) => {
                 this.usedLocales = response.aggregations.usedLocales;
             });
+        },
+
+        loadEntityData() {
+            this.language = this.languageStore.getById(this.languageId);
         },
 
         onInputLanguage() {
@@ -84,6 +91,10 @@ Component.register('sw-settings-language-detail', {
                     message: messageSaveSuccess
                 });
             });
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
         }
     }
 });

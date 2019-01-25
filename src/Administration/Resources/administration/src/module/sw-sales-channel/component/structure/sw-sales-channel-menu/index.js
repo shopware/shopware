@@ -21,11 +21,29 @@ Component.register('sw-sales-channel-menu', {
 
     created() {
         this.createdComponent();
-        this.$root.$on('changedSalesChannels', this.createdComponent);
+    },
+
+    destroyed() {
+        this.destroyedComponent();
     },
 
     methods: {
         createdComponent() {
+            this.loadEntityData();
+            this.registerListener();
+        },
+
+        registerListener() {
+            this.$root.$on('changed-sales-channel', this.loadEntityData);
+            this.$root.$on('on-change-application-language', this.loadEntityData);
+        },
+
+        destroyedComponent() {
+            this.$root.$off('changed-sales-channel', this.loadEntityData);
+            this.$root.$off('on-change-application-language', this.loadEntityData);
+        },
+
+        loadEntityData() {
             const params = {
                 limit: 500,
                 sortBy: 'name',
@@ -47,7 +65,7 @@ Component.register('sw-sales-channel-menu', {
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
                     color: '#D8DDE6',
-                    label: { label: salesChannel.name, translated: true },
+                    label: { label: salesChannel.meta.viewData.name, translated: true },
                     icon: salesChannel.type.iconName,
                     children: []
                 });

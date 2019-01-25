@@ -41,6 +41,10 @@
             </template>
         {% endblock %}
 
+        {% block sw_order_list_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
         {% block sw_order_list_content %}
             <template slot="content">
 
@@ -95,7 +99,7 @@
                                                             truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_amount_label %}
-                                                    {{ item.amountTotal | currency(item.currency.shortName) }}
+                                                    {{ item.amountTotal | currency(item.currency.meta.viewData.shortName) }}
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -107,7 +111,7 @@
                                                             truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_state_label %}
-                                                    {{ item.state.description }}
+                                                    {{ item.state.meta.viewData.description }}
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}

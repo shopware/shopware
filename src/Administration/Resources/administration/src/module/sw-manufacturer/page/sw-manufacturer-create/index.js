@@ -1,7 +1,9 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import template from './sw-manufacturer-create.html.twig';
 
 Component.extend('sw-manufacturer-create', 'sw-manufacturer-detail', {
+    template,
 
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.manufacturer.create') && !to.params.id) {
@@ -11,8 +13,18 @@ Component.extend('sw-manufacturer-create', 'sw-manufacturer-detail', {
         next();
     },
 
+    computed: {
+        languageStore() {
+            return State.getStore('language');
+        }
+    },
+
     methods: {
         createdComponent() {
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             if (this.$route.params.id) {
                 this.manufacturer = this.manufacturerStore.create(this.$route.params.id);
             }

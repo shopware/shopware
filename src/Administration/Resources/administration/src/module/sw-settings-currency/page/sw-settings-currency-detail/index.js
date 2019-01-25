@@ -6,6 +6,7 @@ Component.register('sw-settings-currency-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('currency')
     ],
 
@@ -29,12 +30,16 @@ Component.register('sw-settings-currency-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.currencyId = this.$route.params.id;
-                this.currency = this.currencyStore.getById(this.currencyId);
+                this.loadEntityData();
             }
         },
 
+        loadEntityData() {
+            this.currency = this.currencyStore.getById(this.currencyId);
+        },
+
         onSave() {
-            const currencyName = this.currency.name;
+            const currencyName = this.currency.name || this.currency.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-settings-currency.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currencyName });
             return this.currency.save().then(() => {
@@ -43,6 +48,18 @@ Component.register('sw-settings-currency-detail', {
                     message: messageSaveSuccess
                 });
             });
+        },
+
+        abortOnLanguageChange() {
+            return Object.keys(this.currency.getChanges()).length > 0;
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
         }
     }
 });

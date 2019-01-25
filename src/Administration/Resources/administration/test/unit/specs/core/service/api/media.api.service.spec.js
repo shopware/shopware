@@ -43,7 +43,7 @@ describe('core/service/api/mediaService', () => {
                 done(err);
             });
         }).then(() => {
-            mediaStore.getByIdAsync(mediaItem.id, true).then((objUnderTest) => {
+            mediaStore.getByIdAsync(mediaItem.id).then((objUnderTest) => {
                 expect(objUnderTest.mimeType).to.equal('text/plain');
                 expect(objUnderTest.url).to.match(/.json$/);
 
@@ -52,7 +52,7 @@ describe('core/service/api/mediaService', () => {
                 done(err);
             });
         }).finally(() => {
-            mediaStore.getByIdAsync(mediaItem.id, true).then((media) => {
+            mediaStore.getByIdAsync(mediaItem.id).then((media) => {
                 media.delete(true).then(() => {
                     done();
                 }).catch((err) => {

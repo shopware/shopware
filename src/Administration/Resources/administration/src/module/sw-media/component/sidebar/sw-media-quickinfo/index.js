@@ -10,7 +10,8 @@ Component.register('sw-media-quickinfo', {
     inject: ['mediaService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
     ],
 
     props: {

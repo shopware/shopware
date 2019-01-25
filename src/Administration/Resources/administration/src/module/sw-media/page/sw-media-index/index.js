@@ -184,6 +184,10 @@ Component.register('sw-media-index', {
             });
         },
 
+        onChangeLanguage() {
+            this.getList();
+        },
+
         getSubFolders() {
             return this.mediaFolderStore.getList({
                 limit: 50,

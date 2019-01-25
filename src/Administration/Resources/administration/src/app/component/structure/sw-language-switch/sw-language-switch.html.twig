@@ -1,0 +1,52 @@
+{% block sw_language_switch %}
+    <div class="sw-language-switch">
+        {% block sw_language_switch_modal %}
+            <sw-modal v-if="showUnsavedChangesModal"
+                      @closeModal="onCloseChangesModal"
+                      :title="$tc('sw-language-switch.titleModalUnsavedChanges')"
+                      variant="small">
+                {% block sw_language_switch_message %}
+                    <p>{{ $tc('sw-language-switch.messageModalUnsavedChanges') }}</p>
+                {% endblock %}
+                {% block sw_language_switch_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_language_switch_footer_button_close %}
+                            <sw-button @click="onCloseChangesModal"
+                                       size="small">
+                                {{ $tc('sw-language-switch.titleModalButtonCancelUnsavedChanges') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_language_switch_footer_button_revert %}
+                            <sw-button @click="onClickRevertUnsavedChanges"
+                                       size="small">
+                                {{ $tc('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_language_switch_footer_button_save %}
+                            <sw-button @click="onClickSaveChanges"
+                                       variant="primary"
+                                       size="small">
+                                {{ $tc('sw-language-switch.titleModalButtonSaveChanges') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+        {% block sw_language_switch_select %}
+            <sw-select
+                    class="sw-language-switch__select"
+                    :disabled="disabled"
+                    id="language"
+                    @input="onInput"
+                    ref="languageSelect"
+                    required
+                    :showSearch="false"
+                    v-model="languageId"
+                    :store="languageStore">
+            </sw-select>
+        {% endblock %}
+    </div>
+{% endblock %}

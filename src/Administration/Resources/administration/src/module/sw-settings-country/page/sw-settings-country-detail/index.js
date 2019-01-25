@@ -7,6 +7,7 @@ Component.register('sw-settings-country-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('country')
     ],
 
@@ -30,12 +31,16 @@ Component.register('sw-settings-country-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.countryId = this.$route.params.id;
-                this.country = this.countryStore.getById(this.countryId);
+                this.loadEntityData();
             }
         },
 
+        loadEntityData() {
+            this.country = this.countryStore.getById(this.countryId);
+        },
+
         onSave() {
-            const countryName = this.country.name;
+            const countryName = this.country.name || this.country.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-settings-country.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, {
                 name: countryName
@@ -47,6 +52,18 @@ Component.register('sw-settings-country-detail', {
                     message: messageSaveSuccess
                 });
             });
+        },
+
+        abortOnLanguageChange() {
+            return Object.keys(this.country.getChanges()).length > 0;
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
         }
     }
 });

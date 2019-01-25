@@ -16,7 +16,9 @@
                     {% block sw_settings_language_list_smart_bar_header_title %}
                         <h2>
                             {% block sw_settings_language_list_smart_bar_header_title_text %}
-                                {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-language.list.textHeadline') }}
+                                {{ $tc('sw-settings.index.title') }}
+                                <sw-icon name="small-arrow-medium-right" small>
+                                </sw-icon> {{ $tc('sw-settings-language.list.textHeadline') }}
                             {% endblock %}
 
                             {% block sw_settings_language_list_smart_bar_header_amount %}
@@ -39,8 +41,52 @@
                 </template>
             {% endblock %}
 
+            {% block sw_settings_language_list_language_switch %}
+                <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+            {% endblock %}
+
             {% block sw_settings_language_list_content %}
-                <sw-card-view slot="content">
+                <sw-card-view slot="content" sidebar>
+                    {% block sw_settings_language_list_grid_sidebar %}
+                        <template slot="card-view-sidebar">
+                            {% block sw_settings_language_list_grid_sidebar_filter %}
+                                <sw-sidebar-item icon="default-action-filter"
+                                                 :title="'Filter'">
+                                    <sw-collapse expandOnLoading>
+                                        <div slot="header" class="sw-settings-language-list__collapse-header">
+                                            <h4 class="sw-settings-language-list__collapse-title">
+                                                {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
+                                            </h4>
+                                            <div class="sw-settings-language-list__collapse-indicator">
+                                                <sw-icon name="small-arrow-small-right"
+                                                         class="sw-media-collapse__button"
+                                                         :class="expandButtonClass">
+                                                </sw-icon>
+                                                <sw-icon
+                                                        name="small-arrow-small-down"
+                                                        class="sw-media-collapse__button"
+                                                        :class="collapseButtonClass">
+                                                </sw-icon>
+                                            </div>
+
+                                            </sw-icon>
+                                        </div>
+
+                                        <sw-field slot="content"
+                                                  type="switch"
+                                                  class="sw-settings-language-list__filterField"
+                                                  v-for="(filter, index) in filters"
+                                                  :label="filter.label"
+                                                  :value="filter.active"
+                                                  :key="index"
+                                                  @change="onSwitchFilter(filter, index)">
+                                        </sw-field>
+                                    </sw-collapse>
+                                </sw-sidebar-item>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
                     {% block sw_settings_language_list_content_card %}
                         <sw-card :isLoading="isLoading">
                             {% block sw_settings_language_list_grid %}
@@ -55,7 +101,7 @@
                                         {% block sw_product_list_grid_columns %}
 
                                             {% block sw_settings_language_list_columns_name %}
-                                                <sw-grid-column class="sw-language-list__column-name" flex="minmax(180px, 1fr)"
+                                                <sw-grid-column class="sw-language-list__column-name" flex="minmax(150px, 1fr)"
                                                                 editable
                                                                 :label="$tc('sw-settings-language.list.columnName')">
 
@@ -78,19 +124,42 @@
                                             {% endblock %}
 
                                             {% block sw_settings_language_list_columns_locale_name %}
-                                                <sw-grid-column flex="minmax(180px, 1fr)"
+                                                <sw-grid-column flex="minmax(200px, 1fr)"
                                                                 :label="$tc('sw-settings-language.list.columnLocaleName')">
                                                     {% block sw_settings_language_list_columns_locale_name_label %}
-                                                        {{ item.locale.name }} / {{ item.locale.territory }}
+                                                        {{ item.locale.meta.viewData.name }},
+                                                        {{ item.locale.meta.viewData.territory }}
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_language_list_columns_iso_code %}
+                                                <sw-grid-column flex="minmax(120px, 1fr)"
+                                                                :label="$tc('sw-settings-language.list.columnIsoCode')">
+                                                    {% block sw_settings_language_list_columns_iso_code_label %}
+                                                        {{ item.translationCode.code }}
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}
 
                                             {% block sw_settings_language_list_columns_inherit_language %}
-                                                <sw-grid-column flex="minmax(200px, 1fr)"
+                                                <sw-grid-column flex="minmax(150px, 1fr)"
                                                                 :label="$tc('sw-settings-language.list.columnInherit')">
                                                     {% block sw_settings_language_list_columns_inherit_label %}
                                                         {{ getItemParent(item).name }}
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_language_list_columns_default %}
+                                                <sw-grid-column flex="minmax(90px, 1fr)"
+                                                                :label="$tc('sw-settings-language.list.columnDefault')">
+                                                    {% block sw_settings_language_list_columns_default_label %}
+                                                        <sw-icon
+                                                                name="small-default-checkmark-line-medium"
+                                                                small v-if="item.id === defaultLanguageIds[0]"
+                                                                class="is--default">
+                                                        </sw-icon>
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}

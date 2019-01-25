@@ -534,9 +534,9 @@
       "labelDescription": "Description",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
-      "placeholderTitle": "Enter product title",
-      "placeholderDescription": "Enter product description",
-      "placeholderProductNumber": "Enter product number",
+      "placeholderName": "Enter product title",
+      "placeholderDescriptionLong": "Enter product description",
+      "placeholderId": "Enter product number",
       "placeholderManufacturer": "Enter product manufacturer"
     },
     "categoryForm": {
@@ -793,6 +793,8 @@
       "textConfirmDelete": "Are you sure you want to delete this sales channel?",
       "buttonCloseDeleteModal": "Cancel",
       "buttonConfirmDelete": "Delete",
+      "textHeadline": "New sales channel",
+      "placeholderName": "Enter sales channel name...",
       "titleDomains": "Domains",
       "labelInputCurrency": "Currency",
       "labelInputLanguage": "Language",
@@ -1049,11 +1051,10 @@
       "placeholderName": "Determine a name for this rule..",
       "placeholderDescription": "Determine a description for this rule..",
       "placeholderPriority": "Determine a priority for this rule..",
-
       "titleSaveSuccess": "Rule",
       "messageSaveSuccess": "The rule {name} was saved.",
-      "titleSaveError": "Rule",
       "ruleCard": "Condition",
+      "titleSaveError": "Rule",
       "messageSaveError": "An error occurred while saving the rule {name}."
     }
   },
@@ -1099,14 +1100,20 @@
       "textDeleteConfirm": "Are you sure you want to delete the language \"{name}\"?",
       "columnName": "Name",
       "columnLocaleName": "Locale",
+      "columnIsoCode": "ISO Code ",
       "columnInherit": "Inherit from",
+      "columnDefault": "Default",
       "buttonAddLanguage": "Add language",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete language",
       "titleDeleteSuccess": "Languages",
       "messageDeleteSuccess": "Language \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "buttonDelete": "Delete",
+      "titleSidebarFilter": "Filter",
+      "titleSidebarQuickFilter": "Quick filter",
+      "textFilterRootLanguages": "Show only \"root\" languages",
+      "textFilterInheritedLanguages": "Show only inherited languages"
     },
     "detail": {
       "textHeadline": "New language",
@@ -1116,16 +1123,19 @@
       "labelName": "Name",
       "labelLocale": "Locale",
       "labelParent": "Inherit from",
+      "labelIsoCode": "ISO code",
+      "labelDefault": "Use as default system language",
       "placeholderName": "Enter name",
       "placeholderPleaseSelect": "Please select",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "tooltipLanguageNotChoosable": "You cannot use a language which is already inheriting from another language.",
-      "tooltipLocaleNotChoosable": "You can only select locales which are not in use already.",
+      "tooltipIsoCodeNotChoosable": "You can only select locales which are not in use already.",
       "textAlertChangeParent": "Changing the parent language can lead to inconsistencies in your translations.",
       "titleAlertChangeParent": "Be aware",
-      "textLocaleIsInUse": "This locale is already in use.",
-      "textLanguageHasParent": "This language is already inheriting from another language."
+      "textIsoCodeIsInUse": "This iso code is already in use.",
+      "textLanguageHasParent": "This language is already inheriting from another language.",
+      "helpTextDefaultField": "Changing the system default language is not possible at the moment."
     }
   },
   "sw-settings-payment": {
@@ -1323,5 +1333,17 @@
   "sw-property-assignment": {
     "columnGroup": "Property",
     "columnOptions": "Options"
+  },
+  "sw-language-info": {
+    "infoTextChildLanguage": "Translation of \"{entityDescription}\" in the language <span>\"{language}\"</span>, which inherits from",
+    "infoTextRootLanguage": "Translation of \"{entityDescription}\" in the root language <span>\"{language}\"</span>. Fallback is the system default language",
+    "infoTextSystemLanguage": "\"{entityDescription}\" is displayed in the system default language <span>\"{language}\"</span>."
+  },
+  "sw-language-switch": {
+    "messageModalUnsavedChanges": "There are unsaved changes in the current language. Do you want to save them now?",
+    "titleModalUnsavedChanges": "Unsaved changes",
+    "titleModalButtonCancelUnsavedChanges": "Cancel",
+    "titleModalButtonRevertUnsavedChanges": "Discard changes",
+    "titleModalButtonSaveChanges": "Save"
   }
 }

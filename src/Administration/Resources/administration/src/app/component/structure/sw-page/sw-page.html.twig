@@ -48,6 +48,14 @@
                                     </div>
                                 {% endblock %}
 
+                                {% block sw_page_smart_bar_content_language_switch %}
+                                    <div class="smart-bar__language-switch">
+                                        <slot name="language-switch">
+                                            {% block sw_page_slot_language_switch%}{% endblock %}
+                                        </slot>
+                                    </div>
+                                {% endblock %}
+
                                 {% block sw_page_smart_bar_content_actions %}
                                     <div class="smart-bar__actions">
                                         <slot name="smart-bar-actions">

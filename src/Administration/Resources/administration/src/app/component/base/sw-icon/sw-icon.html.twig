@@ -1,6 +1,7 @@
 {% block sw_icon %}
     <svg class="sw-icon"
          :class="iconClasses"
+         v-on="$listeners"
          :style="iconStyles"
          :aria-hidden="decorative">
         {% block sw_icon_inner %}

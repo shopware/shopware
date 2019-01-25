@@ -141,7 +141,7 @@
                                     <sw-confirm-field
                                         compact
                                         ref="inlineEditFieldAlt"
-                                        :placeholder="$tc('sw-media.sidebar.metadata.altText')"
+                                        :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
                                         :value="item.alt"
                                         @input="onSubmitAltText">
                                     </sw-confirm-field>
@@ -155,7 +155,7 @@
                                     <sw-confirm-field
                                         compact
                                         :value="item.title"
-                                        :placeholder="$tc('sw-media.sidebar.metadata.title')"
+                                        :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
                                         ref="inlineEditFieldTitle"
                                         @input="onSubmitTitle">
                                     </sw-confirm-field>

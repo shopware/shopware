@@ -45,6 +45,10 @@ Mixin.register('sw-settings-list', {
             });
         },
 
+        onChangeLanguage() {
+            this.getList();
+        },
+
         onDelete(id) {
             this.showDeleteModal = id;
         },

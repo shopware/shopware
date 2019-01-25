@@ -38,6 +38,10 @@
             </template>
         {% endblock %}
 
+        {% block sw_manufacturer_list_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
         <template slot="content">
             {% block sw_manufacturer_list_content %}
                 <div class="sw-manufacturer-list__content">
@@ -63,7 +67,7 @@
                                                             truncate
                                                             editable>
                                                 <router-link class="sw-manufacturer-list_column-manufacturer-name" :to="{ name: 'sw.manufacturer.detail', params: { id: item.id } }">
-                                                    {{ item.name }}
+                                                    {{ item.meta.viewData.name }}
                                                 </router-link>
 
                                                 {% block sw_manufacturer_list_grid_columns_name_editor %}
@@ -93,7 +97,7 @@
                                                             dataIndex="description"
                                                             truncate
                                                             sortable>
-                                                {{ item.description | striphtml | truncate }}
+                                                {{ item.meta.viewData.description | striphtml | truncate }}
                                             </sw-grid-column>
                                         {% endblock %}
 
@@ -131,7 +135,7 @@
                                                   variant="small">
                                             {% block sw_manufacturer_list_delete_modal_confirm_delete_text %}
                                                 <p class="sw-customer-detail-addresses__confirm-delete-text">
-                                                    {{ $tc('sw-manufacturer.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                    {{ $tc('sw-manufacturer.list.textDeleteConfirm', 0, { name: item.meta.viewData.name }) }}
                                                 </p>
                                             {% endblock %}
 

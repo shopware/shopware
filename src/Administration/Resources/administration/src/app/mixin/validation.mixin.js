@@ -17,7 +17,7 @@ Mixin.register('validation', {
 
     computed: {
         isValid() {
-            const value = this.currentValue || this.value;
+            const value = this.currentValue || this.value || this.selections;
 
             return this.validate(value);
         }

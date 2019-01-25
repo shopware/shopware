@@ -9,6 +9,7 @@ Component.register('sw-product-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('product')
     ],
 
@@ -61,34 +62,45 @@ Component.register('sw-product-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.productId = this.$route.params.id;
-                this.product = this.productStore.getById(this.productId);
-
-                this.product.getAssociation('media').getList({
-                    page: 1,
-                    limit: 50,
-                    sortBy: 'position',
-                    sortDirection: 'ASC'
-                });
-
-                this.product.getAssociation('categories').getList({
-                    page: 1,
-                    limit: 50
-                });
-
-                this.manufacturerStore.getList({ page: 1, limit: 100 }).then((response) => {
-                    this.manufacturers = response.items;
-                });
-
-                this.currencyStore.getList({ page: 1, limit: 100 }).then((response) => {
-                    this.currencies = response.items;
-                });
-
-                this.taxStore.getList({ page: 1, limit: 100 }).then((response) => {
-                    this.taxes = response.items;
-                });
+                this.loadEntityData();
             }
 
             this.$root.$on('sw-product-media-form-open-sidebar', this.openMediaSidebar);
+        },
+
+        loadEntityData() {
+            this.product = this.productStore.getById(this.productId);
+
+            this.product.getAssociation('media').getList({
+                page: 1,
+                limit: 50,
+                sortBy: 'position',
+                sortDirection: 'ASC'
+            });
+
+            this.manufacturerStore.getList({ page: 1, limit: 100 }).then((response) => {
+                this.manufacturers = response.items;
+            });
+
+            this.currencyStore.getList({ page: 1, limit: 100 }).then((response) => {
+                this.currencies = response.items;
+            });
+
+            this.taxStore.getList({ page: 1, limit: 100 }).then((response) => {
+                this.taxes = response.items;
+            });
+        },
+
+        abortOnLanguageChange() {
+            return this.product.hasChanges();
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
         },
 
         openMediaSidebar() {
@@ -96,7 +108,7 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
-            const productName = this.product.name;
+            const productName = this.product.name || this.product.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, { name: productName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

@@ -65,7 +65,9 @@
         uri: '{{ app.request.uri }}',
         basePath: '{{ app.request.basePath }}',
         pathInfo: '{{ app.request.pathInfo }}',
-        features: {{ features|json_encode|raw }}
+        features: {{ features|json_encode|raw }},
+        systemLanguageId: '{{ systemLanguageId }}',
+        defaultLanguageIds: {{ defaultLanguageIds|json_encode|raw }}
     };
 
     Shopware.Application.start(applicationContext);

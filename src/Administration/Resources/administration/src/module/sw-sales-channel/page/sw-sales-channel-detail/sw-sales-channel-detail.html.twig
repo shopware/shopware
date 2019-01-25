@@ -3,7 +3,7 @@
         {% block sw_sales_channel_detail_header %}
             <template slot="smart-bar-header">
                 {% block sw_sales_channel_detail_header_headline %}
-                    <h2>{{ salesChannel.name }}</h2>
+                    <h2>{{ placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline')) }}</h2>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -18,8 +18,23 @@
             </template>
         {% endblock %}
 
+        {% block sw_sales_channel_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_content %}
             <sw-card-view slot="content">
+
+                {% block sw_sales_channel_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
+
                 {% block sw_sales_channel_detail_content_tabs %}
                     <sw-tabs class="sw-sales-channel-detail-__tabs">
                         {%  block sw_sales_channel_detail_content_tabs_general %}

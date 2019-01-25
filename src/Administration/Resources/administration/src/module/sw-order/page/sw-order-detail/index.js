@@ -38,6 +38,10 @@ Component.register('sw-order-detail', {
     methods: {
         createdComponent() {
             this.orderId = this.$route.params.id;
+            this.loadEntityData();
+        },
+
+        loadEntityData() {
             this.order = this.orderStore.getById(this.orderId);
 
             this.lineItemsStore.getList({
@@ -49,6 +53,10 @@ Component.register('sw-order-detail', {
                 page: 1,
                 limit: 50
             });
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
         },
 
         onSave() {

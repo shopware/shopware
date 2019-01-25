@@ -7,6 +7,7 @@ Component.register('sw-sales-channel-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('salesChannel')
     ],
 
@@ -47,37 +48,11 @@ Component.register('sw-sales-channel-detail', {
                 return;
             }
 
+            this.loadEntityData();
+        },
+
+        loadEntityData() {
             this.salesChannel = this.salesChannelStore.getById(this.$route.params.id);
-
-            this.salesChannel.getAssociation('catalogs').getList({
-                page: 1,
-                limit: 50
-            });
-
-            this.salesChannelLanguagesStore.getList({
-                page: 1,
-                limit: 50
-            });
-
-            this.salesChannelCurrenciesStore.getList({
-                page: 1,
-                limit: 50
-            });
-
-            this.salesChannel.getAssociation('countries').getList({
-                page: 1,
-                limit: 50
-            });
-
-            this.salesChannel.getAssociation('shippingMethods').getList({
-                page: 1,
-                limit: 50
-            });
-
-            this.salesChannel.getAssociation('paymentMethods').getList({
-                page: 1,
-                limit: 50
-            });
         },
 
         onSave() {
@@ -91,12 +66,26 @@ Component.register('sw-sales-channel-detail', {
             this.syncWithDomains();
 
             return this.salesChannel.save().then(() => {
+                this.$root.$emit('changed-sales-channel');
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
             });
         },
+
+        abortOnLanguageChange() {
+            return this.salesChannel.hasChanges();
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
+        },
+
         /**
          * For storefront sales channels, the possible languages and currencies are determined by those in the domains
          * instead of salesChannel.`languages`/`currencies`. Theses mappings are still required by the backend, so we

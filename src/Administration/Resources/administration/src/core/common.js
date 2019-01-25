@@ -107,7 +107,8 @@ module.exports = {
         getRawEntityObject: EntityFactory.getRawEntityObject,
         getPropertyBlacklist: EntityFactory.getPropertyBlacklist,
         getRequiredProperties: EntityFactory.getRequiredProperties,
-        getAssociatedProperties: EntityFactory.getAssociatedProperties
+        getAssociatedProperties: EntityFactory.getAssociatedProperties,
+        getTranslatableProperties: EntityFactory.getTranslatableProperties
     },
 
     /**

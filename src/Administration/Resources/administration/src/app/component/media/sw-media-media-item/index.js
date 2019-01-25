@@ -53,7 +53,8 @@ export default {
     data() {
         return {
             showModalReplace: false,
-            showModalDelete: false
+            showModalDelete: false,
+            showModalMove: false
         };
     },
 
@@ -166,6 +167,21 @@ export default {
                     message: this.$tc('global.sw-media-media-item.notificationErrorBlankItemName')
                 });
             }
+        },
+
+        openModalMove() {
+            this.showModalMove = true;
+        },
+
+        closeModalMove() {
+            this.showModalMove = false;
+        },
+
+        onMediaItemMoved(movePromise) {
+            this.closeModalMove();
+            movePromise.then((ids) => {
+                this.$emit('sw-media-media-item-moved', ids);
+            });
         }
     }
 };

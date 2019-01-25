@@ -61,6 +61,7 @@
       "labelContextMenuReplace": "Replace",
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
+      "labelContextMenuMove": "Move",
       "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
       "notificationRenamingSuccess": "Media item has been renamed successfully.",
       "notificationRenamingError": "Error saving file",

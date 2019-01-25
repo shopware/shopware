@@ -1,23 +1,10 @@
-import 'module/sw-login';
-import 'module/sw-dashboard';
-import 'module/sw-product';
-import 'module/sw-product-stream';
-import 'module/sw-catalog';
-import 'module/sw-category';
-import 'module/sw-configuration';
-import 'module/sw-customer';
-import 'module/sw-manufacturer';
-import 'module/sw-order';
-import 'module/sw-media';
-import 'module/sw-integration';
-import 'module/sw-sales-channel';
-import 'module/sw-settings';
-import 'module/sw-settings-currency';
-import 'module/sw-settings-country';
-import 'module/sw-settings-tax';
-import 'module/sw-settings-language';
-import 'module/sw-settings-payment';
-import 'module/sw-settings-shipping';
-import 'module/sw-settings-rule';
-import 'module/sw-settings-snippet';
-import 'module/sw-profile';
+export default (() => {
+    const context = require.context('./', true, /\.\/[a-z-]+\/index\.js$/);
+
+    // Reversing the order so, for example sw-settings will be included before sw-settings-country.
+    return context.keys().reverse().reduce((accumulator, item) => {
+        const module = context(item).default;
+        accumulator.push(module);
+        return accumulator;
+    }, []);
+})();

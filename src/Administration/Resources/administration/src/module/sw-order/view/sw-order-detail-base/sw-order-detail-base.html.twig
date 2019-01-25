@@ -14,7 +14,7 @@
         {% endblock %}
 
         {% block sw_order_detail_base_leave_page_modal %}
-            <sw-order-leave-page-modal v-if="displayLeavePageWarning"
+            <sw-order-leave-page-modal v-if="isDisplayingLeavePageWarning"
                                        @leave-page-cancel = "onLeaveModalClose"
                                        @leave-page-confirm = "onLeaveModalConfirm">
             </sw-order-leave-page-modal>

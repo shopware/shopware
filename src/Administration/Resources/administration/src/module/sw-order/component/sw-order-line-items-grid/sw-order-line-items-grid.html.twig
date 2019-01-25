@@ -92,13 +92,12 @@
                                     <sw-order-product-select
                                             slot="inline-edit"
                                             :item="item"
-                                            :displayProductSelection="columnShouldDisplayProducts(item.id)">
+                                            :displayProductSelection="itemCreatedFromProduct(item.id)">
 
                                     </sw-order-product-select>
 
                                 {% endblock %}
                             </sw-grid-column>
-
                         {% endblock %}
 
                         {% block sw_order_line_items_grid_columns_unit_price %}
@@ -111,8 +110,8 @@
                                 {% endblock %}
 
                                 {% block sw_order_line_items_grid_columns_unit_price_editor %}
-                                    <!--TODO Es gibt keine float box? -->
-                                    <sw-field :disabled="pendingNewLineItemsFromProduct.indexOf(item.id) !== -1"
+
+                                    <sw-field :disabled="itemCreatedFromProduct(item.id)"
                                               type="number"
                                               v-model="item.priceDefinition.price"
                                               slot="inline-edit"
@@ -122,6 +121,7 @@
                             </sw-grid-column>
                         {% endblock %}
 
+                        {% block sw_order_line_items_grid_columns_unit_quantity %}
                             <sw-grid-column flex="minmax(110px, 110px)"
                                             :label="$tc('sw-order.detailBase.columnQuantity')"
                                             align="right"
@@ -138,8 +138,9 @@
                                 {% endblock %}
 
                             </sw-grid-column>
+                        {% endblock %}
 
-                        {% block sw_order_line_items_grid_columns_quantity %}
+                        {% block sw_order_line_items_grid_columns_total_price %}
                             <sw-grid-column flex="minmax(110px, 130px)"
                                             align="right"
                                             :label="order.taxStatus === 'net' ? $tc('sw-order.detailBase.columnTotalPriceNet') : $tc('sw-order.detailBase.columnTotalPriceGross')">
@@ -150,7 +151,7 @@
                             </sw-grid-column>
                         {% endblock %}
 
-                        {% block sw_order_line_items_grid_columns_total_price %}
+                        {% block sw_order_line_items_grid_columns_tax %}
                             <sw-grid-column flex="minmax(110px, 130px)"
                                             align="right"
                                             :editable="editable"
@@ -164,7 +165,7 @@
                                               v-model="item.priceDefinition.taxRules.elements[0].taxRate"
                                               slot="inline-edit"
                                               :placeholder="'0 %'"
-                                              :disabled="pendingNewLineItemsFromProduct.indexOf(item.id) !== -1">
+                                              :disabled="itemCreatedFromProduct(item.id)">
                                     </sw-field>
                                 {% endblock %}
                             </sw-grid-column>

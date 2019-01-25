@@ -16,18 +16,18 @@
         {% block sw_order_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_order_detail_actions_abort %}
-                    <sw-button v-show="isEditing" :disabled="order.isLoading" @click ="onCancelEditing">
+                    <sw-button v-if="isEditing" :disabled="order.isLoading" @click ="onCancelEditing">
                         {{ $tc('sw-order.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_order_detail_actions_save %}
-                    <sw-button variant="primary" v-show="isEditing" :disabled="order.isLoading" @click ="onSave">
+                    <sw-button v-if="isEditing" variant="primary"  :disabled="order.isLoading" @click ="onSave">
                         {{ $tc('sw-order.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
 
-                <sw-button v-show="!isEditing" :disabled="order.isLoading" square @click="onStartEditing">
+                <sw-button v-if="!isEditing" :disabled="order.isLoading" square @click="onStartEditing">
                     <sw-icon name="default-documentation-paper-pencil" small></sw-icon>
                 </sw-button>
 

@@ -1,6 +1,7 @@
 import { Application, State } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, hasOwnProperty } from 'src/core/service/utils/object.utils';
+import ApiService from '../service/api.service';
 
 /**
  * @module core/data/EntityStore
@@ -56,8 +57,7 @@ export default class EntityStore {
         }
 
         const entity = this.create(id);
-        const headers = EntityStore.getLanguageHeader(languageId);
-        headers['x-sw-version-id'] = versionId;
+        const headers = Object.assign(EntityStore.getLanguageHeader(languageId), ApiService.getVersionHeader(versionId));
 
         entity.isLoading = true;
 
@@ -93,8 +93,7 @@ export default class EntityStore {
 
         const entity = this.create(id);
 
-        const headers = EntityStore.getLanguageHeader(languageId);
-        headers['x-sw-version-id'] = versionId;
+        const headers = Object.assign(EntityStore.getLanguageHeader(languageId), ApiService.getVersionHeader(versionId));
 
         entity.isLoading = true;
         return this.apiService.getById(

@@ -17,7 +17,7 @@ class OrderApiService extends ApiService {
         const route = `/_action/order/${orderId}/recalculate`;
 
         const params = Object.assign({}, additionalParams);
-        const headers = Object.assign({ 'x-sw-version-id': versionId }, this.getBasicHeaders(additionalHeaders));
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
             .post(route, {}, {
@@ -30,7 +30,7 @@ class OrderApiService extends ApiService {
         const route = `_action/order/${orderId}/product/${productId}`;
 
         const params = Object.assign({ }, additionalParams);
-        const headers = Object.assign({ 'x-sw-version-id': versionId }, this.getBasicHeaders(additionalHeaders));
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
             .post(route, { quantity: quantity }, {
@@ -43,7 +43,7 @@ class OrderApiService extends ApiService {
         const route = `_action/order/${orderId}/lineItem`;
 
         const params = Object.assign({ }, additionalParams);
-        const headers = Object.assign({ 'x-sw-version-id': versionId }, this.getBasicHeaders(additionalHeaders));
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         const dummyPrice = deepCopyObject(item.priceDefinition);
         dummyPrice.taxRules = item.priceDefinition.taxRules.elements;

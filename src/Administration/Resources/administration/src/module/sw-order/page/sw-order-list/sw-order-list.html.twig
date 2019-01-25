@@ -99,9 +99,9 @@
                                                             truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_billing_address_label %}
-                                                    {{ item.billingAddress.street }},
-                                                    {{ item.billingAddress.zipcode }}
-                                                    {{ item.billingAddress.city }}
+                                                    {{ getBillingAddress(item).street }},
+                                                    {{ getBillingAddress(item).zipcode }}
+                                                    {{ getBillingAddress(item).city }}
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}

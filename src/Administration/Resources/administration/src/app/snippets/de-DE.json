@@ -759,6 +759,8 @@
       "columnTotalPrice": "Gesamt",
       "columnTotalPriceGross": "Gesamt (Brutto)",
       "columnTax": "Steuersatz",
+      "columnPriceNet": "Nettopreis",
+      "columnTotalPriceNet": "Gesamt (Netto)",
       "contextMenuShowProduct": "Produkt anzeigen",
       "summaryLabelAmount": "Summe",
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
@@ -789,6 +791,11 @@
       "labelLastChange" : "Zuletzt geändert",
       "labelNoChangesYet" : "Bisher keine Änderungen",
       "labelTrackingCode" : "Sendungsnummer",
+      "labelOrderVersionAlreadyExists" : "Eine Arbeitskopie dieser Bestellung existiert bereits.",
+      "labelOrderVersionEditedByOtherUser" : "Sie wurde zuletzt durch einen anderen Nutzer editiert.",
+      "buttonContinueOnVersionedOrder" : "Laden",
+      "buttonAddDeliveryAddress" : "Neue Addresse hinzufügen",
+      "labelSameDeliveryAndBillingAddress" : "Rechungs- und Lieferadresse sind identisch",
       "tax": "Steuern:",
       "shippingCostsTax": "{taxRate}%: {tax}"
     },
@@ -796,6 +803,12 @@
       "modalTitleEditAddress": "Adressen",
       "headlineTabEditAddress" : "Adresse bearbeiten",
       "headlineTabSelectAddress" :"Adresse auswählen"
+    },
+    "leavePageModal" : {
+      "headline" : "Warnung",
+      "description" : "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
+      "confirmButton" : "Seite verlassen",
+      "cancelButton" : "Auf Seite bleiben"
     },
     "detailDeliveries": {
       "cardTitleItems": "Lieferung {count}",

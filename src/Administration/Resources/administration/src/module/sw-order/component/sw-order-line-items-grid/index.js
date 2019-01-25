@@ -15,9 +15,7 @@ Component.register('sw-order-line-items-grid', {
         return {
             orderLineItems: [],
             isLoading: false,
-            lineItemActionsEnabled: false,
-            pendingNewLineItemsFromProduct: [],
-            pendingNewLineItemsCustom: []
+            lineItemActionsEnabled: false
         };
     },
     props: {
@@ -66,25 +64,25 @@ Component.register('sw-order-line-items-grid', {
             });
         },
         onInlineEditSave(item) {
-            const manuallyCreatedFromProductIndex = this.pendingNewLineItemsFromProduct.indexOf(item.id);
-            const manuallyCreatedCustomIndex = this.pendingNewLineItemsCustom.indexOf(item.id);
-            if (manuallyCreatedFromProductIndex !== -1) {
-                this.orderService.addProductToOrder(this.order.id,
-                    this.order.versionId,
-                    item.identifier,
-                    item.quantity).then(() => {
-                    this.$emit('sw-order-line-items-grid-item-edited');
-                });
-
-                this.pendingNewLineItemsFromProduct.splice(manuallyCreatedFromProductIndex, 1);
-            } else if (manuallyCreatedCustomIndex !== -1) {
-                this.orderService.addCustomLineItemToOrder(this.order.id,
-                    this.order.versionId,
-                    item).then(() => {
-                    this.$emit('sw-order-line-items-grid-item-edited');
-                });
-                this.pendingNewLineItemsCustom.splice(manuallyCreatedCustomIndex, 1);
+            if (item.isLocal === true) {
+                // The item is a custom item
+                if (item.type === 'custom') {
+                    this.orderService.addCustomLineItemToOrder(this.order.id,
+                        this.order.versionId,
+                        item).then(() => {
+                        this.$emit('sw-order-line-items-grid-item-edited');
+                    });
+                } else {
+                    // The is item is based on a product
+                    this.orderService.addProductToOrder(this.order.id,
+                        this.order.versionId,
+                        item.identifier,
+                        item.quantity).then(() => {
+                        this.$emit('sw-order-line-items-grid-item-edited');
+                    });
+                }
             } else {
+                // The item already existed in the order
                 item.save().then(() => {
                     this.$emit('sw-order-line-items-grid-item-edited');
                 });
@@ -93,7 +91,6 @@ Component.register('sw-order-line-items-grid', {
         onInlineEditCancel(item) {
             item.discardChanges();
         },
-
         onInsertBlankItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
@@ -103,7 +100,6 @@ Component.register('sw-order-line-items-grid', {
             item.description = 'custom line item';
             item.quantity = 1;
             item.type = 'custom';
-            this.pendingNewLineItemsCustom.push(item.id);
             this.orderLineItems.unshift(item);
         },
 
@@ -113,20 +109,16 @@ Component.register('sw-order-line-items-grid', {
             item.priceDefinition.taxRules.elements = [];
             item.priceDefinition.taxRules.elements.push({ taxRate: 0 });
             item.quantity = 1;
-            this.pendingNewLineItemsFromProduct.push(item.id);
             this.orderLineItems.unshift(item);
         },
-
         onSelectionChanged() {
             this.lineItemActionsEnabled = Object.keys(this.$refs['order-line-items-grid'].getSelection()).length !== 0;
         },
-
         onDeleteSelectedItems() {
             const items = this.$refs['order-line-items-grid'].getSelection();
             const deletionPromises = [];
             Object.keys(items).forEach((id) => {
                 const item = this.orderLineItems.find((elem) => { return elem.id === id; });
-
                 deletionPromises.push(item.delete(true));
             });
 
@@ -134,8 +126,9 @@ Component.register('sw-order-line-items-grid', {
                 this.$emit('sw-order-line-items-grid-item-edited');
             });
         },
-        columnShouldDisplayProducts(id) {
-            return this.pendingNewLineItemsFromProduct.includes(id);
+        itemCreatedFromProduct(id) {
+            const item = this.orderLineItems.find((elem) => { return elem.id === id; });
+            return item.isLocal && item.type !== 'custom';
         }
     }
 });

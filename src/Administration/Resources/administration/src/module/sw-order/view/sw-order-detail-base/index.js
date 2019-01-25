@@ -3,6 +3,7 @@ import { format } from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-order-detail-base.html.twig';
 import './sw-order-detail-base.scss';
+import ApiService from '../../../../core/service/api.service';
 
 import EntityStore from './../../../../core/data/EntityStore';
 import EntityProxy from './../../../../core/data/EntityProxy';
@@ -28,6 +29,7 @@ Component.register('sw-order-detail-base', {
             isShowingVersionExistsWarning: false,
             isShowingVersionEditedByDifferentUserWarning: false,
             isEditing: false,
+            isDisplayingLeavePageWarning: false,
             hasAssociations: false,
             hasDeliveries: false,
             hasDeliveryTrackingCode: false,
@@ -36,7 +38,8 @@ Component.register('sw-order-detail-base', {
             addressBeingEdited: null,
             nextRoute: null,
             countries: null,
-            liveVersionId: '20080911ffff4fffafffffff19830531'
+            liveVersionId: '20080911ffff4fffafffffff19830531',
+            currentOrder: null
         };
     },
     computed: {
@@ -82,41 +85,42 @@ Component.register('sw-order-detail-base', {
                 return this.orderDate;
             }
             return '';
-        },
-        displayLeavePageWarning() {
-            return this.nextRoute !== null;
         }
     },
     created() {
-        this.isLoading = true;
-        this.getLastVersion().then((commit) => {
-            if (commit !== null) {
-                this.lastVersionId = commit.versionId;
-                this.isShowingVersionExistsWarning = this.lastVersionId !== null;
-                this.isShowingVersionEditedByDifferentUserWarning = !this.isUserOwnerOfVersion(commit);
-            }
-        });
-
-        this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
-            this.countries = response.items;
-        });
-
-        this.recalculationOrderStore = new EntityStore(this.order.entityName,
-            this.orderService,
-            EntityProxy);
-
-        this.recalculationOrderStore.add(this.order);
-        this.currentOrder = this.order;
-        this.reloadOrderAssociations();
+        this.createdComponent();
     },
     beforeRouteLeave(to, from, next) {
         if (this.isEditing) {
             this.nextRoute = next;
+            this.isDisplayingLeavePageWarning = true;
         } else {
             next();
         }
     },
     methods: {
+        createdComponent() {
+            this.isLoading = true;
+            this.getLastVersion().then((commit) => {
+                if (commit !== null) {
+                    this.lastVersionId = commit.versionId;
+                    this.isShowingVersionExistsWarning = this.lastVersionId !== null;
+                    this.isShowingVersionEditedByDifferentUserWarning = !this.isUserOwnerOfVersion(commit);
+                }
+            });
+
+            this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
+                this.countries = response.items;
+            });
+
+            this.recalculationOrderStore = new EntityStore(this.order.entityName,
+                this.orderService,
+                EntityProxy);
+
+            this.recalculationOrderStore.add(this.order);
+            this.currentOrder = this.order;
+            this.reloadOrderAssociations();
+        },
         sortByTaxRate(price) {
             return price.sort((prev, current) => {
                 return prev.taxRate - current.taxRate;
@@ -125,13 +129,13 @@ Component.register('sw-order-detail-base', {
         onLeaveModalClose() {
             this.nextRoute(false);
             this.nextRoute = null;
+            this.isDisplayingLeavePageWarning = false;
         },
         onLeaveModalConfirm() {
-            const tmpNextRoute = this.nextRoute;
-            this.nextRoute = null;
+            this.isDisplayingLeavePageWarning = false;
 
             this.$nextTick(() => {
-                tmpNextRoute();
+                this.nextRoute();
             });
         },
         onLineItemChanges() {
@@ -162,7 +166,7 @@ Component.register('sw-order-detail-base', {
         reloadVersionedOrder(versionId) {
             this.isLoading = true;
 
-            return this.recalculationOrderStore.getByIdAsync(this.order.id, versionId).then((entity) => {
+            return this.recalculationOrderStore.getByIdAsync(this.order.id, '', versionId).then((entity) => {
                 this.currentOrder = entity;
                 this.$refs['sw-order-line-item-grid'].getList();
                 return this.reloadOrderAssociations();
@@ -170,14 +174,16 @@ Component.register('sw-order-detail-base', {
         },
         reloadOrderAssociations() {
             this.isLoading = true;
-            return Promise.all([
-                this.currentOrder.getAssociation('addresses').getList(
-                    { page: 1, limit: 50, versionId: this.currentOrder.versionId }
-                ),
-                this.currentOrder.getAssociation('deliveries').getList(
-                    { page: 1, limit: 50, versionId: this.currentOrder.versionId }
-                )
-            ]).then(() => {
+
+            const addresses = this.currentOrder.getAssociation('addresses').getList(
+                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+            );
+
+            const delivieries = this.currentOrder.getAssociation('deliveries').getList(
+                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+            );
+
+            return Promise.all([addresses, delivieries]).then(() => {
                 this.hasDeliveries = this.currentOrder &&
                     this.currentOrder.deliveries &&
                     this.currentOrder.deliveries.length > 0;
@@ -231,12 +237,12 @@ Component.register('sw-order-detail-base', {
                     editedId,
                     address.id,
                     {},
-                    { 'x-sw-version-id': this.currentOrder.versionId }
-                );
-            }).then(() => {
-                return this.saveAndReloadVersionedOrder();
-            }).catch((error) => {
-                this.$emit('sw-order-detail-base-error', error);
+                    ApiService.getVersionHeader(this.currentOrder.versionId)
+                ).then(() => {
+                    return this.saveAndReloadVersionedOrder();
+                }).catch((error) => {
+                    this.$emit('sw-order-detail-base-error', error);
+                });
             });
         },
         onEditBillingAddress() {
@@ -246,11 +252,12 @@ Component.register('sw-order-detail-base', {
             this.addressBeingEdited = this.currentOrder.deliveries[0].shippingOrderAddress;
         },
         onAddNewDeliveryAddress() {
-            const addrStore = State.getStore('order_address');
-
-            addrStore.getByIdAsync(this.currentOrder.deliveries[0].shippingOrderAddress.id, this.currentOrder.versionId)
+            this.orderAddressStore.getByIdAsync(
+                this.currentOrder.deliveries[0].shippingOrderAddress.id,
+                this.currentOrder.versionId
+            )
                 .then(() => {
-                    const tmp = addrStore.duplicate(this.currentOrder.deliveries[0].shippingOrderAddress.id);
+                    const tmp = this.orderAddressStore.duplicate(this.currentOrder.deliveries[0].shippingOrderAddress.id);
                     this.currentOrder.deliveries[0].shippingOrderAddressId = tmp.id;
                     return tmp.save();
                 })
@@ -285,6 +292,13 @@ Component.register('sw-order-detail-base', {
             this.currentOrder.paymentMethodId = method.id;
             this.saveAndReloadVersionedOrder();
         },
+        onLoadLastVersion() {
+            if (this.lastVersionId !== null) {
+                this.isShowingVersionExistsWarning = false;
+                this.reloadVersionedOrder(this.lastVersionId);
+                this.isEditing = true;
+            }
+        },
         getLastVersion() {
             const criteria = CriteriaFactory.multi('AND',
                 CriteriaFactory.equals('version_commit.data.entityName', 'order'),
@@ -297,19 +311,12 @@ Component.register('sw-order-detail-base', {
                 sortDirection: 'DESC',
                 criteria: criteria
             }).then((entries) => {
-                // check whether a version for this entity id exists, and if there is any, if it is merged already
+                // check whether a version for this entity id exists. If there is any, check if it is merged already
                 if (entries.data.length !== 0 && !entries.data[0].isMerge) {
                     return entries.data[0];
                 }
                 return null;
             });
-        },
-        onLoadLastVersion() {
-            if (this.lastVersionId !== null) {
-                this.isShowingVersionExistsWarning = false;
-                this.reloadVersionedOrder(this.lastVersionId);
-                this.isEditing = true;
-            }
         },
         isUserOwnerOfVersion(versionCommit) {
             return this.userService.getUser().then((user) => {

@@ -48,7 +48,7 @@ class ApiService {
         headers,
         versionId
     }) {
-        const requestHeaders = this.getBasicHeaders(headers);
+        let requestHeaders = this.getBasicHeaders(headers);
         const params = { page, limit };
 
         if (sortings) {
@@ -74,7 +74,7 @@ class ApiService {
         }
 
         if (versionId) {
-            requestHeaders['x-sw-version-id'] = versionId;
+            requestHeaders = Object.assign(requestHeaders, ApiService.getVersionHeader(versionId));
         }
 
         if (queries) {
@@ -270,7 +270,7 @@ class ApiService {
         }
 
         const params = Object.assign({}, additionalParams);
-        const headers = Object.assign({ 'x-sw-version-id': versionId }, this.getBasicHeaders(additionalHeaders));
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         const route = `_action/version/merge/${this.apiEndpoint}/${versionId}`;
         return this.httpClient
@@ -347,6 +347,10 @@ class ApiService {
      */
     static parseJsonApiData(data) {
         return parseJsonApi(data);
+    }
+
+    static getVersionHeader(versionId) {
+        return { 'x-sw-version-id': versionId };
     }
 
     /**

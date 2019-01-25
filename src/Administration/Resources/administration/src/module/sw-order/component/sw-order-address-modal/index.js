@@ -1,30 +1,28 @@
 import { Component, State } from 'src/core/shopware';
-// import { object } from 'src/core/service/util.service';
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.less';
 
 Component.register('sw-order-address-modal', {
     template,
-    props:
-        {
-            address: {
-                type: Object,
-                required: true,
-                default: {}
-            },
-            countries: {
-                type: Array,
-                required: true,
-                default() {
-                    return [];
-                }
-            },
-            orderCustomer: {
-                type: Object,
-                required: true,
-                default: {}
+    props: {
+        address: {
+            type: Object,
+            required: true,
+            default: {}
+        },
+        countries: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
             }
         },
+        orderCustomer: {
+            type: Object,
+            required: true,
+            default: {}
+        }
+    },
     data() {
         return {
             currentlyShowing: 'edit',
@@ -50,7 +48,6 @@ Component.register('sw-order-address-modal', {
         });
     },
     methods: {
-
         onExistingAddressSelected(address) {
             this.$emit('sw-address-modal-selected-address', address);
         },
@@ -60,6 +57,5 @@ Component.register('sw-order-address-modal', {
         onSave() {
             this.$emit('sw-address-modal-save');
         }
-
     }
 });

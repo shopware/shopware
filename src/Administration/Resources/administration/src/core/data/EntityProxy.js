@@ -298,12 +298,10 @@ export default class EntityProxy {
 
         this.isLoading = true;
 
-        const additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
+        let additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
         if (this.versionId) {
-            additionalHeaders['x-sw-version-id'] = this.versionId;
+            additionalHeaders = Object.assign(additionalHeaders, ApiService.getVersionHeader(this.versionId));
         }
-
-
 
         return this.apiService.create(
             changes,
@@ -337,9 +335,9 @@ export default class EntityProxy {
     sendUpdateRequest(changes, changedAssociations = {}) {
         this.isLoading = true;
 
-        const additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
+        let additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
         if (this.versionId) {
-            additionalHeaders['x-sw-version-id'] = this.versionId;
+            additionalHeaders = Object.assign(ApiService.getVersionHeader(this.versionId));
         }
 
         return this.apiService.updateById(
@@ -406,9 +404,9 @@ export default class EntityProxy {
             return Promise.resolve();
         }
 
-        const additionalHeaders = {};
+        let additionalHeaders = {};
         if (this.versionId) {
-            additionalHeaders['x-sw-version-id'] = this.versionId;
+            additionalHeaders = ApiService.getVersionHeader(this.versionId);
         }
 
         return this.apiService.delete(this.id, {}, additionalHeaders).then(() => {

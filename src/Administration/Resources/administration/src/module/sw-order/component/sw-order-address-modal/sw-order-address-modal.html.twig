@@ -2,7 +2,7 @@
     <sw-modal :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
               @closeModal="onClose">
         {% block sw_order_address_modal_content %}
-            <sw-tabs class = "sw-order-address-modal">
+            <sw-tabs class= "sw-order-address-modal">
                 {% block sw_order_address_modal_tabs %}
                     {% block sw_order_address_modal_tab_edit_address %}
                         <sw-tabs-item @click="currentlyShowing='edit'">
@@ -18,11 +18,11 @@
 
                 <template slot="content">
                     {% block sw_order_address_modal_tabs_content %}
-                        <div v-else v-if="currentlyShowing==='edit'">
+                        <div v-if="currentlyShowing==='edit'">
                             {% block sw_order_address_modal_tabs_content_edit_address %}
                                 <sw-customer-address-form :address="address"
                                                           :countries="countries">
-                                </sw-customer-address-form>
+                                </sw-customer-address-form>dd
                             {% endblock %}
                         </div>
                         <div v-else>

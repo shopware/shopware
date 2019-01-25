@@ -13,7 +13,7 @@ module.exports = {
     'rename media file using sidebar': (browser) => {
         browser
             .click('.sw-media-preview__item:nth-of-type(1)')
-            .waitForElementVisible('.sw-sidebar-item__content')
+            .waitForElementVisible('.sw-media-quickinfo')
             .clearValue('.sw-media-quickinfo-metadata-name input')
             .setValue('.sw-media-quickinfo-metadata-name input', 'new file name')
             .click('.sw-media-quickinfo-metadata-name .sw-confirm-field__button--submit')

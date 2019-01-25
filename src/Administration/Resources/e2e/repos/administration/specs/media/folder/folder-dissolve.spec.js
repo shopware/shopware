@@ -18,7 +18,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-media-base-item__preview-container')
             .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
-            .waitForElementVisible('.icon--folder-breadcums-parent')
+            .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
@@ -33,8 +33,8 @@ module.exports = {
     'navigate back to root folder': (browser) => {
         const page = mediaPage(browser);
         browser
-            .waitForElementVisible('.icon--folder-breadcums-dropdown')
-            .click('.icon--folder-breadcums-dropdown')
+            .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
+            .click('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.previewItem);
     },
     'dissolve folder': (browser) => {

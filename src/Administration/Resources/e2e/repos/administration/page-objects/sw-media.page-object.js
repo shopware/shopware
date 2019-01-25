@@ -4,6 +4,7 @@ class MediaPageObject {
 
         this.elements = {
             previewItem: '.sw-media-preview__item',
+            folderPreviewItem: '.sw-media-base-item__preview-container',
             baseItem: '.sw-media-base-item',
             folderNameInput: 'input[name=media-item-name]',
             folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
@@ -43,8 +44,8 @@ class MediaPageObject {
 
     openMediaModal(action) {
         this.browser
-            .waitForElementVisible(this.elements.previewItem)
-            .moveToElement(this.elements.previewItem, 5, 5)
+            .waitForElementVisible(this.elements.baseItem)
+            .moveToElement(this.elements.baseItem, 5, 5)
             .clickContextMenuItem(action, '.sw-context-button__button')
             .waitForElementVisible('.sw-modal__title');
     }

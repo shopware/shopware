@@ -36,7 +36,7 @@ module.exports = {
             browser
                 .waitForElementVisible('.sw-media-base-item__preview-container')
                 .moveToElement('.sw-media-base-item__preview-container', 5, 5).doubleClick()
-                .waitForElementVisible('.icon--folder-breadcums-dropdown');
+                .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root');
         }
     },
     'open replace modal': (browser) => {
@@ -80,9 +80,9 @@ module.exports = {
             .waitForElementVisible('.sw-media-preview__item')
             .click('.sw-media-preview__item')
             .waitForElementVisible('.sw-media-quickinfo__media-preview')
-            .waitForElementVisible('.sw-sidebar-item__title')
-            .assert.containsText('.sw-sidebar-item__title', 'Quick info')
-            .getLocationInView('.sw-media-quickinfo__metadata-list');
+            .waitForElementVisible('.sw-media-sidebar__headline')
+            .assert.containsText('.sw-media-sidebar__headline', 'sw-test-image.png')
+            .getLocationInView('.sw-media-sidebar__metadata-list');
 
         browser.expect.element('input[name=sw-field--draft]').to.have.value.that.equals('sw-test-image');
         browser.expect.element('.sw-media-quickinfo-metadata-file-type').to.have.text.that.equals('PNG');

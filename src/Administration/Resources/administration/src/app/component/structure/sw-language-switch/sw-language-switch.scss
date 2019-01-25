@@ -3,10 +3,14 @@
     width: 150px;
     vertical-align: middle;
     text-align: left;
-    margin-right: 5px;
+    margin-right: 8px;
 
     .sw-select__inner {
         min-height: 40px;
+
+        .sw-select__indicators {
+            top: 10px;
+        }
 
         .sw-select__single-selection {
             line-height: 22px;

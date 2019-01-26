@@ -215,7 +215,7 @@ class EntityWriter implements EntityWriterInterface
         }
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
-        $identifiers = $this->getWriteIdentifiers($commandQueue);
+        $identifiers = $this->getWriteResults($commandQueue);
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         return new DeleteResult(
@@ -224,22 +224,28 @@ class EntityWriter implements EntityWriterInterface
         );
     }
 
-    private function getWriteIdentifiers(WriteCommandQueue $queue): array
+    private function getWriteResults(WriteCommandQueue $queue): array
     {
         $identifiers = [];
 
-        foreach ($queue->getCommands() as $resource => $commands) {
+        /** @var EntityDefinition|string $definition */
+        foreach ($queue->getCommands() as $definition => $commands) {
             if (\count($commands) === 0) {
                 continue;
             }
 
-            $identifiers[$resource] = [];
+            $primaryKeys = (new FieldCollection($definition::getPrimaryKeys()))
+                ->filter(function (Field $field) {
+                    return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
+                });
+
+            $identifiers[$definition] = [];
             /** @var WriteCommandInterface[] $commands */
             foreach ($commands as $command) {
-                $primaryKey = $this->getCommandPrimaryKey($command);
+                $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
                 $payload = $this->getCommandPayload($command);
 
-                $identifiers[$resource][] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
+                $identifiers[$definition][] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
             }
         }
 
@@ -276,7 +282,7 @@ class EntityWriter implements EntityWriterInterface
 
         $exceptionStack->tryToThrow();
 
-        $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
+        $writeIdentifiers = $this->getWriteResults($commandQueue);
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         return $writeIdentifiers;
@@ -291,13 +297,8 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
-    private function getCommandPrimaryKey(WriteCommandInterface $command)
+    private function getCommandPrimaryKey(WriteCommandInterface $command, FieldCollection $fields)
     {
-        $fields = new FieldCollection($command->getDefinition()::getPrimaryKeys());
-        $fields = $fields->filter(function (Field $field) {
-            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
-        });
-
         $primaryKey = $command->getPrimaryKey();
 
         $data = [];
@@ -337,7 +338,7 @@ class EntityWriter implements EntityWriterInterface
             $convertedPayload[$field->getPropertyName()] = $this->fieldHandler->decode($field, $value);
         }
 
-        $primaryKeys = $fields->filterByFlag(PrimaryKey::class);
+        $primaryKeys = $command->getDefinition()::getPrimaryKeys();
 
         /** @var Field|StorageAware $primaryKey */
         foreach ($primaryKeys as $primaryKey) {

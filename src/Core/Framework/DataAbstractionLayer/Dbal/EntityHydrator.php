@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializer
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
@@ -31,6 +30,9 @@ class EntityHydrator
      */
     private $fieldHandler;
 
+    /**
+     * @var Entity[] internal object cache to prevent duplicate hydration for exact same objects
+     */
     private $objects = [];
 
     public function __construct(FieldSerializerRegistry $fieldHandler)
@@ -61,13 +63,9 @@ class EntityHydrator
 
         $entity->setUniqueIdentifier($identifier);
 
-        $cacheKey = null;
-        if (isset($row[$identifier])) {
-            $cacheKey = $definition::getEntityName() . '::' . $identifier;
-
-            if (isset($this->objects[$cacheKey])) {
-                return $this->objects[$cacheKey];
-            }
+        $cacheKey = $definition::getEntityName() . '::' . $identifier;
+        if (isset($this->objects[$cacheKey])) {
+            return $this->objects[$cacheKey];
         }
 
         $entity->setViewData(clone $entity);
@@ -242,9 +240,10 @@ class EntityHydrator
     private function buildPrimaryKey($definition, array $row, string $root): array
     {
         /** @var string|EntityDefinition $definition */
-        $primaryKeyFields = $definition::getFields()->filterByFlag(PrimaryKey::class);
+        $primaryKeyFields = $definition::getPrimaryKeys();
         $primaryKey = [];
 
+        /** @var Field $field */
         foreach ($primaryKeyFields as $field) {
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 continue;

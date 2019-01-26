@@ -569,7 +569,7 @@ class EntityReader implements EntityReaderInterface
         //assign loaded data to root entities
         foreach ($collection as $entity) {
             /** @var Entity $entity */
-            $structData = $data->filterByProperty($propertyName, $entity->getUniqueIdentifier());
+            $structData = $data->filterAndReduceByProperty($propertyName, $entity->getUniqueIdentifier());
 
             //assign data of child immediatly
             if ($association->is(Extension::class)) {
@@ -587,7 +587,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             //if association can be inherited by the parent and the struct data is empty, filter again for the parent id
-            $structData = $data->filterByProperty($propertyName, $entity->get('parentId'));
+            $structData = $data->filterAndReduceByProperty($propertyName, $entity->get('parentId'));
 
             if ($association->is(Extension::class)) {
                 $entity->getViewData()->addExtension($association->getPropertyName(), $structData);

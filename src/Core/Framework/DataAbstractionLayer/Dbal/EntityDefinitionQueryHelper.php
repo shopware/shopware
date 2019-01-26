@@ -242,15 +242,19 @@ class EntityDefinitionQueryHelper
         if ($useVersionFallback) {
             $this->joinVersion($query, $definition, $definition::getEntityName(), $context);
         } elseif ($definition::isVersionAware()) {
-            /** @var FkField|null $versionIdField */
-            $versionIdField = $definition::getPrimaryKeys()
-                ->filter(function ($f) {
+            $versionIdField = array_filter(
+                $definition::getPrimaryKeys(),
+                function ($f) {
                     return $f instanceof VersionField || $f instanceof ReferenceVersionField;
-                })->first();
+                }
+            );
 
             if (!$versionIdField) {
                 throw new \RuntimeException('Missing `VersionField` in `' . $definition . '`');
             }
+
+            /** @var FkField|null $versionIdField */
+            $versionIdField = array_shift($versionIdField);
 
             $query->andWhere(self::escape($table) . '.`' . $versionIdField->getStorageName() . '` = :version');
             $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));

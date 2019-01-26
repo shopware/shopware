@@ -115,7 +115,7 @@ class EntityWriter implements EntityWriterInterface
         $commandQueue = new WriteCommandQueue();
 
         /** @var FieldCollection $fields */
-        $fields = $definition::getPrimaryKeys();
+        $fields = new FieldCollection($definition::getPrimaryKeys());
 
         $resolved = [];
         foreach ($ids as $raw) {
@@ -293,7 +293,7 @@ class EntityWriter implements EntityWriterInterface
 
     private function getCommandPrimaryKey(WriteCommandInterface $command)
     {
-        $fields = $command->getDefinition()::getPrimaryKeys();
+        $fields = new FieldCollection($command->getDefinition()::getPrimaryKeys());
         $fields = $fields->filter(function (Field $field) {
             return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
         });

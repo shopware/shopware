@@ -57,7 +57,7 @@ class DefinitionValidator
     ];
 
     private static $ignoredInPrefixCheck = [
-        'datasheet', 'variations', 'translationcode',
+        'datasheet', 'variations', 'translationcode', 'blocks',
     ];
 
     private static $tablesWithoutDefinition = [

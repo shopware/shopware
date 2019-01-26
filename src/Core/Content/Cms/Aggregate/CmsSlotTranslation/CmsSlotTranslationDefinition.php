@@ -1,0 +1,34 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation;
+
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+
+class CmsSlotTranslationDefinition extends EntityTranslationDefinition
+{
+    public static function getEntityName(): string
+    {
+        return 'cms_slot_translation';
+    }
+
+    public static function getParentDefinitionClass(): string
+    {
+        return CmsSlotDefinition::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CmsSlotTranslationEntity::class;
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new JsonField('config', 'config'))->setFlags(new Required()),
+        ]);
+    }
+}

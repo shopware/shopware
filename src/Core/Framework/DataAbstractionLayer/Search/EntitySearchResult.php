@@ -35,12 +35,13 @@ class EntitySearchResult extends EntityCollection
 
     public function __construct(int $total, EntityCollection $entities, ?AggregationResultCollection $aggregations, Criteria $criteria, Context $context)
     {
-        parent::__construct($entities);
         $this->entities = $entities;
         $this->total = $total;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->criteria = $criteria;
         $this->context = $context;
+
+        parent::__construct($entities);
     }
 
     public function filter(\Closure $closure)
@@ -88,5 +89,19 @@ class EntitySearchResult extends EntityCollection
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function clear(): void
+    {
+        parent::clear();
+
+        $this->entities->clear();
+    }
+
+    public function add($entity): void
+    {
+        parent::add($entity);
+
+        $this->entities->add($entity);
     }
 }

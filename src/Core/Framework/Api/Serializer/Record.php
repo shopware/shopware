@@ -139,7 +139,7 @@ class Record implements \JsonSerializable
             $this->attributes[$key] = $data[$key] ?? null;
         }
 
-        if (!empty($data['extensions']) && is_array($this->attributes['extensions'])) {
+        if (!empty($data['extensions']) && array_key_exists('extensions', $this->attributes) && is_array($this->attributes['extensions'])) {
             foreach ($this->attributes['extensions'] as $key => $relationship) {
                 $this->attributes['extensions'][$key] = $data['extensions'][$key] ?? null;
             }

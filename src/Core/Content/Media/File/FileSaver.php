@@ -15,12 +15,9 @@ use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Metadata\Metadata;
-use Shopware\Core\Content\Media\Metadata\MetadataLoader;
+use Shopware\Core\Content\Media\Metadata\MetadataUpdater;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
-use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -51,35 +48,28 @@ class FileSaver
     private $thumbnailService;
 
     /**
-     * @var MetadataLoader
-     */
-    private $metadataLoader;
-
-    /**
-     * @var TypeDetector
-     */
-    private $typeDetector;
-
-    /**
      * @var FileNameValidator
      */
     private $fileNameValidator;
+
+    /**
+     * @var MetadataUpdater
+     */
+    private $metadataUpdater;
 
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,
-        MetadataLoader $metadataLoader,
-        TypeDetector $typeDetector
+        MetadataUpdater $metadataUpdater
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailService = $thumbnailService;
-        $this->metadataLoader = $metadataLoader;
-        $this->typeDetector = $typeDetector;
         $this->fileNameValidator = new FileNameValidator();
+        $this->metadataUpdater = $metadataUpdater;
     }
 
     /**
@@ -117,17 +107,16 @@ class FileSaver
         }
 
         $this->removeOldMediaData($currentMedia, $context);
-        $mediaType = $this->typeDetector->detect($mediaFile);
-        $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile, $mediaType);
 
         $media = $this->updateMediaEntity(
             $mediaFile,
             $destination,
             $currentMedia,
-            $rawMetadata,
-            $mediaType,
             $context
         );
+
+        $this->metadataUpdater->updateMetadataAndMediaType($mediaFile, $mediaId);
+
         $this->saveFileToMediaDir($mediaFile, $media);
 
         $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
@@ -269,8 +258,6 @@ class FileSaver
         MediaFile $mediaFile,
         string $destination,
         MediaEntity $media,
-        Metadata $metadata,
-        MediaType $mediaType,
         Context $context
     ): MediaEntity {
         $data = [
@@ -279,8 +266,6 @@ class FileSaver
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $destination,
-            'metaData' => $metadata,
-            'mediaType' => $mediaType,
             'uploadedAt' => new \DateTime(),
         ];
 

@@ -45,6 +45,16 @@ class MediaEntity extends Entity
     protected $title;
 
     /**
+     * @var string|null
+     */
+    protected $metaDataRaw;
+
+    /**
+     * @var string|null
+     */
+    protected $mediaTypeRaw;
+
+    /**
      * @var Metadata|null
      */
     protected $metaData;
@@ -366,5 +376,25 @@ class MediaEntity extends Entity
     public function setConfigurationGroupOptions(ConfigurationGroupOptionCollection $configurationGroupOptions): void
     {
         $this->configurationGroupOptions = $configurationGroupOptions;
+    }
+
+    public function getMetaDataRaw(): ?string
+    {
+        return $this->metaDataRaw;
+    }
+
+    public function setMetaDataRaw(string $metaDataRaw): void
+    {
+        $this->metaDataRaw = $metaDataRaw;
+    }
+
+    public function getMediaTypeRaw(): ?string
+    {
+        return $this->mediaTypeRaw;
+    }
+
+    public function setMediaTypeRaw(string $mediaTypeRaw): void
+    {
+        $this->mediaTypeRaw = $mediaTypeRaw;
     }
 }

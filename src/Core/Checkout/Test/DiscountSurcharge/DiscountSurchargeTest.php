@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Cart\CartBehaviorContext;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
@@ -249,175 +247,6 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    public function testAbsoluteConsidersFilter(): void
-    {
-        $productA = $this->createProduct('Product A', 20, 20, 19);
-        $productB = $this->createProduct('Product B', 31, 31, 7);
-
-        $ruleId = $this->createRule([]);
-
-        $id = $this->createDiscountSurcharge(
-            $ruleId,
-            DiscountSurchargeCollector::ABSOLUTE_MODIFIER,
-            -2,
-            (new LineItemRule())->assign(['identifiers' => ['A']])
-        );
-
-        $cart = new Cart('test', 'test');
-        $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $productA])
-        );
-        $cart->add(
-            (new LineItem('B', 'product'))
-                ->setPayload(['id' => $productB])
-        );
-
-        self::$context->setRuleIds([$ruleId]);
-        self::$enrichment->enrich($cart, self::$context);
-
-        $key = 'discount-surcharge-' . $id;
-        self::assertTrue($cart->has($key));
-
-        $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
-
-        self::assertTrue($calculated->has($key));
-
-        $discount = $calculated->get($key);
-
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(-2.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
-
-        self::assertEquals(
-            [new CalculatedTax(-0.32, 19, -2)],
-            array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
-        );
-    }
-
-    public function testPercentageConsidersFilter(): void
-    {
-        $productA = $this->createProduct('Product A', 20, 20, 19);
-        $productB = $this->createProduct('Product B', 30, 30, 19);
-
-        $ruleId = $this->createRule([]);
-
-        $id = $this->createDiscountSurcharge(
-            $ruleId,
-            DiscountSurchargeCollector::PERCENTAL_MODIFIER,
-            -10,
-            (new LineItemRule())->assign(['identifiers' => ['B']])
-        );
-
-        $cart = new Cart('test', 'test');
-        $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $productA])
-        );
-        $cart->add(
-            (new LineItem('B', 'product'))
-                ->setPayload(['id' => $productB])
-        );
-
-        self::$context->setRuleIds([$ruleId]);
-        self::$enrichment->enrich($cart, self::$context);
-
-        $key = 'discount-surcharge-' . $id;
-        self::assertTrue($cart->has($key));
-
-        $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
-
-        self::assertTrue($calculated->has($key));
-
-        $discount = $calculated->get($key);
-
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(-3.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
-
-        self::assertEquals(
-            [new CalculatedTax(-0.48, 19, -3)],
-            array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
-        );
-    }
-
-    public function testMultipleDiscounts(): void
-    {
-        $productA = $this->createProduct('Product A', 20, 20, 19);
-        $productB = $this->createProduct('Product B', 30, 30, 19);
-
-        $ruleId = $this->createRule([]);
-
-        $id1 = $this->createDiscountSurcharge(
-            $ruleId,
-            DiscountSurchargeCollector::PERCENTAL_MODIFIER,
-            -10,
-            (new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])
-        );
-
-        $id2 = $this->createDiscountSurcharge(
-            $ruleId,
-            DiscountSurchargeCollector::PERCENTAL_MODIFIER,
-            10,
-            (new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])
-        );
-
-        $id3 = $this->createDiscountSurcharge(
-            $ruleId,
-            DiscountSurchargeCollector::ABSOLUTE_MODIFIER,
-            2,
-            (new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])
-        );
-
-        $cart = new Cart('test', 'test');
-        $cart->add(
-            (new LineItem('A', 'product'))
-                ->setPayload(['id' => $productA])
-        );
-        $cart->add(
-            (new LineItem('B', 'product'))
-                ->setPayload(['id' => $productB])
-        );
-
-        self::$context->setRuleIds([$ruleId]);
-        self::$enrichment->enrich($cart, self::$context);
-
-        $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
-
-        $key = 'discount-surcharge-' . $id1;
-        self::assertTrue($calculated->has($key));
-        $discount = $calculated->get($key);
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(-5.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
-        self::assertEquals(
-            [new CalculatedTax(-0.8, 19, -5)],
-            array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
-        );
-
-        $key = 'discount-surcharge-' . $id2;
-        self::assertTrue($calculated->has($key));
-        $discount = $calculated->get($key);
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(5.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
-        self::assertEquals(
-            [new CalculatedTax(0.8, 19, 5)],
-            array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
-        );
-
-        $key = 'discount-surcharge-' . $id3;
-        self::assertTrue($calculated->has($key));
-        $discount = $calculated->get($key);
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(2.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
-        self::assertEquals(
-            [new CalculatedTax(0.32, 19, 2.0)],
-            array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
-        );
-    }
-
     private function createRule(array $rules, string $name = 'Test rule', int $priority = 1): string
     {
         $id = Uuid::uuid4()->getHex();
@@ -447,7 +276,6 @@ class DiscountSurchargeTest extends TestCase
             'ruleId' => $ruleId,
             'type' => $type,
             'amount' => $amount,
-            'filterRule' => $rule ?? new AndRule(),
         ];
 
         self::$discountSurchargeRepository->upsert([array_filter($data)], Context::createDefaultContext());

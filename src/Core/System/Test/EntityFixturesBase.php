@@ -3,10 +3,12 @@
 namespace Shopware\Core\System\Test;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 
 trait EntityFixturesBase
@@ -47,6 +49,19 @@ trait EntityFixturesBase
         self::ensureATransactionIsActive();
 
         $repository->create([$fixtureData[$fixtureName]], $this->entityFixtureContext);
+
+        if (array_key_exists('mediaType', $fixtureData[$fixtureName])) {
+            $connection = KernelLifecycleManager::getKernel()
+                ->getContainer()
+                ->get(Connection::class);
+            $connection->update(
+                MediaDefinition::getEntityName(),
+                [
+                    'media_type' => serialize($fixtureData[$fixtureName]['mediaType']),
+                ],
+                ['id' => Uuid::fromHexToBytes($fixtureData[$fixtureName]['id'])]
+            );
+        }
 
         return $repository->search(new Criteria([$fixtureData[$fixtureName]['id']]), $this->entityFixtureContext)
             ->get($fixtureData[$fixtureName]['id']);

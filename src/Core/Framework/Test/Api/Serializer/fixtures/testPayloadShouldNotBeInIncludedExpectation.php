@@ -47,6 +47,7 @@ return [
                     'id' => null,
                     'versionId' => null,
                     'attributes' => null,
+                    '_class' => 'Shopware\Core\Content\Rule\RuleEntity',
                 ],
             ],
         ],

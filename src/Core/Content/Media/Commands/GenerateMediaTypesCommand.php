@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Commands;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Metadata\MetadataUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,9 +23,9 @@ class GenerateMediaTypesCommand extends Command
     private $io;
 
     /**
-     * @var TypeDetector
+     * @var MetadataUpdater
      */
-    private $typeDetector;
+    private $updater;
 
     /**
      * @var EntityRepositoryInterface
@@ -37,11 +37,10 @@ class GenerateMediaTypesCommand extends Command
      */
     private $batchSize;
 
-    public function __construct(TypeDetector $typeDetector, EntityRepositoryInterface $mediaRepository)
+    public function __construct(MetadataUpdater $updater, EntityRepositoryInterface $mediaRepository)
     {
         parent::__construct();
-
-        $this->typeDetector = $typeDetector;
+        $this->updater = $updater;
         $this->mediaRepository = $mediaRepository;
     }
 
@@ -107,14 +106,14 @@ class GenerateMediaTypesCommand extends Command
         do {
             $result = $this->mediaRepository->search($criteria, $context);
             foreach ($result->getEntities() as $media) {
-                $this->detectMediaType($context, $media);
+                $this->detectMediaType($media);
             }
             $this->io->progressAdvance($result->count());
             $criteria->setOffset($criteria->getOffset() + $this->batchSize);
         } while ($result->getTotal() > $this->batchSize);
     }
 
-    private function detectMediaType(Context $context, MediaEntity $media): void
+    private function detectMediaType(MediaEntity $media): void
     {
         if (!$media->hasFile()) {
             return;
@@ -127,14 +126,7 @@ class GenerateMediaTypesCommand extends Command
             $media->getFileSize()
         );
 
-        $type = $this->typeDetector->detect($file);
-
-        $this->mediaRepository->upsert([
-            [
-                'id' => $media->getId(),
-                'type' => $type,
-            ],
-        ], $context);
+        $this->updater->updateMediaType($file, $media->getId());
     }
 
     private function createCriteria(): Criteria

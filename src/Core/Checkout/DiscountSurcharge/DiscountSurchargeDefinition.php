@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -42,7 +41,6 @@ class DiscountSurchargeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new TranslatedField('name'),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
-            (new ObjectField('filter_rule', 'filterRule'))->addFlags(new Required()),
             (new StringField('type', 'type'))->addFlags(new Required()),
             (new FloatField('amount', 'amount'))->addFlags(new Required()),
             new CreatedAtField(),

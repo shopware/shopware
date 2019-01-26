@@ -23,7 +23,6 @@ The field types below are available to build a definition.
 | `TranslatedField` | Wrapper field for making a field translatable |
 | `JsonField` | For saving structured or unstructured JSON string |
 | `ListField` | For saving a list of values of a primitive type |
-| `ObjectField` | For saving an entity to the storage serialized as JSON string |
 | `VersionField` | For saving the version of the entity if supported by the definition |
 | `ReferenceVersionField` | Reverse-side for version aware relations |
 
@@ -210,21 +209,6 @@ The ListField is an extension to the JSON field and values will be stored as a J
 
 3. `$fieldType` is the reference to a primitive field type like `StringField` or `IntField`. It is used to enforce a
 pre-defined type for the values. If you don't provide any type, you can mix different types.
-
-### ObjectField
-
-```php
-new ObjectField('cart', 'cart')
-```
-
-The ObjectField is an extension to the JSON field and is used to persist serialized structs. This type should not be
-used via API as it is hard to do this kind of serialization by hand.
-
-Using PHP, you can pass an instance of the `Shopware\Core\Framework\Struct\Struct` class to the DataAbstractionLayer and it will handle serialization on writes
-and deserialization on reads for you.
-
-1. `$storageName` is the name in your storage.
-2. `$propertyName` is the name used in your struct and used to search, write and work.
 
 ### VersionField
 

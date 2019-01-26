@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Serializer\Serializer;
 
 class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 {
@@ -53,11 +52,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $ruleRepository;
 
     /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
      * @var RuleConditionRegistry
      */
     private $ruleConditionRegistry;
@@ -77,7 +71,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         EntityRepositoryInterface $ruleRepository,
-        Serializer $serializer,
         RuleConditionRegistry $ruleConditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache
@@ -86,7 +79,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->ruleRepository = $ruleRepository;
-        $this->serializer = $serializer;
         $this->ruleConditionRegistry = $ruleConditionRegistry;
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
@@ -159,10 +151,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
-        if ($this->cache->hasItem('rules_key')) {
-            $this->cache->deleteItem('rules_key');
-        }
-
         $bytes = array_values(array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids));
 
         $conditions = $this->connection->fetchAll(
@@ -185,7 +173,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                 //ensure the root rule is an AndRule
                 $nested = new AndRule($nested);
 
-                $serialized = $this->serializer->serialize($nested, 'json');
+                $serialized = serialize($nested);
             } catch (ConditionTypeNotFound $exception) {
                 $invalid = true;
             } finally {

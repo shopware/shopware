@@ -11,14 +11,15 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ComputedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
@@ -63,8 +65,10 @@ class MediaDefinition extends EntityDefinition
             (new DateField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
             (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new ObjectField('meta_data', 'metaData'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
-            (new ObjectField('media_type', 'mediaType'))->addFlags(new WriteProtected(MediaProtectionFlags::WRITE_META_INFO)),
+            new ComputedField('meta_data', 'metaDataRaw'),
+            new ComputedField('media_type', 'mediaTypeRaw'),
+            (new JsonField('meta_data', 'metaData'))->addFlags(new ReadOnly(), new Deferred()),
+            (new JsonField('media_type', 'mediaType'))->addFlags(new ReadOnly(), new Deferred()),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslatedField('alt'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

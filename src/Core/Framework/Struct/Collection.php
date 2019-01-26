@@ -128,7 +128,6 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function jsonSerialize(): array
     {
-//        return array_values($this->elements);
         $data = get_object_vars($this);
         $data['elements'] = array_values($this->elements);
         $data['_class'] = \get_class($this);

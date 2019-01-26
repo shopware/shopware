@@ -117,37 +117,17 @@ class CheckoutRuleLoader
             return $this->rules;
         }
 
-        $cacheItem = $this->cache->getItem('rules_key');
-
-        try {
-            if ($cacheItem->isHit()) {
-                return $this->rules = unserialize($cacheItem->get());
-            }
-        } catch (\Throwable $e) {
-            // nth
-        }
-
-        $rules = $this->repository->search(new Criteria(), $context);
-
         /** @var RuleCollection $rules */
-        $rules = $rules->getEntities();
-        $this->rules = $rules;
-        $this->filterValidRules();
+        $rules = $this->repository->search(new Criteria(), $context)->getEntities();
 
-        $cacheItem->set(serialize($this->rules));
-        $this->cache->save($cacheItem);
-
-        return $this->rules;
-    }
-
-    private function filterValidRules()
-    {
         /** @var RuleEntity $rule */
-        foreach ($this->rules as $key => $rule) {
+        foreach ($rules as $key => $rule) {
             if ($rule->isInvalid() || !$rule->getPayload()) {
-                $this->rules->remove($key);
+                $rules->remove($key);
             }
         }
+
+        return $this->rules = $rules;
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

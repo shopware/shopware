@@ -18,7 +18,7 @@ exports.command = function fillField(selector, value, clearField = false, type =
     this.setValue(selector, value);
 
     if (type === 'editor') {
-        this.waitForText(value);
+        this.assert.containsText(selector,value);
         return this;
     }
 

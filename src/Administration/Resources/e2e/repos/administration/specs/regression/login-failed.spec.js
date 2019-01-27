@@ -20,6 +20,13 @@ module.exports = {
             .assert.urlContains('#/login')
             .assert.containsText('.sw-login__form-headline', 'Log in to your Shopware store');
     },
+    'attempt to open the Administration without logging in': (browser) => {
+        const page = loginPage(browser);
+
+        browser
+            .url(`${browser.launch_url}#/sw/dashboard/index`)
+            .waitForElementVisible(page.elements.loginForm);
+    },
     'attempt to log in with empty login form': (browser) => {
         const page = loginPage(browser);
 
@@ -33,21 +40,14 @@ module.exports = {
         page.login('admin', '');
         page.verifyFailedLogin('Incorrect user credentials.');
     },
-    'attempt to log in with correct password leaving user name field blank': (browser) => {
-        const page = loginPage(browser);
-        page.login('', 'shopware');
-        page.verifyFailedLogin('Incorrect user credentials.');
-    },
-    'attempt to open the Administration without logging in': (browser) => {
-        const page = loginPage(browser);
-
-        browser
-            .url(`${browser.launch_url}#/sw/dashboard/index`)
-            .waitForElementVisible(page.elements.loginForm);
-    },
     'attempt to log in using invalid credentials': (browser) => {
         const page = loginPage(browser);
         page.login('fakeAdmin', 'shopware');
+        page.verifyFailedLogin('Incorrect user credentials.');
+    },
+    'attempt to log in with correct password leaving user name field blank': (browser) => {
+        const page = loginPage(browser);
+        page.login('', 'shopware');
         page.verifyFailedLogin('Incorrect user credentials.');
     },
     'attempt to log in using invalid code credentials': (browser) => {

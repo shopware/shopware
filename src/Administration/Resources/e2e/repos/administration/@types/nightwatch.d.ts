@@ -2254,28 +2254,6 @@ export interface NightwatchCustomCommands {
     openMainMenuEntry(mainMenuPath: string, menuTitle: string, subMenuItemSelector?: string | null, subMenuTitle?: string | null): this,
 
     /**
-     * Tries to find an element with the provided text. When the element isn't present in the defined timeout,
-     * an error will be triggered.
-     *
-     * Usage:
-     * ```
-     * this.waitForText('Erfolgreich');
-     * ```
-     * Exact match usage example:
-     * ```
-     * this.waitForText('Erfolgreich', true);
-     * ```
-     *
-     * Using this parameter finds all text elements that equal the provided text after removing leading and
-     * trailing whitespaces.
-     *
-     * @param {String} text
-     * @param {Boolean} [exactMatch=false]
-     * @param {Number} [timeout=5000]
-     */
-    waitForText(text: string, exactMatch?: boolean, timeout?: number): this
-
-    /**
      * Uses the global search input field in the Administration for finding a product or other entity.
      *
      * Usage:

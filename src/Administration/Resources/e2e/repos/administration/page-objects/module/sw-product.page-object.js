@@ -4,7 +4,7 @@ class ProductPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements,{
+        this.elements = Object.assign(this.elements, {
             columnProductName: 'sw-product-list__column-product-name > a',
             mediaForm: '.sw-product-media-form',
             productSaveAction: '.sw-product-detail__save-action',
@@ -45,14 +45,14 @@ class ProductPageObject extends GeneralPageObject {
             .click(this.elements.productSaveAction)
             .checkNotification('1 of 1 files saved', false)
             .click(this.elements.alertClose)
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), '1 of 1 files saved')]`)
-            .useCss()
+            .expect.element('.sw-alert__message').to.have.text.not.equals('1 of 1 files saved').before(500);
+
+        this.browser
             .checkNotification(`Product "${productName}" has been saved successfully`, false)
             .click(this.elements.alertClose)
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'Product "${productName}" has been saved successfully')]`)
-            .useCss()
+            .expect.element('.sw-alert__message').to.have.text.not.equals(`Product "${productName}" has been saved successfully`).before(500);
+
+        this.browser
             .checkNotification('File has been saved successfully');
     }
 

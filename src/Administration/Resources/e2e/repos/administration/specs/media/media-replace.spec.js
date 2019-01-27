@@ -67,9 +67,9 @@ module.exports = {
             .click('.sw-media-replace__replace-media-action')
             .checkNotification('File has been saved successfully', false)
             .click('.sw-alert__close')
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'File has been saved successfully')]`)
-            .useCss()
+            .expect.element('.sw-alert__message').to.have.text.not.equals('File has been saved successfully').before(500);
+
+        browser
             .checkNotification('File replaced');
     },
     'verify if image was replaced correctly': (browser) => {

@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -89,7 +90,7 @@ class TranslationValidator implements WriteCommandValidatorInterface
         $idStorageName = $rootEntity::getEntityName() . '_id';
         $versionIdStorageName = $rootEntity::getEntityName() . '_version_id';
 
-        $pks = $definition::getPrimaryKeys();
+        $pks = new FieldCollection($definition::getPrimaryKeys());
         $idField = $pks->getByStorageName($idStorageName);
         if (!$idField || !$idField instanceof FkField) {
             throw new \RuntimeException(sprintf('`%s` primary key should have column `%s`', $definition, $idStorageName));

@@ -30,6 +30,21 @@ class EntityCollection extends Collection
         );
     }
 
+    public function filterAndReduceByProperty(string $property, $value)
+    {
+        $filtered = [];
+
+        foreach ($this->elements as $key => $struct) {
+            if ($struct->get($property) !== $value) {
+                continue;
+            }
+            $filtered[] = $struct;
+            $this->remove($key);
+        }
+
+        return new static($filtered);
+    }
+
     public function merge(self $collection): void
     {
         /** @var Entity $entity */

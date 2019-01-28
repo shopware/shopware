@@ -43,6 +43,11 @@ abstract class EntityDefinition
      */
     protected static $keywordSearchDefinitions = [];
 
+    /**
+     * @var Field[][]
+     */
+    protected static $primaryKeys = [];
+
     public static function addExtension(EntityExtensionInterface $extension): void
     {
         static::$extensions[static::class][\get_class($extension)] = $extension;
@@ -149,12 +154,17 @@ abstract class EntityDefinition
         return static::$translationDefinitions[static::class];
     }
 
-    public static function getPrimaryKeys(): FieldCollection
+    public static function getPrimaryKeys(): array
     {
-        return static::getFields()
-            ->filter(function (Field $field) {
-                return $field->is(PrimaryKey::class);
-            });
+        if (array_key_exists(static::class, static::$primaryKeys)) {
+            return static::$primaryKeys[static::class];
+        }
+
+        $fields = array_filter(static::getFields()->getElements(), function (Field $field) {
+            return $field->is(PrimaryKey::class);
+        });
+
+        return static::$primaryKeys[static::class] = $fields;
     }
 
     public static function getDefaults(EntityExistence $existence): array

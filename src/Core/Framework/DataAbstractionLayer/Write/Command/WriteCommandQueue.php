@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class WriteCommandQueue
 {
@@ -16,6 +17,11 @@ class WriteCommandQueue
      * @var array
      */
     private $commands;
+
+    /**
+     * @var array[]
+     */
+    private $entityCommands = [];
 
     /**
      * @param WriteCommandInterface[] ...$commands
@@ -27,7 +33,19 @@ class WriteCommandQueue
 
     public function add(string $senderIdentification, WriteCommandInterface $command): void
     {
+        $primaryKey = $command->getPrimaryKey();
+
+        sort($primaryKey);
+
+        $primaryKey = array_map(function ($id) {
+            return Uuid::fromBytesToHex($id);
+        }, $primaryKey);
+
+        $hash = $senderIdentification . ':' . md5(json_encode($primaryKey));
+
         $this->commands[$senderIdentification][] = $command;
+
+        $this->entityCommands[$hash][] = $command;
     }
 
     /**
@@ -147,19 +165,18 @@ class WriteCommandQueue
      */
     public function getCommandsForEntity(string $definition, array $primaryKey): array
     {
-        if (!isset($this->commands[$definition])) {
+        $primaryKey = array_map(function ($id) {
+            return Uuid::fromBytesToHex($id);
+        }, $primaryKey);
+
+        sort($primaryKey);
+
+        $hash = $definition . ':' . md5(json_encode($primaryKey));
+
+        if (!isset($this->entityCommands[$hash])) {
             return [];
         }
 
-        $commands = $this->commands[$definition];
-
-        $filtered = [];
-        foreach ($commands as $command) {
-            if ($command->getPrimaryKey() == $primaryKey) {
-                $filtered[] = $command;
-            }
-        }
-
-        return $filtered;
+        return $this->entityCommands[$hash];
     }
 }

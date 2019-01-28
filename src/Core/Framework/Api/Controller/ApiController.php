@@ -259,7 +259,7 @@ class ApiController extends AbstractController
             $refClass = $association->getReferenceClass();
 
             $refPropName = $refClass::getFields()->getByStorageName($association->getReferenceField())->getPropertyName();
-            $refLanguagePropName = $refClass::getPrimaryKeys()->getByStorageName($association->getLanguageField())->getPropertyName();
+            $refLanguagePropName = (new FieldCollection($refClass::getPrimaryKeys()))->getByStorageName($association->getLanguageField())->getPropertyName();
 
             $mapping = [
                 $refPropName => $parent['value'],

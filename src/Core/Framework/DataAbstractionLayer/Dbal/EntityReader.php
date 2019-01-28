@@ -568,8 +568,14 @@ class EntityReader implements EntityReaderInterface
 
         //assign loaded data to root entities
         foreach ($collection as $entity) {
-            /** @var Entity $entity */
-            $structData = $data->filterByProperty($propertyName, $entity->getUniqueIdentifier());
+            /* @var Entity $entity */
+
+            //if association is inherited, the data is shared by different entities - we can not reduce the data array
+            if ($association->is(Inherited::class)) {
+                $structData = $data->filterByProperty($propertyName, $entity->getUniqueIdentifier());
+            } else {
+                $structData = $data->filterAndReduceByProperty($propertyName, $entity->getUniqueIdentifier());
+            }
 
             //assign data of child immediatly
             if ($association->is(Extension::class)) {

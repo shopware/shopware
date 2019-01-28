@@ -191,8 +191,8 @@
         "lowerThanEquals": "Lower than",
         "equals": "Equals",
         "greaterThanEquals": "Greater equals",
-        "lower": "Lower",
-        "greater": "Greater",
+        "lowerThan": "Lower",
+        "greaterThan": "Greater",
         "notEquals": "Not equals",
         "isOneOf": "Is one of",
         "isNoneOf": "Is none of"

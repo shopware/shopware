@@ -58,6 +58,20 @@ class GoodsPriceRule extends Rule
                     ['Goods price too high']
                 );
 
+            case self::OPERATOR_GT:
+
+                return new Match(
+                    $goodsAmount > $this->amount,
+                    ['Goods price too low']
+                );
+
+            case self::OPERATOR_LT:
+
+                return new Match(
+                    $goodsAmount < $this->amount,
+                    ['Goods price too high']
+                );
+
             case self::OPERATOR_EQ:
                 return new Match(
                     $goodsAmount === $this->amount,
@@ -80,7 +94,18 @@ class GoodsPriceRule extends Rule
     {
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
-            'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_EQ])],
+            'operator' => [
+                new Choice(
+                    [
+                        self::OPERATOR_NEQ,
+                        self::OPERATOR_GTE,
+                        self::OPERATOR_LTE,
+                        self::OPERATOR_EQ,
+                        self::OPERATOR_GT,
+                        self::OPERATOR_LT,
+                    ]
+                ),
+            ],
         ];
     }
 

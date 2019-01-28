@@ -69,6 +69,18 @@ class LineItemWithQuantityRule extends Rule
                         ['LineItem quantity too high']
                     );
 
+                case self::OPERATOR_GT:
+                    return new Match(
+                        $quantity > $this->quantity,
+                        ['LineItem quantity too low']
+                    );
+
+                case self::OPERATOR_LT:
+                    return new Match(
+                        $quantity < $this->quantity,
+                        ['LineItem quantity too high']
+                    );
+
                 case self::OPERATOR_EQ:
                     return new Match(
                         $quantity == $this->quantity,
@@ -94,7 +106,18 @@ class LineItemWithQuantityRule extends Rule
         return [
             'id' => [new NotBlank(), new Uuid()],
             'quantity' => [new NotBlank(), new Type('int')],
-            'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_LTE, self::OPERATOR_GTE, self::OPERATOR_NEQ])],
+            'operator' => [
+                new Choice(
+                    [
+                        self::OPERATOR_EQ,
+                        self::OPERATOR_LTE,
+                        self::OPERATOR_GTE,
+                        self::OPERATOR_NEQ,
+                        self::OPERATOR_GT,
+                        self::OPERATOR_LT,
+                    ]
+                ),
+            ],
         ];
     }
 

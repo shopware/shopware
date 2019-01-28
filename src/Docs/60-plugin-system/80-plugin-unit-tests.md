@@ -110,30 +110,27 @@ Below you find an example test showcasing some functionality.
 
 namespace SwagExample\Test;
 
-use Shopware\Core\Framework\Plugin\PluginManager;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use SwagExample\Service\ExampleServiceTest;
+use SwagExample\Service\ExampleService;
 use PHPUnit\Framework\TestCase;
 
 class ExampleTest extends TestCase
 {
-    private const PLUGIN_MANAGER_ID = 'Shopware\Core\Framework\Plugin\PluginManager';
+    private const EXAMPLE_SERVICE_ID = 'SwagExample\Service\ExampleService';
 
     use IntegrationTestBehaviour;
 
     public function test_if_plugin_manager_is_present(): void
     {
-        $container = $this->getContainer();
+        $exampleService = $this->getContainer()->get(self::EXAMPLE_SERVICE_ID);
 
-        $pluginManager = $container->get(self::PLUGIN_MANAGER_ID);
-
-        self::assertInstanceOf(PluginManager::class, $pluginManager);
+        self::assertInstanceOf(ExampleService::class, $exampleService);
     }
 }
 ```
 *Test/ExampleTest.php*
 
-The above-shown test asserts whether or not the `PluginManager` is present in the DIC.
+The above-shown test asserts whether or not the `ExampleService` is present in the DIC.
 This doesn't test any plugin functionality but it helps to showcase the usage of the `Shopware` `IntegrationTestBehaviour` trait.
 If you need access to the database, DIC, filesystem or cache use the `IntegrationTestBehaviour` trait.
 This way you can access these things easily by calling one method, like the above `$this->getContainer()`.

@@ -28,6 +28,6 @@ trait DatabaseTransactionBehaviour
         KernelLifecycleManager::getKernel()
             ->getContainer()
             ->get(Connection::class)
-            ->rollback();
+            ->rollBack();
     }
 }

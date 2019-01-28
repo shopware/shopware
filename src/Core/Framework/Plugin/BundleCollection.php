@@ -23,7 +23,12 @@ class BundleCollection
     public function add(Plugin $bundle): void
     {
         $class = \get_class($bundle);
+        /** @var string|false $class */
         $class = substr($class, 0, strpos($class, '\\'));
+
+        if ($class === false) {
+            return;
+        }
 
         if ($this->has($class)) {
             return;

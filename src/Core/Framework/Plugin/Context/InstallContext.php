@@ -49,13 +49,9 @@ class InstallContext
         return $this->context;
     }
 
-    public function assertMinimumShopwareVersion(string $requiredShopwareVersion): bool
+    public function getCurrentShopwareVersion(): string
     {
-        if ($this->currentShopwareVersion === '___VERSION___') {
-            return true;
-        }
-
-        return version_compare($this->currentShopwareVersion, $requiredShopwareVersion, '>=');
+        return $this->currentShopwareVersion;
     }
 
     public function getCurrentPluginVersion(): string

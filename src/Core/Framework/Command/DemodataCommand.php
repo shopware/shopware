@@ -12,6 +12,7 @@ use function Flag\next1207;
 use function Flag\next739;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
@@ -533,7 +534,7 @@ class DemodataCommand extends Command
                         pathinfo($file, PATHINFO_FILENAME),
                         pathinfo($file, PATHINFO_EXTENSION),
                         $id,
-                        $context
+                        $this->context
                     ),
                     $id,
                     $this->context
@@ -1144,7 +1145,7 @@ class DemodataCommand extends Command
 
             $cart = $this->cartService->recalculate($cart, $context);
 
-            $payload[] = $this->orderConverter->convertToOrder($cart, $context);
+            $payload[] = $this->orderConverter->convertToOrder($cart, $context, new OrderConversionContext());
 
             if (\count($payload) >= 20) {
                 $this->writer->upsert(OrderDefinition::class, $payload, $this->getWriteContext());
@@ -1188,7 +1189,7 @@ class DemodataCommand extends Command
                     pathinfo($file, PATHINFO_FILENAME),
                     pathinfo($file, PATHINFO_EXTENSION),
                     $mediaId,
-                    $context
+                    $this->context
                 ),
                 $mediaId,
                 $this->context
@@ -1256,8 +1257,6 @@ class DemodataCommand extends Command
 
         $this->io->progressStart($count);
 
-        $context = Context::createDefaultContext();
-
         $optionIds = [];
 
         for ($i = 0; $i <= $count; ++$i) {
@@ -1282,7 +1281,7 @@ class DemodataCommand extends Command
                         'display_type' => 'text',
                     ],
                 ],
-                $context
+                $this->context
             );
 
             $this->io->progressAdvance(1);

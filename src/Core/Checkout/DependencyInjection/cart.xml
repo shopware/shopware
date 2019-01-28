@@ -175,7 +175,6 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\AddressTransformer"/>
         </service>
     </services>
 </container>

@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 
 class CustomerTransformer
 {
-    public function transformCollection(CustomerCollection $customers, bool $useIdAsKey = false): array
+    public static function transformCollection(CustomerCollection $customers, bool $useIdAsKey = false): array
     {
         $output = [];
         /** @var CustomerEntity $customer */
@@ -22,7 +22,7 @@ class CustomerTransformer
         return $output;
     }
 
-    public function transform(CustomerEntity $customer): array
+    public static function transform(CustomerEntity $customer): array
     {
         return [
             'customerId' => $customer->getId(),

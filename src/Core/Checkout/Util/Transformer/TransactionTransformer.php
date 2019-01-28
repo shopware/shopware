@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 
 class TransactionTransformer
 {
-    public function transformCollection(TransactionCollection $transactions): array
+    public static function transformCollection(TransactionCollection $transactions): array
     {
         $output = [];
         foreach ($transactions as $transaction) {
@@ -18,7 +18,7 @@ class TransactionTransformer
         return $output;
     }
 
-    public function transform(Transaction $transaction): array
+    public static function transform(Transaction $transaction): array
     {
         return [
             'paymentMethodId' => $transaction->getPaymentMethodId(),

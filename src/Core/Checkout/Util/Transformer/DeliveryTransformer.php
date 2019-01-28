@@ -12,17 +12,7 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class DeliveryTransformer
 {
-    /**
-     * @var AddressTransformer
-     */
-    protected $addressTransformer;
-
-    public function __construct(AddressTransformer $addressTransformer)
-    {
-        $this->addressTransformer = $addressTransformer;
-    }
-
-    public function transformCollection(
+    public static function transformCollection(
         DeliveryCollection $deliveries,
         array $lineItems,
         array $addresses = []
@@ -35,7 +25,7 @@ class DeliveryTransformer
         return $output;
     }
 
-    public function transform(Delivery $delivery, array $lineItems, array $addresses = []): array
+    public static function transform(Delivery $delivery, array $lineItems, array $addresses = []): array
     {
         $addressId = $delivery->getLocation()->getAddress() ? $delivery->getLocation()->getAddress()->getId() : null;
         $shippingAddress = null;
@@ -43,7 +33,7 @@ class DeliveryTransformer
         if ($addressId !== null && array_key_exists($addressId, $addresses)) {
             $shippingAddress = $addresses[$addressId];
         } elseif ($delivery->getLocation()->getAddress() !== null) {
-            $shippingAddress = $this->addressTransformer->transform($delivery->getLocation()->getAddress());
+            $shippingAddress = AddressTransformer::transform($delivery->getLocation()->getAddress());
         }
 
         $deliveryData = [

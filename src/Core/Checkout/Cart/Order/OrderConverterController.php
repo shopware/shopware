@@ -4,15 +4,16 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,17 +49,22 @@ class OrderConverterController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/order/{orderId}/convert-to-cart/", name="api.action.order.convert-to-cart", methods={"POST"})
      *
-     * @throws CartTokenNotFoundException
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
      * @throws MixedLineItemTypeException
      * @throws InvalidOrderException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingOrderRelationException
      */
     public function convertToCart(string $orderId, Context $context)
     {
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('deliveries');
+
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
 
         if (!$order) {
             throw new InvalidOrderException($orderId);

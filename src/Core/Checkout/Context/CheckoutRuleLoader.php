@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehaviorContext;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -94,7 +95,7 @@ class CheckoutRuleLoader
             $context->setRuleIds($rules->getIds());
 
             //recalculate cart for new context rules
-            $new = $this->processor->process($cart, $context);
+            $new = $this->processor->process($cart, $context, new CartBehaviorContext());
 
             if ($this->cartChanged($cart, $new)) {
                 $valid = false;

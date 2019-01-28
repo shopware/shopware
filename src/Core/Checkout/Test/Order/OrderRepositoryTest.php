@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Order;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehaviorContext;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -102,7 +103,7 @@ class OrderRepositoryTest extends TestCase
                 CheckoutContextService::CUSTOMER_ID => $customerId,
             ]);
 
-        $cart = $this->processor->process($cart, $context);
+        $cart = $this->processor->process($cart, $context, new CartBehaviorContext());
 
         $result = $this->orderPersister->persist($cart, $context);
 

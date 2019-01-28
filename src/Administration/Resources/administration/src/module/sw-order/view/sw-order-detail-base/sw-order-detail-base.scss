@@ -35,7 +35,7 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
 
     .sw-description-list, .sw-alert {
         .sw-order-detail-base__address-edit-button, .sw-order-detail-base__address-add-button, .sw-order-detail-base__continue-work-alert  {
-            color: @sw-order-detail-base-link;
+            color: $sw-order-detail-base-link;
             background: transparent;
             border: none;
             line-height: 10px;
@@ -59,7 +59,7 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
         dt,
         dd {
             line-height: 49px;
-            border-bottom: 1px solid @color-steam-cloud;
+            border-bottom: 1px solid $color-steam-cloud;
             color: $color-gutenberg;
             font-weight: normal;
             text-align: right;

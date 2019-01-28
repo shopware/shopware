@@ -41,7 +41,14 @@ class OrderPersister implements OrderPersisterInterface
             throw new InvalidCartException($cart->getErrors());
         }
 
-        $order = $this->converter->convertToOrder($cart, $context);
+        if (!$context->getCustomer()) {
+            throw new CustomerNotLoggedInException();
+        }
+        if ($cart->getLineItems()->count() <= 0) {
+            throw new EmptyCartException();
+        }
+
+        $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
 
         return $this->repository->create([$order], $context->getContext());
     }

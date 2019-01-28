@@ -210,7 +210,7 @@
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_secondary_info_delivery %}
-                                        <dt>{{ $tc('sw-order.detailBase.labelDeliveryMethod') }}</dt>
+                                        <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
                                         <dd>{{ hasDeliveries ? currentOrder.deliveries[0].shippingMethod.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
                                     {% endblock %}
 
@@ -311,7 +311,7 @@
                                             {% block sw_order_detail_base_line_items_summary_slot %}
                                             {% endblock %}
 
-                                            {% block sw_order_detail_base_line_items_summary_amount %}
+                                            {% block sw_order_detail_base_line_items_summary_amount_total %}
                                                 <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
                                                 <dd><strong>{{ currentOrder.amountTotal | currency(order.currency.shortName) }}</strong></dd>
                                             {% endblock %}

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehaviorContext;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -41,7 +42,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class OrderRecalculationTest extends TestCase
+class RecalculationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour,
         AdminApiTestBehaviour;
@@ -83,7 +84,10 @@ class OrderRecalculationTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart);
 
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$orderId]), $this->context)->get($orderId);
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('deliveries');
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
         $convertedCart = $this->getContainer()->get(OrderConverter::class)->convertToCart($order, $this->context);
 
         // check name and token
@@ -582,7 +586,7 @@ class OrderRecalculationTest extends TestCase
                 )
         );
         $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext);
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
 
         return $cart;
     }

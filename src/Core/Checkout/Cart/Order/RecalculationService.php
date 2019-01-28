@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -58,19 +59,13 @@ class RecalculationService
      */
     protected $customerAddressRepository;
 
-    /**
-     * @var AddressTransformer
-     */
-    protected $addressTransformer;
-
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         OrderConverter $orderConverter,
         CartService $cartService,
         EntityRepositoryInterface $productRepository,
         EntityRepositoryInterface $orderAddressRepository,
-        EntityRepositoryInterface $customerAddressRepository,
-        AddressTransformer $addressTransformer
+        EntityRepositoryInterface $customerAddressRepository
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderConverter = $orderConverter;
@@ -78,7 +73,6 @@ class RecalculationService
         $this->productRepository = $productRepository;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->customerAddressRepository = $customerAddressRepository;
-        $this->addressTransformer = $addressTransformer;
     }
 
     /**
@@ -95,32 +89,42 @@ class RecalculationService
      */
     public function recalculateOrder(string $orderId, Context $context): void
     {
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->get($orderId);
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('deliveries');
+        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
 
         $checkoutContext = $this->orderConverter->assembleCheckoutContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
         $recalculatedCart = $this->cartService->refresh($cart, $checkoutContext);
 
-        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $checkoutContext, false, false, true, false);
+        $conversionContext = (new OrderConversionContext())
+            ->setIncludeCustomer(false)
+            ->setIncludeBillingAddress(false)
+            ->setIncludeDeliveries(true)
+            ->setIncludeTransactions(false);
+
+        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $checkoutContext, $conversionContext);
         $orderData['id'] = $order->getId();
         $this->orderRepository->upsert([$orderData], $context);
     }
 
     /**
-     * @throws CustomerNotLoggedInException
      * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
+     * @throws InconsistentCriteriaIdsException
      * @throws InvalidOrderException
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
+     * @throws MissingOrderRelationException
      * @throws MixedLineItemTypeException
      * @throws OrderRecalculationException
      * @throws ProductNotFoundException
      */
     public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context)
     {
+        $this->validateProduct($productId, $context);
         $lineItem = (new LineItem($productId, ProductCollector::LINE_ITEM_TYPE, $quantity))
             ->setRemovable(true)
             ->setStackable(true)
@@ -130,21 +134,23 @@ class RecalculationService
     }
 
     /**
-     * @throws CustomerNotLoggedInException
      * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
+     * @throws InconsistentCriteriaIdsException
      * @throws InvalidOrderException
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
      * @throws MixedLineItemTypeException
      * @throws OrderRecalculationException
-     * @throws InconsistentCriteriaIdsException
+     * @throws MissingOrderRelationException
      */
     public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context)
     {
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('deliveries');
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
 
         $checkoutContext = $this->orderConverter->assembleCheckoutContext($order, $context);
@@ -152,7 +158,13 @@ class RecalculationService
 
         $recalculatedCart = $this->cartService->add($cart, $lineItem, $checkoutContext);
 
-        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $checkoutContext, false, false, false, false);
+        $conversionContext = (new OrderConversionContext())
+            ->setIncludeCustomer(false)
+            ->setIncludeBillingAddress(false)
+            ->setIncludeDeliveries(false)
+            ->setIncludeTransactions(false);
+
+        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $checkoutContext, $conversionContext);
         $orderData['id'] = $order->getId();
         $this->orderRepository->upsert([$orderData], $context);
     }
@@ -173,7 +185,7 @@ class RecalculationService
             throw new AddressNotFoundException($customerAddressId);
         }
 
-        $newOrderAddress = $this->addressTransformer->transform($customerAddress);
+        $newOrderAddress = AddressTransformer::transform($customerAddress);
         $newOrderAddress['id'] = $orderAddressId;
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
     }

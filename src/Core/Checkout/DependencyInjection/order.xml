@@ -55,33 +55,9 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Order\OrderConverter">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="order_line_item.repository"/>
-            <argument type="service" id="order_delivery.repository"/>
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="order_delivery_position.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\AddressTransformer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\CartTransformer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\CustomerTransformer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\DeliveryTransformer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\LineItemTransformer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\TransactionTransformer"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
-
-        <service id="Shopware\Core\Checkout\Util\Transformer\AddressTransformer"/>
-
-        <service id="Shopware\Core\Checkout\Util\Transformer\CartTransformer"/>
-
-        <service id="Shopware\Core\Checkout\Util\Transformer\CustomerTransformer"/>
-
-        <service id="Shopware\Core\Checkout\Util\Transformer\DeliveryTransformer" >
-            <argument type="service" id="Shopware\Core\Checkout\Util\Transformer\AddressTransformer"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Util\Transformer\LineItemTransformer"/>
-
-        <service id="Shopware\Core\Checkout\Util\Transformer\TransactionTransformer"/>
     </services>
 </container>

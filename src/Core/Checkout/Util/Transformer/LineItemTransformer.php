@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 
 class LineItemTransformer
 {
-    public function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array
+    public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array
     {
         $output = [];
         foreach ($lineItems as $lineItem) {
@@ -20,7 +20,7 @@ class LineItemTransformer
         return $output;
     }
 
-    public function transform(LineItem $lineItem, ?string $parentId = null): array
+    public static function transform(LineItem $lineItem, ?string $parentId = null): array
     {
         $output = [];
         /** @var IdStruct|null $idStruct */

@@ -28,7 +28,7 @@
                                     <sw-button variant="ghost"
                                                size="small"
                                                @click="onInsertExistingItem">
-                                        {{ $tc('sw-order.detailBase.buttonAddExistingProduct')  }}
+                                        {{ $tc('sw-order.detailBase.buttonAddProduct')  }}
                                     </sw-button>
                                 {% endblock %}
 
@@ -79,12 +79,19 @@
                                             :editable="editable"
                                             :label="$tc('sw-order.detailBase.columnProductName')">
                                 {% block sw_order_line_items_grid_columns_name_link %}
-                                    <router-link :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                                    <router-link v-if="item.type === 'product'" :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
                                                  :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
                                         {% block sw_order_line_items_grid_columns_name_label %}
                                             {{ item.label }}
                                         {% endblock %}
                                     </router-link>
+
+                                    <template v-else>
+                                        {% block sw_order_line_items_grid_columns_name_label %}
+                                            {{ item.label }}
+                                        {% endblock %}
+                                    </template>
+
                                 {% endblock %}
 
                                 {% block sw_order_line_items_grid_columns_label_editor %}
@@ -178,7 +185,7 @@
                             <sw-grid-column flex="minmax(70px, 70px)"
                                             align="center">
                                 {% block sw_order_line_items_grid_columns_actions_button %}
-                                    <sw-context-button>
+                                    <sw-context-button v-if="item.type === 'product'">
 
                                         {% block sw_order_line_items_grid_columns_actions_show %}
                                             <sw-context-menu-item icon="default-eye-open" :routerLink="{ name: 'sw.product.detail', params: { id: item.identifier } }">

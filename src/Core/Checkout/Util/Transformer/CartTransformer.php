@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Random;
 
 class CartTransformer
 {
-    public function transform(Cart $cart, CheckoutContext $context): array
+    public static function transform(Cart $cart, CheckoutContext $context): array
     {
         $currency = $context->getCurrency();
 

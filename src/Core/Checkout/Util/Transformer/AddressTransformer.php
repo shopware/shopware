@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 
 class AddressTransformer
 {
-    public function transformCollection(CustomerAddressCollection $addresses, bool $useIdAsKey = false): array
+    public static function transformCollection(CustomerAddressCollection $addresses, bool $useIdAsKey = false): array
     {
         $output = [];
         /** @var CustomerAddressEntity $address */
@@ -26,7 +26,7 @@ class AddressTransformer
         return $output;
     }
 
-    public function transform(CustomerAddressEntity $address): array
+    public static function transform(CustomerAddressEntity $address): array
     {
         return array_filter([
             'id' => Uuid::uuid4()->getHex(),

@@ -51,8 +51,7 @@ Component.register('sw-order-line-items-grid', {
 
             this.orderLineItems = [];
             if (this.$refs['order-line-items-grid']) {
-                this.$refs['order-line-items-grid'].allSelectedChecked = false;
-                this.$refs['order-line-items-grid'].selection = {};
+                this.$refs['order-line-items-grid'].selectAll(false);
             }
 
             return this.lineItemsStore.getList(params).then((response) => {

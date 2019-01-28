@@ -240,7 +240,7 @@
             <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\ObjectFieldAccessorBuilder">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-150"/>
         </service>
 

@@ -119,6 +119,9 @@
         <service id="Shopware\Core\Framework\Api\Controller\CacheController" public="true">
             <argument type="service" id="shopware.cache"/>
             <argument type="service" id="serializer"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <!-- API OAuth Repositories -->

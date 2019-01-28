@@ -53,8 +53,6 @@ class SnippetServiceTest extends TestCase
 
     public function dataProviderForTestGetStoreFrontSnippets(): array
     {
-        $context = $this->getContext(Defaults::SALES_CHANNEL);
-
         return [
             [$this->getCatalog([], 'en_GB'), []],
             [$this->getCatalog(['messages' => ['a' => 'a']], 'en_GB'), ['a' => 'a']],
@@ -101,8 +99,8 @@ class SnippetServiceTest extends TestCase
             Defaults::SNIPPET_BASE_SET_DE => 'de_DE',
         ];
 
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'findSnippetsInDatabase');
-        $result = $mehtod->invokeArgs($this->getSnippetService(), [$criteria, $context, $searchTerm, $isoList]);
+        $method = ReflectionHelper::getMethod(SnippetService::class, 'findSnippetsInDatabase');
+        $result = $method->invokeArgs($this->getSnippetService(), [$criteria, $context, $searchTerm, $isoList]);
 
         $this->assertArraySubset($expectedResult, $result);
     }
@@ -159,11 +157,11 @@ class SnippetServiceTest extends TestCase
         $expectedResults = require __DIR__ . '/../_fixtures/GetSnippetsResult.php';
 
         $sql = "INSERT IGNORE INTO `snippet_set` (`id`, `name`, `base_file`, `iso`, `created_at`, `updated_at`)
-              VALUES (UNHEX('d25b3274612d4e6c960dadaf3ef56fd9'), 
-              'only for unit tests', 
-              'test_Unit_TEST', 
-              'unit_TEST', 
-              now(), 
+              VALUES (UNHEX('d25b3274612d4e6c960dadaf3ef56fd9'),
+              'only for unit tests',
+              'test_Unit_TEST',
+              'unit_TEST',
+              now(),
               NULL);";
 
         $this->getContainer()->get(Connection::class)->executeQuery($sql);
@@ -194,17 +192,6 @@ class SnippetServiceTest extends TestCase
         $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'fillBlankSnippets');
 
         $isoList = ['unit_TEST', 'en_GB'];
-        $snippetList = [
-            'unit_TEST' => [
-                'snippets' => [
-                    'required.unit.test.snippet' => 'This snippet is missing in the other language and needs to be filled up',
-                ],
-            ], [
-                'en_GB' => [
-                    'snippets' => [],
-                ],
-            ],
-        ];
 
         $expectedResult = $snippetList = [
             'unit_TEST' => [
@@ -391,17 +378,5 @@ class SnippetServiceTest extends TestCase
     private function getCatalog(array $messages, string $local): MessageCatalogueInterface
     {
         return new MessageCatalogue($local, $messages);
-    }
-
-    private function getContext(string $salesChannelId): Context
-    {
-        $sourceContext = new SourceContext();
-        $sourceContext->setSalesChannelId($salesChannelId);
-
-        $context = Context::createDefaultContext();
-        $property = ReflectionHelper::getProperty(Context::class, 'sourceContext');
-        $property->setValue($context, $sourceContext);
-
-        return $context;
     }
 }

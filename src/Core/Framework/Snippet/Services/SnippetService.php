@@ -64,7 +64,6 @@ class SnippetService implements SnippetServiceInterface
             ];
         }
 
-        $term = $this->getTerm($criteria);
         $limit = $criteria->getLimit();
         $page = $criteria->getOffset() / $limit;
         $isoList = [];

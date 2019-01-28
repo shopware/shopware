@@ -52,15 +52,22 @@
     }
 
     .sw-media-index__options-container {
-        margin-left: auto;
         padding: 24px 10px 14px 20px ;
+        display: grid;
+        grid-auto-flow: column;
+        grid-gap: 16px;
+        justify-content: end;
+        justify-items: end;
+
+        @media (max-width: 1500px) {
+            grid-auto-flow: row;
+        }
 
         .sw-field {
             display: inline-grid;
             width: auto;
             grid-template-columns: auto auto;
             align-items: center;
-            margin-right: 16px;
             margin-bottom: 0;
 
             label {

@@ -63,7 +63,7 @@ export default class EntityStore {
             {},
             EntityStore.getLanguageHeader(languageId)
         ).then((response) => {
-            entity.setData(response.data, true, true, languageId);
+            entity.setData(response.data, true, true, false, languageId);
             entity.isLoading = false;
         });
 

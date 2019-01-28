@@ -7,7 +7,7 @@ const fixture = {
 module.exports = {
     '@tags': ['product-delete', 'product', 'delete'],
     before: (browser, done) => {
-        global.ProductFixtureService.setProductFixtures(fixture).then(() => {
+        global.ProductFixtureService.setProductFixture(fixture).then(() => {
             done();
         });
     },

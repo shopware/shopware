@@ -10,6 +10,7 @@ class MediaPageObject extends GeneralPageObject {
             baseItem: '.sw-media-base-item',
             gridItem: '.sw-media-grid-item__item',
             mediaItem: '.sw-media-media-item',
+            folderItem: '.sw-media-folder-item',
             folderNameInput: 'input[name=media-item-name]',
             folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
             folderBreadcrumbBack: '.icon--folder-breadcrumbs-dropdown',

@@ -3,7 +3,7 @@ const productPage = require('administration/page-objects/module/sw-product.page-
 module.exports = {
     '@tags': ['product', 'product-edit', 'edit'],
     before: (browser, done) => {
-        global.ProductFixtureService.setProductFixtures({
+        global.ProductFixtureService.setProductFixture({
             name: "Really good product",
             description: "This describes a product. It is your product. You will take care of your product. You will set a price, keep records of storage quantities and take care of whatever needs your product might develop. You love your product. Your are the product. Now go find someone dumb enough to buy your precious product.",
         }).then(() => {

@@ -5,7 +5,7 @@ const productPage = require('administration/page-objects/module/sw-product.page-
 module.exports = {
     '@tags': ['media', 'media-replace', 'replace'],
     before: (browser, done) => {
-        global.ProductFixtureService.setProductFixtures().then(() => {
+        global.ProductFixtureService.setProductFixture().then(() => {
             done();
         });
     },

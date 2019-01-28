@@ -7,7 +7,7 @@ const fixture = {
 module.exports = {
     '@tags': ['product', 'product-inline-edit', 'inline-edit'],
     before: (browser, done) => {
-        global.ProductFixtureService.setProductFixtures(fixture).then(() => {
+        global.ProductFixtureService.setProductFixture(fixture).then(() => {
             done();
         });
     },

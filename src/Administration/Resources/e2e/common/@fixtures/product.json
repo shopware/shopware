@@ -1,6 +1,6 @@
 {
   "name": "Product name",
-  "description": "Product description",
+  "descriptionLong": "Product description",
   "price": {
     "net": 42,
     "gross": 64

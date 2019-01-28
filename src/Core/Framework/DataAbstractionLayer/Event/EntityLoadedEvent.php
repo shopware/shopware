@@ -36,12 +36,18 @@ class EntityLoadedEvent extends NestedEvent
      */
     protected $name;
 
-    public function __construct(string $definition, EntityCollection $entities, Context $context)
+    /**
+     * @var bool
+     */
+    protected $nested = true;
+
+    public function __construct(string $definition, EntityCollection $entities, Context $context, bool $nested = true)
     {
         $this->entities = $entities;
         $this->definition = $definition;
         $this->context = $context;
         $this->name = $this->definition::getEntityName() . '.loaded';
+        $this->nested = $nested;
     }
 
     public function getEntities(): EntityCollection
@@ -66,6 +72,10 @@ class EntityLoadedEvent extends NestedEvent
 
     public function getEvents(): ?NestedEventCollection
     {
+        if (!$this->nested) {
+            return null;
+        }
+
         $associations = $this->extractAssociations($this->definition, $this->entities);
 
         $events = [];
@@ -74,8 +84,7 @@ class EntityLoadedEvent extends NestedEvent
         foreach ($associations as $definition => $entities) {
             /** @var Entity[] $entities */
             $collection = $definition::getCollectionClass();
-
-            $events[] = new EntityLoadedEvent($definition, new $collection($entities), $this->context);
+            $events[] = new EntityLoadedEvent($definition, new $collection($entities), $this->context, false);
         }
 
         return new NestedEventCollection($events);

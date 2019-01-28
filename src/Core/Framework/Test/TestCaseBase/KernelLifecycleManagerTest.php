@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class KernelLifecycleManagerTest extends TestCase
 {
-    public const BUILD_AGAINST_FILE_HASH = 'd0645f26944b1ba60f75d34b5a06f9e84ce1f852';
+    public const BUILD_AGAINST_FILE_HASH = '87f9dedec48135c83908515f50c55aec10de6471';
 
     public function testIfTheManagerNeedsAnUpdate(): void
     {

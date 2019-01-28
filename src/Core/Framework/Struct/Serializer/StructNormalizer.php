@@ -24,7 +24,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     public function normalize($data, $format = null, array $context = [])
     {
         $encoder = new JsonEncode();
-        $decoder = new JsonDecode(true);
+        $decoder = new JsonDecode([JsonDecode::ASSOCIATIVE => true]);
 
         return $decoder->decode($encoder->encode($data, 'json'), 'json');
     }

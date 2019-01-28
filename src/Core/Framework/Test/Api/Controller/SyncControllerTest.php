@@ -220,6 +220,8 @@ class SyncControllerTest extends TestCase
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $category . '/products/');
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
+
         $products = array_column($responseData['data'], 'id');
 
         static::assertContains($product, $products);

@@ -10,11 +10,10 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('shopware');
 
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->root('shopware');
-
+        $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
                 ->append($this->createFilesystemSection())
@@ -28,12 +27,11 @@ class Configuration implements ConfigurationInterface
 
     private function createFilesystemSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('filesystem');
 
-        /** @var ArrayNodeDefinition $node */
-        $node = $treeBuilder->root('filesystem');
-
-        $node
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
             ->children()
                 ->arrayNode('private')
                     ->performNoDeepMerging()
@@ -52,34 +50,32 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        return $node;
+        return $rootNode;
     }
 
     private function createCdnSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('cdn');
 
-        /** @var ArrayNodeDefinition $node */
-        $node = $treeBuilder->root('cdn');
-
-        $node
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
             ->end()
             ;
 
-        return $node;
+        return $rootNode;
     }
 
     private function createApiSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('api');
 
-        /** @var ArrayNodeDefinition $node */
-        $node = $treeBuilder->root('api');
-
-        $node
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
             ->children()
             ->arrayNode('allowed_limits')
             ->prototype('scalar')->end()
@@ -88,6 +84,6 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        return $node;
+        return $rootNode;
     }
 }

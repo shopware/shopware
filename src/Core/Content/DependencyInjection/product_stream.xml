@@ -7,6 +7,9 @@
         <service id="Shopware\Core\Content\ProductStream\ProductStreamDefinition">
             <tag name="shopware.entity.definition" entity="product_stream"/>
         </service>
+        <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
         <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition">
             <tag name="shopware.entity.definition" entity="product_stream_filter"/>
         </service>

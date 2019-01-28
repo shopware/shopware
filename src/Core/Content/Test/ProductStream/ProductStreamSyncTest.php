@@ -50,7 +50,7 @@ class ProductStreamSyncTest extends TestCase
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $result = $this->connection->executeQuery('SELECT * from product_stream order by name');
+        $result = $this->connection->executeQuery('SELECT * from product_stream inner join product_stream_translation on product_stream.id = product_stream_translation.product_stream_id order by name');
         static::assertEquals('Test stream', $result->fetch()['name']);
         static::assertEquals('Test stream - 2', $result->fetch()['name']);
     }

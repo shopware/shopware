@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductStream;
 
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -43,6 +44,11 @@ class ProductStreamEntity extends Entity
      * @var bool
      */
     protected $invalid;
+
+    /**
+     * @var ProductStreamTranslationCollection|null
+     */
+    protected $translations;
 
     public function getName(): string
     {
@@ -112,5 +118,15 @@ class ProductStreamEntity extends Entity
     public function setInvalid(bool $invalid): void
     {
         $this->invalid = $invalid;
+    }
+
+    public function getTranslations(): ?ProductStreamTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?ProductStreamTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 }

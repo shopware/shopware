@@ -17,8 +17,6 @@ class Migration1547544080ProductStream extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `product_stream` (
               `id` binary(16) NOT NULL,
-              `name` varchar(500) NOT NULL,
-              `description` LONGTEXT NULL,
               `filter` JSON NULL,
               `invalid` TINYINT(1) NOT NULL DEFAULT 1,
               `created_at` datetime(3) NOT NULL,

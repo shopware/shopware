@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamFilterIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -87,9 +88,13 @@ class ProductStreamFilterIndexerTest extends TestCase
                 ],
             ], $this->context
         );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        );
+        $this->connection->exec(
+            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
         );
         $this->connection->exec(
             sprintf(
@@ -125,9 +130,13 @@ class ProductStreamFilterIndexerTest extends TestCase
                 ],
             ], $this->context
         );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        );
+        $this->connection->exec(
+            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -173,9 +182,13 @@ class ProductStreamFilterIndexerTest extends TestCase
                 ],
             ], $this->context
         );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        );
+        $this->connection->exec(
+            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -209,9 +222,13 @@ class ProductStreamFilterIndexerTest extends TestCase
                 ],
             ], $this->context
         );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        );
+        $this->connection->exec(
+            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -245,9 +262,13 @@ class ProductStreamFilterIndexerTest extends TestCase
                 ],
             ], $this->context
         );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        );
+        $this->connection->exec(
+            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
@@ -281,9 +302,13 @@ class ProductStreamFilterIndexerTest extends TestCase
                 ],
             ], $this->context
         );
+        $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, name, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), \'%s\', NOW(), null, 1)', $id, 'Stream')
+            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+        );
+        $this->connection->exec(
+            sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
         );
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(

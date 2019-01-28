@@ -145,8 +145,7 @@ export default {
 
             const clientRect = this.$el.getBoundingClientRect();
             this.pickerClasses = {
-                width: '100%',
-                top: `${clientRect.height + 10}px`
+                top: `${clientRect.height + 5}px`
             };
         },
 

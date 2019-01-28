@@ -42,7 +42,7 @@
                         {% endblock %}
 
                         {% block sw_configuration_option_list_grid_column_media %}
-                            <sw-grid-column dataIndex="mediaId" flex="250px" :label="$tc('sw-configuration.detail.labelOptionMedia')" class="media-column">
+                            <sw-grid-column dataIndex="mediaId" flex="250px" align="stretch" :label="$tc('sw-configuration.detail.labelOptionMedia')" class="media-column">
                                 <sw-media-field v-model="item.mediaId"></sw-media-field>
                             </sw-grid-column>
                         {% endblock %}

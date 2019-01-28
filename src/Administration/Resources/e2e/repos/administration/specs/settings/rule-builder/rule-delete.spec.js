@@ -26,7 +26,7 @@ module.exports = {
             .waitForElementVisible(page.elements.columnName)
             .assert.containsText(page.elements.columnName, global.FixtureService.basicFixture.name)
             .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button').waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-settings-rule-list__confirm-delete-text', `Do you really want to delete the rule "${global.FixtureService.basicFixture.name}"?`)
+            .assert.containsText('.sw-settings-rule-list__confirm-delete-text', `Are you sure you want to delete the rule "${global.FixtureService.basicFixture.name}"?`)
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementNotPresent(page.elements.columnName)

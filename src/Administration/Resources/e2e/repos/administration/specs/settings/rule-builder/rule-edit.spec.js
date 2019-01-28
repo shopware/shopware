@@ -33,7 +33,7 @@ module.exports = {
             .fillField('input[name=sw-field--rule-name]', 'Ediths rule', true)
             .waitForElementVisible('.sw-settings-rule-detail__save-action')
             .click('.sw-settings-rule-detail__save-action')
-            .checkNotification(`The rule Ediths rule was saved.`);
+            .checkNotification('The rule "Ediths rule" was saved.');
     },
     'verify changed rule': (browser) => {
         const page = ruleBuilderPage(browser);

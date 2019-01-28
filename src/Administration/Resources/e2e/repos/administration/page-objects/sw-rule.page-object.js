@@ -17,7 +17,7 @@ class RuleBuilderPageObject {
         this.browser
             .waitForElementVisible('.sw-settings-rule-detail__save-action')
             .click('.sw-settings-rule-detail__save-action')
-            .checkNotification(`The rule ${name} was saved.`);
+            .checkNotification(`The rule "${name}" was saved.`);
     }
 
     createBasicSelectCondition(type, operator, valueSelector, value) {

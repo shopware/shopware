@@ -1055,10 +1055,10 @@
       "contextMenuDuplicate": "Duplicate",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
-      "textDeleteConfirm": "Do you really want to delete the rule \"{name}\"?",
+      "textDeleteConfirm": "Are you sure you want to delete the rule \"{name}\"?",
       "modalTitleDelete": "Delete rule",
       "modalTitleBulkDelete": "Delete Rules",
-      "textBulkDeleteConfirm": "Do you really want to delete the selected rules?",
+      "textBulkDeleteConfirm": "Are you sure you want to delete the selected rules?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarBulkTrash": "Delete rules",
       "valid": "Valid",
@@ -1072,14 +1072,14 @@
       "labelName": "Name",
       "labelDescription": "Description",
       "labelPriority": "Priority",
-      "placeholderName": "Determine a name for this rule..",
-      "placeholderDescription": "Determine a description for this rule..",
-      "placeholderPriority": "Determine a priority for this rule..",
+      "placeholderName": "Set a name for this rule...",
+      "placeholderDescription": "Set a description for this rule...",
+      "placeholderPriority": "Set a priority for this rule...",
       "titleSaveSuccess": "Rule",
-      "messageSaveSuccess": "The rule {name} was saved.",
+      "messageSaveSuccess": "The rule \"{name}\" was saved.",
       "ruleCard": "Condition",
       "titleSaveError": "Rule",
-      "messageSaveError": "An error occurred while saving the rule {name}."
+      "messageSaveError": "An error occurred while saving the rule \"{name}\"."
     }
   },
   "sw-settings-tax": {

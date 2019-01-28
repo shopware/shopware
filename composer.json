@@ -68,7 +68,7 @@
     "phpoffice/phpword": "0.15.0",
     "smalot/pdfparser": "0.13.2",
     "james-heinrich/getid3": "1.9.16",
-    "enqueue/messenger-adapter": "0.1.2"
+    "enqueue/messenger-adapter": "0.2.0"
   },
   "require-dev": {
     "ext-tokenizer": "*",

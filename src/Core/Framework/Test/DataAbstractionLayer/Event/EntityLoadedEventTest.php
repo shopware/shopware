@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 class EntityLoadedEventTest extends TestCase
 {
@@ -32,7 +33,8 @@ class EntityLoadedEventTest extends TestCase
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a]),
-                    $context
+                    $context,
+                    false
                 ),
             ]),
             $event->getEvents()
@@ -55,7 +57,8 @@ class EntityLoadedEventTest extends TestCase
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a, $b, $c]),
-                    $context
+                    $context,
+                    false
                 ),
             ]),
             $event->getEvents()
@@ -68,7 +71,8 @@ class EntityLoadedEventTest extends TestCase
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a, $b]),
-                    $context
+                    $context,
+                    false
                 ),
             ]),
             $event->getEvents()
@@ -90,7 +94,8 @@ class EntityLoadedEventTest extends TestCase
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a, $b]),
-                    $context
+                    $context,
+                    false
                 ),
             ]),
             $event->getEvents()
@@ -114,7 +119,8 @@ class EntityLoadedEventTest extends TestCase
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a, $b, $c]),
-                    $context
+                    $context,
+                    false
                 ),
             ]),
             $event->getEvents()
@@ -136,7 +142,8 @@ class EntityLoadedEventTest extends TestCase
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a, $b]),
-                    $context
+                    $context,
+                    false
                 ),
             ]),
             $event->getEvents()
@@ -160,11 +167,45 @@ class EntityLoadedEventTest extends TestCase
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a, $b, $c]),
-                    $context
+                    $context,
+                    false
                 ),
             ]),
             $event->getEvents()
         );
+    }
+
+    public function testExtractNestedRelationsRecursively(): void
+    {
+        $aNested = new ArrayEntity(['id' => 'many_to_one_B']);
+        $a = new ArrayEntity(['id' => 'many_to_one_A', 'one_to_many' => new EntityCollection([$aNested])]);
+
+        $root = new ArrayEntity(['id' => 'A', 'many_to_one' => $a]);
+
+        $context = Context::createDefaultContext();
+        $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
+
+        static::assertEquals(
+            new NestedEventCollection([
+                new EntityLoadedEvent(
+                    TestDefinition::class,
+                    new EntityCollection([$a, $aNested]),
+                    $context,
+                    false
+                ),
+            ]),
+            $event->getEvents()
+        );
+
+        /** @var EntityLoadedEvent $subEvent */
+        $subEvent = $event->getEvents()->first();
+
+        // check if sub events are marked as nested so they don't create nested events again
+        $property = ReflectionHelper::getProperty(get_class($subEvent), 'nested');
+        static::assertFalse($property->getValue($subEvent));
+
+        // there should be no more events as they are dispatched within the $root event
+        static::assertNull($subEvent->getEvents());
     }
 }
 

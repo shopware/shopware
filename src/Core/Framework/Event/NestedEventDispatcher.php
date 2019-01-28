@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -21,21 +20,13 @@ class NestedEventDispatcher implements NestedEventDispatcherInterface
 
     public function dispatch($eventName, Event $event = null): Event
     {
-        if (!$event instanceof EntityWrittenContainerEvent) {
-            $event = $this->dispatcher->dispatch($eventName, $event);
-        }
-
         if ($event instanceof NestedEvent && $events = $event->getEvents()) {
             foreach ($events as $nested) {
                 $this->dispatch($nested->getName(), $nested);
             }
         }
 
-        if ($event instanceof EntityWrittenContainerEvent) {
-            $event = $this->dispatcher->dispatch($eventName, $event);
-        }
-
-        return $event;
+        return $this->dispatcher->dispatch($eventName, $event);
     }
 
     public function addListener($eventName, $listener, $priority = 0)

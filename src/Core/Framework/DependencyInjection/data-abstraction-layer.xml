@@ -242,6 +242,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.entity.field_accessor_builder" priority="-150"/>
         </service>
 
@@ -1375,6 +1376,15 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AttributesFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="attribute.repository"/>
+
             <tag name="shopware.field_serializer"/>
         </service>
     </services>

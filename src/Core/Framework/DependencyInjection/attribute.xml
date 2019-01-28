@@ -46,6 +46,11 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\AttributesFieldAccessorBuilder">
+            <argument type="service" id="attribute.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
+            <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
+        </service>
     </services>
 </container>

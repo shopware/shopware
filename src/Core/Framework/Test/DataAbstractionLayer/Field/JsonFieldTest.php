@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -313,6 +314,45 @@ EOF;
         static::assertArrayHasKey('data', $payload);
         static::assertArrayHasKey('a', $payload['data']);
         static::assertEquals('😄', $payload['data']['a']);
+    }
+
+    public function testSqlInjectionFails(): void
+    {
+        $context = $this->createWriteContext();
+        $randomKey = Uuid::uuid4()->getHex();
+
+        $data = [
+            ['id' => Uuid::uuid4()->getHex(), 'data' => [$randomKey => 'bar']],
+        ];
+        $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+        static::assertCount(1, $written[JsonDefinition::class]);
+
+        $context = $context->getContext();
+
+        $taxId = Uuid::uuid4()->getHex();
+        $tax_rate = 15.0;
+
+        $repo = $this->getRepository();
+        $criteria = new Criteria();
+
+        $connection = $this->getContainer()->get(Connection::class);
+        $insertInjection = sprintf(
+            'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", now())',
+            $connection->quote($taxId),
+            $tax_rate
+        );
+        $keyWithQuotes = sprintf(
+            'data.%s\')) = "%s"); %s; SELECT 1 FROM ((("',
+            $randomKey,
+            'bar',
+            $insertInjection
+        );
+
+        $criteria->addFilter(new EqualsFilter($keyWithQuotes, 'bar'));
+
+        // invalid json path
+        static::expectException(DBALException::class);
+        $repo->search(JsonDefinition::class, $criteria, $context);
     }
 
     protected function createWriteContext(): WriteContext

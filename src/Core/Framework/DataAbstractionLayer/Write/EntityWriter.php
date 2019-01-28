@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializer
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -224,6 +225,11 @@ class EntityWriter implements EntityWriterInterface
         );
     }
 
+    private function combinedPk($primaryKey): string
+    {
+        return is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
+    }
+
     private function getWriteResults(WriteCommandQueue $queue): array
     {
         $identifiers = [];
@@ -240,13 +246,44 @@ class EntityWriter implements EntityWriterInterface
                 });
 
             $identifiers[$definition] = [];
+
+            $jsonUpdateCommands = [];
+            $writeResults = [];
+
             /** @var WriteCommandInterface[] $commands */
             foreach ($commands as $command) {
                 $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
-                $payload = $this->getCommandPayload($command);
+                $pk = $this->combinedPk($primaryKey);
 
-                $identifiers[$definition][] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
+                if ($command instanceof JsonUpdateCommand) {
+                    $jsonUpdateCommands[$pk] = $command;
+                    continue;
+                }
+
+                $payload = $this->getCommandPayload($command);
+                $writeResults[$pk] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
             }
+
+            /*
+             * Updates for entities with attributes are split into two commands: an UpdateCommand and a JsonUpdateCommand.
+             * We need to merge the payloads here.
+             */
+            foreach ($jsonUpdateCommands as $pk => $command) {
+                $payload = [];
+                if (isset($writeResults[$pk])) {
+                    $payload = $writeResults[$pk]->getPayload();
+                }
+
+                $mergedPayload = array_merge($payload, [$command->getStorageName() => $command->getPayload()]);
+
+                $writeResults[$pk] = new EntityWriteResult(
+                    $this->getCommandPrimaryKey($command, $primaryKeys),
+                    $mergedPayload,
+                    $command->getEntityExistence()
+                );
+            }
+
+            $identifiers[$definition] = array_values($writeResults);
         }
 
         return $identifiers;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -9,6 +10,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 
 class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
+    {
+        $this->connection = $connection;
+    }
+
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
         /** @var StorageAware $field */
@@ -19,10 +30,10 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $accessor = preg_replace('#^' . $field->getPropertyName() . '#', '', $accessor);
 
         return sprintf(
-            'JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$%s"))',
+            'JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, %s))',
             $root,
             $field->getStorageName(),
-            $accessor
+            $this->connection->quote('$' . $accessor)
         );
     }
 }

@@ -1,9 +1,11 @@
 import { Module } from 'src/core/shopware';
+import { NEXT716 } from 'src/flag/feature_next716';
 import './component/sw-category-tree';
 import './component/sw-category-view';
 import './page/sw-category-detail';
 
 Module.register('sw-category', {
+    flag: NEXT716,
     type: 'core',
     name: 'Categories',
     description: 'The module for managing categories.',

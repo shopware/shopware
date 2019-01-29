@@ -1,5 +1,5 @@
 import template from './sw-empty-state.html.twig';
-import './sw-empty-state.less';
+import './sw-empty-state.scss';
 
 /**
  * @private

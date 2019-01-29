@@ -1,0 +1,52 @@
+@import "~scss/variables";
+
+$sw-sidebar-item-headline-color:   $color-kashmir;
+$sw-sidebar-item-color-border:     $color-steam-cloud;
+$sw-sidebar-item-width-navigation: 64px;
+$sw-sidebar-item-width-content:    400px;
+
+.sw-sidebar-item {
+    width: $sw-sidebar-item-width-content;
+    height: 100%;
+    display: grid;
+    grid-template-rows: $sw-sidebar-item-width-navigation 1fr;
+    border-left: 1px solid $sw-sidebar-item-color-border;
+    overflow: hidden;
+
+    .sw-sidebar-item__headline {
+        display: grid;
+        grid-template-columns: 1fr 32px;
+        margin: 25px 25px 0;
+    }
+
+    .sw-sidebar-item__title {
+        margin: 0;
+        font-size: 18px;
+        color: $sw-sidebar-item-headline-color;
+    }
+
+    .sw-sidebar-item__close-button {
+        color: $sw-sidebar-item-headline-color;
+        height: 24px;
+        width: 24px;
+        justify-self: end;
+        background: none;
+        border: none;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .sw-sidebar-item__content {
+        position: relative;
+        width: 100%;
+        height: 100%
+    }
+
+    .sw-sidebar-item__scrollable-container {
+        position: absolute;
+        width: $sw-sidebar-item-width-content;
+        height: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}

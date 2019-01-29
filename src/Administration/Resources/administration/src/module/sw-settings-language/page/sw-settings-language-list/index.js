@@ -1,7 +1,7 @@
 import { Component, Mixin, Application } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-language-list.html.twig';
-import './sw-settings-language-list.less';
+import './sw-settings-language-list.scss';
 
 Component.register('sw-settings-language-list', {
     template,

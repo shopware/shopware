@@ -1,0 +1,32 @@
+@import "~scss/variables";
+
+$sw-price-field-lock-color-default: $color-gutenberg;
+$sw-price-field-lock-color-locked: $color-shopware-blue;
+$sw-price-field-suffix-font-size: 20px;
+$sw-price-field-suffix-font-weight: 400;
+
+.sw-price-field {
+    display: grid;
+    grid-template-columns: 1fr 30px 1fr;
+
+    .sw-price-field__lock {
+        height: 45px;
+        margin-top: 24px;
+        background: none;
+        border: none;
+        color: $sw-price-field-lock-color-default;
+        outline: none;
+        cursor: pointer;
+
+        &.is--locked {
+            color: $sw-price-field-lock-color-locked;
+        }
+    }
+
+    .sw-field {
+        .sw-field__suffix {
+            font-weight: $sw-price-field-suffix-font-weight;
+            font-size: $sw-price-field-suffix-font-size;
+        }
+    }
+}

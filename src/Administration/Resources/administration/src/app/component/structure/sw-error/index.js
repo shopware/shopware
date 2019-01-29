@@ -1,4 +1,4 @@
-import './sw-error.less';
+import './sw-error.scss';
 import template from './sw-error.html.twig';
 
 /**

@@ -1,0 +1,260 @@
+@import '~scss/variables';
+
+$sw-button-default-color-background:  $color-link-water;
+$sw-button-default-color-text:        $color-kashmir;
+$sw-button-default-color-border:      $color-steam-cloud;
+$sw-button-primary-color-background:  $color-shopware-blue;
+$sw-button-primary-color-text:        $color-white;
+$sw-button-danger-color-background:   $color-crimson;
+$sw-button-danger-color-text:         $color-white;
+$sw-button-contrast-color-background: $color-contrast;
+$sw-button-contrast-color-text:       $color-kashmir;
+$sw-button-ghost-color-border:        $color-shopware-blue;
+$sw-button-ghost-color-background:    lighten($color-shopware-blue, 40%);
+$sw-button-ghost-color-text:          $color-shopware-blue;
+$sw-button-transition:                all 0.15s ease-out;
+$sw-button-border-radius:             $border-radius-default;
+$sw-button-font-family:               $font-family-default;
+$sw-button-default-disabled-color:    $color-light-gray;
+
+.sw-button {
+    border: 1px solid $sw-button-default-color-border;
+    background: $sw-button-default-color-background;
+    color: $sw-button-default-color-text;
+    transition: $sw-button-transition;
+    display: inline-block;
+    border-radius: $sw-button-border-radius;
+    padding: 2px 24px;
+    font-size: 14px;
+    line-height: 34px;
+    outline: none;
+    font-weight: 600;
+    font-family: $sw-button-font-family;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+
+    .sw-button__content {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        grid-gap: 0 8px;
+    }
+
+    &:hover {
+        color: darken($sw-button-default-color-text, 5%);
+        background: darken($sw-button-default-color-background, 5%);
+        border-color: darken($sw-button-default-color-border, 5%);
+    }
+
+    &:active {
+        color: darken($sw-button-default-color-text, 10%);
+        background: darken($sw-button-default-color-background, 10%);
+        border-color: darken($sw-button-default-color-border, 20%);
+    }
+
+    &:disabled,
+    &.sw-button--disabled {
+        background-color: $sw-button-default-disabled-color;
+        color: lighten($sw-button-default-color-text, 25%);
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .sw-icon {
+        color: lighten($sw-button-default-color-text, 30%);
+    }
+
+    &.sw-button--square .sw-icon {
+        color: $sw-button-default-color-text;
+    }
+
+    &.sw-button--primary {
+        background: $sw-button-primary-color-background;
+        color: $sw-button-primary-color-text;
+        line-height: 36px;
+        border: 0 none;
+
+        .sw-icon {
+            color: $sw-button-primary-color-text;
+        }
+
+        &.sw-button--x-small {
+            line-height: 20px;
+        }
+
+        &.sw-button--small {
+            line-height: 28px;
+        }
+
+        &.sw-button--large {
+            line-height: 44px;
+        }
+
+        &:hover {
+            background: darken($sw-button-primary-color-background, 10%);
+        }
+
+        &:active {
+            background: darken($sw-button-primary-color-background, 15%);
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: lighten($sw-button-primary-color-background, 20%);
+        }
+    }
+
+    &.sw-button--contrast {
+        background: $sw-button-contrast-color-background;
+        color: $sw-button-contrast-color-text;
+        line-height: 36px;
+        border: 0 none;
+
+        .sw-icon {
+            color: $sw-button-contrast-color-text;
+        }
+
+        &.sw-button--x-small {
+            line-height: 20px;
+        }
+
+        &.sw-button--small {
+            line-height: 28px;
+        }
+
+        &.sw-button--large {
+            line-height: 44px;
+        }
+
+        &:hover {
+            background: darken($sw-button-contrast-color-background, 3%);
+        }
+
+        &:active {
+            background: darken($sw-button-contrast-color-background, 5%);
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: lighten($sw-button-contrast-color-background, 20%);
+            color: lighten($sw-button-contrast-color-text, 25%);
+        }
+    }
+
+    &.sw-button--danger {
+        background: $sw-button-danger-color-background;
+        color: $sw-button-danger-color-text;
+        line-height: 36px;
+        border: 0 none;
+
+        .sw-icon {
+            color: $sw-button-danger-color-text;
+        }
+
+        &.sw-button--x-small {
+            line-height: 20px;
+        }
+
+        &.sw-button--small {
+            line-height: 28px;
+        }
+
+        &.sw-button--large {
+            line-height: 44px;
+        }
+
+        &:hover {
+            background: darken($sw-button-danger-color-background, 10%);
+        }
+
+        &:active {
+            background: darken($sw-button-danger-color-background, 15%);
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: lighten($sw-button-danger-color-background, 20%);
+        }
+    }
+
+    &.sw-button--ghost {
+        background-color: transparent;
+        border-color: $sw-button-ghost-color-border;
+        color: $sw-button-ghost-color-text;
+
+        .sw-icon {
+            color: $sw-button-ghost-color-text;
+        }
+
+        &:hover {
+            background-color: $sw-button-ghost-color-background;
+            color: $sw-button-ghost-color-text;
+        }
+
+        &:active {
+            background-color: darken($sw-button-ghost-color-background, 5%);
+            color: darken($sw-button-ghost-color-text, 10);
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background-color: transparent;
+            border-color: lighten($sw-button-ghost-color-border, 20%);
+            color: lighten($sw-button-ghost-color-text, 20%);
+        }
+    }
+
+    &.sw-button--block {
+        display: block;
+        width: 100%;
+    }
+
+    &.sw-button--x-small {
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 12px;
+        line-height: 18px;
+
+        &.sw-button--square {
+            width: 24px;
+        }
+    }
+
+    &.sw-button--small {
+        padding-left: 15px;
+        padding-right: 15px;
+        font-size: 12px;
+        line-height: 26px;
+
+        &.sw-button--square {
+            width: 32px;
+        }
+    }
+
+    &.sw-button--large {
+        padding-left: 28px;
+        padding-right: 28px;
+        line-height: 42px;
+        font-size: 15px;
+
+        &.sw-button--square {
+            width: 48px;
+        }
+    }
+
+    &.sw-button--square {
+        width: 40px;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+
+        .sw-button__content {
+            display: inline;
+        }
+    }
+}

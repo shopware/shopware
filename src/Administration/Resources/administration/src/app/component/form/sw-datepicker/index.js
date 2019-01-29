@@ -3,7 +3,7 @@ import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
 import template from './sw-datepicker.html.twig';
 import 'flatpickr/dist/flatpickr.css';
-import './sw-datepicker.less';
+import './sw-datepicker.scss';
 
 
 // Keep a copy of all flatpickr events for later use

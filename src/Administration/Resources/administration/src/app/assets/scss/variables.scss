@@ -1,0 +1,56 @@
+// Base colors
+$color-shopware-blue: #189EFF;
+$color-biscay: #16325C;
+$color-kashmir: #54698D;
+$color-deep-cove: #303A4F;
+$color-iron:  #FAFBFC;
+$color-crimson: #DE294C;
+$color-pumpkin-spice: #FFB75D;
+$color-contrast: #FFD700;
+$color-emerald: #37D046;
+$color-cadet-blue: #E8F6FF;
+$color-white: #FFF;
+$color-black: #000;
+$color-gutenberg: #607182;
+$color-steam-cloud: #D8DDE6;
+$color-link-water: #FCFCFC;
+$color-light-gray: #F4F7FA;
+$color-drag-select-box: rgba(0, 162, 255, .4);
+
+// Module colors
+$color-product: #57D9A3;
+$color-category: #fe87bf;
+$color-customer: #f88962;
+$color-page: #8379c7;
+$color-media: #ef734a;
+
+// Gradients
+$color-gradient-dark-gray-start: #303A4F;
+$color-gradient-dark-gray-end: #2A3345;
+$gradient-dark-gray: linear-gradient(to bottom, $color-gradient-dark-gray-start, $color-gradient-dark-gray-end);
+
+// Typography
+$font-family-default: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+$font-size-default: 16px;
+$font-size-large: 18px;
+$font-size-small: 14px;
+
+// Miscellaneous
+$border-radius-default: 4px;
+
+// z-index
+$z-index-loader: 10;
+$z-index-drag-select-box: 100;
+$z-index-sidebar: 200;
+$z-index-select-results: 600;
+$z-index-flyout: 700;
+$z-index-off-canvas: 750;
+$z-index-search-bar-results: 800;
+$z-index-modal: 1000;
+$z-index-context-menu: 1100;
+$z-index-tooltip: 1100;
+$z-index-notifications: 1200;
+$z-index-dragdrop: 1400;
+
+//transparent-background
+$transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');

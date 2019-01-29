@@ -1,6 +1,6 @@
 import { Filter } from 'src/core/shopware';
 import template from './sw-product-image.html.twig';
-import './sw-product-image.less';
+import './sw-product-image.scss';
 
 /**
  * @public

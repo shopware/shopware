@@ -1,6 +1,6 @@
 import { State } from 'src/core/shopware';
 import template from './sw-notifications.html.twig';
-import './sw-notifications.less';
+import './sw-notifications.scss';
 
 /**
  * @private

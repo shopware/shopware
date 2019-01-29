@@ -1,6 +1,6 @@
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-grid.html.twig';
-import './sw-grid.less';
+import './sw-grid.scss';
 
 /**
  * @public

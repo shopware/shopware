@@ -1,7 +1,7 @@
 import { Filter, Mixin, State } from 'src/core/shopware';
 import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-media-item.html.twig';
-import './sw-media-media-item.less';
+import './sw-media-media-item.scss';
 
 /**
  * @status ready

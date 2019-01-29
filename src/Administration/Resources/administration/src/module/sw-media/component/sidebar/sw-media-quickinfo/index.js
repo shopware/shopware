@@ -2,7 +2,7 @@ import { Component, Mixin, State } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-quickinfo.html.twig';
-import './sw-media-quickinfo.less';
+import './sw-media-quickinfo.scss';
 
 Component.register('sw-media-quickinfo', {
     template,

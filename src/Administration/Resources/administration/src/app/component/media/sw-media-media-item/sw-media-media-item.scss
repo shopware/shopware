@@ -1,0 +1,29 @@
+@import '~scss/mixins';
+
+.sw-media-media-item {
+    position: relative;
+
+    .sw-media-preview--list {
+        width: 40px;
+        height: 40px;
+        grid-row: 1 / span 2;
+        overflow: hidden;
+
+        .sw-media-preview__item {
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            max-height: none;
+            max-width: none;
+
+            &.sw-icon {
+                height: 80%;
+                width: 80%;
+            }
+        }
+    }
+
+    .sw-media-media-item__metadata {
+        @include truncate();
+    }
+}

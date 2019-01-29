@@ -1,7 +1,7 @@
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import template from './sw-text-editor.html.twig';
-import './sw-text-editor.less';
+import './sw-text-editor.scss';
 
 /**
  * @public

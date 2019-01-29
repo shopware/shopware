@@ -1,6 +1,6 @@
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-tabs.html.twig';
-import './sw-tabs.less';
+import './sw-tabs.scss';
 
 /**
  * @public

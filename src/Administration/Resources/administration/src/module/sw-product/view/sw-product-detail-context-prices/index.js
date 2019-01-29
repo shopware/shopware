@@ -1,6 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-product-detail-context-prices.html.twig';
-import './sw-product-detail-context-prices.less';
+import './sw-product-detail-context-prices.scss';
 
 Component.register('sw-product-detail-context-prices', {
     template,

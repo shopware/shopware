@@ -1,5 +1,5 @@
 import template from './sw-context-menu.html.twig';
-import './sw-context-menu.less';
+import './sw-context-menu.scss';
 
 /**
  * @private

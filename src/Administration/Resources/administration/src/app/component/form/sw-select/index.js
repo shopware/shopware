@@ -1,6 +1,6 @@
 import { Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
-import './sw-select.less';
+import './sw-select.scss';
 import template from './sw-select.html.twig';
 
 /**

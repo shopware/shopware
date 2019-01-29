@@ -1,5 +1,5 @@
 import template from './sw-color-badge.html.twig';
-import './sw-color-badge.less';
+import './sw-color-badge.scss';
 
 /**
  * @public

@@ -1,4 +1,4 @@
-import './sw-desktop.less';
+import './sw-desktop.scss';
 import template from './sw-desktop.html.twig';
 
 /**

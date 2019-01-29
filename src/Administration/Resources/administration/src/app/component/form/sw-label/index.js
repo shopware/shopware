@@ -1,4 +1,4 @@
-import './sw-label.less';
+import './sw-label.scss';
 import template from './sw-label.html.twig';
 
 /**

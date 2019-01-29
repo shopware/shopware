@@ -1,6 +1,6 @@
 import Picker from 'vanilla-picker';
 import template from './sw-color-picker.html.twig';
-import './sw-color-picker.less';
+import './sw-color-picker.scss';
 
 export default {
     name: 'sw-color-picker',

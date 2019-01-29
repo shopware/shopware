@@ -1,7 +1,7 @@
 import { Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-tagged-field.html.twig';
-import './sw-tagged-field.less';
+import './sw-tagged-field.scss';
 
 /**
  * @public

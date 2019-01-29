@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+$sw-avatar-color-fallback: darken($color-light-gray, 10%);
+$sw-avatar-color-initials: $color-white;
+$sw-avatar-size-default:   40px;
+
+.sw-avatar {
+    display: inline-block;
+    width: $sw-avatar-size-default;
+    height: $sw-avatar-size-default;
+    border-radius: 100%;
+    background: $sw-avatar-color-fallback no-repeat center center;
+    background-size: cover;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: $sw-avatar-color-initials;
+    user-select: none;
+}

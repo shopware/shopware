@@ -1,4 +1,4 @@
-import './sw-select-option.less';
+import './sw-select-option.scss';
 import template from './sw-select-option.html.twig';
 
 /**

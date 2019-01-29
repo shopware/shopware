@@ -1,5 +1,5 @@
 import template from './sw-confirm-field.html.twig';
-import './sw-confirm-field.less';
+import './sw-confirm-field.scss';
 
 export default {
     name: 'sw-confirm-field',

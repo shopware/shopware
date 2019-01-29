@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+$sw-help-text-color-background:     $color-shopware-blue;
+$sw-help-text-color:                $color-white;
+
+.sw-help-text {
+    width: 16px;
+    height: 16px;
+    background-color: $sw-help-text-color-background;
+    color: $sw-help-text-color;
+    border-radius: 50%;
+    line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .sw-icon {
+        width: 14px;
+        height: 14px;
+    }
+}

@@ -1,6 +1,6 @@
 import { Mixin, State } from 'src/core/shopware';
 import template from './sw-media-modal-move.html.twig';
-import './sw-media-modal-move.less';
+import './sw-media-modal-move.scss';
 
 /**
  * @status ready

@@ -1,0 +1,10 @@
+@mixin size($size) {
+    width: $size;
+    height: $size;
+}
+
+@mixin truncate() {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}

@@ -1,6 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import template from './sw-settings-language-detail.html.twig';
-import './sw-settings-language-detail.less';
+import './sw-settings-language-detail.scss';
 
 Component.register('sw-settings-language-detail', {
     template,

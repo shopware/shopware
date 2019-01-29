@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+$sw-product-list-color-error: $color-crimson;
+$sw-product-list-color-success: $color-emerald;
+
+.sw-product-list {
+    .sw-product-list__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
+    .is--inactive {
+        color: $sw-product-list-color-error;
+    }
+
+    .is--active {
+        color: $sw-product-list-color-success;
+    }
+}

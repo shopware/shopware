@@ -1,4 +1,4 @@
-import './sw-grid-column.less';
+import './sw-grid-column.scss';
 import template from './sw-grid-column.html.twig';
 
 /**

@@ -1,5 +1,5 @@
 import template from './sw-sidebar-navigation-item.html.twig';
-import './sw-sidebar-navigation-item.less';
+import './sw-sidebar-navigation-item.scss';
 
 /**
  * @private

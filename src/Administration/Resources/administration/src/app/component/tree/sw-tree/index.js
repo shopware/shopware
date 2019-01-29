@@ -1,6 +1,6 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-tree.html.twig';
-import './sw-tree.less';
+import './sw-tree.scss';
 
 /**
  * @public

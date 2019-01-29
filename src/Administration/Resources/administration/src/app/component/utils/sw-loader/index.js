@@ -1,4 +1,4 @@
-import './sw-loader.less';
+import './sw-loader.scss';
 import template from './sw-loader.html.twig';
 
 /**

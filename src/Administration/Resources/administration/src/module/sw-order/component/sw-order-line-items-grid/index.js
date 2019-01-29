@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-order-line-items-grid.html.twig';
-import './sw-order-line-items-grid.less';
+import './sw-order-line-items-grid.scss';
 
 Component.register('sw-order-line-items-grid', {
     template,

@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.sw-catalog-list {
+    .sw-catalog-list__edit-action {
+        display: grid;
+        grid-template-columns: 20px 1fr;
+        align-items: center;
+        text-decoration: none;
+        color: $color-gutenberg;
+
+        &:hover {
+            color: $color-shopware-blue;
+        }
+    }
+}
+

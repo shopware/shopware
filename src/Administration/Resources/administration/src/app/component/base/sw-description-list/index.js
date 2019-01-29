@@ -1,5 +1,5 @@
 import template from './sw-description-list.html.twig';
-import './sw-description-list.less';
+import './sw-description-list.scss';
 
 /**
  * @public

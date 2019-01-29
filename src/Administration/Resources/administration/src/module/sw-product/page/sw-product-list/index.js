@@ -1,6 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-product-list.twig';
-import './sw-product-list.less';
+import './sw-product-list.scss';
 
 Component.register('sw-product-list', {
     template,

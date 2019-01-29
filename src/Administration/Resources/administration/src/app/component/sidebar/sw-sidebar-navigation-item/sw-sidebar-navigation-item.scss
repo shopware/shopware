@@ -1,0 +1,31 @@
+@import "~scss/variables";
+
+$sw-sidebar-navigation-item-icon-color: $color-gutenberg;
+$sw-sidebar-navigation-item-icon-color-active: $color-shopware-blue;
+$sw-sidebar-navigation-item-hover-color-background: $color-cadet-blue;
+$sw-sidebar-navigation-item-active-color-background: $color-cadet-blue;
+$sw-sidebar-navigation-item-size: 64px;
+
+.sw-sidebar-navigation-item {
+    width: $sw-sidebar-navigation-item-size;
+    height: $sw-sidebar-navigation-item-size;
+    border: none;
+    color: $sw-sidebar-navigation-item-icon-color;
+    background: none;
+    cursor: pointer;
+    outline: none;
+
+    &:hover:not(.is--disabled) {
+        color: $sw-sidebar-navigation-item-icon-color-active;
+    }
+
+    &.is--active {
+        background: $sw-sidebar-navigation-item-active-color-background;
+        color: $sw-sidebar-navigation-item-icon-color-active;
+    }
+
+    &.is--disabled {
+        cursor: not-allowed;
+        opacity: .3;
+    }
+}

@@ -1,6 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-product-price-form.html.twig';
-import './sw-product-price-form.less';
+import './sw-product-price-form.scss';
 
 Component.register('sw-product-price-form', {
     template,

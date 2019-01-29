@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
@@ -43,79 +41,109 @@ class CachedEntityReader implements EntityReaderInterface
 
     public function read(string $definition, Criteria $criteria, Context $context): EntityCollection
     {
-        $collection = $this->loadFromCache($definition, $criteria, $context);
-
-        if ($collection) {
-            return $collection;
+        if ($this->hasFilter($criteria)) {
+            return $this->loadFilterResult($definition, $criteria, $context);
         }
 
-        $loaded = $this->loadFromPersistent($definition, $criteria, $context);
-
-        $this->cacheResult($definition, $criteria, $context, $loaded);
-
-        $this->cache->commit();
-
-        return $loaded;
+        return $this->loadResultByIds($definition, $criteria, $context);
     }
 
-    private function loadFromPersistent(string $definition, Criteria $criteria, Context $context): EntityCollection
+    private function loadFilterResult(string $definition, Criteria $criteria, Context $context)
     {
-        $collection = $this->decorated->read($definition, $criteria, $context);
+        //generate cache key for full read result
+        $key = $this->cacheKeyGenerator->getReadCriteriaCacheKey($definition, $criteria, $context);
+        $item = $this->cache->getItem($key);
 
-        return $collection;
-    }
-
-    private function loadFromCache(string $definition, Criteria $criteria, Context $context): ?EntityCollection
-    {
-        if (in_array($definition, [VersionCommitDefinition::class, VersionCommitDataDefinition::class], true)) {
-            return null;
-        }
-
-        //contains filter? then fetch whole result
-        if ($criteria->getFilters() || $criteria->getPostFilters()) {
-            $key = $this->cacheKeyGenerator->getReadCriteriaCacheKey($definition, $criteria, $context);
-            $item = $this->cache->getItem($key);
-            if (!$item->isHit()) {
-                return null;
-            }
-
+        //hit? return
+        if ($item->isHit()) {
             return $item->get();
         }
 
-        $keys = array_map(function ($id) use ($definition, $criteria, $context) {
-            return $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
-        }, $criteria->getIds());
+        // load full result from storage
+        $collection = $this->decorated->read($definition, $criteria, $context);
 
-        $items = iterator_to_array($this->cache->getItems($keys));
+        // cache the full result
+        $this->cacheCollection($definition, $criteria, $context, $collection);
 
-        if (!$this->isCacheItemsWithHits($items)) {
-            return null;
+        // cache each entity for further id access
+        foreach ($collection as $entity) {
+            $this->cacheEntity($definition, $context, $criteria, $entity);
         }
 
-        /** @var EntityCollection $collection */
-        /** @var string|EntityDefinition $definition */
-        $collection = $definition::getCollectionClass();
-        $collection = new $collection();
-
-        $modifiedCriteria = clone $criteria;
-        $modifiedCriteria->setIds([]);
-
-        /** @var CacheItem $item */
-        foreach ($items as $item) {
-            //if item is a hit handle the id as "resolved" for cache request
-            if ($item->isHit() && $item->get() === null) {
-                continue;
-            }
-            if (!$item->isHit()) {
-                $modifiedCriteria = $this->addMissedId($item, $modifiedCriteria);
-                continue;
-            }
-            $collection->add($item->get());
-        }
-
-        $collection = $this->readMissedEntities($definition, $context, $modifiedCriteria, $collection);
+        $this->cache->commit();
 
         return $collection;
+    }
+
+    private function loadResultByIds(string $definition, Criteria $criteria, Context $context): EntityCollection
+    {
+        $collection = $this->loadIdsFromCache($definition, $criteria, $context);
+
+        //check which ids are not loaded from cache
+        $fallback = array_diff(array_values($criteria->getIds()), array_values($collection->getIds()));
+
+        if (empty($fallback)) {
+            //sort collection by provided id sorting
+            $collection->sortByIdArray($criteria->getIds());
+
+            return $collection;
+        }
+
+        //clone criteria to fetch missed items
+        $cloned = clone $criteria;
+        $cloned->setIds($fallback);
+
+        //load missed cache items from storage
+        $persistent = $this->decorated->read($definition, $criteria, $context);
+
+        //cache all loaded items and add to collection
+        foreach ($persistent as $item) {
+            $this->cacheEntity($definition, $context, $criteria, $item);
+            $collection->add($item);
+        }
+
+        //check if invalid ids provided and cache them with null to prevent further storage access with invalid id calls
+        foreach ($criteria->getIds() as $id) {
+            if ($collection->has($id)) {
+                continue;
+            }
+            $this->cacheNull($definition, $context, $id);
+        }
+
+        $this->cache->commit();
+
+        //sort collection by provided id sorting
+        $collection->sortByIdArray($criteria->getIds());
+
+        return $collection;
+    }
+
+    private function loadIdsFromCache(string $definition, Criteria $criteria, Context $context): EntityCollection
+    {
+        //generate cache key list for multi cache get
+        $keys = [];
+        foreach ($criteria->getIds() as $id) {
+            $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
+        }
+
+        $items = $this->cache->getItems($keys);
+        $items = iterator_to_array($items);
+
+        //filter only hit items
+        $items = array_filter($items, function (CacheItem $item) {
+            return $item->isHit();
+        });
+
+        //convert cache items to entities
+        $items = array_map(function (CacheItem $item) {
+            return $item->get();
+        }, $items);
+
+        /** @var string|EntityDefinition $definition */
+        $collection = $definition::getCollectionClass();
+
+        /* @var EntityCollection $collection */
+        return new $collection($items);
     }
 
     private function cacheEntity(string $definition, Context $context, Criteria $criteria, Entity $entity): void
@@ -179,65 +207,8 @@ class CachedEntityReader implements EntityReaderInterface
         $this->cache->saveDeferred($item);
     }
 
-    private function readMissedEntities(
-        string $entityDefinition, Context $context, Criteria $modifiedCriteria, EntityCollection $collection
-    ): EntityCollection {
-        if (\count($modifiedCriteria->getIds()) > 0) {
-            $missingEntities = $this->loadFromPersistent($entityDefinition, $modifiedCriteria, $context);
-            foreach ($missingEntities->getElements() as $entity) {
-                $collection->add($entity);
-            }
-            $this->cacheResult($entityDefinition, $modifiedCriteria, $context, $missingEntities);
-        }
-
-        return $collection;
-    }
-
-    private function isCacheItemsWithHits($items): bool
+    private function hasFilter(Criteria $criteria): bool
     {
-        /** @var CacheItem $item */
-        foreach ($items as $item) {
-            if ($item->isHit()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function addMissedId(CacheItem $item, Criteria $modifiedCriteria): Criteria
-    {
-        $id = $this->cacheKeyGenerator->getCacheKeyEntityId($item->getKey());
-
-        if ($id) {
-            $modifiedCriteria->setIds(array_merge($modifiedCriteria->getIds(), [$id]));
-        }
-
-        return $modifiedCriteria;
-    }
-
-    /**
-     * @param string           $definition
-     * @param Criteria         $criteria
-     * @param Context          $context
-     * @param EntityCollection $loaded
-     */
-    private function cacheResult(string $definition, Criteria $criteria, Context $context, EntityCollection $loaded): void
-    {
-        /** @var Entity $entity */
-        foreach ($loaded as $entity) {
-            $this->cacheEntity($definition, $context, $criteria, $entity);
-        }
-
-        //If ids inside criteria are filtered or not found cache null result to prevent uncachable querys
-        foreach ($criteria->getIds() as $id) {
-            if (!$loaded->has($id)) {
-                $this->cacheNull($definition, $context, $id);
-            }
-        }
-
-        if ($criteria->getFilters() || $criteria->getPostFilters()) {
-            $this->cacheCollection($definition, $criteria, $context, $loaded);
-        }
+        return $criteria->getFilters() || $criteria->getPostFilters();
     }
 }

@@ -11,7 +11,7 @@ Component.register('sw-category-detail', {
     data() {
         return {
             category: null,
-            categories: null,
+            categories: [],
             isLoading: false,
             mediaItem: null,
             isMobileViewport: null,

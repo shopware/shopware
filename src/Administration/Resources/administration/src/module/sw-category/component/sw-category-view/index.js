@@ -7,7 +7,6 @@ Component.register('sw-category-view', {
 
     props: {
         category: {
-            type: Object,
             required: true,
             default: {}
         },

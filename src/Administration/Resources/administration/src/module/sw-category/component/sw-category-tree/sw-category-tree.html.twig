@@ -1,6 +1,6 @@
 {% block sw_category_tree %}
     <sw-tree class="sw-category-tree"
-        v-if="categories"
+        v-if="categories.length"
         :items="categories"
         :sortable="true"
         :searchable="false"

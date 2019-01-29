@@ -1,6 +1,6 @@
 {% block sw_media_modal_duplicate_media %}
     <sw-modal class="sw-media-modal-duplicate-media"
-              @closeModal="closeModal"
+              @closeModal="abortResolving"
               :title="$tc('global.sw-media-modal-duplicate-media.titleModal')">
 
         {% block sw_media_modal_duplicate_media_body %}
@@ -75,7 +75,7 @@
                         {% block sw_media_modal_duplicate_media_save_selection %}
                             <sw-field v-if="additionalErrorCount > 0"
                                       type="checkbox"
-                                      v-model="saveSelection"
+                                      v-model="shouldSaveSelection"
                                       :label="$tc('global.sw-media-modal-duplicate-media.labelSaveSelection', additionalErrorCount)">
                             </sw-field>
                         {% endblock %}

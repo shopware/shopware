@@ -37,12 +37,18 @@ Component.register('sw-media-modal-duplicate-media', {
             required: false,
             type: String,
             default: 'Replace'
+        },
+
+        saveSelection: {
+            required: false,
+            type: Boolean,
+            default: true
         }
     },
 
     data() {
         return {
-            saveSelection: true,
+            shouldSaveSelection: this.saveSelection,
             selectedOption: this.defaultOption,
             existingMedia: null,
             duplicateName: this.item.fileName,
@@ -115,11 +121,15 @@ Component.register('sw-media-modal-duplicate-media', {
             this.$emit('sw-media-modal-duplicate-media-close', { id: this.item.id });
         },
 
+        abortResolving() {
+            this.$emit('sw-media-modal-duplicate-media-abort');
+        },
+
         solveDuplicate() {
             this.$emit('sw-media-modal-duplicate-media-resolve', {
                 action: this.selectedOption,
                 id: this.item.id,
-                saveSelection: this.saveSelection,
+                saveSelection: this.shouldSaveSelection,
                 entityToReplace: this.existingMedia,
                 newName: this.newName
             });

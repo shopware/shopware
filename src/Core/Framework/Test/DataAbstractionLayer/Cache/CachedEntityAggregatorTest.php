@@ -47,15 +47,15 @@ class CachedEntityAggregatorTest extends TestCase
         $id2 = Uuid::uuid4()->getHex();
 
         $criteria = new Criteria([$id1, $id2]);
-        $criteria->addAggregation(
-            new EntityAggregation('product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet')
-        );
-        $criteria->addAggregation(
-            new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer')
-        );
-        $criteria->addAggregation(
-            new StatsAggregation('product.listingPrices', 'price', false)
-        );
+
+        $datasheetAggregation = new EntityAggregation('product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet');
+        $criteria->addAggregation($datasheetAggregation);
+
+        $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
+        $criteria->addAggregation($manufacturerAggregation);
+
+        $priceAggregation = new StatsAggregation('product.listingPrices', 'price', false);
+        $criteria->addAggregation($priceAggregation);
 
         $context = Context::createDefaultContext();
 
@@ -71,30 +71,18 @@ class CachedEntityAggregatorTest extends TestCase
             ->will(
                 $this->returnValue(
                     new AggregatorResult(
-                        (new AggregationResultCollection([
+                        new AggregationResultCollection([
                                 new EntityAggregationResult(
-                                    new EntityAggregation(
-                                        'product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet'
-                                    ),
-                                    new EntityCollection([
-                                            $configGroupEntity,
-                                        ]
-                                    )
+                                    $datasheetAggregation,
+                                    new EntityCollection([$configGroupEntity])
                                 ),
                                 new EntityAggregationResult(
-                                    new EntityAggregation(
-                                        'product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer'
-                                    ),
-                                    new EntityCollection([
-                                            $manufacturerEntity,
-                                        ]
-                                    )
+                                    $manufacturerAggregation,
+                                    new EntityCollection([$manufacturerEntity])
                                 ),
-                                new StatsAggregationResult(
-                                    new StatsAggregation('product.listingPrices', 'price', false)
-                                ),
+                                new StatsAggregationResult($priceAggregation),
                             ]
-                        )),
+                        ),
                         $context,
                         $criteria
                     )

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
-class SumAggregation implements Aggregation
+use Shopware\Core\Framework\Struct\Struct;
+
+class SumAggregation extends Struct implements Aggregation
 {
     use AggregationTrait;
 

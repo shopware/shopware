@@ -14,6 +14,12 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
-        return sprintf('(CAST(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.gross")) AS DECIMAL))', $root, $field->getStorageName());
+        /*
+         * It's not possible to cast to float/double, only decimal. But decimal has a fixed precision,
+         * that would possibly result in rounding errors.
+         *
+         * We can indirectly cast to float by adding 0.0
+         */
+        return sprintf('(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.gross")) + 0.0)', $root, $field->getStorageName());
     }
 }

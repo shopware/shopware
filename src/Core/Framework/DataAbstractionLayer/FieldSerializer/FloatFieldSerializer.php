@@ -54,7 +54,7 @@ class FloatFieldSerializer implements FieldSerializerInterface
         }
 
         /* @var FloatField $field */
-        yield $field->getStorageName() => $value;
+        yield $field->getStorageName() => (float) $value;
     }
 
     public function decode(Field $field, $value)

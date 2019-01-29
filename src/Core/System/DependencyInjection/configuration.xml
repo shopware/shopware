@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\System\SystemConfig\SystemConfigDefinition">
+            <tag name="shopware.entity.definition" entity="system_config"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\Service\ConfigurationService">
+            <argument type="service" id="system_config.repository"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Helper\ConfigReader"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\Helper\ConfigReader"/>
+    </services>
+</container>

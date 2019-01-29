@@ -1,26 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Plugin\Helper;
+namespace Shopware\Core\System\SystemConfig\Helper;
 
 use DOMDocument;
 use DOMElement;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\XmlReader;
+use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-class PluginConfigReader extends XmlReader
+class ConfigReader extends XmlReader
 {
-    private const TRANSLATEABLE_OPTIONS = ['label', 'placeholder', 'helpText'];
-    private const CARD_SELECTOR = 'card';
-    private const DEFINED_FIELDS = 'fields';
-    private const TITLE_SELECTOR = 'title';
-    private const FIELD_SELECTOR = 'sw-field';
-    private const TYPE_SELECTOR = 'type';
-    private const TEXT_TYPE = 'text';
-    private const LANG_SELECTOR = 'lang';
-    private const BOOL_OPTIONS = ['copyable', 'disabled'];
-    private const OPTIONS_SELECTOR = 'options';
-    private const OPTION_SELECTOR = 'option';
+    /**
+     * @var string
+     */
     protected $xsdFile = __DIR__ . '/../Schema/config.xsd';
+
+    /**
+     * @throws BundleConfigNotFoundException
+     */
+    public function getConfigFromBundle(BundleInterface $bundle): array
+    {
+        $configPath = $bundle->getPath() . '/Resources/config.xml';
+
+        if (!is_file($configPath)) {
+            throw new BundleConfigNotFoundException($bundle->getName());
+        }
+
+        return $this->read($configPath);
+    }
 
     /**
      * This method is the main entry point to parse a xml file.
@@ -35,10 +43,10 @@ class PluginConfigReader extends XmlReader
         $cardDefinitions = [];
 
         /** @var DOMElement $element */
-        foreach ($xml->getElementsByTagName(self::CARD_SELECTOR) as $element) {
+        foreach ($xml->getElementsByTagName('card') as $element) {
             $cardDefinitions[] = [
-                self::TITLE_SELECTOR => $this->getCardTitles($element),
-                self::DEFINED_FIELDS => $this->getSwFieldDefinitions($element),
+                'title' => $this->getCardTitles($element),
+                'fields' => $this->getSwFieldDefinitions($element),
             ];
         }
 
@@ -49,7 +57,7 @@ class PluginConfigReader extends XmlReader
     {
         $titles = [];
         /** @var DOMElement $title */
-        foreach ($element->getElementsByTagName(self::TITLE_SELECTOR) as $title) {
+        foreach ($element->getElementsByTagName('title') as $title) {
             $titles[$this->getLocaleCodeFromElement($title)] = $title->nodeValue;
         }
 
@@ -61,7 +69,7 @@ class PluginConfigReader extends XmlReader
         $swFieldDefinitions = [];
         $count = 0;
         /** @var DOMElement $element */
-        foreach ($xml->getElementsByTagName(self::FIELD_SELECTOR) as $element) {
+        foreach ($xml->getElementsByTagName('input-field') as $element) {
             $swFieldDefinitions[$count] = $this->swFieldDefinitionToArray($element);
             $swFieldDefinitions[$count]['value'] = null;
             ++$count;
@@ -72,11 +80,11 @@ class PluginConfigReader extends XmlReader
 
     private function swFieldDefinitionToArray(DOMElement $swField): array
     {
-        $swFieldType = $swField->getAttribute(self::TYPE_SELECTOR) ?: self::TEXT_TYPE;
+        $swFieldType = $swField->getAttribute('type') ?: 'text';
         /** @var DOMElement[] $options */
         $options = self::getAllChildren($swField);
         $swFieldArray = [
-            self::TYPE_SELECTOR => $swFieldType,
+            'type' => $swFieldType,
         ];
 
         foreach ($options as $option) {
@@ -91,7 +99,7 @@ class PluginConfigReader extends XmlReader
             }
 
             if ($this->elementIsOptions($option)) {
-                $swFieldArray[self::OPTIONS_SELECTOR] = $this->optionsToArray($option);
+                $swFieldArray['options'] = $this->optionsToArray($option);
                 continue;
             }
 
@@ -106,7 +114,7 @@ class PluginConfigReader extends XmlReader
         $options = [];
 
         /** @var DOMElement $option */
-        foreach ($element->getElementsByTagName(self::OPTION_SELECTOR) as $option) {
+        foreach ($element->getElementsByTagName('option') as $option) {
             $options[] = [
                 'value' => $option->getElementsByTagName('value')->item(0)->nodeValue,
                 'label' => $this->getOptionLabels($option),
@@ -130,21 +138,21 @@ class PluginConfigReader extends XmlReader
 
     private function getLocaleCodeFromElement(DOMElement $element): string
     {
-        return $element->getAttribute(self::LANG_SELECTOR) ?: Defaults::LOCALE_EN_GB_ISO;
+        return $element->getAttribute('lang') ?: Defaults::LOCALE_EN_GB_ISO;
     }
 
     private function isTranslateAbleOption(DOMElement $option): bool
     {
-        return \in_array($option->localName, self::TRANSLATEABLE_OPTIONS, true);
+        return \in_array($option->localName, ['label', 'placeholder', 'helpText'], true);
     }
 
     private function isBoolOption(DOMElement $option): bool
     {
-        return \in_array($option->localName, self::BOOL_OPTIONS, true);
+        return \in_array($option->localName, ['copyable', 'disabled'], true);
     }
 
     private function elementIsOptions(DOMElement $option): bool
     {
-        return $option->localName === self::OPTIONS_SELECTOR;
+        return $option->localName === 'options';
     }
 }

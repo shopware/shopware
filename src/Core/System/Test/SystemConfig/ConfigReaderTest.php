@@ -1,33 +1,45 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Core\System\Test\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Exception\XmlParsingException;
-use Shopware\Core\Framework\Plugin\Helper\PluginConfigReader;
+use Shopware\Core\System\SystemConfig\Helper\ConfigReader;
 
-class PluginConfigReaderTest extends TestCase
+class ConfigReaderTest extends TestCase
 {
-    private const VALID_CONFIG_PATH = __DIR__ . '/_fixtures/valid_config.xml';
-    private const INVALID_CONFIG_PATH = __DIR__ . '/_fixtures/invalid_config.xml';
+    /**
+     * @var ConfigReader
+     */
+    private $configReader;
 
-    public function test_parse_file_with_valid_config_xml(): void
+    protected function setUp()
     {
-        $reader = new PluginConfigReader();
-        $actualResult = $reader->read(self::VALID_CONFIG_PATH);
-        $expectedResult = $this->getValidResult();
-
-        self::assertSame($expectedResult, $actualResult);
+        $this->configReader = new ConfigReader();
     }
 
-    public function test_expect_invalid_argument_exception_with_invalid_xml(): void
+    public function test_ConfigReader_with_valid_config(): void
     {
-        $reader = new PluginConfigReader();
+        $actualConfig = $this->configReader->read(__DIR__ . '/_fixtures/valid_config.xml');
+
+        self::assertSame($this->getExpectedConfig(), $actualConfig);
+    }
+
+    public function test_ConfigReader_with_invalid_path(): void
+    {
         $this->expectException(XmlParsingException::class);
-        $reader->read(self::INVALID_CONFIG_PATH);
+
+        $this->configReader->read(__DIR__ . '/config.xml');
     }
 
-    private function getValidResult(): array
+    public function test_ConfigReader_with_invalid_config(): void
+    {
+        $this->expectException(XmlParsingException::class);
+
+        $this->configReader->read(__DIR__ . '/_fixtures/invalid_config.xml');
+    }
+
+    private function getExpectedConfig(): array
     {
         return [
             0 => [

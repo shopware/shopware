@@ -261,6 +261,34 @@ class Kernel extends HttpKernel
         }
     }
 
+    protected function initializeFeatureFlags(): void
+    {
+        $cacheFile = $this->getCacheDir() . '/features.php';
+        $featureCache = new ConfigCache($cacheFile, $this->isDebug());
+
+        if (!$featureCache->isFresh()) {
+            /** @var Finder $files */
+            $files = (new Finder())
+                ->in(__DIR__ . '/Flag/')
+                ->name('feature_*.php')
+                ->files();
+
+            $resources = [new FileResource(__DIR__ . '/Flag/')];
+            $contents = ['<?php declare(strict_types=1);'];
+
+            foreach ($files as $file) {
+                $path = (string) $file;
+
+                $resources[] = new FileResource($path);
+                $contents[] = file_get_contents($path, false, null, 30);
+            }
+
+            $featureCache->write(implode(PHP_EOL, $contents), $resources);
+        }
+
+        require_once $cacheFile;
+    }
+
     private function addApiRoutes(RouteCollectionBuilder $routes): void
     {
         $routes->import('.', null, 'api');
@@ -297,33 +325,5 @@ class Kernel extends HttpKernel
         if (isset($connectionVariables)) {
             $connection->executeQuery(implode(' ', $connectionVariables));
         }
-    }
-
-    private function initializeFeatureFlags(): void
-    {
-        $cacheFile = $this->getCacheDir() . '/features.php';
-        $featureCache = new ConfigCache($cacheFile, $this->isDebug());
-
-        if (!$featureCache->isFresh()) {
-            /** @var Finder $files */
-            $files = (new Finder())
-                ->in(__DIR__ . '/Flag/')
-                ->name('feature_*.php')
-                ->files();
-
-            $resources = [new FileResource(__DIR__ . '/Flag/')];
-            $contents = ['<?php declare(strict_types=1);'];
-
-            foreach ($files as $file) {
-                $path = (string) $file;
-
-                $resources[] = new FileResource($path);
-                $contents[] = file_get_contents($path, false, null, 30);
-            }
-
-            $featureCache->write(implode(PHP_EOL, $contents), $resources);
-        }
-
-        require_once $cacheFile;
     }
 }

@@ -1,14 +1,16 @@
-import { Component, Mixin } from 'src/core/shopware';
-import template from './sw-plugin-form-renderer.html.twig';
+import { Mixin } from 'src/core/shopware';
+import template from './sw-config-form-renderer.html.twig';
 
-Component.register('sw-plugin-form-renderer', {
+export default {
+    name: 'sw-config-form-renderer',
+
     template,
 
     mixins: [
         Mixin.getByName('notification')
     ],
 
-    inject: ['pluginFormRendererService'],
+    inject: ['configFormRendererService'],
 
     props: {
         value: {
@@ -26,8 +28,6 @@ Component.register('sw-plugin-form-renderer', {
         };
     },
 
-    computed: {},
-
     created() {
         this.createdComponent();
     },
@@ -37,18 +37,21 @@ Component.register('sw-plugin-form-renderer', {
         createdComponent() {
             this.locale = this.$root.$i18n.locale.replace('-', '_');
             this.fallbackLocale = this.$root.$i18n.fallbackLocale.replace('-', '_');
-            // TODO remove sample data while building the plugin config module
-            this.pluginFormRendererService.getConfig({ plugin_name: 'SwagExample' }).then((data) => {
+            // TODO remove sample data while building the plugin manager
+            this.configFormRendererService.getConfig(
+                { namespace: 'SwagExample', sales_channel_id: '20080911FFFF4FFFAFFFFFFF19830531' }
+            ).then((data) => {
                 this.config = data;
             }).catch((errorResponse) => {
                 if (errorResponse.response.data && errorResponse.response.data.errors) {
-                    let message = `${this.$tc('sw-plugin-form-renderer.configLoadErrorMessage', errorResponse.response.data.errors.length)}<br><br><ul>`;
+                    let message = `${this.$tc('sw-config-form-renderer.configLoadErrorMessage',
+                        errorResponse.response.data.errors.length)}<br><br><ul>`;
                     errorResponse.response.data.errors.forEach((error) => {
                         message = `${message}<li>${error.detail}</li>`;
                     });
                     message += '</li>';
                     this.createNotificationError({
-                        title: this.$tc('sw-plugin-form-renderer.configLoadErrorTitle'),
+                        title: this.$tc('sw-config-form-renderer.configLoadErrorTitle'),
                         message: message,
                         autoClose: false
                     });
@@ -75,7 +78,7 @@ Component.register('sw-plugin-form-renderer', {
 
         getPlaceholder(field) {
             if (!field.placeholder) {
-                return this.$tc('sw-plugin-form-renderer.placeholder', 0, { name: this.getLabel(field) });
+                return this.$tc('sw-config-form-renderer.placeholder', 0, { name: this.getLabel(field) });
             }
 
             if (field.placeholder[this.locale]) {
@@ -86,7 +89,7 @@ Component.register('sw-plugin-form-renderer', {
                 return field.placeholder[this.fallbackLocale];
             }
 
-            return this.$tc('sw-plugin-form-renderer.placeholder', 0, { name: this.getLabel(field) });
+            return this.$tc('sw-config-form-renderer.placeholder', 0, { name: this.getLabel(field) });
         },
 
         getOptions(field) {
@@ -99,7 +102,7 @@ Component.register('sw-plugin-form-renderer', {
 
             for (let i = 0; i < field.options.length; i += 1) {
                 label = this.getOptionLabel(field.options[i]);
-                options[i] = { value: field.options[i].value, label: label };
+                options[i] = { value: field.options[i].value, name: label };
             }
 
             return options;
@@ -114,7 +117,7 @@ Component.register('sw-plugin-form-renderer', {
                 return option.label[this.fallbackLocale];
             }
 
-            return this.$tc('sw-plugin-form-renderer.option', 0, { locale: this.locale });
+            return this.$tc('sw-config-form-renderer.option', 0, { locale: this.locale });
         }
     }
-});
+};

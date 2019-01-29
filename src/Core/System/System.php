@@ -29,5 +29,6 @@ class System extends Bundle
         $loader->load('language.xml');
         $loader->load('integration.xml');
         $loader->load('state_machine.xml');
+        $loader->load('configuration.xml');
     }
 }

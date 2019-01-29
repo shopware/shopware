@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../../Plugin/Schema/config.xsd">
+<config>
+
     <card>
-        <title>Basic configuration</title>
-        <title lang="de_DE">Grundeinstellungen</title>
         <sw-field>
             <name>email</name>
             <label>eMail</label>
@@ -31,4 +29,5 @@
             </options>
         </sw-field>
     </card>
+
 </config>

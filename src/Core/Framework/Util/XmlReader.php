@@ -20,11 +20,7 @@ abstract class XmlReader implements XmlReaderInterface
     /**
      * load and validate xml file - parse to array
      *
-     * @param string $xmlFile
-     *
      * @throws XmlParsingException
-     *
-     * @return array
      */
     public function read(string $xmlFile): array
     {

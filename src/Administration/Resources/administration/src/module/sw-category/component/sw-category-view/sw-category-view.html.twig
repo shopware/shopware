@@ -9,7 +9,13 @@
             <sw-card :title="$tc('sw-category.general.headlineInformationCard')" :isLoading="isLoading">
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-category__infos">
                     {% block sw_category_view_information_name %}
-                        <sw-field class="sw-category__name" :label="$tc('sw-category.general.categoryNameLabel')" name="categoryName" v-model="category.name" :placeholder="placeholder(category, 'name')"></sw-field>
+                        <sw-field
+                            name="categoryName"
+                            class="sw-category__name"
+                            v-model="category.name"
+                            :label="$tc('sw-category.general.categoryNameLabel')"
+                            :placeholder="placeholder(category, 'name')">
+                        </sw-field>
                     {% endblock %}
 
                     {% block sw_category_view_information_active %}
@@ -27,7 +33,12 @@
                 {% endblock %}
 
                 {% block sw_category_content_information_subcategories %}
-                    <sw-field name="categoryShowSubcategories" type="boolean" :label="$tc('sw-category.general.showSubcategoryProductsLabel')" v-model="category.displayNestedProducts"></sw-field>
+                    <sw-field
+                        name="categoryShowSubcategories"
+                        type="boolean"
+                        :label="$tc('sw-category.general.showSubcategoryProductsLabel')"
+                        v-model="category.displayNestedProducts">
+                    </sw-field>
                 {% endblock %}
 
                 {% block sw_category_view_information_media %}

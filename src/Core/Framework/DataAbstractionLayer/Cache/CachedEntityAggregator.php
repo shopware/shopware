@@ -105,18 +105,12 @@ class CachedEntityAggregator implements EntityAggregatorInterface
 
         //fetch keys from cache
         $items = $this->cache->getItems($keys);
-        $items = iterator_to_array($items);
 
-        //filter only hit items
-        $items = array_filter($items, function (CacheItem $item) {
-            return $item->isHit();
-        });
+        $filtered = [];
+        foreach ($items as $item) {
+            $filtered[] = $item->isHit() ? $item->get() : null;
+        }
 
-        //convert cache items to aggregation results
-        $items = array_map(function (CacheItem $item) {
-            return $item->get();
-        }, $items);
-
-        return new AggregationResultCollection($items);
+        return new AggregationResultCollection(array_filter($filtered));
     }
 }

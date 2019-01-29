@@ -84,7 +84,6 @@ class CachedEntityReader implements EntityReaderInterface
         }
 
         $items = $this->cache->getItems($keys);
-        $items = iterator_to_array($items);
 
         $mapped = [];
         foreach ($items as $item) {

@@ -137,7 +137,7 @@ class CachedEntityAggregatorTest extends TestCase
 
                     $manufacturerEntity = new ProductManufacturerEntity();
                     $manufacturerEntity->setUniqueIdentifier('test');
-                    if (!$criteria->getAggregationByName('tax')) {
+                    if (!$criteria->getAggregation('tax')) {
                         return new AggregatorResult(
                             (new AggregationResultCollection([
                                     new EntityAggregationResult(

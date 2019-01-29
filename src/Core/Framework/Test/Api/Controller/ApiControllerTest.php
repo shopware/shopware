@@ -565,8 +565,10 @@ EOF;
 
         $filter = [
             'aggregations' => [
-                'price_stats' => [
-                    'stats' => ['field' => 'product_price_rule.price'],
+                [
+                    'name' => 'price_stats',
+                    'type' => 'stats',
+                    'field' => 'product_price_rule.price',
                 ],
             ],
         ];
@@ -695,8 +697,8 @@ EOF;
 
         $data = [
             'aggregations' => [
-                'product_count' => ['count' => ['field' => 'product.id']],
-                'product_stats' => ['stats' => ['field' => 'product.stock']],
+                ['name' => 'product_count', 'type' => 'count', 'field' => 'product.id'],
+                ['name' => 'product_stats', 'type' => 'stats', 'field' => 'product.stock'],
             ],
             'filter' => [
                 [

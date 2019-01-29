@@ -23,72 +23,68 @@ class AggregationParser
             throw new InvalidAggregationQueryException('The aggregations parameter has to be a list of aggregations.');
         }
 
-        $index = 0;
-        foreach ($payload['aggregations'] as $name => $aggregations) {
+        foreach ($payload['aggregations'] as $index => $aggregation) {
+            if (!\is_array($aggregation)) {
+                $searchRequestException->add(new InvalidAggregationQueryException('The field "%s" should be a list of aggregations.'), '/aggregations/' . $index);
+                continue;
+            }
+
+            $name = $aggregation['name'] ? (string) $aggregation['name'] : null;
+
             if (empty($name) || is_numeric($name)) {
-                $searchRequestException->add(new InvalidAggregationQueryException('The aggregation field key should be a non-empty string.'), '/aggregations/' . $index);
+                $searchRequestException->add(new InvalidAggregationQueryException('The aggregation name should be a non-empty string.'), '/aggregations/' . $index);
                 continue;
             }
 
-            if (!\is_array($aggregations)) {
-                $searchRequestException->add(new InvalidAggregationQueryException('The field "%s" should be a list of aggregations.'), '/aggregations/' . $name);
+            $type = $aggregation['type'] ?? null;
+
+            if (empty($type) || is_numeric($type)) {
+                $searchRequestException->add(new InvalidAggregationQueryException('The aggregations of "%s" should be a non-empty string.'), '/aggregations/' . $index);
                 continue;
             }
 
-            $subIndex = 0;
-            foreach ($aggregations as $type => $aggregation) {
-                if (empty($type) || is_numeric($type)) {
-                    $searchRequestException->add(new InvalidAggregationQueryException('The aggregations of "%s" should be a non-empty string.'), '/aggregations/' . $name . '/' . $subIndex);
-                    continue;
-                }
-
-                if (empty($aggregation['field'])) {
-                    $searchRequestException->add(new InvalidAggregationQueryException('The aggregation should contain a "field".'), '/aggregations/' . $name . '/' . $type . '/field');
-                    continue;
-                }
-
-                $field = static::buildFieldName($definition, $aggregation['field']);
-                switch ($type) {
-                    case 'avg':
-                        $criteria->addAggregation(new AvgAggregation($field, $name));
-                        break;
-
-                    case 'value':
-                        $criteria->addAggregation(new ValueAggregation($field, $name));
-                        break;
-
-                    case 'count':
-                        $criteria->addAggregation(new CountAggregation($field, $name));
-                        break;
-
-                    case 'max':
-                        $criteria->addAggregation(new MaxAggregation($field, $name));
-                        break;
-
-                    case 'min':
-                        $criteria->addAggregation(new MinAggregation($field, $name));
-                        break;
-
-                    case 'stats':
-                        $criteria->addAggregation(new StatsAggregation($field, $name));
-                        break;
-
-                    case 'sum':
-                        $criteria->addAggregation(new SumAggregation($field, $name));
-                        break;
-
-                    case 'value_count':
-                        $criteria->addAggregation(new ValueCountAggregation($field, $name));
-                        break;
-
-                    default:
-                        $searchRequestException->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exists.', $type)), '/aggregations/' . $name);
-                }
-
-                ++$subIndex;
+            if (empty($aggregation['field'])) {
+                $searchRequestException->add(new InvalidAggregationQueryException('The aggregation should contain a "field".'), '/aggregations/' . $index . '/' . $type . '/field');
+                continue;
             }
 
-            ++$index;
+            $field = static::buildFieldName($definition, $aggregation['field']);
+            switch ($type) {
+                case 'avg':
+                    $criteria->addAggregation(new AvgAggregation($field, $name));
+                    break;
+
+                case 'value':
+                    $criteria->addAggregation(new ValueAggregation($field, $name));
+                    break;
+
+                case 'count':
+                    $criteria->addAggregation(new CountAggregation($field, $name));
+                    break;
+
+                case 'max':
+                    $criteria->addAggregation(new MaxAggregation($field, $name));
+                    break;
+
+                case 'min':
+                    $criteria->addAggregation(new MinAggregation($field, $name));
+                    break;
+
+                case 'stats':
+                    $criteria->addAggregation(new StatsAggregation($field, $name));
+                    break;
+
+                case 'sum':
+                    $criteria->addAggregation(new SumAggregation($field, $name));
+                    break;
+
+                case 'value_count':
+                    $criteria->addAggregation(new ValueCountAggregation($field, $name));
+                    break;
+
+                default:
+                    $searchRequestException->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exists.', $type)), '/aggregations/' . $index);
+            }
         }
     }
 

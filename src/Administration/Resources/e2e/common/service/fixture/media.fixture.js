@@ -12,6 +12,7 @@ export default class MediaFixtureService extends FixtureService {
     }
 
     setFolderFixture(userData) {
+        const startTime = new Date();
         global.logger.lineBreak();
         global.logger.title('Set media folder fixtures...');
 
@@ -20,8 +21,9 @@ export default class MediaFixtureService extends FixtureService {
         let finalData = this.mergeFixtureWithData(mediaFolderJson, userData);
 
         return this.apiClient.post('/v1/media-folder?_response=true', finalData)
-            .then((result) => {
-                global.logger.success(result.id);
+            .then((data) => {
+                const endTime = new Date() - startTime;
+                global.logger.success(`${data.id} (${endTime / 1000}s)`);
                 global.logger.lineBreak();
             }).catch((err) => {
                 global.logger.error(err);

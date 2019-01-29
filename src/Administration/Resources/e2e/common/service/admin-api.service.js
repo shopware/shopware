@@ -41,7 +41,13 @@ export default class AdminApiService extends ApiService {
     }
 
     request({url, method, params, data}) {
-        return super.request({url, method, params, data}).catch(({ config, response }) => {
+        return this.loginByUserName().then(() => {
+            return super.request({url, method, params, data}).catch(({config, response}) => {
+                if (response.data && response.data.errors) {
+                    console.log(response.data.errors);
+                }
+            })
+        }).catch(({config, response}) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);
             }
@@ -49,9 +55,6 @@ export default class AdminApiService extends ApiService {
     }
 
     clearCache() {
-        return super.delete('/v1/_action/cache').catch((err) => {
-            global.logger.error(err);
-            global.logger.lineBreak();
-        })
+        return super.clearCache('/v1/_action/cache');
     }
 }

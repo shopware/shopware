@@ -12,6 +12,7 @@ export default class ProductFixture extends FixtureService {
     }
 
     setProductFixtures(userData) {
+        const startTime = new Date();
         global.logger.lineBreak();
         global.logger.title('Set product fixtures...');
 
@@ -55,11 +56,12 @@ export default class ProductFixture extends FixtureService {
             }, productData, userData);
         }).then((finalProductData) => {
             return this.apiClient.post('/v1/product?_response=true', finalProductData);
+        }).then((data) => {
+            const endTime = new Date() - startTime;
+            global.logger.success(`${data.id} (${endTime / 1000}s)`);
+            global.logger.lineBreak();
         }).catch((err) => {
             global.logger.error(err);
-            global.logger.lineBreak();
-        }).then((data) => {
-            global.logger.success(data.id);
             global.logger.lineBreak();
         });
     }

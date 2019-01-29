@@ -20,6 +20,7 @@ export default class FixtureService {
     }
 
     create(type, userData = {}) {
+        const startTime = new Date();
         global.logger.lineBreak();
         global.logger.title(`Set ${type} fixtures...`);
 
@@ -36,7 +37,8 @@ export default class FixtureService {
                     }]
                 });
             }).then((data) => {
-                global.logger.success(data.id);
+                const endTime = new Date() - startTime;
+                global.logger.success(`${data.id} (${endTime / 1000}s)`);
                 global.logger.lineBreak();
             }).catch((err) => {
                 global.logger.error(err);

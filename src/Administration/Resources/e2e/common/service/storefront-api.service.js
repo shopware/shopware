@@ -4,27 +4,6 @@ const ApiService = require('../../administration/service/api.service');
    Please adjust it to the storefront sooner or later. */
 
 export default class StorefrontApiService extends ApiService {
-    /**
-     * Renders an header to stdout including information about the available flags.
-     *
-     * @param {String} username
-     * @param {String} password
-     * @returns {Object}
-     */
-    loginByUserName() {
-        return this.client.post('/oauth/token', {
-            grant_type: 'password',
-            client_id: 'administration',
-            scopes: 'write',
-            username,
-            password
-        }).catch((err) => {
-            console.log(Promise.reject(err.data));
-        }).then((response) => {
-            this.authInformation = response.data;
-            return this.authInformation;
-        });
-    }
 
     getClientId(salesChannelName = 'Storefront API', url = '/v1/search/sales-channel?response=true') {
         return this.post(url, {
@@ -56,7 +35,7 @@ export default class StorefrontApiService extends ApiService {
     }
 
     request({url, method, params, data}) {
-        return super.request({url, method, params, data}).catch(({ config, response }) => {
+        return super.request({url, method, params, data}).catch(({config, response}) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);
             }

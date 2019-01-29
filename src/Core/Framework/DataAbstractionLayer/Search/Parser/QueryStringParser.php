@@ -97,7 +97,7 @@ class QueryStringParser
         throw new InvalidFilterQueryException(sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
     }
 
-    private static function toArray(Filter $query): array
+    public static function toArray(Filter $query): array
     {
         switch (true) {
             case $query instanceof EqualsFilter:

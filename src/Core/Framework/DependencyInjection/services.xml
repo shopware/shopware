@@ -61,6 +61,7 @@
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="media_default_folder.repository"/>
             <argument type="service" id="configuration_group.repository"/>
+            <argument type="service" id="product_stream.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <argument>%kernel.environment%</argument>
             <argument>%kernel.project_dir%</argument>

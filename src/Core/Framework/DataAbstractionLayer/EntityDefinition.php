@@ -174,7 +174,7 @@ abstract class EntityDefinition
 
     public static function isChildrenAware(): bool
     {
-        return static::getFields()->get('children') instanceof ChildrenAssociationField;
+        return static::getFields()->filterInstance(ChildrenAssociationField::class)->count() > 0;
     }
 
     public static function isChildCountAware(): bool

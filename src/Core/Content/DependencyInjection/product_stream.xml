@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Content\ProductStream\ProductStreamDefinition">
+            <tag name="shopware.entity.definition" entity="product_stream"/>
+        </service>
+        <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+        <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition">
+            <tag name="shopware.entity.definition" entity="product_stream_filter"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
+
+        <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
+            <argument type="service" id="product_stream.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
+
+            <tag name="shopware.dbal_indexing.indexer"/>
+        </service>
+    </services>
+</container>

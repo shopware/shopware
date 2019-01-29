@@ -77,10 +77,37 @@ class CachedEntityReader implements EntityReaderInterface
 
     private function loadResultByIds(string $definition, Criteria $criteria, Context $context): EntityCollection
     {
-        $collection = $this->loadIdsFromCache($definition, $criteria, $context);
+        //generate cache key list for multi cache get
+        $keys = [];
+        foreach ($criteria->getIds() as $id) {
+            $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
+        }
+
+        $items = $this->cache->getItems($keys);
+        $items = iterator_to_array($items);
+
+        $mapped = [];
+        foreach ($items as $item) {
+            if (!$item->isHit()) {
+                continue;
+            }
+            $entity = $item->get();
+
+            if ($entity instanceof Entity) {
+                $mapped[$entity->getUniqueIdentifier()] = $entity;
+            } else {
+                $mapped[$entity] = null;
+            }
+        }
+
+        /** @var string|EntityDefinition $definition */
+        $collection = $definition::getCollectionClass();
+
+        /* @var EntityCollection $collection */
+        $collection = new $collection(array_filter($mapped));
 
         //check which ids are not loaded from cache
-        $fallback = array_diff(array_values($criteria->getIds()), array_values($collection->getIds()));
+        $fallback = array_diff(array_values($criteria->getIds()), array_keys($mapped));
 
         if (empty($fallback)) {
             //sort collection by provided id sorting
@@ -118,34 +145,6 @@ class CachedEntityReader implements EntityReaderInterface
         return $collection;
     }
 
-    private function loadIdsFromCache(string $definition, Criteria $criteria, Context $context): EntityCollection
-    {
-        //generate cache key list for multi cache get
-        $keys = [];
-        foreach ($criteria->getIds() as $id) {
-            $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
-        }
-
-        $items = $this->cache->getItems($keys);
-        $items = iterator_to_array($items);
-
-        //filter only hit items
-        $items = array_filter($items, function (CacheItem $item) {
-            return $item->isHit();
-        });
-
-        //convert cache items to entities
-        $items = array_map(function (CacheItem $item) {
-            return $item->get();
-        }, $items);
-
-        /** @var string|EntityDefinition $definition */
-        $collection = $definition::getCollectionClass();
-
-        /* @var EntityCollection $collection */
-        return new $collection($items);
-    }
-
     private function cacheEntity(string $definition, Context $context, Criteria $criteria, Entity $entity): void
     {
         $key = $this->cacheKeyGenerator->getEntityContextCacheKey(
@@ -174,7 +173,7 @@ class CachedEntityReader implements EntityReaderInterface
         /** @var CacheItem $item */
         $item = $this->cache->getItem($key);
 
-        $item->set(null);
+        $item->set($id);
         $item->tag($key);
         $item->expiresAfter(3600);
 

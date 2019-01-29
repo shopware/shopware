@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
@@ -47,12 +48,12 @@ class EntityCacheKeyGenerator
         return implode('-', $keys);
     }
 
-    public function getAggregatorResultContextCacheKey(?string $aggregationDefinition, string $entityDefinition, Criteria $criteria, Context $context): string
+    public function getAggregationCacheKey(Aggregation $aggregation, string $definition, Criteria $criteria, Context $context): string
     {
-        /** @var string|EntityDefinition $entityDefinition */
+        /** @var string|EntityDefinition $definition */
         $keys = [
-            $aggregationDefinition,
-            $entityDefinition::getEntityName(),
+            md5(json_encode($aggregation)),
+            $definition::getEntityName(),
             $this->getAggregationHash($criteria),
             $this->getContextHash($context),
         ];
@@ -60,26 +61,7 @@ class EntityCacheKeyGenerator
         return implode('-', $keys);
     }
 
-    public function getAggregatorResultContextCacheKeys(string $entityDefinition, Criteria $criteria, Context $context): array
-    {
-        $keys = [];
-        foreach ($criteria->getAggregations() as $aggregation) {
-            $keys[] = $this->getAggregatorResultContextCacheKey(
-                $aggregation->getName(), $entityDefinition, $criteria, $context
-            );
-        }
-
-        return $keys;
-    }
-
-    public function getCacheKeyEntityId(string $entityCacheKey)
-    {
-        $cacheKeyParts = explode('-', $entityCacheKey);
-
-        return $cacheKeyParts[1] ?: '';
-    }
-
-    public function getCacheKeyAggregationName(string $aggregationCacheKey)
+    public function getCacheKeyAggregationName(string $aggregationCacheKey): string
     {
         $cacheKeyParts = explode('-', $aggregationCacheKey);
 

@@ -121,20 +121,9 @@ class Criteria extends Struct
         return $this->aggregations;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Aggregation|null
-     */
-    public function getAggregationByName(string $name): ?Aggregation
+    public function getAggregation(string $name): ?Aggregation
     {
-        foreach ($this->aggregations as $aggregation) {
-            if ($aggregation->getName() == $name) {
-                return $aggregation;
-            }
-        }
-
-        return null;
+        return $this->aggregations[$name] ?? null;
     }
 
     /**
@@ -192,7 +181,7 @@ class Criteria extends Struct
     public function addAggregation(Aggregation ...$aggregations): self
     {
         foreach ($aggregations as $aggregation) {
-            $this->aggregations[] = $aggregation;
+            $this->aggregations[$aggregation->getName()] = $aggregation;
         }
 
         return $this;

@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
@@ -40,67 +40,53 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
-    public function aggregate(string $entityDefinition, Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
     {
-        $collection = $this->loadFromCache($entityDefinition, $criteria, $context);
+        // load all hits from cache
+        $result = $this->loadFromCache($definition, $criteria, $context);
 
-        if ($collection) {
-            return $collection;
+        // collect all names of aggregations to compare which are not loaded from cache
+        $names = array_map(function (Aggregation $aggregation) {
+            return $aggregation->getName();
+        }, $criteria->getAggregations());
+
+        //check which aggregations are not loaded from cache
+        $fallback = array_diff(array_values($names), array_values($result->getKeys()));
+
+        if (empty($fallback)) {
+            return new AggregatorResult($result, $context, $criteria);
         }
 
-        $aggregatorResult = $this->loadFromPersistent($entityDefinition, $criteria, $context);
+        //clone criteria to only load aggregations from storage which are not loaded from cache
+        $clone = clone $criteria;
+        $clone->resetAggregations();
 
-        $this->cacheResult($entityDefinition, $context, $criteria, $aggregatorResult);
+        foreach ($fallback as $name) {
+            $clone->addAggregation($criteria->getAggregation($name));
+        }
 
+        //load from persistent layer
+        $persistent = $this->decorated->aggregate($definition, $clone, $context);
+
+        $this->cacheResult($definition, $context, $criteria, $persistent);
         $this->cache->commit();
 
-        return $aggregatorResult;
+        foreach ($persistent->getAggregations() as $item) {
+            $result->add($item);
+        }
+
+        return new AggregatorResult($result, $context, $criteria);
     }
 
-    private function loadFromCache(string $entityDefinition, Criteria $criteria, Context $context): ?AggregatorResult
+    private function cacheResult(string $definition, Context $context, Criteria $criteria, AggregatorResult $result): void
     {
-        if (in_array($entityDefinition, [VersionCommitDefinition::class, VersionCommitDataDefinition::class], true)) {
-            return null;
-        }
+        /** @var AggregationResult $aggregationResult */
+        foreach ($result->getAggregations() as $aggregationResult) {
+            $key = $this->cacheKeyGenerator->getAggregationCacheKey($aggregationResult->getAggregation(), $definition, $criteria, $context);
 
-        $keys = $this->cacheKeyGenerator->getAggregatorResultContextCacheKeys($entityDefinition, $criteria, $context);
-
-        $result = new AggregatorResult(new AggregationResultCollection(), $context, $criteria);
-
-        $items = iterator_to_array($this->cache->getItems($keys));
-
-        //Any Hits?
-        if (!$this->isCacheItemsWithHits($items)) {
-            return null;
-        }
-
-        $modifiedCriteria = clone $criteria;
-        $modifiedCriteria->resetAggregations();
-
-        /** @var CacheItem $item */
-        foreach ($items as $item) {
-            if (!$item->isHit()) {
-                $modifiedCriteria = $this->addMissedAggregation($criteria, $item, $modifiedCriteria);
-                continue;
-            }
-            $result->getAggregations()->add($item->get());
-        }
-
-        $result = $this->readMissedAggregations($entityDefinition, $context, $modifiedCriteria, $result);
-
-        return $result;
-    }
-
-    private function cacheResult(
-        string $entityDefinition, Context $context, Criteria $criteria, AggregatorResult $result
-    ): void {
-        foreach ($result->getAggregations() as $aggregation) {
-            $key = $this->cacheKeyGenerator->getAggregatorResultContextCacheKey(
-                $aggregation->getName(), $entityDefinition, $criteria, $context
-            );
             /** @var CacheItem $item */
             $item = $this->cache->getItem($key);
-            $item->set($aggregation);
+            $item->set($aggregationResult);
             $item->tag($key);
             $item->expiresAfter(3600);
 
@@ -109,49 +95,28 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         }
     }
 
-    private function isCacheItemsWithHits($items): bool
+    private function loadFromCache(string $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
-        /** @var CacheItem $item */
-        foreach ($items as $item) {
-            if ($item->isHit()) {
-                return true;
-            }
+        //create key list for all aggregations
+        $keys = [];
+        foreach ($criteria->getAggregations() as $aggregation) {
+            $keys[] = $this->cacheKeyGenerator->getAggregationCacheKey($aggregation, $definition, $criteria, $context);
         }
 
-        return false;
-    }
+        //fetch keys from cache
+        $items = $this->cache->getItems($keys);
+        $items = iterator_to_array($items);
 
-    private function addMissedAggregation(Criteria $criteria, CacheItem $item, Criteria $modifiedCriteria): Criteria
-    {
-        $missedAggregation = $criteria->getAggregationByName(
-            $this->cacheKeyGenerator->getCacheKeyAggregationName($item->getKey())
-        );
+        //filter only hit items
+        $items = array_filter($items, function (CacheItem $item) {
+            return $item->isHit();
+        });
 
-        if ($missedAggregation) {
-            $modifiedCriteria->addAggregation($missedAggregation);
-        }
+        //convert cache items to aggregation results
+        $items = array_map(function (CacheItem $item) {
+            return $item->get();
+        }, $items);
 
-        return $modifiedCriteria;
-    }
-
-    private function readMissedAggregations(
-        string $entityDefinition, Context $context, Criteria $modifiedCriteria, AggregatorResult $result
-    ): AggregatorResult {
-        if (\count($modifiedCriteria->getAggregations()) > 0) {
-            $missingAggregations = $this->loadFromPersistent($entityDefinition, $modifiedCriteria, $context);
-            foreach ($missingAggregations->getAggregations() as $aggregation) {
-                $result->getAggregations()->add($aggregation);
-            }
-            $this->cacheResult($entityDefinition, $context, $modifiedCriteria, $missingAggregations);
-        }
-
-        return $result;
-    }
-
-    private function loadFromPersistent(string $entityDefinition, Criteria $criteria, Context $context): AggregatorResult
-    {
-        $aggregatorResult = $this->decorated->aggregate($entityDefinition, $criteria, $context);
-
-        return $aggregatorResult;
+        return new AggregationResultCollection($items);
     }
 }

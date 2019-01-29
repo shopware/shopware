@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\ObjectFieldAccessorBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
@@ -36,7 +36,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new ObjectFieldAccessorBuilder(),
+                new JsonFieldAccessorBuilder(),
             ])
         );
         $accessor = $helper->getFieldAccessor(
@@ -54,7 +54,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new ObjectFieldAccessorBuilder(),
+                new JsonFieldAccessorBuilder(),
             ])
         );
         $accessor = $helper->getFieldAccessor(
@@ -72,7 +72,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new ObjectFieldAccessorBuilder(),
+                new JsonFieldAccessorBuilder(),
             ])
         );
         $field = $helper->getField(

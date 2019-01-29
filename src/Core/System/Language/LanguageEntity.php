@@ -17,6 +17,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTran
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
+use Shopware\Core\Framework\Attribute\Translation\AttributeTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
@@ -227,6 +228,11 @@ class LanguageEntity extends Entity
      * @var DiscountSurchargeTranslationCollection| null
      */
     protected $discountSurchargeTranslations;
+
+    /**
+     * @var AttributeTranslationCollection|null
+     */
+    protected $attributeTranslations;
 
     /**
      * @var SalesChannelDomainCollection|null
@@ -606,6 +612,16 @@ class LanguageEntity extends Entity
     public function setMediaFolderTranslations(MediaFolderTranslationCollection $mediaFolderTranslations): void
     {
         $this->mediaFolderTranslations = $mediaFolderTranslations;
+    }
+
+    public function getAttributeTranslations(): ?AttributeTranslationCollection
+    {
+        return $this->attributeTranslations;
+    }
+
+    public function setAttributeTranslations(?AttributeTranslationCollection $attributeTranslations): void
+    {
+        $this->attributeTranslations = $attributeTranslations;
     }
 
     public function getSalesChannelDomains(): ?SalesChannelDomainCollection

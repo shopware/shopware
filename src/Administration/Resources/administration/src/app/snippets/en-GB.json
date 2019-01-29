@@ -1361,7 +1361,7 @@
   "sw-language-info": {
     "infoTextChildLanguage": "Translation of \"{entityDescription}\" in the language <span>\"{language}\"</span>, which inherits from",
     "infoTextRootLanguage": "Translation of \"{entityDescription}\" in the root language <span>\"{language}\"</span>. Fallback is the system default language",
-    "infoTextSystemLanguage": "\"{entityDescription}\" is displayed in the system default language <span>\"{language}\"</span>."
+    "infoTextNewEntity": "\"{entityDescription}\" is displayed in the system default language. New data should always be maintained in the default language of the system."
   },
   "sw-language-switch": {
     "messageModalUnsavedChanges": "There are unsaved changes in the current language. Do you want to save them now?",

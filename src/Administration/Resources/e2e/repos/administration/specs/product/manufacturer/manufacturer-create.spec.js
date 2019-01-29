@@ -28,6 +28,7 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
+            .waitForElementNotPresent('.sw-loader')
             .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
             .click('.sw-grid-row:first-child .sw-context-button__button')
             .waitForElementVisible('.sw-context-menu')

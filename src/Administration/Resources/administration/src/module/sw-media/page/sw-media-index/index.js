@@ -54,10 +54,6 @@ Component.register('sw-media-index', {
             return State.getStore('media_folder_configuration');
         },
 
-        mediaSidebar() {
-            return this.$refs.mediaSidebar;
-        },
-
         selectableItems() {
             return [
                 ...this.subFolders,
@@ -80,6 +76,13 @@ Component.register('sw-media-index', {
 
         dragSelectorClass() {
             return 'sw-media-entity';
+        },
+
+        rootFolder() {
+            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
+            root.name = this.$tc('sw-media.index.rootFolderName');
+
+            return root;
         }
     },
 
@@ -118,10 +121,6 @@ Component.register('sw-media-index', {
                     this.$refs.scrollContainer.scrollTop = 0;
                 }
             }, 100)();
-        },
-
-        showDetails(mediaItem) {
-            this._showDetails(mediaItem, false);
         },
 
         onUploadsAdded({ uploadTag, data }) {
@@ -164,10 +163,10 @@ Component.register('sw-media-index', {
                 this.mediaFolderStore.getByIdAsync(this.currentFolder.parentId).then((parent) => {
                     this.parentFolder = parent;
                 }).catch(() => {
-                    this.parentFolder = this.getRootFolder();
+                    this.parentFolder = this.rootFolder;
                 });
             }).catch(() => {
-                this.currentFolder = this.getRootFolder();
+                this.currentFolder = this.rootFolder;
                 this.parentFolder = null;
             });
         },
@@ -332,19 +331,25 @@ Component.register('sw-media-index', {
             });
         },
 
-        onMediaFoldersDissolved() {
+        onMediaFoldersDissolved(ids) {
+            if (ids.includes(this.routeFolderId)) {
+                let routeId = null;
+                if (this.parentFolder) {
+                    routeId = this.parentFolder.id;
+                }
+
+                this.$router.push({
+                    name: 'sw.media.index',
+                    params: {
+                        folderId: routeId
+                    }
+                });
+            }
             this.getList();
         },
 
         onMediaMoved() {
             this.getList();
-        },
-
-        getRootFolder() {
-            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
-            root.name = this.$tc('sw-media.index.rootFolderName');
-
-            return root;
         }
     }
 });

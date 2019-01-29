@@ -842,26 +842,27 @@
       "smartBarHeader": "Media"
     },
     "sidebar": {
+      "labelHeadlineMultiple": "{count} files selected",
+      "labelNoMediaSelected": "No media selected",
       "actions": {
-        "quickInfo": "Quick info",
+        "copyLink": "Copy link",
         "delete": "Delete",
-        "settings": "Settings",
         "dissolve": "Dissolve",
-        "move": "Move"
-      },
-      "quickinfo": {
-        "actions": "Actions",
-        "replace": "Replace",
         "download": "Download",
         "move": "Move",
-        "delete": "Delete",
-        "copyLink": "Copy link",
+        "replace": "Replace",
+        "settings": "Settings"
+      },
+      "sections": {
+        "actions": "Actions",
         "preview": "Preview",
         "metadata": "Meta data",
-        "titleMissingFile": "File not found",
-        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder.",
         "usage": "Used in",
-        "infoFolder": "Media folders do not have displayable quickinfos yet."
+        "selectedFiles": "Selected files"
+      },
+      "infoMissingFile": {
+        "titleMissingFile": "File not found",
+        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder."
       },
       "metadata": {
         "name": "Name",
@@ -878,7 +879,6 @@
         "documentTitle": "Document title",
         "creator": "Created by",
         "pages": "Pages",
-        "fileCount": "{count} files selected",
         "totalSize": "a total of"
       },
       "usage": {

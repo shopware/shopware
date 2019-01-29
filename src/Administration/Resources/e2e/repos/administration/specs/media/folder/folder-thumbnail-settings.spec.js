@@ -63,7 +63,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
-            .waitForElementVisible('.icon--folder-breadcums-parent')
+            .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
 
@@ -108,7 +108,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.icon--folder-breadcums-dropdown')
+            .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.router-link-active')
             .waitForElementVisible(page.elements.folderNameLabel)
             .assert.containsText(page.elements.folderNameLabel, global.MediaFixtureService.mediaFolderFixture.name);

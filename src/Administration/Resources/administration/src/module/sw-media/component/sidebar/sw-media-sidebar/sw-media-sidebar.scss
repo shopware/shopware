@@ -1,8 +1,95 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
-$sw-media-sidebar-z-index:  $z-index-sidebar;
+$sw-media-sidebar-z-index:                    $z-index-sidebar;
+$sw-media-sidebar-font-size-headline:         $font-size-large;
+$sw-media-sidebar-color-headline:             $color-gutenberg;
+$sw-media-sidebar-border-color-headline:      $color-steam-cloud;
+$sw-media-sidebar-color-quick-action:         $color-shopware-blue;
+$sw-media-sidebar-color-quick-action-danger:  $color-crimson;
 
 .sw-media-sidebar {
-    position: relative;
+    display: grid;
     height: 100%;
+    width: 400px;
+    grid-template-rows: auto 1fr;
+    border-left: 1px solid $color-steam-cloud;
+
+    &.no-headline {
+        grid-template-rows: unset;
+    }
+
+    .sw-media-sidebar__headline {
+        @include truncate();
+        padding: 25px;
+        margin: 0;
+        font-size: $sw-media-sidebar-font-size-headline;
+        font-weight: normal;
+        color: $sw-media-sidebar-color-headline;
+        border-bottom: 1px solid $sw-media-sidebar-border-color-headline;
+    }
+
+    .sw-media-sidebar__quickinfo-scroll-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+
+        & > * {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .sw-media-sidebar__empty-state {
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+    }
+
+    .sw-media-sidebar__empty-state-label {
+        color: $color-steam-cloud;
+        margin: 0 auto;
+    }
+
+    .sw-media-sidebar__metadata-list{
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-auto-rows: 40px;
+        grid-column-gap: 16px;
+        align-items: center;
+        overflow: visible;
+    }
+
+    .sw-media-sidebar__two-columns {
+        list-style: none;
+        display: grid;
+        grid-template-columns: 50% 50%;
+    }
+
+    .sw-media-sidebar__quickaction {
+        cursor: pointer;
+        margin-bottom: 16px;
+
+        &:hover {
+            color: $sw-media-sidebar-color-quick-action;
+        }
+
+        &:hover.is--danger {
+            color: $sw-media-sidebar-color-quick-action-danger;
+        }
+    }
+
+    .sw-media-sidebar__quickactions-icon {
+        position: relative;
+        top: -2px;
+        color: $sw-media-sidebar-color-quick-action;
+        margin-right: 20px;
+
+        &.is--danger {
+            color: $sw-media-sidebar-color-quick-action-danger;
+        }
+    }
 }

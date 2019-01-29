@@ -1,352 +1,279 @@
 {% block sw_media_quickinfo %}
     <div class="sw-media-quickinfo">
-        <template v-if="isMediaObject">
-            {% block sw_media_quickinfo_broken_file %}
-                <sw-alert v-if="!item.hasFile" class="sw-media-quickinfo__alert-file-missing" variant="warning" :title="$tc('sw-media.sidebar.quickinfo.titleMissingFile')">
-                    {{ $tc('sw-media.sidebar.quickinfo.descriptionMissingFile') }}
-                </sw-alert>
-            {% endblock %}
+        {% block sw_media_quickinfo_broken_file %}
+            <sw-alert v-if="!item.hasFile" class="sw-media-quickinfo__alert-file-missing" variant="warning" :title="$tc('sw-media.sidebar.infoMissingFile.titleMissingFile')">
+                {{ $tc('sw-media.sidebar.infoMissingFile.descriptionMissingFile') }}
+            </sw-alert>
+        {% endblock %}
 
-            {% block sw_media_quickinfo_quickactions %}
-                <sw-media-collapse
-                    class="sw-media-quickinfo__collapse"
-                    :title="$tc('sw-media.sidebar.quickinfo.actions')"
-                    :expandOnLoading="true">
+        {% block sw_media_quickinfo_quickactions %}
+            <sw-media-collapse
+                :title="$tc('sw-media.sidebar.sections.actions')"
+                :expandOnLoading="true">
 
-                    <template slot="content">
-                        {% block sw_media_quickinfo_quickactions_content %}
-                            <ul class="sw-media-quickinfo__collapse-content sw-media-quickinfo__two-columns">
-                                {% block sw_media_quickinfo_quickactions_replace %}
-                                    <li class="sw-media-quickinfo__quickaction quickaction--replace"
-                                        @click="emitOpenModalReplace">
-                                        <sw-icon small
-                                                 name="small-copy"
-                                                 class="sw-media-quickinfo__quickactions-icon">
-                                        </sw-icon>
-                                        {{ $tc('sw-media.sidebar.quickinfo.replace') }}
-                                    </li>
-                                {% endblock %}
+                <template slot="content">
+                    {% block sw_media_quickinfo_quickactions_content %}
+                        <ul class="sw-media-sidebar__two-columns">
+                            {% block sw_media_quickinfo_quickactions_replace %}
+                                <li class="sw-media-sidebar__quickaction quickaction--replace"
+                                    @click="openModalReplace">
 
-                                {% block sw_media_quickinfo_quickactions_download %}
-                                    <li v-if="item.hasFile" class="quickaction--download">
-                                        <a class="sw-media-quickinfo__quickaction"
-                                           :href="url"
-                                           target="_blank"
-                                           download>
-                                            <sw-icon small
-                                                     name="default-action-cloud-download"
-                                                     class="sw-media-quickinfo__quickactions-icon">
-                                            </sw-icon>
-                                            {{ $tc('sw-media.sidebar.quickinfo.download') }}
-                                        </a>
-                                    </li>
-                                {% endblock %}
-
-                                {% block sw_media_quickinfo_quickactions_move %}
-                                    <li v-if="next1207"
-                                        class="sw-media-quickinfo__quickaction quickaction--move"
-                                        @click="emitOpenFolderMove">
-                                        <sw-icon small
-                                                 name="default-action-move-file"
-                                                 class="sw-media-quickinfo__quickactions-icon">
-                                        </sw-icon>
-                                        {{ $tc('sw-media.sidebar.actions.move') }}
-                                    </li>
-                                {% endblock %}
-
-                                {% block sw_media_quickinfo_quickactions_delete %}
-                                    <li class="sw-media-quickinfo__quickaction is--danger quickaction--delete"
-                                         @click="emitOpenModalDelete">
-                                        <sw-icon small
-                                                 name="default-action-trash"
-                                                 class="sw-media-quickinfo__quickactions-icon is--danger">
-                                        </sw-icon>
-                                        {{ $tc('sw-media.sidebar.quickinfo.delete') }}
-                                    </li>
-                                {% endblock %}
-
-                                {% block sw_media_quickinfo_quickactions_copy_link %}
-                                    <li class="sw-media-quickinfo__quickaction quickaction--copy-link"
-                                        v-if="item.hasFile"
-                                        @click="copyLinkToClipboard">
-                                        <sw-icon small
-                                                 name="default-web-link"
-                                                 class="sw-media-quickinfo__quickactions-icon">
-                                        </sw-icon>
-                                        {{ $tc('sw-media.sidebar.quickinfo.copyLink') }}
-                                    </li>
-                                {% endblock %}
-                            </ul>
-                        {% endblock %}
-                    </template>
-
-                </sw-media-collapse>
-            {% endblock %}
-
-            {% block sw_media_quickinfo_preview %}
-                <sw-media-collapse
-                    class="sw-media-quickinfo__collapse"
-                    v-if="item.hasFile"
-                    :expandOnLoading="true"
-                    :title="$tc('sw-media.sidebar.quickinfo.preview')">
-
-                    <template slot="content">
-                        {% block sw_media_quickinfo_preview_content %}
-                            <div class="sw-media-quickinfo__collapse-content">
-                                {% block sw_media_quickinfo_preview_item %}
-                                    <sw-media-preview class="sw-media-quickinfo__media-preview" :item="item" :showControls="true" :autoplay="autoplay" :useThumbnails="false">
-                                    </sw-media-preview>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </template>
-
-                </sw-media-collapse>
-            {% endblock %}
-
-            {% block sw_media_quickinfo_metadata %}
-                <sw-media-collapse
-                    class="sw-media-quickinfo__collapse"
-                    v-if="item.hasFile"
-                    :expandOnLoading="true"
-                    :title="$tc('sw-media.sidebar.quickinfo.metadata')">
-
-                    {% block sw_media_quickinfo_metadata_content %}
-                         <dl slot="content" class="sw-media-quickinfo__collapse-content sw-media-quickinfo__metadata-list">
-                            {% block sw_media_quickinfo_metadata_content_base %}
-                             <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-name"
-                                    :label-name="$tc('sw-media.sidebar.metadata.name')"
-                                    :truncated="false">
-
-                                    <sw-confirm-field
-                                        compact
-                                        ref="inlineEditFieldName"
-                                        :value="item.fileName"
-                                        @input="onChangeFileName">
-                                    </sw-confirm-field>
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-file-type"
-                                    :label-name="$tc('sw-media.sidebar.metadata.fileType')">
-                                    {{ item.fileExtension.toUpperCase() }}
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-alt-field"
-                                    :label-name="$tc('sw-media.sidebar.metadata.altText')"
-                                    :truncated="false">
-
-                                    <sw-confirm-field
-                                        compact
-                                        ref="inlineEditFieldAlt"
-                                        :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
-                                        :value="item.alt"
-                                        @input="onSubmitAltText">
-                                    </sw-confirm-field>
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-alt-field"
-                                    :label-name="$tc('sw-media.sidebar.metadata.title')"
-                                    :truncated="false">
-
-                                    <sw-confirm-field
-                                        compact
-                                        :value="item.title"
-                                        :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
-                                        ref="inlineEditFieldTitle"
-                                        @input="onSubmitTitle">
-                                    </sw-confirm-field>
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-mimeType"
-                                    :label-name="$tc('sw-media.sidebar.metadata.mimeType')">
-                                    {{ item.mimeType }}
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-size"
-                                    :label-name="$tc('sw-media.sidebar.metadata.fileSize')">
-                                    {{ fileSize }}
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-createdAt"
-                                    :label-name="$tc('sw-media.sidebar.metadata.createdAt')">
-                                    {{ createdAt }}
-                                </sw-media-quickinfo-metadata-item>
-
-                                <sw-media-quickinfo-metadata-item
-                                    class="sw-media-quickinfo-metadata-url"
-                                    :label-name="$tc('sw-media.sidebar.metadata.url')">
-                                    {{ item.url }}
-                                </sw-media-quickinfo-metadata-item>
-                            {% endblock %}
-
-                            <template v-if="item.mediaType.name === 'IMAGE'">
-                                {% block sw_media_quickinfo_metadata_content_image %}
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.width"
-                                        class="sw-media-quickinfo-metadata-width"
-                                        :label-name="$tc('sw-media.sidebar.metadata.width')">
-                                        {{ item.metaData.type.width }}px
-                                    </sw-media-quickinfo-metadata-item>
-
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.height"
-                                        class="sw-media-quickinfo-metadata-height"
-                                        :label-name="$tc('sw-media.sidebar.metadata.height')">
-                                        {{ item.metaData.type.height }}px
-                                    </sw-media-quickinfo-metadata-item>
-                                {% endblock %}
-                            </template>
-
-                            <template v-if="item.mediaType.name === 'VIDEO'">
-                                {% block sw_media_quickinfo_metadata_content_video %}
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.width"
-                                        class="sw-media-quickinfo-metadata-width"
-                                        :label-name="$tc('sw-media.sidebar.metadata.width')">
-                                        {{ item.metaData.type.width }}px
-                                    </sw-media-quickinfo-metadata-item>
-
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.height"
-                                        class="sw-media-quickinfo-metadata-height"
-                                        :label-name="$tc('sw-media.sidebar.metadata.height')">
-                                        {{ item.metaData.type.height }}px
-                                    </sw-media-quickinfo-metadata-item>
-
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.frameRate"
-                                        class="sw-media-quickinfo-metadata-frameRate"
-                                        :label-name="$tc('sw-media.sidebar.metadata.frameRate')">
-                                        {{ item.metaData.type.frameRate }}FPS
-                                    </sw-media-quickinfo-metadata-item>
-                                {% endblock %}
-                            </template>
-
-                            <template v-if="item.mediaType.name === 'DOCUMENT'">
-                                {% block sw_media_quickinfo_metadata_content_document %}
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.pages"
-                                        class="sw-media-quickinfo-metadata-pages"
-                                        :label-name="$tc('sw-media.sidebar.metadata.pages')">
-                                        {{ item.metaData.type.pages }}
-                                    </sw-media-quickinfo-metadata-item>
-
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.title"
-                                        class="sw-media-quickinfo-metadata-title"
-                                        :label-name="$tc('sw-media.sidebar.metadata.documentTitle')">
-                                        {{ item.metaData.type.title }}
-                                    </sw-media-quickinfo-metadata-item>
-
-                                    <sw-media-quickinfo-metadata-item
-                                        v-if="item.metaData.type.creator"
-                                        class="sw-media-quickinfo-metadata-creator"
-                                        :label-name="$tc('sw-media.sidebar.metadata.creator')">
-                                        {{ item.metaData.type.creator }}
-                                    </sw-media-quickinfo-metadata-item>
-                                {% endblock %}
-                            </template>
-                        </dl>
-                    {% endblock %}
-                </sw-media-collapse>
-            {% endblock %}
-
-            {% block sw_media_quickinfo_usage %}
-                <sw-media-collapse
-                    class="sw-media-quickinfo__collapse"
-                    v-if="item.hasFile"
-                    :expandOnLoading="true"
-                    :title="$tc('sw-media.sidebar.quickinfo.usage')">
-
-                    <sw-media-quickinfo-usage slot="content" :item="item"></sw-media-quickinfo-usage>
-                </sw-media-collapse>
-            {%  endblock %}
-        </template>
-
-        <template v-else>
-            {% block sw_media_quickinfo_folder_quickactions %}
-                <sw-media-collapse
-                    class="sw-media-quickinfo__collapse"
-                    :title="$tc('sw-media.sidebar.quickinfo.actions')"
-                    :expandOnLoading="true">
-
-                    {% block sw_media_quickinfo_folder_quickactions_content %}
-                        <ul slot="content" class="sw-media-quickinfo__collapse-content sw-media-quickinfo__two-columns">
-                            {% block sw_media_quickinfo_folder_quickactions_settings %}
-                                <li class="sw-media-quickinfo__quickaction quickaction--settings"
-                                    @click="emitOpenFolderSettings">
-                                    <sw-icon small
-                                             name="default-action-settings"
-                                             class="sw-media-quickinfo__quickactions-icon">
-                                    </sw-icon>
-                                    {{ $tc('sw-media.sidebar.actions.settings') }}
+                                    <sw-icon small name="small-copy" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.replace') }}
                                 </li>
                             {% endblock %}
 
-                            {% block sw_media_quickinfo_folder_quickactions_move %}
-                                <li class="sw-media-quickinfo__quickaction quickaction--move"
-                                    @click="emitOpenFolderMove">
-                                    <sw-icon small
-                                             name="default-action-move-file"
-                                             class="sw-media-quickinfo__quickactions-icon">
-                                    </sw-icon>
+                            {% block sw_media_quickinfo_quickactions_download %}
+                                <li v-if="item.hasFile" class="quickaction--download">
+                                    <a class="sw-media-sidebar__quickaction"
+                                       :href="item.url"
+                                       target="_blank"
+                                       download>
+
+                                        <sw-icon small name="default-action-cloud-download" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                        {{ $tc('sw-media.sidebar.actions.download') }}
+                                    </a>
+                                </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_quickactions_move %}
+                                <li v-if="next1207"
+                                    class="sw-media-sidebar__quickaction quickaction--move"
+                                    @click="openModalMove">
+
+                                    <sw-icon small name="default-action-move-file" class="sw-media-sidebar__quickactions-icon"></sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.move') }}
                                 </li>
                             {% endblock %}
 
-                            {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                                <li class="sw-media-quickinfo__quickaction quickaction--dissolve"
-                                    @click="emitOpenFolderDissolve">
-                                    <sw-icon small
-                                             name="default-web-loading-star"
-                                             class="sw-media-quickinfo__quickactions-icon">
-                                    </sw-icon>
-                                    {{ $tc('sw-media.sidebar.actions.dissolve') }}
+                            {% block sw_media_quickinfo_quickactions_delete %}
+                                <li class="sw-media-sidebar__quickaction is--danger quickaction--delete"
+                                     @click="openModalDelete">
+
+                                    <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.delete') }}
+                                </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_quickactions_copy_link %}
+                                <li class="sw-media-sidebar__quickaction quickaction--copy-link"
+                                    v-if="item.hasFile"
+                                    @click="copyLinkToClipboard">
+
+                                    <sw-icon small name="default-web-link" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.copyLink') }}
                                 </li>
                             {% endblock %}
                         </ul>
                     {% endblock %}
-                </sw-media-collapse>
+                </template>
+            </sw-media-collapse>
+        {% endblock %}
 
-                {% block sw_media_quickinfo_folder_metadata %}
-                    <sw-media-collapse
-                            class="sw-media-quickinfo__collapse"
-                            :expandOnLoading="true"
-                            :title="$tc('sw-media.sidebar.quickinfo.metadata')">
-                        {% block sw_media_quickinfo_folder_metadata_content %}
-                            <dl slot="content" class="sw-media-quickinfo__collapse-content sw-media-quickinfo__metadata-list">
-                                {% block sw_media_quickinfo_folder_metadata_content_base %}
-                                    <sw-media-quickinfo-metadata-item
-                                        class="sw-media-quickinfo-metadata-name"
-                                        :label-name="$tc('sw-media.sidebar.metadata.name')"
-                                        :truncated="false">
+        {% block sw_media_quickinfo_preview %}
+            <sw-media-collapse
+                v-if="item.hasFile"
+                :expandOnLoading="true"
+                :title="$tc('sw-media.sidebar.sections.preview')">
 
-                                        <sw-confirm-field
-                                            compact
-                                            :value="item.name"
-                                            ref="inlineEditFieldName"
-                                            @input="onChangeFolderName">
-                                        </sw-confirm-field>
-                                    </sw-media-quickinfo-metadata-item>
-
-                                    <sw-media-quickinfo-metadata-item
-                                        class="sw-media-quickinfo-metadata-createdAt"
-                                        :label-name="$tc('sw-media.sidebar.metadata.createdAt')">
-                                        {{ createdAt }}
-                                    </sw-media-quickinfo-metadata-item>
-                                {% endblock %}
-                            </dl>
+                {% block sw_media_quickinfo_preview_content %}
+                    <div slot="content">
+                        {% block sw_media_quickinfo_preview_item %}
+                            <sw-media-preview class="sw-media-quickinfo__media-preview" :item="item" :showControls="true" :useThumbnails="false">
+                            </sw-media-preview>
                         {% endblock %}
-                    </sw-media-collapse>
+                    </div>
                 {% endblock %}
-            {% endblock %}
-        </template>
+            </sw-media-collapse>
+        {% endblock %}
+
+        {% block sw_media_quickinfo_metadata %}
+            <sw-media-collapse
+                v-if="item.hasFile"
+                :expandOnLoading="true"
+                :title="$tc('sw-media.sidebar.sections.metadata')">
+
+                {% block sw_media_quickinfo_metadata_content %}
+                     <dl slot="content" class="sw-media-sidebar__metadata-list">
+                        {% block sw_media_quickinfo_metadata_content_base %}
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-name"
+                                :label-name="$tc('sw-media.sidebar.metadata.name')"
+                                :truncated="false">
+
+                                <sw-confirm-field
+                                    compact
+                                    ref="inlineEditFieldName"
+                                    :value="item.fileName"
+                                    @input="onChangeFileName">
+                                </sw-confirm-field>
+                            </sw-media-quickinfo-metadata-item>
+
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-file-type"
+                                :label-name="$tc('sw-media.sidebar.metadata.fileType')">
+                                {{ item.fileExtension.toUpperCase() }}
+                            </sw-media-quickinfo-metadata-item>
+
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-alt-field"
+                                :label-name="$tc('sw-media.sidebar.metadata.altText')"
+                                :truncated="false">
+
+                                <sw-confirm-field
+                                    compact
+                                    ref="inlineEditFieldAlt"
+                                    :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
+                                    :value="item.alt"
+                                    @input="onSubmitAltText">
+                                </sw-confirm-field>
+                            </sw-media-quickinfo-metadata-item>
+
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-alt-field"
+                                :label-name="$tc('sw-media.sidebar.metadata.title')"
+                                :truncated="false">
+
+                                <sw-confirm-field
+                                    compact
+                                    :value="item.title"
+                                    :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
+                                    ref="inlineEditFieldTitle"
+                                    @input="onSubmitTitle">
+                                </sw-confirm-field>
+                            </sw-media-quickinfo-metadata-item>
+
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-mimeType"
+                                :label-name="$tc('sw-media.sidebar.metadata.mimeType')">
+                                {{ item.mimeType }}
+                            </sw-media-quickinfo-metadata-item>
+
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-size"
+                                :label-name="$tc('sw-media.sidebar.metadata.fileSize')">
+                                {{ fileSize }}
+                            </sw-media-quickinfo-metadata-item>
+
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-createdAt"
+                                :label-name="$tc('sw-media.sidebar.metadata.createdAt')">
+                                {{ createdAt }}
+                            </sw-media-quickinfo-metadata-item>
+
+                            <sw-media-quickinfo-metadata-item
+                                class="sw-media-quickinfo-metadata-url"
+                                :label-name="$tc('sw-media.sidebar.metadata.url')">
+                                {{ item.url }}
+                            </sw-media-quickinfo-metadata-item>
+                        {% endblock %}
+
+                        <template v-if="item.mediaType.name === 'IMAGE'">
+                            {% block sw_media_quickinfo_metadata_content_image %}
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.width"
+                                    class="sw-media-quickinfo-metadata-width"
+                                    :label-name="$tc('sw-media.sidebar.metadata.width')">
+                                    {{ item.metaData.type.width }}px
+                                </sw-media-quickinfo-metadata-item>
+
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.height"
+                                    class="sw-media-quickinfo-metadata-height"
+                                    :label-name="$tc('sw-media.sidebar.metadata.height')">
+                                    {{ item.metaData.type.height }}px
+                                </sw-media-quickinfo-metadata-item>
+                            {% endblock %}
+                        </template>
+
+                        <template v-if="item.mediaType.name === 'VIDEO'">
+                            {% block sw_media_quickinfo_metadata_content_video %}
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.width"
+                                    class="sw-media-quickinfo-metadata-width"
+                                    :label-name="$tc('sw-media.sidebar.metadata.width')">
+                                    {{ item.metaData.type.width }}px
+                                </sw-media-quickinfo-metadata-item>
+
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.height"
+                                    class="sw-media-quickinfo-metadata-height"
+                                    :label-name="$tc('sw-media.sidebar.metadata.height')">
+                                    {{ item.metaData.type.height }}px
+                                </sw-media-quickinfo-metadata-item>
+
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.frameRate"
+                                    class="sw-media-quickinfo-metadata-frameRate"
+                                    :label-name="$tc('sw-media.sidebar.metadata.frameRate')">
+                                    {{ item.metaData.type.frameRate }}FPS
+                                </sw-media-quickinfo-metadata-item>
+                            {% endblock %}
+                        </template>
+
+                        <template v-if="item.mediaType.name === 'DOCUMENT'">
+                            {% block sw_media_quickinfo_metadata_content_document %}
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.pages"
+                                    class="sw-media-quickinfo-metadata-pages"
+                                    :label-name="$tc('sw-media.sidebar.metadata.pages')">
+                                    {{ item.metaData.type.pages }}
+                                </sw-media-quickinfo-metadata-item>
+
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.title"
+                                    class="sw-media-quickinfo-metadata-title"
+                                    :label-name="$tc('sw-media.sidebar.metadata.documentTitle')">
+                                    {{ item.metaData.type.title }}
+                                </sw-media-quickinfo-metadata-item>
+
+                                <sw-media-quickinfo-metadata-item
+                                    v-if="item.metaData.type.creator"
+                                    class="sw-media-quickinfo-metadata-creator"
+                                    :label-name="$tc('sw-media.sidebar.metadata.creator')">
+                                    {{ item.metaData.type.creator }}
+                                </sw-media-quickinfo-metadata-item>
+                            {% endblock %}
+                        </template>
+                    </dl>
+                {% endblock %}
+            </sw-media-collapse>
+        {% endblock %}
+
+        {% block sw_media_quickinfo_usage %}
+            <sw-media-collapse
+                v-if="item.hasFile"
+                :expandOnLoading="true"
+                :title="$tc('sw-media.sidebar.sections.usage')">
+
+                <sw-media-quickinfo-usage slot="content" :item="item"></sw-media-quickinfo-usage>
+            </sw-media-collapse>
+        {% endblock %}
+
+        {% block sw_media_quickinfo_modal_replace %}
+            <sw-media-modal-replace
+                v-if="showModalReplace"
+                :itemToReplace="item"
+                @sw-media-modal-replace-close="closeModalReplace">
+            </sw-media-modal-replace>
+        {% endblock %}
+
+        {% block sw_media_quickinfo_modal_delete %}
+            <sw-media-modal-delete
+                v-if="showModalDelete"
+                :itemsToDelete="[item]"
+                @sw-media-modal-delete-close="closeModalDelete"
+                @sw-media-modal-delete-items-deleted="deleteSelectedItems">
+            </sw-media-modal-delete>
+        {% endblock %}
+
+        {% block sw_media_quickinfo_move_modal %}
+            <sw-media-modal-move
+                v-if="showModalMove"
+                :itemsToMove="[item]"
+                @sw-media-modal-move-close="closeModalMove"
+                @sw-media-modal-move-items-moved="onFolderMoved">
+            </sw-media-modal-move>
+        {% endblock %}
     </div>
 {% endblock %}

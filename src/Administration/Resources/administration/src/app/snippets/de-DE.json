@@ -842,26 +842,27 @@
       "smartBarHeader": "Medien"
     },
     "sidebar": {
+      "labelHeadlineMultiple": "{count} ausgewählte Dateien",
+      "labelNoMediaSelected": "Keine Medien ausgewählt",
       "actions": {
-        "quickInfo": "Information",
+        "copyLink": "Link kopieren",
         "delete": "Löschen",
-        "settings": "Einstellungen",
         "dissolve": "Auflösen",
-        "move": "Verschieben"
-      },
-      "quickinfo": {
-        "actions": "Aktionen",
-        "replace": "Ersetzen",
         "download": "Download",
         "move": "Verschieben",
-        "delete": "Löschen",
-        "copyLink": "Link kopieren",
+        "replace": "Ersetzen",
+        "settings": "Einstellungen"
+      },
+      "sections": {
+        "actions": "Aktionen",
         "preview": "Vorschau",
         "metadata": "Metadaten",
-        "titleMissingFile": "Datei nicht gefunden",
-        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen.",
         "usage": "Wird verwendet in",
-        "infoFolder": "Ordner haben bisher noch keine darstellbaren Informationen."
+        "selectedFiles": "Ausgewählte Dateien"
+      },
+      "infoMissingFile": {
+        "titleMissingFile": "Datei nicht gefunden",
+        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
       },
       "metadata": {
         "name": "Name",
@@ -878,7 +879,6 @@
         "documentTitle": "Dokumenten Titel",
         "creator": "Erstellt durch",
         "pages": "Seiten",
-        "fileCount": "{count} ausgewählte Dateien",
         "totalSize": "insgesamt"
       },
       "usage": {

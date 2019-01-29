@@ -11,36 +11,23 @@ Component.register('sw-media-quickinfo', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('media-sidebar-modal-mixin'),
         Mixin.getByName('placeholder')
     ],
 
     props: {
         item: {
-            required: false,
+            required: true,
             type: Object,
             validator(value) {
-                return ['media', 'media_folder'].includes(value.entityName);
+                return value.entityName === 'media';
             }
-        },
-
-        autoplay: {
-            required: false,
-            type: Boolean,
-            default: false
         }
     },
 
     computed: {
         mediaStore() {
             return State.getStore('media');
-        },
-
-        url() {
-            if (this.item === null) {
-                return '';
-            }
-
-            return this.item.url;
         },
 
         isMediaObject() {
@@ -52,11 +39,7 @@ Component.register('sw-media-quickinfo', {
         },
 
         createdAt() {
-            let date = this.item.createdAt;
-            if (this.item.entityName === 'media' && this.item.uploadedAt) {
-                date = this.item.uploadedAt;
-            }
-
+            const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
         }
     },
@@ -67,26 +50,6 @@ Component.register('sw-media-quickinfo', {
                 domUtils.copyToClipboard(this.item.url);
                 this.createNotificationSuccess({ message: this.$tc('sw-media.general.notificationUrlCopied') });
             }
-        },
-
-        emitOpenModalDelete() {
-            this.$emit('sw-media-quickinfo-open-modal-delete');
-        },
-
-        emitOpenModalReplace() {
-            this.$emit('sw-media-quickinfo-open-modal-replace');
-        },
-
-        emitOpenFolderSettings() {
-            this.$emit('sw-media-quickinfo-open-folder-settings');
-        },
-
-        emitOpenFolderDissolve() {
-            this.$emit('sw-media-quickinfo-open-folder-dissolve');
-        },
-
-        emitOpenFolderMove() {
-            this.$emit('sw-media-quickinfo-open-folder-move');
         },
 
         onSubmitTitle(value) {
@@ -100,13 +63,6 @@ Component.register('sw-media-quickinfo', {
             this.item.alt = value;
             this.item.save().catch(() => {
                 this.$refs.inlineEditFieldAlt.cancelSubmit();
-            });
-        },
-
-        onChangeFolderName(value) {
-            this.item.name = value;
-            this.item.save().catch(() => {
-                this.$refs.inlineEditFieldName.cancelSubmit();
             });
         },
 

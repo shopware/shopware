@@ -31,18 +31,19 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-select')
-            .assert.containsText('.sw-select label', 'Default location for:')
+            .waitForElementVisible('.sw-media-folder-settings-modal__default-folder-select.sw-select')
+            .assert.containsText('.sw-media-folder-settings-modal__default-folder-select.sw-select label', 'Default location for:')
             .fillSwSelectComponent(
-                '.sw-select__inner',
+                '.sw-media-folder-settings-modal__default-folder-select .sw-select__inner',
                 {
                     value: 'Product Media',
                     isMulti: false,
                     searchTerm: 'Product Media'
                 }
             )
-            .waitForElementVisible('.sw-select__single-selection')
-            .assert.containsText('.sw-select__single-selection', 'Product Media')
+            .waitForElementVisible('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection')
+            .assert.containsText('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection', 'Product Media')
+            .waitForElementNotPresent('.sw-select__results')
             .waitForElementVisible(page.elements.saveSettingsAction)
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully')
@@ -86,7 +87,7 @@ module.exports = {
             .waitForElementVisible(page.elements.folderNameLabel)
             .waitForElementVisible('.sw-media-base-item__preview-container')
             .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
-            .waitForElementVisible('.icon--folder-breadcums-parent')
+            .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
             .expect.element('.smart-bar__header').to.have.text.that.equals(fixtures.name);
 

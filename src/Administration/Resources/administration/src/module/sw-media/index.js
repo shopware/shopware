@@ -1,11 +1,13 @@
 import { Module } from 'src/core/shopware';
 import './mixin/media-grid-listener.mixin';
+import './mixin/media-sidebar-modal-mixin';
 import './page/sw-media-index';
 import './component/sw-media-grid';
 import './component/sidebar/sw-media-sidebar';
 import './component/sidebar/sw-media-quickinfo-metadata-item';
 import './component/sidebar/sw-media-quickinfo-usage';
 import './component/sw-media-collapse';
+import './component/sidebar/sw-media-folder-info';
 import './component/sidebar/sw-media-quickinfo';
 import './component/sidebar/sw-media-quickinfo-multiple';
 

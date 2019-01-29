@@ -20,7 +20,7 @@ module.exports = {
     'click preview thumbnail to open sidebar': (browser) => {
         browser
             .click('.sw-media-preview__item:nth-of-type(1)')
-            .waitForElementVisible('.sw-sidebar-item__content');
+            .waitForElementVisible('.sw-media-quickinfo');
     },
     'verify meta data': (browser) => {
         browser

@@ -21,7 +21,7 @@ Mixin.register('media-grid-listener', {
                 'sw-media-item-clicked': this.handleMediaItemClicked,
                 'sw-media-item-selection-add': this.handleMediaGridItemSelected,
                 'sw-media-item-selection-remove': this.handleMediaGridItemUnselected,
-                'sw-media-media-item-play': this.handleMediaGridItemPlay
+                'sw-media-media-item-play': this.handleMediaItemClicked
             };
         },
 
@@ -52,6 +52,17 @@ Mixin.register('media-grid-listener', {
             this.listSelectionStartItem = null;
         },
 
+        navigateToFolder({ item }) {
+            this.$router.push({
+                name: 'sw.media.index',
+                params: { folderId: item.id }
+            });
+        },
+
+        showDetails(gridItem) {
+            this._singleSelect(gridItem);
+        },
+
         handleMediaItemClicked({ originalDomEvent, item }) {
             if (originalDomEvent.shiftKey) {
                 this._handleShiftSelect(item);
@@ -63,7 +74,7 @@ Mixin.register('media-grid-listener', {
                 return;
             }
 
-            this._showDetails(item, false);
+            this._singleSelect(item);
         },
 
         handleMediaGridItemSelected({ originalDomEvent, item }) {
@@ -78,16 +89,11 @@ Mixin.register('media-grid-listener', {
             this._removeItemFromSelection(item);
         },
 
-        handleMediaGridItemPlay({ item }) {
-            if (this.isListSelect) {
-                this._handleSelection(item);
-                return;
+        _singleSelect(item) {
+            if (item.entityName === 'media_folder') {
+                this.navigateToFolder({ item });
             }
 
-            this._showDetails(item, true);
-        },
-
-        _singleSelect(item) {
             this.selectedItems = [item];
             this.listSelectionStartItem = null;
         },
@@ -157,20 +163,6 @@ Mixin.register('media-grid-listener', {
                 start: Math.min(firstIndex, secondIndex),
                 end: Math.max(firstIndex, secondIndex)
             };
-        },
-
-        _getMediaSidebar() {
-            return this.$refs.mediaSidebar;
-        },
-
-        _showDetails(item, autoplay) {
-            this._singleSelect(item);
-            const sidebar = this._getMediaSidebar();
-
-            if (sidebar !== null) {
-                sidebar.autoplay = autoplay;
-                sidebar.showQuickInfo();
-            }
         }
     }
 });

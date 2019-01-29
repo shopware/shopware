@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Filter } from 'src/core/shopware';
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
 
@@ -15,23 +15,27 @@ Component.register('sw-media-sidebar', {
                 });
                 return invalidElements.length === 0;
             }
+        },
+
+        currentFolder: {
+            type: Object,
+            required: false,
+            default: null,
+            validator(value) {
+                return value.entityName === 'media_folder';
+            }
         }
     },
 
-    data() {
-        return {
-            autoplay: false,
-            showModalReplace: false,
-            showModalDelete: false,
-            showFolderSettings: false,
-            showFolderDissolve: false,
-            showModalMove: false
-        };
-    },
-
     computed: {
-        hasItems() {
-            return this.items.length > 0;
+        mediaNameFilter() {
+            return Filter.getByName('mediaName');
+        },
+
+        mediaSidebarClasses() {
+            return {
+                'no-headline': !this.headLine
+            };
         },
 
         isSingleFile() {
@@ -42,105 +46,31 @@ Component.register('sw-media-sidebar', {
             return this.items.length > 1;
         },
 
-        getKey() {
-            if (!this.isSingleFile) {
-                return '';
+        headLine() {
+            if (this.isSingleFile) {
+                if (this.firstEntity.entityName === 'media') {
+                    return this.mediaNameFilter(this.firstEntity);
+                }
+                return this.firstEntity.name;
             }
 
-            const item = this.items[0];
-            let key = '';
-
-            if (this.item) {
-                key = item.id;
+            if (this.isMultipleFile) {
+                return this.getSelectedFilesCount;
             }
-            return key + this.autoplay;
+
+            if (this.currentFolder) {
+                return this.currentFolder.name;
+            }
+
+            return null;
         },
 
-        mediaItems() {
-            return this.items.filter((item) => {
-                return item.entityName === 'media';
-            });
-        },
-
-        hasFolder() {
-            return this.items.some((item) => {
-                return item.entityName === 'media_folder';
-            });
-        },
-
-        showDeleteButton() {
-            return this.hasItems && !this.hasFolder;
+        getSelectedFilesCount() {
+            return `${this.$tc('sw-media.sidebar.labelHeadlineMultiple', this.items.length, { count: this.items.length })}`;
         },
 
         firstEntity() {
-            return this.items[0].entityName;
-        }
-    },
-
-    methods: {
-        showQuickInfo() {
-            this.$refs.quickInfoButton.openContent();
-        },
-
-        openModalReplace() {
-            this.showModalReplace = true;
-        },
-
-        closeModalReplace() {
-            this.showModalReplace = false;
-        },
-
-        openModalDelete() {
-            this.showModalDelete = true;
-        },
-
-        closeModalDelete() {
-            this.showModalDelete = false;
-        },
-
-        openFolderSettings() {
-            this.showFolderSettings = true;
-        },
-
-        closeFolderSettings() {
-            this.showFolderSettings = false;
-        },
-
-        deleteSelectedItems(deletePromise) {
-            this.closeModalDelete();
-            deletePromise.then((ids) => {
-                this.$emit('sw-media-sidebar-items-delete', ids);
-            });
-        },
-
-        openFolderDissolve() {
-            this.showFolderDissolve = true;
-        },
-
-        closeFolderDissolve() {
-            this.showFolderDissolve = false;
-        },
-
-        openModalMove() {
-            this.showModalMove = true;
-        },
-
-        closeModalMove() {
-            this.showModalMove = false;
-        },
-
-        onFolderDissolved(dissolvePromise) {
-            this.closeFolderDissolve();
-            dissolvePromise.then((ids) => {
-                this.$emit('sw-media-sidebar-folder-items-dissolved', ids);
-            });
-        },
-
-        onFolderMoved(movePromise) {
-            this.closeModalMove();
-            movePromise.then((ids) => {
-                this.$emit('sw-media-sidebar-items-moved', ids);
-            });
+            return this.items[0];
         }
     }
 });

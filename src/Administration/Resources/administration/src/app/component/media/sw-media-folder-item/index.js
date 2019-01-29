@@ -47,12 +47,6 @@ export default {
             return this.$root.$i18n.locale;
         },
 
-        defaultContextMenuClass() {
-            return {
-                'sw-context-menu__group': this.$slots['additional-context-menu-items']
-            };
-        },
-
         baseComponent() {
             return this.$refs.innerComponent;
         },

@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import template from './sw-media-quickinfo-multiple.html.twig';
 import './sw-media-quickinfo-multiple.scss';
@@ -6,16 +6,20 @@ import './sw-media-quickinfo-multiple.scss';
 Component.register('sw-media-quickinfo-multiple', {
     template,
 
+    mixins: [
+        Mixin.getByName('media-sidebar-modal-mixin')
+    ],
+
     props: {
         items: {
-            required: false,
+            required: true,
             type: Array
         }
     },
 
     computed: {
         itemsIsAvailable() {
-            return this.items !== undefined && this.items !== null && this.items.length > 0;
+            return this.items.length > 0;
         },
 
         getFileSize() {
@@ -27,9 +31,7 @@ Component.register('sw-media-quickinfo-multiple', {
         },
 
         getFileSizeLabel() {
-            return `${this.$tc('sw-media.sidebar.metadata.fileCount', this.items.length, { count: this.items.length })}, 
-                    ${this.$tc('sw-media.sidebar.metadata.totalSize')}: 
-                    ${this.getFileSize}`;
+            return `${this.$tc('sw-media.sidebar.metadata.totalSize')}: ${this.getFileSize}`;
         },
 
         hasFolder() {
@@ -42,20 +44,6 @@ Component.register('sw-media-quickinfo-multiple', {
             return this.items.some((item) => {
                 return item.entityName === 'media';
             });
-        }
-    },
-
-    methods: {
-        emitOpenModalDelete() {
-            this.$emit('sw-media-quickinfo-open-modal-delete');
-        },
-
-        emitOpenFolderDissolve() {
-            this.$emit('sw-media-quickinfo-open-folder-dissolve');
-        },
-
-        emitOpenFolderMove() {
-            this.$emit('sw-media-quickinfo-open-folder-move');
         }
     }
 });

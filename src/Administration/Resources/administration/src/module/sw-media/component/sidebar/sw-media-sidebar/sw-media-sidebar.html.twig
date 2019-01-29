@@ -1,94 +1,40 @@
 {% block sw_media_sidebar %}
-    <div class="sw-media-sidebar">
-        {% block sw_media_sidebar_sidebar %}
-            <sw-sidebar>
-                {% block sw_media_sidebar_item_quickinfo %}
-                    <sw-sidebar-item
-                        icon="default-action-document-view"
-                        :title="$tc('sw-media.sidebar.actions.quickInfo')"
-                        ref="quickInfoButton"
-                        :disabled="!hasItems">
-
-                        {% block sw_media_sidebar_item_quickinfo_content %}
-                            <div class="sw-media-sidebar__quickinfo-wrapper">
-                                <sw-media-quickinfo
-                                    v-if="isSingleFile"
-                                    :key="getKey"
-                                    :item="items[0]"
-                                    :autoplay="autoplay"
-                                    @sw-media-quickinfo-open-modal-replace="openModalReplace"
-                                    @sw-media-quickinfo-open-modal-delete="openModalDelete"
-                                    @sw-media-quickinfo-open-folder-settings="openFolderSettings"
-                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve"
-                                    @sw-media-quickinfo-open-folder-move="openModalMove">
-                                </sw-media-quickinfo>
-
-                                <sw-media-quickinfo-multiple
-                                    v-else-if="isMultipleFile"
-                                    :items="items"
-                                    @sw-media-quickinfo-open-modal-delete="openModalDelete"
-                                    @sw-media-quickinfo-open-folder-dissolve="openFolderDissolve"
-                                    @sw-media-quickinfo-open-folder-move="openModalMove">
-                                </sw-media-quickinfo-multiple>
-                            </div>
-                        {% endblock %}
-                    </sw-sidebar-item>
-                {% endblock %}
-
-                {% block sw_media_sidebar_item_delete %}
-                    <sw-sidebar-item
-                        icon="default-action-trash"
-                        :title="$tc('sw-media.sidebar.actions.delete')"
-                        :disabled="!showDeleteButton"
-                        position="bottom"
-                        @click="openModalDelete">
-                    </sw-sidebar-item>
-                {% endblock %}
-            </sw-sidebar>
+    <div class="sw-media-sidebar" :class="mediaSidebarClasses">
+        {% block sw_media_sidebar_headline %}
+            <h3 v-if="headLine" class="sw-media-sidebar__headline">{{ headLine }}</h3>
         {% endblock %}
 
-        {% block sw_media_sidebar_modal_replace %}
-            <sw-media-modal-replace
-                v-if="isSingleFile && showModalReplace"
-                :itemToReplace="items[0]"
-                @sw-media-modal-replace-close="closeModalReplace">
-            </sw-media-modal-replace>
-        {% endblock %}
+        {% block sw_media_sidebar_item_quickinfo_content %}
+            <div class="sw-media-sidebar__quickinfo-scroll-container">
+                <sw-media-quickinfo
+                    v-if="isSingleFile && firstEntity.entityName === 'media'"
+                    :item="firstEntity"
+                    v-on="$listeners">
+                </sw-media-quickinfo>
 
-        {% block sw_media_sidebar_modal_delete %}
-            <sw-media-modal-delete
-                v-if="hasItems && showModalDelete"
-                :itemsToDelete="mediaItems"
-                @sw-media-modal-delete-close="closeModalDelete"
-                @sw-media-modal-delete-items-deleted="deleteSelectedItems">
-            </sw-media-modal-delete>
-        {% endblock %}
+                <sw-media-folder-info
+                    v-else-if="isSingleFile && firstEntity.entityName === 'media_folder'"
+                    :mediaFolder="firstEntity"
+                    v-on="$listeners">
+                </sw-media-folder-info>
 
-        {% block sw_media_sidebar_folder_settings_modal %}
-            <sw-media-modal-folder-settings
-                    v-if="showFolderSettings"
-                    :folder="items[0]"
-                    @sw-media-modal-folder-settings-save="closeFolderSettings"
-                    @sw-media-modal-folder-settings-close="closeFolderSettings">
-            </sw-media-modal-folder-settings>
-        {% endblock %}
+                <sw-media-quickinfo-multiple
+                    v-else-if="isMultipleFile"
+                    :items="items"
+                    v-on="$listeners">
+                </sw-media-quickinfo-multiple>
 
-        {% block sw_media_sidebar_folder_dissolve_modal %}
-            <sw-media-modal-folder-dissolve
-                    v-if="showFolderDissolve"
-                    :itemsToDissolve="items"
-                    @sw-media-modal-folder-dissolve-items-dissolved="onFolderDissolved"
-                    @sw-media-modal-folder-dissolve-close="closeFolderDissolve">
-            </sw-media-modal-folder-dissolve>
-        {% endblock %}
+                <sw-media-folder-info
+                    v-else-if="currentFolder"
+                    :mediaFolder="currentFolder"
+                    v-on="$listeners">
+                </sw-media-folder-info>
 
-        {% block sw_media_sidebar_folder_move_modal %}
-            <sw-media-modal-move
-                    v-if="showModalMove"
-                    :itemsToMove="items"
-                    @sw-media-modal-move-close="closeModalMove"
-                    @sw-media-modal-move-items-moved="onFolderMoved">
-            </sw-media-modal-move>
+                <div v-else class="sw-media-sidebar__empty-state">
+                    <img :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset" :alt="$tc('sw-media.sidebar.labelNoMediaSelected')">
+                    <div class="sw-media-sidebar__empty-state-label">{{ $tc('sw-media.sidebar.labelNoMediaSelected') }}</div>
+                </div>
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

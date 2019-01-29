@@ -17,8 +17,17 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-media-base-item__preview-container')
             .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
-            .waitForElementVisible('.icon--folder-breadcums-parent')
+            .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
+            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+    },
+    'navigate back and go in with a click': (browser) => {
+        browser
+            .waitForElementVisible('.sw-media-index__parent-folder')
+            .click('.sw-media-index__parent-folder')
+            .expect.element('.sw-media-folder-item .sw-media-base-item__name').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+        browser
+            .click('.sw-media-folder-item')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'upload image to folder': (browser) => {
@@ -29,8 +38,8 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.icon--folder-breadcums-dropdown')
-            .click('.icon--folder-breadcums-dropdown')
+            .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
+            .click('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.previewItem);
     },
     'check if the folder can be found in other modules': (browser) => {

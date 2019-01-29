@@ -22,7 +22,7 @@ module.exports = {
     'delete item and verify that': (browser) => {
         browser
             .click('.sw-media-preview__item:nth-of-type(1)')
-            .waitForElementVisible('.sw-sidebar-item__content')
+            .waitForElementVisible('.sw-media-quickinfo')
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
             .assert.containsText('.sw-modal__body', 'Are you sure you want to delete "sw-login-background.png" ?')

@@ -21,7 +21,7 @@
                          {% block sw_media_index_bread_crumb_navigation_icon %}
                             <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
                                 <sw-icon class="sw-media-index__navigation-breadcrumb"
-                                         name="folder-breadcrumbs-dropdown"
+                                         name="folder-breadcrumbs-back-to-root"
                                          size="32px"
                                          multicolor>
                                 </sw-icon>
@@ -29,7 +29,6 @@
                         {% endblock %}
 
                         {% block sw_media_index_bread_crumb_navigation_parent%}
-                            <sw-icon name="small-arrow-medium-right" class="sw-media-index__navigation-breadcrumb"></sw-icon>
                             <router-link class="sw-media-index__navigation-label"
                                          :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
                                 {{ this.parentFolderName }}
@@ -179,7 +178,8 @@
                                                         :item="parentFolder"
                                                         :showContextMenuButton="false"
                                                         :editable="false"
-                                                        isParent>
+                                                        isParent
+                                                        @sw-media-item-clicked="navigateToFolder">
                                                     </sw-media-folder-item>
                                                 {% endblock %}
 
@@ -235,15 +235,13 @@
                 {% endblock %}
 
                 {% block sw_media_index_sidebar %}
-                    <div class="sw-media-index__sidebar">
-                        <sw-media-sidebar
-                            :items="selectedItems"
-                            @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
-                            @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
-                            @sw-media-sidebar-items-moved="onMediaMoved"
-                            ref="mediaSidebar">
-                        </sw-media-sidebar>
-                    </div>
+                    <sw-media-sidebar
+                        :items="selectedItems"
+                        :currentFolder="routeFolderId ? currentFolder : null"
+                        @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
+                        @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
+                        @sw-media-sidebar-items-moved="onMediaMoved">
+                    </sw-media-sidebar>
                 {% endblock %}
 
                 {% block sw_media_index_list_grid_loader %}

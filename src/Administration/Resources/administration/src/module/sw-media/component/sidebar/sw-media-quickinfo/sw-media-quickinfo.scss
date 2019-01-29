@@ -1,41 +1,11 @@
 @import "~scss/variables";
-@import "~scss/mixins";
 
-$sw-media-quickinfo-color-divider:      $color-steam-cloud;
-$sw-media-quickinfo-icon-color:         $color-shopware-blue;
-$sw-media-quickinfo-icon-color-danger:  $color-crimson;
-$sw-media-quickinfo-hover-background:   $color-cadet-blue;
-$sw-media-quickinfo-border-color:       $color-steam-cloud;
-$sw-media-quickinfo-border-radius:      $border-radius-default;
-$sw-media-quickinfo-metadata-color:     $color-gutenberg;
+$sw-media-quickinfo-border-color-preview:  $color-steam-cloud;
+$sw-media-quickinfo-border-radius-preview: $border-radius-default;
 
 .sw-media-quickinfo {
     .sw-media-quickinfo__alert-file-missing {
         margin: 0 25px 25px;
-    }
-
-    .sw-media-quickinfo__collapse {
-        padding-bottom: 25px;
-    }
-
-    .sw-media-quickinfo__collapse-content {
-        padding-top: 25px;
-        margin: 0 25px;
-    }
-
-    .sw-media-quickinfo__metadata-list{
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-auto-rows: 40px;
-        grid-column-gap: 16px;
-        align-items: center;
-        overflow: visible;
-    }
-
-    .sw-media-quickinfo__two-columns {
-        list-style: none;
-        display: grid;
-        grid-template-columns: 50% 50%;
     }
 
     a:any-link {
@@ -43,43 +13,15 @@ $sw-media-quickinfo-metadata-color:     $color-gutenberg;
         text-decoration: none;
     }
 
-    .sw-media-quickinfo__quickaction {
-        cursor: pointer;
-        margin-bottom: 16px;
-
-        &:hover {
-            color: $sw-media-quickinfo-icon-color;
-
-            &.is--danger {
-                color: $sw-media-quickinfo-icon-color-danger;
-            }
-        }
-    }
-
-    .sw-media-quickinfo__quickactions-icon {
-        position: relative;
-        top: -2px;
-        color: $sw-media-quickinfo-icon-color;
-        margin-right: 20px;
-
-        &.is--danger {
-            color: $sw-media-quickinfo-icon-color-danger;
-        }
-    }
-
     .sw-media-quickinfo__media-preview {
         position: relative;
-        border: 1px solid $sw-media-quickinfo-border-color;
-        border-radius: $sw-media-quickinfo-border-radius;
+        border: 1px solid $sw-media-quickinfo-border-color-preview;
+        border-radius: $sw-media-quickinfo-border-radius-preview;
 
         &:after {
             content: "";
             display: block;
             padding-bottom: 75%;
         }
-    }
-
-    >:last-child {
-        border-bottom: 1px solid $sw-media-quickinfo-color-divider;
     }
 }

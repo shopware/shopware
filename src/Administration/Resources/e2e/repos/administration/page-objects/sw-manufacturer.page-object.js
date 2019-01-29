@@ -32,6 +32,7 @@ class ManufacturerPageObject {
         this.browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
+            .waitForElementNotPresent('.sw-loader')
             .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
             .waitForElementVisible('.sw-modal')
             .assert.containsText(

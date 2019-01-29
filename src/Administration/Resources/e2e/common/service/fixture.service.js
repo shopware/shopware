@@ -1,4 +1,4 @@
-const AdminApiService = require('./../service/admin-api.service');
+const AdminApiService = require('./admin-api.service');
 const _ = require('lodash');
 const glob = require('glob');
 const path = require('path');
@@ -11,7 +11,7 @@ export default class FixtureService {
 
         // Automatic loading of fixtures
         glob.sync(path.join(__dirname, './fixture/*.js')).forEach((fileName) => {
-            require(path.resolve(fileName));
+            require(fileName);
         });
     }
 
@@ -55,7 +55,7 @@ export default class FixtureService {
 
     loadJson(fileName) {
         try {
-            return require(`administration/@fixtures/${fileName}`);
+            return require(`./../@fixtures/${fileName}`);
         } catch (err) {
             global.logger.error(err);
         }

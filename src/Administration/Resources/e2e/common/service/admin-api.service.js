@@ -1,9 +1,6 @@
-const ApiService = require('./../../../common/service/api.service');
+const ApiService = require('./api.service');
 
-/* This service is taken over one by one from administration repository in order to provide a starting point.
-   Please adjust it to the storefront sooner or later. */
-
-export default class StorefrontApiService extends ApiService {
+export default class AdminApiService extends ApiService {
     /**
      * Renders an header to stdout including information about the available flags.
      *
@@ -31,7 +28,7 @@ export default class StorefrontApiService extends ApiService {
     }
 
     /**
-     * Returns the necessary headers for the API requests
+     * Returns the necessary headers for the administration API requests
      *
      * @returns {Object}
      */
@@ -49,5 +46,12 @@ export default class StorefrontApiService extends ApiService {
                 console.log(response.data.errors);
             }
         });
+    }
+
+    clearCache() {
+        return super.delete('/v1/_action/cache').catch((err) => {
+            global.logger.error(err);
+            global.logger.lineBreak();
+        })
     }
 }

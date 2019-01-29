@@ -1,6 +1,9 @@
-const ApiService = require('./../../../common/service/api.service');
+const ApiService = require('../../administration/service/api.service');
 
-export default class AdminApiService extends ApiService {
+/* This service is taken over one by one from administration repository in order to provide a starting point.
+   Please adjust it to the storefront sooner or later. */
+
+export default class StorefrontApiService extends ApiService {
     /**
      * Renders an header to stdout including information about the available flags.
      *
@@ -8,7 +11,7 @@ export default class AdminApiService extends ApiService {
      * @param {String} password
      * @returns {Object}
      */
-    loginByUserName(username = 'admin', password = 'shopware') {
+    loginByUserName() {
         return this.client.post('/oauth/token', {
             grant_type: 'password',
             client_id: 'administration',
@@ -23,12 +26,24 @@ export default class AdminApiService extends ApiService {
         });
     }
 
+    getClientId(salesChannelName = 'Storefront API', url = '/v1/search/sales-channel?response=true') {
+        return this.post(url, {
+            filter: [{
+                field: "name",
+                type: "equals",
+                value: salesChannelName,
+            }]
+        }).then((result) => {
+            return result.attributes.accessKey;
+        })
+    }
+
     getBasicPath(path) {
         return `${path}/api`;
     }
 
     /**
-     * Returns the necessary headers for the administration API requests
+     * Returns the necessary headers for the API requests
      *
      * @returns {Object}
      */
@@ -46,12 +61,5 @@ export default class AdminApiService extends ApiService {
                 console.log(response.data.errors);
             }
         });
-    }
-
-    clearCache() {
-        return super.delete('/v1/_action/cache').catch((err) => {
-            global.logger.error(err);
-            global.logger.lineBreak();
-        })
     }
 }

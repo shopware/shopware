@@ -1,7 +1,7 @@
 // Register flags and fixtures globally so we have to import them one time
 require('./../../common/helper/cliOutputHelper');
-require('./flags.js');
-require('./service/fixture.service');
+require('./../../common/flags.js');
+require('./../../common/service/fixture.service');
 
 const beforeScenarioActions = require('./specs/before-scenario.js');
 
@@ -31,7 +31,7 @@ module.exports = {
             return localStorage.getItem('bearerAuth');
         }, [], (data) => {
             if (!data.value) {
-                beforeScenarioActions.login(browser, 'admin', 'shopware', done);
+                beforeScenarioActions.login(browser, 'admin', 'shopware');
             }
             beforeScenarioActions.hideToolbarIfVisible(browser);
             done();
@@ -43,7 +43,7 @@ module.exports = {
 
         const startTime = new Date();
         clearDatabase()
-            .then(clearCache())
+            .then(global.FixtureService.apiClient.clearCache())
             .then(() => {
                 const endTime = new Date() - startTime;
                 global.logger.success(`Successfully reset database and cache! (${endTime / 1000}s)`);
@@ -76,14 +76,3 @@ function renderWatcherUsage() {
 function clearDatabase() {
     return exec(`${process.env.PROJECT_ROOT}psh.phar e2e:restore-db`);
 }
-
-/**
- * Clears the cache of the application via API route.
- *
- * @async
- * @returns {Promise<String|void>}
- */
-function clearCache() {
-    return global.FixtureService.apiClient.clearCache();
-}
-

@@ -1,4 +1,4 @@
-const FixtureService = require('administration/service/fixture.service').default;
+const FixtureService = require('./../fixture.service.js').default;
 
 export default class SalesChannelFixtureService extends FixtureService {
     constructor() {

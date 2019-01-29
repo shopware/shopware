@@ -13,6 +13,7 @@ module.exports = {
 
         browser
             .waitForElementVisible(page.elements.searchInput)
+            .checkIfElementExists(page.elements.searchInput)
             .assert.visible(page.elements.searchInput);
     },
     after: (browser) => {

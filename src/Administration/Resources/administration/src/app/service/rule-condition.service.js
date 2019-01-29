@@ -29,6 +29,14 @@ export default function createConditionService() {
             identifier: '!=',
             label: 'global.sw-condition.operator.notEquals'
         },
+        greaterThan: {
+            identifier: '>',
+            label: 'global.sw-condition.operator.greaterThan'
+        },
+        lowerThan: {
+            identifier: '<',
+            label: 'global.sw-condition.operator.lowerThan'
+        },
         isOneOf: {
             identifier: '=',
             label: 'global.sw-condition.operator.isOneOf'
@@ -63,6 +71,8 @@ export default function createConditionService() {
         number: [
             operators.equals,
             operators.greaterThanEquals,
+            operators.greaterThan,
+            operators.lowerThan,
             operators.lowerThanEquals,
             operators.notEquals
         ]

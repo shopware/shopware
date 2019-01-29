@@ -191,8 +191,8 @@
         "lowerThanEquals": "Kleiner gleich",
         "equals": "Gleich",
         "greaterThanEquals": "Größer gleich",
-        "lower": "Kleiner",
-        "greater": "Größer",
+        "lowerThan": "Kleiner",
+        "greaterThan": "Größer",
         "notEquals": "Ungleich",
         "isOneOf": "Ist eine von",
         "isNoneOf": "Ist keine von"

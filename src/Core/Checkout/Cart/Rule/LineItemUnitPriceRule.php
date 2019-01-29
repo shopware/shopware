@@ -56,6 +56,20 @@ class LineItemUnitPriceRule extends Rule
                     ['LineItem unit price too high']
                 );
 
+            case self::OPERATOR_GT:
+
+                return new Match(
+                    $unitPrice > $this->amount,
+                    ['LineItem unit price too low']
+                );
+
+            case self::OPERATOR_LT:
+
+                return new Match(
+                    $unitPrice < $this->amount,
+                    ['LineItem unit price too high']
+                );
+
             case self::OPERATOR_EQ:
 
                 return new Match(
@@ -79,7 +93,18 @@ class LineItemUnitPriceRule extends Rule
     {
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
-            'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_EQ])],
+            'operator' => [
+                new Choice(
+                    [
+                        self::OPERATOR_NEQ,
+                        self::OPERATOR_GTE,
+                        self::OPERATOR_LTE,
+                        self::OPERATOR_EQ,
+                        self::OPERATOR_GT,
+                        self::OPERATOR_LT,
+                    ]
+                ),
+            ],
         ];
     }
 

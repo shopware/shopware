@@ -55,6 +55,18 @@ class LineItemTotalPriceRule extends Rule
                     ['LineItem total price too high']
                 );
 
+            case self::OPERATOR_GT:
+                return new Match(
+                    $lineItem->getPrice()->getTotalPrice() > $this->amount,
+                    ['LineItem total price too low']
+                );
+
+            case self::OPERATOR_LT:
+                return new Match(
+                    $lineItem->getPrice()->getTotalPrice() < $this->amount,
+                    ['LineItem total price too high']
+                );
+
             case self::OPERATOR_EQ:
                 return new Match(
                     $lineItem->getPrice()->getTotalPrice() == $this->amount,
@@ -76,7 +88,18 @@ class LineItemTotalPriceRule extends Rule
     {
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
-            'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_LTE, self::OPERATOR_GTE, self::OPERATOR_NEQ])],
+            'operator' => [
+                new Choice(
+                    [
+                        self::OPERATOR_EQ,
+                        self::OPERATOR_LTE,
+                        self::OPERATOR_GTE,
+                        self::OPERATOR_NEQ,
+                        self::OPERATOR_GT,
+                        self::OPERATOR_LT,
+                    ]
+                ),
+            ],
         ];
     }
 

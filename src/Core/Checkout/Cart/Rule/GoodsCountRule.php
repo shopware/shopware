@@ -56,6 +56,20 @@ class GoodsCountRule extends Rule
                     ['Goods count too less']
                 );
 
+            case self::OPERATOR_GT:
+
+                return new Match(
+                    $goods->count() > $this->count,
+                    ['Goods count too much']
+                );
+
+            case self::OPERATOR_LT:
+
+                return new Match(
+                    $goods->count() < $this->count,
+                    ['Goods count too less']
+                );
+
             case self::OPERATOR_EQ:
 
                 return new Match(
@@ -79,7 +93,18 @@ class GoodsCountRule extends Rule
     {
         return [
             'count' => [new NotBlank(), new Type('int')],
-            'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_EQ])],
+            'operator' => [
+                new Choice(
+                    [
+                        self::OPERATOR_NEQ,
+                        self::OPERATOR_GTE,
+                        self::OPERATOR_LTE,
+                        self::OPERATOR_EQ,
+                        self::OPERATOR_GT,
+                        self::OPERATOR_LT,
+                    ]
+                ),
+            ],
         ];
     }
 

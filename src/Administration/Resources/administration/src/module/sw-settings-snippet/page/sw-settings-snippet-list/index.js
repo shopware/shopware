@@ -18,9 +18,13 @@ Component.register('sw-settings-snippet-list', {
             snippetSets: {},
             grid: [],
             metaId: '',
-            isCustomState: this.$route.query.isCustomState,
             resetItems: [],
-            hasResetableItems: true
+            hasResetableItems: true,
+            filterItems: [],
+            isCustomState: false,
+            emptySnippets: false,
+            appliedFilter: [],
+            emptyIcon: this.$route.meta.$module.icon
         };
     },
 
@@ -52,7 +56,20 @@ Component.register('sw-settings-snippet-list', {
             this.queryIds = this.$route.query.ids;
             const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
 
-            this.snippetSetService.getCustomList(this.page, this.limit, this.term, this.isCustomState).then((response) => {
+            this.snippetService.getFilter().then((response) => {
+                this.filterItems = response.data;
+            });
+
+            const filter = {
+                isCustom: this.isCustomState,
+                emptySnippets: this.emptySnippets,
+                term: this.term,
+                namespaces: this.appliedFilter,
+                authors: [],
+                translationKeys: []
+            };
+
+            this.snippetSetService.getCustomList(this.page, this.limit, filter).then((response) => {
                 this.snippetSetStore.getList({ criteria }).then((sets) => {
                     this.snippetSets = sets.items;
                     this.metaId = this.queryIds[0];
@@ -122,10 +139,6 @@ Component.register('sw-settings-snippet-list', {
             this.getList();
         },
 
-        onChangeCustomItems(customItemState) {
-            this.isCustomState = customItemState === true;
-            this.getList();
-        },
 
         inlineSaveSuccessMessage(key) {
             const titleSaveSuccess = this.$tc('sw-settings-snippet.list.titleSaveSuccess');
@@ -263,6 +276,35 @@ Component.register('sw-settings-snippet-list', {
 
                 item.value = item.resetTo;
             });
+        },
+
+        onChange(field) {
+            this.page = 1;
+
+            if (field.name === 'customSnippets') {
+                this.isCustomState = field.value;
+                this.initializeSnippetSet();
+                return;
+            }
+
+            if (field.name === 'emptySnippets') {
+                this.emptySnippets = field.value;
+                this.initializeSnippetSet();
+                return;
+            }
+
+            if (field.value) {
+                if (this.appliedFilter.indexOf(field.name) !== -1) {
+                    return;
+                }
+
+                this.appliedFilter.push(field.name);
+                this.initializeSnippetSet();
+                return;
+            }
+
+            this.appliedFilter.splice(this.appliedFilter.indexOf(field.name), 1);
+            this.initializeSnippetSet();
         }
     }
 });

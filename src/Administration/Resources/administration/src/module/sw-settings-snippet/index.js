@@ -6,6 +6,8 @@ import './page/sw-settings-snippet-set-list';
 import './page/sw-settings-snippet-list';
 import './page/sw-settings-snippet-detail';
 import './page/sw-settings-snippet-create';
+import './component/sidebar/sw-settings-snippet-sidebar';
+import './component/sidebar/sw-settings-snippet-boolean-filter-item';
 
 Module.register('sw-settings-snippet', {
     flag: NEXT717,

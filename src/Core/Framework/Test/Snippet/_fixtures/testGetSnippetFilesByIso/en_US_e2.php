@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\_fixtures;
+namespace Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
-class LaguageFileMock implements SnippetFileInterface
+class en_US_e2 implements SnippetFileInterface
 {
     public function getName(): string
     {
-        return 'only for unit tests';
+        return 'en_us_e2';
     }
 
     public function getPath(): string
     {
-        return __DIR__ . '/test_Unit_TEST.json';
+        return __DIR__ . '/en_us_e2.json';
     }
 
     public function getIso(): string
     {
-        return 'unit_TEST';
+        return 'en_US';
     }
 
     public function isBase(): bool

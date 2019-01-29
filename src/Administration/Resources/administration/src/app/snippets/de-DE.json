@@ -1052,7 +1052,8 @@
       "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt.",
       "titleSaveSuccess": "Textbausteine",
       "titleSidebarCustomItems": "Eigene Textbausteine",
-      "titleSidebarItemRefresh": "Aktualisieren"
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "emptyStateHeadLine": "Keine Textbausteine gefunden."
     },
     "setList": {
       "title": "Textbausteine verwalten & bearbeiten",
@@ -1080,6 +1081,12 @@
       "cloneErrorMessage": "Die Kopie konnte nicht erstellt werden.",
       "notEditableNoteTitle": "Textbausteine bearbeiten",
       "notEditableNoteMessage": "Die Textbausteine konnten nicht bearbeitet werden."
+    },
+    "filter": {
+      "switchOnlyEmpty": "Leere Textbausteine",
+      "showOnlyEmpty": "Leere Textbausteine anzeigen",
+      "author": "Autor",
+      "more": "Weitere Filer"
     }
   },
   "sw-settings-rule": {

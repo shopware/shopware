@@ -3,33 +3,33 @@
 namespace Shopware\Core\Framework\Snippet\Services;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 interface SnippetServiceInterface
 {
     /**
-     * @param Criteria $criteria
+     * @param int     $page
+     * @param int     $limit
+     * @param Context $context
+     * @param array   $filters
+     *
+     * filters: [
+     *      'isCustom' => bool,
+     *      'isEmpty' => bool,
+     *      'term' => string,
+     *      'namespaces' => array,
+     *      'authors' => array,
+     *      'translationKeys' => array,
+     * ]
      *
      * @return array
      */
-    public function getList(Criteria $criteria, Context $context): array;
-
-    /**
-     * @param Criteria $criteria
-     * @param string   $author
-     *
-     * @return array
-     */
-    public function getCustomList(Criteria $criteria, string $author): array;
-
-    /**
-     * @param string $translationKey
-     * @param string $author
-     *
-     * @return array
-     */
-    public function getDbSnippetByKey(string $translationKey, string $author): array;
+    public function getList(
+        int $page,
+        int $limit,
+        Context $context,
+        array $filters
+    ): array;
 
     /**
      * @param MessageCatalogueInterface $catalog
@@ -38,4 +38,11 @@ interface SnippetServiceInterface
      * @return array
      */
     public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array;
+
+    /**
+     * @param Context $context
+     *
+     * @return array
+     */
+    public function getRegionFilterItems(Context $context): array;
 }

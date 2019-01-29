@@ -167,34 +167,34 @@
 
         <service id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener" public="true"/>
 
-        <service id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection" public="true">
+        <service id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection" public="true">
             <argument type="tagged" tag="shopware.language.file"/>
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Services\SnippetFileConverter" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Services\SnippetService" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\LanguageFileCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
             <argument type="service" id="snippet.repository"/>
+            <argument type="service" id="snippet_set.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Api\SnippetController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="user.repository"/>
         </service>
 
-        <!--LanguageFiles-->
-        <service id="Shopware\Core\Framework\Snippet\Files\de_DE\LanguageFile_de_DE" public="true">
+        <!--SnippetFiles-->
+        <service id="Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE" public="true">
             <tag name="shopware.language.file" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Files\en_EN\LanguageFile_en_GB" public="true">
+        <service id="Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB" public="true">
             <tag name="shopware.language.file" priority="100"/>
         </service>
 

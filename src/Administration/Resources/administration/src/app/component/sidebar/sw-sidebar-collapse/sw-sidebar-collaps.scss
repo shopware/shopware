@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+$sw-sidebar-collapse-color-divider:   $color-steam-cloud;
+$sw-sidebar-collapse-color-title:     $color-gutenberg;
+$sw-sidebar-collapse-font-size-title: $font-size-default;
+
+.sw-collapse {
+  .sw-sidebar-collapse__header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    cursor: pointer;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    color: $sw-sidebar-collapse-color-title;
+    border-top: 1px solid $sw-sidebar-collapse-color-divider;
+  }
+
+  .sw-sidebar-collapse__title {
+    font-size: $sw-sidebar-collapse-font-size-title;
+    font-weight: normal;
+    margin: 0 25px 0;
+  }
+
+  .sw-sidebar-collapse__button {
+    margin-right: 25px;
+    &.is--hidden {
+      display: none;
+    }
+  }
+}

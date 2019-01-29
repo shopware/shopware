@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\_fixtures\testGetLanguageFilesByIso;
+namespace Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso;
 
-use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
-class de_AT implements LanguageFileInterface
+class de_AT implements SnippetFileInterface
 {
     public function getName(): string
     {
@@ -24,5 +24,10 @@ class de_AT implements LanguageFileInterface
     public function isBase(): bool
     {
         return $this::BASE_LANGUAGE_FILE;
+    }
+
+    public function getAuthor(): string
+    {
+        return 'unitTests';
     }
 }

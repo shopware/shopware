@@ -5,7 +5,7 @@ import template from './sw-settings-snippet-detail.html.twig';
 Component.register('sw-settings-snippet-detail', {
     template,
 
-    inject: ['snippetService'],
+    inject: ['snippetService', 'snippetSetService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -33,6 +33,7 @@ Component.register('sw-settings-snippet-detail', {
         snippetSetStore() {
             return State.getStore('snippet_set');
         },
+
         backPath() {
             if (this.$route.query.ids && this.$route.query.ids.length > 0) {
                 return {
@@ -40,13 +41,13 @@ Component.register('sw-settings-snippet-detail', {
                     query: {
                         ids: this.$route.query.ids,
                         limit: this.$route.query.limit,
-                        page: this.$route.query.page,
-                        isCustomState: this.isCustomState
+                        page: this.$route.query.page
                     }
                 };
             }
             return { name: 'sw.settings.snippet.index' };
         },
+
         invalidKeyErrorMessage() {
             if (this.isInvalidKey) {
                 return this.$tc(
@@ -57,6 +58,7 @@ Component.register('sw-settings-snippet-detail', {
                     }
                 );
             }
+
             return '';
         }
     },
@@ -82,15 +84,41 @@ Component.register('sw-settings-snippet-detail', {
         },
 
         initializeSnippet() {
-            const isCustom = this.isCustomState || this.isCreate;
-            this.snippetService.getByKey(this.translationKey, this.page, this.limit, isCustom).then((response) => {
-                if (!response) {
-                    this.$router.back();
-
+            this.snippets = this.createSnippetDummy();
+            this.snippetSetService.getCustomList(
+                1,
+                25,
+                {
+                    isCustom: false,
+                    emptySnippets: false,
+                    term: null,
+                    namespaces: [],
+                    authors: [],
+                    translationKeys: [this.translationKey]
+                }
+            ).then((response) => {
+                if (!response.total) {
+                    this.isCustomState = true;
                     return;
                 }
-                this.snippets = response;
+                this.snippets = response.data[this.translationKey];
+                this.isCustomState = response.data[this.translationKey].origin === '';
             });
+        },
+
+        createSnippetDummy() {
+            const snippets = [];
+            this.sets.forEach((set) => {
+                snippets.push({
+                    author: '1',
+                    id: null,
+                    value: null,
+                    translationKey: this.translationKey,
+                    setId: set.id
+                });
+            });
+
+            return snippets;
         },
 
         onSave() {
@@ -128,8 +156,6 @@ Component.register('sw-settings-snippet-detail', {
                         { key: this.translationKey }
                     )
                 });
-
-                this.createdComponent();
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
@@ -139,7 +165,7 @@ Component.register('sw-settings-snippet-detail', {
                         { key: this.translationKey }
                     )
                 });
-
+            }).finally(() => {
                 this.createdComponent();
             });
         },
@@ -148,8 +174,7 @@ Component.register('sw-settings-snippet-detail', {
             if (
                 !this.translationKey ||
                 this.translationKey === this.$route.params.key ||
-                this.translationKey.length <= 0 ||
-                this.translationKey.trim() <= 0
+                this.translationKey.trim().length <= 0
             ) {
                 this.isInvalidKey = true;
                 return;
@@ -159,30 +184,27 @@ Component.register('sw-settings-snippet-detail', {
             this.isInvalidKey = false;
             this.isLoading = true;
             this.isSavable = true;
-            let keyAlreadyExists = false;
-            const responses = [];
 
-            responses.push(
-                this.snippetService.getByKey(this.translationKey, this.page, this.limit, true).then((response) => {
-                    response.forEach((item) => {
-                        keyAlreadyExists = keyAlreadyExists || (item.id !== null);
-                    });
-                })
-            );
-
-            responses.push(
-                this.snippetService.getByKey(this.translationKey, this.page, this.limit, false).then((response) => {
-                    keyAlreadyExists = keyAlreadyExists || (response.data !== false);
-                })
-            );
-
-            Promise.all(responses).then(() => {
-                this.isLoading = false;
-                this.isInvalidKey = keyAlreadyExists;
-
-                if (!keyAlreadyExists) {
-                    this.onNewKeyRedirect();
+            this.snippetSetService.getCustomList(
+                1,
+                25,
+                {
+                    isCustom: false,
+                    emptySnippets: false,
+                    term: null,
+                    namespaces: [],
+                    authors: [],
+                    translationKeys: [this.translationKey]
                 }
+            ).then((response) => {
+                if (!response.total) {
+                    this.onNewKeyRedirect();
+                    return;
+                }
+
+                this.isInvalidKey = true;
+            }).finally(() => {
+                this.isLoading = false;
             });
         }, 500),
 
@@ -193,7 +215,6 @@ Component.register('sw-settings-snippet-detail', {
                     key: this.translationKey
                 },
                 query: {
-                    isCustomState: this.isCustomState,
                     ids: this.queryIds,
                     page: this.page,
                     limit: this.limit

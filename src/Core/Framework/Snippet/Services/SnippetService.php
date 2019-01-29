@@ -8,11 +8,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\SnippetEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -25,9 +27,9 @@ class SnippetService implements SnippetServiceInterface
     private $connection;
 
     /**
-     * @var LanguageFileCollection
+     * @var SnippetFileCollection
      */
-    private $languageFileCollection;
+    private $snippetFileCollection;
 
     /**
      * @var SnippetFlattenerInterface
@@ -39,42 +41,52 @@ class SnippetService implements SnippetServiceInterface
      */
     private $snippetRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $snippetSetRepository;
+
     public function __construct(
         Connection $connection,
         SnippetFlattenerInterface $snippetFlattener,
-        LanguageFileCollection $languageFileCollection,
-        EntityRepositoryInterface $snippetRepository
+        SnippetFileCollection $snippetFileCollection,
+        EntityRepositoryInterface $snippetRepository,
+        EntityRepositoryInterface $snippetSetRepository
     ) {
         $this->connection = $connection;
-        $this->languageFileCollection = $languageFileCollection;
+        $this->snippetFileCollection = $snippetFileCollection;
         $this->snippetFlattener = $snippetFlattener;
         $this->snippetRepository = $snippetRepository;
+        $this->snippetSetRepository = $snippetSetRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getList(Criteria $criteria, Context $context): array
-    {
-        $metaData = $this->getSetMetaData();
-        if (\count($metaData) <= 0) {
-            return [
-                'total' => 0,
-                'data' => [],
-            ];
-        }
-
-        $limit = $criteria->getLimit();
-        $page = $criteria->getOffset() / $limit;
-        $isoList = [];
-        foreach ($metaData as $set) {
-            $isoList[$set['id']] = $set['iso'];
-        }
-
+    public function getList(
+        int $page,
+        int $limit,
+        Context $context,
+        array $filters
+    ): array {
+        --$page;
+        $metaData = $this->getSetMetaData($context);
+        $isoList = $this->createIsoList($metaData);
         $languageFiles = $this->getLanguageFilesByIso($isoList);
 
-        $fileSnippets = $this->getSnippets($languageFiles, $isoList, $criteria, $context);
-        $fileSnippets = $this->fillBlankSnippets($isoList, $fileSnippets);
+        $snippets = [];
+        $fileSnippets = $this->getFileSnippets($languageFiles);
+
+        if (count($filters['namespaces']) === 0 && count($filters['authors']) === 0) {
+            $snippets = array_merge_recursive($fileSnippets, []);
+        }
+
+        $snippets = $this->applyTranslationKeyFilter($filters['translationKeys'], $snippets, $isoList, $context);
+        $snippets = $this->applyNamespaceFilter($filters['namespaces'], $snippets, $fileSnippets);
+        $snippets = $this->applyCustomSnippets($context, $snippets, $languageFiles, $metaData, $filters['isCustom']);
+        $snippets = $this->applyTermFilter($isoList, $context, $filters['term'], $snippets, $filters['isCustom']);
+        $snippets = $this->fillBlankSnippets($isoList, $snippets);
+        $snippets = $this->applyEmptySnippetsFilter($filters['emptySnippets'], $isoList, $snippets, $fileSnippets);
 
         $total = 0;
         $sets = [];
@@ -83,9 +95,9 @@ class SnippetService implements SnippetServiceInterface
             $iso = $metaData[$snippetSetId]['iso'];
             $set = $metaData[$snippetSetId];
 
-            $total = max($total, \count($fileSnippets[$iso]['snippets']));
-            $currentfileSnippets = $fileSnippets[$iso]['snippets'];
+            $currentfileSnippets = $snippets[$iso]['snippets'];
             $currentfileSnippets = array_chunk($currentfileSnippets, $limit, true);
+            $total = max(count($snippets[$iso]['snippets']), $total);
 
             $currentPage = $currentfileSnippets[$page] ?? [];
             $set['snippets'] = $currentPage;
@@ -94,10 +106,20 @@ class SnippetService implements SnippetServiceInterface
             $sets[] = $set;
         }
 
-        $dbSnippetSets = $this->getDatabaseSnippets($translationKeyList);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('snippet.translationKey', $translationKeyList));
+        $queryResult = $this->findSnippetInDatabase($criteria, $context);
+
+        $result = [];
+        foreach ($queryResult as $snippet) {
+            $currentSnippet = $snippet->toArray();
+            $currentSnippet['origin'] = '';
+            $currentSnippet['resetTo'] = $snippet->getValue();
+            $result[$snippet->getSetId()][] = $currentSnippet;
+        }
 
         foreach ($sets as &$set) {
-            $setSnippets = $dbSnippetSets[$set['id']] ?? [];
+            $setSnippets = $result[$set['id']] ?? [];
             $set['snippets'] = $this->mergeSnippets($set['snippets'], $setSnippets, $set['id']);
         }
         unset($set);
@@ -111,115 +133,21 @@ class SnippetService implements SnippetServiceInterface
     /**
      * {@inheritdoc}
      */
-    public function getCustomList(Criteria $criteria, string $author): array
-    {
-        $metaSets = $this->getSetMetaData();
-        $dbSnippets = $this->getDatabaseSnippets();
-
-        if (\count($metaSets) <= 0 || \count($dbSnippets) <= 0) {
-            return [
-                'total' => 0,
-                'data' => [],
-            ];
-        }
-
-        if (\count($dbSnippets) < \count($metaSets)) {
-            foreach ($metaSets as $metaSet) {
-                if (!array_key_exists($metaSet['id'], $dbSnippets)) {
-                    $dbSnippets[$metaSet['id']] = [];
-                }
-            }
-        }
-
-        $limit = $criteria->getLimit();
-        $page = $criteria->getOffset() / $limit;
-
-        $translationKeyList = [];
-        foreach ($metaSets as &$set) {
-            $setSnippets = [];
-            foreach ($dbSnippets[$set['id']] as $snippet) {
-                $setSnippets[$snippet['translationKey']] = $snippet;
-                $translationKeyList[$snippet['translationKey']] = true;
-            }
-            $set['snippets'] = $setSnippets;
-        }
-        unset($set);
-
-        ksort($translationKeyList);
-        $total = \count($translationKeyList);
-        $translationKeyList = array_chunk($translationKeyList, $limit, true);
-
-        $merged = [];
-        foreach (array_keys($translationKeyList[$page]) as $key) {
-            $merged[$key] = [];
-            foreach ($metaSets as $metaSet) {
-                if (!isset($metaSet['snippets'][$key])) {
-                    $emptySnippet = [
-                        'id' => null,
-                        'translationKey' => $key,
-                        'value' => '',
-                        'setId' => $metaSet['id'],
-                        'author' => $author,
-                    ];
-
-                    $metaSet['snippets'][$key] = $emptySnippet;
-                }
-                $tempSnippet = $metaSet['snippets'][$key];
-                $tempSnippet['origin'] = '';
-                $tempSnippet['resetTo'] = $tempSnippet['value'];
-
-                $merged[$key][] = $tempSnippet;
-            }
-        }
-
-        return [
-            'total' => $total,
-            'data' => $merged,
-        ];
-    }
-
-    public function getDbSnippetByKey(string $translationKey, string $author): array
-    {
-        $metaSets = $this->getSetMetaData();
-        $dbSnippets = $this->getDatabaseSnippets([$translationKey]);
-
-        $snippet = [];
-        foreach ($metaSets as $set) {
-            $tempSnippet = $dbSnippets[$set['id']][0] ?? [
-                'id' => null,
-                'translationKey' => $translationKey,
-                'value' => '',
-                'setId' => $set['id'],
-                'author' => $author,
-            ];
-
-            $tempSnippet['origin'] = '';
-            $tempSnippet['resetTo'] = $tempSnippet['value'];
-            $snippet[] = $tempSnippet;
-        }
-
-        return ['data' => $snippet];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array
     {
         $locale = $this->getLocaleBySnippetSetId($snippetSetId);
-
-        $languageFiles = $this->languageFileCollection->getLanguageFilesByIso($locale);
+        $languageFiles = $this->snippetFileCollection->getSnippetFilesByIso($locale);
         $fileSnippets = $catalog->all('messages');
 
-        /** @var LanguageFileInterface $languageFile */
-        foreach ($languageFiles as $key => $languageFile) {
-            $flattenLanguageFileSnippets = $this->snippetFlattener->flatten(
-                json_decode(file_get_contents($languageFile->getPath()), true) ?: []
+        /** @var SnippetFileInterface $snippetFile */
+        foreach ($languageFiles as $key => $snippetFile) {
+            $flattenSnippetFileSnippets = $this->snippetFlattener->flatten(
+                json_decode(file_get_contents($snippetFile->getPath()), true) ?: []
             );
 
             $fileSnippets = array_replace_recursive(
                 $fileSnippets,
-                $flattenLanguageFileSnippets
+                $flattenSnippetFileSnippets
             );
         }
 
@@ -229,6 +157,188 @@ class SnippetService implements SnippetServiceInterface
         );
 
         return $snippets;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRegionFilterItems(Context $context): array
+    {
+        $metaData = $this->getSetMetaData($context);
+        $isoList = $this->createIsoList($metaData);
+        $languageFiles = $this->getLanguageFilesByIso($isoList);
+
+        $result = [];
+        foreach ($languageFiles as $isoFiles) {
+            $snippets = $this->getSnippetsFromFiles($isoFiles);
+            foreach ($snippets as $namespace => $value) {
+                $region = explode('.', $namespace)[0];
+                if (in_array($region, $result)) {
+                    continue;
+                }
+
+                $result[] = $region;
+            }
+        }
+
+        return $result;
+    }
+
+    private function fetchSnippetsFromDatabase(string $snippetSetId): array
+    {
+        $snippets = $this->connection->createQueryBuilder()
+            ->select(['snippet.translation_key', 'snippet.value'])
+            ->from('snippet')
+            ->where('snippet.snippet_set_id = :snippetSetId')
+            ->setParameter('snippetSetId', Uuid::fromHexToBytes($snippetSetId))
+            ->addGroupBy('snippet.translation_key')
+            ->addGroupBy('snippet.id')
+            ->execute()
+            ->fetchAll();
+
+        return FetchModeHelper::keyPair($snippets);
+    }
+
+    private function applyTranslationKeyFilter(array $translationKeys, array $snippets, array $isoList, Context $context): array
+    {
+        if (count($translationKeys) <= 0) {
+            return $snippets;
+        }
+
+        $result = $this->createEmptyEmptySnippetsResult($isoList);
+        foreach ($isoList as $iso) {
+            foreach ($snippets[$iso]['snippets'] as $key => $value) {
+                if (!in_array($key, $translationKeys, true)) {
+                    continue;
+                }
+
+                $result[$iso]['snippets'][$key] = $value;
+            }
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('snippet.translationKey', $translationKeys));
+        $dbSnippets = $this->findSnippetInDatabase($criteria, $context);
+
+        foreach ($dbSnippets as $snippet) {
+            $result[$isoList[$snippet->getSetId()]]['snippets'][$snippet->getTranslationKey()] = $snippet->getValue();
+        }
+
+        return $result;
+    }
+
+    private function applyEmptySnippetsFilter($emptySnippets, $isoList, $result, $fileSnippets): array
+    {
+        if (!$emptySnippets) {
+            return $result;
+        }
+
+        $emptySnippetsResult = $this->createEmptyEmptySnippetsResult($isoList);
+        foreach ($result as $currentIso => $tmpSnippets) {
+            foreach ($isoList as $iso) {
+                if ($currentIso === $iso) {
+                    continue;
+                }
+
+                foreach ($tmpSnippets['snippets'] as $key => $value) {
+                    if ((!isset($result[$iso]['snippets'][$key]) && !isset($fileSnippets[$iso]['snippets'][$key])) || $result[$iso]['snippets'][$key] === '') {
+                        $emptySnippetsResult[$iso]['snippets'][$key] = '';
+                        $emptySnippetsResult[$currentIso]['snippets'][$key] = $result[$currentIso]['snippets'][$key];
+                    }
+                }
+            }
+        }
+
+        return $emptySnippetsResult;
+    }
+
+    private function applyNamespaceFilter(array $namespaces, array $result, array $fileSnippets): array
+    {
+        if (count($namespaces) <= 0) {
+            return $result;
+        }
+
+        foreach ($namespaces as $term) {
+            $result = array_merge_recursive(
+                $result,
+                $this->findSnippetsInFiles(sprintf('%s*', $term), $fileSnippets)
+            );
+        }
+
+        return $result;
+    }
+
+    private function applyTermFilter(array $isoList, Context $context, ?string $term, array $result, ?bool $customSnippets): array
+    {
+        if (!$term) {
+            return $result;
+        }
+
+        if ($customSnippets) {
+            $result = $this->createEmptyEmptySnippetsResult($isoList);
+        } else {
+            $result = $this->findSnippetsInFiles(sprintf('*%s*', $term), $result);
+        }
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.value', $term), 1));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.translationKey', $term), 1));
+
+        $dbSnippets = $this->findSnippetInDatabase($criteria, $context);
+
+        /** @var SnippetEntity $snippet */
+        foreach ($dbSnippets as $snippet) {
+            if (!isset($isoList[$snippet->getSetId()])) {
+                continue;
+            }
+
+            $result[$isoList[$snippet->getSetId()]]['snippets'][$snippet->getTranslationKey()] = $snippet->getValue();
+        }
+
+        return $result;
+    }
+
+    private function applyCustomSnippets(Context $context, array $snippets, array $languageFiles, array $metaData, ?bool $customSnippets): array
+    {
+        if (!$customSnippets) {
+            return $snippets;
+        }
+
+        $authors = [];
+        $snippets = [];
+        $isoList = [];
+        foreach ($languageFiles as $isoFiles) {
+            /** @var SnippetFileInterface $file */
+            foreach ($isoFiles as $file) {
+                $isoList[] = $file->getIso();
+                if (in_array($file->getAuthor(), $authors)) {
+                    continue;
+                }
+
+                $authors[] = $file->getAuthor();
+            }
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('snippet.author', $authors)]));
+        $tmp = $this->findSnippetInDatabase($criteria, $context);
+
+        /* @var SnippetEntity $databaseSnippet */
+        foreach ($metaData as $set) {
+            foreach ($tmp as $databaseSnippet) {
+                if ($set['id'] !== $databaseSnippet->getSetId()) {
+                    continue;
+                }
+
+                $snippets[$set['iso']]['snippets'][$databaseSnippet->getTranslationKey()] = $databaseSnippet->getValue();
+            }
+        }
+
+        if (count($snippets) === 0) {
+            $snippets = $this->createEmptyEmptySnippetsResult($isoList);
+        }
+
+        return $this->fillBlankSnippets($isoList, $snippets);
     }
 
     private function getDefaultLocale(): string
@@ -248,7 +358,7 @@ class SnippetService implements SnippetServiceInterface
     {
         $result = [];
         foreach ($isoList as $iso) {
-            $result[$iso] = $this->languageFileCollection->getLanguageFilesByIso($iso);
+            $result[$iso] = $this->snippetFileCollection->getSnippetFilesByIso($iso);
         }
 
         return $result;
@@ -257,15 +367,15 @@ class SnippetService implements SnippetServiceInterface
     private function getSnippetsFromFiles(array $languageFiles): array
     {
         $result = [];
-        /** @var LanguageFileInterface $languageFile */
-        foreach ($languageFiles as $key => $languageFile) {
-            $flattenLanguageFileSnippets = $this->snippetFlattener->flatten(
-                json_decode(file_get_contents($languageFile->getPath()), true) ?: []
+        /** @var SnippetFileInterface $snippetFile */
+        foreach ($languageFiles as $key => $snippetFile) {
+            $flattenSnippetFileSnippets = $this->snippetFlattener->flatten(
+                json_decode(file_get_contents($snippetFile->getPath()), true) ?: []
             );
 
             $result = array_replace_recursive(
                 $result,
-                $flattenLanguageFileSnippets
+                $flattenSnippetFileSnippets
             );
         }
 
@@ -287,12 +397,13 @@ class SnippetService implements SnippetServiceInterface
     private function mergeSnippets(array $fileSnippets, array $dbSnippets, string $snippetSetId): array
     {
         $snippets = [];
-        foreach ($fileSnippets as $translationKey => $snippet) {
+        foreach ($fileSnippets as $translationKey => $value) {
             $snippets[$translationKey] = [
                 'id' => null,
-                'value' => $snippet,
-                'resetTo' => $snippet,
-                'origin' => $snippet,
+                'value' => $value,
+                'resetTo' => $value,
+                // Todo: @m.brode and @d.garding fix origin - Ticket NEXT-1667
+                'origin' => $value,
                 'translationKey' => $translationKey,
                 'setId' => $snippetSetId,
                 'author' => Defaults::SNIPPET_AUTHOR,
@@ -312,39 +423,6 @@ class SnippetService implements SnippetServiceInterface
         return $snippets;
     }
 
-    private function fetchSnippetsFromDatabase(string $snippetSetId): array
-    {
-        $snippets = $this->connection->createQueryBuilder()
-            ->select(['snippet.translation_key', 'snippet.value'])
-            ->from('snippet')
-            ->where('snippet.snippet_set_id = :snippetSetId')
-            ->setParameter('snippetSetId', Uuid::fromHexToBytes($snippetSetId))
-            ->addGroupBy('snippet.translation_key')
-            ->addGroupBy('snippet.id')
-            ->execute()
-            ->fetchAll();
-
-        return FetchModeHelper::keyPair($snippets);
-    }
-
-    private function getDatabaseSnippets($translationKeyList = null): array
-    {
-        $queryBuilder = $this->connection->createQueryBuilder()
-            ->select(['snippet_set_id', 'id', 'translation_key AS translationKey', 'value', 'snippet_set_id AS setId', 'author'])
-            ->from('snippet');
-
-        if ($translationKeyList !== null) {
-            $queryBuilder->where('translation_key IN (:translationKeyList)')
-                ->setParameter('translationKeyList', $translationKeyList, Connection::PARAM_STR_ARRAY);
-        } else {
-            $queryBuilder->where('author != :author')
-                ->setParameter('author', Defaults::SNIPPET_AUTHOR);
-        }
-        $result = $queryBuilder->execute()->fetchAll();
-
-        return $this->getDbSnippetSets(FetchModeHelper::group($result));
-    }
-
     private function getLocaleBySnippetSetId(string $snippetSetId): string
     {
         $locale = $this->connection->createQueryBuilder()
@@ -362,31 +440,14 @@ class SnippetService implements SnippetServiceInterface
         return $locale;
     }
 
-    private function getSetMetaData(): array
+    private function createEmptyEmptySnippetsResult(array $isoList): array
     {
-        $sets = $this->connection->createQueryBuilder()
-            ->select(['LOWER(HEX(id)) as array_key', 'LOWER(HEX(id)) as id', 'name', 'base_file AS baseFile', 'iso'])
-            ->from('snippet_set')
-            ->execute()
-            ->fetchAll(\PDO::FETCH_ASSOC);
-
-        return FetchModeHelper::groupUnique($sets);
-    }
-
-    private function getDbSnippetSets(array $dbSnippets): array
-    {
-        $dbSnippetSets = [];
-        foreach ($dbSnippets as $index => $dbSnippetSet) {
-            $snippets = [];
-            foreach ($dbSnippetSet as $snippet) {
-                $snippet['id'] = Uuid::fromBytesToHex($snippet['id']);
-                $snippet['setId'] = Uuid::fromBytesToHex($snippet['setId']);
-                $snippets[] = $snippet;
-            }
-            $dbSnippetSets[Uuid::fromBytesToHex($index)] = $snippets;
+        $result = [];
+        foreach ($isoList as $iso) {
+            $result[$iso]['snippets'] = [];
         }
 
-        return $dbSnippetSets;
+        return $result;
     }
 
     private function fillBlankSnippets(array $isoList, array $fileSnippets): array
@@ -410,85 +471,67 @@ class SnippetService implements SnippetServiceInterface
         return $fileSnippets;
     }
 
-    private function getSnippets(array $languageFiles, array $isoList, Criteria $criteria, Context $context): array
+    private function findSnippetsInFiles(string $term, array $fileSnippets): array
     {
-        $term = $this->getTerm($criteria);
+        $result = [];
+        if ($term) {
+            foreach ($fileSnippets as $iso => $snippets) {
+                $result[$iso]['snippets'] = array_filter($snippets['snippets'], function ($arrayValue, $arrayIndex) use ($term) {
+                    if (fnmatch($term, $arrayValue, FNM_CASEFOLD) || fnmatch($term, $arrayIndex, FNM_CASEFOLD)) {
+                        return true;
+                    }
+
+                    return false;
+                }, ARRAY_FILTER_USE_BOTH);
+            }
+        }
+
+        return $result;
+    }
+
+    private function getFileSnippets(array $languageFiles): array
+    {
         $fileSnippets = [];
         foreach ($languageFiles as $iso => $isoLanguageFiles) {
             $fileSnippets[$iso]['snippets'] = $this->getSnippetsFromFiles($isoLanguageFiles);
         }
 
-        if (!$term) {
-            return $fileSnippets;
+        return $fileSnippets;
+    }
+
+    private function createIsoList(array $metaData): array
+    {
+        $isoList = [];
+        foreach ($metaData as $set) {
+            $isoList[$set['id']] = $set['iso'];
         }
+
+        return $isoList;
+    }
+
+    private function getSetMetaData(Context $context): array
+    {
+        $queryResult = $this->findSnippetSetInDatabase(new Criteria(), $context);
 
         $result = [];
-        $searchWord = '*' . $term . '*';
-        foreach ($fileSnippets as $iso => $snippets) {
-            $result[$iso]['snippets'] = array_filter($snippets['snippets'], function ($arrayValue, $arrayIndex) use ($searchWord) {
-                if (fnmatch($searchWord, $arrayValue, FNM_CASEFOLD) || fnmatch($searchWord, $arrayIndex, FNM_CASEFOLD)) {
-                    return true;
-                }
-
-                return false;
-            }, ARRAY_FILTER_USE_BOTH);
-        }
-
-        $dbSnippets = $this->findSnippetsInDatabase($criteria, $context, $term, $isoList);
-        $result = array_merge_recursive($result, $dbSnippets);
-
-        foreach ($result as $currentIso => $tmpSnippets) {
-            foreach ($isoList as $iso) {
-                if ($currentIso === $iso) {
-                    continue;
-                }
-
-                foreach ($tmpSnippets['snippets'] as $key => $value) {
-                    if (!isset($result[$iso]['snippets'][$key])) {
-                        $result[$iso]['snippets'][$key] = $fileSnippets[$iso]['snippets'][$key] ?? '';
-                    }
-                }
-            }
+        /**
+         * @var string
+         * @var SnippetSetEntity $value
+         */
+        foreach ($queryResult as $key => $value) {
+            $result[$key] = $value->toArray();
         }
 
         return $result;
     }
 
-    private function findSnippetsInDatabase(Criteria $criteria, Context $context, string $term, array $isoList): array
+    private function findSnippetInDatabase(Criteria $criteria, Context $context): array
     {
-        $criteria->resetQueries();
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.value', $term), 1));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.translationKey', $term), 1));
-
-        $queryResult = $this->snippetRepository->search($criteria, $context);
-
-        $result = [];
-        /** @var SnippetEntity $snippet */
-        foreach ($queryResult->getEntities()->getElements() as $snippet) {
-            if (!isset($isoList[$snippet->getSetId()])) {
-                continue;
-            }
-
-            $result[$isoList[$snippet->getSetId()]]['snippets'][$snippet->getTranslationKey()] = $snippet->getValue();
-        }
-
-        return $result;
+        return $this->snippetRepository->search($criteria, $context)->getEntities()->getElements();
     }
 
-    /**
-     * @return float|int|string|null
-     */
-    private function getTerm(Criteria $criteria)
+    private function findSnippetSetInDatabase(Criteria $criteria, Context $context): array
     {
-        $term = '';
-        if (isset($criteria->getQueries()[0])) {
-            $query = $criteria->getQueries()[0]->getQuery();
-
-            if ($query instanceof EqualsFilter || $query instanceof ContainsFilter) {
-                $term = $query->getValue();
-            }
-        }
-
-        return $term;
+        return $this->snippetSetRepository->search($criteria, $context)->getEntities()->getElements();
     }
 }

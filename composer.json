@@ -72,7 +72,7 @@
     "smalot/pdfparser": "0.13.2",
     "james-heinrich/getid3": "1.9.16",
     "enqueue/messenger-adapter": "0.2.0",
-    "composer/composer": "1.8.0"
+    "composer/composer": "1.8.2"
   },
   "require-dev": {
     "ext-tokenizer": "*",

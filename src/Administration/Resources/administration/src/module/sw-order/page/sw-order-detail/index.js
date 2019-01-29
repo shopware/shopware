@@ -1,40 +1,32 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 
 Component.register('sw-order-detail', {
     template,
-
+    mixins: [
+        Mixin.getByName('notification')
+    ],
     data() {
         return {
             order: {},
-            orderId: null
+            orderId: null,
+            isEditing: false
         };
     },
-
     computed: {
         orderStore() {
             return State.getStore('order');
-        },
-        lineItemsStore() {
-            return this.order.getAssociation('lineItems');
-        },
-
-        deliveriesStore() {
-            return this.order.getAssociation('deliveries');
         }
     },
-
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         '$route.params.id'() {
             this.createdComponent();
         }
     },
-
+    created() {
+        this.createdComponent();
+    },
     methods: {
         createdComponent() {
             this.orderId = this.$route.params.id;
@@ -43,24 +35,31 @@ Component.register('sw-order-detail', {
 
         loadEntityData() {
             this.order = this.orderStore.getById(this.orderId);
-
-            this.lineItemsStore.getList({
-                page: 1,
-                limit: 25
-            });
-
-            this.deliveriesStore.getList({
-                page: 1,
-                limit: 50
-            });
         },
-
         onChangeLanguage() {
             this.loadEntityData();
         },
-
         onSave() {
-            // TODO: Implement save order
+            this.isEditing = false;
+            this.$refs.baseComponent.mergeOrder();
+        },
+        onStartEditing() {
+            this.isEditing = true;
+            this.$refs.baseComponent.startEditing();
+        },
+        onCancelEditing() {
+            this.isEditing = false;
+            this.$refs.baseComponent.cancelEditing();
+        },
+        onError(error) {
+            this.createErrorNotification(error);
+            this.onCancelEditing();
+        },
+        createErrorNotification(errorMessage) {
+            this.createNotificationError({
+                title: this.$tc('sw-order.detail.titleRecalculationError'),
+                message: this.$tc('sw-order.detail.messageRecalculationError') + errorMessage
+            });
         }
     }
 });

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Transaction;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;

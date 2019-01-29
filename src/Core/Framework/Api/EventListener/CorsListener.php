@@ -45,6 +45,7 @@ class CorsListener implements EventSubscriberInterface
             PlatformRequest::HEADER_CONTEXT_TOKEN,
             PlatformRequest::HEADER_ACCESS_KEY,
             PlatformRequest::HEADER_LANGUAGE_ID,
+            PlatformRequest::HEADER_VERSION_ID,
         ];
 
         $response = $event->getResponse();

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 

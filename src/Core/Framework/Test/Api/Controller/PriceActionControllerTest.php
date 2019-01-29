@@ -47,9 +47,7 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxIdMissingException(): void
     {
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
-            'price' => 10,
-        ]));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', ['price' => 10]);
 
         $response = $this->getClient()->getResponse()->getContent();
 
@@ -60,10 +58,10 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxNotFoundException(): void
     {
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [], [], [], json_encode([
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [
             'price' => 10,
             'taxId' => Uuid::uuid4()->getHex(),
-        ]));
+        ]);
 
         $response = $this->getClient()->getResponse()->getContent();
 
@@ -222,7 +220,7 @@ class PriceActionControllerTest extends TestCase
             '/api/v%s/_action/calculate-price',
             PlatformRequest::API_VERSION
         );
-        $this->getClient()->request('POST', $url, [], [], [], json_encode($data));
+        $this->getClient()->request('POST', $url, $data);
 
         $response = $this->getClient()->getResponse()->getContent();
 

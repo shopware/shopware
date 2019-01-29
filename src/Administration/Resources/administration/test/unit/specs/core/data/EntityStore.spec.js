@@ -2,7 +2,7 @@ import EntityStore from 'src/core/data/EntityStore';
 import EntityProxy from 'src/core/data/EntityProxy';
 import ApiService from 'src/core/service/api.service';
 
-import { itAsync } from '../../../async-helper';
+import { itAsync, xitAsync } from '../../../async-helper';
 
 const Entity = Shopware.Entity;
 const State = Shopware.State;
@@ -349,5 +349,31 @@ describe('core/data/EntityStore.js', () => {
         expect(newTax.products).to.have.length(1);
         expect(newTax.products[0].id).equals(product.id);
         expect(newTax.associations.products.store[product.id]).to.be.an('object');
+    });
+
+    xitAsync('should handle multiple entityversions in parallel', (done) => {
+        const entityStore = new EntityStore('product', 'productService', EntityProxy);
+        const entityOriginal = entityStore.create({ name: 'best' });
+
+        entityOriginal.versionize().then((entityVersioned) => {
+            entityVersioned.name = 'test';
+            entityVersioned.save().then(() => {
+                // force complete reload
+                entityStore.removeAll();
+                const loadedOriginal = entityStore.getById(entityOriginal.id, true, entityOriginal.versionId);
+                const loadedVersioned = entityStore.getById(entityVersioned.id, true, entityVersioned.versionId);
+
+                Promise.all([loadedOriginal, loadedVersioned]).then(() => {
+                    expect(loadedOriginal.versionId).to.be.unequal(loadedVersioned.versionId);
+                    expect(loadedOriginal.name).to.be.equal('best');
+                    expect(loadedVersioned.name).to.be.equal('test');
+                    done();
+                }).catch((error) => {
+                    done(error);
+                });
+            }).catch((error) => {
+                done(error);
+            });
+        });
     });
 });

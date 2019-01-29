@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;

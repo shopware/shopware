@@ -44,6 +44,7 @@ return [
                     'viewData' => null,
                     'extensions' => [],
                     'id' => null,
+                    'versionId' => null,
                 ],
             ],
         ],

@@ -59,7 +59,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $context = Context::createDefaultContext();
@@ -95,7 +95,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $data);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $products = $this->repository->search(new Criteria([$id]), $context);
@@ -129,7 +129,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [], json_encode($data));
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $data);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $products = $this->repository->search(new Criteria([$id]), $context);
@@ -164,7 +164,7 @@ class ProductApiTest extends TestCase
             'descriptionLong' => $description,
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, [], [], [

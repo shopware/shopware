@@ -17,12 +17,11 @@ class Migration1536232692OrderState extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `order_state` (
               `id` binary(16) NOT NULL,
-              `version_id` binary(16) NOT NULL,
               `position` int(11) NOT NULL DEFAULT \'1\',
               `has_mail` tinyint(1) NOT NULL DEFAULT \'0\',
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
-              PRIMARY KEY (`id`, `version_id`)
+              PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

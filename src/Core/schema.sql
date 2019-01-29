@@ -19,12 +19,10 @@ CREATE TABLE `plugin` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `migration` (
-    `class`              VARCHAR(255)                    NOT NULL,
-    `creation_timestamp` INT(8)                          NOT NULL,
-    `update`             TIMESTAMP(6)                    NULL,
-    `update_destructive` TIMESTAMP(6)                    NULL,
-    `message`            TEXT COLLATE utf8mb4_unicode_ci NULL,
+    `class`               VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `creation_timestamp`  INT(8)                                  NOT NULL,
+    `update` TIMESTAMP(6)                                         NULL,
+    `update_destructive`  TIMESTAMP(6)                            NULL,
+    `message`             TEXT         COLLATE utf8mb4_unicode_ci NULL,
     PRIMARY KEY (`class`)
-)
-    ENGINE = InnoDB
-    COLLATE = utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE = utf8mb4_unicode_ci;

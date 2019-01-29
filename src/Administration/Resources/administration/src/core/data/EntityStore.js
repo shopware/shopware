@@ -1,6 +1,7 @@
 import { Application, State } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, hasOwnProperty } from 'src/core/service/utils/object.utils';
+import ApiService from '../service/api.service';
 
 /**
  * @module core/data/EntityStore
@@ -40,9 +41,10 @@ export default class EntityStore {
      * @param {String} id
      * @param {Boolean} [force=false]
      * @param {String} [languageId]
+     * @param {String} [versionId]
      * @return {EntityProxy}
      */
-    getById(id, force = false, languageId = '') {
+    getById(id, force = false, languageId = '', versionId = '20080911ffff4fffafffffff19830531') {
         if (!languageId || languageId.length < 1) {
             languageId = this.getLanguageStore().getCurrentId();
         }
@@ -55,13 +57,14 @@ export default class EntityStore {
         }
 
         const entity = this.create(id);
+        const headers = Object.assign(EntityStore.getLanguageHeader(languageId), ApiService.getVersionHeader(versionId));
 
         entity.isLoading = true;
 
         this.apiService.getById(
             id,
             {},
-            EntityStore.getLanguageHeader(languageId)
+            headers
         ).then((response) => {
             entity.setData(response.data, true, true, false, languageId);
             entity.isLoading = false;
@@ -76,9 +79,10 @@ export default class EntityStore {
      * @memberOf module:core/data/EntityStore
      * @param {String} id
      * @param {String} [languageId]
+     * @param {String} [versionId]
      * @return {Promise<never> | Promise<any>}
      */
-    getByIdAsync(id, languageId = '') {
+    getByIdAsync(id, languageId = '', versionId = '20080911ffff4fffafffffff19830531') {
         if (!languageId || languageId.length < 1) {
             languageId = this.getLanguageStore().getCurrentId();
         }
@@ -89,11 +93,13 @@ export default class EntityStore {
 
         const entity = this.create(id);
 
+        const headers = Object.assign(EntityStore.getLanguageHeader(languageId), ApiService.getVersionHeader(versionId));
+
         entity.isLoading = true;
         return this.apiService.getById(
             id,
             {},
-            EntityStore.getLanguageHeader(languageId)
+            headers
         ).then((response) => {
             entity.setData(response.data, true, false, false, languageId);
             entity.isLoading = false;

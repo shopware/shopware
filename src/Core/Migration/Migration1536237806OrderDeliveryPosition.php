@@ -22,14 +22,16 @@ class Migration1536237806OrderDeliveryPosition extends MigrationStep
               `order_delivery_version_id` binary(16) NOT NULL,
               `order_line_item_id` binary(16) NOT NULL,
               `order_line_item_version_id` binary(16) NOT NULL,
-              `unit_price` double NOT NULL,
-              `total_price` double NOT NULL,
-              `quantity` double NOT NULL,
+              `price` json NOT NULL,
+              `total_price` int(11) GENERATED ALWAYS AS (JSON_UNQUOTE(price->"$.totalPrice")) VIRTUAL,
+              `unit_price` int(11) GENERATED ALWAYS AS (JSON_UNQUOTE(price->"$.unitPrice")) VIRTUAL,
+              `quantity` int(11) GENERATED ALWAYS AS (JSON_UNQUOTE(price->"$.quantity")) VIRTUAL,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
               PRIMARY KEY (`id`, `version_id`),
               CONSTRAINT `fk.order_delivery_position.order_delivery_id` FOREIGN KEY (`order_delivery_id`, `order_delivery_version_id`) REFERENCES `order_delivery` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.order_delivery_position.order_line_item_id` FOREIGN KEY (`order_line_item_id`, `order_line_item_version_id`) REFERENCES `order_line_item` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+              CONSTRAINT `fk.order_delivery_position.order_line_item_id` FOREIGN KEY (`order_line_item_id`, `order_line_item_version_id`) REFERENCES `order_line_item` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT CHECK ( JSON_VALID(`price`) )
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

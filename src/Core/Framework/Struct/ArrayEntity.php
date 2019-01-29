@@ -73,6 +73,19 @@ class ArrayEntity extends Entity implements \ArrayAccess
 
     public function jsonSerialize(): array
     {
-        return $this->data;
+        $data = [
+            '_class' => \get_class($this),
+        ];
+
+        $vars = $this->data;
+        foreach ($vars as $property => $value) {
+            if ($value instanceof \DateTime) {
+                $value = $value->format(\DateTime::ATOM);
+            }
+
+            $data[$property] = $value;
+        }
+
+        return $data;
     }
 }

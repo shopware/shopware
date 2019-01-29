@@ -56,7 +56,11 @@ class DeliveryPositionCollection extends Collection
     public function getWeight(): float
     {
         $weights = $this->getLineItems()->map(function (LineItem $deliverable) {
-            return $deliverable->getDeliveryInformation()->getWeight();
+            if ($deliverable->getDeliveryInformation()) {
+                return $deliverable->getDeliveryInformation()->getWeight();
+            }
+
+            return 0;
         });
 
         return array_sum($weights);

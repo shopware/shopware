@@ -60,12 +60,19 @@ Component.register('sw-order-list', {
                 params.sortDirection = 'DESC';
             }
 
-            return this.orderStore.getList(params).then((response) => {
+            return this.orderStore.getList(params, true).then((response) => {
                 this.total = response.total;
                 this.orders = response.items;
+
                 this.isLoading = false;
 
                 return this.orders;
+            });
+        },
+
+        getBillingAddress(order) {
+            return order.addresses.find((address) => {
+                return address.id === order.billingAddressId;
             });
         }
     }

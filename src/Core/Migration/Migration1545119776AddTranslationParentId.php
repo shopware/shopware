@@ -21,13 +21,6 @@ class Migration1545119776AddTranslationParentId extends MigrationStep
             ADD PRIMARY KEY (`product_id`, `product_version_id`, `language_id`)
         ');
 
-        // fix order_state_translation pk: add order_state_version_id
-        $connection->executeQuery('
-            ALTER TABLE `order_state_translation` 
-            DROP PRIMARY KEY,
-            ADD PRIMARY KEY (`order_state_id`, `order_state_version_id`, `language_id`)
-        ');
-
         // fix order_transaction_state_translation pk: add order_transaction_state_version_id
         $connection->executeQuery('
             ALTER TABLE `order_transaction_state_translation`
@@ -138,7 +131,6 @@ class Migration1545119776AddTranslationParentId extends MigrationStep
             ],
             'order_state_translation' => [
                 'order_state_id',
-                'order_state_version_id',
             ],
             'order_transaction_state_translation' => [
                 'order_transaction_state_id',

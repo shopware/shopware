@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPo
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -14,10 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -71,11 +72,11 @@ class OrderLineItemDefinition extends EntityDefinition
             new BoolField('stackable', 'stackable'),
             new IntField('priority', 'priority'),
 
-            new ObjectField('price', 'price'),
-            (new ObjectField('price_definition', 'priceDefinition')),
+            (new CalculatedPriceField('price', 'price'))->setFlags(new Required()),
+            (new PriceDefinitionField('price_definition', 'priceDefinition'))->setFlags(new Required()),
 
-            (new FloatField('unit_price', 'unitPrice'))->addFlags(new Required()),
-            (new FloatField('total_price', 'totalPrice'))->addFlags(new Required()),
+            (new FloatField('unit_price', 'unitPrice'))->addFlags(new ReadOnly()),
+            (new FloatField('total_price', 'totalPrice'))->addFlags(new ReadOnly()),
             new StringField('description', 'description'),
             new StringField('type', 'type'),
             new CreatedAtField(),

@@ -82,20 +82,6 @@ class OrderCollection extends EntityCollection
         });
     }
 
-    public function getBillingAddressIds(): array
-    {
-        return $this->fmap(function (OrderEntity $order) {
-            return $order->getBillingAddressId();
-        });
-    }
-
-    public function filterByBillingAddressId(string $id): self
-    {
-        return $this->filter(function (OrderEntity $order) use ($id) {
-            return $order->getBillingAddressId() === $id;
-        });
-    }
-
     public function getOrderCustomers(): CustomerCollection
     {
         return new CustomerCollection(
@@ -145,7 +131,7 @@ class OrderCollection extends EntityCollection
     {
         return new OrderAddressCollection(
             $this->fmap(function (OrderEntity $order) {
-                return $order->getBillingAddress();
+                return $order->getAddresses();
             })
         );
     }

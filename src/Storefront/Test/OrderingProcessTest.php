@@ -96,7 +96,7 @@ class OrderingProcessTest extends TestCase
             'price' => ['gross' => $grossPrice, 'net' => $netPrice],
         ];
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], json_encode($data));
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], $data);
         $response = $this->getClient()->getResponse();
 
         /* @var Response $response */
@@ -115,8 +115,8 @@ class OrderingProcessTest extends TestCase
             'quantity' => $quantity,
         ];
 
-        $this->getStorefrontApiClient()->request('POST', '/cart/addProduct', $data);
-        $response = $this->getStorefrontApiClient()->getResponse();
+        $this->getStorefrontClient()->request('POST', '/cart/addProduct', $data);
+        $response = $this->getStorefrontClient()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
@@ -132,8 +132,8 @@ class OrderingProcessTest extends TestCase
             'quantity' => $quantity,
         ];
 
-        $this->getStorefrontApiClient()->request('POST', '/cart/setLineItemQuantity', $data);
-        $response = $this->getStorefrontApiClient()->getResponse();
+        $this->getStorefrontClient()->request('POST', '/cart/setLineItemQuantity', $data);
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         self::assertEquals(true, $content['success']);
@@ -145,8 +145,8 @@ class OrderingProcessTest extends TestCase
             'identifier' => $id,
         ];
 
-        $this->getStorefrontApiClient()->request('POST', '/cart/removeLineItem', $data);
-        $response = $this->getStorefrontApiClient()->getResponse();
+        $this->getStorefrontClient()->request('POST', '/cart/removeLineItem', $data);
+        $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         self::assertEquals(true, $content['success']);
@@ -201,10 +201,10 @@ class OrderingProcessTest extends TestCase
             'password' => $password,
         ];
 
-        $this->getStorefrontApiClient()->request('POST', '/account/login', $data);
+        $this->getStorefrontClient()->request('POST', '/account/login', $data);
 
         /** @var Response $response */
-        $response = $this->getStorefrontApiClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
 
         static::assertStringEndsWith('/account', (string) $response->headers->get('Location'), $response->getContent());
     }
@@ -215,10 +215,10 @@ class OrderingProcessTest extends TestCase
             'paymentMethodId' => $paymentMethodId,
         ];
 
-        $this->getStorefrontApiClient()->request('POST', '/checkout/saveShippingPayment', $data);
+        $this->getStorefrontClient()->request('POST', '/checkout/saveShippingPayment', $data);
 
         /** @var Response $response */
-        $response = $this->getStorefrontApiClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
         static::assertStringEndsWith('/checkout/confirm', $response->headers->get('Location'));
     }
 
@@ -228,10 +228,10 @@ class OrderingProcessTest extends TestCase
             'sAGB' => 'on',
         ];
 
-        $this->getStorefrontApiClient()->request('POST', '/checkout/pay', $data);
+        $this->getStorefrontClient()->request('POST', '/checkout/pay', $data);
 
         /** @var Response $response */
-        $response = $this->getStorefrontApiClient()->getResponse();
+        $response = $this->getStorefrontClient()->getResponse();
 
         return $this->getOrderIdByResponse($response);
     }

@@ -33,22 +33,22 @@ class ApiService {
      * @param {Object} aggregations
      * @param {Object} associations
      * @param {Object} headers
+     * @param {String} versionId
      * @returns {Promise<T>}
      */
     getList({
         page = 1,
         limit = 25,
-        sortBy,
-        sortDirection = 'asc',
+        sortBy, sortDirection = 'asc',
         sortings,
-        queries,
-        term,
+        queries, term,
         criteria,
         aggregations,
         associations,
-        headers
+        headers,
+        versionId
     }) {
-        const requestHeaders = this.getBasicHeaders(headers);
+        let requestHeaders = this.getBasicHeaders(headers);
         const params = { page, limit };
 
         if (sortings) {
@@ -71,6 +71,10 @@ class ApiService {
 
         if (associations) {
             params.associations = associations;
+        }
+
+        if (versionId) {
+            requestHeaders = Object.assign(requestHeaders, ApiService.getVersionHeader(versionId));
         }
 
         if (queries) {
@@ -243,6 +247,39 @@ class ApiService {
             });
     }
 
+    versionize(id, additionalParams = {}, additionalHeaders = {}) {
+        // todo fix route
+        const route = `/_action/version/${this.apiEndpoint}/${id}`;
+
+        const params = Object.assign({}, additionalParams);
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(route, {}, {
+                params,
+                headers
+            });
+    }
+
+    mergeVersion(id, versionId, additionalParams, additionalHeaders) {
+        if (!id) {
+            return Promise.reject(new Error('Missing required argument: id'));
+        }
+        if (!versionId) {
+            return Promise.reject(new Error('Missing required argument: versionId'));
+        }
+
+        const params = Object.assign({}, additionalParams);
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        const route = `_action/version/merge/${this.apiEndpoint}/${versionId}`;
+        return this.httpClient
+            .post(route, {}, {
+                params,
+                headers
+            });
+    }
+
     /**
      * Returns the URI to the API endpoint
      *
@@ -310,6 +347,10 @@ class ApiService {
      */
     static parseJsonApiData(data) {
         return parseJsonApi(data);
+    }
+
+    static getVersionHeader(versionId) {
+        return { 'x-sw-version-id': versionId };
     }
 
     /**

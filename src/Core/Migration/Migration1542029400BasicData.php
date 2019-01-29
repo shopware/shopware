@@ -402,7 +402,7 @@ class Migration1542029400BasicData extends MigrationStep
         $connection->insert('tax', ['id' => $tax7, 'tax_rate' => 7, 'name' => '7%', 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('tax', ['id' => $tax20, 'tax_rate' => 20, 'name' => '20%', 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('tax', ['id' => $tax5, 'tax_rate' => 5, 'name' => '5%', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('tax', ['id' => $tax0, 'tax_rate' => 0, 'name' => '0%', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('tax', ['id' => $tax0, 'tax_rate' => 1, 'name' => '1%', 'created_at' => date(Defaults::DATE_FORMAT)]);
     }
 
     private function createSalesChannelTypes(Connection $connection): void
@@ -501,35 +501,35 @@ class Migration1542029400BasicData extends MigrationStep
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $queue->addInsert('order_state', ['id' => $open, 'version_id' => $versionId, 'position' => 1, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $open, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Open', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $open, 'position' => 1, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $open, 'language_id' => $languageEN, 'description' => 'Open', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $completed, 'version_id' => $versionId, 'position' => 2, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $completed, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Completed', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $completed, 'position' => 2, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $completed, 'language_id' => $languageEN, 'description' => 'Completed', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $cancelled, 'version_id' => $versionId, 'position' => 3, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $cancelled, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Cancelled', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $cancelled, 'position' => 3, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $cancelled, 'language_id' => $languageEN, 'description' => 'Cancelled', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $inProgress, 'version_id' => $versionId, 'position' => 4, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $inProgress, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'In progress', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $inProgress, 'position' => 4, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $inProgress, 'language_id' => $languageEN, 'description' => 'In progress', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $partiallyCompleted, 'version_id' => $versionId, 'position' => 5, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $partiallyCompleted, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Partially completed', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $partiallyCompleted, 'position' => 5, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $partiallyCompleted, 'language_id' => $languageEN, 'description' => 'Partially completed', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $rejected, 'version_id' => $versionId, 'position' => 6, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $rejected, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Cancelled (rejected)', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $rejected, 'position' => 6, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $rejected, 'language_id' => $languageEN, 'description' => 'Cancelled (rejected)', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $readyForDelivery, 'version_id' => $versionId, 'position' => 7, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $readyForDelivery, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Ready for delivery', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $readyForDelivery, 'position' => 7, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $readyForDelivery, 'language_id' => $languageEN, 'description' => 'Ready for delivery', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $partiallyDelivered, 'version_id' => $versionId, 'position' => 8, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $partiallyDelivered, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Partially delivered', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $partiallyDelivered, 'position' => 8, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $partiallyDelivered, 'language_id' => $languageEN, 'description' => 'Partially delivered', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $completelyDelivered, 'version_id' => $versionId, 'position' => 9, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $completelyDelivered, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Completely delivered', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $completelyDelivered, 'position' => 9, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $completelyDelivered, 'language_id' => $languageEN, 'description' => 'Completely delivered', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $queue->addInsert('order_state', ['id' => $clarificationRequired, 'version_id' => $versionId, 'position' => 10, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('order_state_translation', ['order_state_id' => $clarificationRequired, 'order_state_version_id' => $versionId, 'language_id' => $languageEN, 'description' => 'Clarification required', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state', ['id' => $clarificationRequired, 'position' => 10, 'has_mail' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('order_state_translation', ['order_state_id' => $clarificationRequired, 'language_id' => $languageEN, 'description' => 'Clarification required', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         $queue->execute();
     }

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 

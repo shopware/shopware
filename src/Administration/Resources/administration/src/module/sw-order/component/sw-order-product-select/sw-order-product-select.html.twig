@@ -1,0 +1,23 @@
+{% block sw_order_product_select %}
+
+    <div v-if="!displayProductSelection">
+        {% block sw_order_product_select_blank_item%}
+            <sw-field type="text"
+                      v-model="item.label"
+                      :placeholder="$tc('sw-order.detailBase.columnProductName')">
+
+            </sw-field>
+        {% endblock %}
+    </div>
+    <div v-else>
+        {% block sw_order_product_select_existing_product %}
+            <sw-select id="edit-product-select"
+                       @input="onItemChanged"
+                       :placeholder="$tc('sw-order.detailBase.columnProductName')"
+                       :store="productStore"
+                       :value="null">
+
+            </sw-select>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -261,7 +262,7 @@ class DefinitionValidator
                 $functionViolations[] = sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
-            if (!$field->is(Deferred::class) && !$reflection->hasMethod($setter)) {
+            if (!$field->is(Deferred::class) && !$field->is(ReadOnly::class) && !$reflection->hasMethod($setter)) {
                 $functionViolations[] = sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }

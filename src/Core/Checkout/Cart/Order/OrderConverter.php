@@ -2,164 +2,173 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use DateTime;
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
-use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Defaults;
+use Shopware\Core\Checkout\Util\Transformer\AddressTransformer;
+use Shopware\Core\Checkout\Util\Transformer\CartTransformer;
+use Shopware\Core\Checkout\Util\Transformer\CustomerTransformer;
+use Shopware\Core\Checkout\Util\Transformer\DeliveryTransformer;
+use Shopware\Core\Checkout\Util\Transformer\LineItemTransformer;
+use Shopware\Core\Checkout\Util\Transformer\TransactionTransformer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Util\Random;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderConverter
 {
+    public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';
+
     public const CART_TYPE = 'recalculation';
-    private const LINE_ITEM_PLACEHOLDER = 'line_item_placeholder';
 
-    /**
-     * @var TaxDetector
-     */
-    private $taxDetector;
+    public const ORIGINAL_ID = 'originalId';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private const LINE_ITEM_PLACEHOLDER = 'lineItemPlaceholder';
 
     /**
      * @var EntityRepositoryInterface
      */
-    private $orderLineItemRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    protected $customerRepository;
 
     /**
      * @var CheckoutContextFactory
      */
-    private $checkoutContextFactory;
+    protected $checkoutContextFactory;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
 
     public function __construct(
-        TaxDetector $taxDetector,
-        EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $orderLineItemRepository,
         EntityRepositoryInterface $customerRepository,
-        CheckoutContextFactory $checkoutContextFactory
+        CheckoutContextFactory $checkoutContextFactory,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->taxDetector = $taxDetector;
-        $this->orderRepository = $orderRepository;
-        $this->orderLineItemRepository = $orderLineItemRepository;
         $this->customerRepository = $customerRepository;
         $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
-     * @throws CustomerNotLoggedInException
      * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
      */
-    public function convertToOrder(Cart $cart, CheckoutContext $context): array
+    public function convertToOrder(Cart $cart, CheckoutContext $context, OrderConversionContext $conversionContext): array
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-        if ($cart->getLineItems()->count() <= 0) {
-            throw new EmptyCartException();
-        }
-
         /** @var Delivery $delivery */
         foreach ($cart->getDeliveries() as $delivery) {
-            if (!$delivery->getLocation()->getAddress()) {
-                throw new DeliveryWithoutAddressException();
+            if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
+                continue;
             }
+            throw new DeliveryWithoutAddressException();
         }
-        $addressId = Uuid::uuid4()->getHex();
-        $data = $this->convertCart($cart, $context, $addressId);
+        $data = CartTransformer::transform($cart, $context);
 
-        $data['orderCustomer'] = $this->convertCustomer($context);
-
-        $address = $context->getCustomer()->getActiveBillingAddress();
-        $data['billingAddress'] = $this->convertAddress($address);
-        $data['billingAddress']['id'] = $addressId;
-
-        $convertedLineItems = $this->convertLineItems($cart->getLineItems());
-
-        /** @var Delivery $delivery */
-        foreach ($cart->getDeliveries() as $delivery) {
-            $data['deliveries'][] = $this->convertDelivery($delivery, $convertedLineItems);
+        if ($conversionContext->shouldIncludeCustomer()) {
+            $data['orderCustomer'] = CustomerTransformer::transform($context->getCustomer());
         }
 
-        foreach ($cart->getTransactions() as $transaction) {
-            $data['transactions'][] = $this->convertTransaction($transaction);
+        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
+
+        $shippingAddresses = [];
+
+        if ($conversionContext->shouldIncludeDeliveries()) {
+            $shippingAddresses = AddressTransformer::transformCollection($cart->getDeliveries()->getAddresses(), true);
+            $data['deliveries'] = DeliveryTransformer::transformCollection(
+                $cart->getDeliveries(),
+                $convertedLineItems,
+                $shippingAddresses
+            );
+        }
+
+        if ($conversionContext->shouldIncludeBillingAddress()) {
+            $customerAddressId = $context->getCustomer()->getActiveBillingAddress()->getId();
+
+            if (array_key_exists($customerAddressId, $shippingAddresses)) {
+                $billingAddressId = $shippingAddresses[$customerAddressId]['id'];
+            } else {
+                $billingAddress = AddressTransformer::transform($context->getCustomer()->getActiveBillingAddress());
+                $data['addresses'] = [$billingAddress];
+                $billingAddressId = $billingAddress['id'];
+            }
+            $data['billingAddressId'] = $billingAddressId;
+        }
+
+        if ($conversionContext->shouldIncludeTransactions()) {
+            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions());
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
 
-        return $data;
+        /** @var IdStruct|null $idStruct */
+        $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
+        if ($idStruct !== null) {
+            $data['id'] = $idStruct->getId();
+        }
+
+        $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
+
+        $this->eventDispatcher->dispatch(
+            CartConvertedEvent::NAME,
+            $event
+        );
+
+        return $event->getConvertedCart();
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
      * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws MissingOrderRelationException
      */
     public function convertToCart(OrderEntity $order, Context $context): Cart
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('order_line_item.orderId', $order->getId()));
+        if ($order->getLineItems() === null) {
+            throw new MissingOrderRelationException('lineItem');
+        }
 
-        $lineItems = $this->orderLineItemRepository->search($criteria, $context);
+        if ($order->getDeliveries() === null) {
+            throw new MissingOrderRelationException('deliveries');
+        }
 
         $cart = new Cart(self::CART_TYPE, Uuid::uuid4()->getHex());
-
-        $cart->setPrice(new CartPrice(
-            $order->getAmountNet(),
-            $order->getAmountTotal(),
-            $order->getPositionPrice(),
-            new CalculatedTaxCollection(),
-            new TaxRuleCollection(),
-            $this->getTaxStatus($order)
-        ));
-
+        $cart->setPrice($order->getPrice());
+        $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
         /* NEXT-708 support:
-            - cart: calculated tax and tax rule collection
-            - line item: price + price definition currently rely on serialized data
             - transactions
-            - deliveries
         */
 
         $index = [];
         $root = new LineItemCollection();
 
         /** @var OrderLineItemEntity $lineItem */
-        foreach ($lineItems as $id => $lineItem) {
+        foreach ($order->getLineItems() as $id => $lineItem) {
             if (!array_key_exists($id, $index)) {
                 $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
             }
@@ -167,45 +176,32 @@ class OrderConverter
             /** @var LineItem $currentLineItem */
             $currentLineItem = $index[$id];
 
-            $currentLineItem
-            ->setKey($lineItem->getIdentifier())
-                ->setType($lineItem->getType())
-                ->setStackable(true)
-                ->setQuantity($lineItem->getQuantity())
-                ->setStackable($lineItem->getStackable())
-                ->setLabel($lineItem->getLabel())
-                ->setGood($lineItem->getGood())
-                ->setPriority($lineItem->getPriority())
-                ->setRemovable($lineItem->getRemovable())
-                ->setStackable($lineItem->getStackable());
+            $this->updateLineItem($currentLineItem, $lineItem, $id);
 
-            if ($lineItem->getPayload() !== null) {
-                $currentLineItem->setPayload($lineItem->getPayload());
-            }
-
-            if ($lineItem->getPrice() !== null) {
-                $currentLineItem->setPrice($lineItem->getPrice());
-            }
-
-            if ($lineItem->getPriceDefinition() !== null) {
-                $currentLineItem->setPriceDefinition($lineItem->getPriceDefinition());
-            }
-
-            if ($lineItem->getParentId() !== null) {
-                if (!array_key_exists($lineItem->getParentId(), $index)) {
-                    $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
-                }
-
-                $index[$lineItem->getParentId()]->addChild($currentLineItem);
-            } else {
+            if ($lineItem->getParentId() === null) {
                 $root->add($currentLineItem);
+                continue;
             }
-        }
-        $cart->addLineItems($root);
 
-        return $cart;
+            if (!array_key_exists($lineItem->getParentId(), $index)) {
+                $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
+            }
+
+            $index[$lineItem->getParentId()]->addChild($currentLineItem);
+        }
+
+        $cart->addLineItems($root);
+        $cart->setDeliveries($this->convertDeliveries($order->getDeliveries(), $root));
+
+        $event = new OrderConvertedEvent($order, $cart, $context);
+        $this->eventDispatcher->dispatch(OrderConvertedEvent::NAME, $event);
+
+        return $event->getConvertedCart();
     }
 
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
     public function assembleCheckoutContext(OrderEntity $order, Context $context): CheckoutContext
     {
         $customerId = $order->getOrderCustomer()->getCustomerId();
@@ -230,149 +226,85 @@ class OrderConverter
         );
     }
 
-    private function getTaxStatus(OrderEntity $order): string
+    private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection
     {
-        if ($order->getIsTaxFree()) {
-            return CartPrice::TAX_STATE_FREE;
-        }
+        $cartDeliveries = new DeliveryCollection();
 
-        return $order->getIsNet() ? CartPrice::TAX_STATE_NET : CartPrice::TAX_STATE_GROSS;
-    }
+        /** @var OrderDeliveryEntity $orderDelivery */
+        foreach ($orderDeliveries as $orderDelivery) {
+            $deliveryDate = new DeliveryDate(
+                $orderDelivery->getShippingDateEarliest(),
+                $orderDelivery->getShippingDateLatest()
+            );
 
-    private function convertAddress(CustomerAddressEntity $address): array
-    {
-        return array_filter([
-            'company' => $address->getCompany(),
-            'department' => $address->getDepartment(),
-            'salutation' => $address->getSalutation(),
-            'title' => $address->getTitle(),
-            'firstName' => $address->getFirstName(),
-            'lastName' => $address->getLastName(),
-            'street' => $address->getStreet(),
-            'zipcode' => $address->getZipcode(),
-            'city' => $address->getCity(),
-            'vatId' => $address->getVatId(),
-            'phoneNumber' => $address->getPhoneNumber(),
-            'additionalAddressLine1' => $address->getAdditionalAddressLine1(),
-            'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
-            'countryId' => $address->getCountryId(),
-            'countryStateId' => $address->getCountryStateId(),
-        ]);
-    }
+            $deliveryPositions = new DeliveryPositionCollection();
 
-    private function convertDelivery(Delivery $delivery, array $lineItems): array
-    {
-        $deliveryData = [
-            'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::DATE_FORMAT),
-            'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format(Defaults::DATE_FORMAT),
-            'shippingMethodId' => $delivery->getShippingMethod()->getId(),
-            'shippingAddress' => $this->convertAddress($delivery->getLocation()->getAddress()),
-            'orderStateId' => Defaults::ORDER_STATE_OPEN,
-            'positions' => [],
-        ];
+            /** @var OrderDeliveryPositionEntity $position */
+            foreach ($orderDelivery->getPositions() as $position) {
+                $identifier = $position->getOrderLineItem()->getIdentifier();
 
-        /** @var DeliveryPosition $position */
-        foreach ($delivery->getPositions() as $position) {
-            $positionPrice = $position->getPrice();
-            $deliveryData['positions'][] = [
-                'unitPrice' => $positionPrice->getUnitPrice(),
-                'totalPrice' => $positionPrice->getTotalPrice(),
-                'quantity' => $position->getQuantity(),
-                'orderLineItemId' => $lineItems[$position->getIdentifier()]['id'],
-            ];
-        }
+                // line item has been removed and will not be added to delivery
+                if ($lineItems->get($identifier) === null) {
+                    continue;
+                }
 
-        return $deliveryData;
-    }
-
-    private function convertTransaction(Transaction $transaction): array
-    {
-        return [
-            'paymentMethodId' => $transaction->getPaymentMethodId(),
-            'amount' => $transaction->getAmount(),
-            'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
-        ];
-    }
-
-    private function convertLineItems(LineItemCollection $lineItems, ?string $parentId = null)
-    {
-        $converted = [];
-        foreach ($lineItems as $lineItem) {
-            $id = Uuid::uuid4()->getHex();
-
-            $data = [
-                'id' => $id,
-                'identifier' => $lineItem->getKey(),
-                'quantity' => $lineItem->getQuantity(),
-                'unitPrice' => $lineItem->getPrice()->getUnitPrice(),
-                'totalPrice' => $lineItem->getPrice()->getTotalPrice(),
-                'type' => $lineItem->getType(),
-                'label' => $lineItem->getLabel(),
-                'description' => $lineItem->getDescription(),
-                'priority' => $lineItem->getPriority(),
-                'good' => $lineItem->isGood(),
-                'removable' => $lineItem->isRemovable(),
-                'stackable' => $lineItem->isStackable(),
-                'price' => $lineItem->getPrice(),
-                'priceDefinition' => $lineItem->getPriceDefinition(),
-                'parentId' => $parentId,
-                'payload' => $lineItem->getPayload(),
-            ];
-
-            $converted[$lineItem->getKey()] = array_filter($data, function ($value) {
-                return $value !== null;
-            });
-
-            if ($lineItem->hasChildren()) {
-                $converted = array_merge($converted, $this->convertLineItems($lineItem->getChildren(), $id));
+                $deliveryPositions->add(new DeliveryPosition(
+                    $identifier,
+                    $lineItems->get($identifier),
+                    $position->getPrice()->getQuantity(),
+                    $position->getPrice(),
+                    $deliveryDate
+                ));
             }
+
+            $cartDelivery = new Delivery(
+                $deliveryPositions,
+                $deliveryDate,
+                $orderDelivery->getShippingMethod(),
+                new ShippingLocation(
+                    $orderDelivery->getShippingOrderAddress()->getCountry(),
+                    $orderDelivery->getShippingOrderAddress()->getCountryState(),
+                    null
+                ),
+                $orderDelivery->getShippingCosts()
+            );
+            $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
+
+            $cartDeliveries->add($cartDelivery);
         }
 
-        return $converted;
+        return $cartDeliveries;
     }
 
-    private function convertCart(Cart $cart, CheckoutContext $context, string $addressId): array
+    /**
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws InvalidPayloadException
+     */
+    private function updateLineItem(LineItem $lineItem, OrderLineItemEntity $entity, string $id): void
     {
-        $cartPrice = $cart->getPrice();
-        $cartShippingCosts = $cart->getShippingCosts();
-        $cartShippingCostsTotalPrice = $cartShippingCosts->getTotalPrice();
-        $currency = $context->getCurrency();
-        $deepLinkCode = Random::getBase64UrlString(32);
+        $lineItem->setKey($entity->getIdentifier())
+            ->setType($entity->getType())
+            ->setStackable(true)
+            ->setQuantity($entity->getQuantity())
+            ->setStackable($entity->getStackable())
+            ->setLabel($entity->getLabel())
+            ->setGood($entity->getGood())
+            ->setPriority($entity->getPriority())
+            ->setRemovable($entity->getRemovable())
+            ->setStackable($entity->getStackable())
+            ->addExtension(self::ORIGINAL_ID, new IdStruct($id));
 
-        return [
-            'id' => Uuid::uuid4()->getHex(),
-            'date' => (new DateTime())->format(Defaults::DATE_FORMAT),
-            'amountTotal' => $cartPrice->getTotalPrice(),
-            'amountNet' => $cartPrice->getNetPrice(),
-            'positionPrice' => $cartPrice->getPositionPrice(),
-            'shippingTotal' => $cartShippingCostsTotalPrice,
-            'shippingNet' => $cartShippingCostsTotalPrice - $cartShippingCosts->getCalculatedTaxes()->getAmount(),
-            'isNet' => !$this->taxDetector->useGross($context),
-            'isTaxFree' => $this->taxDetector->isNetDelivery($context),
-            'stateId' => Defaults::ORDER_STATE_OPEN,
-            'paymentMethodId' => $context->getPaymentMethod()->getId(),
-            'currencyId' => $currency->getId(),
-            'currencyFactor' => $currency->getFactor(),
-            'salesChannelId' => $context->getSalesChannel()->getId(),
-            'billingAddressId' => $addressId,
-            'lineItems' => [],
-            'deliveries' => [],
-            'deepLinkCode' => $deepLinkCode,
-        ];
-    }
+        if ($entity->getPayload() !== null) {
+            $lineItem->setPayload($entity->getPayload());
+        }
 
-    private function convertCustomer(CheckoutContext $context): array
-    {
-        $customer = $context->getCustomer();
+        if ($entity->getPrice() !== null) {
+            $lineItem->setPrice($entity->getPrice());
+        }
 
-        return [
-            'customerId' => $customer->getId(),
-            'email' => $customer->getEmail(),
-            'firstName' => $customer->getFirstName(),
-            'lastName' => $customer->getLastName(),
-            'salutation' => $customer->getSalutation(),
-            'title' => $customer->getTitle(),
-            'customerNumber' => $customer->getCustomerNumber(),
-        ];
+        if ($entity->getPriceDefinition() !== null) {
+            $lineItem->setPriceDefinition($entity->getPriceDefinition());
+        }
     }
 }

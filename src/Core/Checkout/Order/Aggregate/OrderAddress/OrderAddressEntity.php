@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
-use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -108,14 +108,19 @@ class OrderAddressEntity extends Entity
     protected $countryState;
 
     /**
-     * @var OrderCollection|null
+     * @var OrderEntity|null
      */
-    protected $orders;
+    protected $order;
 
     /**
      * @var OrderDeliveryCollection|null
      */
     protected $orderDeliveries;
+
+    /**
+     * @var string
+     */
+    protected $orderId;
 
     public function getCountryId(): string
     {
@@ -307,14 +312,14 @@ class OrderAddressEntity extends Entity
         $this->countryState = $countryState;
     }
 
-    public function getOrders(): ?OrderCollection
+    public function getOrder(): ?OrderEntity
     {
-        return $this->orders;
+        return $this->order;
     }
 
-    public function setOrders(OrderCollection $orders): void
+    public function setOrder(OrderEntity $order): void
     {
-        $this->orders = $orders;
+        $this->order = $order;
     }
 
     public function getOrderDeliveries(): ?OrderDeliveryCollection
@@ -325,5 +330,15 @@ class OrderAddressEntity extends Entity
     public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
+    }
+
+    public function getOrderId(): string
+    {
+        return $this->orderId;
+    }
+
+    public function setOrderId(string $orderId): void
+    {
+        $this->orderId = $orderId;
     }
 }

@@ -30,8 +30,12 @@ class DeliveryBuilder
         $this->priceCalculator = $priceCalculator;
     }
 
-    public function build(DeliveryCollection $deliveries, LineItemCollection $items, CheckoutContext $context): DeliveryCollection
-    {
+    public function build(
+        DeliveryCollection $deliveries,
+        LineItemCollection $items,
+        CheckoutContext $context,
+        bool $allowSplitting = true
+    ): DeliveryCollection {
         /** @var LineItem $item */
         foreach ($items as $item) {
             if (!$item->getDeliveryInformation()) {
@@ -53,7 +57,7 @@ class DeliveryBuilder
             );
 
             //completely in stock?
-            if ($item->getDeliveryInformation()->getStock() >= $quantity) {
+            if ($item->getDeliveryInformation()->getStock() >= $quantity || $allowSplitting === false) {
                 $this->addGoodsToDelivery(
                     $deliveries,
                     $position,

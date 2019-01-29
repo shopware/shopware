@@ -6,7 +6,10 @@ import './sw-category-detail.scss';
 Component.register('sw-category-detail', {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
+    ],
 
     data() {
         return {
@@ -137,6 +140,18 @@ Component.register('sw-category-detail', {
         onUnlinkLogo() {
             this.mediaItem = null;
             this.category.mediaId = null;
+        },
+
+        onChangeLanguage() {
+            this.setCategory();
+        },
+
+        abortOnLanguageChange() {
+            return this.category.hasChanges();
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
         },
 
         onSave() {

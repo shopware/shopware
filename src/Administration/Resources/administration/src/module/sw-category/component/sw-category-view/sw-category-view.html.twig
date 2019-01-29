@@ -1,11 +1,15 @@
 {% block sw_category_view %}
     <sw-card-view sidebar v-if="category && typeof category === 'object'" class="sw-category-view">
 
+        {% block sw_category_content_language_info %}
+            <sw-language-info :entityDescription="placeholder(category, 'name', $tc('sw-manufacturer.detail.textHeadline'))"></sw-language-info>
+        {% endblock %}
+
         {% block sw_category_view_information %}
             <sw-card :title="$tc('sw-category.general.headlineInformationCard')" :isLoading="isLoading">
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-category__infos">
                     {% block sw_category_view_information_name %}
-                        <sw-field class="sw-category__name" :label="$tc('sw-category.general.categoryNameLabel')" name="categoryName" v-model="category.name"></sw-field>
+                        <sw-field class="sw-category__name" :label="$tc('sw-category.general.categoryNameLabel')" name="categoryName" v-model="category.name" :placeholder="placeholder(category, 'name')"></sw-field>
                     {% endblock %}
 
                     {% block sw_category_view_information_active %}
@@ -17,6 +21,7 @@
                     <sw-text-editor
                         :label="$tc('sw-category.general.descriptionLabel')"
                         name="categoryDescription"
+                        :placeholder="placeholder(category, 'cmsDescription')"
                         v-model="category.cmsDescription">
                     </sw-text-editor>
                 {% endblock %}

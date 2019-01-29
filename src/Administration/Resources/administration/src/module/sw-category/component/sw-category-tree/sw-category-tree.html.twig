@@ -26,7 +26,7 @@
                     {% block sw_category_tree_items_content %}
                         <template slot="content" slot-scope="{ item }">
                             <router-link class="tree-link" :to="{ name: 'sw.category.detail', params: { id: item.id }}">
-                                <span class="sw-tree-item__label">{{ item.data.name }}</span>
+                                <span class="sw-tree-item__label">{{ placeholder(item.data, 'name') }}</span>
                                 <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
                             </router-link>
                         </template>

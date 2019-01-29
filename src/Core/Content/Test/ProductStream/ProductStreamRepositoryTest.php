@@ -39,7 +39,7 @@ class ProductStreamRepositoryTest extends TestCase
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertTrue($entity->isInvalid());
-        static::assertNull($entity->getFilter());
+        static::assertNull($entity->getApiFilter());
         static::assertSame('Test stream', $entity->getName());
         static::assertSame($id, $entity->getId());
     }
@@ -53,7 +53,7 @@ class ProductStreamRepositoryTest extends TestCase
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertTrue($entity->isInvalid());
-        static::assertNull($entity->getFilter());
+        static::assertNull($entity->getApiFilter());
         static::assertSame('New Name', $entity->getName());
         static::assertSame($id, $entity->getId());
     }
@@ -66,7 +66,7 @@ class ProductStreamRepositoryTest extends TestCase
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertFalse($entity->isInvalid());
-        static::assertNotNull($entity->getFilter());
+        static::assertNotNull($entity->getApiFilter());
         static::assertSame('Test stream', $entity->getName());
         static::assertSame($id, $entity->getId());
     }
@@ -109,10 +109,10 @@ class ProductStreamRepositoryTest extends TestCase
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertFalse($entity->isInvalid());
-        static::assertNotNull($entity->getFilter());
+        static::assertNotNull($entity->getApiFilter());
         static::assertSame('Test stream', $entity->getName());
         static::assertSame($id, $entity->getId());
-        static::assertEquals($data['filters'], $entity->getFilter());
+        static::assertEquals($data['filters'], $entity->getApiFilter());
     }
 
     public function testFetchFilters()

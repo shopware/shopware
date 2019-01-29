@@ -53,7 +53,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->get($this->streamId);
-        static::assertSame([['type' => 'equals', 'field' => 'product.name', 'value' => 'awesome']], $entity->getFilter());
+        static::assertSame([['type' => 'equals', 'field' => 'product.name', 'value' => 'awesome']], $entity->getApiFilter());
     }
 
     public function testUpdateEntity()
@@ -68,7 +68,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->get($this->streamId);
-        static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getFilter());
+        static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getApiFilter());
     }
 
     public function testRangeEntity()
@@ -80,6 +80,6 @@ class ProductStreamFilterRepositoryTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->get($this->streamId);
-        static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getFilter());
+        static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getApiFilter());
     }
 }

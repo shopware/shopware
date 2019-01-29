@@ -41,7 +41,7 @@ class ProductStreamDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new JsonField('filter', 'filter'))->setFlags(new ReadOnly()),
+            (new JsonField('api_filter', 'apiFilter'))->setFlags(new ReadOnly()),
             (new BoolField('invalid', 'invalid'))->setFlags(new ReadOnly()),
             new CreatedAtField(),
             new UpdatedAtField(),

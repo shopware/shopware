@@ -17,6 +17,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTran
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Framework\Attribute\Translation\AttributeTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -243,6 +244,11 @@ class LanguageEntity extends Entity
      * @var PluginTranslationCollection|null
      */
     protected $pluginTranslations;
+
+    /**
+     * @var ProductStreamTranslationCollection|null
+     */
+    protected $productStreamTranslations;
 
     public function getParentId(): ?string
     {
@@ -642,5 +648,15 @@ class LanguageEntity extends Entity
     public function setPluginTranslations(PluginTranslationCollection $pluginTranslations): void
     {
         $this->pluginTranslations = $pluginTranslations;
+    }
+
+    public function getProductStreamTranslations(): ?ProductStreamTranslationCollection
+    {
+        return $this->productStreamTranslations;
+    }
+
+    public function setProductStreamTranslations(?ProductStreamTranslationCollection $productStreamTranslations): void
+    {
+        $this->productStreamTranslations = $productStreamTranslations;
     }
 }

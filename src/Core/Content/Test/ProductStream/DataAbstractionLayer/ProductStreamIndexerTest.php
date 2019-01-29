@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\ProductStream\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamFilterIndexer;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductStreamFilterIndexerTest extends TestCase
+class ProductStreamIndexerTest extends TestCase
 {
     use KernelTestBehaviour,
         DatabaseTransactionBehaviour;
@@ -38,7 +38,7 @@ class ProductStreamFilterIndexerTest extends TestCase
     private $repository;
 
     /**
-     * @var ProductStreamFilterIndexer
+     * @var ProductStreamIndexer
      */
     private $indexer;
 
@@ -68,7 +68,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $serializer = $this->getContainer()->get('serializer');
         $cacheKeyGenerator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
         $cache = $this->getContainer()->get('shopware.cache');
-        $this->indexer = new ProductStreamFilterIndexer(
+        $this->indexer = new ProductStreamIndexer(
             $eventDispatcher, $this->eventIdExtractor, $this->repository, $this->connection,
             $serializer, $cacheKeyGenerator, $cache
         );
@@ -91,7 +91,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
         );
         $this->connection->exec(
             sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
@@ -108,11 +108,11 @@ class ProductStreamFilterIndexerTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($entity->getFilter());
-        static::assertCount(1, $entity->getFilter());
-        static::assertSame('equals', $entity->getFilter()[0]['type']);
-        static::assertSame('product.id', $entity->getFilter()[0]['field']);
-        static::assertSame($productId, $entity->getFilter()[0]['value']);
+        static::assertNotNull($entity->getApiFilter());
+        static::assertCount(1, $entity->getApiFilter());
+        static::assertSame('equals', $entity->getApiFilter()[0]['type']);
+        static::assertSame('product.id', $entity->getApiFilter()[0]['field']);
+        static::assertSame($productId, $entity->getApiFilter()[0]['value']);
         static::assertFalse($entity->isInvalid());
     }
 
@@ -133,7 +133,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
         );
         $this->connection->exec(
             sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
@@ -157,14 +157,14 @@ class ProductStreamFilterIndexerTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($entity->getFilter());
-        static::assertCount(1, $entity->getFilter());
-        static::assertSame('multi', $entity->getFilter()[0]['type']);
-        static::assertSame(MultiFilter::CONNECTION_AND, $entity->getFilter()[0]['operator']);
-        static::assertCount(1, $entity->getFilter()[0]['queries']);
-        static::assertSame('equals', $entity->getFilter()[0]['queries'][0]['type']);
-        static::assertSame('product.id', $entity->getFilter()[0]['queries'][0]['field']);
-        static::assertSame($productId, $entity->getFilter()[0]['queries'][0]['value']);
+        static::assertNotNull($entity->getApiFilter());
+        static::assertCount(1, $entity->getApiFilter());
+        static::assertSame('multi', $entity->getApiFilter()[0]['type']);
+        static::assertSame(MultiFilter::CONNECTION_AND, $entity->getApiFilter()[0]['operator']);
+        static::assertCount(1, $entity->getApiFilter()[0]['queries']);
+        static::assertSame('equals', $entity->getApiFilter()[0]['queries'][0]['type']);
+        static::assertSame('product.id', $entity->getApiFilter()[0]['queries'][0]['field']);
+        static::assertSame($productId, $entity->getApiFilter()[0]['queries'][0]['value']);
         static::assertFalse($entity->isInvalid());
     }
 
@@ -185,7 +185,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
         );
         $this->connection->exec(
             sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
@@ -204,7 +204,7 @@ class ProductStreamFilterIndexerTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNull($entity->getFilter());
+        static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
 
@@ -225,7 +225,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
         );
         $this->connection->exec(
             sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
@@ -244,7 +244,7 @@ class ProductStreamFilterIndexerTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNull($entity->getFilter());
+        static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
 
@@ -265,7 +265,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
         );
         $this->connection->exec(
             sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
@@ -284,7 +284,7 @@ class ProductStreamFilterIndexerTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNull($entity->getFilter());
+        static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
 
@@ -305,7 +305,7 @@ class ProductStreamFilterIndexerTest extends TestCase
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::uuid4()->getHex();
         $this->connection->exec(
-            sprintf('INSERT INTO product_stream (id, created_at, filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
+            sprintf('INSERT INTO product_stream (id, created_at, api_filter, invalid) VALUES (UNHEX(\'%s\'), NOW(), null, 1)', $id)
         );
         $this->connection->exec(
             sprintf('INSERT INTO product_stream_translation (product_stream_id, language_id, name, created_at) VALUES (UNHEX(\'%s\'), UNHEX(\'%s\'), \'%s\', NOW())', $id, $languageId, 'Stream')
@@ -324,10 +324,10 @@ class ProductStreamFilterIndexerTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($entity->getFilter());
-        static::assertCount(1, $entity->getFilter());
-        static::assertSame('range', $entity->getFilter()[0]['type']);
-        static::assertSame([RangeFilter::GTE => 10], $entity->getFilter()[0]['parameters']);
+        static::assertNotNull($entity->getApiFilter());
+        static::assertCount(1, $entity->getApiFilter());
+        static::assertSame('range', $entity->getApiFilter()[0]['type']);
+        static::assertSame([RangeFilter::GTE => 10], $entity->getApiFilter()[0]['parameters']);
         static::assertFalse($entity->isInvalid());
     }
 }

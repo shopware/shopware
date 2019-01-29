@@ -23,7 +23,7 @@ class ProductStreamEntity extends Entity
     /**
      * @var array|null
      */
-    protected $filter;
+    protected $apiFilter;
 
     /**
      * @var \DateTime
@@ -80,14 +80,14 @@ class ProductStreamEntity extends Entity
         $this->createdAt = $createdAt;
     }
 
-    public function getFilter(): ?array
+    public function getApiFilter(): ?array
     {
-        return $this->filter;
+        return $this->apiFilter;
     }
 
-    public function setFilter(?array $filter): void
+    public function setApiFilter(?array $apiFilter): void
     {
-        $this->filter = $filter;
+        $this->apiFilter = $apiFilter;
     }
 
     public function getUpdatedAt(): ?\DateTime

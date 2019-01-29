@@ -24,7 +24,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Serializer;
 
-class ProductStreamFilterIndexer implements IndexerInterface
+class ProductStreamIndexer implements IndexerInterface
 {
     /**
      * @var Connection
@@ -157,7 +157,7 @@ class ProductStreamFilterIndexer implements IndexerInterface
             } finally {
                 $this->connection->createQueryBuilder()
                     ->update('product_stream')
-                    ->set('filter', ':serialize')
+                    ->set('api_filter', ':serialize')
                     ->set('invalid', ':invalid')
                     ->where('id = :id')
                     ->setParameter('id', $id)

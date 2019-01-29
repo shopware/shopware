@@ -17,12 +17,12 @@ class Migration1547544080ProductStream extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `product_stream` (
               `id` binary(16) NOT NULL,
-              `filter` JSON NULL,
+              `api_filter` JSON NULL,
               `invalid` TINYINT(1) NOT NULL DEFAULT 1,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `json.filter` CHECK (JSON_VALID(`filter`))
+              CONSTRAINT `json.api_filter` CHECK (JSON_VALID(`api_filter`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

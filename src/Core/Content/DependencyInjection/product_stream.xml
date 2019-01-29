@@ -16,7 +16,7 @@
 
         <service id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
 
-        <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamFilterIndexer">
+        <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
             <argument type="service" id="product_stream.repository"/>

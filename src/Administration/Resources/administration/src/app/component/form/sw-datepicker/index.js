@@ -58,9 +58,9 @@ export default {
         type: {
             type: String,
             default: '',
-            validValues: ['time', 'date', 'datetime', 'time-local', 'datetime-local'],
+            validValues: ['time', 'date', 'datetime', 'datetime-local'],
             validator(value) {
-                return ['time', 'date', 'datetime', 'time-local', 'datetime-local'].includes(value);
+                return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
             }
         }
     },
@@ -74,7 +74,7 @@ export default {
                 // disableMobile: true // only render the flatpickr and no native pickers on mobile
             },
             localeStore: State.getStore('adminLocale'),
-            noCalendar: (this.type === 'time' || this.type === 'time-local'),
+            noCalendar: (this.type === 'time'),
             enableTime: (this.type === 'datetime' || this.type === 'datetime-local' || this.noCalendar)
         };
     },

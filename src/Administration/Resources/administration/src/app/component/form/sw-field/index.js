@@ -18,6 +18,7 @@ export default {
                 date: 'sw-datepicker',
                 datepicker: 'sw-datepicker',
                 datetime: 'sw-datepicker',
+                'datetime-local': 'sw-datepicker',
                 number: 'sw-number-field',
                 password: 'sw-password-field',
                 radio: 'sw-radio-field',
@@ -26,7 +27,6 @@ export default {
                 textarea: 'sw-textarea-field',
                 time: 'sw-datepicker'
             };
-
             return components[context.props.type] || 'sw-text-field';
         }
 
@@ -44,14 +44,23 @@ export default {
             type: String,
             required: false,
             validator(value) {
-                return ['text', 'select', 'boolean', 'checkbox', 'switch', 'number',
-                    'radio', 'textarea', 'datetime', 'date', 'time', 'datepicker',
-                    'colorpicker', 'confirm', 'password'].includes(value);
+                return ['text',
+                    'select',
+                    'boolean',
+                    'checkbox',
+                    'switch',
+                    'number',
+                    'radio',
+                    'textarea',
+                    'datetime',
+                    'date',
+                    'time',
+                    'datepicker',
+                    'colorpicker',
+                    'confirm',
+                    'password',
+                    'datetime-local'].includes(value);
             }
-        },
-        suffix: {
-            type: String,
-            required: false
         }
     }
 };

@@ -1,4 +1,4 @@
-import './sw-field.less';
+import './sw-field.scss';
 
 /**
  * @private

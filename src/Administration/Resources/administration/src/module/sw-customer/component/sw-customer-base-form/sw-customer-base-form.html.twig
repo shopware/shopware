@@ -45,7 +45,7 @@
                           :placeholder="$tc('sw-customer.baseForm.placeholderCustomerGroup')"
                           v-model="customer.groupId">
                     {% block sw_customer_base_form_customer_group_field_options %}
-                        <option slot="options" v-for="customerGroup in customerGroups" :key="customerGroup.id" :value="customerGroup.id">
+                        <option v-for="customerGroup in customerGroups" :key="customerGroup.id" :value="customerGroup.id">
                             {{ customerGroup.name }}
                         </option>
                     {% endblock %}
@@ -58,7 +58,7 @@
                           :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
                           v-model="customer.salesChannelId">
                     {% block sw_customer_base_form_sales_channel_field_options %}
-                        <option slot="options" v-for="salesChannel in salesChannels" :key="salesChannel.id" :value="salesChannel.id">
+                        <option v-for="salesChannel in salesChannels" :key="salesChannel.id" :value="salesChannel.id">
                             {{ salesChannel.name }}
                         </option>
                     {% endblock %}
@@ -71,7 +71,7 @@
                           :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
                           v-model="customer.defaultPaymentMethodId">
                     {% block sw_customer_base_form_payment_method_field_options %}
-                        <option slot="options" v-for="paymentMethod in paymentMethods" :key="paymentMethod.id" :value="paymentMethod.id">
+                        <option v-for="paymentMethod in paymentMethods" :key="paymentMethod.id" :value="paymentMethod.id">
                             {{ paymentMethod.name }}
                         </option>
                     {% endblock %}

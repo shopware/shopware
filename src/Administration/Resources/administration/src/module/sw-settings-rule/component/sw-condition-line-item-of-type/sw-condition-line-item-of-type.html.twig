@@ -4,11 +4,9 @@
                   name="operator"
                   v-model="condition.value.operator"
                   class="field field--select has--arrow">
-            <template slot="options">
-                <option v-for="operator in operators" :value="operator.identifier">
-                    {{ $tc(operator.label) }}
-                </option>
-            </template>
+            <option v-for="operator in operators" :value="operator.identifier">
+                {{ $tc(operator.label) }}
+            </option>
         </sw-field>
     {% endblock %}
     {% block sw_condition_fields_value %}
@@ -16,11 +14,9 @@
                   name="lineItemType"
                   v-model="condition.value.lineItemType"
                   class="field field--main field--select">
-            <template slot="options">
-                <option v-for="(lineItemType, identifier) in lineItemTypes" :value="identifier">
-                    {{ $tc(lineItemType.label) }}
-                </option>
-            </template>
+            <option v-for="(lineItemType, identifier) in lineItemTypes" :value="identifier">
+                {{ $tc(lineItemType.label) }}
+            </option>
         </sw-field>
     {% endblock %}
 {% endblock %}

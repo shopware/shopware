@@ -7,15 +7,11 @@
                       v-model="condition.type"
                       class="field field--select field--condition"
                       :title="$tc(getLabel(condition.type))">
-                <template slot="options">
-                    {% block sw_condition_field_condition_select_option %}
-                    <option v-for="(innerCondition, innerConditionType) in ruleConditionDataProviderService.getConditions()"
-                            :selected="innerConditionType === condition.type"
-                            :value="innerConditionType">
-                        {{ $tc(getLabel(innerConditionType)) }}
-                    </option>
-                    {% endblock %}
-                </template>
+                <option v-for="(innerCondition, innerConditionType) in ruleConditionDataProviderService.getConditions()"
+                        :selected="innerConditionType === condition.type"
+                        :value="innerConditionType">
+                    {{ $tc(getLabel(innerConditionType)) }}
+                </option>
             </sw-field>
         {% endblock %}
 

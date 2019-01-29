@@ -8,9 +8,7 @@
                           :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
                           validation="required"
                           v-model="product.taxId">
-                    {% block sw_product_price_form_tax_field_options %}
-                        <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.meta.viewData.name }}</option>
-                    {% endblock %}
+                        <option v-for="tax in taxRates" :value="tax.id">{{ tax.meta.viewData.name }}</option>
                 </sw-field>
             {% endblock %}
 

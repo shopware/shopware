@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-select.sw-category-select {
+    .sw-select__inner {
+        padding: 0;
+    }
+
+    .sw-select__input-single-wrapper {
+        border-radius: 6px;
+        padding: 0;
+        border: none;
+        height: 43px;
+    }
+
+    .sw-select__input-single {
+        border: none;
+        font-size: 14px;
+        background: #FFF;
+    }
+}

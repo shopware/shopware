@@ -7,6 +7,13 @@
     .sw-text-editor {
         margin-bottom: 0;
     }
+    .grid-link {
+        text-decoration: none;
+    }
+    .sw-category-view__product-search {
+        border-bottom: 1px solid $color-steam-cloud;
+        padding: 30px;
+    }
 
     @media screen and (min-width: 1580px) {
         .sw-card .sw-card__title {

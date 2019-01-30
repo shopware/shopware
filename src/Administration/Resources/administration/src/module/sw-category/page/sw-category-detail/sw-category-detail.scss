@@ -1,21 +1,21 @@
 .sw-category {
-    .sw-loader {
-        background: unset;
-    }
-
-    // remove back button with css
     .sw-page__back-btn-container {
         display: none;
     }
 
-    // class is added by the viewport observer
+    .sw-page__content.has--side-content .sw-page__side-content {
+        background: white;
+    }
+
     &.is--mobile {
-        &.has--category .sw-page__back-btn-container {
-            display: block;
-        }
         .sw-page__content.has--side-content {
             grid-template-columns: 1fr;
+        }
 
+        &.has--category {
+            .sw-page__back-btn-container {
+                display: block;
+            }
             .sw-page__side-content {
                 display: none;
             }

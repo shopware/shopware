@@ -56,6 +56,62 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_category_view_products %}
+            <sw-card :title="$tc('sw-category.general.productAssignmentHeadline')" :isLoading="isLoading">
+
+                {% block sw_category_view_products_search %}
+                    <div class="sw-category-view__product-search">
+                        <sw-category-select :hasPreview="false" :store="productStore" id="productSelection" placeholder="Produkte durchsuchen und zuweisen..." @input="onAddProduct"></sw-category-select>
+                    </div>
+                {% endblock %}
+
+                {% block sw_category_view_products_grid %}
+                    <sw-container slot="grid" type="row" v-if="products">
+                        <sw-grid
+                            :items="products"
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            :isLoading="productsLoaded"
+                            table>
+
+                            <template slot="columns" slot-scope="{ item }">
+                                <sw-grid-column flex="minmax(200px, 1fr)" label="Name">
+                                    {{ placeholder(item, 'name' ) }}
+                                </sw-grid-column>
+                                <sw-grid-column flex="minmax(200px, 1fr)" label="Hersteller">
+                                    {{ placeholder(item.manufacturer, 'name' ) }}
+                                </sw-grid-column>
+
+                                <sw-grid-column flex="70px" align="center">
+                                    <sw-context-button>
+                                        <router-link class="sw-category-view__grid-link" target="_blank" :to="{ name:'sw.product.detail', params: { id: item.id }}">
+                                            <sw-context-menu-item>
+                                                Details
+                                            </sw-context-menu-item>
+                                        </router-link>
+                                        <sw-context-menu-item @click="onRemoveProduct(item.id)">
+                                            Remove
+                                        </sw-context-menu-item>
+                                    </sw-context-button>
+                                </sw-grid-column>
+                            </template>
+
+                            <template slot="pagination">
+                                <sw-pagination
+                                    :page="page"
+                                    :limit="limit"
+                                    :total="total"
+                                    :total-visible="7"
+                                    @page-change="onPageChange">
+                                </sw-pagination>
+                            </template>
+
+                        </sw-grid>
+                    </sw-container>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_category_view_sidebar %}
             <template slot="card-view-sidebar">
                 <sw-sidebar-media-item ref="mediaSidebarItem">

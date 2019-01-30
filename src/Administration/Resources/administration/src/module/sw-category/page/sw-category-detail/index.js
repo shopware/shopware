@@ -93,7 +93,7 @@ Component.register('sw-category-detail', {
         },
 
         setCategory() {
-            this.isLoading = true;
+            this.resetCategory();
             const categoryId = this.$route.params.id;
 
             if (categoryId) {
@@ -103,9 +103,10 @@ Component.register('sw-category-detail', {
                         ? this.mediaStore.getById(this.category.mediaId) : null;
                     this.isLoading = false;
                 });
-            } else {
-                this.resetCategory();
             }
+            // } else {
+            //     this.resetCategory();
+            // }
         },
 
         onRefreshCategories() {

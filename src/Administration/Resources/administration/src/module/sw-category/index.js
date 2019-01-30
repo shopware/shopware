@@ -2,6 +2,7 @@ import { Module } from 'src/core/shopware';
 import { NEXT716 } from 'src/flag/feature_next716';
 import './component/sw-category-tree';
 import './component/sw-category-view';
+import './component/sw-category-select';
 import './page/sw-category-detail';
 
 Module.register('sw-category', {

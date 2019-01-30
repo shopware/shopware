@@ -48,6 +48,11 @@ export default {
         value: {
             required: false
         },
+        hasPreview: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
         label: {
             default: ''
         },
@@ -424,6 +429,7 @@ export default {
 
             if (this.multi) {
                 if (this.isInSelections(item)) {
+                    this.onDismissSelection(item.id);
                     return;
                 }
 

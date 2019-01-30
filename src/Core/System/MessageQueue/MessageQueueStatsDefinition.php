@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\MessageQueue;
+namespace Shopware\Core\System\MessageQueue;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -11,21 +11,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
-class MessageQueueSizeDefinition extends EntityDefinition
+class MessageQueueStatsDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'message_queue_size';
+        return 'message_queue_stats';
     }
 
     public static function getCollectionClass(): string
     {
-        return MessageQueueSizeCollection::class;
+        return MessageQueueStatsCollection::class;
     }
 
     public static function getEntityClass(): string
     {
-        return MessageQueueSizeEntity::class;
+        return MessageQueueStatsEntity::class;
     }
 
     public static function getDefaults(EntityExistence $existence): array

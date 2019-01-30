@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\MessageQueue;
+namespace Shopware\Core\System\MessageQueue;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-class MessageQueueSizeEntity extends Entity
+class MessageQueueStatsEntity extends Entity
 {
     use EntityIdTrait;
 

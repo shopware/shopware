@@ -353,8 +353,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="message_queue_size.repository" public="true">
-            <argument>Shopware\Core\Framework\MessageQueue\MessageQueueSizeDefinition</argument>
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="message_queue_stats.repository" public="true">
+            <argument>Shopware\Core\System\MessageQueue\MessageQueueStatsDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>

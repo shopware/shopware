@@ -51,6 +51,7 @@
             <directory>src/Core/Framework/Test/Struct</directory>
             <directory>src/Core/Framework/Test/TestCaseBase</directory>
             <directory>src/Core/Framework/Test/Snippet</directory>
+            <directory>src/Core/Framework/Test/StateMachine</directory>
 
             <file>src/Core/Framework/Test/ClassNamespaceTest.php</file>
             <file>src/Core/Framework/Test/ServiceDefinitionTest.php</file>

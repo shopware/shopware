@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -61,9 +62,8 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/order/{orderId}/product/{productId}", name="api.action.order.add-product", methods={"POST"})
      *
-     * @throws CustomerNotLoggedInException
      * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
+     * @throws InconsistentCriteriaIdsException
      * @throws InvalidOrderException
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
@@ -71,6 +71,7 @@ class OrderRecalculationController extends AbstractController
      * @throws MixedLineItemTypeException
      * @throws OrderRecalculationException
      * @throws ProductNotFoundException
+     * @throws MissingOrderRelationException
      */
     public function addProductToOrder(string $orderId, string $productId, Request $request, Context $context): Response
     {
@@ -83,9 +84,7 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/order/{orderId}/lineItem", name="api.action.order.add-line-item", methods={"POST"})
      *
-     * @throws CustomerNotLoggedInException
      * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
      * @throws InvalidOrderException
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
@@ -93,6 +92,7 @@ class OrderRecalculationController extends AbstractController
      * @throws MixedLineItemTypeException
      * @throws OrderRecalculationException
      * @throws InconsistentCriteriaIdsException
+     * @throws MissingOrderRelationException
      */
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {

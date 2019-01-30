@@ -4,11 +4,10 @@ namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\ReadCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductPageLoader implements PageLoaderInterface

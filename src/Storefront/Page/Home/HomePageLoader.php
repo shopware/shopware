@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Page\Home;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class HomePageLoader implements PageLoaderInterface

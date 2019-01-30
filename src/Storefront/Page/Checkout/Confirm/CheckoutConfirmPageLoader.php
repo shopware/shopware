@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CheckoutConfirmPageLoader implements PageLoaderInterface

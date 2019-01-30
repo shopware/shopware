@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Framework\Page;
 
@@ -13,7 +13,7 @@ class StorefrontSearchResult extends EntitySearchResult
     protected $sortings = [];
 
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $sorting;
 

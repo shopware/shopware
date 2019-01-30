@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Content\Navigation\NavigationDefinition">
+            <tag name="shopware.entity.definition" entity="navigation"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="navigation_translation"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="navigation.repository" public="true">
+            <argument>Shopware\Core\Content\Navigation\NavigationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="navigation_translation.repository" public="true">
+            <argument>Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+    </services>
+</container>

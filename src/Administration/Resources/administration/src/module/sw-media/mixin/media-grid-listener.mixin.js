@@ -124,6 +124,12 @@ Mixin.register('media-grid-listener', {
 
         _addItemToSelection(item) {
             if (!this.isListSelect) {
+                if (this.selectedItems.length === 1) {
+                    this._startListSelect(this.selectedItems[0]);
+                    this._addItemToSelection(item);
+                    return;
+                }
+
                 this._startListSelect(item);
                 return;
             }
@@ -135,6 +141,12 @@ Mixin.register('media-grid-listener', {
 
         _handleShiftSelect(item) {
             if (!this.isListSelect) {
+                if (this.selectedItems.length === 1) {
+                    this._startListSelect(this.selectedItems[0]);
+                    this._handleShiftSelect(item);
+                    return;
+                }
+
                 this._startListSelect(item);
                 return;
             }

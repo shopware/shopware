@@ -12,15 +12,19 @@
         display: grid;
     }
 
-    .sw-media-grid__presentation-small-preview {
+    .sw-media-grid__presentation--small-preview {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
 
-    .sw-media-grid__presentation-medium-preview {
+    .sw-media-grid__presentation--medium-preview {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 
-    .sw-media-grid__presentation-large-preview {
+    .sw-media-grid__presentation--large-preview {
         grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    }
+
+    .sw-media-grid__presentation--list-preview {
+        grid-template-columns: 1fr;
     }
 }

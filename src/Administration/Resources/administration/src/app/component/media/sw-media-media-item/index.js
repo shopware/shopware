@@ -173,6 +173,7 @@ export default {
                         message: this.$tc('global.sw-media-media-item.notificationRenamingSuccess')
                     });
                 });
+                this.$emit('sw-media-item-rename-successful', this.item);
             }).catch(() => {
                 this.item.isLoading = false;
                 this.createNotificationError({

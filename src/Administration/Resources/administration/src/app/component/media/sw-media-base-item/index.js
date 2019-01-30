@@ -186,13 +186,14 @@ export default {
 
         onDoRenaming() {
             this.renamingCanceled = false;
-            this.endInlineEdit();
+            this.onBlurInlineEdit();
         },
 
         onBlurInlineEdit() {
-            if (this.renamingCanceled === true) {
+            if (this.isInlineEdit === false) {
                 return;
             }
+            this.isInlineEdit = false;
 
             const inputField = this.$refs.inputItemName;
             if (!inputField.currentValue || !inputField.currentValue.trim()) {
@@ -203,7 +204,9 @@ export default {
                 return;
             }
 
-            this.renameEntity(inputField.currentValue).finally(() => {
+            this.renameEntity(inputField.currentValue).then(() => {
+                this.endInlineEdit();
+            }).catch(() => {
                 this.endInlineEdit();
             });
         }

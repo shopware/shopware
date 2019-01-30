@@ -2,6 +2,8 @@ import { Mixin } from 'src/core/shopware';
 import { debug } from 'src/core/service/util.service';
 
 Mixin.register('drag-selector', {
+    $isDragSelectorComponent: true,
+
     data() {
         return {
             mouseDown: false,
@@ -177,8 +179,8 @@ Mixin.register('drag-selector', {
 
         _getScroll() {
             return {
-                x: this.scrollContainer().scrollLeft || document.body.scrollLeft || document.documentElement.scrollLeft,
-                y: this.scrollContainer().scrollTop || document.body.scrollTop || document.documentElement.scrollTop
+                x: this.$el.scrollLeft,
+                y: this.$el.scrollTop
             };
         },
 
@@ -193,6 +195,7 @@ Mixin.register('drag-selector', {
                 const children = this.itemContainer() ?
                     this.itemContainer().$children :
                     Array.from(this.scrollContainer().children);
+
                 if (children) {
                     this._handleDragSelection(children, originalDomEvent);
                 }

@@ -25,6 +25,11 @@ export default {
             type: String,
             required: false,
             default: ''
+        },
+        initialSearch: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
@@ -32,7 +37,7 @@ export default {
         return {
             showResultsContainer: false,
             useSearchTypeWhenSet: true,
-            searchTerm: '',
+            searchTerm: this.initialSearch,
             results: [],
             isActive: false,
             isOffCanvasShown: false,

@@ -1,0 +1,40 @@
+{% block sw_media_display_options %}
+    <div class="sw-media-display-options">
+        {% block sw_media_display_options_presentation %}
+            <sw-select-field
+                v-if="!hidePresentation"
+                name="presentation"
+                :label="$tc('sw-media.presentation.labelPresentation')"
+                :value="presentation"
+                @input="onPresentationChanged">
+
+                {% block sw_media_display_options_presentations_options %}
+                    <option v-for="previewType in previewOptions"
+                            :value="previewType.value">
+                        {{ previewType.name }}
+                    </option>
+
+                    <slot name="additional-preview-options"></slot>
+                {% endblock %}
+            </sw-select-field>
+        {% endblock %}
+
+        {% block sw_media_display_options_sorting %}
+            <sw-select-field
+                name="sortType"
+                :label=" $tc('sw-media.sorting.labelSort')"
+                :value="sortingConCat"
+                @input="onSortingChanged">
+
+                {% block sw_media_display_options_sorting_options %}
+                    <option v-for="sortOption in sortOptions"
+                            :value="sortOption.value">
+                        {{ sortOption.name }}
+                    </option>
+
+                    <slot name="additional-sorting"></slot>
+                {% endblock %}
+            </sw-select-field>
+        {% endblock %}
+    </div>
+{% endblock %}

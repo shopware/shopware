@@ -849,11 +849,8 @@
     "general": {
       "mainMenuItemGeneral": "Medien",
       "descriptionTextModule": "Verwaltung von Mediendateien",
-      "placeholderSearchBar": "Durchsuche alle Medien",
+      "placeholderSearchBar": "Durchsuche den aktuellen Ordner",
       "notificationUrlCopied": "URL in Zwischenablage kopiert."
-    },
-    "smart-bar": {
-      "smartBarHeader": "Medien"
     },
     "sidebar": {
       "labelHeadlineMultiple": "{count} ausgewählte Dateien",
@@ -904,22 +901,27 @@
     },
     "index": {
       "buttonCreateFolder": "Neuen Ordner hinzufügen",
-      "messageEmpty": "Noch keine Medien hochgeladen",
+      "rootFolderName": "Medien"
+    },
+    "mediaLibrary": {
+      "labelButtonLoadMore": "Weitere laden",
+      "descriptionEmptyState": "Noch keine Medien hochgeladen."
+    },
+    "sorting": {
       "labelSort": "Sortiere nach:",
-      "labelPresentation": "Darstellung:",
-      "labelPresentationSmall": "Kleine Vorschau",
-      "labelPresentationMedium": "Normale Vorschau",
-      "labelPresentationLarge": "Große Vorschau",
       "labelSortByNameAsc": "Name aufsteigend",
       "labelSortByNameDsc": "Name absteigend",
       "labelSortBySizeAsc": "Größe aufsteigend",
       "labelSortBySizeDsc": "Größe absteigend",
       "labelSortByCreatedAsc": "Erstelldatum aufsteigend",
-      "labelSortByCreatedDsc": "Erstelldatum absteigend",
-      "labelSortByDataTypeAsc": "Dateityp aufsteigend",
-      "labelSortByDataTypeDsc": "Dateityp absteigend",
-      "labelLoadMore": "{count} weitere Dateien laden",
-      "rootFolderName": "Medien"
+      "labelSortByCreatedDsc": "Erstelldatum absteigend"
+    },
+    "presentation": {
+      "labelPresentation": "Darstellung:",
+      "labelPresentationSmall": "Kleine Vorschau",
+      "labelPresentationMedium": "Normale Vorschau",
+      "labelPresentationLarge": "Große Vorschau",
+      "labelPresentationList": "Liste"
     }
   },
   "sw-settings": {

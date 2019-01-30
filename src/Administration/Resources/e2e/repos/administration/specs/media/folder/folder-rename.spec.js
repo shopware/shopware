@@ -79,8 +79,8 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-index__parent-folder')
-            .click('.sw-media-index__parent-folder')
+            .waitForElementVisible('.sw-media-library__parent-folder')
+            .click('.sw-media-library__parent-folder')
             .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('What remains of Ediths Name');
     },
     after: (browser) => {

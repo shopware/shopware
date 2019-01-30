@@ -99,11 +99,16 @@ export default {
         },
 
         renameEntity(updatedName) {
+            if (this.item.name === updatedName) {
+                return Promise.resolve();
+            }
+
             this.item.isLoading = true;
             this.item.name = updatedName;
 
             return this.item.save().then(() => {
                 this.item.isLoading = false;
+                this.$emit('sw-media-folder-rename-successful', this.item);
             }).catch(() => {
                 this.rejectRenaming('error');
             });

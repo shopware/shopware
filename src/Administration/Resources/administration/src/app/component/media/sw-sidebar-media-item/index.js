@@ -33,7 +33,6 @@ export default {
         return {
             isLoading: true,
             mediaFolderId: this.initialFolderId,
-            mediaFolder: null,
             mediaItems: [],
             subFolders: [],
             page: 1,
@@ -85,18 +84,8 @@ export default {
             this.page = 1;
             this.term = '';
             this.mediaItems = [];
-            this.getFolder();
             this.getSubFolders();
             this.getList();
-        },
-
-        getFolder() {
-            if (!this.mediaFolderId) {
-                this.mediaFolder = null;
-                return;
-            }
-
-            this.mediaFolder = this.mediaFolderStore.getById(this.mediaFolderId);
         },
 
         getSubFolders() {

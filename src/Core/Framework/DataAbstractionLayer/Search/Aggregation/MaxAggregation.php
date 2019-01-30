@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
-class MaxAggregation implements Aggregation
+use Shopware\Core\Framework\Struct\Struct;
+
+class MaxAggregation extends Struct implements Aggregation
 {
     use AggregationTrait;
 

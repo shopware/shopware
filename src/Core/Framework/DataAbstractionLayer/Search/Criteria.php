@@ -121,6 +121,11 @@ class Criteria extends Struct
         return $this->aggregations;
     }
 
+    public function getAggregation(string $name): ?Aggregation
+    {
+        return $this->aggregations[$name] ?? null;
+    }
+
     /**
      * @return Filter[]
      */
@@ -176,7 +181,7 @@ class Criteria extends Struct
     public function addAggregation(Aggregation ...$aggregations): self
     {
         foreach ($aggregations as $aggregation) {
-            $this->aggregations[] = $aggregation;
+            $this->aggregations[$aggregation->getName()] = $aggregation;
         }
 
         return $this;

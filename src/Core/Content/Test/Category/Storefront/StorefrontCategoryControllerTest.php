@@ -269,8 +269,10 @@ class StorefrontCategoryControllerTest extends TestCase
                 ['type' => 'equals', 'field' => 'category.active', 'value' => true],
             ],
             'aggregations' => [
-                'category-names' => [
-                    'value_count' => ['field' => 'category.name'],
+                [
+                    'name' => 'category-names',
+                    'type' => 'value_count',
+                    'field' => 'category.name',
                 ],
             ],
         ];

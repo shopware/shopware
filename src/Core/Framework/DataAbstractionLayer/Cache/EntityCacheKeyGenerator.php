@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
@@ -45,6 +46,26 @@ class EntityCacheKeyGenerator
         $keys = [$definition::getEntityName(), $this->getCriteriaHash($criteria), $this->getContextHash($context)];
 
         return implode('-', $keys);
+    }
+
+    public function getAggregationCacheKey(Aggregation $aggregation, string $definition, Criteria $criteria, Context $context): string
+    {
+        /** @var string|EntityDefinition $definition */
+        $keys = [
+            md5(json_encode($aggregation)),
+            $definition::getEntityName(),
+            $this->getAggregationHash($criteria),
+            $this->getContextHash($context),
+        ];
+
+        return implode('-', $keys);
+    }
+
+    public function getCacheKeyAggregationName(string $aggregationCacheKey): string
+    {
+        $cacheKeyParts = explode('-', $aggregationCacheKey);
+
+        return $cacheKeyParts[0] ?: '';
     }
 
     public function getEntityTag(string $id, string $definition): string
@@ -218,6 +239,14 @@ class EntityCacheKeyGenerator
             $criteria->getLimit(),
             $criteria->getOffset(),
             $criteria->getTotalCountMode(),
+            $criteria->getExtensions(),
+        ]));
+    }
+
+    private function getAggregationHash(Criteria $criteria): string
+    {
+        return md5(json_encode([
+            $criteria->getFilters(),
             $criteria->getExtensions(),
         ]));
     }

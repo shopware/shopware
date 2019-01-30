@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
-abstract class AggregationResult implements \JsonSerializable
+use Shopware\Core\Framework\Struct\Struct;
+
+abstract class AggregationResult extends Struct
 {
     /**
      * @var Aggregation
@@ -29,10 +31,5 @@ abstract class AggregationResult implements \JsonSerializable
     public function getAggregation(): Aggregation
     {
         return $this->aggregation;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return $this->getResult();
     }
 }

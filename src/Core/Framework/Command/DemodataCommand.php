@@ -783,7 +783,7 @@ class DemodataCommand extends Command
             ];
         }
 
-        $this->writer->insert(ProductStreamDefinition::class, $payload, $this->getContext());
+        $this->writer->insert(ProductStreamDefinition::class, $payload, $this->getWriteContext());
 
         $this->io->progressFinish();
     }

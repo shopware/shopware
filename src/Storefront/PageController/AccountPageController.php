@@ -82,7 +82,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->overviewPageLoader->load($request, $context);
 
-        return $this->renderStorefront('frontend/account/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -98,7 +98,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
-        return $this->renderStorefront('frontend/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
     }
 
     /**
@@ -112,7 +112,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/account/payment.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -126,7 +126,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->orderPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/account/orders.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -140,7 +140,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->profilePageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/account/profile.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -154,7 +154,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->addressListPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/address/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -164,7 +164,7 @@ class AccountPageController extends StorefrontController
     {
         $page = $this->addressPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/address/create.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -178,6 +178,6 @@ class AccountPageController extends StorefrontController
 
         $page = $this->addressPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/address/edit.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 }

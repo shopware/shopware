@@ -33,6 +33,6 @@ class HomePageController extends StorefrontController
     {
         $data = $this->homePageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/home/index.html.twig', ['page' => $data]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $data]);
     }
 }

@@ -32,7 +32,7 @@ class ListingPageController extends StorefrontController
     public function index(CheckoutContext $context, InternalRequest $request): Response
     {
         $page = $this->listingPageLoader->load($request, $context);
-        
-        return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', ['page' => $page]);
+
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 }

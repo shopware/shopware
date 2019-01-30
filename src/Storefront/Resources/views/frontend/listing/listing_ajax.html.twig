@@ -1,7 +1,0 @@
-{% block frontend_listing_list_inline_ajax %}
-    {# @var page \Shopware\Storefront\Framework\Page\StorefrontSearchResult #}
-
-    {% for product in page %}
-        {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
-    {% endfor %}
-{% endblock %}

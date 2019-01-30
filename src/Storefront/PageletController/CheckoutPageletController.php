@@ -38,7 +38,7 @@ class CheckoutPageletController extends StorefrontController
     {
         $page = $this->infoLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/checkout/info.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
     }
 
     /**
@@ -50,6 +50,6 @@ class CheckoutPageletController extends StorefrontController
     {
         $page = $this->ajaxCartLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/checkout/ajax_cart.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
     }
 }

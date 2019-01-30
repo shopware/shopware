@@ -32,9 +32,9 @@ class ListingPageletController extends StorefrontController
         /** @var StorefrontSearchResult $page */
         $page = $this->listingPageletLoader->load($request, $context);
 
-        $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', ['page' => $page]);
-        
-        $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', ['page' => $page]);
+        $template = $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
+
+        $pagination = $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
 
         return new JsonResponse([
             'listing' => $template->getContent(),
@@ -53,9 +53,9 @@ class ListingPageletController extends StorefrontController
         /** @var StorefrontSearchResult $page */
         $page = $this->listingPageletLoader->load($request, $context);
 
-        $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', ['page' => $page]);
+        $template = $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
 
-        $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', ['page' => $page]);
+        $pagination = $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
 
         return new JsonResponse([
             'listing' => $template->getContent(),
@@ -63,5 +63,4 @@ class ListingPageletController extends StorefrontController
             'totalCount' => $page->getTotal(),
         ]);
     }
-
 }

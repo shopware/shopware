@@ -33,6 +33,6 @@ class SearchPageController extends StorefrontController
 
         $page = $this->searchPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/search/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 }

@@ -27,7 +27,7 @@ class ProductPageController extends StorefrontController
     public function index(CheckoutContext $context, InternalRequest $request): Response
     {
         $page = $this->detailPageLoader->load($request, $context);
-        
-        return $this->renderStorefront('@Storefront/frontend/detail/index.html.twig', ['page' => $page]);
+
+        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }
 }

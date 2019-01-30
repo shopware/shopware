@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createFilesystemSection())
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
+                ->append($this->createStoreSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createCacheSection())
             ->end()
@@ -89,6 +90,21 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createStoreSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('store');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->scalarNode('api_url')->end()
+            ->end()
+        ;
+
+        return $rootNode;
+    }
+
     private function createAdminWorkerSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('admin_worker');
@@ -97,14 +113,14 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-                ->arrayNode('poll_interval')
-                    ->useAttributeAsKey('name')
-                    ->defaultValue([])
-                    ->integerPrototype()->end()
-                ->end()
-                ->booleanNode('enable_admin_worker')
-                    ->defaultValue(true)
-                ->end()
+            ->arrayNode('poll_interval')
+            ->useAttributeAsKey('name')
+            ->defaultValue([])
+            ->integerPrototype()->end()
+            ->end()
+            ->booleanNode('enable_admin_worker')
+            ->defaultValue(true)
+            ->end()
 
             ->end()
         ;

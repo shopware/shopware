@@ -1,0 +1,8 @@
+<sw-modal title="Shopware Account Login" variant="small">
+    <form @submit.prevent="onLoginClick()">
+        <sw-text-field v-model="shopwareId" :label="$tc('shopwareId')"></sw-text-field>
+        <sw-password-field v-model="password" :label="$tc('password')"></sw-password-field>
+
+        <sw-button variant="primary" type="submit">Login</sw-button>
+    </form>
+</sw-modal>

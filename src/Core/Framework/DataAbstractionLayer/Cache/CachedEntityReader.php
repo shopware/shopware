@@ -8,11 +8,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Plugin\PluginDefinition;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
 class CachedEntityReader implements EntityReaderInterface
 {
+    public const BLACKLIST = [
+        VersionCommitDefinition::class,
+        VersionCommitDataDefinition::class,
+        PluginDefinition::class,
+    ];
+
     /**
      * @var TagAwareAdapterInterface
      */
@@ -54,7 +63,7 @@ class CachedEntityReader implements EntityReaderInterface
 
     public function read(string $definition, Criteria $criteria, Context $context): EntityCollection
     {
-        if (!$this->enabled) {
+        if (!$this->enabled || in_array($definition, self::BLACKLIST, true)) {
             return $this->decorated->read($definition, $criteria, $context);
         }
 

@@ -46,6 +46,20 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\PluginInstallerService">
+            <argument>%kernel.plugin_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginZipDetector"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginExtractor"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\PluginExtractor">
+            <argument>%kernel.plugin_dir%</argument>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\PluginZipDetector">
+        </service>
+
         <!-- Commands -->
         <service id="Shopware\Core\Framework\Plugin\Command\PluginRefreshCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
@@ -96,6 +110,14 @@
 
         <service id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor">
             <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <!-- Controller -->
+        <service id="Shopware\Core\Framework\Plugin\Api\PluginController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginInstallerService"/>
+            <tag name="shopware.feature" flag="next1223"/>
         </service>
 
         <!-- Helper -->

@@ -1,0 +1,126 @@
+{% block sw_plugin_license_list %}
+<sw-page class="sw-plugin-license-list">
+    {% block sw_plugin_license_list_smart_bar_header %}
+        <template slot="smart-bar-header">
+            {% block sw_plugin_license_list_smart_bar_header_title %}
+                <h2>
+                    {% block sw_plugin_license_list_smart_bar_header_title_text %}
+                        Store Lizenzen
+                    {% endblock %}
+
+                    {% block sw_plugin_license_list_smart_bar_header_amount %}
+                        <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                        ({{ total }})
+                        </span>
+                    {% endblock %}
+                </h2>
+            {% endblock %}
+        </template>
+    {% endblock %}
+
+    {% block sw_plugin_license_list_content %}
+    <template slot="content">
+
+        {% block sw_plugin_license_list_content_slot %}
+        <div class="sw-plugin-license-list__content">
+
+            {% block sw_plugin_license_list_grid %}
+            <sw-grid v-if="total || term"
+                     :items="licenses"
+                     :sortBy="sortBy"
+                     :sortDirection="sortDirection"
+                     :sidebar="true"
+                     :selectable="false"
+                     :isFullpage="true"
+                     @sort-column="onSortColumn">
+
+                {% block sw_plugin_license_list_grid_slots %}
+                <template slot="columns" slot-scope="{ item }">
+
+                    {% block sw_plugin_license_list_grid_columns_id %}
+                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                        :label="$tc('sw-plugin.license-list.columnId')"
+                                        dataIndex="id"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_license_list_grid_columns_id_label %}
+                            {{ item.id }}
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_license_list_grid_columns_name %}
+                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                        :label="$tc('sw-plugin.license-list.columnName')"
+                                        dataIndex="name"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_license_list_grid_columns_name_label %}
+                                {{ item.description }} ({{ item.name }})
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_license_list_grid_columns_actions %}
+                        <sw-grid-column flex="minmax(100px, 100px)"
+                                        align="center">
+                            {% block sw_plugin_license_list_grid_columns_actions_context_button %}
+                                <sw-context-button>
+
+                                    {% block sw_plugin_license_list_grid_columns_actions_view %}
+                                    <sw-context-menu-item @click="onDownload(item.id)">
+                                        Download
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                </sw-context-button>
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                </template>
+                {% endblock %}
+
+                <template slot="pagination">
+                    {% block sw_plugin_license_list_grid_pagination %}
+                        <sw-pagination :page="page"
+                                       :limit="limit"
+                                       :total="total"
+                                       :total-visible="7"
+                                       @page-change="onPageChange">
+                        </sw-pagination>
+                    {% endblock %}
+                </template>
+
+                {% block sw_plugin_license_list_grid_sidebar %}
+                    <sw-sidebar slot="sidebar">
+                        {% block sw_plugin_license_list_grid_sidebar_refresh %}
+                            <sw-sidebar-item
+                                icon="default-arrow-360-left"
+                                :title="$tc('sw-plugin.license-list.titleSidebarItemRefresh')"
+                                @click="onRefresh">
+                            </sw-sidebar-item>
+                        {% endblock %}
+                    </sw-sidebar>
+                {% endblock %}
+
+            </sw-grid>
+            {% endblock %}
+
+            {% block sw_plugin_license_list_empty_state %}
+                <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-plugin.license-list.messageEmpty')"></sw-empty-state>
+            {% endblock %}
+
+            {% block sw_plugin_license_list_grid_loader %}
+                <sw-loader v-if="isLoading"></sw-loader>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        <sw-plugin-store-login v-if="showLoginModal" @sw-plugin-store-login-success="loginSuccess()"></sw-plugin-store-login>
+
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% block sw_plugin_list %}
+<sw-page class="sw-plugin-list">
+    {% block sw_plugin_list_search_bar %}
+        <template slot="search-bar">
+            <sw-search-bar :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
+                           :searchType="$tc('sw-plugin.general.mainMenuItemGeneral')"
+                           @search="this.onSearch">
+            </sw-search-bar>
+        </template>
+    {% endblock %}
+
+    {% block sw_plugin_list_smart_bar_header %}
+        <template slot="smart-bar-header">
+            {% block sw_plugin_list_smart_bar_header_title %}
+                <h2>
+                    {% block sw_plugin_list_smart_bar_header_title_text %}
+                        {{ $tc('sw-plugin.list.textPluginManager') }}
+                    {% endblock %}
+
+                    {% block sw_plugin_list_smart_bar_header_amount %}
+                        <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                        ({{ total }})
+                        </span>
+                    {% endblock %}
+                </h2>
+            {% endblock %}
+        </template>
+    {% endblock %}
+
+    {% block sw_plugin_list_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_plugin_list_smart_bar_actions_slot %}
+
+            {% block sw_plugin_list_smart_bar_actions_upload %}
+            <sw-plugin-file-upload @sw-plugin-file-upload-success="successfulUpload"></sw-plugin-file-upload>
+            {% endblock %}
+
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_plugin_list_content %}
+    <template slot="content">
+
+        {% block sw_plugin_list_content_slot %}
+        <div class="sw-plugin-list__content">
+
+            {% block sw_plugin_list_grid %}
+            <sw-grid v-if="total || term"
+                     :items="plugins"
+                     :sortBy="sortBy"
+                     :sortDirection="sortDirection"
+                     :sidebar="true"
+                     :selectable="false"
+                     :isFullpage="true"
+                     @sort-column="onSortColumn">
+
+                {% block sw_plugin_list_grid_slots %}
+                <template slot="columns" slot-scope="{ item }">
+
+                    {% block sw_plugin_list_grid_columns_customer_name %}
+                    <sw-grid-column flex="minmax(100px, 1fr)"
+                                    :label="$tc('sw-plugin.list.columnPluginName')"
+                                    dataIndex="label"
+                                    truncate
+                                    sortable>
+                        {% block sw_plugin_list_grid_columns_customer_name_label %}
+                            {{ item.label }}
+                        {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_grid_columns_version %}
+                        <sw-grid-column flex="minmax(80px, 100px)"
+                                        :label="$tc('sw-plugin.list.columnVersion')"
+                                        dataIndex="version"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_list_grid_columns_version_label %}
+                                {{ item.version }}
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_grid_columns_installed_at %}
+                        <sw-grid-column flex="minmax(80px, 180px)"
+                                        :label="$tc('sw-plugin.list.columnInstalledAt')"
+                                        dataIndex="installedAt"
+                                        align="right"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_list_grid_installed_at_label %}
+                                <span v-if="item.installedAt">{{ item.installedAt | date }}</span>
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_grid_columns_updated_at %}
+                        <sw-grid-column flex="minmax(80px, 180px)"
+                                        :label="$tc('sw-plugin.list.columnUpdatedAt')"
+                                        dataIndex="updatedAt"
+                                        align="right"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_list_grid_columns_updated_at_label %}
+                                <span v-if="item.updatedAt">{{ item.updatedAt | date }}</span>
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_grid_columns_license %}
+                        <sw-grid-column flex="minmax(80px, 180px)"
+                                        :label="$tc('sw-plugin.list.columnLicense')"
+                                        dataIndex="license"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_list_grid_columns_license_label %}
+                                {{ item.license }}
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_grid_columns_activated %}
+                        <sw-grid-column flex="minmax(80px, 120px)"
+                                        :label="$tc('sw-plugin.list.columnActive')"
+                                        dataIndex="active"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_list_grid_columns_activated_label %}
+                                <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
+                                <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_grid_columns_author %}
+                        <sw-grid-column flex="minmax(90px, 180px)"
+                                        :label="$tc('sw-plugin.list.columnAuthor')"
+                                        dataIndex="author"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_list_grid_columns_author_label %}
+                                {{ item.author }}
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_grid_columns_actions %}
+                    <sw-grid-column flex="minmax(100px, 100px)"
+                                    align="center">
+                        {% block sw_plugin_list_grid_columns_actions_context_button %}
+                        <sw-context-button>
+
+                            {% block sw_plugin_list_grid_columns_actions_install %}
+                            <sw-context-menu-item @click="onInstallPlugin(item)">
+                                {{ $tc('sw-plugin.list.contextInstall') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_plugin_list_grid_columns_actions_uninstall %}
+                            <sw-context-menu-item variant="danger" @click="onUninstallPlugin(item)">
+                                {{ $tc('sw-plugin.list.contextUninstall') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_plugin_list_grid_columns_actions_activate %}
+                            <sw-context-menu-item @click="onActivatePlugin(item)">
+                                {{ $tc('sw-plugin.list.contextActivate') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_plugin_list_grid_columns_actions_deactivate %}
+                            <sw-context-menu-item @click="onDeactivatePlugin(item)">
+                                {{ $tc('sw-plugin.list.contextDeactivate') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_plugin_list_grid_columns_actions_update %}
+                            <sw-context-menu-item @click="onUpdatePlugin(item)" v-if="item.upgradeVersion">
+                                {{ $tc('sw-plugin.list.contextUpdate') }} {{ item.upgradeVersion }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_plugin_list_grid_columns_actions_delete %}
+                            <sw-context-menu-item @click="onDeletePlugin(item)">
+                                {{ $tc('sw-plugin.list.contextDelete') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                        </sw-context-button>
+                        {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
+
+                </template>
+                {% endblock %}
+
+                <template slot="pagination">
+                    {% block sw_plugin_list_grid_pagination %}
+                    <sw-pagination :page="page"
+                                   :limit="limit"
+                                   :total="total"
+                                   :total-visible="7"
+                                   @page-change="onPageChange">
+                    </sw-pagination>
+                    {% endblock %}
+                </template>
+
+                {% block sw_plugin_list_grid_sidebar %}
+                <sw-sidebar slot="sidebar">
+                    {% block sw_plugin_list_grid_sidebar_refresh %}
+                    <sw-sidebar-item
+                        icon="default-arrow-360-left"
+                        :title="$tc('sw-plugin.list.titleSidebarItemRefresh')"
+                        @click="onRefresh">
+                    </sw-sidebar-item>
+                    {% endblock %}
+                </sw-sidebar>
+                {% endblock %}
+
+            </sw-grid>
+            {% endblock %}
+
+            {% block sw_plugin_list_empty_state %}
+            <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-plugin.list.messageEmpty')"></sw-empty-state>
+            {% endblock %}
+
+            {% block sw_plugin_list_grid_loader %}
+            <sw-loader v-if="isLoading"></sw-loader>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

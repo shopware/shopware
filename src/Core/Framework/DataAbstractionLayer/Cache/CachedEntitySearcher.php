@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\VersionDefinition;
@@ -20,6 +21,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
         VersionCommitDefinition::class,
         VersionCommitDataDefinition::class,
         NumberRangeStateDefinition::class,
+        PluginDefinition::class
     ];
 
     /**

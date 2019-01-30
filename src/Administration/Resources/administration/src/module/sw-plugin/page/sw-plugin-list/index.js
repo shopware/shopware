@@ -1,0 +1,115 @@
+import { Component, Mixin, State } from 'src/core/shopware';
+import template from './sw-plugin-list.twig';
+
+Component.register('sw-plugin-list', {
+    template,
+
+    inject: ['pluginService'],
+
+    mixins: [
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
+    ],
+
+    data() {
+        return {
+            limit: 25,
+            plugins: [],
+            isLoading: false
+        };
+    },
+
+    computed: {
+        pluginsStore() {
+            return State.getStore('plugin');
+        },
+
+        showPagination() {
+            return (this.total >= 25);
+        }
+    },
+
+    watch: {
+        '$root.$i18n.locale'() {
+            this.getList();
+        }
+    },
+
+    methods: {
+        onInstallPlugin(plugin) {
+            this.pluginService.install(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleInstallSuccess'),
+                    message: this.$tc('sw-plugin.list.messageInstallSuccess')
+                });
+                this.getList();
+            });
+        },
+
+        onUninstallPlugin(plugin) {
+            this.pluginService.uninstall(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleUninstallSuccess'),
+                    message: this.$tc('sw-plugin.list.messageUninstallSuccess')
+                });
+                this.getList();
+            });
+        },
+
+        onActivatePlugin(plugin) {
+            this.pluginService.activate(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleActivateSuccess'),
+                    message: this.$tc('sw-plugin.list.messageActivateSuccess')
+                });
+                this.getList();
+            });
+        },
+
+        onDeactivatePlugin(plugin) {
+            this.pluginService.deactivate(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleDeactivateSuccess'),
+                    message: this.$tc('sw-plugin.list.messageDeactivateSuccess')
+                });
+                this.getList();
+            });
+        },
+
+        onUpdatePlugin(plugin) {
+            this.pluginService.update(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleUpdateSuccess'),
+                    message: this.$tc('sw-plugin.list.messageUpdateSuccess')
+                });
+                this.getList();
+            });
+        },
+
+        onDeletePlugin(plugin) {
+            this.pluginService.delete(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleDeleteSuccess'),
+                    message: this.$tc('sw-plugin.list.messageDeleteSuccess')
+                });
+                this.getList();
+            });
+        },
+
+        successfulUpload() {
+            this.getList();
+        },
+
+        getList() {
+            this.isLoading = true;
+
+            const params = this.getListingParams();
+
+            this.pluginsStore.getList(params).then((response) => {
+                this.plugins = response.items;
+                this.total = response.total;
+                this.isLoading = false;
+            });
+        }
+    }
+});

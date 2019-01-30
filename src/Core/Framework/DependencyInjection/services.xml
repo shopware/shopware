@@ -194,6 +194,21 @@
             <tag name="shopware.snippet.filter"/>
         </service>
 
+        <!-- Store -->
+        <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
+        </service>
+
+        <service class="GuzzleHttp\Client" id="shopware.store.api_client">
+            <argument key="$config" type="collection">
+                <argument key="base_uri">%shopware.store.api_url%</argument>
+            </argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\StoreClient">
+            <argument type="service" id="shopware.store.api_client" />
+        </service>
+
         <!-- Twig -->
         <service id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
             <argument type="service" id="twig.loader"/>

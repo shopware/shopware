@@ -108,8 +108,8 @@ class TwigIncludeTest extends TestCase
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2', 'TestPlugin1');
         $templateFinder->addBundle($bundlePlugin1);
         $templateFinder->addBundle($bundlePlugin2);
-        $twig->addExtension(new InheritanceExtension($templateFinder, $twig));
-        $twig->getExtension('Shopware\Core\Framework\Twig\InheritanceExtension')->getFinder();
+        $twig->addExtension(new InheritanceExtension($templateFinder));
+        $twig->getExtension(InheritanceExtension::class)->getFinder();
         $template = $twig->loadTemplate('frontend/templatenameexpression.html.twig');
         $this->assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
     }
@@ -128,8 +128,8 @@ class TwigIncludeTest extends TestCase
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
-        $twig->addExtension(new InheritanceExtension($templateFinder, $twig));
-        $twig->getExtension('Shopware\Core\Framework\Twig\InheritanceExtension')->getFinder();
+        $twig->addExtension(new InheritanceExtension($templateFinder));
+        $twig->getExtension(InheritanceExtension::class)->getFinder();
         $template = $twig->loadTemplate('frontend/notemplatefound.html.twig');
         $this->assertSame('nothingelse', $template->render([]));
     }

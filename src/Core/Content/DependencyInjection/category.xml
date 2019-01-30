@@ -13,7 +13,7 @@
             <tag name="shopware.entity.definition" entity="category_translation"/>
         </service>
 
-        <service id="Shopware\Core\Content\Category\Storefront\StorefrontCategoryRepository" public="true">
+        <service id="Shopware\Core\Content\Category\Storefront\NavigationLoader" public="true">
             <argument type="service" id="category.repository"/>
         </service>
     </services>

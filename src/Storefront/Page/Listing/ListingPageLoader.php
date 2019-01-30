@@ -3,67 +3,46 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
+use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
-use Shopware\Storefront\Pagelet\NavigationSidebar\NavigationSidebarPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ListingPageLoader
+class ListingPageLoader implements PageLoaderInterface
 {
     /**
-     * @var ListingPageletLoader
+     * @var PageWithHeaderLoader
      */
-    private $listingPageletLoader;
-
-    /**
-     * @var NavigationSidebarPageletLoader
-     */
-    private $navigationSidebarPageletLoader;
-
-    /**
-     * @var ContentHeaderPageletLoader
-     */
-    private $headerPageletLoader;
+    private $genericLoader;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var ListingPageletLoader
+     */
+    private $listingPageletLoader;
+
     public function __construct(
-        ListingPageletLoader $listingPageletLoader,
-        NavigationSidebarPageletLoader $navigationSidebarPageletLoader,
-        ContentHeaderPageletLoader $headerPageletLoader,
-        EventDispatcherInterface $eventDispatcher
+        PageWithHeaderLoader $genericLoader,
+        EventDispatcherInterface $eventDispatcher,
+        ListingPageletLoader $listingPageletLoader
     ) {
-        $this->listingPageletLoader = $listingPageletLoader;
-        $this->navigationSidebarPageletLoader = $navigationSidebarPageletLoader;
-        $this->headerPageletLoader = $headerPageletLoader;
+        $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
+        $this->listingPageletLoader = $listingPageletLoader;
     }
 
-    /**
-     * @param ListingPageRequest $request
-     * @param CheckoutContext    $context
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return ListingPageStruct
-     */
-    public function load(ListingPageRequest $request, CheckoutContext $context): ListingPageStruct
+    public function load(InternalRequest $request, CheckoutContext $context)
     {
-        $page = new ListingPageStruct();
-        $page->setListing(
-            $this->listingPageletLoader->load($request->getListingRequest(), $context)
-        );
+        $page = $this->genericLoader->load($request, $context);
 
-        $page->setNavigationSidebar(
-            $this->navigationSidebarPageletLoader->load($request->getNavigationSidebarRequest(), $context)
-        );
+        $page = ListingPage::createFrom($page);
 
-        $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
-        );
+        $page->setListing($this->listingPageletLoader->load($request, $context));
 
         $this->eventDispatcher->dispatch(
             ListingPageLoadedEvent::NAME,

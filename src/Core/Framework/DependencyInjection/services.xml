@@ -26,6 +26,10 @@
             <factory class="Shopware\Core\Kernel" method="getConnection"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\InternalRequestResolver">
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
         <!-- Plugins -->
         <service id="Shopware\Core\Framework\Plugin\BundleCollection">
             <factory service="kernel" method="getPlugins"/>
@@ -126,17 +130,6 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-        </service>
-
-        <!-- Framework -->
-        <service id="Shopware\Storefront\Framework\Command\CreatePageletCommand">
-            <tag name="console.command"/>
-            <argument>%kernel.project_dir%</argument>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Command\CreatePageCommand">
-            <tag name="console.command"/>
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <!-- Serializer -->

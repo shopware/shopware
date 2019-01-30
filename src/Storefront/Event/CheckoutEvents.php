@@ -2,22 +2,42 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Storefront\Pagelet\CartInfo\CartInfoPageletRequestEvent;
-use Shopware\Storefront\Pagelet\CheckoutPaymentMethod\CheckoutPaymentMethodPageletRequestEvent;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
+use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoadedEvent;
+use Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoadedEvent;
 
 class CheckoutEvents
 {
     /**
-     * Fired when a Cartinfo Pagelet request comes in and transformed to the CartInfoPageletRequest object
-     *
-     * @Event("CartInfoPageletRequestEvent")
+     * @Event("Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoadedEvent")
      */
-    public const CARTINFO_PAGELET_REQUEST = CartInfoPageletRequestEvent::NAME;
+    public const CHECKOUT_AJAXCART_PAGELET_LOADED_EVENT = CheckoutAjaxCartPageletLoadedEvent::NAME;
 
     /**
-     * Fired when a Checkout Payment Method Pagelet request comes in and transformed to the CheckoutPaymentMethodPageletRequest object
-     *
-     * @Event("CheckoutPaymentMethodPageletRequestEvent")
+     * @Event("Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoadedEvent")
      */
-    public const CHECKOUTPAYMENTMETHOD_PAGELET_REQUEST = CheckoutPaymentMethodPageletRequestEvent::NAME;
+    public const CHECKOUT_INFO_PAGELET_LOADED_EVENT = CheckoutInfoPageletLoadedEvent::NAME;
+
+    /**
+     * @Event("Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent")
+     */
+    public const CHECKOUT_FINISH_PAGE_LOADED_EVENT = CheckoutFinishPageLoadedEvent::NAME;
+
+    /**
+     * @Event("Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent")
+     */
+    public const CHECKOUT_CONFIRM_PAGE_LOADED_EVENT = CheckoutConfirmPageLoadedEvent::NAME;
+
+    /**
+     * @Event("Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoadedEvent")
+     */
+    public const CHECKOUT_CONFIG_PAGE_LOADED_EVENT = CheckoutConfigPageLoadedEvent::NAME;
+
+    /**
+     * @Event("Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent")
+     */
+    public const CHECKOUT_CART_PAGE_LOADED_EVENT = CheckoutCartPageLoadedEvent::NAME;
 }

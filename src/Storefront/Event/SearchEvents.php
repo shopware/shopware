@@ -2,22 +2,18 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Storefront\Page\Search\SearchPageRequestEvent;
-use Shopware\Storefront\Pagelet\Search\SearchPageletRequestEvent;
+use Shopware\Storefront\Page\Search\SearchPageLoadedEvent;
+use Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoadedEvent;
 
 class SearchEvents
 {
     /**
-     * Dispatched as soon as the search equest is send
-     *
-     * @Event("SearchPageletRequestEvent")
+     * @Event("Shopware\Storefront\Page\Search\SearchPageLoadedEvent")
      */
-    public const SEARCH_PAGELET_REQUEST = SearchPageletRequestEvent::NAME;
+    public const SEARCH_PAGE_LOADED_EVENT = SearchPageLoadedEvent::NAME;
 
     /**
-     * Dispatched as soon as the search equest is send
-     *
-     * @Event("SearchPageRequestEvent")
+     * @Event("Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoadedEvent")
      */
-    public const SEARCH_PAGE_REQUEST = SearchPageRequestEvent::NAME;
+    public const SUGGEST_PAGELET_LOADED_EVENT = SuggestPageletLoadedEvent::NAME;
 }

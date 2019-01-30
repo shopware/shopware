@@ -1,0 +1,32 @@
+<script>
+    const accessKey = '{{ page.context.salesChannel.accessKey }}';
+    const contextToken = '{{ page.context.token }}';
+
+    const client = {
+        accessKey: accessKey,
+        contextToken: contextToken,
+
+        get: function(url, callback) {
+            url = '/storefront-api/v1' + url;
+
+            const request = new XMLHttpRequest();
+
+            request.open('GET', url);
+            request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            request.setRequestHeader('x-sw-access-key', this.accessKey);
+            request.setRequestHeader('x-sw-context-token', this.contextToken);
+
+            request.addEventListener('loadend', function() {
+                callback(JSON.parse(request.responseText));
+            });
+
+            request.send();
+        }
+    };
+
+    client.get('/product?page=1&limit=10', function(response) {
+        console.log(response);
+    });
+</script>
+
+

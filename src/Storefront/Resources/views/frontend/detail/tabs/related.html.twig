@@ -1,9 +1,0 @@
-{% if product.relatedProducts and not product.crossbundlelook %}
-    {# Related products - Content #}
-    {% block frontend_detail_index_similar_slider_content %}
-        <div class="related--content">
-            {% set sliderInitOnEvent = "onShowContent-related" %}
-            {% sw_include '@Storefront/frontend/_includes/product_slider.html.twig' %}
-        </div>
-    {% endblock %}
-{% endif %}

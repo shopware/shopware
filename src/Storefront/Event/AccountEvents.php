@@ -2,110 +2,66 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Storefront\Page\AccountAddress\AccountAddressPageLoadedEvent;
-use Shopware\Storefront\Page\AccountAddress\AccountAddressPageRequestEvent;
-use Shopware\Storefront\Page\AccountLogin\AccountLoginPageRequestEvent;
-use Shopware\Storefront\Page\AccountOrder\AccountOrderPageRequestEvent;
-use Shopware\Storefront\Page\AccountOverview\AccountOverviewPageRequestEvent;
-use Shopware\Storefront\Page\AccountPaymentMethod\AccountPaymentMethodPageRequestEvent;
-use Shopware\Storefront\Page\AccountProfile\AccountProfilePageRequestEvent;
-use Shopware\Storefront\Pagelet\AccountAddress\AccountAddressPageletRequestEvent;
-use Shopware\Storefront\Pagelet\AccountLogin\AccountLoginPageletRequestEvent;
-use Shopware\Storefront\Pagelet\AccountOrder\AccountOrderPageletRequestEvent;
-use Shopware\Storefront\Pagelet\AccountPaymentMethod\AccountPaymentMethodPageletRequestEvent;
-use Shopware\Storefront\Pagelet\AccountProfile\AccountProfilePageletRequestEvent;
-use Shopware\Storefront\Pagelet\AccountRegistration\AccountRegistrationPageletRequestEvent;
+use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoadedEvent;
+use Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoadedEvent;
+use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedEvent;
+use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
+use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
+use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
+use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedEvent;
+use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoadedEvent;
+use Shopware\Storefront\Pagelet\Account\Order\AccountOrderPageletLoadedEvent;
+use Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoadedEvent;
 
 class AccountEvents
 {
     /**
-     * Dispatched as soon as the productpage has been loaded
-     *
-     * @Event("AccountPageLoadedEvent")
+     * @Event("Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoadedEvent")
      */
-    public const LOADED = AccountAddressPageLoadedEvent::NAME;
+    public const ACCOUNT_ADDRESS_LIST_PAGELET_LOADED_EVENT = AccountAddressListPageletLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountProfile page request comes in and transformed to the AccountOverviewPageRequest object
-     *
-     * @Event("AccountOverviewPageRequestEvent")
+     * @Event("Shopware\Storefront\Pagelet\Account\Order\AccountOrderPageletLoadedEvent")
      */
-    public const ACCOUNTOVERVIEW_PAGE_REQUEST = AccountOverviewPageRequestEvent::NAME;
+    public const ACCOUNT_ORDER_PAGELET_LOADED_EVENT = AccountOrderPageletLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountAddress page request comes in and transformed to the AccountAddressPageRequest object
-     *
-     * @Event("AccountAddressPageRequestEvent")
+     * @Event("Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoadedEvent")
      */
-    public const ACCOUNTADDRESS_PAGE_REQUEST = AccountAddressPageRequestEvent::NAME;
+    public const ACCOUNT_PAYMENT_METHOD_PAGELET_LOADED_EVENT = AccountPaymentMethodPageletLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountPaymentMethod page request comes in and transformed to the AccountPaymentMethodPageRequest object
-     *
-     * @Event("AccountPaymentMethodPageRequestEvent")
+     * @Event("Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedEvent")
      */
-    public const ACCOUNTPAYMENTMETHOD_PAGE_REQUEST = AccountPaymentMethodPageRequestEvent::NAME;
+    public const ACCOUNT_PROFILE_PAGE_LOADED_EVENT = AccountProfilePageLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountPaymentMethod pagelet request comes in and transformed to the AccountPaymentMethodPageletRequest object
-     *
-     * @Event("AccountPaymentMethodPageletRequestEvent")
+     * @Event("Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent")
      */
-    public const ACCOUNTPAYMENTMETHOD_PAGELET_REQUEST = AccountPaymentMethodPageletRequestEvent::NAME;
+    public const ACCOUNT_PAYMENT_METHOD_PAGE_LOADED_EVENT = AccountPaymentMethodPageLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountProfile page request comes in and transformed to the AccountProfilePageRequest object
-     *
-     * @Event("AccountOverviewPageRequestEvent")
+     * @Event("Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent")
      */
-    public const ACCOUNTPROFILE_PAGE_REQUEST = AccountProfilePageRequestEvent::NAME;
+    public const ACCOUNT_OVERVIEW_PAGE_LOADED_EVENT = AccountOverviewPageLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountProfile pagelet request comes in and transformed to the AccountProfilePageletRequest object
-     *
-     * @Event("AccountProfilePageletRequestEvent")
+     * @Event("Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent")
      */
-    public const ACCOUNTPROFILE_PAGELET_REQUEST = AccountProfilePageletRequestEvent::NAME;
+    public const ACCOUNT_ORDER_PAGE_LOADED_EVENT = AccountOrderPageLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountOrder page request comes in and transformed to the AccountOrderPageRequest object
-     *
-     * @Event("AccountOrderPageRequestEvent")
+     * @Event("Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedEvent")
      */
-    public const ACCOUNTORDER_PAGE_REQUEST = AccountOrderPageRequestEvent::NAME;
+    public const ACCOUNT_LOGIN_PAGE_LOADED_EVENT = AccountLoginPageLoadedEvent::NAME;
 
     /**
-     * Fired when a AccountOrder pagelet request comes in and transformed to the AccountOrderPageletRequest object
-     *
-     * @Event("AccountOrderPageletRequestEvent")
+     * @Event("Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoadedEvent")
      */
-    public const ACCOUNTORDER_PAGELET_REQUEST = AccountOrderPageletRequestEvent::NAME;
+    public const ACCOUNT_ADDRESS_LIST_PAGE_LOADED_EVENT = AccountAddressListPageLoadedEvent::NAME;
 
     /**
-     * Fired when a Address pagelet request comes in and transformed to the AddressPageletRequest object
-     *
-     * @Event("AccountAddressPageletRequestEvent")
+     * @Event("Shopware\Storefront\Page\Account\Address\AccountAddressPageLoadedEvent")
      */
-    public const ADDRESS_PAGELET_REQUEST = AccountAddressPageletRequestEvent::NAME;
-
-    /**
-     * Fired when a Login page request comes in and transformed to the LoginPageRequest object
-     *
-     * @Event("AccountLoginPageRequestEvent")
-     */
-    public const ACCOUNTLOGIN_PAGE_REQUEST = AccountLoginPageRequestEvent::NAME;
-
-    /**
-     * Fired when a login pagelet request comes in and transformed to the LoginPageletRequest object
-     *
-     * @Event("AccountLoginPageletRequestEvent")
-     */
-    public const ACCOUNTLOGIN_PAGELET_REQUEST = AccountLoginPageletRequestEvent::NAME;
-
-    /**
-     * Fired when a registration pagelet request comes in and transformed to the RegistrationPageletRequest object
-     *
-     * @Event("AccountRegistrationPageletRequestEvent")
-     */
-    public const ACCOUNTREGISTRATION_PAGELET_REQUEST = AccountRegistrationPageletRequestEvent::NAME;
+    public const ACCOUNT_ADDRESS_PAGE_LOADED_EVENT = AccountAddressPageLoadedEvent::NAME;
 }

@@ -3,52 +3,51 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Storefront\Pagelet\ContentHeader\ContentHeaderPageletLoader;
-use Shopware\Storefront\Pagelet\Search\SearchPageletLoader;
+use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
+use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
+use Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchPageLoader
 {
     /**
-     * @var SearchPageletLoader
-     */
-    private $searchPageletLoader;
-
-    /**
-     * @var ContentHeaderPageletLoader
-     */
-    private $headerPageletLoader;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    public function __construct(
-        SearchPageletLoader $searchPageletLoader,
-        ContentHeaderPageletLoader $headerPageletLoader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->searchPageletLoader = $searchPageletLoader;
-        $this->headerPageletLoader = $headerPageletLoader;
-        $this->eventDispatcher = $eventDispatcher;
-    }
+    /**
+     * @var PageWithHeaderLoader
+     */
+    private $pageWithHeaderLoader;
 
     /**
-     * @param SearchPageRequest $request
-     * @param CheckoutContext   $context
-     *
-     * @return SearchPageStruct
+     * @var ListingPageletLoader
      */
-    public function load(SearchPageRequest $request, CheckoutContext $context): SearchPageStruct
+    private $listingPageletLoader;
+
+    public function __construct(
+        PageWithHeaderLoader $pageWithHeaderLoader,
+        ListingPageletLoader $listingPageletLoader,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->listingPageletLoader = $listingPageletLoader;
+    }
+
+    public function load(InternalRequest $request, CheckoutContext $context): SearchPage
     {
-        $page = new SearchPageStruct();
-        $page->setSearch(
-            $this->searchPageletLoader->load($request->getSearchRequest(), $context)
+        $page = $this->pageWithHeaderLoader->load($request, $context);
+
+        $page = SearchPage::createFrom($page);
+
+        $page->setListing(
+            $this->listingPageletLoader->load($request, $context)
         );
 
-        $page->setHeader(
-            $this->headerPageletLoader->load($request->getHeaderRequest(), $context)
+        $page->setSearchTerm(
+            (string) $request->requireGet(SearchTermSubscriber::TERM_PARAMETER)
         );
 
         $this->eventDispatcher->dispatch(

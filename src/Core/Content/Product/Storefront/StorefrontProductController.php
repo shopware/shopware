@@ -71,7 +71,7 @@ class StorefrontProductController extends AbstractController
             throw new InvalidUuidException($productId);
         }
 
-        $products = $this->repository->read([$productId], $checkoutContext);
+        $products = $this->repository->read(new Criteria([$productId]), $checkoutContext);
         if (!$products->has($productId)) {
             throw new ProductNotFoundException($productId);
         }

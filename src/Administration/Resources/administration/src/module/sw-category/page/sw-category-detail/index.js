@@ -35,6 +35,10 @@ Component.register('sw-category-detail', {
             return State.getStore('upload');
         },
 
+        languageStore() {
+            return State.getStore('language');
+        },
+
         pageClasses() {
             return {
                 'has--category': !!this.category && !this.isLoading,
@@ -75,6 +79,7 @@ Component.register('sw-category-detail', {
         },
 
         getCategories() {
+            this.isLoading = true;
             const params = { page: 1, limit: 500 };
             return this.categoryStore.getList(params).then((response) => {
                 this.isLoading = false;
@@ -84,6 +89,7 @@ Component.register('sw-category-detail', {
         },
 
         setCategory() {
+            this.isLoading = true;
             const categoryId = this.$route.params.id;
 
             if (categoryId) {
@@ -143,11 +149,13 @@ Component.register('sw-category-detail', {
         },
 
         onChangeLanguage() {
-            this.setCategory();
+            this.getCategories().then(() => {
+                this.setCategory();
+            });
         },
 
         abortOnLanguageChange() {
-            return this.category.hasChanges();
+            return this.category ? this.category.hasChanges() : false;
         },
 
         saveOnLanguageChange() {
@@ -155,7 +163,7 @@ Component.register('sw-category-detail', {
         },
 
         onSave() {
-            const categoryName = this.category.name;
+            const categoryName = this.category.name || this.category.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-category.general.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-category.general.messageSaveSuccess', 0, { name: categoryName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

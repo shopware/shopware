@@ -41,7 +41,7 @@
 
         <template slot="content">
             {% block sw_category_content %}
-                <sw-category-view v-if="!isMobileViewport || isMobileViewport && category"
+                <sw-category-view v-if="!isMobileViewport && category || isMobileViewport && category"
                     :category="category"
                     :mediaItem="mediaItem"
                     :isLoading="isLoading"

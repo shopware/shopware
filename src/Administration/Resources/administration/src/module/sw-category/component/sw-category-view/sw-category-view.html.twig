@@ -1,5 +1,5 @@
 {% block sw_category_view %}
-    <sw-card-view sidebar v-if="category && typeof category === 'object'" class="sw-category-view">
+    <sw-card-view sidebar class="sw-category-view">
 
         {% block sw_category_content_language_info %}
             <sw-language-info :entityDescription="placeholder(category, 'name', $tc('sw-manufacturer.detail.textHeadline'))"></sw-language-info>

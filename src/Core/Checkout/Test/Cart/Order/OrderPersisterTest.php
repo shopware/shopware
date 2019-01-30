@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -112,6 +113,9 @@ class OrderPersisterTest extends TestCase
         $customer = $this->getCustomer();
         $checkoutContext = $this->createMock(CheckoutContext::class);
         $checkoutContext->method('getCustomer')->willReturn($customer);
+
+        $context = Context::createDefaultContext();
+        $checkoutContext->method('getContext')->willReturn($context);
 
         return $checkoutContext;
     }

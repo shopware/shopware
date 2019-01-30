@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
@@ -37,20 +36,6 @@ class OrderDeliveryCollection extends EntityCollection
         });
     }
 
-    public function getOrderStateIds(): array
-    {
-        return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
-            return $orderDelivery->getOrderStateId();
-        });
-    }
-
-    public function filterByOrderStateId(string $id): self
-    {
-        return $this->filter(function (OrderDeliveryEntity $orderDelivery) use ($id) {
-            return $orderDelivery->getOrderStateId() === $id;
-        });
-    }
-
     public function getShippingMethodIds(): array
     {
         return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
@@ -70,15 +55,6 @@ class OrderDeliveryCollection extends EntityCollection
         return new OrderAddressCollection(
             $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
                 return $orderDelivery->getShippingOrderAddress();
-            })
-        );
-    }
-
-    public function getOrderStates(): OrderStateCollection
-    {
-        return new OrderStateCollection(
-            $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
-                return $orderDelivery->getOrderState();
             })
         );
     }

@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\Struct\Struct;
 
 class DeliveryTransformer
@@ -15,18 +17,24 @@ class DeliveryTransformer
     public static function transformCollection(
         DeliveryCollection $deliveries,
         array $lineItems,
+        StateMachineRegistry $stateMachineRegistry,
+        Context $context,
         array $addresses = []
     ): array {
         $output = [];
         foreach ($deliveries as $delivery) {
-            $output[] = self::transform($delivery, $lineItems, $addresses);
+            $output[] = self::transform($delivery, $lineItems, $stateMachineRegistry, $context, $addresses);
         }
 
         return $output;
     }
 
-    public static function transform(Delivery $delivery, array $lineItems, array $addresses = []): array
-    {
+    public static function transform(Delivery $delivery,
+                                     array $lineItems,
+                                     StateMachineRegistry $stateMachineRegistry,
+                                     Context $context,
+                                     array $addresses = []
+    ): array {
         $addressId = $delivery->getLocation()->getAddress() ? $delivery->getLocation()->getAddress()->getId() : null;
         $shippingAddress = null;
 
@@ -45,6 +53,7 @@ class DeliveryTransformer
             'orderStateId' => Defaults::ORDER_STATE_OPEN,
             'shippingCosts' => $delivery->getShippingCosts(),
             'positions' => [],
+            'stateId' => $stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId(),
         ];
 
         $deliveryData = array_filter($deliveryData, function ($item) {

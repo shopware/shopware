@@ -21,6 +21,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -53,6 +54,11 @@ class OrderRepositoryTest extends TestCase
      */
     private $checkoutContextFactory;
 
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
     public function setUp()
     {
         $this->orderRepository = $this->getContainer()->get('order.repository');
@@ -60,13 +66,14 @@ class OrderRepositoryTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testCreateOrder()
     {
         $orderId = Uuid::uuid4()->getHex();
-        $orderData = $this->getOrderData($orderId);
         $defaultContext = Context::createDefaultContext();
+        $orderData = $this->getOrderData($orderId, $defaultContext);
         $this->orderRepository->create($orderData, $defaultContext);
 
         $nestedCriteria2 = new Criteria();
@@ -161,7 +168,7 @@ class OrderRepositoryTest extends TestCase
         return $customerId;
     }
 
-    private function getOrderData($orderId)
+    private function getOrderData($orderId, $context)
     {
         $addressId = Uuid::uuid4()->getHex();
         $orderLineItemId = Uuid::uuid4()->getHex();
@@ -173,14 +180,14 @@ class OrderRepositoryTest extends TestCase
                 'date' => date(DATE_ISO8601),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => Defaults::ORDER_STATE_OPEN,
+                'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId(),
                 'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'deliveries' => [
                     [
-                        'orderStateId' => Defaults::ORDER_STATE_OPEN,
+                        'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId(),
                         'shippingMethodId' => Defaults::SHIPPING_METHOD,
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(DATE_ISO8601),

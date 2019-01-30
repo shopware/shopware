@@ -32,10 +32,12 @@ use Shopware\Core\Checkout\Util\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Util\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Util\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Util\Transformer\TransactionTransformer;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -64,13 +66,20 @@ class OrderConverter
      */
     protected $eventDispatcher;
 
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         CheckoutContextFactory $checkoutContextFactory,
+        StateMachineRegistry $stateMachineRegistry,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->customerRepository = $customerRepository;
         $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->stateMachineRegistry = $stateMachineRegistry;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -101,6 +110,8 @@ class OrderConverter
             $data['deliveries'] = DeliveryTransformer::transformCollection(
                 $cart->getDeliveries(),
                 $convertedLineItems,
+                $this->stateMachineRegistry,
+                $context->getContext(),
                 $shippingAddresses
             );
         }
@@ -119,7 +130,7 @@ class OrderConverter
         }
 
         if ($conversionContext->shouldIncludeTransactions()) {
-            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions());
+            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions(), $this->stateMachineRegistry, $context->getContext());
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
@@ -129,6 +140,8 @@ class OrderConverter
         if ($idStruct !== null) {
             $data['id'] = $idStruct->getId();
         }
+
+        $data['stateId'] = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context->getContext())->getId();
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
 

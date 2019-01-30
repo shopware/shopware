@@ -91,6 +91,7 @@ export default {
         selectionIndicatorClasses() {
             return {
                 'selected-indicator--visible': this.showSelectionIndicator,
+                'selected-indicator--list': this.isList,
                 'selected-indicator--checked': this.listSelected
             };
         }

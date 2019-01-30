@@ -63,6 +63,11 @@ $sw-media-base-item-preview-background:      $color-white;
         }
     }
 
+    .selected-indicator--list {
+        position: static;
+        grid-row: 1 / span 2;
+    }
+
     .selected-indicator--visible {
         visibility: visible;
     }
@@ -163,13 +168,17 @@ $sw-media-base-item-preview-background:      $color-white;
             width: 40px;
             height: 40px;
             grid-row:  1 / span 2;
+            overflow: hidden;
+
+            border: none !important;
 
             &::after {
                 content: none;
             }
 
             .sw-media-preview__item {
-                max-width: 100%;
+                min-width: 100%;
+                max-width: none;
                 max-height: 100%;
             }
         }
@@ -208,6 +217,7 @@ $sw-media-base-item-preview-background:      $color-white;
 
         .sw-media-base-item__loader {
             position: static;
+            grid-row: 1 / span 2;
         }
     }
 

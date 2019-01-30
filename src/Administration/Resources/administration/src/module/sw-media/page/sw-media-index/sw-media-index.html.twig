@@ -240,7 +240,8 @@
                         :currentFolder="routeFolderId ? currentFolder : null"
                         @sw-media-sidebar-items-delete="onMediaGridItemsDeleted"
                         @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
-                        @sw-media-sidebar-items-moved="onMediaMoved">
+                        @sw-media-sidebar-items-moved="onMediaMoved"
+                        @sw-media-item-selection-remove="handleMediaGridItemUnselected">
                     </sw-media-sidebar>
                 {% endblock %}
 

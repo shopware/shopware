@@ -45,5 +45,11 @@ Component.register('sw-media-quickinfo-multiple', {
                 return item.entityName === 'media';
             });
         }
+    },
+
+    methods: {
+        onRemoveItemFromSelection(event) {
+            this.$emit('sw-media-item-selection-remove', event);
+        }
     }
 });

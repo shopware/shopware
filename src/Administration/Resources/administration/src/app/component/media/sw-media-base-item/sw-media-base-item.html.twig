@@ -75,6 +75,20 @@
             </sw-context-button>
         {% endblock %}
 
+        <div v-if="isList && showSelectionIndicator"
+             class="sw-media-base-item__selected-indicator"
+             :class="selectionIndicatorClasses"
+             @click="onClickedItem">
+
+            {% block sw_media_base_item_selection_indicator_icon %}
+                <sw-icon
+                        v-if="listSelected"
+                        size="16px"
+                        name="small-default-checkmark-line-small">
+                </sw-icon>
+            {% endblock %}
+        </div>
+
         {% block sw_media_base_item_loading_indicator %}
             <sw-icon
                 v-if="isLoading"

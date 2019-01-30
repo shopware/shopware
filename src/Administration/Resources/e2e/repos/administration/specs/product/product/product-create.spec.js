@@ -72,7 +72,7 @@ module.exports = {
             .refresh()
             .waitForElementVisible(page.elements.productListName)
             .assert.containsText(page.elements.productListName, 'Marci Darci')
-            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}:first-child`)
+            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible('.sw-product-detail-base')
             .waitForElementVisible(mediaPageObject.elements.previewItem)
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-item')

@@ -24,8 +24,8 @@ module.exports = {
         const page = salesChannelPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.salesChannelMenuName}:first-child`)
-            .click(`${page.elements.salesChannelMenuName}:first-child`)
+            .waitForElementVisible(`${page.elements.salesChannelMenuName}--0`)
+            .click(`${page.elements.salesChannelMenuName}--0`)
             .waitForElementVisible(page.elements.smartBarHeader);
 
         page.checkClipboard();
@@ -34,12 +34,9 @@ module.exports = {
     'check if the api credentials of the sales channel are changed correctly': (browser) => {
         const page = salesChannelPage(browser);
 
-        browser
-            .refresh();
-
+        browser.refresh();
         page.openSalesChannel(fixture.name);
-        browser
-            .waitForElementNotPresent(page.elements.loader);
+        browser.waitForElementNotPresent(page.elements.loader);
         page.verifyChangedApiCredentials();
     },
     after: (browser) => {

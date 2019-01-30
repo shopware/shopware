@@ -40,8 +40,8 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .waitForElementVisible('.sw-settings-language-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.languageColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.languageColumnName}`, 'Philippine English');
+            .waitForElementVisible(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, 'Philippine English');
     },
     after: (browser) => {
         browser.end();

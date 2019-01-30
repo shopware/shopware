@@ -18,8 +18,11 @@ module.exports = {
             .waitForElementVisible('.sw-media-media-item:nth-of-type(1)');
     },
     'click preview thumbnail to open sidebar': (browser) => {
+        const page = mediaPage(browser);
+
         browser
-            .click('.sw-media-preview__item:nth-of-type(1)')
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
             .waitForElementVisible('.sw-media-quickinfo');
     },
     'verify meta data': (browser) => {

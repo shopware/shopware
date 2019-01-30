@@ -183,9 +183,9 @@
 
                                                 {% block sw_media_index_selectable_items %}
                                                     <sw-media-entity-mapper
-                                                        v-for="gridItem in selectableItems"
+                                                        v-for="(gridItem, index) in selectableItems"
                                                         :key="gridItem.entityName + '_' + gridItem.id"
-                                                        :class="dragSelectorClass"
+                                                        :class="['sw-media-grid-item__item--' + index, dragSelectorClass]"
                                                         :item="gridItem"
                                                         :selected="showItemSelected(gridItem)"
                                                         :showSelectionIndicator="isListSelect"

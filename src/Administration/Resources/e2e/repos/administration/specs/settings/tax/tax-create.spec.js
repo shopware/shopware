@@ -26,8 +26,8 @@ module.exports = {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-tax-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.taxColumnName}`, 'High tax');
+            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, 'High tax');
     },
     after: (browser) => {
         browser.end();

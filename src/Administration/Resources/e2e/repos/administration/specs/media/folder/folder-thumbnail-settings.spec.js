@@ -14,7 +14,7 @@ module.exports = {
     },
     'open thumbnail settings': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal(page.elements.showSettingsAction);
+        page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
             .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
@@ -37,7 +37,7 @@ module.exports = {
     },
     'remove first thumbnail size and create second size with separate height afterwards': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal(page.elements.showSettingsAction);
+        page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
             .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
@@ -62,16 +62,16 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
-            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
 
         page.createFolder('Child folder', true);
     },
     'check inheritance of parent thumbnail settings and sizes': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal(page.elements.showSettingsAction);
+        page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
             .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
@@ -115,7 +115,7 @@ module.exports = {
     },
     'verify deactivated inheritance': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal(page.elements.showSettingsAction);
+        page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
             .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')

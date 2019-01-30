@@ -16,11 +16,11 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementPresent('.sw-button__content')
+            .waitForElementPresent(`${page.elements.gridRow}--0 .sw-button__content`)
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}:first-child`, global.FixtureService.basicFixture.name);
+            .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
+            .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
     },
     'verify manufacturer details': (browser) => {
         const page = manufacturerPage(browser);
@@ -28,8 +28,8 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .waitForElementVisible(page.elements.contextMenu)
             .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
             .waitForElementNotPresent(page.elements.loader)
@@ -51,8 +51,8 @@ module.exports = {
             .waitForElementVisible('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.gridRow}:first-child`)
-            .assert.containsText(`${page.elements.gridRow}:first-child`, 'shopware AG')
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
+            .assert.containsText(`${page.elements.gridRow}--0`, 'shopware AG')
             .assert.containsText('.sw-page__smart-bar-amount', '(1)');
     },
     after: (browser) => {

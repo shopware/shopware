@@ -11,7 +11,8 @@ export default class GeneralPageObject {
 
             cardTitle: '.sw-card__title',
 
-            gridRow: '.sw-grid-row',
+            gridRow: '.sw-grid__row',
+            gridRowInlineEdit: '.sw-grid-row__inline-edit-action',
             emptyState: '.sw-empty-state',
             contextMenu: '.sw-context-menu',
             contextMenuButton: '.sw-context-button__button',

@@ -23,8 +23,8 @@ module.exports = {
             .waitForElementPresent('.sw-button__content')
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}:first-child`, 'MAN-U-FACTURE');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .assert.containsText(`${page.elements.gridRow}--0`, 'MAN-U-FACTURE');
     },
     'verify manufacturer details': (browser) => {
         const page = manufacturerPage(browser);
@@ -32,8 +32,8 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .waitForElementVisible(page.elements.contextMenu)
             .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
             .waitForElementNotPresent(page.elements.loader)

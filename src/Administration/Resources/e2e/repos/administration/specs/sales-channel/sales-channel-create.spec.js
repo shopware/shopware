@@ -19,8 +19,8 @@ module.exports = {
         const page = salesChannelPage(browser);
 
         browser
-            .waitForElementVisible('.sw-sales-channel-modal__grid-item-name:first-child')
-            .assert.containsText('.sw-sales-channel-modal__grid-item-name:first-child', 'Storefront')
+            .waitForElementVisible(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`)
+            .assert.containsText(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`, 'Storefront')
             .waitForElementVisible('.sw-sales-channel-modal__show-detail-action')
             .click('.sw-sales-channel-modal__show-detail-action')
             .waitForElementVisible('.sw-sales-channel-modal__title')

@@ -16,8 +16,8 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-base-item__preview-container')
-            .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
@@ -42,7 +42,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-media-context-item__dissolve-folder-action', page.elements.contextMenuButton)
+            .clickContextMenuItem('.sw-media-context-item__dissolve-folder-action', page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible(page.elements.modal)
             .assert.containsText(`${page.elements.modal}__body`, `Are you sure you want to dissolve "${global.MediaFixtureService.mediaFolderFixture.name}" ?`)
             .waitForElementVisible('.sw-media-modal-folder-dissolve__confirm')

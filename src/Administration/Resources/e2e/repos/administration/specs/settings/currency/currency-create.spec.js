@@ -30,8 +30,8 @@ module.exports = {
             .click(page.elements.smartBarBack)
             .waitForElementVisible('.sw-settings-currency-list-grid')
             .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.currencyColumnName}`, 'Yen');
+            .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, 'Yen');
     },
     after: (browser) => {
         browser.end();

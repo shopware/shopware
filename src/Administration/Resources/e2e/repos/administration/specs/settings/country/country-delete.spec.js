@@ -12,14 +12,14 @@ module.exports = {
 
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries')
-            .waitForElementVisible(`${page.elements.countryColumnName}:first-child`)
-            .assert.containsText(`${page.elements.countryColumnName}:first-child`, global.FixtureService.basicFixture.name);
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}:first-child`)
+            .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
     },
     'delete country': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}:first-child`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible(page.elements.modal)
             .assert.containsText(`${page.elements.modal} .sw-modal__body`, `Are you sure you want to delete the country "${global.FixtureService.basicFixture.name}"?`)
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

@@ -15,20 +15,20 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.contextMenuButton}`)
-            .moveToElement(`${page.elements.gridRow}:first-child`, 5, 5).doubleClick()
-            .fillField(`${page.elements.gridRow}:first-child input[name=sw-field--item-name]`, 'Nordfriesisch', true)
-            .waitForElementVisible(`${page.elements.gridRow}__inline-edit-action`)
-            .click(`${page.elements.gridRow}__inline-edit-action`)
-            .waitForElementNotPresent('.is--inline-editing ');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Nordfriesisch', true)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .waitForElementNotPresent('.is--inline-editing');
     },
     'verify edited language': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .waitForElementVisible('.sw-settings-language-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.languageColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:first-child ${page.elements.languageColumnName}`, 'Nordfriesisch');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`, 'Nordfriesisch');
     },
     after: (browser) => {
         browser.end();

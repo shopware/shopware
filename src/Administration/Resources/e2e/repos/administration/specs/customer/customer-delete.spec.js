@@ -23,7 +23,7 @@ module.exports = {
         browser
             .waitForElementPresent(page.elements.columnName)
             .assert.containsText(page.elements.columnName, 'Pep Eroni')
-            .clickContextMenuItem(`${page.elements.contextMenu}-item--danger`, page.elements.contextMenuButton, `${page.elements.gridRow}:first-child`)
+            .clickContextMenuItem(`${page.elements.contextMenu}-item--danger`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible(page.elements.modal)
             .assert.containsText(`.sw-modal .sw-customer-list__confirm-delete-text`, 'Are you sure you want to delete the customer "Pep Eroni"?')
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

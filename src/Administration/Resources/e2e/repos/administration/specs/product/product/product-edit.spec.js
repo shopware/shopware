@@ -23,8 +23,8 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .waitForElementVisible(page.elements.contextMenu)
             .click('.sw-context-menu-item__text')
             .waitForElementNotPresent(page.elements.loader)

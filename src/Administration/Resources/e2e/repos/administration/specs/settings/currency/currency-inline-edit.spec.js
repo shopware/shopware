@@ -22,23 +22,23 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.contextMenuButton}`)
-            .moveToElement(`${page.elements.gridRow}:first-child`, 5, 5).doubleClick()
-            .fillField('input[name=sw-field--item-name]', 'Galactic Credits', true)
-            .fillField('input[name=sw-field--item-shortName]', 'GCr', true)
-            .fillField('input[name=sw-field--item-symbol]', '%', true)
-            .fillField('input[name=sw-field--item-factor]', '2.58', true)
-            .waitForElementVisible(`${page.elements.gridRow}__inline-edit-action`)
-            .click(`${page.elements.gridRow}__inline-edit-action`)
-            .waitForElementNotPresent('.is--inline-editing ');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Galactic Credits', true)
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-shortName]`, 'GCr', true)
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-symbol]`, '%', true)
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-factor]`, '2.58', true)
+            .waitForElementVisible( `${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .waitForElementNotPresent('.is--inline-editing');
     },
     'verify edited currency': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .waitForElementVisible('.sw-settings-currency-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}:first-child ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:first-child ${page.elements.currencyColumnName}`, 'Galactic Credits');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`, 'Galactic Credits');
     },
     after: (browser) => {
         browser.end();

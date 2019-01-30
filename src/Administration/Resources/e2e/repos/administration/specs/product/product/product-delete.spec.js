@@ -27,7 +27,7 @@ module.exports = {
 
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}:first-child`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible(page.elements.modal)
             .assert.containsText(`${page.elements.modal} .sw-product-list__confirm-delete-text`, `Are you sure you really want to delete the product "${fixture.name}"?`)
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

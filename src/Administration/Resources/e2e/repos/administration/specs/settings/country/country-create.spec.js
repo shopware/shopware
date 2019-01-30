@@ -27,8 +27,8 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .waitForElementVisible('.sw-settings-country-list-grid')
-            .waitForElementVisible(`${page.elements.countryColumnName}:first-child`)
-            .assert.containsText(`${page.elements.countryColumnName}:first-child`, '1.Niemandsland');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`, '1.Niemandsland');
     },
     after: (browser) => {
         browser.end();

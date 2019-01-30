@@ -32,7 +32,7 @@ module.exports = {
             .openMainMenuEntry('#/sw/media/index', 'Media')
             .assert.urlContains('#/sw/media/index');
 
-        if (flags.isActive('next1207')) {
+        if (global.flags.isActive('next1207')) {
             browser
                 .waitForElementVisible('.sw-media-base-item__preview-container')
                 .moveToElement('.sw-media-base-item__preview-container', 5, 5).doubleClick()
@@ -41,7 +41,7 @@ module.exports = {
     },
     'open replace modal': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal('.sw-media-context-item__replace-media-action');
+        page.openMediaModal('.sw-media-context-item__replace-media-action', 0);
     },
     'ensure image cannot be replaced with empty input': (browser) => {
         browser
@@ -77,8 +77,8 @@ module.exports = {
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-test-image.png');
 
         browser
-            .waitForElementVisible('.sw-media-preview__item')
-            .click('.sw-media-preview__item')
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
             .waitForElementVisible('.sw-media-quickinfo__media-preview')
             .waitForElementVisible('.sw-media-sidebar__headline')
             .assert.containsText('.sw-media-sidebar__headline', 'sw-test-image.png')

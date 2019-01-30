@@ -32,8 +32,8 @@ class ManufacturerPageObject extends GeneralPageObject {
         this.browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementNotPresent('.sw-loader')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
+            .waitForElementNotPresent(this.elements.loader)
+            .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0 `)
             .waitForElementVisible('.sw-modal')
             .assert.containsText(
                 `${this.elements.modal}__body`,

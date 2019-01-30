@@ -20,8 +20,8 @@ module.exports = {
         page.openMediaIndex();
 
         browser
-            .waitForElementVisible('.sw-media-base-item__preview-container')
-            .click('.sw-media-base-item__preview-container')
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .waitForElementVisible('.quickaction--settings')
             .click('.quickaction--settings')
             .waitForElementVisible(`${page.elements.modal}__title`)
@@ -47,7 +47,7 @@ module.exports = {
             .waitForElementVisible(page.elements.saveSettingsAction)
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully')
-            .waitForElementVisible('.icon--default-symbol-products');
+            .waitForElementVisible(`.icon--default-symbol-products`);
     },
     'check if the folder is used as default location when uploading in products': (browser) => {
         const page = mediaPage(browser);
@@ -58,7 +58,7 @@ module.exports = {
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', global.ProductFixtureService.productFixture.name)
             .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton)
-            .expect.element('.smart-bar__header h2').to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
     },
     'upload product image and verify location in sidebar': (browser) => {
         const productPageObject = productPage(browser);
@@ -67,8 +67,8 @@ module.exports = {
         productPageObject.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, global.ProductFixtureService.productFixture.name);
 
         browser
-            .waitForElementVisible(mediaPageObject.previewItem)
-            .getAttribute(mediaPageObject.previewItem, 'src', function (result) {
+            .waitForElementVisible('.sw-product-image__image')
+            .getAttribute('.sw-product-image__image .sw-media-preview__item', 'src', function (result) {
                 this.assert.ok(result.value);
                 this.assert.notEqual(result.value, `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
             })
@@ -85,13 +85,11 @@ module.exports = {
         const page = mediaPage(browser);
         page.openMediaIndex();
         browser
-            .waitForElementNotPresent(page.elements.mediaNameLabel)
-            .waitForElementVisible(page.elements.folderNameLabel)
-            .waitForElementVisible('.sw-media-base-item__preview-container')
-            .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
             .waitForElementVisible('.icon--folder-thumbnail-back')
-            .waitForElementVisible('.smart-bar__header')
-            .expect.element('.smart-bar__header').to.have.text.that.equals(fixtures.name);
+            .waitForElementVisible(page.elements.smartBarHeader)
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixtures.name);
 
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
     },

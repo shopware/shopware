@@ -4,7 +4,7 @@ class SalesChannelPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements,{
+        this.elements = Object.assign(this.elements, {
             salesChannelMenuName: '.sw-admin-menu__sales-channel-item',
             salesChannelModal: '.sw-sales-channel-modal',
             salesChannelNameInput: 'input[name=sw-field--salesChannel-name]',
@@ -73,12 +73,12 @@ class SalesChannelPageObject extends GeneralPageObject {
             .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
     }
 
-    openSalesChannel(salesChannelName) {
+    openSalesChannel(salesChannelName, position = 0) {
         this.browser
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', salesChannelName)
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item:first-child')
-            .click('.sw-admin-menu__sales-channel-item:first-child')
+            .waitForElementVisible(`${this.elements.salesChannelMenuName}--${position} .collapsible-text`)
+            .assert.containsText(`${this.elements.salesChannelMenuName}--${position} .collapsible-text`, salesChannelName)
+            .waitForElementVisible(`${this.elements.salesChannelMenuName}--${position}`)
+            .click(`${this.elements.salesChannelMenuName}--${position}`)
             .waitForElementVisible(this.elements.smartBarHeader)
             .assert.containsText(`${this.elements.smartBarHeader} h2`, salesChannelName);
     }

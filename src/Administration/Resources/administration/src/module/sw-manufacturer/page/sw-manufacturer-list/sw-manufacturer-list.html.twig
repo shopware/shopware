@@ -60,7 +60,8 @@
                                     {% block sw_manufacturer_list_grid_columns %}
 
                                         {% block sw_manufacturer_list_grid_columns_name %}
-                                            <sw-grid-column flex="minmax(200px, 1fr)"
+                                            <sw-grid-column class="sw-manufacturer-list_column-manufacturer"
+                                                            flex="minmax(200px, 1fr)"
                                                             :label="$tc('sw-manufacturer.list.columnName')"
                                                             dataIndex="name"
                                                             sortable
@@ -92,7 +93,8 @@
                                         {% endblock %}
 
                                         {% block sw_manufacturer_list_grid_columns_description %}
-                                            <sw-grid-column flex="minmax(200px, 1fr)"
+                                            <sw-grid-column class="sw-manufacturer-list_column-manufacturer-description"
+                                                            flex="minmax(200px, 1fr)"
                                                             :label="$tc('sw-manufacturer.list.columnDescription')"
                                                             dataIndex="description"
                                                             truncate

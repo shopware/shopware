@@ -78,7 +78,7 @@ class IntegrationPageObject extends GeneralPageObject {
 
     deleteSingleIntegration(integrationName) {
         this.browser
-            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, '.sw-grid-row:first-child')
+            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
             .waitForElementVisible(this.elements.modal)
             .assert.containsText(`${this.elements.modal}__body`, `Are you sure you want to delete this integration? ${integrationName}`)
             .click(`${this.elements.modal} button.sw-button--primary`)

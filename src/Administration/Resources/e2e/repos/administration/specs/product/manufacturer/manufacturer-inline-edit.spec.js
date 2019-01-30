@@ -17,25 +17,16 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .expect.element('.sw-grid-row:first-child .sw-manufacturer-list_column-manufacturer-name').to.have.text.that.equals('MAN-U-FACTURE');
-
-        browser
-            .moveToElement(`${page.elements.gridRow}:first-child`, 5, 5).doubleClick()
-            .waitForElementVisible('.is--inline-editing')
-            .fillField('input[name=sw-field--item-name]', 'I am Groot', true)
-            .waitForElementVisible(`${page.elements.gridRow}__inline-edit-action`)
-            .click(`${page.elements.gridRow}__inline-edit-action`)
-            .waitForElementNotPresent('.is--inline-editing ')
-            .refresh()
+            .waitForElementVisible(`${page.elements.gridRow}--0 > .sw-manufacturer-list_column-manufacturer-description`)
+            .moveToElement(`${page.elements.gridRow}--0 > .sw-manufacturer-list_column-manufacturer-description`, 5, 5)
+            .doubleClick()
+            .waitForElementPresent('.is--inline-editing ')
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'I am Groot', true)
+            .waitForElementVisible(page.elements.gridRowInlineEdit)
+            .click(page.elements.gridRowInlineEdit)
+            .waitForElementNotPresent('.is--inline-editing')
             .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left', 'I am Groot')
-            .moveToElement(`${page.elements.gridRow}:first-child .sw-grid-column:nth-child(3)`, 5, 5).doubleClick()
-            .fillField('input[name=sw-field--item-link]', 'www.google.ru', true)
-            .waitForElementVisible(`${page.elements.gridRow}__inline-edit-action`)
-            .click(`${page.elements.gridRow}__inline-edit-action`)
-            .waitForElementNotPresent('.is--inline-editing ')
-            .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left:nth-child(2)', 'I am Groot');
+            .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left', 'I am Groot');
     },
     after: (browser) => {
         browser.end();

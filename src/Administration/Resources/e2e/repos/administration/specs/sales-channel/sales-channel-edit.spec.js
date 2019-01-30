@@ -17,15 +17,15 @@ module.exports = {
 
         browser
             .refresh()
-            .waitForElementVisible(`${page.elements.salesChannelMenuName} .collapsible-text`)
-            .assert.containsText(`${page.elements.salesChannelMenuName} .collapsible-text`, userFixture.name);
+            .waitForElementVisible(`${page.elements.salesChannelMenuName}--0`)
+            .assert.containsText(`${page.elements.salesChannelMenuName}--0`, userFixture.name);
     },
     'edit name of sales channel': (browser) => {
         const page = salesChannelPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.salesChannelMenuName}:first-child`)
-            .click(`${page.elements.salesChannelMenuName}:first-child`)
+            .waitForElementVisible(`${page.elements.salesChannelMenuName}--0`)
+            .click(`${page.elements.salesChannelMenuName}--0`)
             .waitForElementVisible(page.elements.smartBarHeader)
             .assert.containsText(`${page.elements.smartBarHeader} h2`, userFixture.name)
             .fillField(page.elements.salesChannelNameInput, '2nd Epic Sales Channel at all', true)

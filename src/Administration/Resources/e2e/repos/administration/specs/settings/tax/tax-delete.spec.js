@@ -13,14 +13,14 @@ module.exports = {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax')
             .waitForElementVisible('.sw-settings-tax-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.taxColumnName}`, global.FixtureService.basicFixture.name);
+            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, global.FixtureService.basicFixture.name);
     },
     'delete tax': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}:last-child`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
             .waitForElementVisible(page.elements.modal)
             .assert.containsText(`${page.elements.modal} ${page.elements.modal}__body`, `Are you sure you want to delete the tax "${global.FixtureService.basicFixture.name}"?`)
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

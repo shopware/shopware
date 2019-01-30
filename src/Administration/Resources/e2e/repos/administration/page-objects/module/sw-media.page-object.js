@@ -4,10 +4,11 @@ class MediaPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements,{
+        this.elements = Object.assign(this.elements, {
             previewItem: '.sw-media-preview__item',
             folderPreviewItem: '.sw-media-base-item__preview-container',
             baseItem: '.sw-media-base-item',
+            gridItem: '.sw-media-grid-item__item',
             folderNameInput: 'input[name=media-item-name]',
             folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
             folderBreadcrumbBack: '.icon--folder-breadcrumbs-dropdown',
@@ -45,9 +46,9 @@ class MediaPageObject extends GeneralPageObject {
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]');
     }
 
-    openMediaModal(action) {
+    openMediaModal(action, itemPosition) {
         this.browser
-            .waitForElementVisible(this.elements.baseItem)
+            .waitForElementVisible(`${this.elements.gridItem}--${itemPosition} ${this.elements.baseItem}`)
             .moveToElement(this.elements.baseItem, 5, 5)
             .clickContextMenuItem(action, '.sw-context-button__button')
             .waitForElementVisible('.sw-modal__title');
@@ -62,8 +63,7 @@ class MediaPageObject extends GeneralPageObject {
             .fillField(this.elements.folderNameInput, name)
             .setValue(this.elements.folderNameInput, this.browser.Keys.ENTER)
             .waitForElementNotPresent('.sw-media-base-item__loader')
-            .waitForElementVisible(this.elements.folderNameLabel)
-            .waitForText('Settings');
+            .waitForElementVisible(`${this.elements.gridItem}--0`);
 
         if (child) {
             this.browser

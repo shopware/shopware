@@ -28,12 +28,12 @@
                     <ul class="sw-admin-menu__navigation-list">
 
                         {% block sw_sales_channel_menu_navigation_main_items %}
-                            <sw-admin-menu-item v-for="entry in menuItems"
+                            <sw-admin-menu-item v-for="(entry, index) in menuItems"
                                                 class="sw-admin-menu__sales-channel-item"
                                                 :entry="entry"
                                                 :key="entry.id || entry.path"
                                                 iconSize="16px"
-                                                :class="entry.label">
+                                                :class="['sw-admin-menu__sales-channel-item--' + index, entry.label]">
                             </sw-admin-menu-item>
                         {% endblock %}
                     </ul>

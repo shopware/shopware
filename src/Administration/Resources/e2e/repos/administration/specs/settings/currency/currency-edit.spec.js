@@ -13,15 +13,15 @@ module.exports = {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies')
             .waitForElementVisible('.sw-settings-currency-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.currencyColumnName}`, global.FixtureService.basicFixture.name);
+            .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.FixtureService.basicFixture.name);
     },
     'edit currency': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.currencyColumnName}`, global.FixtureService.basicFixture.name)
-            .clickContextMenuItem('.sw-currency-list__edit-action', '.sw-context-button__button', '.sw-grid-row:last-child')
+            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.FixtureService.basicFixture.name)
+            .clickContextMenuItem('.sw-currency-list__edit-action', '.sw-context-button__button', `${page.elements.gridRow}--3`)
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .clearValue('input[name=sw-field--currency-name]')
             .fillField('input[name=sw-field--currency-name]', 'Yen but true', true)
@@ -36,8 +36,8 @@ module.exports = {
         browser
             .click('a.smart-bar__back-btn')
             .waitForElementVisible('.sw-settings-currency-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}:last-child ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}:last-child ${page.elements.currencyColumnName}`, 'Yen but true');
+            .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, 'Yen but true');
     },
     after: (browser) => {
         browser.end();

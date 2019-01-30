@@ -20,23 +20,17 @@ module.exports = {
         const page = customerPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow} .sw-context-button__button`)
-            .moveToElement(`${page.elements.gridRow}:first-child`, 5, 5).doubleClick()
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
+            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .waitForElementPresent('.is--inline-editing ')
-            .fillField('input[name=sw-field--item-firstName]', 'Meghan', true)
-            .fillField('input[name=sw-field--item-lastName]', 'Markle', true)
-            .waitForElementVisible(`.sw-grid-row__inline-edit-action`)
-            .click(`${page.elements.gridRow}__inline-edit-action`)
-            .waitForElementNotPresent('.is--inline-editing ')
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-firstName]`, 'Meghan', true)
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-lastName]`, 'Markle', true)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .waitForElementNotPresent('.is--inline-editing')
             .refresh()
-            .waitForElementVisible(`${page.elements.gridRow} .sw-context-button__button`)
-            .assert.containsText(page.elements.columnName, 'Meghan Markle')
-            .moveToElement(`.sw-grid-row:first-child`, 5, 5).doubleClick()
-            .waitForElementVisible(`${page.elements.gridRow}__inline-edit-action`)
-            .fillField('.is--inline-editing .sw-field__input input', '007-JB-337826', true)
-            .click(`${page.elements.gridRow}__inline-edit-action`)
-            .waitForElementNotPresent('.is--inline-editing ')
-            .assert.containsText(`.sw-grid-column.sw-grid__cell.sw-grid-column--right`, '007-JB-337826');
+            .waitForElementVisible(`.sw-grid-row ${page.elements.contextMenuButton}`)
+            .assert.containsText(page.elements.columnName, 'Meghan Markle');
     },
     after: (browser) => {
         browser.end();

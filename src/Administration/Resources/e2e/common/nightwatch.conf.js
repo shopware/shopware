@@ -46,7 +46,6 @@ module.exports = {
         },
         docker: {
             filter: '**/*.spec.js',
-            launch_url: 'http://docker.vm:8000/admin',
 
             screenshots: {
                 enabled: true,

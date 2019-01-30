@@ -22,6 +22,13 @@ export default class ApiService {
         throw new Error('Implement method loginByUserName()');
     }
 
+    clearCache(action) {
+        return this.delete(action).catch((err) => {
+            global.logger.error(err);
+            global.logger.lineBreak();
+        })
+    }
+
     get(url, params = {}) {
         return this.request({
             method: 'get',
@@ -82,20 +89,18 @@ export default class ApiService {
     }
 
     request({url, method, params, data}) {
-        return this.loginByUserName().then(() => {
-            const requestConfig = {
-                headers: this.getHeaders(),
-                url,
-                method,
-                params,
-                data
-            };
-            return this.client.request(requestConfig).then((response) => {
-                if (Array.isArray(response.data.data) && response.data.data.length === 1) {
-                    return response.data.data[0];
-                }
-                return response.data.data;
-            });
+        const requestConfig = {
+            headers: this.getHeaders(),
+            url,
+            method,
+            params,
+            data
+        };
+        return this.client.request(requestConfig).then((response) => {
+            if (Array.isArray(response.data.data) && response.data.data.length === 1) {
+                return response.data.data[0];
+            }
+            return response.data.data;
         });
     }
 }

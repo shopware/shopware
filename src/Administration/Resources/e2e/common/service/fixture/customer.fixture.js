@@ -1,4 +1,4 @@
-const FixtureService = require('administration/service/fixture.service.js').default;
+const FixtureService = require('./../fixture.service.js').default;
 
 export default class CustomerFixtureService extends FixtureService {
     constructor() {
@@ -17,6 +17,7 @@ export default class CustomerFixtureService extends FixtureService {
     }
 
     setCustomerFixture(userData) {
+        const startTime = new Date();
         global.logger.lineBreak();
         global.logger.title('Set customer fixtures...');
 
@@ -89,11 +90,12 @@ export default class CustomerFixtureService extends FixtureService {
             return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData, userData);
         }).then((finalCustomerData) => {
             return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
+        }).then((data) => {
+            const endTime = new Date() - startTime;
+            global.logger.success(`${data.id} (${endTime / 1000}s)`);
+            global.logger.lineBreak();
         }).catch((err) => {
             global.logger.error(err);
-            global.logger.lineBreak();
-        }).then((data) => {
-            global.logger.success(data.id);
             global.logger.lineBreak();
         });
     }

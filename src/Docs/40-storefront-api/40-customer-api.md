@@ -5,7 +5,7 @@ also be used to change and receive customer related information.
 
 ## Register a customer
 
-**POST  /storefront-api/customer**
+**POST  /storefront-api/v1/customer**
 
 **Description:** Register a new
 customer. 
@@ -58,7 +58,7 @@ customer. 
 
 ### Log in a customer
 
-**POST  /storefront-api/customer/login**
+**POST  /storefront-api/v1/customer/login**
 
 **Description:** Log in a
 customer. 
@@ -75,7 +75,7 @@ Include this token as a HTTP header for all future requests.
 
 ### Log out a customer
 
-**POST  /storefront-api/customer/logout**
+**POST  /storefront-api/v1/customer/logout**
 
 **Header:** x-sw-context-token is required
 
@@ -83,7 +83,7 @@ Include this token as a HTTP header for all future requests.
 
 ## Get a order overview
 
-**GET  /storefront-api/customer/orders**
+**GET  /storefront-api/v1/customer/orders**
 
 **Parameter:**
 
@@ -98,7 +98,7 @@ Include this token as a HTTP header for all future requests.
 
 ## Update email address
 
-**PUT  /storefront-api/customer/email**
+**PUT  /storefront-api/v1/customer/email**
 
 **Parameter:**
 
@@ -114,7 +114,7 @@ Include this token as a HTTP header for all future requests.
 ## Update profile information
 
 **PUT 
-/storefront-api/customer/profile**
+/storefront-api/v1/customer/profile**
 
 **Parameter:**
 
@@ -134,7 +134,7 @@ Include this token as a HTTP header for all future requests.
 
 ## Get detailed customer information
 
-**GET  /storefront-api/customer**
+**GET  /storefront-api/v1/customer**
 
 **Header:** x-sw-context-token is required
 
@@ -144,7 +144,7 @@ Include this token as a HTTP header for all future requests.
 
 ### Get customer addresses
 
-**GET /storefront-api/customer/addresses**
+**GET /storefront-api/v1/customer/addresses**
 
 **Header:** x-sw-context-token is required
 
@@ -152,7 +152,7 @@ Include this token as a HTTP header for all future requests.
 
 ### Get customer address
 
-**GET /storefront-api/customer/address/{id}**
+**GET /storefront-api/v1/customer/address/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -161,7 +161,7 @@ The address id must be assigned with the customer currently logged in.
 
 ### Create customer address
 
-**POST /storefront-api/customer/address**
+**POST /storefront-api/v1/customer/address**
 
 **Header:** x-sw-context-token is
 required
@@ -180,7 +180,7 @@ required
 
 ### Set default billing address
 
-**POST  /storefront-api/customer/default-billing-address/{id}**
+**POST  /storefront-api/v1/customer/default-billing-address/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -188,7 +188,7 @@ required
 
 ### Set default shipping address
 
-**POST  /storefront-api/customer/default-shipping-address/{id}**
+**POST  /storefront-api/v1/customer/default-shipping-address/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -196,7 +196,7 @@ required
 
 ### Delete customer address
 
-**DELETE /storefront-api/customer/address/{id}**
+**DELETE /storefront-api/v1/customer/address/{id}**
 
 **Note:** You can not delete a default shipping or billing address.
 
@@ -225,14 +225,14 @@ required
     };
     
     function getCountry(iso3) {
-        const url = `${baseUrl}/storefront-api/sales-channel/countries?filter[iso3]=${iso3}`;
+        const url = `${baseUrl}/storefront-api/v1/sales-channel/countries?filter[iso3]=${iso3}`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then((json) => json.data[0]);
     }
     
     function registerCustomer(customer) {
-        const url = `${baseUrl}/storefront-api/customer`;
+        const url = `${baseUrl}/storefront-api/v1/customer`;
         const body = JSON.stringify(customer);
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -240,7 +240,7 @@ required
     }
     
     function login(username, password) {
-        const url = `${baseUrl}/storefront-api/customer/login`;
+        const url = `${baseUrl}/storefront-api/v1/customer/login`;
         const body = JSON.stringify({ username, password });
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -250,14 +250,14 @@ required
     }
     
     function logout() {
-        const url = `${baseUrl}/storefront-api/customer/logout`;
+        const url = `${baseUrl}/storefront-api/v1/customer/logout`;
         return fetch(url, { method: 'POST', headers })
             .then((resp) => resp.text())
             .then(() => { headers['x-sw-context-token'] = null });
     }
     
     function getProfile() {
-        const url = `${baseUrl}/storefront-api/customer`;
+        const url = `${baseUrl}/storefront-api/v1/customer`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then(({ data }) => data);

@@ -6,14 +6,14 @@ order.
 
 ## Create an empty cart
 
-**POST  /storefront-api/checkout/cart**  
+**POST  /storefront-api/v1/checkout/cart**  
 **Response:** If successful, the x-sw-context-token will be returned and
 the x-sw-context-token header will be set. Include this token as an HTTP
 header for all future requests.
 
 ## Get a cart
 
-**GET  /storefront-api/checkout/cart**
+**GET  /storefront-api/v1/checkout/cart**
 
 **Header:** x-sw-context-token is required
 
@@ -21,7 +21,7 @@ header for all future requests.
 
 ## Add product to cart
 
-**POST  /storefront-api/checkout/cart/product/{id}**
+**POST  /storefront-api/v1/checkout/cart/product/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -38,7 +38,7 @@ header for all future requests.
 
 ## Add line item to cart
 
-**POST  /storefront-api/checkout/cart/line-item/{id}**
+**POST  /storefront-api/v1/checkout/cart/line-item/{id}**
 
 **Header:** x-sw-context-token is
 required
@@ -62,7 +62,7 @@ required
 
 ## Remove line item from cart
 
-**DELETE  /storefront-api/checkout/cart/line-item/{id}**
+**DELETE  /storefront-api/v1/checkout/cart/line-item/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -71,7 +71,7 @@ required
 ## Update line item quantity
 
 **PATCH 
-/storefront-api/checkout/cart/line-item/{id}/quantity/{quantity}**
+/storefront-api/v1/checkout/cart/line-item/{id}/quantity/{quantity}**
 
 **Header:** x-sw-context-token is required
 
@@ -79,7 +79,7 @@ required
 
 ## Update line item
 
-**PATCH  /storefront-api/checkout/cart/line-item/{id}**
+**PATCH  /storefront-api/v1/checkout/cart/line-item/{id}**
 
 **Header:** x-sw-context-token is
 required
@@ -101,7 +101,7 @@ required
 
 ## Create an order
 
-**POST  /storefront-api/checkout/order**
+**POST  /storefront-api/v1/checkout/order**
 
 **Header:** x-sw-context-token is required
 
@@ -109,7 +109,7 @@ required
 
 ## Create a guest order
 
-**POST  /storefront-api/checkout/guest-order**
+**POST  /storefront-api/v1/checkout/guest-order**
 
 **Header:** x-sw-context-token is required
 
@@ -121,7 +121,7 @@ The guest parameter is always set to true.
 
 ## Start the payment process for an order
 
-**POST  /storefront-api/checkout/pay/order/{orderId}**
+**POST  /storefront-api/v1/checkout/pay/order/{orderId}**
 
 **Header:** x-sw-context-token is required
 
@@ -138,7 +138,7 @@ you will receive an empty response.
 
 ## Get guest order by a deep link
 
-**GET  /storefront-api/checkout/guest-order/{id}**
+**GET  /storefront-api/v1/checkout/guest-order/{id}**
 
 **Parameter:** The *accessCode* parameter is required and will be
 returned when a guest order is placed.
@@ -166,7 +166,7 @@ returned when a guest order is placed.
     
     function initCart() {
         const init = { method: 'POST', headers };
-        return fetch(baseUrl + '/storefront-api/checkout/cart', init)
+        return fetch(baseUrl + '/storefront-api/v1/checkout/cart', init)
             .then((resp) => resp.json())
             .then(({ 'x-sw-context-token': contextToken }) => {
                 headers['x-sw-context-token'] = contextToken;
@@ -175,37 +175,37 @@ returned when a guest order is placed.
     
     function getCart() {
         const init = { method: 'GET', headers };
-        return fetch(baseUrl + '/storefront-api/checkout/cart', init)
+        return fetch(baseUrl + '/storefront-api/v1/checkout/cart', init)
             .then((resp) => resp.json());
     }
     
     function addProductToCart(productId) {
-        const url = `${baseUrl}/storefront-api/checkout/cart/product/${productId}`;
+        const url = `${baseUrl}/storefront-api/v1/checkout/cart/product/${productId}`;
         return fetch(url, { method: 'POST', headers })
             .then((resp) => resp.text());
     }
     
     function getProducts() {
-        return fetch(baseUrl + '/storefront-api/product', { headers })
+        return fetch(baseUrl + '/storefront-api/v1/product', { headers })
             .then((resp) => resp.json())
             .then(({ data }) => data)
     }
     
     function changeLineItemQuantity(key, quantity) {
-        const url = `${baseUrl}/storefront-api/checkout/cart/line-item/${key}/quantity/${quantity}`;
+        const url = `${baseUrl}/storefront-api/v1/checkout/cart/line-item/${key}/quantity/${quantity}`;
         return fetch(url, { method: 'PATCH', headers })
             .then((resp) => resp.json());
     }
     
     function getCountry(iso3) {
-        const url = `${baseUrl}/storefront-api/sales-channel/countries?filter[iso3]=${iso3}`;
+        const url = `${baseUrl}/storefront-api/v1/sales-channel/countries?filter[iso3]=${iso3}`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then(({ data }) => data[0]);
     }
     
     function guestOrder(customer) {
-        const url = `${baseUrl}/storefront-api/checkout/guest-order`;
+        const url = `${baseUrl}/storefront-api/v1/checkout/guest-order`;
         const body = JSON.stringify(customer);
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -213,7 +213,7 @@ returned when a guest order is placed.
     }
     
     function getGuestOrder(orderId, accessCode) {
-        const url = new URL(`${baseUrl}/storefront-api/checkout/guest-order/${orderId}`);
+        const url = new URL(`${baseUrl}/storefront-api/v1/checkout/guest-order/${orderId}`);
         url.searchParams.append('accessCode', accessCode);
     
         return fetch(url, { method: 'GET', headers })

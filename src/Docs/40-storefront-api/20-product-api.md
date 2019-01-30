@@ -5,7 +5,7 @@ information e.g. for a storefront listing.
 
 ## Listing of products
 
-**GET /storefront-api/product**
+**GET /storefront-api/v1/product**
 
 Description: Returns a list of products assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported. You
@@ -14,6 +14,6 @@ find more information about these operations
 
 ## Detailed product information
 
-**GET /storefront-api/product/{productId}**
+**GET /storefront-api/v1/product/{productId}**
 
 Description: Returns detailed information about a specific product.

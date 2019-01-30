@@ -6,7 +6,7 @@ sales channel.
 
 ## Get currencies
 
-**GET  /storefront-api/sales-channel/currencies**
+**GET  /storefront-api/v1/sales-channel/currencies**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of currencies assigned to the sales
@@ -16,7 +16,7 @@ supported. You find more information about these operations
 
 ## Get languages
 
-**GET  /storefront-api/sales-channel/languages**
+**GET  /storefront-api/v1/sales-channel/languages**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of languages assigned to the sales channel.
@@ -26,7 +26,7 @@ find more information about these operations
 
 ## Get countries
 
-**GET  /storefront-api/sales-channel/countries**
+**GET  /storefront-api/v1/sales-channel/countries**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of countries assigned to the sales channel.
@@ -36,7 +36,7 @@ find more information about these operations here
 
 ## Get country states
 
-**GET  /storefront-api/sales-channel/country/states**
+**GET  /storefront-api/v1/sales-channel/country/states**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of country states assigned to the sales
@@ -46,7 +46,7 @@ supported. You find more information about these operations
 
 ## Get payment methods
 
-**GET  /storefront-api/sales-channel/payment-methods**
+**GET  /storefront-api/v1/sales-channel/payment-methods**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of payment methods assigned to the sales
@@ -56,7 +56,7 @@ supported. You find more information about these operations
 
 ## Get shipping methods
 
-**GET  /storefront-api/sales-channel/shipping-methods**
+**GET  /storefront-api/v1/sales-channel/shipping-methods**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of shipping methods assigned to the sales

@@ -132,14 +132,10 @@ describe('core/service/jsonapi-parser.service.js', () => {
         const params = {
             page: 1,
             limit: 1,
-            aggregations: {
-                productCount: {
-                    count: { field: 'catalog.products.id' }
-                },
-                categoryCount: {
-                    count: { field: 'catalog.categories.id' }
-                }
-            },
+            aggregations: [
+                { name: 'productCount', type: 'count', field: 'catalog.products.id' },
+                { name: 'categoryCount', type: 'count', field: 'catalog.categories.id' }
+            ],
             filter: [
                 CriteriaFactory.equals('id', catalogId).getQuery()
             ]

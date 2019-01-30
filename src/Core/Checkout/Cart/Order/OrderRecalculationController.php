@@ -18,7 +18,6 @@ use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Storefront\Exception\AccountAddress\AddressNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -111,7 +110,6 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}", name="api.action.order.replace-order-address", methods={"POST"})
      *
-     * @throws AddressNotFoundException
      * @throws OrderRecalculationException
      * @throws InconsistentCriteriaIdsException
      */

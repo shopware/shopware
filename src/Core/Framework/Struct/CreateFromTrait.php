@@ -2,24 +2,15 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-/**
- * @category  Shopware\Core
- *
- * @copyright Copyright (c) shopware AG (http://www.shopware.de)
- */
 trait CreateFromTrait
 {
-    /**
-     * @param Struct $object
-     * @return static
-     */
     public static function createFrom(Struct $object)
     {
         try {
             $self = (new \ReflectionClass(static::class))
                 ->newInstanceWithoutConstructor();
         } catch (\ReflectionException $exception) {
-            throw new InvalidArgumentException($exception->getMessage());
+            throw new \InvalidArgumentException($exception->getMessage());
         }
 
         $vars = get_object_vars($object);
@@ -28,7 +19,7 @@ trait CreateFromTrait
             $self->$property = $value;
         }
 
-        /** @var static $self */
+        /* @var static $self */
         return $self;
     }
 }

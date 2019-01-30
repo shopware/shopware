@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Checkout\Info;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CheckoutInfoPagelet extends Struct

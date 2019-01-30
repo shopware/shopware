@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Page\Checkout\Config;
 
@@ -46,7 +46,7 @@ class CheckoutConfigPageLoader implements PageLoaderInterface
         /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $this->shippingMethodRepository->search(new Criteria(), $context->getContext())->getEntities();
 
-        $page = new CheckoutConfigPage($paymentMethods, $shippingMethods, $context->getPaymentMethod(), $context->getShippingMethod());
+        $page = new CheckoutConfigPage($context, $paymentMethods, $shippingMethods, $context->getPaymentMethod(), $context->getShippingMethod());
 
         $this->eventDispatcher->dispatch(
             CheckoutConfigPageLoadedEvent::NAME,

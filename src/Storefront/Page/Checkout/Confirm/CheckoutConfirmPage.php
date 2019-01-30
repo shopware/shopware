@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Storefront\Framework\Page\GenericPage;
 
 class CheckoutConfirmPage extends GenericPage

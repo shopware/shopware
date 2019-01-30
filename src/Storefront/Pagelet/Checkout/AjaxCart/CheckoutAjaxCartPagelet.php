@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Checkout\AjaxCart;
 
-use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CheckoutAjaxCartPagelet extends Struct

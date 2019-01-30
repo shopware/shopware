@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Page\Checkout\Config;
 
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -31,11 +32,13 @@ class CheckoutConfigPage extends GenericPage
     protected $activeShippingMethod;
 
     public function __construct(
+        CheckoutContext $context,
         PaymentMethodCollection $paymentMethods,
         ShippingMethodCollection $shippingMethods,
         PaymentMethodEntity $activePaymentMethod,
         ShippingMethodEntity $activeShippingMethod
     ) {
+        parent::__construct($context);
         $this->paymentMethods = $paymentMethods;
         $this->shippingMethods = $shippingMethods;
         $this->activePaymentMethod = $activePaymentMethod;

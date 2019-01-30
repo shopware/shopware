@@ -84,7 +84,8 @@ export default {
             showDuplicatedMediaModal: false,
             errorFiles: [],
             retryBatchAction: null,
-            localStorageKey: 'sw-duplicate-media-resolve-option'
+            localStorageKeyOption: 'sw-duplicate-media-resolve-option',
+            localStorageKeySaveSelection: 'sw-duplicate-media-resolve-save-selection'
         };
     },
 
@@ -464,7 +465,8 @@ export default {
         },
 
         retryUpload({ action, id, saveSelection, entityToReplace, newName }) {
-            window.localStorage.setItem(this.localStorageKey, action);
+            window.localStorage.setItem(this.localStorageKeyOption, action);
+            window.localStorage.setItem(this.localStorageKeySaveSelection, saveSelection || false);
 
             if (action !== 'Skip') {
                 const errorFile = this.errorFiles.find((error) => {
@@ -571,6 +573,11 @@ export default {
             this.closeDuplicateMediaModal();
         },
 
+        abortDuplicateMedia() {
+            this.errorFiles = [];
+            this.closeDuplicateMediaModal();
+        },
+
         closeDuplicateMediaModal(stayClosed) {
             this.showDuplicatedMediaModal = false;
 
@@ -586,7 +593,13 @@ export default {
         },
 
         getDefaultDuplicateMediaOption() {
-            return window.localStorage.getItem(this.localStorageKey) || 'Replace';
+            return window.localStorage.getItem(this.localStorageKeyOption) || 'Replace';
+        },
+
+        getDefaultDuplicateSaveSelection() {
+            return window.localStorage.getItem(this.localStorageKeySaveSelection) ?
+                JSON.parse(window.localStorage.getItem(this.localStorageKeySaveSelection)) :
+                true;
         }
     }
 };

@@ -169,7 +169,6 @@ $sw-media-base-item-preview-background:      $color-white;
             height: 40px;
             grid-row:  1 / span 2;
             overflow: hidden;
-
             border: none !important;
 
             &::after {
@@ -225,13 +224,9 @@ $sw-media-base-item-preview-background:      $color-white;
         .sw-media-base-item__preview-container {
             border: 1px solid $sw-media-base-item-color-selected
         }
+    }
 
-        .sw-media-base-item__name {
-            color: $sw-media-base-item-color-selected
-        }
-
-        &.is--list {
-            border: 1px solid $sw-media-base-item-color-selected;
-        }
+    &.is--selected.is--list {
+        border: 1px solid $sw-media-base-item-color-selected;
     }
 }

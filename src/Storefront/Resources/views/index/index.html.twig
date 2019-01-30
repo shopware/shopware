@@ -29,4 +29,10 @@
     });
 </script>
 
+{% set isDevMode = true %}
 
+{% if isDevMode %}
+    <script type="text/javascript" src="http://localhost:8080/app.bundle.js"></script>
+{% else %}
+    <script type="text/javascript" src="{{ asset('build/app.bundle.js') }}"></script>
+{% endif %}

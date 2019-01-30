@@ -14,7 +14,8 @@ module.exports = {
     },
     output: {
         path: buildDirectory,
-        filename: 'app.bundle.js'
+        filename: 'app.bundle.js',
+        publicPath: 'http://shopware.local:8080/'
     },
     devtool: 'source-map',
     mode: (isDevMode ? 'development' : 'production'),
@@ -47,6 +48,18 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "app.css",
             chunkFilename: "app.css"
-        })
-    ]
+        }),
+        new webpack.HotModuleReplacementPlugin()
+    ],
+    devServer: {
+        contentBase: buildDirectory,
+        hot: true,
+        compress: true,
+        disableHostCheck: true,
+        host: '0.0.0.0',
+        clientLogLevel: 'warning',
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        }
+    }
 };

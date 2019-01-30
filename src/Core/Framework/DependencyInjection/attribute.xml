@@ -10,6 +10,15 @@
             <tag name="shopware.entity.definition" entity="attribute"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Attribute\AttributeSetDefinition">
+            <tag name="shopware.entity.definition" entity="attribute_set"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Attribute\AttributeSetRelationDefinition">
+            <tag name="shopware.entity.definition" entity="attribute_set_relation"/>
+        </service>
+
+
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="attribute.repository" public="true">
             <argument>Shopware\Core\Framework\Attribute\AttributeDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
@@ -18,5 +27,25 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="attribute_set.repository" public="true">
+            <argument>Shopware\Core\Framework\Attribute\AttributeSetDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="attribute_set_relation.repository" public="true">
+            <argument>Shopware\Core\Framework\Attribute\AttributeSetRelationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+
     </services>
 </container>

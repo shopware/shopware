@@ -4,43 +4,40 @@ namespace Shopware\Core\Framework\Attribute;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
-class AttributeDefinition extends EntityDefinition
+class AttributeSetDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'attribute';
+        return 'attribute_set';
     }
 
     public static function getCollectionClass(): string
     {
-        return AttributeCollection::class;
+        return AttributeSetCollection::class;
     }
 
     public static function getEntityClass(): string
     {
-        return AttributeEntity::class;
+        return AttributeSetEntity::class;
     }
 
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
             new JsonField('config', 'config'),
 
-            new FkField('set_id', 'attributeSetId', AttributeSetDefinition::class),
-            new ManyToOneAssociationField('attributeSet', 'set_id', AttributeSetDefinition::class, false),
+            (new OneToManyAssociationField('attributes', AttributeDefinition::class, 'set_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('relations', AttributeSetRelationDefinition::class, 'set_id', false))->addFlags(new CascadeDelete()),
 
             new CreatedAtField(),
             new UpdatedAtField(),

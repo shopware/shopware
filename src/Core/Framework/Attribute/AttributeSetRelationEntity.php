@@ -5,31 +5,22 @@ namespace Shopware\Core\Framework\Attribute;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-class AttributeEntity extends Entity
+class AttributeSetRelationEntity extends Entity
 {
     use EntityIdTrait;
 
     /**
      * @var string
      */
-    protected $name;
+    protected $entityName;
+
     /**
      * @var string
-     */
-    protected $type;
-
-    /**
-     * @var array|null
-     */
-    protected $config;
-
-    /**
-     * @var string|null
      */
     protected $attributeSetId;
 
     /**
-     * @var AttributeSetEntity|null
+     * @var AttributeSetEntity
      */
     protected $attributeSet;
 
@@ -43,52 +34,32 @@ class AttributeEntity extends Entity
      */
     protected $updatedAt;
 
-    public function getName(): string
+    public function getEntityName(): string
     {
-        return $this->name;
+        return $this->entityName;
     }
 
-    public function setName(string $name): void
+    public function setEntityName(string $entityName): void
     {
-        $this->name = $name;
+        $this->entityName = $entityName;
     }
 
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): void
-    {
-        $this->type = $type;
-    }
-
-    public function getConfig(): ?array
-    {
-        return $this->config;
-    }
-
-    public function setConfig(?array $config): void
-    {
-        $this->config = $config;
-    }
-
-    public function getAttributeSetId(): ?string
+    public function getAttributeSetId(): string
     {
         return $this->attributeSetId;
     }
 
-    public function setAttributeSetId(?string $attributeSetId): void
+    public function setAttributeSetId(string $attributeSetId): void
     {
         $this->attributeSetId = $attributeSetId;
     }
 
-    public function getAttributeSet(): ?AttributeSetEntity
+    public function getAttributeSet(): AttributeSetEntity
     {
         return $this->attributeSet;
     }
 
-    public function setAttributeSet(?AttributeSetEntity $attributeSet): void
+    public function setAttributeSet(AttributeSetEntity $attributeSet): void
     {
         $this->attributeSet = $attributeSet;
     }

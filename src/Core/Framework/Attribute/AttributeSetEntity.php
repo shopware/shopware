@@ -5,18 +5,9 @@ namespace Shopware\Core\Framework\Attribute;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-class AttributeEntity extends Entity
+class AttributeSetEntity extends Entity
 {
     use EntityIdTrait;
-
-    /**
-     * @var string
-     */
-    protected $name;
-    /**
-     * @var string
-     */
-    protected $type;
 
     /**
      * @var array|null
@@ -24,14 +15,14 @@ class AttributeEntity extends Entity
     protected $config;
 
     /**
-     * @var string|null
+     * @var array|null
      */
-    protected $attributeSetId;
+    protected $attributes;
 
     /**
-     * @var AttributeSetEntity|null
+     * @var array|null
      */
-    protected $attributeSet;
+    protected $relations;
 
     /**
      * @var \DateTime
@@ -43,26 +34,6 @@ class AttributeEntity extends Entity
      */
     protected $updatedAt;
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): void
-    {
-        $this->type = $type;
-    }
-
     public function getConfig(): ?array
     {
         return $this->config;
@@ -73,24 +44,24 @@ class AttributeEntity extends Entity
         $this->config = $config;
     }
 
-    public function getAttributeSetId(): ?string
+    public function getAttributes(): ?array
     {
-        return $this->attributeSetId;
+        return $this->attributes;
     }
 
-    public function setAttributeSetId(?string $attributeSetId): void
+    public function setAttributes(?array $attributes): void
     {
-        $this->attributeSetId = $attributeSetId;
+        $this->attributes = $attributes;
     }
 
-    public function getAttributeSet(): ?AttributeSetEntity
+    public function getRelations(): ?array
     {
-        return $this->attributeSet;
+        return $this->relations;
     }
 
-    public function setAttributeSet(?AttributeSetEntity $attributeSet): void
+    public function setRelations(?array $relations): void
     {
-        $this->attributeSet = $attributeSet;
+        $this->relations = $relations;
     }
 
     public function getCreatedAt(): \DateTime

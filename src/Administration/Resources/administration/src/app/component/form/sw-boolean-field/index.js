@@ -24,6 +24,7 @@ export default {
             const checkedAttribute = event.target.checked;
 
             this.$emit('input', checkedAttribute);
+            this.$emit('change', checkedAttribute);
         }
     }
 };

@@ -26,7 +26,7 @@ class ComposerPackageProvider
 
         if (\count($warnings) !== 0) {
             $warningsString = implode("\n", $warnings);
-            $composerIO->write(sprintf("Attention!\nThe 'composer.json' has some warnings:\n%s", $warningsString));
+            $composerIO->write(sprintf("Attention!\nThe '%s' has some warnings:\n%s", $composerJsonPath, $warningsString));
         }
 
         return Factory::create($composerIO, $composerJsonPath)->getPackage();

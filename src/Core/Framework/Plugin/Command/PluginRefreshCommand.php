@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Plugin\Command;
 
 use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -41,16 +40,21 @@ class PluginRefreshCommand extends Command
 
     /**
      * {@inheritdoc}
-     *
-     * @throws PluginComposerJsonInvalidException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Shopware Plugin Service');
         $context = Context::createDefaultContext();
-        $this->pluginService->refreshPlugins($context, new ConsoleIO($input, $output, new HelperSet()));
+        $errors = $this->pluginService->refreshPlugins($context, new ConsoleIO($input, $output, new HelperSet()));
         $io->success('Plugin list refreshed');
+
+        if (\count($errors) !== 0) {
+            $io->writeln('Errors occurred while refreshing plugin list');
+            foreach ($errors as $error) {
+                $io->error($error->getMessage());
+            }
+        }
 
         $skipPluginList = $input->getOption('skipPluginList');
         if ($skipPluginList) {

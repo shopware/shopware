@@ -120,11 +120,11 @@
                                         {% block sw_order_list_grid_columns_state %}
                                             <sw-grid-column flex="minmax(80px, 180px)"
                                                             :label="$tc('sw-order.list.columnState')"
-                                                            dataIndex="state.description"
+                                                            dataIndex="stateMachineState.name"
                                                             truncate
                                                             sortable>
                                                 {% block sw_order_list_grid_columns_state_label %}
-                                                    {{ item.state.meta.viewData.description }}
+                                                    {{ item.stateMachineState.meta.viewData.name }}
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}

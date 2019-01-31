@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const { resolve } = require('path');
-const buildDirectory = resolve(__dirname, '../../../../../../public/build');
+const buildDirectory = resolve(__dirname, '../../../../../../../public/build');
 
 module.exports = {
     name: 'shopware-next-storefront',
@@ -10,7 +10,7 @@ module.exports = {
     output: {
         path: buildDirectory,
         filename: 'main.bundle.js',
-        publicPath: 'http://shopware.local:8080/'
+        publicPath: 'http://shopware-development.saas:8080/'
     },
     devtool: 'inline-cheap-source-map',
     stats: {

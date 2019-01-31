@@ -55,7 +55,7 @@
         window.contextToken = '{{ page.context.token }}';
     </script>
 
-    {# Set variable to "true" to enable HMR mode #}
+    {# Set variable to "true" to enable HMR (hot module reloading) mode #}
     {% set isHMRMode = false %}
     {% if isHMRMode %}
         <script type="text/javascript" src="http://localhost:8080/main.bundle.js"></script>

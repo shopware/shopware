@@ -3,7 +3,7 @@ const config = require('../config');
 const { resolve } = require('path');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 
-const buildDirectory = resolve(__dirname, '../../../../../../public/build');
+const buildDirectory = resolve(__dirname, '../../../../../../../public/build');
 
 module.exports = {
     mode: 'development',

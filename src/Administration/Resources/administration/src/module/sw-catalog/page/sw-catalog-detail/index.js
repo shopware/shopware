@@ -21,7 +21,10 @@ Component.register('sw-catalog-detail', {
             aggregations: {},
             addCategoryName: '',
             currentEditCategory: null,
-            isLoading: false
+            isLoading: false,
+            item: null,
+            currentEditMode: null,
+            parent: null
         };
     },
 
@@ -54,6 +57,26 @@ Component.register('sw-catalog-detail', {
                 this.getAggregations();
                 this.getCategories();
             }
+        },
+
+        getCategoryById(id) {
+            return this.categoryStore.getById(id);
+        },
+
+        getParentItem(parentId) {
+            const parentCategory = this.getCategoryById(parentId);
+
+            if (!parentCategory) {
+                return null;
+            }
+
+            return {
+                data: parentCategory,
+                id: parentCategory.id,
+                parentId: null,
+                position: parentCategory.position,
+                childCount: parentCategory.childCount
+            };
         },
 
         getCategories(parentId = null, searchTerm = null) {
@@ -111,17 +134,14 @@ Component.register('sw-catalog-detail', {
             });
         },
 
-        onAddCategory() {
+        addFirstCategory(categoryName) {
+            this.addCategoryName = categoryName;
+
             if (!this.addCategoryName.length || this.addCategoryName.length <= 0) {
                 return;
             }
 
-            const newCategory = this.categoryStore.create();
-
-            newCategory.name = this.addCategoryName;
-            newCategory.catalogId = this.catalogId;
-            newCategory.parentId = null;
-            newCategory.position = 0;
+            const newCategory = this.createNewCategory(this.addCategoryName, null, 0);
 
             this.categories.forEach((category) => {
                 if (category.parentId === null) {
@@ -131,6 +151,16 @@ Component.register('sw-catalog-detail', {
 
             this.categories.push(newCategory);
             this.addCategoryName = '';
+
+            const item = {
+                data: newCategory,
+                id: newCategory.id,
+                parentId: null,
+                position: newCategory.position,
+                childCount: 0
+            };
+
+            this.addCategoryAfter(item);
         },
 
         onAddChildCategory(item) {
@@ -138,44 +168,134 @@ Component.register('sw-catalog-detail', {
                 return;
             }
 
+            if (this.item === null) {
+                this.item = item;
+            }
+
+            this.currentEditMode = this.onAddChildCategory;
+
             this.getCategories(item.data.id).then(() => {
                 const parentCategory = item.data;
-                const newCategory = this.categoryStore.create();
+                this.parentItem = item;
 
-                newCategory.name = '';
-                newCategory.catalogId = this.catalogId;
-                newCategory.parentId = parentCategory.id;
-                newCategory.position = 0;
-                newCategory.childCount = 0;
-
-                this.categories.forEach((category) => {
-                    if (category.parentId === parentCategory.id) {
-                        category.position += 1;
-                    }
-                });
+                const newCategory = this.createNewCategory('', parentCategory.id, parentCategory.childCount);
 
                 parentCategory.childCount = parseInt(parentCategory.childCount, 10) + 1;
-
                 this.categories.push(newCategory);
                 this.onEditCategory(newCategory);
             });
+        },
+
+        addCategoryBefore(item) {
+            if (!item || !item.data || !item.data.id || this.currentEditCategory !== null) {
+                return;
+            }
+
+            this.currentEditMode = this.addCategoryBefore;
+            const newCategory = this.createNewCategory('', item.parentId, item.position);
+
+            this.categories.forEach((category) => {
+                if (category.parentId === item.parentId) {
+                    if (category.position >= item.position) {
+                        category.position += 1;
+                    }
+                }
+            });
+
+            if (item.parentId !== null) {
+                this.parentItem = this.getParentItem(item.parentId);
+                this.parentItem.data.childCount = parseInt(this.parentItem.data.childCount, 10) + 1;
+            }
+
+            if (this.item === null) {
+                this.item = item;
+            }
+            item.position += 1;
+
+            this.categories.push(newCategory);
+            this.onEditCategory(newCategory);
+        },
+
+        addCategoryAfter(item) {
+            if (!item || !item.data || !item.data.id || this.currentEditCategory !== null) {
+                return;
+            }
+
+            this.currentEditMode = this.addCategoryAfter;
+
+            const newCategory = this.createNewCategory('', item.parentId, item.position + 1);
+            this.categories.forEach((category) => {
+                if (category.parentId === item.parentId) {
+                    if (category.position > item.position) {
+                        category.position += 1;
+                    }
+                }
+            });
+
+            if (item.parentId !== null) {
+                this.parentItem = this.getParentItem(item.parentId);
+                this.parentItem.data.childCount = parseInt(this.parentItem.data.childCount, 10) + 1;
+            }
+
+            if (this.item === null) {
+                this.item = item;
+            }
+            item.position += 1;
+
+            this.categories.push(newCategory);
+            this.onEditCategory(newCategory);
+        },
+
+        createNewCategory(name, parentId, position, childCount = 0) {
+            const newCategory = this.categoryStore.create();
+
+            newCategory.name = name;
+            newCategory.catalogId = this.catalogId;
+            newCategory.parentId = parentId;
+            newCategory.position = position;
+            newCategory.childCount = childCount;
+
+            return newCategory;
         },
 
         onEditCategory(item) {
             this.currentEditCategory = item.id;
 
             this.$nextTick(() => {
+                this._eventFromEdit = null;
                 const categoryNameField = this.$el.querySelector('.sw-catalog-detail__edit-category-field input');
                 categoryNameField.focus();
             });
         },
 
-        onEditCategoryFinish() {
+        onEditCategoryFinish(draft, event) {
+            this._eventFromEdit = event;
             this.currentEditCategory = null;
+            if (this.currentEditMode !== null) {
+                this.currentEditMode(this.item);
+            }
         },
 
         onDeleteCategory(item) {
             item.data.delete();
+
+            if (this.parentItem && this.parentItem.data.childCount > 0) {
+                this.parentItem.data.childCount = this.parentItem.data.childCount - 1;
+            }
+            this.parentItem = null;
+            this.$emit('itemDeleted', item);
+        },
+
+        abortCategoryEdit(item) {
+            if (this._eventFromEdit) {
+                return;
+            }
+            this.currentEditCategory = null;
+            if (this.currentEditMode !== null) {
+                this.onDeleteCategory(item);
+            }
+            this.item = null;
+            this.currentEditMode = null;
         },
 
         searchCategories(searchTerm) {

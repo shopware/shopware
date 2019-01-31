@@ -16,13 +16,20 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        preventEmptySubmit: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
     data() {
         return {
             isEditing: false,
-            draft: this.value
+            draft: this.value,
+            event: null
         };
     },
 
@@ -54,12 +61,12 @@ export default {
             if (!!relatedTarget && relatedTarget.classList.contains('sw-confirm-field__button')) {
                 return;
             }
-
+            this.$emit('blur');
             this.cancelSubmit();
-            this.removeActionButtons();
         },
 
         cancelSubmit() {
+            this.removeActionButtons();
             this.draft = this.value;
         },
 
@@ -69,23 +76,26 @@ export default {
         },
 
         onCancelSubmit() {
+            this.$emit('cancelSubmit');
             this.cancelSubmit();
             this.isEditing = false;
         },
 
         submitValue() {
             if (this.draft !== this.value) {
-                this.$emit('input', this.draft);
+                this.$emit('input', this.draft, this.event);
             }
         },
 
         onSubmitFromKey({ target }) {
+            this.event = 'key';
             this.submitValue();
             target.blur();
             this.isEditing = false;
         },
 
         onSubmitValue() {
+            this.event = 'click';
             this.submitValue();
             this.isEditing = false;
         }

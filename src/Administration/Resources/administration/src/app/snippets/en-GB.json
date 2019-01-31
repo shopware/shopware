@@ -503,7 +503,9 @@
       "useAsLogo": "Use as logo",
       "treeHeadline": "Category structure",
       "actions": {
-        "create": "New subcategory",
+        "createSub": "New subcategory",
+        "createBefore": "New categorie before",
+        "createAfter": "New categorie after",
         "edit": "Edit",
         "duplicate": "Duplicate",
         "delete": "Delete"

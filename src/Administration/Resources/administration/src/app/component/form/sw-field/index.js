@@ -30,7 +30,9 @@ export default {
             return components[context.props.type] || 'sw-text-field';
         }
 
-        Object.assign(context.data.attrs, context.props);
+        if (context.data.attrs) {
+            Object.assign(context.data.attrs, context.props);
+        }
 
         return createElement(
             getComponentName(),

@@ -7,22 +7,17 @@
             </div>
         {% endblock %}
 
-        {% block sw_tree_actions %}
-            <div class="sw-tree__actions" v-if="hasActionSlot">
-                <slot name="actions">{% block sw_tree_slot_actions %}{% endblock %}</slot>
-            </div>
-        {% endblock %}
-
         {% block sw_tree_content %}
-            <div class="sw-tree__content">
+            <sw-tree-input-field v-if="hasNoItems" @createNewItem="createFirstItem" class="sw-tree__content"></sw-tree-input-field>
+
+            <div v-else class="sw-tree__content">
                 {% block sw_tree_items %}
-                    <slot name="items" :treeItems="treeItems" :sortable="isSortable" :draggedItem="draggedItem">
+                    <slot name="items" :treeItems="treeItems" :draggedItem="draggedItem">
                         {% block sw_tree_slot_items %}
                             <sw-tree-item
                                 v-for="item in treeItems"
                                 :key="item.id"
                                 :item="item"
-                                :sortable="sortable"
                                 :draggedItem="draggedItem">
                             </sw-tree-item>
                         {% endblock %}

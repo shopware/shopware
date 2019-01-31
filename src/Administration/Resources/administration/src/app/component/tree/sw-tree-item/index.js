@@ -21,16 +21,15 @@ export default {
             default: false
         },
 
-        sortable: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-
         draggedItem: {
             type: Object,
             required: false,
             default: null
+        },
+
+        parentChecked: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -44,7 +43,9 @@ export default {
             dragStartX: 0,
             dragStartY: 0,
             mouseStartX: 0,
-            mouseStartY: 0
+            mouseStartY: 0,
+            rootParent: null,
+            checked: false
         };
     },
 
@@ -53,23 +54,48 @@ export default {
             if (this.draggedItem === null) {
                 return false;
             }
-
             return this.draggedItem.data.id === this.item.data.id;
         },
 
         styling() {
             return {
-                'is--active': this.active,
                 'is--dragging': this.isDragging,
-                'is--sortable': this.sortable,
+                'is--active': this.active,
                 'is--opened': this.opened,
                 'is--no-children': this.item.childCount <= 0
             };
+        },
+
+        dragConf() {
+            return {
+                delay: 300,
+                validDragCls: null,
+                dragGroup: 'sw-tree-item',
+                data: this.item,
+                onDragStart: this.dragStart,
+                onDragEnter: this.onMouseEnter,
+                onDrop: this.dragEnd,
+                preventEvent: false
+            };
+        }
+    },
+
+    created() {
+        if (this.parentChecked) {
+            this.checked = true;
         }
     },
 
     updated() {
         this.updatedComponent();
+    },
+
+    watch: {
+        parentChecked: {
+            handler(value) {
+                this.checked = value;
+            }
+        }
     },
 
     methods: {
@@ -83,7 +109,6 @@ export default {
             if (this.isDragging) {
                 return;
             }
-
             this.opened = open;
         },
 
@@ -103,67 +128,25 @@ export default {
             return this.$parent.getItems(args);
         },
 
-        onDragStart(event) {
-            if (this.isDragging || this.isLoading || !this.sortable
-                || event.target.classList.contains('sw-tree-item__label')) {
+        dragStart(config, element, dragElement) {
+            if (this.isDragging || this.isLoading) {
                 return;
             }
 
-            this.mouseStartX = event.pageX;
-            this.mouseStartY = event.pageY;
-
-            this.dragEl = this.createDragEl();
-            document.body.appendChild(this.dragEl);
-
-            window.addEventListener('pointermove', this.onDragMove);
-            window.addEventListener('pointerup', this.onDragEnd);
-
+            this.dragEl = dragElement;
             this.$parent.startDrag(this);
         },
 
-        onDragMove(event) {
-            this.dragEl.style.left = `${(event.pageX - this.mouseStartX) + this.dragStartX}px`;
-            this.dragEl.style.top = `${(event.pageY - this.mouseStartY) + this.dragStartY}px`;
-        },
-
-        onDragEnd() {
-            window.removeEventListener('pointermove', this.onDragMove);
-            window.removeEventListener('pointerup', this.onDragEnd);
-
-            this.dragStartX = 0;
-            this.dragStartY = 0;
-            this.mouseStartX = 0;
-            this.mouseStartY = 0;
-
-            this.dragEl.remove();
-            this.dragEl = null;
-
+        dragEnd() {
             this.$parent.endDrag();
         },
 
-        onMouseEnter() {
-            if (!this.draggedItem || this.draggedItem === null) {
+        onMouseEnter(dragData, dropData) {
+            if (!dropData) {
                 return;
             }
 
-            this.$parent.moveDrag(this);
-        },
-
-        createDragEl() {
-            const dragEl = this.$el.cloneNode(true);
-            const boundingBox = this.$el.getBoundingClientRect();
-
-            this.dragStartX = boundingBox.left;
-            this.dragStartY = boundingBox.top;
-
-            dragEl.classList.add('is--dragging-el');
-            dragEl.style.width = `${boundingBox.width}px`;
-            dragEl.style.position = 'absolute';
-            dragEl.style.left = `${this.dragStartX}px`;
-            dragEl.style.top = `${this.dragStartY}px`;
-            dragEl.style.zIndex = 99999;
-
-            return dragEl;
+            this.$parent.moveDrag(dragData, dropData);
         },
 
         // Bubbles this method to the root tree from any item depth
@@ -177,8 +160,20 @@ export default {
         },
 
         // Bubbles this method to the root tree from any item depth
-        moveDrag(droppedComponent) {
-            return this.$parent.moveDrag(droppedComponent);
+        moveDrag(draggedComponent, droppedComponent) {
+            return this.$parent.moveDrag(draggedComponent, droppedComponent);
+        },
+
+        // Bubbles this method to the root tree from any item depth
+        emitCheckedItem(event, item) {
+            this.$emit('itemChecked', event, item);
+        },
+
+        // Checks the item
+        toggleItemCheck(event, item) {
+            this.checked = event;
+            this.item.checked = event;
+            this.$emit('itemChecked', event, item);
         }
     }
 };

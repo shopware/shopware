@@ -1,5 +1,6 @@
 module.exports = {
     '@tags': ['product', 'product-stream-edit', 'product-stream', 'edit'],
+    '@disabled': !global.flags.isActive('next739'),
     before: (browser, done) => {
         global.FixtureService.create('product-stream').then(() => {
             done();

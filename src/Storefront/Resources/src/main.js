@@ -3,7 +3,7 @@ import '@babel/polyfill';
 import 'bootstrap';
 
 // Import styles
-import './assets/sass/app.scss';
+import './assets/sass/main.scss';
 
 import Client from './service/http-client.service';
 import Plugin from './helper/plugin.helper';

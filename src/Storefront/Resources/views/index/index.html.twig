@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <title>SW Next Storefront - Bootstrap</title>
 
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('build/main.bundle.css') }}">
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
@@ -58,9 +58,9 @@
     {# Set variable to "true" to enable HMR mode #}
     {% set isHMRMode = false %}
     {% if isHMRMode %}
-        <script type="text/javascript" src="http://localhost:8080/app.bundle.js"></script>
+        <script type="text/javascript" src="http://localhost:8080/main.bundle.js"></script>
     {% else %}
-        <script type="text/javascript" src="{{ asset('build/app.bundle.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('build/main.bundle.js') }}"></script>
     {% endif %}
     </body>
 </html>

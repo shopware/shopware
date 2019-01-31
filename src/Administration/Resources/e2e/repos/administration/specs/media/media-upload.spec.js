@@ -29,7 +29,7 @@ module.exports = {
         browser
             .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(1)', 'Name:')
             .assert.value('.sw-media-quickinfo-metadata-name input', 'sw-login-background')
-            .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(2)', 'Filetype:')
+            .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(2)', 'File type:')
             .assert.containsText('.sw-media-quickinfo-metadata-file-type', 'PNG')
             .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(5)', 'MIME-Type:')
             .assert.containsText('.sw-media-quickinfo-metadata-mimeType', 'image/png')

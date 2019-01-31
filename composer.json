@@ -30,6 +30,7 @@
         "ext-simplexml": "*",
         "ext-xml": "*",
         "ext-zip": "*",
+        "ext-openssl": "*",
         "cocur/slugify": "3.1",
         "doctrine/dbal": "2.9.2",
         "league/flysystem": "1.0.49",

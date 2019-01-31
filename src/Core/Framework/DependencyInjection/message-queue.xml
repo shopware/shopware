@@ -9,5 +9,15 @@
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator.inner"/>
             <argument type="service" id="message_queue_stats.repository"/>
         </service>
+
+        <service id="encrypted.messenger.bus.shopware" class="Shopware\Core\Framework\MessageQueue\EncryptedBus">
+            <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="shopware.public_key"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler">
+            <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="shopware.private_key"/>
+        </service>
     </services>
 </container>

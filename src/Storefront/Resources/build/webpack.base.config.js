@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
+const StyleLintPlugin = require('stylelint-webpack-plugin');
 const { resolve } = require('path');
 const buildDirectory = resolve(__dirname, '../../../../../../public/build');
 
@@ -40,6 +41,7 @@ module.exports = {
         new webpack.NoEmitOnErrorsPlugin(),
         new WebpackBar({
             name: 'Shopware Next Storefront'
-        })
+        }),
+        new StyleLintPlugin()
     ]
 };

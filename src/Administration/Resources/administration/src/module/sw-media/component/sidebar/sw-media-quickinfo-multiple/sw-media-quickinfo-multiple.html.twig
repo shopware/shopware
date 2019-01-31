@@ -53,10 +53,11 @@
                             v-for="mediaItem in items"
                             :key="mediaItem.id"
                             :item="mediaItem"
-                            :selected="false"
+                            :selected="true"
                             :isList="true"
                             :showContextMenuButton="false"
-                            :showSelectionIndicator="false">
+                            :showSelectionIndicator="true"
+                            @sw-media-item-selection-remove="onRemoveItemFromSelection">
                         </sw-media-entity-mapper>
                     </template>
                 {% endblock %}

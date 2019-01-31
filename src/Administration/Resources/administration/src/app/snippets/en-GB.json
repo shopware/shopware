@@ -1112,7 +1112,8 @@
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarBulkTrash": "Delete rules",
       "valid": "Valid",
-      "invalid": "Invalid"
+      "invalid": "Invalid",
+      "messageEmpty": "No rules yet"
     },
     "detail": {
       "textHeadline": "New rule",

@@ -1114,7 +1114,8 @@
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarBulkTrash": "Regeln löschen",
       "valid": "Valide",
-      "invalid": "Invalide"
+      "invalid": "Invalide",
+      "messageEmpty": "Noch keine Regeln"
     },
     "detail": {
       "textHeadline": "Neue Regel",

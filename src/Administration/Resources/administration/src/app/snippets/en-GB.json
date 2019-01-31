@@ -1420,5 +1420,50 @@
     "titleModalButtonCancelUnsavedChanges": "Cancel",
     "titleModalButtonRevertUnsavedChanges": "Discard changes",
     "titleModalButtonSaveChanges": "Save"
+  },
+  "sw-product-stream": {
+    "general": {
+      "mainMenuItemGeneral": "Product streams",
+      "placeholderSearchBar": "Search product streams",
+      "descriptionTextModule": "Manage product streams here"
+    },
+    "list": {
+      "textProductStreamOverview": "Product streams",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnDateUpdated": "Updated date",
+      "columnStatus": "Status",
+      "titleSidebarItemRefresh": "Refresh",
+      "buttonAddProductStream": "Add product stream",
+      "status": {
+        "valid": "Valid",
+        "invalid": "Invalid"
+      },
+      "contextMenuEdit": "Edit",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuDelete": "Delete",
+      "messageEmpty": "No product streams yet",
+      "modalTitleDelete": "Delete product stream",
+      "textDeleteConfirm": "Are you sure you want to delete the product stream \"{name}\"?",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "filter": {
+      "valid": "Show only valid product streams"
+    },
+    "detail": {
+      "titleCard": "Settings",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "labelName": "Name",
+      "placeholderName": "Enter product stream name",
+      "labelDescription": "Description",
+      "placeholderDescription": "Enter product stream description",
+      "textHeadline": "New product stream",
+      "titleFilter": "Filter",
+      "titleResult": "Product stream",
+      "titleSaveSuccess": "Product streams",
+      "messageSaveSuccess": "The product stream \"{name}\" was saved."
+    }
   }
 }

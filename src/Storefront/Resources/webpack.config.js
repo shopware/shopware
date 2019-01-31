@@ -8,10 +8,10 @@ const isDevMode = process.env.NODE_ENV !== 'production';
 const buildDirectory = resolve(__dirname, '../../../../../../public/build');
 
 module.exports = {
-    entry: './src/app.js',
+    entry: './src/main.js',
     output: {
         path: buildDirectory,
-        filename: 'app.bundle.js',
+        filename: 'main.bundle.js',
         publicPath: 'http://shopware.local:8080/'
     },
     devtool: 'source-map',
@@ -76,8 +76,8 @@ module.exports = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: "app.css",
-            chunkFilename: "app.css"
+            filename: "main.bundle.css",
+            chunkFilename: "main.bundle.css"
         }),
         new webpack.HotModuleReplacementPlugin()
     ]

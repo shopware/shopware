@@ -1,6 +1,7 @@
 import 'module/sw-login';
 import 'module/sw-dashboard';
 import 'module/sw-product';
+import 'module/sw-product-stream';
 import 'module/sw-catalog';
 import 'module/sw-category';
 import 'module/sw-configuration';

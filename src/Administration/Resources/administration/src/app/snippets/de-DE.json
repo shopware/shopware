@@ -1422,5 +1422,50 @@
     "titleModalButtonCancelUnsavedChanges": "Abbrechen",
     "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
     "titleModalButtonSaveChanges": "Speichern"
+  },
+  "sw-product-stream": {
+    "general": {
+      "mainMenuItemGeneral": "Produkt Streams",
+      "placeholderSearchBar": "Durchsuche alle Produkt Streams",
+      "descriptionTextModule": "Verwaltung von Produkt Streams."
+    },
+    "list": {
+      "textProductStreamOverview": "Produkt Streams",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnDateUpdated": "Änderungsdatum",
+      "columnStatus": "Status",
+      "titleSidebarItemRefresh": "Refresh",
+      "buttonAddProductStream": "Produkt Stream anlegen",
+      "status": {
+        "valid": "Valide",
+        "invalid": "Invalide"
+      },
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuDelete": "Löschen",
+      "messageEmpty": "Noch keine Produkt Streams",
+      "modalTitleDelete": "Produkt Stream löschen",
+      "textDeleteConfirm": "Möchtest Du den Produkt Stream \"{name}\" wirklich löschen?",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "filter": {
+      "valid": "Nur valide Produkt Streams anzeigen"
+    },
+    "detail": {
+      "titleCard": "Einstellungen",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "labelName": "Name",
+      "placeholderName": "Gib ein Produkt Stream Namen ein...",
+      "labelDescription": "Beschreibung",
+      "placeholderDescription": "Gib eine Produkt Stream Beschreibung ein...",
+      "textHeadline": "Neuer Produkt Stream",
+      "titleFilter": "Filter",
+      "titleResult": "Produkte",
+      "titleSaveSuccess": "Produkt Streams",
+      "messageSaveSuccess": "Der Produkt Stream \"{name}\" wurde erfolgreich gespeichert."
+    }
   }
 }

@@ -1,90 +1,90 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-color-picker-color-border: $color-steam-cloud;
-$sw-color-picker-color-focus: $color-shopware-blue;
-$sw-color-picker-color-text: $color-gutenberg;
-$sw-color-picker-color-background: $color-white;
-$sw-color-picker-transition: border-color 0.3s ease-out;
-$sw-color-picker-border-radius: $border-radius-default;
-$sw-color-picker-color-placeholder: lighten($sw-color-picker-color-text, 25%);
-$sw-color-picker-color-label: $color-kashmir;
-$sw-color-picker-color-error: $color-crimson;
-$sw-color-picker-font-family: $font-family-default;
-$sw-color-picker-font-size: 14px;
+$sw-colorpicker-color-border: $color-steam-cloud;
+$sw-colorpicker-color-focus: $color-shopware-blue;
+$sw-colorpicker-color-text: $color-gutenberg;
+$sw-colorpicker-color-background: $color-white;
+$sw-colorpicker-transition: border-color 0.3s ease-out;
+$sw-colorpicker-border-radius: $border-radius-default;
+$sw-colorpicker-color-placeholder: lighten($sw-colorpicker-color-text, 25%);
+$sw-colorpicker-color-label: $color-kashmir;
+$sw-colorpicker-color-error: $color-crimson;
+$sw-colorpicker-font-family: $font-family-default;
+$sw-colorpicker-font-size: 14px;
 
-.sw-color-picker {
+.sw-colorpicker {
 
-    .sw-color-picker__field {
-        border-radius: $sw-color-picker-border-radius;
-        border: 1px solid $sw-color-picker-color-border;
-        background: $sw-color-picker-color-background;
+    .sw-colorpicker__field {
+        border-radius: $sw-colorpicker-border-radius;
+        border: 1px solid $sw-colorpicker-color-border;
+        background: $sw-colorpicker-color-background;
         display: grid;
         grid-template-columns: 1fr 48px;
         margin-bottom: 22px;
         height: 45px;
         line-height: 27px;
-        transition: $sw-color-picker-transition;
+        transition: $sw-colorpicker-transition;
         width: 100%;
     }
 
-    .sw-color-picker__label {
+    .sw-colorpicker__label {
         display: block;
         line-height: 16px;
         font-size: 14px;
         margin-bottom: 8px;
-        color: $sw-color-picker-color-label;
+        color: $sw-colorpicker-color-label;
         font-weight: normal;
         user-select: none;
     }
 
-    .sw-color-picker__icon {
-        color: $sw-color-picker-color-text;
+    .sw-colorpicker__icon {
+        color: $sw-colorpicker-color-text;
         @include size(20px);
     }
 
-    .sw-color-picker__trigger {
-        border-left: 1px solid $sw-color-picker-color-border;
+    .sw-colorpicker__trigger {
+        border-left: 1px solid $sw-colorpicker-color-border;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
     }
 
-    .sw-color-picker__preview {
+    .sw-colorpicker__preview {
         border-radius: 2px;
         margin: 4px;
     }
 
     &.is--open {
-        .sw-color-picker__field {
-            border-color: $sw-color-picker-color-focus;
-            color: $sw-color-picker-color-focus;
-            box-shadow: 0 0 4px lighten($sw-color-picker-color-focus, 30%);
+        .sw-colorpicker__field {
+            border-color: $sw-colorpicker-color-focus;
+            color: $sw-colorpicker-color-focus;
+            box-shadow: 0 0 4px lighten($sw-colorpicker-color-focus, 30%);
             outline: none;
         }
     }
 
     &.is--disabled {
-        .sw-color-picker__field {
+        .sw-colorpicker__field {
             background: $color-light-gray;
             border-color: $color-steam-cloud;
-            color: lighten($sw-color-picker-color-text, 40%);
+            color: lighten($sw-colorpicker-color-text, 40%);
         }
-        .sw-color-picker__trigger {
+        .sw-colorpicker__trigger {
             cursor: default;
         }
-        .sw-color-picker__icon {
-            color: lighten($sw-color-picker-color-text, 40%);
+        .sw-colorpicker__icon {
+            color: lighten($sw-colorpicker-color-text, 40%);
         }
     }
 
     // colorpicker adjustments
-    .sw-color-picker__field {
+    .sw-colorpicker__field {
         .picker_wrapper {
-            border: 1px solid $sw-color-picker-color-border;
-            border-radius: $sw-color-picker-border-radius;
-            background: $sw-color-picker-color-background;
+            border: 1px solid $sw-colorpicker-color-border;
+            border-radius: $sw-colorpicker-border-radius;
+            background: $sw-colorpicker-color-background;
             padding: 10px;
             box-shadow: 0 3px 6px 0 rgba(120,138,155,0.5);
 
@@ -100,7 +100,7 @@ $sw-color-picker-font-size: 14px;
                 top: -6px;
                 right: 7px;
                 position: absolute;
-                border-bottom: 10px solid $sw-color-picker-color-background;
+                border-bottom: 10px solid $sw-colorpicker-color-background;
                 border-top: 10px solid transparent;
                 border-right: 10px solid transparent;
                 transform: rotate(135deg);
@@ -113,7 +113,7 @@ $sw-color-picker-font-size: 14px;
                 top: -7px;
                 right: 7px;
                 position: absolute;
-                border-bottom: 10px solid $sw-color-picker-color-border;
+                border-bottom: 10px solid $sw-colorpicker-color-border;
                 border-top: 10px solid transparent;
                 border-right: 10px solid transparent;
                 transform: rotate(135deg);
@@ -134,7 +134,7 @@ $sw-color-picker-font-size: 14px;
         }
         .picker_hue,
         .picker_sl {
-            border-radius: $sw-color-picker-border-radius;
+            border-radius: $sw-colorpicker-border-radius;
             box-shadow: none;
         }
         .picker_hue .picker_slider {
@@ -151,7 +151,7 @@ $sw-color-picker-font-size: 14px;
             padding: 6px;
         }
         .picker_sample {
-            border-radius: $sw-color-picker-border-radius;
+            border-radius: $sw-colorpicker-border-radius;
             box-shadow: none;
             overflow: hidden;
             max-width: 32px;
@@ -161,18 +161,18 @@ $sw-color-picker-font-size: 14px;
             flex: 1;
 
             input {
-                font-size: $sw-color-picker-font-size;
-                font-family: $sw-color-picker-font-family;
-                color: $sw-color-picker-color-text;
-                border-radius: $sw-color-picker-border-radius;
-                border: 1px solid $sw-color-picker-color-border;
+                font-size: $sw-colorpicker-font-size;
+                font-family: $sw-colorpicker-font-family;
+                color: $sw-colorpicker-color-text;
+                border-radius: $sw-colorpicker-border-radius;
+                border: 1px solid $sw-colorpicker-color-border;
                 padding: 0 10px;
                 max-height: 32px;
                 margin-top: 0;
                 outline: none;
 
                 &:focus {
-                    border-color: $sw-color-picker-color-focus;
+                    border-color: $sw-colorpicker-color-focus;
                 }
             }
         }

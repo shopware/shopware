@@ -38,7 +38,7 @@
         {% block sw_pagination_per_page_selection %}
             <div class="sw-pagination__per-page" v-if="steps.length > 1">
                 <sw-field type="select" name="perPage" :label="$tc('global.sw-pagination.labelItemsPerPage')" v-model.number="perPage" @change="onPageSizeChange">
-                    <option slot="options" v-for="step in steps" :value="step">{{ step }}</option>
+                    <option v-for="step in steps" :value="step">{{ step }}</option>
                 </sw-field>
             </div>
         {% endblock %}

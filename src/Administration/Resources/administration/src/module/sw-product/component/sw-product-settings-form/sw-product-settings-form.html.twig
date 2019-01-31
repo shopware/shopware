@@ -9,7 +9,6 @@
                               :label="$tc('sw-product.settingsForm.labelCreatedAt')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderCreatedAt')"
                               v-model="product.createdAt">
-                        <sw-icon name="default-calendar-full" slot="suffix"></sw-icon>
                     </sw-field>
                 {% endblock %}
 
@@ -18,7 +17,6 @@
                               :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
                               v-model="product.releaseDate">
-                        <sw-icon name="default-calendar-full" slot="suffix"></sw-icon>
                     </sw-field>
                 {% endblock %}
             </sw-container>
@@ -30,7 +28,7 @@
                                   :label="$tc('sw-product.settingsForm.labelWidth')"
                                   :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
                                   suffix="mm"
-                                  step="0.01"
+                                  :min="0"
                                   v-model="product.width">
                         </sw-field>
                     {% endblock %}
@@ -40,7 +38,7 @@
                                   :label="$tc('sw-product.settingsForm.labelHeight')"
                                   :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
                                   suffix="mm"
-                                  step="0.01"
+                                  :min="0"
                                   v-model="product.height">
                         </sw-field>
                     {% endblock %}
@@ -52,7 +50,7 @@
                                   :label="$tc('sw-product.settingsForm.labelLength')"
                                   :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
                                   suffix="mm"
-                                  step="0.01"
+                                  :min="0"
                                   v-model="product.length">
                         </sw-field>
                     {% endblock %}
@@ -62,7 +60,7 @@
                                   :label="$tc('sw-product.settingsForm.labelWeight')"
                                   :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
                                   suffix="kg"
-                                  step="0.01"
+                                  :min="0"
                                   v-model="product.weight">
                         </sw-field>
                     {% endblock %}
@@ -72,6 +70,8 @@
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                 {% block sw_product_settings_form_min_purchase_field %}
                     <sw-field type="number"
+                              numberType="int"
+                              :min="0"
                               :label="$tc('sw-product.settingsForm.labelMinPurchase')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                               v-model="product.minPurchase">
@@ -80,6 +80,8 @@
 
                 {% block sw_product_settings_form_max_purchase_field %}
                     <sw-field type="number"
+                              numberType="int"
+                              :min="0"
                               :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                               v-model="product.maxPurchase">
@@ -110,6 +112,8 @@
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                 {% block sw_product_settings_form_stock_field %}
                     <sw-field type="number"
+                              numberType="int"
+                              :min="0"
                               :label="$tc('sw-product.settingsForm.labelStock')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
                               v-model="product.stock">
@@ -120,6 +124,7 @@
             <sw-container columns="repeat(auto-fit, minmax(200px, 1fr)" gap="0px 30px" align="center">
                 {% block sw_product_settings_form_shipping_free_field %}
                     <sw-field type="boolean"
+                              :min="0"
                               :label="$tc('sw-product.settingsForm.labelShippingFree')"
                               v-model="product.shippingFree">
                     </sw-field>
@@ -127,6 +132,7 @@
 
                 {% block sw_product_settings_form_mark_as_topseller_field %}
                     <sw-field type="boolean"
+                              :min="0"
                               :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                               v-model="product.markAsTopseller">
                     </sw-field>

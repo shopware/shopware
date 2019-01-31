@@ -9,8 +9,7 @@
                           validation="required"
                           @change="onChangeCatalog"
                           v-model="product.catalogId">
-                    <option slot="options"
-                            v-for="catalog in catalogs"
+                    <option v-for="catalog in catalogs"
                             :value="catalog.id">
                         {{ catalog.meta.viewData.name }}
                     </option>

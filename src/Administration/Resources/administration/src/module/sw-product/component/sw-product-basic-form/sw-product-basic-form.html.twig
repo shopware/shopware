@@ -40,14 +40,11 @@
                           :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
                           validation="required"
                           v-model="product.manufacturerId">
-                    {% block sw_product_basic_form_manufacturer_field_options %}
-                        <option
-                                slot="options"
-                                v-for="manufacturer in manufacturers"
-                                :value="manufacturer.id">
-                            {{ manufacturer.meta.viewData.name }}
-                        </option>
-                    {% endblock %}
+                    <option
+                            v-for="manufacturer in manufacturers"
+                            :value="manufacturer.id">
+                        {{ manufacturer.meta.viewData.name }}
+                    </option>
                 </sw-field>
             {% endblock %}
         </sw-container>

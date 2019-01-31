@@ -94,8 +94,8 @@
                                                 :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
                                                 v-model="configuration.thumbnailQuality"
                                                 :validation="configuration.thumbnailQuality >= 0 &&  configuration.thumbnailQuality <= 100"
-                                                min="0"
-                                                max="100"
+                                                :min="0"
+                                                :max="100"
                                                 :disabled="notEditable">
                                         </sw-field>
                                     {% endblock %}

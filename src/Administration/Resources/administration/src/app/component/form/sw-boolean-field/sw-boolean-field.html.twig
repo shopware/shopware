@@ -1,0 +1,25 @@
+{% block sw_text_field_input %}
+    <div class="sw-field__input">
+        {% block sw_boolean_field_input %}
+            <div class="sw-field__switch sw-field__boolean">
+                <input type="checkbox"
+                       :id="id"
+                       :name="displayName"
+                       :disabled="disabled ? 'disabled' : false"
+                       :checked="value ? 'value' : false"
+                       @change="onChange"/>
+                {% block sw_boolean_field_state %}
+                    <div class="sw-field__switch-state">
+                        <div class="sw-field__switch-state-knob"></div>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_field_label_boolean %}
+            <label v-if="label" :for="id">
+                <slot name="label">{{ label }}</slot>
+            </label>
+        {% endblock %}
+    </div>
+{% endblock %}

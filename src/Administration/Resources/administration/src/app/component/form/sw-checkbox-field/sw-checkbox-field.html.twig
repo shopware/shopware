@@ -1,0 +1,18 @@
+{% block sw_text_field_input %}
+    <div class="sw-field__checkbox">
+    {% block sw_checkbox_field_input %}
+        <input type="checkbox"
+               :id="id"
+               :name="displayName"
+               :disabled="disabled ? 'disabled' : false"
+               :checked="value ? 'value' : false"
+               @change="onChange"/>
+    {% endblock %}
+
+    {% block sw_checkbox_field_state %}
+        <div class="sw-field__checkbox-state">
+            <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+        </div>
+    {% endblock %}
+    </div>
+{% endblock %}

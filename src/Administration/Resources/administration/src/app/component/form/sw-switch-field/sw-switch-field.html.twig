@@ -1,0 +1,18 @@
+{% block sw_text_field_input %}
+    <div class="sw-field__switch">
+        {% block sw_switch_field_input %}
+            <input type="checkbox"
+                   :id="id"
+                   :name="displayName"
+                   :disabled="disabled"
+                   :checked="value"
+                   @change="onChange">
+        {% endblock %}
+
+        {% block sw_switch_field_state %}
+            <div class="sw-field__switch-state">
+                <div class="sw-field__switch-state-knob"></div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

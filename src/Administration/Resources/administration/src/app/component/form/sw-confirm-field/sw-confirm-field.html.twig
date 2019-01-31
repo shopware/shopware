@@ -3,7 +3,8 @@
         {% block sw_confirm_field_input_field %}
             <sw-field
                 v-model="draft"
-                v-bind="additionalAttributes"
+                type="text"
+                v-bind="$attrs"
                 @focus="onStartEditing"
                 @blur="onBlurField"
                 @keyup.enter="onSubmitFromKey"

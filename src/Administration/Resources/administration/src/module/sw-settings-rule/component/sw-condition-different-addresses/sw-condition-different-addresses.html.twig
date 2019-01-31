@@ -4,11 +4,9 @@
                   name="isDifferent"
                   v-model="isDifferent"
                   class="field field--select field--main">
-            <template slot="options">
-                <option v-for="item in selectValues" :value="item.value">
-                    {{ $tc(item.label) }}
-                </option>
-            </template>
+            <option v-for="item in selectValues" :value="item.value">
+                {{ $tc(item.label) }}
+            </option>
         </sw-field>
     {% endblock %}
 {% endblock %}

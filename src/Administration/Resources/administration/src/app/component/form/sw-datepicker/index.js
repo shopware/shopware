@@ -5,7 +5,6 @@ import template from './sw-datepicker.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
 
-
 // Keep a copy of all flatpickr events for later use
 const allEvents = [
     'onChange',
@@ -23,7 +22,7 @@ const allEvents = [
 ];
 
 /**
- * @private
+ * @public
  * @description Datepicker wrapper for date inputs. For all configuration options visit: https://flatpickr.js.org/options/
  * Be careful when changing the config object. To add a parameter to the config at runtime use:
  * https://vuejs.org/v2/api/#Vue-set
@@ -31,23 +30,22 @@ const allEvents = [
  * @status ready
  * @example-type static
  * @component-example
- * <sw-field
+ * <sw-datepicker
  * type="date"
  * :datepickerConfig="myDatepickerConfig"
  * v-model="myDate"
  * label="SW-Field Date"
  * @on-change="myOnChangeEventHandlingMethod">
- * </sw-field>
+ * </sw-datepicker>
  */
 export default {
     name: 'sw-datepicker',
+    extendsFrom: 'sw-text-field',
     template,
 
     props: {
         value: {
-            type: String,
-            required: true,
-            default: ''
+            required: true
         },
 
         config: {
@@ -57,14 +55,13 @@ export default {
             }
         },
 
-        enableTime: {
-            type: Boolean,
-            default: false
-        },
-
-        noCalendar: {
-            type: Boolean,
-            default: false
+        type: {
+            type: String,
+            default: '',
+            validValues: ['time', 'date', 'datetime', 'datetime-local'],
+            validator(value) {
+                return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
+            }
         }
     },
 
@@ -76,7 +73,9 @@ export default {
                 locale: 'en'
                 // disableMobile: true // only render the flatpickr and no native pickers on mobile
             },
-            localeStore: State.getStore('adminLocale')
+            localeStore: State.getStore('adminLocale'),
+            noCalendar: (this.type === 'time'),
+            enableTime: (this.type === 'datetime' || this.type === 'datetime-local' || this.noCalendar)
         };
     },
 
@@ -95,6 +94,23 @@ export default {
             }
 
             return this.flatpickrInstance.config;
+        },
+        suffixName() {
+            if (this.noCalendar) {
+                return 'default-time-clock';
+            }
+
+            return 'default-calendar-full';
+        },
+
+        fieldClasses() {
+            return [
+                `sw-field--${this.type}`,
+                {
+                    'has--error': !!this.hasErrorCls,
+                    'has--suffix': true,
+                    'is--disabled': !!this.$props.disabled
+                }];
         }
     },
 
@@ -281,23 +297,6 @@ export default {
         },
 
         /**
-         * Get all the event listeners (event names) of this component
-         * except for the 'input' event listener.
-         *
-         * @returns {Object}
-         */
-        additionalEventListeners() {
-            const listeners = {};
-            Object.keys(this.$listeners).forEach((key) => {
-                if (key !== 'input') {
-                    listeners[key] = this.$listeners[key];
-                }
-            });
-
-            return listeners;
-        },
-
-        /**
          * Convert the events for the date picker to another format:
          * from: 'on-month-change' to: { camelCase: 'onMonthChange', kebabCase: 'on-month-change' }
          * So this can be used as a parameter to flatpickr to specify which events will be thrown
@@ -307,7 +306,7 @@ export default {
          */
         getEventNames() {
             const events = [];
-            Object.keys(this.additionalEventListeners()).forEach((event) => {
+            Object.keys(this.additionalEventListeners).forEach((event) => {
                 events.push({
                     kebabCase: event,
                     camelCase: this.kebabToCamel(event)

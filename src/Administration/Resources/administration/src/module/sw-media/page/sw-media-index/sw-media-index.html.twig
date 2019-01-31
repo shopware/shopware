@@ -77,25 +77,23 @@
                                                       name="presentation"
                                                       :label="$tc('sw-media.index.labelPresentation')"
                                                       v-model="presentation">
-                                                <template slot="options">
-                                                    {% block sw_media_index_presentation_options_small %}
-                                                        <option value="small-preview">
-                                                            {{ $tc('sw-media.index.labelPresentationSmall') }}
-                                                        </option>
-                                                    {% endblock %}
+                                                {% block sw_media_index_presentation_options_small %}
+                                                    <option value="small-preview">
+                                                        {{ $tc('sw-media.index.labelPresentationSmall') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                                    {% block sw_media_index_presentation_options_medium %}
-                                                        <option value="medium-preview">
-                                                            {{ $tc('sw-media.index.labelPresentationMedium') }}
-                                                        </option>
-                                                    {% endblock %}
+                                                {% block sw_media_index_presentation_options_medium %}
+                                                    <option value="medium-preview">
+                                                        {{ $tc('sw-media.index.labelPresentationMedium') }}
+                                                    </option>
+                                                {% endblock %}
 
-                                                    {% block sw_media_index_presentation_options_large %}
-                                                        <option value="large-preview">
-                                                            {{ $tc('sw-media.index.labelPresentationLarge') }}
-                                                        </option>
-                                                    {% endblock %}
-                                                </template>
+                                                {% block sw_media_index_presentation_options_large %}
+                                                    <option value="large-preview">
+                                                        {{ $tc('sw-media.index.labelPresentationLarge') }}
+                                                    </option>
+                                                {% endblock %}
                                             </sw-field>
                                         {% endblock %}
 
@@ -106,42 +104,42 @@
                                                       value="createdAt:dsc"
                                                       @change="sortMediaItems">
                                                 {% block sw_media_index_single_select_sort_createdAt_asc %}
-                                                    <option slot="options"
+                                                    <option
                                                             value="createdAt:asc">
                                                         {{ $tc('sw-media.index.labelSortByCreatedAsc') }}
                                                     </option>
                                                 {% endblock %}
 
                                                 {% block sw_media_index_single_select_sort_createdAt_dsc %}
-                                                    <option slot="options"
+                                                    <option
                                                             value="createdAt:dsc" selected>
                                                         {{ $tc('sw-media.index.labelSortByCreatedDsc') }}
                                                     </option>
                                                 {% endblock %}
 
                                                 {% block sw_media_index_single_select_sort_name_asc %}
-                                                    <option slot="options"
+                                                    <option
                                                             value="fileName:asc">
                                                         {{ $tc('sw-media.index.labelSortByNameAsc') }}
                                                     </option>
                                                 {% endblock %}
 
                                                 {% block sw_media_index_single_select_sort_name_dsc %}
-                                                    <option slot="options"
+                                                    <option
                                                             value="fileName:dsc">
                                                         {{ $tc('sw-media.index.labelSortByNameDsc') }}
                                                     </option>
                                                 {% endblock %}
 
                                                 {% block sw_media_index_single_select_sort_fileSize_asc %}
-                                                    <option slot="options"
+                                                    <option
                                                             value="fileSize:asc">
                                                         {{ $tc('sw-media.index.labelSortBySizeAsc') }}
                                                     </option>
                                                 {% endblock %}
 
                                                 {% block sw_media_index_single_select_sort_fileSize_dsc %}
-                                                    <option slot="options"
+                                                    <option
                                                             value="fileSize:dsc">
                                                         {{ $tc('sw-media.index.labelSortBySizeDsc') }}
                                                     </option>

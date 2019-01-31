@@ -337,7 +337,7 @@ export default class EntityProxy {
 
         let additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
         if (this.versionId) {
-            additionalHeaders = Object.assign(ApiService.getVersionHeader(this.versionId));
+            additionalHeaders = Object.assign(additionalHeaders, ApiService.getVersionHeader(this.versionId));
         }
 
         return this.apiService.updateById(

@@ -73,7 +73,7 @@
         </service>
 
         <!-- Helper -->
-        <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider">
+        <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider" public="true">
             <argument type="service" id="plugin.repository"/>
         </service>
 

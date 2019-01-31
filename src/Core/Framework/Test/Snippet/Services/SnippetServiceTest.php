@@ -6,23 +6,16 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Snippet\Files\de_DE\LanguageFile_de_DE;
-use Shopware\Core\Framework\Snippet\Files\en_EN\LanguageFile_en_GB;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Services\SnippetFlattener;
 use Shopware\Core\Framework\Snippet\Services\SnippetService;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\LaguageFileMock;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetLanguageFilesByIso\de_AT;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetLanguageFilesByIso\de_AT_e1;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetLanguageFilesByIso\de_AT_e2;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetLanguageFilesByIso\en_US;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetLanguageFilesByIso\en_US_e1;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetLanguageFilesByIso\en_US_e2;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e1;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e2;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e1;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e2;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -80,112 +73,6 @@ class SnippetServiceTest extends TestCase
         $this->assertSame(Defaults::LOCALE_EN_GB_ISO, $result);
     }
 
-    /**
-     * @param $searchTerm
-     * @param $expected
-     *
-     * @dataProvider DataProviderForTestFindSnippetsInDatabase
-     */
-    public function testFindSnippetsInDatabase($searchTerm, $expectedResult)
-    {
-        $criteria = new Criteria();
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.value', $searchTerm), 1));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.translationKey', $searchTerm), 1));
-
-        $context = new Context(new SourceContext());
-
-        $isoList = [
-            Defaults::SNIPPET_BASE_SET_EN => 'en_GB',
-            Defaults::SNIPPET_BASE_SET_DE => 'de_DE',
-        ];
-
-        $method = ReflectionHelper::getMethod(SnippetService::class, 'findSnippetsInDatabase');
-        $result = $method->invokeArgs($this->getSnippetService(), [$criteria, $context, $searchTerm, $isoList]);
-
-        $this->assertArraySubset($expectedResult, $result);
-    }
-
-    public function DataProviderForTestFindSnippetsInDatabase()
-    {
-        $sql = file_get_contents(__DIR__ . '/../_fixtures/snippets-for-searching.sql');
-        $this->getContainer()->get(Connection::class)->executeQuery($sql);
-
-        $results = require __DIR__ . '/../_fixtures/SearchingResultArray.php';
-
-        return [
-            ['', $results['result1']],
-            ['documents', $results['result2']],
-            ['string', $results['result3']],
-            ['test', $results['result4']],
-            ['Batman', $results['result5']],
-            ['dogs', $results['result6']],
-            ['Wissenschaftstheater', $results['result7']],
-            ['Astronauten', $results['result8']],
-        ];
-    }
-
-    /**
-     * @param array  $isoList
-     * @param array  $languageFiles
-     * @param string $term
-     * @param        $expectedResult
-     *
-     * @dataProvider dataProviderForTestGetSnippets
-     */
-    public function testGetSnippets(array $isoList, array $languageFiles, string $term, $expectedResult)
-    {
-        $sql = file_get_contents(__DIR__ . '/../_fixtures/snippets-for-searching.sql');
-        $this->getContainer()->get(Connection::class)->executeQuery($sql);
-
-        $languageFileMock = new LaguageFileMock();
-        $service = $this->getSnippetService([$languageFileMock]);
-
-        $criteria = new Criteria();
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.value', $term), 1));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('snippet.translationKey', $term), 1));
-
-        $context = new Context(new SourceContext());
-
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getSnippets');
-        $result = $mehtod->invokeArgs($service, [$languageFiles, $isoList, $criteria, $context]);
-
-        $this->assertArraySubset($expectedResult, $result);
-    }
-
-    public function dataProviderForTestGetSnippets()
-    {
-        $expectedResults = require __DIR__ . '/../_fixtures/GetSnippetsResult.php';
-
-        $sql = "INSERT IGNORE INTO `snippet_set` (`id`, `name`, `base_file`, `iso`, `created_at`, `updated_at`)
-              VALUES (UNHEX('d25b3274612d4e6c960dadaf3ef56fd9'),
-              'only for unit tests',
-              'test_Unit_TEST',
-              'unit_TEST',
-              now(),
-              NULL);";
-
-        $this->getContainer()->get(Connection::class)->executeQuery($sql);
-
-        $unitTestFile = new LaguageFileMock();
-        $deDEFile = new LanguageFile_de_DE();
-        $enGBFile = new LanguageFile_en_GB();
-
-        $isoList = [
-            'd25b3274612d4e6c960dadaf3ef56fd9' => $unitTestFile->getIso(),
-            Defaults::SNIPPET_BASE_SET_EN => $enGBFile->getIso(),
-            Defaults::SNIPPET_BASE_SET_DE => $deDEFile->getIso(),
-        ];
-
-        return [
-            [[], [], '', []],
-            [$isoList, [$unitTestFile->getIso() => [$unitTestFile]], '', $expectedResults['result1']],
-            [$isoList, [$deDEFile->getIso() => [$deDEFile]], '', $expectedResults['result2']],
-            [$isoList, [$enGBFile->getIso() => [$enGBFile]], '', $expectedResults['result3']],
-            [$isoList, [$unitTestFile->getIso() => [$unitTestFile]], 'test', $expectedResults['result4']],
-            [$isoList, [$deDEFile->getIso() => [$deDEFile]], 'Löschen', $expectedResults['result5']],
-        ];
-    }
-
     public function testFillBlankSnippets()
     {
         $service = $this->getSnippetService();
@@ -209,35 +96,6 @@ class SnippetServiceTest extends TestCase
         $result = $mehtod->invokeArgs($service, [$isoList, $snippetList]);
 
         $this->assertSame($expectedResult, $result);
-    }
-
-    public function testGetDbSnippetSets()
-    {
-        $connection = $this->getContainer()->get(Connection::class);
-        $sql = file_get_contents(__DIR__ . '/../_fixtures/snippets-for-searching.sql');
-        $connection->executeQuery($sql);
-
-        $service = $this->getSnippetService();
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getDbSnippetSets');
-        $translationKeyList = [
-            'detail.descriptionHeader',
-            'footer.newsletter',
-            'documents.index.DocumentIndexHeadPosition',
-        ];
-
-        $select = $connection->createQueryBuilder()
-            ->select(['snippet_set_id', 'id', 'translation_key AS translationKey', 'value', 'snippet_set_id AS setId'])
-            ->from('snippet')
-            ->where('translation_key IN (:translationKeyList)')
-            ->setParameter('translationKeyList', $translationKeyList, Connection::PARAM_STR_ARRAY)
-            ->execute()
-            ->fetchAll();
-        $select = FetchModeHelper::group($select);
-
-        $expextedResult = require __DIR__ . '/../_fixtures/GetDbSnippetsResult.php';
-        $result = $mehtod->invoke($service, $select);
-
-        $this->assertSame($expextedResult, $result);
     }
 
     public function testFetchSnippetsFromDatabase()
@@ -362,7 +220,7 @@ class SnippetServiceTest extends TestCase
 
     private function getSnippetService(array $languageFiles = []): SnippetService
     {
-        $collection = $this->getContainer()->get(LanguageFileCollection::class);
+        $collection = $this->getContainer()->get(SnippetFileCollection::class);
         foreach ($languageFiles as $languageFile) {
             $collection->add($languageFile);
         }
@@ -371,7 +229,8 @@ class SnippetServiceTest extends TestCase
             $this->getContainer()->get('Doctrine\DBAL\Connection'),
             $this->getContainer()->get(SnippetFlattener::class),
             $collection,
-            $this->getContainer()->get('snippet.repository')
+            $this->getContainer()->get('snippet.repository'),
+            $this->getContainer()->get('snippet_set.repository')
         );
     }
 

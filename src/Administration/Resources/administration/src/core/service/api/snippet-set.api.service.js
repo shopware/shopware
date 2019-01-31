@@ -14,11 +14,28 @@ class SnippetSetApiService extends ApiService {
     /**
      * @returns {Promise<T>}
      */
-    getCustomList(page = 1, limit = 25, term = null, isCustom = false) {
+    getCustomList(
+        page = 1,
+        limit = 25,
+        filters = {}
+    ) {
         const headers = this.getBasicHeaders();
+        const defaultFilters = {
+            isCustom: false,
+            emptySnippets: false,
+            term: null,
+            namespaces: [],
+            authors: [],
+            translationKeys: []
+        };
+        filters = { ...defaultFilters, ...filters };
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}`, { page, limit, term, isCustom }, { headers })
+            .post(
+                `/_action/${this.getApiBasePath()}`,
+                { page, limit, filters },
+                { headers }
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

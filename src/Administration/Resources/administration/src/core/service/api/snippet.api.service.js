@@ -33,6 +33,19 @@ class SnippetApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    /**
+     * @returns {Promise<T>}
+     */
+    getFilter() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/filter`, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 export default SnippetApiService;

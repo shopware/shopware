@@ -1,0 +1,17 @@
+{% block sw_boolean_filter_item %}
+    <div class="sw-settings-snippet-boolean-filter-item">
+        <slot name="template">
+            <div :class="fieldClasses">
+                {% block sw_boolean_filter_item_field %}
+                    <slot name="field">
+                        <sw-field type="switch"
+                                  :name="name"
+                                  @input="onChange"
+                                  :label="label">
+                        </sw-field>
+                    </slot>
+                {% endblock %}
+            </div>
+        </slot>
+    </div>
+{% endblock %}

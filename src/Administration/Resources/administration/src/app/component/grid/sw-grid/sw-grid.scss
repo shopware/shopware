@@ -56,6 +56,10 @@ $sw-grid-table-row-color-background:      $color-white;
             }
         }
 
+        .sw-empty-state {
+            position: relative;
+        }
+
         .sw-grid-column {
             border-right: 0 none;
         }

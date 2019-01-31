@@ -2,17 +2,17 @@
 
 namespace Shopware\Core\Framework\Snippet\Files;
 
-use Shopware\Core\Framework\Exception\InvalidLanguageFileException;
+use Shopware\Core\Framework\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Struct\Collection;
 
-class LanguageFileCollection extends Collection
+class SnippetFileCollection extends Collection
 {
     /**
-     * @param LanguageFileInterface $languageFile
+     * @param SnippetFileInterface $snippetFile
      */
-    public function add($languageFile): void
+    public function add($snippetFile): void
     {
-        $this->set($languageFile->getName(), $languageFile);
+        $this->set($snippetFile->getName(), $snippetFile);
     }
 
     public function getIsoList(): array
@@ -20,18 +20,18 @@ class LanguageFileCollection extends Collection
         return array_keys($this->getListSortedByIso());
     }
 
-    public function getLanguageFilesByIso(string $iso): array
+    public function getSnippetFilesByIso(string $iso): array
     {
         $list = $this->getListSortedByIso();
 
         return $list[$iso] ?? [];
     }
 
-    public function getBaseFileByIso(string $iso): LanguageFileInterface
+    public function getBaseFileByIso(string $iso): SnippetFileInterface
     {
-        $files = $this->getLanguageFilesByIso($iso);
+        $files = $this->getSnippetFilesByIso($iso);
 
-        /** @var LanguageFileInterface $file */
+        /** @var SnippetFileInterface $file */
         foreach ($files as $file) {
             if (!$file->isBase()) {
                 continue;
@@ -40,19 +40,19 @@ class LanguageFileCollection extends Collection
             return $file;
         }
 
-        throw new InvalidLanguageFileException($iso);
+        throw new InvalidSnippetFileException($iso);
     }
 
     protected function getExpectedClass(): ?string
     {
-        return LanguageFileInterface::class;
+        return SnippetFileInterface::class;
     }
 
     private function getListSortedByIso(): array
     {
         $list = [];
 
-        /** @var LanguageFileInterface $element */
+        /** @var SnippetFileInterface $element */
         foreach ($this->elements as $element) {
             $list[$element->getIso()][] = $element;
         }

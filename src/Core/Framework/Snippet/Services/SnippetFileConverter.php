@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Snippet\Services;
 
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
 class SnippetFileConverter implements SnippetFileConverterInterface
 {
@@ -14,16 +14,16 @@ class SnippetFileConverter implements SnippetFileConverterInterface
     private $snippetFlattener;
 
     /**
-     * @var LanguageFileCollection
+     * @var SnippetFileCollection
      */
-    private $languageFileCollection;
+    private $snippetFileCollection;
 
     public function __construct(
-        LanguageFileCollection $languageFileCollection,
+        SnippetFileCollection $snippetFileCollection,
         SnippetFlattenerInterface $snippetFlattener
     ) {
         $this->snippetFlattener = $snippetFlattener;
-        $this->languageFileCollection = $languageFileCollection;
+        $this->snippetFileCollection = $snippetFileCollection;
     }
 
     /**
@@ -31,23 +31,23 @@ class SnippetFileConverter implements SnippetFileConverterInterface
      */
     public function convert(SnippetSetEntity $snippetSet): array
     {
-        $languageFiles = $this->languageFileCollection->getLanguageFilesByIso($snippetSet->getIso());
+        $snippetFiles = $this->snippetFileCollection->getSnippetFilesByIso($snippetSet->getIso());
 
         $resultSet = [];
-        /** @var LanguageFileInterface $languageFile */
-        foreach ($languageFiles as $languageFile) {
+        /** @var SnippetFileInterface $snippetFile */
+        foreach ($snippetFiles as $snippetFile) {
             $resultSet = array_replace_recursive(
                 $resultSet,
-                $this->getFileContent($languageFile)
+                $this->getFileContent($snippetFile)
             );
         }
 
         return $this->snippetFlattener->flatten($resultSet);
     }
 
-    private function getFileContent(LanguageFileInterface $languageFile): array
+    private function getFileContent(SnippetFileInterface $snippetFile): array
     {
-        $content = file_get_contents($languageFile->getPath());
+        $content = file_get_contents($snippetFile->getPath());
 
         return json_decode($content, true) ?: [];
     }

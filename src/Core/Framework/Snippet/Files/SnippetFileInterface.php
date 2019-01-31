@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Snippet\Files;
 
-interface LanguageFileInterface
+interface SnippetFileInterface
 {
     const BASE_LANGUAGE_FILE = true;
 
@@ -38,6 +38,17 @@ interface LanguageFileInterface
      * @return string
      */
     public function getIso(): string;
+
+    /**
+     * Return the snippet author, which will be used when editing a file snippet in a snippet set
+     *
+     * Example:
+     * shopware
+     * pluginName
+     *
+     * @return string
+     */
+    public function getAuthor(): string;
 
     /**
      * Returns a boolean which determines if its a base language file

@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Test\Snippet\Files;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Exception\InvalidLanguageFileException;
-use Shopware\Core\Framework\Snippet\Files\de_DE\LanguageFile_de_DE;
-use Shopware\Core\Framework\Snippet\Files\en_EN\LanguageFile_en_GB;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
+use Shopware\Core\Framework\Exception\InvalidSnippetFileException;
+use Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE;
+use Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\TestLanguageExtensionFile_de_DE;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
-class LanguageFileCollectionTest extends TestCase
+class SnippetFileCollectionTest extends TestCase
 {
     public function testGet(): void
     {
@@ -40,10 +40,10 @@ class LanguageFileCollectionTest extends TestCase
     {
         $collection = $this->getCollection();
 
-        $result_en_GB = $collection->getLanguageFilesByIso('en_GB');
-        $result_de_DE = $collection->getLanguageFilesByIso('de_DE');
-        $result_empty = $collection->getLanguageFilesByIso('na_NA');
-        $result_empty_two = $collection->getLanguageFilesByIso('');
+        $result_en_GB = $collection->getSnippetFilesByIso('en_GB');
+        $result_de_DE = $collection->getSnippetFilesByIso('de_DE');
+        $result_empty = $collection->getSnippetFilesByIso('na_NA');
+        $result_empty_two = $collection->getSnippetFilesByIso('');
 
         $this->assertNotNull($result_en_GB);
         $this->assertNotNull($result_de_DE);
@@ -65,7 +65,7 @@ class LanguageFileCollectionTest extends TestCase
     {
         $collection = $this->getCollection();
 
-        $this->expectException(InvalidLanguageFileException::class);
+        $this->expectException(InvalidSnippetFileException::class);
 
         $collection->getBaseFileByIso('de_AT');
     }
@@ -84,7 +84,7 @@ class LanguageFileCollectionTest extends TestCase
     public function testGetListSortedByIso(): void
     {
         $collection = $this->getCollection();
-        $method = ReflectionHelper::getMethod(LanguageFileCollection::class, 'getListSortedByIso');
+        $method = ReflectionHelper::getMethod(SnippetFileCollection::class, 'getListSortedByIso');
 
         $result = $method->invoke($collection);
         $expectedResult = ['de_DE' => [], 'en_GB' => []];
@@ -92,12 +92,12 @@ class LanguageFileCollectionTest extends TestCase
         $this->assertArraySubset($expectedResult, $result);
     }
 
-    private function getCollection(): LanguageFileCollection
+    private function getCollection(): SnippetFileCollection
     {
-        $collection = new LanguageFileCollection(new ArrayCollection([]));
+        $collection = new SnippetFileCollection(new ArrayCollection([]));
         $collection->add(new TestLanguageExtensionFile_de_DE());
-        $collection->add(new LanguageFile_de_DE());
-        $collection->add(new LanguageFile_en_GB());
+        $collection->add(new SnippetFile_de_DE());
+        $collection->add(new SnippetFile_en_GB());
 
         return $collection;
     }

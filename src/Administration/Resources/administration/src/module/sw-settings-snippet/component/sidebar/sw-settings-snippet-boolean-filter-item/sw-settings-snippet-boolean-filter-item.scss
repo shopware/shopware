@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+$sw-settings-snippets-sidebar-border:       $color-steam-cloud;
+
+.sw-settings-snippet-boolean-filter-item {
+  .sw-settings-snippet-boolean-filter-item__field {
+    padding-left: 20px;
+
+    &.border-top {
+      border-top: 1px solid $sw-settings-snippets-sidebar-border;
+    }
+
+    &.border-bottom {
+      border-bottom: 1px solid $sw-settings-snippets-sidebar-border;
+    }
+
+    &.sw-settings-snippet-boolean-filter-item--small {
+      padding-top: 0px;
+    }
+
+    &.sw-settings-snippet-boolean-filter-item--large {
+      padding-top: 30px;
+    }
+  }
+}

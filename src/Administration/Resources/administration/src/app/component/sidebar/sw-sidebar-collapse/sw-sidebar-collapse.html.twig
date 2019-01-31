@@ -1,0 +1,36 @@
+{% block sw_collapse_panel_header %}
+    {% block sw_collapse_panel_header_slot %}
+        <template class="sw-sidebar-collapse__header" slot="header">
+            {% block sw_sidebar_collapse_title %}
+                <h4 class="sw-sidebar-collapse__title" @click="collapseItem">
+                    <slot name="header" :expanded="expanded">
+                        {% block sw_sidebar_collapse_panel_header_slot %}{% endblock %}
+                    </slot>
+                </h4>
+            {% endblock %}
+
+            {% block sw_sidebar_collapse_buttons %}
+                <div class="sw-sidebar-collapse__indicator" @click="collapseItem">
+                    <sw-icon name="small-arrow-small-right"
+                             class="sw-sidebar-collapse__button"
+                             :class="expandButtonClass">
+                    </sw-icon>
+                    <sw-icon name="small-arrow-small-down"
+                             class="sw-sidebar-collapse__button"
+                             :class="collapseButtonClass">
+                    </sw-icon>
+                </div>
+            {% endblock %}
+        </template>
+    {% endblock %}
+{% endblock %}
+
+{% block sw_collapse_panel_content_slot %}
+    {% block sw_sidebar_collapse_panel_content_template %}
+        <template slot="content">
+            <slot name="content">
+                {% block sw_sidebar_collapse_panel_content_slot %}{% endblock %}
+            </slot>
+        </template>
+    {% endblock %}
+{% endblock %}

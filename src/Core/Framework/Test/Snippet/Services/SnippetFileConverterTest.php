@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\Snippet\Services;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileCollection;
-use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\Services\SnippetFileConverter;
 use Shopware\Core\Framework\Snippet\Services\SnippetFlattener;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -49,12 +49,12 @@ class SnippetFileConverterTest extends TestCase
     }
 
     /**
-     * @param LanguageFileInterface $languageFile
-     * @param                       $expectedResult
+     * @param SnippetFileInterface $languageFile
+     * @param array                $expectedResult
      *
      * @dataProvider dataProviderForTestGetFileContent
      */
-    public function testGetFileContent(LanguageFileInterface $languageFile, $expectedResult): void
+    public function testGetFileContent(SnippetFileInterface $languageFile, $expectedResult): void
     {
         $converter = $this->getConverter();
         $method = ReflectionHelper::getMethod(SnippetFileConverter::class, 'getFileContent');
@@ -77,13 +77,13 @@ class SnippetFileConverterTest extends TestCase
     private function getConverter(): SnippetFileConverter
     {
         return new SnippetFileConverter(
-            $this->getContainer()->get(LanguageFileCollection::class),
+            $this->getContainer()->get(SnippetFileCollection::class),
             $this->getContainer()->get(SnippetFlattener::class)
         );
     }
 }
 
-class LanguageFileMock implements LanguageFileInterface
+class LanguageFileMock implements SnippetFileInterface
 {
     public $path;
     public $name;
@@ -120,5 +120,10 @@ class LanguageFileMock implements LanguageFileInterface
     public function isBase(): bool
     {
         return $this->isBase;
+    }
+
+    public function getAuthor(): string
+    {
+        return 'unitTests';
     }
 }

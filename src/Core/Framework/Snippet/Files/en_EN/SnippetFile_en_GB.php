@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Framework\Snippet\Files\en_EN;
 
-use Shopware\Core\Framework\Snippet\Files\LanguageFileInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
-class LanguageFile_en_GB implements LanguageFileInterface
+class SnippetFile_en_GB implements SnippetFileInterface
 {
     public function getName(): string
     {
@@ -13,7 +14,6 @@ class LanguageFile_en_GB implements LanguageFileInterface
 
     public function getPath(): string
     {
-        // todo@j.buecker use cdn dir here?
         return __DIR__ . '/messages.en_GB.json';
     }
 
@@ -22,8 +22,13 @@ class LanguageFile_en_GB implements LanguageFileInterface
         return 'en_GB';
     }
 
+    public function getAuthor(): string
+    {
+        return Defaults::SNIPPET_AUTHOR;
+    }
+
     public function isBase(): bool
     {
-        return LanguageFileInterface::BASE_LANGUAGE_FILE;
+        return SnippetFileInterface::BASE_LANGUAGE_FILE;
     }
 }

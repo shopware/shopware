@@ -1050,7 +1050,8 @@
       "resetSuccessMessage": "Snippet \"{key}\" has been reset successfully to \"{value}\".",
       "titleSaveSuccess": "Snippets",
       "titleSidebarCustomItems": "Custom snippets",
-      "titleSidebarItemRefresh": "Refresh"
+      "titleSidebarItemRefresh": "Refresh",
+      "emptyStateHeadLine": "No result for snippets."
     },
     "setList": {
       "title": "Manage snippets",
@@ -1078,6 +1079,12 @@
       "cloneErrorMessage": "Error while copying a snippet set.",
       "notEditableNoteTitle": "Edit snippets",
       "notEditableNoteMessage": "Error while editing snippet sets."
+    },
+    "filter": {
+      "switchOnlyEmpty": "Empty snippets",
+      "showOnlyEmpty": "Show only empty snippets",
+      "author": "Author",
+      "more": "More filters"
     }
   },
   "sw-settings-rule": {

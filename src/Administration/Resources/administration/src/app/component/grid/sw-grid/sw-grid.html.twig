@@ -74,12 +74,18 @@
                                         </sw-grid-row>
                                     {% endblock %}
                                 </slot>
+
+                                {% block sw_grid_slot_empty_columns %}
+                                    <slot name="empty" v-if="!items.length" >
+                                        {% block sw_grid_slot_empty_columns_content %}{% endblock %}
+                                    </slot>
+                                {% endblock %}
                             </div>
                         {% endblock %}
                     </slot>
 
                     {% block sw_grid_pagination %}
-                        <div class="sw-grid__pagination" v-if="hasPaginationSlot">
+                        <div class="sw-grid__pagination" v-if="hasPaginationSlot && items.length">
                             <slot name="pagination">{% block sw_grid_slot_pagination %}{% endblock %}</slot>
                         </div>
                     {% endblock %}

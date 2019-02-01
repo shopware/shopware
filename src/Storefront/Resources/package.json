@@ -5,9 +5,9 @@
   "description": "Storefront Building Pipeline for Shopware Next",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "production": "cross-env NODE_ENV=production webpack --config webpack.config.js",
-    "development": "cross-env NODE_ENV=development webpack --config webpack.config.js",
-    "hmr": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.js"
+    "production": "NODE_ENV=production webpack --config webpack.config.js",
+    "development": "NODE_ENV=development webpack --config webpack.config.js",
+    "hmr": "NODE_ENV=development ENV=hmr webpack-dev-server --config webpack.config.js"
   },
   "keywords": [
     "sw",
@@ -24,7 +24,6 @@
     "@nuxtjs/friendly-errors-webpack-plugin": "^2.1.0",
     "autoprefixer": "^9.4.7",
     "babel-loader": "^8.0.5",
-    "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
     "eslint": "^5.12.1",
     "eslint-loader": "^2.1.1",

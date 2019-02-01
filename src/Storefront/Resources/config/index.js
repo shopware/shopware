@@ -1,5 +1,6 @@
 module.exports = {
     analyzeBundle: false,
     autoOpenBrowser: false,
-    productionSourceMap: true
+    productionSourceMap: true,
+    devServerPort: 8080
 };

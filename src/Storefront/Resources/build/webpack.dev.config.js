@@ -3,7 +3,7 @@ const config = require('../config');
 const { resolve } = require('path');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 
-const buildDirectory = resolve(__dirname, '../../../../../../../public/build');
+const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public/build');
 
 module.exports = {
     mode: 'development',
@@ -22,6 +22,7 @@ module.exports = {
         hot: true,
         compress: true,
         disableHostCheck: true,
+        port: config.devServerPort,
         host: '0.0.0.0',
         clientLogLevel: 'warning',
         headers: {

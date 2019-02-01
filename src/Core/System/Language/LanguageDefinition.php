@@ -15,7 +15,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefin
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
-use Shopware\Core\Framework\Attribute\Translation\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -115,7 +114,6 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('searchDocuments', SearchDocumentDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mediaFolderTranslations', MediaFolderTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('pluginTranslations', PluginTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('attributeTranslations', AttributeTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productStreamTranslations', ProductStreamTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('stateMachineTranslations', StateMachineTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('stateMachineStateTranslations', StateMachineStateTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),

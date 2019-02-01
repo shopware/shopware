@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use DateTime;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -55,7 +54,7 @@ class OrderTransactionEntity extends Entity
     protected $details;
 
     /***
-     * @var OrderTransactionStateEntity
+     * @var StateMachineStateEntity
      */
     protected $stateMachineState;
 

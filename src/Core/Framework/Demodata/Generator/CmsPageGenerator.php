@@ -38,8 +38,11 @@ class CmsPageGenerator implements DemodataGeneratorInterface
      */
     private $mediaIds = [];
 
-    public function __construct(EntityRepositoryInterface $cmsPageRepository, EntityRepositoryInterface $productRepository, EntityRepositoryInterface $mediaRepository)
-    {
+    public function __construct(
+        EntityRepositoryInterface $cmsPageRepository,
+        EntityRepositoryInterface $productRepository,
+        EntityRepositoryInterface $mediaRepository
+    ) {
         $this->cmsPageRepository = $cmsPageRepository;
         $this->productRepository = $productRepository;
         $this->mediaRepository = $mediaRepository;

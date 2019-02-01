@@ -54,10 +54,10 @@ class RuleValidatorTest extends TestCase
             RuleConditionDefinition::class, ['type' => 'false'], ['id' => $id],
             $this->createMock(EntityExistence::class)
         );
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
-            $this->fail('Exception was not thrown');
+            static::fail('Exception was not thrown');
         } catch (ConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
@@ -76,10 +76,10 @@ class RuleValidatorTest extends TestCase
             RuleConditionDefinition::class, ['id' => $id], ['type' => 'false'],
             $this->createMock(EntityExistence::class)
         );
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
-            $this->fail('Exception was not thrown');
+            static::fail('Exception was not thrown');
         } catch (ConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
@@ -99,14 +99,14 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $instance->expects(static::once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
-            $this->fail('Exception was not thrown');
+            static::fail('Exception was not thrown');
         } catch (ConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
@@ -129,14 +129,14 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $instance->expects(static::once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
-            $this->fail('Exception was not thrown');
+            static::fail('Exception was not thrown');
         } catch (ConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
@@ -159,11 +159,11 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(
+        $instance->expects(static::once())->method('getConstraints')->willReturn(
             ['field' => [new Type('string'), new Choice(['=', '!='])]]
         );
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
         $this->ruleValidator->preValidate($commands, $this->context);
     }
@@ -177,11 +177,11 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(
+        $instance->expects(static::once())->method('getConstraints')->willReturn(
             ['field' => [new Type('string'), new Choice(['=', '!='])]]
         );
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
         $this->ruleValidator->preValidate($commands, $this->context);
     }
@@ -196,16 +196,16 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(
+        $instance->expects(static::once())->method('getConstraints')->willReturn(
             ['field' => [new Type('string'), new Choice(['valid'])]]
         );
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
-            $this->fail('Exception was not thrown');
+            static::fail('Exception was not thrown');
         } catch (ConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
@@ -231,16 +231,16 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(
+        $instance->expects(static::once())->method('getConstraints')->willReturn(
             ['field' => [new Type('string'), new Choice(['valid'])]]
         );
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
-            $this->fail('Exception was not thrown');
+            static::fail('Exception was not thrown');
         } catch (ConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
@@ -265,9 +265,9 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $instance->expects(static::once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
         $this->ruleValidator->preValidate($commands, $this->context);
     }
@@ -282,9 +282,9 @@ class RuleValidatorTest extends TestCase
         );
 
         $instance = $this->createMock(Rule::class);
-        $instance->expects($this->once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
-        $this->conditionRegistry->expects($this->once())->method('has')->with('type')->willReturn(true);
-        $this->conditionRegistry->expects($this->once())->method('getRuleInstance')->with('type')->willReturn($instance);
+        $instance->expects(static::once())->method('getConstraints')->willReturn(['field' => [new NotBlank()]]);
+        $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
+        $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
         $this->ruleValidator->preValidate($commands, $this->context);
     }

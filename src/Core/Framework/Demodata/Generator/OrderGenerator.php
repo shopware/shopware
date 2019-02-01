@@ -47,8 +47,13 @@ class OrderGenerator implements DemodataGeneratorInterface
      */
     private $writer;
 
-    public function __construct(Connection $connection, CheckoutContextFactoryInterface $contextFactory, CartService $cartService, OrderConverter $orderConverter, EntityWriterInterface $writer)
-    {
+    public function __construct(
+        Connection $connection,
+        CheckoutContextFactoryInterface $contextFactory,
+        CartService $cartService,
+        OrderConverter $orderConverter,
+        EntityWriterInterface $writer
+    ) {
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
         $this->cartService = $cartService;

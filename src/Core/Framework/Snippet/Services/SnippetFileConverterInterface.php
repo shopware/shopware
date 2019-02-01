@@ -9,10 +9,6 @@ interface SnippetFileConverterInterface
     /**
      * Converts A complete SnippetSet
      * and merge all available data from files and database
-     *
-     * @param SnippetSetEntity $snippetSet
-     *
-     * @return array
      */
     public function convert(SnippetSetEntity $snippetSet): array;
 }

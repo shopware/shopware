@@ -78,8 +78,8 @@ class OrderPersisterTest extends TestCase
 
         $processedCart = $this->cartProcessor->process($cart, Generator::createCheckoutContext(), new CartBehaviorContext());
 
-        self::expectException(InvalidCartException::class);
-        self::expectExceptionMessageRegExp('/.*Line item "test" incomplete\. Property "label" missing\..*/');
+        $this->expectException(InvalidCartException::class);
+        $this->expectExceptionMessageRegExp('/.*Line item "test" incomplete\. Property "label" missing\..*/');
 
         $this->orderPersister->persist($processedCart, $this->getCheckoutContext());
     }

@@ -40,7 +40,6 @@ class CollectionTest extends TestCase
 
     public function testGetNumericKeys(): void
     {
-        $elements = ['a', 'b'];
         $collection = new TestCollection();
         self::assertEquals([], $collection->getKeys());
 
@@ -62,7 +61,6 @@ class CollectionTest extends TestCase
 
     public function testMap(): void
     {
-        $elements = ['a', 'b'];
         $collection = new TestCollection();
         $collection->map(function () {
             self::fail('map should not be called for empty collection');

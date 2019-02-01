@@ -23,9 +23,9 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $innerBus = $this->createMock(MessageBusInterface::class);
         $innerBus
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('dispatch')
-            ->with($this->equalTo($testMsg))
+            ->with(static::equalTo($testMsg))
             ->willReturn(new Envelope($testMsg));
 
         $repoDummy = $this->createMock(EntityRepositoryInterface::class);

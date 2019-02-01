@@ -10,7 +10,7 @@ class TemplateFinder
     /**
      * @var array
      */
-    private $directories = [];
+    private $directories;
 
     /**
      * @var Twig_Loader_Filesystem

@@ -21,9 +21,9 @@ class SnippetFileCollectionTest extends TestCase
         $result_de_DE = $collection->get('messages.de_DE');
         $result_NA = $collection->get('not.available');
 
-        $this->assertSame('en_GB', $result_en_GB->getIso());
-        $this->assertSame('de_DE', $result_de_DE->getIso());
-        $this->assertNull($result_NA);
+        static::assertSame('en_GB', $result_en_GB->getIso());
+        static::assertSame('de_DE', $result_de_DE->getIso());
+        static::assertNull($result_NA);
     }
 
     public function testGetIsoList(): void
@@ -33,7 +33,7 @@ class SnippetFileCollectionTest extends TestCase
         $expectedResult = ['de_DE', 'en_GB'];
         $result = $collection->getIsoList();
 
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     public function testGetLanguageFilesByIso(): void
@@ -45,20 +45,20 @@ class SnippetFileCollectionTest extends TestCase
         $result_empty = $collection->getSnippetFilesByIso('na_NA');
         $result_empty_two = $collection->getSnippetFilesByIso('');
 
-        $this->assertNotNull($result_en_GB);
-        $this->assertNotNull($result_de_DE);
-        $this->assertNotNull($result_empty);
-        $this->assertNotNull($result_empty_two);
+        static::assertNotNull($result_en_GB);
+        static::assertNotNull($result_de_DE);
+        static::assertNotNull($result_empty);
+        static::assertNotNull($result_empty_two);
 
-        $this->assertCount(1, $result_en_GB);
-        $this->assertCount(2, $result_de_DE);
-        $this->assertCount(0, $result_empty);
-        $this->assertCount(0, $result_empty_two);
+        static::assertCount(1, $result_en_GB);
+        static::assertCount(2, $result_de_DE);
+        static::assertCount(0, $result_empty);
+        static::assertCount(0, $result_empty_two);
 
-        $this->assertSame('en_GB', $result_en_GB[0]->getIso());
-        $this->assertSame('de_DE', $result_de_DE[0]->getIso());
-        $this->assertSame([], $result_empty);
-        $this->assertSame([], $result_empty_two);
+        static::assertSame('en_GB', $result_en_GB[0]->getIso());
+        static::assertSame('de_DE', $result_de_DE[0]->getIso());
+        static::assertSame([], $result_empty);
+        static::assertSame([], $result_empty_two);
     }
 
     public function testGetBaseFileByIso_expectException(): void
@@ -77,8 +77,8 @@ class SnippetFileCollectionTest extends TestCase
         $result_en_GB = $collection->getBaseFileByIso('en_GB');
         $result_de_DE = $collection->getBaseFileByIso('de_DE');
 
-        $this->assertSame('en_GB', $result_en_GB->getIso());
-        $this->assertSame('de_DE', $result_de_DE->getIso());
+        static::assertSame('en_GB', $result_en_GB->getIso());
+        static::assertSame('de_DE', $result_de_DE->getIso());
     }
 
     public function testGetListSortedByIso(): void
@@ -89,7 +89,7 @@ class SnippetFileCollectionTest extends TestCase
         $result = $method->invoke($collection);
         $expectedResult = ['de_DE' => [], 'en_GB' => []];
 
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     private function getCollection(): SnippetFileCollection

@@ -66,8 +66,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        static::assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
-        static::assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
+        static::assertRegExp('/.*Generated\s*2.*/', $string);
+        static::assertRegExp('/.*Skipped\s*0.*/', $string);
 
         $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
         /** @var MediaEntity $updatedMedia */
@@ -94,8 +94,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        static::assertEquals(1, preg_match('/.*Generated\s*2.*/', $string));
-        static::assertEquals(1, preg_match('/.*Skipped\s*0.*/', $string));
+        static::assertRegExp('/.*Generated\s*2.*/', $string);
+        static::assertRegExp('/.*Skipped\s*0.*/', $string);
 
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
@@ -123,8 +123,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        static::assertEquals(1, preg_match('/.*Generated\s*1.*/', $string));
-        static::assertEquals(1, preg_match('/.*Skipped\s*1.*/', $string));
+        static::assertRegExp('/.*Generated\s*1.*/', $string);
+        static::assertRegExp('/.*Skipped\s*1.*/', $string);
 
         $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
         /** @var MediaEntity $updatedMedia */
@@ -189,8 +189,8 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testCommandAbortsIfNoFolderCanBeFound()
     {
-        static::expectException(\UnexpectedValueException::class);
-        static::expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');
 
         $input = new StringInput('--folder-name="non-existing-folder"');
         $output = new BufferedOutput();
@@ -199,7 +199,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testItThrowsExceptionOnNonNumericLimit(): void
     {
-        static::expectException(\Exception::class);
+        $this->expectException(\Exception::class);
         $input = new StringInput('-i test');
         $output = new BufferedOutput();
 

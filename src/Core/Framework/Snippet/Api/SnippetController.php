@@ -3,12 +3,8 @@
 namespace Shopware\Core\Framework\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Services\SnippetServiceInterface;
-use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,22 +19,15 @@ class SnippetController extends AbstractController
     private $snippetService;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
-
-    /**
      * @var SnippetFileCollection
      */
     private $snippetFileCollection;
 
     public function __construct(
         SnippetServiceInterface $snippetService,
-        EntityRepositoryInterface $userRepository,
         SnippetFileCollection $snippetFileCollection
     ) {
         $this->snippetService = $snippetService;
-        $this->userRepository = $userRepository;
         $this->snippetFileCollection = $snippetFileCollection;
     }
 
@@ -92,15 +81,5 @@ class SnippetController extends AbstractController
             'items' => $files,
             'total' => count($files),
         ]);
-    }
-
-    private function getActiveUsername(Context $context): string
-    {
-        $userCriteria = new Criteria();
-        $userCriteria->addFilter(new EqualsFilter('id', $context->getSourceContext()->getUserId()));
-        /** @var UserEntity $currentUser */
-        $currentUser = $this->userRepository->search($userCriteria, $context)->first();
-
-        return 'user/' . ($currentUser->getUsername() ?: 'undefined');
     }
 }

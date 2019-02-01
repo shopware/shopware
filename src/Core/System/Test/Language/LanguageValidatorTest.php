@@ -107,7 +107,7 @@ class LanguageValidatorTest extends TestCase
             'name' => 'new no parent',
         ];
 
-        $this->assertUpsertViolations([$nid], [], true);
+        $this->assertUpsertViolations([$nid], []);
     }
 
     public function testInsertWithParent(): void
@@ -208,7 +208,7 @@ class LanguageValidatorTest extends TestCase
             'parentId' => $parent['id'],
         ];
 
-        $this->assertUpsertViolations([$parent, $nidpid], [], true);
+        $this->assertUpsertViolations([$parent, $nidpid], []);
     }
 
     public function testInsertWithTwoChildren(): void
@@ -248,7 +248,7 @@ class LanguageValidatorTest extends TestCase
             'parentId' => $parent['id'],
         ];
 
-        $this->assertUpsertViolations([$parent, $child1, $child2], [], true);
+        $this->assertUpsertViolations([$parent, $child1, $child2], []);
     }
 
     public function testInsertWithExistingParent(): void

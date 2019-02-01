@@ -356,13 +356,11 @@ class FileSaver
         );
 
         foreach ($mediaWithRelatedFileName as $media) {
-            if ($media->hasFile()) {
-                if ($destination === $media->getFileName()) {
-                    throw new DuplicatedMediaFileNameException(
-                        $destination,
-                        $fileExtension
-                    );
-                }
+            if ($media->hasFile() && $destination === $media->getFileName()) {
+                throw new DuplicatedMediaFileNameException(
+                    $destination,
+                    $fileExtension
+                );
             }
         }
     }

@@ -34,13 +34,13 @@ class AmountCalculatorTest extends TestCase
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices): void
     {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will(static::returnValue(true));
+        $detector->method('useGross')->willReturn(true);
 
         $shop = $this->createMock(SalesChannelEntity::class);
-        $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
+        $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getSalesChannel')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->willReturn($shop);
 
         $calculator = new AmountCalculator(
             $detector,
@@ -68,14 +68,14 @@ class AmountCalculatorTest extends TestCase
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices): void
     {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will(static::returnValue(false));
-        $detector->method('isNetDelivery')->will(static::returnValue(false));
+        $detector->method('useGross')->willReturn(false);
+        $detector->method('isNetDelivery')->willReturn(false);
 
         $shop = $this->createMock(SalesChannelEntity::class);
-        $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
+        $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getSalesChannel')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->willReturn($shop);
 
         $calculator = new AmountCalculator(
             $detector,
@@ -103,14 +103,14 @@ class AmountCalculatorTest extends TestCase
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will(static::returnValue(false));
-        $detector->method('isNetDelivery')->will(static::returnValue(true));
+        $detector->method('useGross')->willReturn(false);
+        $detector->method('isNetDelivery')->willReturn(true);
 
         $shop = $this->createMock(SalesChannelEntity::class);
-        $shop->method('getTaxCalculationType')->will(static::returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
+        $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getSalesChannel')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->willReturn($shop);
 
         $calculator = new AmountCalculator(
             $detector,

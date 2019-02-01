@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use DateTime;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
@@ -20,6 +21,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 class OrderEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */
@@ -51,7 +53,7 @@ class OrderEntity extends Entity
     protected $billingAddressId;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     protected $date;
 
@@ -101,12 +103,12 @@ class OrderEntity extends Entity
     protected $isTaxFree;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     protected $updatedAt;
 
@@ -235,12 +237,12 @@ class OrderEntity extends Entity
         $this->billingAddressId = $billingAddressId;
     }
 
-    public function getDate(): \DateTime
+    public function getDate(): DateTime
     {
         return $this->date;
     }
 
-    public function setDate(\DateTime $date): void
+    public function setDate(DateTime $date): void
     {
         $this->date = $date;
     }
@@ -290,22 +292,22 @@ class OrderEntity extends Entity
         return $this->shippingTotal;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

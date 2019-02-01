@@ -136,9 +136,6 @@ class SnippetService implements SnippetServiceInterface
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array
     {
         $locale = $this->getLocaleBySnippetSetId($snippetSetId);
@@ -165,9 +162,6 @@ class SnippetService implements SnippetServiceInterface
         return $snippets;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRegionFilterItems(Context $context): array
     {
         $metaData = $this->getSetMetaData($context);

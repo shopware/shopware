@@ -23,7 +23,7 @@ class IntFieldTest extends TestCase
 
         $data = new KeyValuePair('count', null, false);
 
-        self::expectException(InvalidFieldException::class);
+        $this->expectException(InvalidFieldException::class);
         try {
             $serializer->encode(
                 $this->getIntField(),
@@ -44,7 +44,7 @@ class IntFieldTest extends TestCase
 
         $data = new KeyValuePair('count', 'foo', false);
 
-        self::expectException(InvalidFieldException::class);
+        $this->expectException(InvalidFieldException::class);
         try {
             $serializer->encode(
                 $this->getIntField(),

@@ -169,7 +169,6 @@
 
         <service id="Shopware\Core\Framework\Snippet\Api\SnippetController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
-            <argument type="service" id="user.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
         </service>
 

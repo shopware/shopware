@@ -62,7 +62,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())
             ->method('fetchColumn')
-            ->will(static::returnValue(false));
+            ->willReturn(false);
 
         $persister = new CartPersister($connection, $this->serializer);
 
@@ -82,16 +82,14 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())
             ->method('fetchColumn')
-            ->will(
-                static::returnValue(
+            ->willReturn(
                 json_encode([
                     '_class' => Cart::class,
                     'lineItems' => new LineItemCollection(),
                     'token' => 'existing',
                     'name' => 'shopware',
                     'errors' => new ErrorCollection(),
-                ])
-            ));
+                ]));
 
         $persister = new CartPersister($connection, $this->serializer);
         $cart = $persister->load('existing', Generator::createCheckoutContext());

@@ -66,7 +66,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new StringField('identifier', 'identifier'))->addFlags(new Required()),
             (new IntField('quantity', 'quantity'))->addFlags(new Required()),
             (new StringField('label', 'label'))->addFlags(new Required()),
-            (new JsonField('payload', 'payload')),
+            new JsonField('payload', 'payload'),
             new BoolField('good', 'good'),
             new BoolField('removable', 'removable'),
             new BoolField('stackable', 'stackable'),

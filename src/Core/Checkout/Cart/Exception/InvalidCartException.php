@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Exception;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\Response;
 
 class InvalidCartException extends ShopwareHttpException
 {
@@ -24,11 +23,6 @@ class InvalidCartException extends ShopwareHttpException
             $errors->count(),
             print_r($this->formatErrors(), true)
         ));
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
     private function formatErrors(): array

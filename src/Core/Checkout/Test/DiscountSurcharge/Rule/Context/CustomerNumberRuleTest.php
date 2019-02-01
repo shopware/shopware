@@ -24,7 +24,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue($customer));
+            ->willReturn($customer);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -44,7 +44,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue($customer));
+            ->willReturn($customer);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -64,7 +64,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue($customer));
+            ->willReturn($customer);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -81,7 +81,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue(null));
+            ->willReturn(null);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -101,7 +101,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue($customer));
+            ->willReturn($customer);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()

@@ -44,10 +44,8 @@ class GetId3Loader implements MetadataLoaderInterface
             }
         }
 
-        if ($metadataType instanceof VideoMetadata) {
-            if (isset($rawMetadata['video']['frame_rate'])) {
-                $metadataType->setFrameRate($rawMetadata['video']['frame_rate']);
-            }
+        if (($metadataType instanceof VideoMetadata) && isset($rawMetadata['video']['frame_rate'])) {
+            $metadataType->setFrameRate($rawMetadata['video']['frame_rate']);
         }
     }
 

@@ -58,9 +58,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
             }
         }
 
-        $context->getConsole()->comment('Generated sub-categories: ' . $numberOfItems * $numberOfSubCategories);
-
-        $context->getConsole()->progressStart($numberOfItems * $numberOfSubCategories);
+        $console = $context->getConsole();
+        $console->comment('Generated sub-categories: ' . $numberOfItems * $numberOfSubCategories);
+        $console->progressStart($numberOfItems * $numberOfSubCategories);
 
         foreach (array_chunk($payload, 100) as $chunk) {
             $this->categoryRepository->upsert($chunk, $context->getContext());

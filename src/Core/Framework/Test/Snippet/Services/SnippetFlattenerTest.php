@@ -16,7 +16,7 @@ class SnippetFlattenerTest extends TestCase
         $expectedResult = json_decode(file_get_contents(__DIR__ . '/../_fixtures/testLanguageFlatten.json'), true);
         $result = $flattener->flatten($arrayToFlatten);
 
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     public function testUnflatten(): void
@@ -35,7 +35,7 @@ class SnippetFlattenerTest extends TestCase
         $expectedResult = json_decode(file_get_contents(__DIR__ . '/../_fixtures/testLanguage.json'), true);
         $result = $flattener->unflatten($snippets);
 
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     private function getFlattener()

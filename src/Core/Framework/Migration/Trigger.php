@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Migration;
 
 class Trigger
 {
-    const TIME_BEFORE = 'BEFORE';
-    const TIME_AFTER = 'AFTER';
+    public const TIME_BEFORE = 'BEFORE';
+    public const TIME_AFTER = 'AFTER';
 
-    const EVENT_INSERT = 'INSERT';
-    const EVENT_UPDATE = 'UPDATE';
-    const EVENT_DELETE = 'DELETE';
+    public const EVENT_INSERT = 'INSERT';
+    public const EVENT_UPDATE = 'UPDATE';
+    public const EVENT_DELETE = 'DELETE';
 
     /**
      * @var string

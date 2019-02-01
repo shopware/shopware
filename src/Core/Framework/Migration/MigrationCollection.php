@@ -9,7 +9,7 @@ class MigrationCollection
     /**
      * @var string[]
      */
-    private $directories = [];
+    private $directories;
 
     public function __construct(array $directories)
     {

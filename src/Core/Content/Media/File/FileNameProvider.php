@@ -79,10 +79,8 @@ abstract class FileNameProvider
 
         /** @var MediaEntity $media */
         foreach ($relatedMedia as $media) {
-            if ($media->hasFile()) {
-                if ($media->getFileName() === $nextFileName) {
-                    return $this->getPossibleFileName($relatedMedia, $preferredFileName, $iteration + 1);
-                }
+            if ($media->hasFile() && $media->getFileName() === $nextFileName) {
+                return $this->getPossibleFileName($relatedMedia, $preferredFileName, $iteration + 1);
             }
         }
 

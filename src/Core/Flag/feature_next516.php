@@ -30,6 +30,6 @@ namespace Flag {
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test "next-516"');
+        $test::markTestSkipped('Skipping feature test "next-516"');
     }
 }

@@ -658,7 +658,7 @@ class WriterTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = ['id' => $id];
 
-        static::expectException(WriteTypeIntendException::class);
+        $this->expectException(WriteTypeIntendException::class);
         $this->getWriter()->update(
             TaxDefinition::class,
             [$data],

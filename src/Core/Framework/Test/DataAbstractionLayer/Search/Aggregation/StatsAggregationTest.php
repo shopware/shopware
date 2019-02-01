@@ -35,8 +35,8 @@ class StatsAggregationTest extends TestCase
 
     public function testStatsAggregationNeedsSetup(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('StatsAggregation configured without fetch');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('StatsAggregation configured without fetch');
 
         $context = Context::createDefaultContext();
 

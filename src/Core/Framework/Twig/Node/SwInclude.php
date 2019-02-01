@@ -3,21 +3,20 @@
 namespace Shopware\Core\Framework\Twig\Node;
 
 use Shopware\Core\Framework\Twig\InheritanceExtension;
-use Shopware\Core\Framework\Twig\TemplateFinder;
+use Twig\Node\IncludeNode;
 use Twig_Compiler;
 use Twig_Node_Expression;
-use Twig_NodeOutputInterface;
 
-class SwInclude extends \Twig\Node\IncludeNode implements Twig_NodeOutputInterface
+class SwInclude extends IncludeNode
 {
-    /**
-     * @var TemplateFinder
-     */
-    private $finder;
-
-    public function __construct(Twig_Node_Expression $expr, Twig_Node_Expression $variables = null, $only = false, $ignoreMissing = false, $lineno, $tag = null, TemplateFinder $finder)
-    {
-        $this->finder = $finder;
+    public function __construct(
+        Twig_Node_Expression $expr,
+        Twig_Node_Expression $variables = null,
+        $only = false,
+        $ignoreMissing = false,
+        $lineno,
+        $tag = null
+    ) {
         parent::__construct($expr, $variables, $only, $ignoreMissing, $lineno, $tag);
     }
 

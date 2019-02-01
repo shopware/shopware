@@ -19,11 +19,6 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 class InvalidateCacheSubscriberTest extends TestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-    }
-
     public function testInvalidate()
     {
         $id = Uuid::uuid4()->getHex();
@@ -79,7 +74,7 @@ class InvalidateCacheSubscriberTest extends TestCase
         ];
 
         $cache = $this->createMock(TagAwareAdapter::class);
-        $cache->expects(static::exactly(1))
+        $cache->expects(static::once())
             ->method('invalidateTags')
             ->with($tags);
 

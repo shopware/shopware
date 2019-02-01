@@ -80,14 +80,12 @@ EOF;
 
         $result = $this->getWriter()->delete(DeleteProtectedDefinition::class, [$id], $context);
 
-        $this->assertNotNull($result);
+        static::assertNotNull($result);
     }
 
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromContext(Context::createDefaultContext());
-
-        return $context;
+        return WriteContext::createFromContext(Context::createDefaultContext());
     }
 
     private function getWriter(): EntityWriterInterface

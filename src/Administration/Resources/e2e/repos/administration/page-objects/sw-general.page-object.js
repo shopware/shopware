@@ -23,6 +23,7 @@ export default class GeneralPageObject {
 
             modal: '.sw-modal',
             modalTitle: '.sw-modal__title',
+            modalFooter: '.sw-modal__footer',
 
             alert: '.sw-alert',
             alertClose: '.sw-alert__close'

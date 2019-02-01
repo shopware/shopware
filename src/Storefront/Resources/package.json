@@ -1,0 +1,53 @@
+{
+  "private": true,
+  "name": "sw-next-storefront",
+  "version": "1.0.0",
+  "description": "Storefront Building Pipeline for Shopware Next",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "production": "NODE_ENV=production webpack --config webpack.config.js",
+    "development": "NODE_ENV=development webpack --config webpack.config.js",
+    "watch": "NODE_ENV=development ENV=watch webpack-dev-server --config webpack.config.js"
+  },
+  "keywords": [
+    "sw",
+    "next",
+    "storefront",
+    "pipeline"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "7.2.3",
+    "@babel/core": "7.2.2",
+    "@babel/preset-env": "7.3.1",
+    "@nuxtjs/friendly-errors-webpack-plugin": "2.1.0",
+    "autoprefixer": "9.4.7",
+    "babel-loader": "8.0.5",
+    "css-loader": "2.1.0",
+    "eslint": "5.12.1",
+    "eslint-loader": "2.1.1",
+    "friendly-errors-webpack-plugin": "1.7.0",
+    "mini-css-extract-plugin": "0.5.0",
+    "node-sass": "4.11.0",
+    "postcss-loader": "3.0.0",
+    "postcss-pxtorem": "4.0.1",
+    "sass-loader": "7.1.0",
+    "style-loader": "0.23.1",
+    "stylelint": "9.10.1",
+    "stylelint-config-sass-guidelines": "5.3.0",
+    "stylelint-webpack-plugin": "0.10.5",
+    "terser-webpack-plugin": "1.2.1",
+    "webpack": "4.29.0",
+    "webpack-bundle-analyzer": "3.0.3",
+    "webpack-cli": "3.2.1",
+    "webpack-dev-server": "3.1.14",
+    "webpack-merge": "4.2.1",
+    "webpackbar": "3.1.5"
+  },
+  "dependencies": {
+    "@babel/polyfill": "7.2.5",
+    "bootstrap": "4.2.1",
+    "jquery": "3.3.1",
+    "popper.js": "1.14.7"
+  }
+}

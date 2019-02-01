@@ -5,8 +5,8 @@ module.exports = {
     'logo found': (browser) => {
         browser
             .waitForElementVisible('body')
-            .waitForElementVisible('.logo--shop')
-            .assert.visible('.logo--shop .logo--link');
+            .waitForElementVisible('.navbar')
+            .assert.visible('.navbar-brand');
     },
     'search bar found': (browser) => {
         const page = searchPage(browser);

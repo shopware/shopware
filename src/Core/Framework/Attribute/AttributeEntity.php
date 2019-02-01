@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Attribute;
 
-use Shopware\Core\Framework\Attribute\Translation\AttributeTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -20,9 +19,9 @@ class AttributeEntity extends Entity
     protected $type;
 
     /**
-     * @var string|null
+     * @var array|null
      */
-    protected $label;
+    protected $config;
     /**
      * @var \DateTime
      */
@@ -32,11 +31,6 @@ class AttributeEntity extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    /**
-     * @var AttributeTranslationCollection|null
-     */
-    protected $translations;
 
     public function getName(): string
     {
@@ -58,14 +52,14 @@ class AttributeEntity extends Entity
         $this->type = $type;
     }
 
-    public function getLabel(): ?string
+    public function getConfig(): ?array
     {
-        return $this->label;
+        return $this->config;
     }
 
-    public function setLabel(?string $label): void
+    public function setConfig(?array $config): void
     {
-        $this->label = $label;
+        $this->config = $config;
     }
 
     public function getCreatedAt(): \DateTime
@@ -86,15 +80,5 @@ class AttributeEntity extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getTranslations(): ?AttributeTranslationCollection
-    {
-        return $this->translations;
-    }
-
-    public function setTranslations(?AttributeTranslationCollection $translations): void
-    {
-        $this->translations = $translations;
     }
 }

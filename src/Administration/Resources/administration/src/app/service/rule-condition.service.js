@@ -70,8 +70,8 @@ export default function createConditionService() {
         ],
         number: [
             operators.equals,
-            operators.greaterThanEquals,
             operators.greaterThan,
+            operators.greaterThanEquals,
             operators.lowerThan,
             operators.lowerThanEquals,
             operators.notEquals

@@ -37,7 +37,7 @@ public static function getEntityName(): string
 The method should return the name of the definition, which will be used in the system.
 This will be your alias for search queries, too.
 
-**Convention:** The name should match exactly the table name and should be lower-snake-case!
+**Convention:** The name should match exactly the table name and should be lower_snake_case!
 
 ### Method: defineFields()
 

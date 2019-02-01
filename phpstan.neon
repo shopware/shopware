@@ -7,6 +7,9 @@ parameters:
         - %rootDir%/../../src/**/_fixture/feature_*.php
         - %rootDir%/../../src/Core/Flag/feature_*.php
         - %rootDir%/../../src/Core/Framework/Command/DemodataCommand.php
+        - %rootDir%/../../src/Core/Framework/Demodata/Generator/CategoryGenerator.php
+        - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductGenerator.php
+        - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductStreamGenerator.php
         - %rootDir%/../../src/Core/Framework/Faker/Commerce.php
         - %rootDir%/../../src/Docs/*
     ignoreErrors:

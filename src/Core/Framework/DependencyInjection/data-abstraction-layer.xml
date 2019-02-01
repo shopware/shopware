@@ -8,7 +8,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\InvalidateCacheSubscriber">
-            <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.event_subscriber" priority="1000"/>
             <argument type="service" id="shopware.cache"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>

@@ -138,7 +138,7 @@
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
             <argument type="service" id="language.repository"/>
             <argument type="service" id="currency.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Storefront\NavigationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

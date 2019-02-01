@@ -6,8 +6,9 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeAwareInterface;
 
-class NavigationEntity extends Entity
+class NavigationEntity extends Entity implements TreeAwareInterface
 {
     use EntityIdTrait;
 
@@ -171,17 +172,23 @@ class NavigationEntity extends Entity
         $this->childCount = $childCount;
     }
 
-    public function compareWithCategory(): array
+    public function getCategoryId(): ?string
     {
-        if (!$this->category) {
-            return null;
-        }
-        $diff = [];
+        return $this->categoryId;
+    }
 
-        if ($this->category->getName() !== $this->getName()) {
-            $diff['name'] = $this->category->getName();
-        }
+    public function setCategoryId(?string $categoryId): void
+    {
+        $this->categoryId = $categoryId;
+    }
 
-        return $diff;
+    public function getCategory(): ?CategoryEntity
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?CategoryEntity $category): void
+    {
+        $this->category = $category;
     }
 }

@@ -1,30 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Category\Util\Tree;
-
-use Shopware\Core\Content\Category\CategoryEntity;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Util\Tree;
 
 class TreeItem
 {
     /**
-     * @var CategoryEntity
+     * @var TreeAwareInterface
      */
-    protected $category;
+    protected $entity;
 
     /**
      * @var TreeItem[]
      */
     protected $children;
 
-    public function __construct(CategoryEntity $category, array $children)
+    public function __construct(TreeAwareInterface $entity, array $children)
     {
-        $this->category = $category;
+        $this->entity = $entity;
         $this->children = $children;
     }
 
-    public function getCategory(): CategoryEntity
+    public function getEntity(): TreeAwareInterface
     {
-        return $this->category;
+        return $this->entity;
     }
 
     public function getChildren(): array

@@ -35,6 +35,17 @@ class Migration1548855249AddNavigation extends MigrationStep
               CONSTRAINT `fk.navigation.category_id` FOREIGN KEY (`category_id`, `category_version_id`) REFERENCES `category` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
+
+        $connection->executeUpdate('
+ALTER TABLE `sales_channel`
+ADD `main_navigation_id` binary(16) NULL AFTER `tax_calculation_type`,
+ADD `main_navigation_version_id` binary(16) NULL AFTER `main_navigation_id`;        
+        ');
+
+        $connection->executeUpdate('
+ALTER TABLE `sales_channel`
+ADD FOREIGN KEY `fk.sales_channel.main_navigation_id` (`main_navigation_id`, `main_navigation_version_id`) REFERENCES `navigation` (`id`, `version_id`) ON DELETE NO ACTION ON UPDATE CASCADE     
+        ');
     }
 
     public function updateDestructive(Connection $connection): void

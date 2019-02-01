@@ -31,5 +31,15 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Core\Content\Navigation\DataAbstractionLayer\NavigationSynchronizer">
+            <argument id="navigation.repository" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service" />
+            <tag name="shopware.dbal_indexing.indexer" priority="100"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader" public="true">
+            <argument type="service" id="navigation.repository"/>
+        </service>
     </services>
 </container>

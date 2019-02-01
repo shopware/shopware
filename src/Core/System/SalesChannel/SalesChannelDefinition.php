@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -63,6 +65,8 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required()),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
+            new FkField('main_navigation_id', 'mainNavigationId', NavigationDefinition::class),
+            new ReferenceVersionField(NavigationDefinition::class, 'main_navigation_version_id'),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
@@ -88,6 +92,7 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', false, 'id'),
             (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('mainNavigation', 'main_navigation_Id', NavigationDefinition::class, false),
         ]);
     }
 }

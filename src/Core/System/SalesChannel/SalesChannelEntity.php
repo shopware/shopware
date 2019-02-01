@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\CountryCollection;
@@ -53,6 +54,11 @@ class SalesChannelEntity extends Entity
      * @var string
      */
     protected $countryId;
+
+    /**
+     * @var string|null
+     */
+    protected $mainNavigationId;
 
     /**
      * @var string|null
@@ -173,6 +179,11 @@ class SalesChannelEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var NavigationEntity|null
+     */
+    protected $mainNavigation;
 
     public function getLanguageId(): string
     {
@@ -472,5 +483,25 @@ class SalesChannelEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getMainNavigationId(): ?string
+    {
+        return $this->mainNavigationId;
+    }
+
+    public function setMainNavigationId(?string $mainNavigationId): void
+    {
+        $this->mainNavigationId = $mainNavigationId;
+    }
+
+    public function getMainNavigation(): ?NavigationEntity
+    {
+        return $this->mainNavigation;
+    }
+
+    public function setMainNavigation(?NavigationEntity $mainNavigation): void
+    {
+        $this->mainNavigation = $mainNavigation;
     }
 }

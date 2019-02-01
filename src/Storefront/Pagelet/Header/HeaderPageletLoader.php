@@ -3,11 +3,12 @@
 namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Category\Storefront\NavigationLoader;
+use Shopware\Core\Content\Navigation\Service\NavigationTreeLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Exception\MissingParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -27,7 +28,7 @@ class HeaderPageletLoader implements PageLoaderInterface
     private $currencyRepository;
 
     /**
-     * @var NavigationLoader
+     * @var NavigationTreeLoader
      */
     private $navigationLoader;
 
@@ -39,7 +40,7 @@ class HeaderPageletLoader implements PageLoaderInterface
     public function __construct(
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $currencyRepository,
-        NavigationLoader $navigationLoader,
+        NavigationTreeLoader $navigationLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->languageRepository = $languageRepository;
@@ -50,7 +51,16 @@ class HeaderPageletLoader implements PageLoaderInterface
 
     public function load(InternalRequest $request, CheckoutContext $context): HeaderPagelet
     {
-        $navigation = $this->navigationLoader->read($request->optionalGet('categoryId'), $context->getContext());
+        $navigationId = $request->optionalRouting(
+            'navigationId',
+            $context->getSalesChannel()->getMainNavigationId()
+        );
+
+        if (!$navigationId) {
+            throw new MissingParameterException('navigationId');
+        }
+
+        $navigation = $this->navigationLoader->read((string) $navigationId, $context);
 
         /** @var LanguageCollection $languages */
         $languages = $this->loadLanguages($context);

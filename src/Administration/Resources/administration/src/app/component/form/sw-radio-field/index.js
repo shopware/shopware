@@ -35,6 +35,7 @@ export default {
     methods: {
         onChange() {
             this.$emit('input', this.currentValue);
+            this.$emit('change', this.currentValue);
 
             if (this.hasError) {
                 this.errorStore.deleteError(this.formError);

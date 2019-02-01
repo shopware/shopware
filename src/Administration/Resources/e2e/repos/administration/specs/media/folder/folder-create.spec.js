@@ -1,4 +1,4 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-create', 'create', 'upload'],
@@ -15,17 +15,19 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-base-item__preview-container')
-            .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'navigate back and go in with a click': (browser) => {
+        const page = mediaPage(browser);
+
         browser
             .waitForElementVisible('.sw-media-index__parent-folder')
             .click('.sw-media-index__parent-folder')
-            .expect.element('.sw-media-folder-item .sw-media-base-item__name').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
         browser
             .click('.sw-media-folder-item')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);

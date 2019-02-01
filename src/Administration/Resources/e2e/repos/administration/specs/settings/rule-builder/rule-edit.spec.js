@@ -1,4 +1,4 @@
-const ruleBuilderPage = require('administration/page-objects/sw-rule.page-object.js');
+const ruleBuilderPage = require('administration/page-objects/module/sw-rule.page-object.js');
 
 module.exports = {
     '@tags': ['settings', 'rule', 'rule-edit', 'edit'],
@@ -17,7 +17,7 @@ module.exports = {
 
         browser
             .waitForElementVisible(page.elements.columnName)
-            .assert.containsText('.sw-settings-rule-list__column-name', global.FixtureService.basicFixture.name);
+            .assert.containsText(page.elements.columnName, global.FixtureService.basicFixture.name);
     },
     'edit rule and add conditions': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -25,7 +25,7 @@ module.exports = {
         browser
             .clickContextMenuItem('.sw-rule-list__rule-edit-action', '.sw-context-button__button')
             .waitForElementVisible('.sw-settings-rule-detail .sw-card__content')
-            .assert.containsText('.smart-bar__header h2', global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.smartBarHeader} h2`, global.FixtureService.basicFixture.name);
 
         page.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
 
@@ -39,8 +39,8 @@ module.exports = {
         const page = ruleBuilderPage(browser);
 
         browser
-            .click('a.smart-bar__back-btn')
-            .waitForElementNotPresent('.sw-loader')
+            .click(page.elements.smartBarBack)
+            .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(page.elements.columnName)
             .assert.containsText(page.elements.columnName, 'Ediths rule');
     },

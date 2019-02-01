@@ -1,3 +1,5 @@
+const integrationPage = require('../../../page-objects/module/sw-integration.page-object.js');
+
 module.exports = {
     '@tags': ['integration-create','integration', 'create'],
     'open integration module': (browser) => {
@@ -5,32 +7,38 @@ module.exports = {
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
     },
     'go to create integration page': (browser) => {
+        const page = integrationPage(browser);
+
         browser
-            .waitForElementVisible('.sw-integration-list__welcome-headline')
-            .assert.containsText('.sw-integration-list__welcome-headline', 'Welcome to the integration management')
+            .waitForElementVisible(page.elements.listHeadline)
+            .assert.containsText(page.elements.listHeadline, 'Welcome to the integration management')
             .waitForElementVisible('.sw-integration-list__add-integration-action')
             .click('.sw-integration-list__add-integration-action');
 
     },
     'create and save integration': (browser) => {
+        const page = integrationPage(browser);
+
         browser
-            .waitForElementVisible('.sw-modal__title')
-            .assert.containsText('.sw-modal__title', 'Integration')
+            .waitForElementVisible(page.elements.modalTitle)
+            .assert.containsText(page.elements.modalTitle, 'Integration')
             .fillField('input[name=sw-field--currentIntegration-label]', 'My very own integration')
             .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]','on')
             .waitForElementVisible('.sw-field__copy-button')
             .click('.sw-field__copy-button')
             .checkNotification('Text has been copied to clipboard')
-            .waitForElementPresent('.sw-integration-detail-modal__save-action')
-            .click('.sw-integration-detail-modal__save-action')
+            .waitForElementPresent(page.elements.integrationSaveAction)
+            .click(page.elements.integrationSaveAction)
             .waitForElementVisible('.sw-notifications .sw-alert')
             .assert.containsText('.sw-alert .sw-alert__message', 'Integration has been saved successfully')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify newly created integration': (browser) => {
+        const page = integrationPage(browser);
+
         browser
-            .waitForElementPresent('.sw-integration-list__column-integration-name')
-            .assert.containsText('.sw-integration-list__column-integration-name .sw-grid__cell-content', 'My very own integration');
+            .waitForElementPresent(page.elements.listColumnName)
+            .assert.containsText(`${page.elements.listColumnName} .sw-grid__cell-content`, 'My very own integration');
     },
     after: (browser) => {
         browser.end();

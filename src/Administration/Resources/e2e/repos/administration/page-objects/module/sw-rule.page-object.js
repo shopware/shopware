@@ -1,9 +1,13 @@
-class RuleBuilderPageObject {
+const GeneralPageObject = require('../sw-general.page-object');
+
+class RuleBuilderPageObject extends GeneralPageObject {
     constructor(browser) {
-        this.browser = browser;
-        this.elements = {
-            columnName: '.sw-settings-rule-list__column-name'
-        };
+        super(browser);
+
+        this.elements = Object.assign(this.elements, {
+            columnName: '.sw-settings-rule-list__column-name',
+            ruleSaveAction: '.sw-settings-rule-detail__save-action'
+        });
     }
 
     createBasicRule(name) {

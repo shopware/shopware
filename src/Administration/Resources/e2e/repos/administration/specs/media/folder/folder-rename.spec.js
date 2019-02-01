@@ -1,4 +1,4 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-rename', 'rename'],
@@ -16,11 +16,11 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-base-item__preview-container')
-            .clickContextMenuItem(page.elements.showMediaAction, '.sw-context-button__button')
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
             .waitForElementVisible('.icon--folder-thumbnail-back')
-            .waitForElementVisible('.smart-bar__header')
-            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .waitForElementVisible(page.elements.smartBarHeader)
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'navigate back and edit folder name via context menu': (browser) => {
         const page = mediaPage(browser);
@@ -29,7 +29,7 @@ module.exports = {
             .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementVisible('.sw-media-base-item__preview-container')
-            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', '.sw-context-button__button')
+            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton)
             .waitForElementVisible(`${page.elements.folderNameInput}`)
             .setValue(page.elements.folderNameInput, [browser.Keys.CONTROL, 'a'])
             .setValue(page.elements.folderNameInput, browser.Keys.DELETE)
@@ -46,7 +46,7 @@ module.exports = {
     },
     'edit folder name via settings modal': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal(page.elements.showSettingsAction);
+        page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
             .fillField('input[name=sw-field--folder-name]', 'Edith Finch', true)

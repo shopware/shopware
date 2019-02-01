@@ -1,5 +1,5 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
-const productPage = require('administration/page-objects/sw-product.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
+const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
 
 module.exports = {
@@ -32,7 +32,7 @@ module.exports = {
             .openMainMenuEntry('#/sw/media/index', 'Media')
             .assert.urlContains('#/sw/media/index');
 
-        if (flags.isActive('next1207')) {
+        if (global.flags.isActive('next1207')) {
             browser
                 .waitForElementVisible('.sw-media-base-item__preview-container')
                 .moveToElement('.sw-media-base-item__preview-container', 5, 5).doubleClick()
@@ -41,7 +41,7 @@ module.exports = {
     },
     'open replace modal': (browser) => {
         const page = mediaPage(browser);
-        page.openMediaModal('.sw-media-context-item__replace-media-action');
+        page.openMediaModal('.sw-media-context-item__replace-media-action', 0);
     },
     'ensure image cannot be replaced with empty input': (browser) => {
         browser
@@ -67,9 +67,9 @@ module.exports = {
             .click('.sw-media-replace__replace-media-action')
             .checkNotification('File has been saved successfully', false)
             .click('.sw-alert__close')
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'File has been saved successfully')]`)
-            .useCss()
+            .expect.element('.sw-alert__message').to.have.text.not.equals('File has been saved successfully').before(500);
+
+        browser
             .checkNotification('File replaced');
     },
     'verify if image was replaced correctly': (browser) => {
@@ -77,8 +77,8 @@ module.exports = {
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-test-image.png');
 
         browser
-            .waitForElementVisible('.sw-media-preview__item')
-            .click('.sw-media-preview__item')
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
             .waitForElementVisible('.sw-media-quickinfo__media-preview')
             .waitForElementVisible('.sw-media-sidebar__headline')
             .assert.containsText('.sw-media-sidebar__headline', 'sw-test-image.png')

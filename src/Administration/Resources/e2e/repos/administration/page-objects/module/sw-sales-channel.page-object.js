@@ -1,10 +1,17 @@
-class SalesChannelPageObject {
+const GeneralPageObject = require('../sw-general.page-object');
+
+class SalesChannelPageObject extends GeneralPageObject {
     constructor(browser) {
-        this.browser = browser;
-        this.elements = {};
-        this.elements.salesChannelNameInput = 'input[name=sw-field--salesChannel-name]';
-        this.elements.salesChannelMenuTitle = '.sw-admin-menu__sales-channel-item .collapsible-text';
-        this.elements.apiAccessKeyField = 'input[name=sw-field--salesChannel-accessKey]';
+        super(browser);
+
+        this.elements = Object.assign(this.elements, {
+            salesChannelMenuName: '.sw-admin-menu__sales-channel-item',
+            salesChannelModal: '.sw-sales-channel-modal',
+            salesChannelNameInput: 'input[name=sw-field--salesChannel-name]',
+            salesChannelMenuTitle: '.sw-admin-menu__sales-channel-item .collapsible-text',
+            apiAccessKeyField: 'input[name=sw-field--salesChannel-accessKey]',
+            salesChannelSaveAction: '.sw-sales-channel-detail__save-action'
+        });
 
         this.accessKeyId = '';
         this.newAccessKeyId = '';
@@ -61,34 +68,34 @@ class SalesChannelPageObject {
                     searchTerm: 'Default catalogue'
                 }
             )
-            .waitForElementVisible('.sw-sales-channel-detail__save-action')
-            .click('.sw-sales-channel-detail__save-action')
+            .waitForElementVisible(this.elements.salesChannelSaveAction)
+            .click(this.elements.salesChannelSaveAction)
             .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
     }
 
-    openSalesChannel(salesChannelName) {
+    openSalesChannel(salesChannelName, position = 0) {
         this.browser
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item .collapsible-text')
-            .assert.containsText('.sw-admin-menu__sales-channel-item .collapsible-text', salesChannelName)
-            .waitForElementVisible('.sw-admin-menu__sales-channel-item:first-child')
-            .click('.sw-admin-menu__sales-channel-item:first-child')
-            .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', salesChannelName);
+            .waitForElementVisible(`${this.elements.salesChannelMenuName}--${position} .collapsible-text`)
+            .assert.containsText(`${this.elements.salesChannelMenuName}--${position} .collapsible-text`, salesChannelName)
+            .waitForElementVisible(`${this.elements.salesChannelMenuName}--${position}`)
+            .click(`${this.elements.salesChannelMenuName}--${position}`)
+            .waitForElementVisible(this.elements.smartBarHeader)
+            .assert.containsText(`${this.elements.smartBarHeader} h2`, salesChannelName);
     }
 
     deleteSingleSalesChannel(salesChannelName) {
         this.browser
-            .waitForElementPresent('.sw-button--danger')
-            .getLocationInView('.sw-button--danger')
-            .waitForElementVisible('.sw-button--danger')
-            .click('.sw-button--danger')
-            .waitForElementVisible('.sw-modal')
+            .waitForElementPresent(this.elements.dangerButton)
+            .getLocationInView(this.elements.dangerButton)
+            .waitForElementVisible(this.elements.dangerButton)
+            .click(this.elements.dangerButton)
+            .waitForElementVisible(this.elements.modal)
             .assert.containsText(
-                '.sw-modal__body',
+                `${this.elements.modal}__body`,
                 `Are you sure you want to delete this sales channel? ${salesChannelName}`
             )
-            .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-modal')
+            .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
+            .waitForElementNotPresent(this.elements.modal)
             .getValue(this.elements.salesChannelMenuTitle, function checkValueNotPresent(result) {
                 this.assert.notEqual(result, salesChannelName);
             });

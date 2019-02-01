@@ -1,9 +1,15 @@
-class ProductPageObject {
-    constructor(browser) {
-        this.browser = browser;
+const GeneralPageObject = require('../sw-general.page-object');
 
-        this.elements = {};
-        this.elements.columnProductName = 'sw-product-list__column-product-name > a';
+class ProductPageObject extends GeneralPageObject {
+    constructor(browser) {
+        super(browser);
+
+        this.elements = Object.assign(this.elements, {
+            columnProductName: 'sw-product-list__column-product-name > a',
+            mediaForm: '.sw-product-media-form',
+            productSaveAction: '.sw-product-detail__save-action',
+            productListName: '.sw-product-list__column-product-name'
+        });
     }
 
     createBasicProduct(productName) {
@@ -14,15 +20,15 @@ class ProductPageObject {
             .fillSelectField('select[name=sw-field--product-catalogId]', 'Default catalogue')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
-            .click('.sw-product-detail__save-action')
+            .click(this.elements.productSaveAction)
             .checkNotification(`Product "${productName}" has been saved successfully`);
     }
 
     addProductImageViaUrl(imagePath, productName) {
         this.browser
-            .waitForElementPresent('.sw-product-media-form')
-            .getLocationInView('.sw-product-media-form')
-            .waitForElementVisible('.sw-product-media-form')
+            .waitForElementPresent(this.elements.mediaForm)
+            .getLocationInView(this.elements.mediaForm)
+            .waitForElementVisible(this.elements.mediaForm)
             .waitForElementVisible('.sw-media-upload__switch-mode')
             .click('.sw-media-upload__switch-mode')
             .waitForElementVisible('.sw-media-url-form__url-input')
@@ -36,27 +42,27 @@ class ProductPageObject {
             });
 
         this.browser
-            .click('.sw-product-detail__save-action')
+            .click(this.elements.productSaveAction)
             .checkNotification('1 of 1 files saved', false)
-            .click('.sw-alert__close')
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), '1 of 1 files saved')]`)
-            .useCss()
+            .click(this.elements.alertClose)
+            .expect.element('.sw-alert__message').to.have.text.not.equals('1 of 1 files saved').before(500);
+
+        this.browser
             .checkNotification(`Product "${productName}" has been saved successfully`, false)
-            .click('.sw-alert__close')
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'Product "${productName}" has been saved successfully')]`)
-            .useCss()
+            .click(this.elements.alertClose)
+            .expect.element('.sw-alert__message').to.have.text.not.equals(`Product "${productName}" has been saved successfully`).before(500);
+
+        this.browser
             .checkNotification('File has been saved successfully');
     }
 
     deleteProduct(productName) {
         this.browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-product-list__confirm-delete-text', `Are you sure you really want to delete the product "${productName}"?`)
-            .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-modal')
+            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
+            .waitForElementVisible(this.elements.modal)
+            .assert.containsText(`${this.elements.modal} .sw-product-list__confirm-delete-text`, `Are you sure you really want to delete the product "${productName}"?`)
+            .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
+            .waitForElementNotPresent(this.elements.modal)
             .waitForElementNotPresent(this.elements.columnProductName);
     }
 }

@@ -1,4 +1,4 @@
-const manufacturerPage = require('administration/page-objects/sw-manufacturer.page-object.js');
+const manufacturerPage = require('administration/page-objects/module/sw-manufacturer.page-object.js');
 
 module.exports = {
     '@tags': ['product', 'manufacturer-create', 'manufacturer', 'create', 'upload'],
@@ -15,26 +15,30 @@ module.exports = {
         page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
     'check if new manufacturer exists in overview': (browser) => {
+        const page = manufacturerPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .refresh()
             .waitForElementPresent('.sw-button__content')
             .assert.urlContains('#/sw/manufacturer/index')
-            .assert.containsText('.smart-bar__header', 'Manufacturer')
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-grid-row:first-child', 'MAN-U-FACTURE');
+            .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .assert.containsText(`${page.elements.gridRow}--0`, 'MAN-U-FACTURE');
     },
     'verify manufacturer details': (browser) => {
+        const page = manufacturerPage(browser);
+
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementVisible('.sw-context-menu')
-            .click('.sw-context-menu .sw-context-menu-item__text')
-            .waitForElementNotPresent('.sw-loader')
-            .waitForElementVisible('.smart-bar__header h2:not(.sw-manufacturer-detail__empty-title)')
-            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(page.elements.contextMenu)
+            .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-manufacturer-detail__empty-title)`)
+            .assert.containsText(page.elements.smartBarHeader, 'MAN-U-FACTURE');
     },
     'check if the manufacturer can be used in product': (browser) => {
         browser

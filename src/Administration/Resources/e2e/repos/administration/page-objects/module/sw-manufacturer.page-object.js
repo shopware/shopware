@@ -1,15 +1,21 @@
-class ManufacturerPageObject {
+const GeneralPageObject = require('../sw-general.page-object');
+
+class ManufacturerPageObject extends GeneralPageObject {
     constructor(browser) {
-        this.browser = browser;
+        super(browser);
+
+        this.elements = Object.assign(this.elements,{
+            manufacturerSave: '.sw-manufacturer-detail__save-action'
+        });
     }
 
     createBasicManufacturer(manufacturerName) {
         this.browser
-            .assert.containsText('.smart-bar__header', 'New manufacturer')
+            .assert.containsText(this.elements.smartBarHeader, 'New manufacturer')
             .fillField('input[name=name]', manufacturerName)
             .fillField('input[name=link]', 'https://www.google.com/doodles')
             .fillField('.ql-editor', 'De-scribe THIS!', false, 'editor')
-            .click('.sw-button--primary')
+            .click(this.elements.manufacturerSave)
             .checkNotification(`Manufacturer "${manufacturerName}" has been saved successfully.`);
     }
 
@@ -19,28 +25,22 @@ class ManufacturerPageObject {
             .waitForElementVisible('.sw-media-url-form__url-input')
             .fillField('input[name=sw-field--url]', imagePath)
             .click('.sw-media-url-form__submit-button')
-            .waitForElementVisible('.sw-alert--success')
-            .click('.sw-alert .sw-alert__close')
-            .waitForElementNotPresent('.sw-alert--success')
-            .click('.sw-button--primary')
-            .waitForElementVisible('.sw-alert')
-            .waitForElementPresent('.sw-button__content')
-            .click('.sw-alert .sw-alert__close');
+            .checkNotification(``);
     }
 
     deleteManufacturer(manufacturerName) {
         this.browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementNotPresent('.sw-loader')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
+            .waitForElementNotPresent(this.elements.loader)
+            .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0 `)
             .waitForElementVisible('.sw-modal')
             .assert.containsText(
-                '.sw-modal__body',
+                `${this.elements.modal}__body`,
                 `Are you sure you want to delete the manufacturer "${manufacturerName}"?`
             )
-            .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-modal');
+            .click(`${this.elements.modal}__footer ${this.elements.primaryButton}`)
+            .waitForElementNotPresent(this.elements.modal);
     }
 }
 

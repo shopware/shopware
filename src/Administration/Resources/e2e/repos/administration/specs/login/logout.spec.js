@@ -1,4 +1,5 @@
-const loginPage = require('../../page-objects/sw-login.page-object.js');
+const loginPage = require('../../page-objects/module/sw-login.page-object.js');
+
 module.exports = {
     '@tags': ['login', 'logout'],
     'view dashboard as correctly logged in user': (browser) => {

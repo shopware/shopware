@@ -14,7 +14,10 @@ module.exports = {
             .click('.sw-admin-menu__toggle')
             .waitForElementNotVisible('.sw-admin-menu__user-type')
             .click('.sw-admin-menu__toggle')
-            .waitForElementVisible('.sw-admin-menu__user-type')
+            .waitForElementVisible('.sw-admin-menu__user-type');
+    },
+    'change and assert language': (browser) => {
+        browser
             .click('.sw-admin-menu__change-language-action')
             .assert.containsText('.sw-admin-menu__change-language-action', 'Sprache wechseln')
             .click('.sw-admin-menu__change-language-action')

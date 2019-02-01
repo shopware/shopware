@@ -1,3 +1,5 @@
+const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
+
 module.exports = {
     '@tags': ['setting','language-create', 'language', 'create'],
     'open language module': (browser) => {
@@ -5,11 +7,13 @@ module.exports = {
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages');
     },
     'create new language': (browser) => {
+        const page = settingsPage(browser);
+
         browser
             .click('a[href="#/sw/settings/language/create"]')
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/language/create')
-            .assert.containsText('.sw-card__title', 'Settings')
+            .assert.containsText(page.elements.cardTitle, 'Settings')
             .fillField('input[name=sw-field--language-name]', 'Philippine English')
             .fillSwSelectComponent(
                 '.sw-settings-language-detail__select-locale',
@@ -25,17 +29,19 @@ module.exports = {
                     searchTerm: 'English'
                 }
             )
-            .waitForElementPresent('.sw-settings-language-detail__save-action')
-            .click('.sw-settings-language-detail__save-action')
+            .waitForElementPresent(page.elements.languageSaveAction)
+            .click(page.elements.languageSaveAction)
             .checkNotification('Language "Philippine English" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');
     },
     'go back to listing and verify creation': (browser) => {
+        const page = settingsPage(browser);
+
         browser
-            .click('a.smart-bar__back-btn')
+            .click(page.elements.smartBarBack)
             .waitForElementVisible('.sw-settings-language-list-grid')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-language-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-language-list__column-name', 'Philippine English');
+            .waitForElementVisible(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, 'Philippine English');
     },
     after: (browser) => {
         browser.end();

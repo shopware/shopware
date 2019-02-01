@@ -1,3 +1,5 @@
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
+
 module.exports = {
     '@tags': ['media', 'media-delete', 'delete'],
     'open media listing': (browser) => {
@@ -6,6 +8,8 @@ module.exports = {
             .assert.urlContains('#/sw/media/index');
     },
     'upload and create new media item': (browser) => {
+        const page = mediaPage(browser);
+
         browser
             .waitForElementVisible('.sw-media-upload__button-context-menu')
             .click('.sw-media-upload__button-context-menu')
@@ -13,28 +17,29 @@ module.exports = {
             .click('.sw-media-upload__button-url-upload')
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
-            .click('.sw-modal__footer .sw-button--primary')
-            .waitForElementNotPresent('.sw-loader')
+            .click(`.sw-modal__footer .sw-button--primary`)
+            .waitForElementNotPresent(page.elements.loader)
             .waitForElementNotPresent('.sw-media-base-item__loader')
-            .waitForElementVisible('.sw-alert--success')
-            .click('.sw-alert__close');
+            .waitForElementVisible(`${page.elements.alert}--success`)
+            .click(page.elements.alertClose);
     },
     'delete item and verify that': (browser) => {
+        const page = mediaPage(browser);
+
         browser
-            .click('.sw-media-preview__item:nth-of-type(1)')
+            .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
             .click('li.quickaction--delete')
             .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText('.sw-modal__body', 'Are you sure you want to delete "sw-login-background.png" ?')
-            .waitForElementVisible('.sw-modal__footer .sw-media-modal-delete__confirm')
+            .assert.containsText(`${page.elements.modal}__body`, 'Are you sure you want to delete "sw-login-background.png" ?')
+            .waitForElementVisible(`${page.elements.modal}__footer .sw-media-modal-delete__confirm`)
             .click('.sw-media-modal-delete__confirm')
-            .waitForElementNotPresent('.sw-modal__footer')
-            .waitForElementNotPresent('.sw-loader')
+            .waitForElementNotPresent(`${page.elements.modal}l__footer`)
+            .waitForElementNotPresent(page.elements.loader)
             .checkNotification('File "sw-login-background.png" has been deleted successfully', false)
-            .click('.sw-alert__close')
-            .useXpath()
-            .waitForElementNotPresent(`//*[contains(text(), 'File "sw-login-background.png" has been deleted successfully')]`)
-            .useCss();
+            .click(page.elements.alertClose)
+            .expect.element(`${page.elements.alert}__message`).to.have.text.not.equals('File "sw-login-background.png" has been deleted successfully').before(500);
+        browser.checkNotification('Files have been deleted successfully');
     },
     after: (browser) => {
         browser.end();

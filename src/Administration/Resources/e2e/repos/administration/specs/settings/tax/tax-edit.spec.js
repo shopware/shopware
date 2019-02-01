@@ -1,5 +1,7 @@
+const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
+
 module.exports = {
-    '@tags': ['setting','tax-edit', 'tax', 'edit'],
+    '@tags': ['setting', 'tax-edit', 'tax', 'edit'],
     before: (browser, done) => {
         global.FixtureService.create('tax').then(() => {
             done();
@@ -11,25 +13,29 @@ module.exports = {
             .waitForElementVisible('.sw-settings-tax-list-grid');
     },
     'edit tax': (browser) => {
+        const page = settingsPage(browser);
+
         browser
-            .waitForElementPresent('.sw-grid-row:last-child .sw-tax-list__column-name')
-            .getLocationInView('.sw-grid-row:last-child .sw-tax-list__column-name')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', global.FixtureService.basicFixture.name)
-            .clickContextMenuItem('.sw-tax-list__edit-action', '.sw-context-button__button','.sw-grid-row:last-child')
+            .waitForElementPresent(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
+            .getLocationInView(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
+            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, global.FixtureService.basicFixture.name)
+            .clickContextMenuItem('.sw-tax-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate', true)
-            .waitForElementPresent('.sw-settings-tax-detail__save-action')
-            .click('.sw-settings-tax-detail__save-action')
+            .waitForElementPresent(page.elements.taxSaveAction)
+            .click(page.elements.taxSaveAction)
             .checkNotification('Tax "Even higher tax rate" has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');
     },
     'verify edited tax': (browser) => {
+        const page = settingsPage(browser);
+
         browser
-            .click('a.smart-bar__back-btn')
+            .click(page.elements.smartBarBack)
             .waitForElementVisible('.sw-settings-tax-list-grid')
-            .waitForElementVisible('.sw-grid-row:last-child .sw-tax-list__column-name')
-            .assert.containsText('.sw-grid-row:last-child .sw-tax-list__column-name', 'Even higher tax rate');
+            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, 'Even higher tax rate');
     },
     after: (browser) => {
         browser.end();

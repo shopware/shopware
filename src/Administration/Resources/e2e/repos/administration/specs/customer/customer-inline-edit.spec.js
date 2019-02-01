@@ -1,3 +1,5 @@
+const customerPage = require('administration/page-objects/module/sw-customer.page-object.js');
+
 module.exports = {
     '@tags': ['customer-inline-edit', 'customer', 'inline-edit'],
     before: (browser, done) => {
@@ -6,31 +8,29 @@ module.exports = {
         });
     },
     'open customer listing': (browser) => {
+        const page = customerPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/customer/index', 'Customers')
             .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(1)');
     },
     'edit customer email via inline editing and verify edits': (browser) => {
+        const page = customerPage(browser);
+
         browser
-            .waitForElementVisible('.sw-grid-row .sw-context-button__button')
-            .moveToElement('.sw-grid-row:first-child', 5, 5).doubleClick()
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
+            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .waitForElementPresent('.is--inline-editing ')
-            .fillField('input[name=sw-field--item-firstName]', 'Meghan', true)
-            .fillField('input[name=sw-field--item-lastName]', 'Markle', true)
-            .waitForElementVisible('.sw-grid-row__inline-edit-action')
-            .click('.sw-grid-row__inline-edit-action')
-            .waitForElementNotPresent('.is--inline-editing ')
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-firstName]`, 'Meghan', true)
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-lastName]`, 'Markle', true)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .waitForElementNotPresent('.is--inline-editing')
             .refresh()
-            .waitForElementVisible('.sw-grid-row .sw-context-button__button')
-            .assert.containsText('.sw-customer-list__column-customer-name', 'Meghan Markle')
-            .moveToElement('.sw-grid-row:first-child', 5, 5).doubleClick()
-            .waitForElementVisible('.sw-grid-row__inline-edit-action')
-            .fillField('.is--inline-editing .sw-field__input input', '007-JB-337826', true)
-            .click('.sw-grid-row__inline-edit-action')
-            .waitForElementNotPresent('.is--inline-editing ')
-            .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--right', '007-JB-337826');
+            .waitForElementVisible(`.sw-grid-row ${page.elements.contextMenuButton}`)
+            .assert.containsText(page.elements.columnName, 'Meghan Markle');
     },
     after: (browser) => {
         browser.end();

@@ -1,4 +1,4 @@
-const ruleBuilderPage = require('administration/page-objects/sw-rule.page-object.js');
+const ruleBuilderPage = require('administration/page-objects/module/sw-rule.page-object.js');
 
 module.exports = {
     '@tags': ['settings', 'rule', 'rule-delete', 'delete'],
@@ -17,7 +17,7 @@ module.exports = {
 
         browser
             .waitForElementVisible(page.elements.columnName)
-            .assert.containsText('.sw-settings-rule-list__column-name', global.FixtureService.basicFixture.name);
+            .assert.containsText(page.elements.columnName, global.FixtureService.basicFixture.name);
     },
     'delete rule': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -30,9 +30,9 @@ module.exports = {
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementNotPresent(page.elements.columnName)
-            .waitForElementVisible('.sw-empty-state')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+            .waitForElementVisible(page.elements.emptyState)
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(0)');
     },
     after: (browser) => {
         browser.end();

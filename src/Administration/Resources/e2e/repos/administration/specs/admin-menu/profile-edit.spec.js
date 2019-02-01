@@ -1,17 +1,18 @@
-const loginPage = require('administration/page-objects/sw-login.page-object.js');
+const loginPage = require('administration/page-objects/module/sw-login.page-object.js');
 
 module.exports = {
     '@tags': ['profile-edit', 'profile', 'edit'],
     'open user profile and edit values': (browser) => {
+        const page = loginPage(browser);
+
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .clickUserActionMenu('admin')
             .waitForElementVisible('.sw-admin-menu__profile-item')
             .click('.sw-admin-menu__profile-item')
-            .assert.containsText('.smart-bar__header', 'Your profile')
+            .assert.containsText(page.elements.smartBarHeader, 'Your profile')
             .fillField('input[name=sw-field--user-name]', 'Super Richie', true)
-            .fillField('input[name=sw-field--user-email]', 'mail@shopware.com', true)
-            .click('.sw-button--primary')
+            .click(page.elements.primaryButton)
             .checkNotification('Profile information has been saved successfully.')
             .waitForElementVisible('.sw-admin-menu__user-name')
             .assert.containsText('.sw-admin-menu__user-name', 'Super Richie');
@@ -29,12 +30,14 @@ module.exports = {
         page.verifyLogin('Super Richie');
     },
     'verify other changed data': (browser) => {
+        const page = loginPage(browser);
+
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .clickUserActionMenu('Super Richie')
             .click('.sw-admin-menu__profile-item')
-            .assert.containsText('.smart-bar__header', 'Your profile')
-            .expect.element('input[name=sw-field--user-email]').to.have.value.that.equals('mail@shopware.com');
+            .assert.containsText(page.elements.smartBarHeader, 'Your profile')
+            .expect.element('input[name=sw-field--user-name]').to.have.value.that.equals('Super Richie');
     },
     after: (browser) => {
         browser.end();

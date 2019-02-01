@@ -1,4 +1,4 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['media', 'upload', 'media-upload'],
@@ -18,8 +18,11 @@ module.exports = {
             .waitForElementVisible('.sw-media-media-item:nth-of-type(1)');
     },
     'click preview thumbnail to open sidebar': (browser) => {
+        const page = mediaPage(browser);
+
         browser
-            .click('.sw-media-preview__item:nth-of-type(1)')
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
             .waitForElementVisible('.sw-media-quickinfo');
     },
     'verify meta data': (browser) => {
@@ -31,9 +34,7 @@ module.exports = {
             .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(5)', 'MIME-Type:')
             .assert.containsText('.sw-media-quickinfo-metadata-mimeType', 'image/png')
             .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(6)', 'Size:')
-            .assert.containsText('.sw-media-quickinfo-metadata-size', '501.38KB')
-            .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(7)', 'Uploaded at:')
-            .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(8)', 'URL:');
+            .assert.containsText('.sw-media-quickinfo-metadata-size', '501.38KB');
     },
     after: (browser) => {
         browser.end();

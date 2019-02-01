@@ -28,13 +28,13 @@
                                     <ul class="sw-admin-menu__navigation-list">
 
                                         {% block sw_admin_menu_navigation_main_items %}
-                                            <sw-admin-menu-item v-for="entry in mainMenuEntries"
+                                            <sw-admin-menu-item v-for="(entry, index) in mainMenuEntries"
                                                                 @menuItemHovered="openFlyout"
                                                                 @menuItemClicked="openSubMenu"
                                                                 :sidebarExpanded="isExpanded"
                                                                 :entry="entry"
                                                                 :key="entry.id || entry.path"
-                                                                :class="entry.label">
+                                                                :class="['sw-admin-menu__item--' + index, entry.label]">
                                             </sw-admin-menu-item>
                                         {% endblock %}
                                     </ul>

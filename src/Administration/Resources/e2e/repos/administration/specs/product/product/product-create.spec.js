@@ -1,4 +1,5 @@
-const productPage = require('administration/page-objects/sw-product.page-object.js');
+const productPage = require('administration/page-objects/module/sw-product.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['product-create', 'product', 'create', 'upload'],
@@ -8,12 +9,13 @@ module.exports = {
         });
     },
     'open product listing': (browser) => {
+        const page = productPage(browser);
+
         browser
             .assert.containsText('.sw-admin-menu__navigation-list-item.sw-product span.collapsible-text', 'Products')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/product/index"]')
-            .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(0)');
     },
     'go to create page, fill and save the new product': (browser) => {
         const page = productPage(browser);
@@ -22,7 +24,7 @@ module.exports = {
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
-            .assert.containsText('.sw-card__title', 'Information');
+            .assert.containsText(page.elements.cardTitle, 'Information');
 
         page.createBasicProduct('Marci Darci');
 
@@ -52,29 +54,32 @@ module.exports = {
             });
     },
     'go back to listing, search and verify creation': (browser) => {
+        const page = productPage(browser);
+
         browser
-            .click('a.smart-bar__back-btn')
+            .click(page.elements.smartBarBack)
             .refresh()
             .waitForElementVisible('.sw-product-list__content')
             .fillGlobalSearchField('Marci Darci')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(1)');
     },
     'check if the data of the product is assigned correctly': (browser) => {
+        const page = productPage(browser);
+        const mediaPageObject = mediaPage(browser);
+
         browser
             .refresh()
-            .waitForElementVisible('.sw-product-list__column-product-name')
-            .assert.containsText('.sw-product-list__column-product-name', 'Marci Darci')
-            .waitForElementPresent('.sw-product-list__column-manufacturer-name')
-            .assert.containsText('.sw-product-list__column-manufacturer-name', 'shopware AG')
-            .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button', '.sw-grid-row:first-child')
+            .waitForElementVisible(page.elements.productListName)
+            .assert.containsText(page.elements.productListName, 'Marci Darci')
+            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible('.sw-product-detail-base')
-            .waitForElementVisible('.sw-media-preview__item')
+            .waitForElementVisible(mediaPageObject.elements.previewItem)
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-item')
             .assert.containsText('.ql-editor', 'My very first description')
             .getLocationInView('.sw-select__selection-item')
             .assert.containsText('.sw-select__selection-item', global.FixtureService.basicFixture.name)
-            .click('a.smart-bar__back-btn');
+            .click(page.elements.smartBarBack);
     },
     after: (browser) => {
         browser.end();

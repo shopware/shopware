@@ -1,4 +1,4 @@
-const salesChannelPage = require('administration/page-objects/sw-sales-channel.page-object.js');
+const salesChannelPage = require('administration/page-objects/module/sw-sales-channel.page-object.js');
 
 const fixture = {
     name: '1st Epic Sales Channel',

@@ -1,4 +1,4 @@
-const mediaPage = require('administration/page-objects/sw-media.page-object.js');
+const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
 module.exports = {
     '@tags': ['media', 'rename', 'media-rename'],
@@ -11,15 +11,17 @@ module.exports = {
         page.uploadImageViaURL(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
     },
     'rename media file using sidebar': (browser) => {
+        const page = mediaPage(browser);
+
         browser
-            .click('.sw-media-preview__item:nth-of-type(1)')
+            .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
             .clearValue('.sw-media-quickinfo-metadata-name input')
             .setValue('.sw-media-quickinfo-metadata-name input', 'new file name')
             .click('.sw-media-quickinfo-metadata-name .sw-confirm-field__button--submit')
-            .waitForElementPresent('.sw-media-media-item:nth-of-type(1) .sw-media-base-item__loader')
-            .waitForElementNotPresent('.sw-media-media-item:nth-of-type(1) .sw-media-base-item__loader')
-            .assert.containsText('.sw-media-media-item:nth-of-type(1) .sw-media-base-item__name', 'new file name');
+            .waitForElementPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
+            .waitForElementNotPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
+            .assert.containsText(`${page.elements.gridItem}--0 .sw-media-base-item__name`, 'new file name');
     },
     after: (browser) => {
         browser.end();

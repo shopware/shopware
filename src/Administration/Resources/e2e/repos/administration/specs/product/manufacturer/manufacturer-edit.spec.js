@@ -1,3 +1,5 @@
+const manufacturerPage = require('administration/page-objects/module/sw-manufacturer.page-object.js');
+
 module.exports = {
     '@tags': ['product', 'manufacturer-edit', 'manufacturer', 'edit'],
     before: (browser, done) => {
@@ -6,29 +8,27 @@ module.exports = {
         });
     },
     'navigate to manufacturer module and look for manufacturer to be edited': (browser) => {
+        const page = manufacturerPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .assert.urlContains('#/sw/manufacturer/index')
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .assert.containsText('.sw-grid-row:first-child', global.FixtureService.basicFixture.name);
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
     },
     'open manufacturer details and change the given data': (browser) => {
+        const page = manufacturerPage(browser);
+
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .click('.sw-grid-row:first-child .sw-context-button__button')
-            .waitForElementVisible('.sw-context-menu')
-            .click('.sw-context-menu .sw-context-menu-item__text')
-            .waitForElementNotPresent('.sw-loader')
-            .waitForElementVisible('.smart-bar__header h2:not(.sw-manufacturer-detail__empty-title)')
-            .assert.containsText('.smart-bar__header', 'MAN-U-FACTURE')
-            .fillField('input[name=name]', 'Minnie\'s Haberdashery', true)
-            .fillField('input[name=link]', 'https://google.com/doodles', true)
-            .fillField('.ql-editor', 'A wonderfully changed description', true, 'editor')
-            .click('.sw-manufacturer-detail__save-action')
-            .checkNotification('Manufacturer "Minnie\'s Haberdashery" has been saved successfully.')
-            .click('.sw-button__content');
+            .waitForElementVisible(`${page.elements.gridRow}--0 .sw-context-button__button`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(page.elements.contextMenu)
+            .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-manufacturer-detail__empty-title)`)
+            .assert.containsText(page.elements.smartBarHeader, 'MAN-U-FACTURE');
     },
     after: (browser) => {
         browser.end();

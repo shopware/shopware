@@ -1,3 +1,5 @@
+const customerPage = require('administration/page-objects/module/sw-customer.page-object.js');
+
 module.exports = {
     '@tags': ['customer-delete', 'customer', 'delete'],
     before: (browser, done) => {
@@ -8,24 +10,27 @@ module.exports = {
         });
     },
     'open customer listing': (browser) => {
+        const page = customerPage(browser);
+
         browser
             .openMainMenuEntry('#/sw/customer/index', 'Customers')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-page__smart-bar-amount', '(1)')
-            .waitForElementVisible('.sw-customer-list__content');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(1)');
     },
     'delete customer and verify deletion': (browser) => {
+        const page = customerPage(browser);
+
         browser
-            .waitForElementPresent('.sw-customer-list__column-customer-name')
-            .assert.containsText('.sw-customer-list__column-customer-name', 'Pep Eroni')
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button', '.sw-grid-row:first-child')
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-modal .sw-customer-list__confirm-delete-text', 'Are you sure you want to delete the customer "Pep Eroni"?')
-            .click('.sw-modal__footer button.sw-button--primary')
-            .waitForElementNotPresent('.sw-customer-list__column-customer-name')
-            .waitForElementNotPresent('.sw-modal')
-            .waitForElementPresent('.sw-empty-state__title')
-            .assert.containsText('.sw-page__smart-bar-amount', '(0)');
+            .waitForElementPresent(page.elements.columnName)
+            .assert.containsText(page.elements.columnName, 'Pep Eroni')
+            .clickContextMenuItem(`${page.elements.contextMenu}-item--danger`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .waitForElementVisible(page.elements.modal)
+            .assert.containsText(`.sw-modal .sw-customer-list__confirm-delete-text`, 'Are you sure you want to delete the customer "Pep Eroni"?')
+            .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
+            .waitForElementNotPresent(page.elements.columnName)
+            .waitForElementNotPresent(page.elements.modal)
+            .waitForElementPresent(page.elements.emptyState)
+            .assert.containsText(page.elements.smartBarAmount, '(0)');
     },
     after: (browser) => {
         browser.end();

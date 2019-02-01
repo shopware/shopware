@@ -3,15 +3,15 @@ const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const { resolve } = require('path');
 const config = require('../config');
-const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public/build');
+const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
 
 module.exports = {
     name: 'shopware-next-storefront',
     entry: './src/main.js',
     output: {
         path: buildDirectory,
-        filename: 'main.bundle.js',
-        publicPath: `${process.env.APP_URL}${(process.env.ENV === 'hmr') ? `:${config.devServerPort}` : ''}/`
+        filename: 'js/main.bundle.js',
+        publicPath: `${process.env.APP_URL}${(process.env.ENV === 'watch') ? `:${config.devServerPort}` : ''}/`
     },
     devtool: 'inline-cheap-source-map',
     stats: {

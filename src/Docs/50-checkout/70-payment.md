@@ -41,6 +41,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use SwagPayPal\PayPal\Payment\PaymentBuilderInterface;
 use SwagPayPal\PayPal\PaymentStatus;
 use SwagPayPal\PayPal\Resource\PaymentResource;
@@ -50,7 +51,7 @@ use Symfony\Component\HttpFoundation\Request;
 class PayPalPayment implements PaymentHandlerInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderTransactionRepo;
 
@@ -70,7 +71,7 @@ class PayPalPayment implements PaymentHandlerInterface
     private $stateMachineRegistry;
 
     public function __construct(
-        RepositoryInterface $orderTransactionRepo,
+        EntityRepositoryInterface $orderTransactionRepo,
         PaymentResource $paymentResource,
         PaymentBuilderInterface $paymentBuilder,
         StateMachineRegistry $stateMachineRegistry
@@ -104,8 +105,8 @@ class PayPalPayment implements PaymentHandlerInterface
             return;
         }
 
-        $payerId = $request->get('PayerID');
-        $paymentId = $request->get('paymentId');
+        $payerId = $request->query->get('PayerID');
+        $paymentId = $request->query->get('paymentId');
         $response = $this->paymentResource->execute($payerId, $paymentId, $context);
 
         $paymentState = $this->getPaymentState($response);
@@ -125,5 +126,3 @@ class PayPalPayment implements PaymentHandlerInterface
     }
 }
 ```
-
-

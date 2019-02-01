@@ -40,7 +40,7 @@ Below you can find an example.
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.1/phpunit.xsd"
-         bootstrap="../../../src/TestBootstrap.php">
+         bootstrap="../../../tests/TestBootstrap.php">
 
     <php>
         <ini name="error_reporting" value="-1"/>

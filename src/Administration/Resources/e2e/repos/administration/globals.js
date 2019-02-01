@@ -23,7 +23,7 @@ module.exports = {
         }
         browser.url(launch_url);
 
-        return global.CustomerFixtureService.apiClient.loginToAdministration().then((result) => {
+        return global.FixtureService.apiClient.loginToAdministration().then((result) => {
             const startTime = new Date();
 
             return browser.execute(function (result) {

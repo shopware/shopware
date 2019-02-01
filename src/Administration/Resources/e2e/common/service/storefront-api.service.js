@@ -1,24 +1,23 @@
-const ApiService = require('../../administration/service/api.service');
-
-/* This service is taken over one by one from administration repository in order to provide a starting point.
-   Please adjust it to the storefront sooner or later. */
+const ApiService = require('./api.service');
 
 export default class StorefrontApiService extends ApiService {
-
-    getClientId(salesChannelName = 'Storefront API', url = '/v1/search/sales-channel?response=true') {
-        return this.post(url, {
-            filter: [{
-                field: "name",
-                type: "equals",
-                value: salesChannelName,
-            }]
-        }).then((result) => {
-            return result.attributes.accessKey;
-        })
+    loginByUserName(username = 'admin', password = 'shopware') {
+        return this.client.post('/oauth/token', {
+            grant_type: 'password',
+            client_id: 'administration',
+            scopes: 'write',
+            username,
+            password
+        }).catch((err) => {
+            console.log(Promise.reject(err.data));
+        }).then((response) => {
+            this.authInformation = response.data;
+            return this.authInformation;
+        });
     }
 
     getBasicPath(path) {
-        return `${path}/api`;
+        return `${path}/storefront-api`;
     }
 
     /**
@@ -28,17 +27,40 @@ export default class StorefrontApiService extends ApiService {
      */
     getHeaders() {
         return {
-            Accept: 'application/vnd.api+json',
-            Authorization: `Bearer ${this.authInformation.access_token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-SW-Access-Key': `${this.accessKey}`,
+            'X-SW-Context-Token': `${this.contextToken}`
         };
     }
 
     request({url, method, params, data}) {
-        return super.request({url, method, params, data}).catch(({config, response}) => {
+        const requestConfig = {
+            headers: this.getHeaders(),
+            url,
+            method,
+            params,
+            data
+        };
+
+        return this.client.request(requestConfig).then((response) => {
+            if (Array.isArray(response.data.data) && response.data.data.length === 1) {
+                return response.data[0];
+            }
+            return response.data;
+        }).catch(({config, response}) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);
             }
         });
+    }
+
+    setAccessKey(salesChannelId) {
+        this.accessKey = salesChannelId;
+        return this.accessKey;
+    }
+
+    setContextToken(contextId) {
+        this.contextToken = contextId;
+        return this.contextToken;
     }
 }

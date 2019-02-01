@@ -148,7 +148,7 @@
                                                     <sw-context-button>
 
                                                         {% block sw_customer_list_grid_columns_actions_view %}
-                                                            <sw-context-menu-item :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-order.list.contextMenuView') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

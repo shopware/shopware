@@ -8,14 +8,6 @@ export default class CustomerFixtureService extends FixtureService {
         this.customerAddressFixture = this.loadJson('customer-address.json');
     }
 
-    setCustomerBaseFixture(json) {
-        this.customerFixture = json;
-    }
-
-    setCustomerAddressBaseFixture(json) {
-        this.customerAddressFixture = json;
-    }
-
     setCustomerFixture(userData) {
         const startTime = new Date();
         global.logger.lineBreak();

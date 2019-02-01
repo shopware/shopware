@@ -1,4 +1,5 @@
 const AdminApiService = require('./admin-api.service');
+const StorefrontApiService = require('./storefront-api.service');
 const _ = require('lodash');
 const glob = require('glob');
 const path = require('path');
@@ -7,6 +8,7 @@ const uuid = require('uuid/v4');
 export default class FixtureService {
     constructor() {
         this.apiClient = new AdminApiService(process.env.APP_URL);
+        this.storefrontApiClient = new StorefrontApiService(process.env.APP_URL);
         this.basicFixture = '';
 
         // Automatic loading of fixtures
@@ -61,6 +63,18 @@ export default class FixtureService {
         } catch (err) {
             global.logger.error(err);
         }
+    }
+
+    getClientId(salesChannelName = 'Storefront API') {
+        return this.apiClient.post('/v1/search/sales-channel?response=true', {
+            filter: [{
+                field: "name",
+                type: "equals",
+                value: salesChannelName,
+            }]
+        }).then((result) => {
+            return result['attributes'].accessKey;
+        });
     }
 }
 

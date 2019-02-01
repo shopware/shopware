@@ -1,6 +1,9 @@
 /**
- *
- * @memberOf module:core/service/login
+ * @module app/service/rule-condition
+ */
+
+/**
+ * @memberOf module:app/service/rule-condition
  * @constructor
  * @method createConditionService
  * @returns {Object}

@@ -6,7 +6,6 @@ import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 import './page/sw-settings-rule-create';
 import './component/sw-condition-not-found';
-import 'src/app/component/form/sw-condition-tree';
 
 Module.register('sw-settings-rule', {
     flag: NEXT516,

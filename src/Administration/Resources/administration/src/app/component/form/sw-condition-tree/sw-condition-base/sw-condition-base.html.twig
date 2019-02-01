@@ -2,14 +2,17 @@
 <div class="sw-condition-base" :class="[conditionClass, { 'has--error': hasErrors }]">
     <div class="sw-condition-base__container">
         {% block sw_condition_field_condition %}
-            <sw-select
-                    id="condition"
-                    :store="conditionStore"
-                    :value="condition.type"
-                    displayName="label"
-                    class="field field--select">
-
-            </sw-select>
+            <sw-field type="select"
+                      name="type"
+                      v-model="condition.type"
+                      class="field field--select field--condition"
+                      :title="$tc(getLabel(condition.type))">
+                <option v-for="(innerCondition, innerConditionType) in conditionStore.getConditions()"
+                        :selected="innerConditionType === condition.type"
+                        :value="innerConditionType">
+                    {{ $tc(getLabel(innerConditionType)) }}
+                </option>
+            </sw-field>
         {% endblock %}
 
         {% block sw_condition_fields %}
@@ -36,7 +39,7 @@
                         {{ $tc('global.sw-condition.condition.createAfter') }}
                     </sw-context-menu-item>
                     <sw-context-menu-item @click="$emit('delete-condition', condition)"
-                                          :disabled="disableContextDeleteButton"
+                                          :disabled="parentDisabledDelete"
                                           variant="danger">
                         {{ $tc('global.sw-condition.condition.delete') }}
                     </sw-context-menu-item>

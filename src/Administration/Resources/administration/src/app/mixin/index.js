@@ -5,3 +5,4 @@ import './drag-selector.mixin';
 import './selectable-media-item';
 import './placeholder.mixin';
 import './discard-detail-page-changes.mixin';
+import './condition.mixin';

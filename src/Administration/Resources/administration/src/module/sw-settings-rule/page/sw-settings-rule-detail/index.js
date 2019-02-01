@@ -2,8 +2,6 @@ import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
-import SwSelect from '../../../../app/component/form/sw-select';
-
 
 Component.register('sw-settings-rule-detail', {
     template,
@@ -15,24 +13,17 @@ Component.register('sw-settings-rule-detail', {
         Mixin.getByName('discard-detail-page-changes')('rule')
     ],
 
-    components: {
-        SwSelect
-    },
-
     data() {
         return {
             rule: {},
             nestedConditions: {},
-            conditionAssociations: {}
+            conditionStore: {}
         };
     },
 
     computed: {
         ruleStore() {
             return State.getStore('rule');
-        },
-        ruleConditionStore() {
-            return State.getStore('ruleCondition');
         }
     },
 
@@ -47,19 +38,7 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule = this.ruleStore.getById(this.$route.params.id);
-
-            this.conditionAssociations = this.rule.getAssociation('conditions');
-            this.conditionAssociations.getList({
-                page: 1,
-                limit: 500,
-                sortBy: 'position'
-            }).then(() => {
-                this.nestedConditions = this.buildNestedConditions(this.rule.conditions, null);
-
-                this.$nextTick(() => {
-                    this.$refs.mainContainer.$emit('finish-loading', this.nestedConditions);
-                });
-            });
+            this.conditionStore = this.ruleConditionDataProviderService;
         },
 
         onSave() {
@@ -75,6 +54,7 @@ Component.register('sw-settings-rule-detail', {
                 'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
             );
 
+            // todo: this.rule.conditions = [this.nestedConditions]; check if needed
             this.removeOriginalConditionTypes(this.rule.conditions);
 
             return this.rule.save().then(() => {

@@ -1,11 +1,8 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-condition-tree.html.twig';
-import './sw-condition-base';
-import './sw-condition-and-container';
 
 const AND_CONTAINER_NAME = 'andContainer';
 const OR_CONTAINER_NAME = 'orContainer';
-
 
 export default {
     name: 'sw-condition-tree',
@@ -14,18 +11,25 @@ export default {
     data() {
         return {
             nestedConditions: {},
-            conditionAssociations: {},
-            entity: {}
+            entityAssociationStore: {}
         };
     },
 
     props: {
-        store: {
+        entity: {
             type: Object,
             required: true
         },
         conditionStore: {
             type: Object,
+            required: true
+        },
+        conditionIdentifier: {
+            type: String,
+            required: true
+        },
+        entityName: {
+            type: String,
             required: true
         }
     },
@@ -35,28 +39,18 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!this.$route.params.id) {
-                return;
-            }
-
-            this.entity = this.store.getById(this.$route.params.id);
-
-            this.conditionAssociations = this.entity.getAssociation('conditions');
-            this.conditionAssociations.getList({
+            this.entityAssociationStore = this.entity.getAssociation(this.conditionIdentifier);
+            this.entityAssociationStore.getList({
                 page: 1,
                 limit: 500,
                 sortBy: 'position'
-            }).then(() => {
-                this.nestedConditions = this.buildNestedConditions(this.entity.conditions, null);
-
-                this.$nextTick(() => {
-                    this.$refs.mainContainer.$emit('finish-loading', this.nestedConditions);
-                });
+            }).then((conditionCollection) => {
+                this.nestedConditions = this.checkRootContainer(this.buildNestedConditions(conditionCollection.items, null));
             });
         },
 
         buildNestedConditions(conditions, parentId) {
-            const nestedConditions = conditions.reduce((accumulator, current) => {
+            return conditions.reduce((accumulator, current) => {
                 if (current.parentId === parentId) {
                     const children = this.buildNestedConditions(conditions, current.id);
                     children.forEach((child) => {
@@ -70,14 +64,9 @@ export default {
 
                 return accumulator;
             }, []);
-
-            if (parentId !== null) {
-                return nestedConditions;
-            }
-
-            return this.checkRootContainer(nestedConditions);
         },
 
+        // todo: standardized container
         checkRootContainer(nestedConditions) {
             if (nestedConditions.length === 1
                 && nestedConditions[0].type === OR_CONTAINER_NAME) {
@@ -88,7 +77,6 @@ export default {
                 nestedConditions[0].children = [
                     this.createCondition(
                         AND_CONTAINER_NAME,
-                        utils.createId(),
                         nestedConditions[0].id
                     )
                 ];
@@ -96,25 +84,31 @@ export default {
                 return nestedConditions[0];
             }
 
-            const rootId = utils.createId();
-            const rootRole = this.createCondition(
-                OR_CONTAINER_NAME,
-                rootId
+            const rootCondition = this.createCondition(OR_CONTAINER_NAME, null);
+            const subCondition = this.createCondition(
+                AND_CONTAINER_NAME,
+                rootCondition.id,
+                nestedConditions
+            );
+            rootCondition.children = [subCondition];
+
+            if (!nestedConditions.length) {
+                return rootCondition;
+            }
+
+            this.entityAssociationStore.removeById(rootCondition.id);
+            this.entityAssociationStore.removeById(subCondition.id);
+            this.entityAssociationStore.store = Object.assign(
+                { [rootCondition.id]: rootCondition },
+                { [subCondition.id]: subCondition },
+                this.entityAssociationStore.store
             );
 
-            rootRole.children = [
-                this.createCondition(
-                    AND_CONTAINER_NAME,
-                    utils.createId(),
-                    rootRole.id,
-                    nestedConditions
-                )
-            ];
-
-            return rootRole;
+            return rootCondition;
         },
 
-        createCondition(type, conditionId, parentId = null, children) {
+        createCondition(type, parentId, children = null) {
+            const conditionId = utils.createId();
             const conditionData = {
                 type: type,
                 parentId: parentId
@@ -127,7 +121,7 @@ export default {
                 conditionData.children = children;
             }
 
-            return Object.assign(this.conditionAssociations.create(conditionId), conditionData);
+            return Object.assign(this.entityAssociationStore.create(conditionId), conditionData);
         }
     }
 };

@@ -909,7 +909,7 @@
       },
       "metadata": {
         "name": "Name",
-        "fileType": "Filetype",
+        "fileType": "File type",
         "altText": "Alt text",
         "title": "Title",
         "mimeType": "MIME-Type",
@@ -922,12 +922,12 @@
         "documentTitle": "Document title",
         "creator": "Created by",
         "pages": "Pages",
-        "totalSize": "a total of"
+        "totalSize": "A total of"
       },
       "usage": {
         "tooltipFoundInProducts": "Found in products",
         "tooltipFoundInManufacturers": "Found in manufacturers",
-        "titleMediaNotUsed": "Media not used",
+        "titleMediaNotUsed": "Unused medium",
         "labelMediaNotUsed": "This media item is currently not in use."
       }
     },
@@ -948,7 +948,7 @@
       "labelSortByCreatedDsc": "Creation date, descending",
       "labelSortByDataTypeAsc": "Data type, ascending",
       "labelSortByDataTypeDsc": "Data type, descending",
-      "labelLoadMore": "load {count} more files",
+      "labelLoadMore": "Load {count} more files",
       "rootFolderName": "Media"
     }
   },

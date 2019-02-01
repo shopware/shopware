@@ -1,0 +1,52 @@
+{% block sw_navigation_tree %}
+    <sw-tree class="sw-navigation-tree"
+        :items="navigations"
+        :sortable="true"
+        :searchable="false"
+        @sw-tree-on-drag-end="onUpdatePositions"
+        @getTreeItems="loadNavigation">
+
+        {% block sw_navigation_tree_items %}
+            <template slot="items" slot-scope="{ treeItems, sortable, draggedItem }">
+                <sw-tree-item
+                    v-for="(item, index) in treeItems"
+                    :key="item.id"
+                    :item="item"
+                    :sortable="true"
+                    :draggedItem="draggedItem">
+
+                    {% block sw_navigation_tree_items_content %}
+                        <template slot="content" slot-scope="{ item }">
+                            <router-link class="tree-link" :to="{ name: 'sw.navigation.detail', params: { id: item.id }}">
+                                <span class="sw-tree-item__label">{{ item.data.name }}</span>
+                                <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
+                            </router-link>
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_navigation_tree_items_actions %}
+                        <template slot="actions" slot-scope="{ item }">
+                            <sw-context-button>
+                                {% block sw_navigation_tree_items_actions_subnavigation %}
+                                    <sw-context-menu-item icon="small-documentation-map-closed" @click="onAddSubNavigation(item)">
+                                        {{ $tc('sw-navigation.general.actions.create') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_navigation_tree_items_actions_group %}
+                                    <div class="sw-context-menu__group">
+                                        {% block sw_navigation_tree_items_actions_delete %}
+                                            <sw-context-menu-item icon="small-default-x-line-medium" variant="danger" @click="onDeleteNavigation(item)">
+                                                {{ $tc('sw-navigation.general.actions.delete') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </sw-context-button>
+                        </template>
+                    {% endblock %}
+                </sw-tree-item>
+            </template>
+        {% endblock %}
+    </sw-tree>
+{% endblock %}

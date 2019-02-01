@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Page\Home\HomePageLoader;

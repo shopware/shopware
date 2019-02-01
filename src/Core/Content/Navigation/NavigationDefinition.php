@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\Content\Navigation;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -46,10 +50,15 @@ class NavigationDefinition extends EntityDefinition
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
 
+            new FkField('category_id', 'categoryId', CategoryDefinition::class),
+            new ReferenceVersionField(CategoryDefinition::class, 'category_version_id'),
+            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
+
             new TranslatedField('name'),
 
             new TreeLevelField('level', 'level'),
             new TreePathField('path', 'path'),
+            new ChildCountField(),
 
             new CreatedAtField(),
             new UpdatedAtField(),

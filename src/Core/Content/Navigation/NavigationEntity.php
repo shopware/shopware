@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Navigation;
 
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -54,6 +55,21 @@ class NavigationEntity extends Entity
      * @var NavigationTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var int
+     */
+    protected $childCount;
+
+    /**
+     * @var string|null
+     */
+    protected $categoryId;
+
+    /**
+     * @var CategoryEntity|null
+     */
+    protected $category;
 
     public function getParentId(): ?string
     {
@@ -143,5 +159,29 @@ class NavigationEntity extends Entity
     public function setChildren(NavigationCollection $children): void
     {
         $this->children = $children;
+    }
+
+    public function getChildCount(): int
+    {
+        return $this->childCount;
+    }
+
+    public function setChildCount(int $childCount): void
+    {
+        $this->childCount = $childCount;
+    }
+
+    public function compareWithCategory(): array
+    {
+        if (!$this->category) {
+            return null;
+        }
+        $diff = [];
+
+        if ($this->category->getName() !== $this->getName()) {
+            $diff['name'] = $this->category->getName();
+        }
+
+        return $diff;
     }
 }

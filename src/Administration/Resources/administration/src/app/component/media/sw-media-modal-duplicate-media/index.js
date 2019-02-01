@@ -56,15 +56,15 @@ Component.register('sw-media-modal-duplicate-media', {
             options: [
                 {
                     value: 'Replace',
-                    label: this.$tc('global.sw-media-modal-duplicate-media.labelOptionReplace')
+                    name: this.$tc('global.sw-media-modal-duplicate-media.labelOptionReplace')
                 },
                 {
                     value: 'Rename',
-                    label: this.$tc('global.sw-media-modal-duplicate-media.labelOptionRename')
+                    name: this.$tc('global.sw-media-modal-duplicate-media.labelOptionRename')
                 },
                 {
                     value: 'Skip',
-                    label: this.$tc('global.sw-media-modal-duplicate-media.labelOptionSkip')
+                    name: this.$tc('global.sw-media-modal-duplicate-media.labelOptionSkip')
                 }
             ]
         };

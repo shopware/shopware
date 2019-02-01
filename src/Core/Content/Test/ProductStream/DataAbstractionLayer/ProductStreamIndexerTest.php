@@ -98,7 +98,7 @@ class ProductStreamIndexerTest extends TestCase
         );
         $this->connection->exec(
             sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'))',
+                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
                 Uuid::uuid4()->getHex(), 'equals', 'product.id', $productId, $id
             )
         );
@@ -141,13 +141,13 @@ class ProductStreamIndexerTest extends TestCase
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
             sprintf(
-                'INSERT INTO product_stream_filter (id, type, position, product_stream_id) VALUES (UNHEX(\'%s\'), \'%s\', 1, UNHEX(\'%s\'))',
+                'INSERT INTO product_stream_filter (id, type, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', 1, UNHEX(\'%s\'), NOW())',
                 $multiId, 'multi', $id
             )
         );
         $this->connection->exec(
             sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, operator, value, position, parent_id, product_stream_id) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), UNHEX(\'%s\'))',
+                'INSERT INTO product_stream_filter (id, type, field, operator, value, position, parent_id, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), UNHEX(\'%s\'), NOW())',
                 Uuid::uuid4()->getHex(), 'equals', 'product.id', 'equals', $productId, $multiId, $id
             )
         );
@@ -193,7 +193,7 @@ class ProductStreamIndexerTest extends TestCase
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
             sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'))',
+                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
                 $multiId, 'invalid', 'product.id', $productId, $id
             )
         );
@@ -233,7 +233,7 @@ class ProductStreamIndexerTest extends TestCase
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
             sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'))',
+                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
                 $multiId, 'equals', null, $productId, $id
             )
         );
@@ -273,7 +273,7 @@ class ProductStreamIndexerTest extends TestCase
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
             sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'))',
+                'INSERT INTO product_stream_filter (id, type, field, value, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
                 $multiId, 'equals', 'id', null, $id
             )
         );
@@ -313,7 +313,7 @@ class ProductStreamIndexerTest extends TestCase
         $multiId = Uuid::uuid4()->getHex();
         $this->connection->exec(
             sprintf(
-                'INSERT INTO product_stream_filter (id, type, field, parameters, position, product_stream_id) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'))',
+                'INSERT INTO product_stream_filter (id, type, field, parameters, position, product_stream_id, created_at) VALUES (UNHEX(\'%s\'), \'%s\', \'%s\', \'%s\', 1, UNHEX(\'%s\'), NOW())',
                 $multiId, 'range', 'price.gross', json_encode([RangeFilter::GTE => 10]), $id
             )
         );

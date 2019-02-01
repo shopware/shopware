@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -37,6 +39,8 @@ class DefinitionValidator
         'customer.activeBillingAddress',
         'product_configurator.selected',
     ];
+
+    private const FOREIGN_KEY_PREFIX = 'fk';
 
     /**
      * @var DefinitionRegistry
@@ -78,6 +82,7 @@ class DefinitionValidator
     {
         $this->registry = $registry;
         $this->connection = $connection;
+        $this->connection->getEventManager()->addEventListener(Events::onSchemaIndexDefinition, new SchemaIndexListener());
     }
 
     public function validate()
@@ -153,17 +158,25 @@ class DefinitionValidator
             }
         }
 
-        $notices = array_merge_recursive($notices, $this->findNotRegisteredTables());
+        $tableSchemas = $this->connection->getSchemaManager()->listTables();
+
+        $tableViolations = $this->findNotRegisteredTables($tableSchemas);
+        $namingViolations = $this->checkNaming($tableSchemas);
+
+        $notices = array_merge_recursive($notices, $namingViolations, $tableViolations);
 
         return array_filter($notices, function ($vio) {
             return !empty($vio);
         });
     }
 
-    private function findNotRegisteredTables(): array
+    /**
+     * @param Table[] $tables
+     *
+     * @return array
+     */
+    private function findNotRegisteredTables(array $tables): array
     {
-        $tables = $this->connection->getSchemaManager()->listTables();
-
         $violations = [];
 
         foreach ($tables as $table) {
@@ -181,6 +194,46 @@ class DefinitionValidator
         }
 
         return [DefinitionRegistry::class => $violations];
+    }
+
+    /**
+     * @param Table[] $tables
+     *
+     * @return array
+     */
+    private function checkNaming(array $tables): array
+    {
+        $fkViolations = [];
+
+        foreach ($tables as $table) {
+            if (\in_array($table->getName(), self::$tablesWithoutDefinition)) {
+                continue;
+            }
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                if ($foreignKey->getNamespaceName() !== self::FOREIGN_KEY_PREFIX) {
+                    $fkViolations[] = sprintf(
+                        'Table %s has an invalid foreign key. Foreign keys have to start with fk.',
+                        $table->getName()
+                    );
+                }
+
+                if ($foreignKey->getNamespaceName() === null) {
+                    continue;
+                }
+
+                $name = substr($foreignKey->getName(), strlen($foreignKey->getNamespaceName()) + 1);
+
+                if ($name !== $table->getName()) {
+                    $fkViolations[] = sprintf(
+                        'Table %s has an invalid foreign key. Foreign keys format: fk.table_name.column_name',
+                        $table->getName()
+                    );
+                }
+            }
+        }
+
+        return ['Foreign key naming issues' => $fkViolations];
     }
 
     private function findStructNotices(string $struct, string $definition): array

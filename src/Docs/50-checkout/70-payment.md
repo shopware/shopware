@@ -93,7 +93,7 @@ class PayPalPayment implements PaymentHandlerInterface
     public function finalize(string $transactionId, Request $request, Context $context): void
     {
         if ($request->query->getBoolean('cancel')) {
-            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_FAILED, $context)->getId();
+            $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_CANCELLED, $context)->getId();
 
             $transaction = [
                 'id' => $transactionId,

@@ -57,4 +57,18 @@ export default class AdminApiService extends ApiService {
     clearCache() {
         return super.clearCache('/v1/_action/cache');
     }
+
+    loginToAdministration() {
+        return this.loginByUserName().then((responseData) => {
+            return {
+                access: responseData.access_token,
+                refresh: responseData.refresh_token,
+                expiry: Math.round(+new Date() / 1000) + responseData.expires_in
+            };
+        }).catch(({config, response}) => {
+            if (response.data && response.data.errors) {
+                console.log(response.data.errors);
+            }
+        });
+    }
 }

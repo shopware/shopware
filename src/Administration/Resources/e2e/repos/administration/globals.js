@@ -23,23 +23,37 @@ module.exports = {
         }
         browser.url(launch_url);
 
-        browser.execute(function () {
-            // Disable the auto closing of notifications globally.
-            Shopware.State.getStore('notification')._defaults.autoClose = false;
+        return global.CustomerFixtureService.apiClient.loginToAdministration().then((result) => {
+            const startTime = new Date();
 
-            // Return bearer token
-            return localStorage.getItem('bearerAuth');
-        }, [], (data) => {
-            if (!data.value) {
-                beforeScenarioActions.login(browser, 'admin', 'shopware');
+            return browser.execute(function (result) {
+                localStorage.setItem('bearerAuth', JSON.stringify(result));
+
+                // Disable the auto closing of notifications globally.
+                Shopware.State.getStore('notification')._defaults.autoClose = false;
+
+                // Return bearer token
+                return localStorage.getItem('bearerAuth');
+            }, [result], (data) => {
+                if (!data.value) {
+                    beforeScenarioActions.login(browser, 'admin', 'shopware');
+                }
+
+                const endTime = new Date() - startTime;
+                global.logger.success(`Logged in successfully! (${endTime / 1000}s)`);
+                global.logger.lineBreak();
+            });
+        }).then(() => {
+            if (!browser.checkIfElementExists('.sw-admin-menu__header-logo')) {
+                browser.waitForElementVisible('.sw-admin-menu__header-logo');
             }
             beforeScenarioActions.hideToolbarIfVisible(browser);
             done();
         });
     },
     afterEach(client, done) {
-        console.log();
-        console.log("### Resetting database and cache to clean state...");
+        global.logger.lineBreak();
+        global.logger.title('Resetting database and cache to clean state...');
 
         const startTime = new Date();
         clearDatabase()

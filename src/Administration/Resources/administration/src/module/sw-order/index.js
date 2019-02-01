@@ -60,7 +60,7 @@ Module.register('sw-order', {
         color: '#A092F0',
         path: 'sw.order.index',
         icon: 'default-shopping-paper-bag',
-        position: 60
+        position: 30
     }, {
         path: 'sw.order.index',
         label: 'sw-order.general.mainMenuItemList',

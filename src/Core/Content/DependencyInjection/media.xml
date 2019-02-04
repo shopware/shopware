@@ -32,10 +32,6 @@
             <tag name="shopware.entity.definition" entity="media_folder"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="media_folder_translation"/>
-        </service>
-
         <service id="Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition">
             <tag name="shopware.entity.definition" entity="media_thumbnail_size"/>
         </service>

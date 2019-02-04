@@ -144,8 +144,9 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         $languageIds = array_keys($translations);
-        // the translation in the system language is always required for new entities
-        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+        // the translation in the system language is always required for new entities,
+        // if there is at least one required translated field
+        if ($field->getReferenceClass()::hasRequiredField() && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;
             throw new MissingSystemTranslationException($path);
         }

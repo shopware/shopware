@@ -170,19 +170,34 @@ class DemodataCommand extends Command
     private $defaultFolderRepository;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $productStreamRepository;
-
-    /**
      * @var FileNameProvider
      */
     private $fileNameProvider;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $cmsPageRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
+
+    /**
      * @var Context
      */
     private $context;
+
+    /**
+     * @var string[]
+     */
+    private $productIds;
+
+    /**
+     * @var string[]
+     */
+    private $mediaIds;
 
     public function __construct(
         EntityWriterInterface $writer,
@@ -200,8 +215,9 @@ class DemodataCommand extends Command
         CartService $cartService,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $configurationGroupRepository,
-        EntityRepositoryInterface $productStreamRepository,
         FileNameProvider $fileNameProvider,
+        EntityRepositoryInterface $cmsPageRepository,
+        EntityRepositoryInterface $mediaRepository,
         string $kernelEnv,
         string $projectDir
     ) {
@@ -224,8 +240,9 @@ class DemodataCommand extends Command
         $this->context = Context::createDefaultContext();
         $this->configurationGroupRepository = $configurationGroupRepository;
         $this->defaultFolderRepository = $defaultFolderRepository;
-        $this->productStreamRepository = $productStreamRepository;
         $this->fileNameProvider = $fileNameProvider;
+        $this->cmsPageRepository = $cmsPageRepository;
+        $this->mediaRepository = $mediaRepository;
     }
 
     protected function configure(): void
@@ -298,6 +315,8 @@ class DemodataCommand extends Command
         $this->createOrders((int) $input->getOption('orders'));
 
         $this->createMedia((int) $input->getOption('media'));
+
+        $this->createCmsPage();
 
         $this->cleanupImages();
 
@@ -1299,5 +1318,58 @@ class DemodataCommand extends Command
         }
 
         return $this->createProperties(10);
+    }
+
+    private function createCmsPage(): void
+    {
+        $page = [
+            'id' => Uuid::uuid4()->getHex(),
+            'name' => $this->faker->company,
+            'type' => 'landing_page',
+            'blocks' => [
+                [
+                    'type' => 'image-text',
+                    'position' => 1,
+                    'slots' => [
+                        ['type' => 'text', 'slot' => 'left', 'config' => ['content' => $this->faker->realText()]],
+                        ['type' => 'product-box', 'slot' => 'right', 'config' => ['productId' => $this->getRandomProductId()]],
+                    ],
+                ],
+                [
+                    'type' => 'image-text',
+                    'position' => 2,
+                    'slots' => [
+                        ['type' => 'text', 'slot' => 'right', 'config' => ['content' => $this->faker->realText()]],
+                        ['type' => 'image', 'slot' => 'left', 'config' => ['mediaId' => $this->getRandomMediaId()]],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->cmsPageRepository->upsert([$page], $this->context);
+    }
+
+    private function getRandomProductId(): string
+    {
+        if (empty($this->productIds)) {
+            $criteria = new Criteria();
+            $criteria->setLimit(100);
+
+            $this->productIds = $this->productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        }
+
+        return $this->productIds[array_rand($this->productIds, 1)];
+    }
+
+    private function getRandomMediaId(): string
+    {
+        if (empty($this->mediaIds)) {
+            $criteria = new Criteria();
+            $criteria->setLimit(100);
+
+            $this->mediaIds = $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        }
+
+        return $this->mediaIds[array_rand($this->mediaIds, 1)];
     }
 }

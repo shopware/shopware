@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
@@ -636,6 +638,143 @@ class TranslationTest extends TestCase
         static::assertInstanceOf(WriteStackException::class, $exception);
         $innerExceptions = $exception->getExceptions();
         static::assertInstanceOf(MissingTranslationLanguageException::class, $innerExceptions[0]);
+    }
+
+    public function testJsonFieldOnRootEntity(): void
+    {
+        $pageRepository = $this->getContainer()->get('cms_page.repository');
+        $slotRepository = $this->getContainer()->get('cms_slot.repository');
+
+        $page = [
+            'type' => 'landing_page',
+            'blocks' => [
+                [
+                    'type' => 'foo',
+                    'position' => 1,
+                    'slots' => [
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'type' => 'foo',
+                            'slot' => 'bar',
+                            'config' => [],
+                        ],
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'type' => 'foo',
+                            'slot' => 'bar',
+                            'config' => ['foo' => 'bar'],
+                        ],
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'type' => 'foo',
+                            'slot' => 'bar',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $pageRepository->create([$page], $this->context);
+
+        $events = $result->getEventByDefinition(CmsSlotDefinition::class);
+        $ids = $events->getIds();
+
+        $this->assertCount(3, $ids);
+
+        $searchResult = $slotRepository->search(new Criteria($ids), $this->context);
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
+        $this->assertEquals([], $slot->getConfig());
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
+        $this->assertEquals(['foo' => 'bar'], $slot->getConfig());
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
+        $this->assertEquals(null, $slot->getConfig());
+    }
+
+    public function testJsonFieldWithDifferentLanguages(): void
+    {
+        $pageRepository = $this->getContainer()->get('cms_page.repository');
+        $slotRepository = $this->getContainer()->get('cms_slot.repository');
+
+        $page = [
+            'type' => 'landing_page',
+            'blocks' => [
+                [
+                    'type' => 'foo',
+                    'position' => 1,
+                    'slots' => [
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'type' => 'foo',
+                            'slot' => 'bar',
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['config' => []],
+                                Defaults::LANGUAGE_SYSTEM_DE => ['config' => []],
+                            ],
+                        ],
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'type' => 'foo',
+                            'slot' => 'bar',
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['config' => ['foo' => 'en']],
+                                Defaults::LANGUAGE_SYSTEM_DE => ['config' => ['foo' => 'de']],
+                            ],
+                        ],
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'type' => 'foo',
+                            'slot' => 'bar',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $pageRepository->create([$page], $this->context);
+
+        $events = $result->getEventByDefinition(CmsSlotDefinition::class);
+        $ids = $events->getIds();
+
+        $this->assertCount(3, $ids);
+
+        // validate english translations
+
+        $searchResult = $slotRepository->search(new Criteria($ids), $this->context);
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
+        $this->assertEquals([], $slot->getConfig());
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
+        $this->assertEquals(['foo' => 'en'], $slot->getConfig());
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
+        $this->assertEquals(null, $slot->getConfig());
+
+        // validate german translations
+
+        $germanContext = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
+        $searchResult = $slotRepository->search(new Criteria($ids), $germanContext);
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
+        $this->assertEquals([], $slot->getConfig());
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
+        $this->assertEquals(['foo' => 'de'], $slot->getConfig());
+
+        /** @var CmsSlotEntity $slot */
+        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
+        $this->assertEquals(null, $slot->getConfig());
     }
 
     private function addLanguage($id, $rootLanguageId = null): void

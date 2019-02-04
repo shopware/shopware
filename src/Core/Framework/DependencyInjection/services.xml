@@ -67,8 +67,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="media_default_folder.repository"/>
             <argument type="service" id="configuration_group.repository"/>
-            <argument type="service" id="product_stream.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
+            <argument type="service" id="cms_page.repository"/>
+            <argument type="service" id="media.repository"/>
             <argument>%kernel.environment%</argument>
             <argument>%kernel.project_dir%</argument>
         </service>

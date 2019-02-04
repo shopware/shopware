@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Content\Cms\CmsPageDefinition">
+            <tag name="shopware.entity.definition" entity="cms_page"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="cms_page_translation"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition">
+            <tag name="shopware.entity.definition" entity="cms_block"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition">
+            <tag name="shopware.entity.definition" entity="cms_slot"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="cms_slot_translation"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="cms_page.repository" public="true">
+            <argument>Shopware\Core\Content\Cms\CmsPageDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="cms_page_translation.repository" public="true">
+            <argument>Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="cms_block.repository" public="true">
+            <argument>Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="cms_slot.repository" public="true">
+            <argument>Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="cms_slot_translation.repository" public="true">
+            <argument>Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" public="true">
+            <argument type="service" id="cms_page.repository" />
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" public="true">
+            <argument type="tagged" tag="shopware.cms.data_resolver"/>
+            <argument type="collection">
+                <argument type="service" key="product" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" />
+            </argument>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductBoxTypeDataResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductListingTypeDataResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ImageTypeDataResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+    </services>
+</container>

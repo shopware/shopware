@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -24,7 +26,9 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
         $key = $data->getKey();
         $value = $data->getValue();
 
-        if (\is_array($value)) {
+        $translatedField = EntityDefinitionQueryHelper::getTranslatedField($parameters->getDefinition(), $field);
+
+        if (\is_array($value) && $translatedField instanceof JsonField === false) {
             foreach ($value as $translationKey => $translationValue) {
                 yield 'translations' => [
                     $translationKey => [

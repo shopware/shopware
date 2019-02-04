@@ -24,5 +24,6 @@ class Content extends Bundle
         $loader->load('rule.xml');
         $loader->load('product_stream.xml');
         $loader->load('configuration.xml');
+        $loader->load('cms.xml');
     }
 }

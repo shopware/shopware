@@ -253,6 +253,16 @@ class LanguageEntity extends Entity
      */
     protected $orderTransactionStateTranslations;
 
+    /**
+     * @var Collection|null
+     */
+    protected $cmsPageTranslations;
+
+    /**
+     * @var Collection|null
+     */
+    protected $cmsSlotTranslations;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -671,5 +681,25 @@ class LanguageEntity extends Entity
     public function setOrderTransactionStateTranslations(?Collection $orderTransactionStateTranslations): void
     {
         $this->orderTransactionStateTranslations = $orderTransactionStateTranslations;
+    }
+
+    public function getCmsPageTranslations(): ?Collection
+    {
+        return $this->cmsPageTranslations;
+    }
+
+    public function setCmsPageTranslations(Collection $cmsPageTranslations): void
+    {
+        $this->cmsPageTranslations = $cmsPageTranslations;
+    }
+
+    public function getCmsSlotTranslations(): ?Collection
+    {
+        return $this->cmsSlotTranslations;
+    }
+
+    public function setCmsSlotTranslations(Collection $cmsSlotTranslations): void
+    {
+        $this->cmsSlotTranslations = $cmsSlotTranslations;
     }
 }

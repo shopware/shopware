@@ -7,6 +7,9 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
+use Shopware\Core\Content\Navigation\NavigationEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -16,7 +19,7 @@ class NavigationPageLoader
     /**
      * @var StorefrontCmsPageRepository
      */
-    private $storefrontCmsPageRepository;
+    private $cmsPageRepository;
 
     /**
      * @var SlotDataResolver
@@ -33,7 +36,13 @@ class NavigationPageLoader
      */
     private $eventDispatcher;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $navigationRepository;
+
     public function __construct(
+        EntityRepositoryInterface $navigationRepository,
         PageWithHeaderLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         StorefrontCmsPageRepository $storefrontCmsPageRepository,
@@ -41,19 +50,21 @@ class NavigationPageLoader
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->storefrontCmsPageRepository = $storefrontCmsPageRepository;
+        $this->cmsPageRepository = $storefrontCmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
+        $this->navigationRepository = $navigationRepository;
     }
 
-    public function load($navigation, string $pageId, InternalRequest $request, CheckoutContext $context): NavigationPage
+    public function load(InternalRequest $request, CheckoutContext $context): NavigationPage
     {
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
         // step 1, load navigation
+        $navigation = $this->loadNavigation($request, $context);
 
         // step 2, load cms structure
-        $cmsPage = $this->getCmsPage($pageId, $context);
+        $cmsPage = $this->getCmsPage($navigation->getCmsPageId(), $context);
 
         // step 3, overwrite slot config
         $this->overwriteSlotConfig($cmsPage, $navigation);
@@ -71,7 +82,7 @@ class NavigationPageLoader
         return $page;
     }
 
-    private function overwriteSlotConfig(CmsPageEntity $page, $navigation): void
+    private function overwriteSlotConfig(CmsPageEntity $page, NavigationEntity $navigation): void
     {
     }
 
@@ -92,7 +103,7 @@ class NavigationPageLoader
 
     private function getCmsPage(string $pageId, CheckoutContext $context): CmsPageEntity
     {
-        $pages = $this->storefrontCmsPageRepository->read([$pageId], $context);
+        $pages = $this->cmsPageRepository->read([$pageId], $context);
 
         if ($pages->count() === 0) {
             throw new PageNotFoundException($pageId);
@@ -102,5 +113,17 @@ class NavigationPageLoader
         $page = $pages->first();
 
         return $page;
+    }
+
+    private function loadNavigation(InternalRequest $request, CheckoutContext $context): NavigationEntity
+    {
+        $navigationId = $request->requireRouting('navigationId');
+
+        $criteria = new Criteria([$navigationId]);
+
+        /* @var NavigationEntity $navigation */
+        return $this->navigationRepository
+            ->search($criteria, $context->getContext())
+            ->first();
     }
 }

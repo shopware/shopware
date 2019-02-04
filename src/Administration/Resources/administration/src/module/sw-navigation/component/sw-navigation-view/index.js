@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import template from './sw-navigation-view.html.twig';
 import './sw-navigation-view.scss';
 
@@ -15,6 +15,12 @@ Component.register('sw-navigation-view', {
             type: Boolean,
             required: true,
             default: false
+        }
+    },
+
+    computed: {
+        cmsPageStore() {
+            return State.getStore('cms_page');
         }
     }
 });

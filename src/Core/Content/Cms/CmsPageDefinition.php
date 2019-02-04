@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
+use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -51,6 +52,8 @@ class CmsPageDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id', false))->addFlags(new CascadeDelete()),
             new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'),
+
+            new OneToManyAssociationField('navigations', NavigationDefinition::class, 'cms_page_id', false),
 
             new CreatedAtField(),
             new UpdatedAtField(),

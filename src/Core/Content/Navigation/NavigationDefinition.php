@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Navigation;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
@@ -55,6 +56,9 @@ class NavigationDefinition extends EntityDefinition
             new FkField('category_id', 'categoryId', CategoryDefinition::class),
             new ReferenceVersionField(CategoryDefinition::class, 'category_version_id'),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
+
+            new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class),
+            new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, false),
 
             new TranslatedField('name'),
 

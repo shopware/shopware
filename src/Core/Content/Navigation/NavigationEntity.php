@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Navigation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -69,9 +70,19 @@ class NavigationEntity extends Entity implements TreeAwareInterface
     protected $categoryId;
 
     /**
+     * @var string|null
+     */
+    protected $cmsPageId;
+
+    /**
      * @var CategoryEntity|null
      */
     protected $category;
+
+    /**
+     * @var CmsPageEntity|null
+     */
+    protected $cmsPage;
 
     /**
      * @var SalesChannelCollection|null
@@ -206,5 +217,25 @@ class NavigationEntity extends Entity implements TreeAwareInterface
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
+    }
+
+    public function getCmsPageId(): ?string
+    {
+        return $this->cmsPageId;
+    }
+
+    public function setCmsPageId(?string $cmsPageId): void
+    {
+        $this->cmsPageId = $cmsPageId;
+    }
+
+    public function getCmsPage(): ?CmsPageEntity
+    {
+        return $this->cmsPage;
+    }
+
+    public function setCmsPage(CmsPageEntity $cmsPage): void
+    {
+        $this->cmsPage = $cmsPage;
     }
 }

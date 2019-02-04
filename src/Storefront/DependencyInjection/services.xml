@@ -119,6 +119,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
+            <argument type="service" id="navigation.repository" />
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" />
@@ -306,6 +307,10 @@
 
         <service id="Shopware\Storefront\PageController\SearchPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
+        </service>
+
+        <service id="Shopware\Storefront\PageController\NavigationPageController" public="true">
+            <argument id="Shopware\Storefront\Page\Navigation\NavigationPageLoader" type="service"/>
         </service>
     </services>
 </container>

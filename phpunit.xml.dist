@@ -53,6 +53,7 @@
             <directory>src/Core/Framework/Test/Snippet</directory>
             <directory>src/Core/Framework/Test/StateMachine</directory>
             <directory>src/Core/Framework/Test/MessageQueue</directory>
+            <directory>src/Core/Framework/Test/Attribute</directory>
 
             <file>src/Core/Framework/Test/ClassNamespaceTest.php</file>
             <file>src/Core/Framework/Test/ServiceDefinitionTest.php</file>

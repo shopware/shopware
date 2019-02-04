@@ -21,13 +21,13 @@ class de_AT implements SnippetFileInterface
         return 'de_AT';
     }
 
+    public function getAuthor(): string
+    {
+        return 'testAT';
+    }
+
     public function isBase(): bool
     {
         return $this::BASE_LANGUAGE_FILE;
-    }
-
-    public function getAuthor(): string
-    {
-        return 'unitTests';
     }
 }

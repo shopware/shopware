@@ -75,8 +75,13 @@ Component.register('sw-settings-snippet-detail', {
             }
 
             this.translationKey = this.$route.params.key || '';
-            this.snippetSetStore.getList({}).then((response) => {
-                this.sets = response.items;
+            this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC' }).then((response) => {
+                const sets = [];
+
+                response.items.forEach((set) => {
+                    sets[set.id] = set;
+                });
+                this.sets = sets;
             }).then(() => {
                 this.initializeSnippet();
                 this.isLoading = false;
@@ -94,7 +99,7 @@ Component.register('sw-settings-snippet-detail', {
                     term: null,
                     namespaces: [],
                     authors: [],
-                    translationKeys: [this.translationKey]
+                    translationKeys: []
                 }
             ).then((response) => {
                 if (!response.total) {

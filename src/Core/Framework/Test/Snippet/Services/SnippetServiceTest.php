@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Services\SnippetFlattener;
 use Shopware\Core\Framework\Snippet\Services\SnippetService;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\LaguageFileMock;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\SnippetFileMock;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e1;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e2;
@@ -179,7 +179,7 @@ class SnippetServiceTest extends TestCase
         $service = $this->getSnippetService();
         $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getSnippetsFromFiles');
 
-        $languageFileMock = new LaguageFileMock();
+        $snippetFileMock = new SnippetFileMock();
 
         $expectedResult = [
             'only.possible.with.unitTests.test1' => 'this is test 1.',
@@ -192,14 +192,14 @@ class SnippetServiceTest extends TestCase
             'only.possible.with.unitTests.test8' => 'this is test 8.',
         ];
 
-        $result = $mehtod->invoke($service, [$languageFileMock]);
+        $result = $mehtod->invoke($service, [$snippetFileMock]);
 
         $this->assertSame($expectedResult, $result);
     }
 
-    public function testGetLanguageFilesByIso()
+    public function testGetSnippetFilesByIso()
     {
-        $languageFiles = [
+        $snippetFiles = [
             new de_AT(),
             new de_AT_e1(),
             new de_AT_e2(),
@@ -208,8 +208,8 @@ class SnippetServiceTest extends TestCase
             new en_US_e2(),
         ];
 
-        $service = $this->getSnippetService($languageFiles);
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getLanguageFilesByIso');
+        $service = $this->getSnippetService($snippetFiles);
+        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getSnippetFilesByIso');
 
         $result1 = $mehtod->invoke($service, ['de_AT']);
         $result2 = $mehtod->invoke($service, ['en_US']);
@@ -218,11 +218,11 @@ class SnippetServiceTest extends TestCase
         $this->assertCount(3, $result2['en_US']);
     }
 
-    private function getSnippetService(array $languageFiles = []): SnippetService
+    private function getSnippetService(array $snippetFiles = []): SnippetService
     {
         $collection = $this->getContainer()->get(SnippetFileCollection::class);
-        foreach ($languageFiles as $languageFile) {
-            $collection->add($languageFile);
+        foreach ($snippetFiles as $snippetFile) {
+            $collection->add($snippetFile);
         }
 
         return new SnippetService(

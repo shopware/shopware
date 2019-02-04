@@ -6,8 +6,8 @@
                 <router-link class="smart-bar__back-btn"
                              :to="backPath"
                              :style="{ 'color': moduleData.color }">
-                    <sw-icon name="small-arrow-large-left" size="16"></sw-icon>
-                    <sw-icon :name="moduleData.icon" v-if="moduleData && moduleData.icon"></sw-icon>
+                    <sw-icon name="default-arrow-head-left" small></sw-icon>
+                    <sw-icon :name="moduleData.icon" v-if="moduleData && moduleData.icon" small></sw-icon>
                 </router-link>
             </template>
         {% endblock %}
@@ -72,11 +72,11 @@
                                         <sw-container>
                                             {% block sw_settings_snippet_set_detail_card_snippets_fields %}
                                                 <sw-field type="text"
-                                                          v-for="snippet, index in snippets"
+                                                          v-for="snippet in snippets"
                                                           v-model="snippet.value"
                                                           :disabled="isCreate"
                                                           :key="snippet.setId"
-                                                          :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[index].name })"
+                                                          :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[snippet.setId].name })"
                                                           :placeholder="snippet.origin || $tc('sw-settings-snippet.detail.placeholderValue')">
                                                 </sw-field>
                                             {% endblock %}

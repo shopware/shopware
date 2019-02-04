@@ -21,13 +21,13 @@ class de_AT_e2 implements SnippetFileInterface
         return 'de_AT';
     }
 
+    public function getAuthor(): string
+    {
+        return 'testATe2';
+    }
+
     public function isBase(): bool
     {
         return SnippetFileInterface::BASE_LANGUAGE_FILE;
-    }
-
-    public function getAuthor(): string
-    {
-        return 'unitTests';
     }
 }

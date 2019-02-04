@@ -47,6 +47,7 @@ Component.register('sw-settings-snippet-list', {
 
         initializeSnippetSet() {
             if (!this.$route.query.ids || this.$route.query.ids.length <= 0) {
+                this.backRoutingError();
                 this.$router.back();
 
                 return;
@@ -70,7 +71,7 @@ Component.register('sw-settings-snippet-list', {
             };
 
             this.snippetSetService.getCustomList(this.page, this.limit, filter).then((response) => {
-                this.snippetSetStore.getList({ criteria }).then((sets) => {
+                this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC', criteria }).then((sets) => {
                     this.snippetSets = sets.items;
                     this.metaId = this.queryIds[0];
                     this.total = response.total;
@@ -114,14 +115,16 @@ Component.register('sw-settings-snippet-list', {
             const key = result[this.metaId].translationKey;
 
             this.snippetSets.forEach((item) => {
-                if (result[item.id].value === null) {
-                    result[item.id].value = result[item.id].origin;
+                const snippet = result[item.id];
+
+                if (snippet.value === '') {
+                    snippet.value = snippet.origin;
                 }
 
-                if (result[item.id].origin !== result[item.id].value) {
-                    responses.push(this.snippetService.save(result[item.id]));
-                } else if (result[item.id].id !== null) {
-                    responses.push(this.snippetService.delete(result[item.id].id));
+                if (snippet.origin !== snippet.value) {
+                    responses.push(this.snippetService.save(snippet));
+                } else if (snippet.id !== null) {
+                    responses.push(this.snippetService.delete(snippet.id));
                 }
             });
 
@@ -139,6 +142,30 @@ Component.register('sw-settings-snippet-list', {
             this.getList();
         },
 
+
+        onSearch(term) {
+            this.term = term;
+            this.page = 1;
+            this.initializeSnippetSet();
+        },
+
+        onInlineEditCancel(rowItems) {
+            Object.keys(rowItems).forEach((itemKey) => {
+                const item = rowItems[itemKey];
+                if (typeof item !== 'object' || item.value === undefined) {
+                    return;
+                }
+
+                item.value = item.resetTo;
+            });
+        },
+
+        backRoutingError() {
+            this.createNotificationSuccess({
+                title: this.$tc('sw-settings-snippet.general.errorBackRoutingTitle'),
+                message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage')
+            });
+        },
 
         inlineSaveSuccessMessage(key) {
             const titleSaveSuccess = this.$tc('sw-settings-snippet.list.titleSaveSuccess');
@@ -261,20 +288,6 @@ Component.register('sw-settings-snippet-list', {
             this.createNotificationError({
                 title,
                 message
-            });
-        },
-
-        onSearch(term) {
-            this.term = term;
-            this.page = 1;
-            this.initializeSnippetSet();
-        },
-
-        onInlineEditCancel(rowItems) {
-            Object.keys(rowItems).forEach((itemKey) => {
-                const item = rowItems[itemKey];
-
-                item.value = item.resetTo;
             });
         },
 

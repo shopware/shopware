@@ -63,16 +63,12 @@ class SnippetService implements SnippetServiceInterface
     /**
      * {@inheritdoc}
      */
-    public function getList(
-        int $page,
-        int $limit,
-        Context $context,
-        array $filters
-    ): array {
+    public function getList(int $page, int $limit, Context $context, array $filters): array
+    {
         --$page;
         $metaData = $this->getSetMetaData($context);
         $isoList = $this->createIsoList($metaData);
-        $languageFiles = $this->getLanguageFilesByIso($isoList);
+        $languageFiles = $this->getSnippetFilesByIso($isoList);
 
         $snippets = [];
         $fileSnippets = $this->getFileSnippets($languageFiles);
@@ -112,7 +108,17 @@ class SnippetService implements SnippetServiceInterface
 
         $result = [];
         foreach ($queryResult as $snippet) {
-            $currentSnippet = $snippet->toArray();
+            $currentSnippet = array_intersect_key(
+                $snippet->toArray(),
+                array_flip([
+                    'author',
+                    'id',
+                    'setId',
+                    'translationKey',
+                    'value',
+                ])
+            );
+
             $currentSnippet['origin'] = '';
             $currentSnippet['resetTo'] = $snippet->getValue();
             $result[$snippet->getSetId()][] = $currentSnippet;
@@ -166,7 +172,7 @@ class SnippetService implements SnippetServiceInterface
     {
         $metaData = $this->getSetMetaData($context);
         $isoList = $this->createIsoList($metaData);
-        $languageFiles = $this->getLanguageFilesByIso($isoList);
+        $languageFiles = $this->getSnippetFilesByIso($isoList);
 
         $result = [];
         foreach ($languageFiles as $isoFiles) {
@@ -354,7 +360,7 @@ class SnippetService implements SnippetServiceInterface
         return $locale ?: Defaults::LOCALE_EN_GB_ISO;
     }
 
-    private function getLanguageFilesByIso(array $isoList): array
+    private function getSnippetFilesByIso(array $isoList): array
     {
         $result = [];
         foreach ($isoList as $iso) {
@@ -514,10 +520,7 @@ class SnippetService implements SnippetServiceInterface
         $queryResult = $this->findSnippetSetInDatabase(new Criteria(), $context);
 
         $result = [];
-        /**
-         * @var string
-         * @var SnippetSetEntity $value
-         */
+        /** @var SnippetSetEntity $value */
         foreach ($queryResult as $key => $value) {
             $result[$key] = $value->toArray();
         }

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Snippet\_fixtures;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
-class LaguageFileMock implements SnippetFileInterface
+class SnippetFileMock implements SnippetFileInterface
 {
     public function getName(): string
     {
@@ -21,13 +21,13 @@ class LaguageFileMock implements SnippetFileInterface
         return 'unit_TEST';
     }
 
+    public function getAuthor(): string
+    {
+        return 'MockAuthor';
+    }
+
     public function isBase(): bool
     {
         return SnippetFileInterface::BASE_LANGUAGE_FILE;
-    }
-
-    public function getAuthor(): string
-    {
-        return 'unitTests';
     }
 }

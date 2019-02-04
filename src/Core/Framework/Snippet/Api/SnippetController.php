@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Services\SnippetServiceInterface;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,10 +27,19 @@ class SnippetController extends AbstractController
      */
     private $userRepository;
 
-    public function __construct(SnippetServiceInterface $snippetService, EntityRepositoryInterface $userRepository)
-    {
+    /**
+     * @var SnippetFileCollection
+     */
+    private $snippetFileCollection;
+
+    public function __construct(
+        SnippetServiceInterface $snippetService,
+        EntityRepositoryInterface $userRepository,
+        SnippetFileCollection $snippetFileCollection
+    ) {
         $this->snippetService = $snippetService;
         $this->userRepository = $userRepository;
+        $this->snippetFileCollection = $snippetFileCollection;
     }
 
     /**
@@ -68,6 +78,19 @@ class SnippetController extends AbstractController
         return new JsonResponse([
             'total' => count($filter),
             'data' => $filter,
+        ]);
+    }
+
+    /**
+     * @Route("/api/{version}/_action/snippet-set/getBaseFiles", name="api.action.snippet-set.get-base-files", methods={"GET"})
+     */
+    public function getBaseFiles(): Response
+    {
+        $files = $this->snippetFileCollection->getFilesArray();
+
+        return new JsonResponse([
+            'items' => $files,
+            'total' => count($files),
         ]);
     }
 

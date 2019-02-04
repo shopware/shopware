@@ -14,12 +14,16 @@ Component.register('sw-settings-snippet-set-list', {
     data() {
         return {
             isLoading: false,
+            entityName: 'snippetSet',
+            sortBy: 'name',
+            sortDirection: 'ASC',
             offset: 0,
+            baseFiles: [],
             snippetSets: [],
             showDeleteModal: false,
             showCloneModal: false,
-            selection: {},
-            snippetsEditiable: false
+            snippetsEditiable: false,
+            selection: {}
         };
     },
 
@@ -33,31 +37,69 @@ Component.register('sw-settings-snippet-set-list', {
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
+            return this.loadBaseFiles().then(() => {
+                return this.snippetSetStore.getList(params).then((response) => {
+                    this.total = response.total;
+                    this.snippetSets = response.items;
+                    this.isLoading = false;
+                });
+            });
+        },
 
-            return this.snippetSetStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.snippetSets = response.items;
-                this.isLoading = false;
+        loadBaseFiles() {
+            return this.snippetSetService.getBaseFiles().then((response) => {
+                this.baseFiles = response.items;
             });
         },
 
         onAddSnippetSet() {
-            const snippetSet = this.snippetSetStore.create();
-            snippetSet.baseFile = 'en_GB.json';
-            snippetSet.iso = 'en_GB';
-            this.snippetSets.splice(0, 0, snippetSet);
+            const response = new Promise((resolve, reject) => {
+                const snippetSet = this.snippetSetStore.create();
+                snippetSet.baseFile = Object.values(this.baseFiles)[0].name;
 
-            const foundRow = this.$refs.snippetSetList.$children.find((item) => {
-                return item.$options.name === 'sw-grid-row';
+                const result = this.snippetSets.splice(0, 0, snippetSet);
+
+                if (result.length === 0) {
+                    resolve(snippetSet);
+                } else {
+                    reject();
+                }
             });
 
-            if (!foundRow) {
-                return false;
+            response.then((snippetSet) => {
+                this.$nextTick(() => {
+                    const foundRow = this.$refs.snippetSetList.$children.find((vueComponent) => {
+                        return vueComponent.item !== undefined && vueComponent.item.id === snippetSet.id;
+                    });
+
+                    if (!foundRow) {
+                        return false;
+                    }
+                    foundRow.isEditingActive = true;
+
+                    return true;
+                });
+            });
+        },
+
+        onInlineEditSave(item) {
+            this.isLoading = true;
+            if (this.baseFiles[item.baseFile].iso !== null) {
+                item.iso = this.baseFiles[item.baseFile].iso;
+
+                item.save().then(() => {
+                    this.isLoading = false;
+                    this.createInlineSuccessNote(item.name);
+                }).catch(() => {
+                    this.isLoading = false;
+                    this.createInlineErrorNote(item.name);
+                    this.getList();
+                });
+            } else {
+                this.isLoading = false;
+                this.createInlineErrorNote(item.name);
+                this.getList();
             }
-
-            foundRow.isEditingActive = true;
-
-            return true;
         },
 
         onEditSnippetSets() {
@@ -93,7 +135,11 @@ Component.register('sw-settings-snippet-set-list', {
 
             return this.snippetSetStore.getById(id).delete(true).then(() => {
                 this.getList();
-            }).catch(this.onCloseDeleteModal());
+                this.createDeleteSuccessNote();
+            }).catch(() => {
+                this.onCloseDeleteModal();
+                this.createDeleteErrorNote();
+            });
         },
 
         onClone(id) {
@@ -105,9 +151,9 @@ Component.register('sw-settings-snippet-set-list', {
         },
 
         onConfirmClone(id) {
-            this.snippetSetService.cloneSnippetSet(id).then(() => {
-                this.getList().then(() => {
-                    const set = this.findSnippetSet(id);
+            this.isLoading = true;
+            this.snippetSetService.clone(id).then((clone) => {
+                this.snippetSetStore.getByIdAsync(clone.id).then((set) => {
                     if (!set) {
                         return;
                     }
@@ -115,6 +161,7 @@ Component.register('sw-settings-snippet-set-list', {
                     set.name = `${set.name} ${this.$tc('sw-settings-snippet.general.copyName')}`;
                     set.save().then(() => {
                         this.createCloneSuccessNote();
+                        this.getList();
                     }).catch(() => {
                         set.delete().then(() => {
                             this.createCloneErrorNote();
@@ -125,21 +172,36 @@ Component.register('sw-settings-snippet-set-list', {
             }).catch(() => {
                 this.createCloneErrorNote();
             }).finally(() => {
+                this.isLoading = false;
                 this.closeCloneModal();
             });
         },
 
-        createNotEditableErrorNote() {
-            this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.notEditableNoteTitle'),
-                message: this.$tc('sw-settings-snippet.setList.notEditableNoteMessage')
+        createDeleteSuccessNote() {
+            this.createNotificationSuccess({
+                title: this.$tc('sw-settings-snippet.setList.deleteNoteTitle'),
+                message: this.$tc('sw-settings-snippet.setList.deleteNoteSuccessMessage')
             });
         },
 
-        createCloneErrorNote() {
+        createDeleteErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.cloneNoteTitle'),
-                message: this.$tc('sw-settings-snippet.setList.cloneErrorMessage')
+                title: this.$tc('sw-settings-snippet.setList.deleteNoteTitle'),
+                message: this.$tc('sw-settings-snippet.setList.deleteNoteErrorMessage')
+            });
+        },
+
+        createInlineSuccessNote(name) {
+            this.createNotificationSuccess({
+                title: this.$tc('sw-settings-snippet.setList.inlineEditNote'),
+                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', 0, { name })
+            });
+        },
+
+        createInlineErrorNote(name) {
+            this.createNotificationError({
+                title: this.$tc('sw-settings-snippet.setList.inlineEditNote'),
+                message: this.$tc('sw-settings-snippet.setList.inlineEditErrorMessage', name !== null, { name })
             });
         },
 
@@ -150,13 +212,17 @@ Component.register('sw-settings-snippet-set-list', {
             });
         },
 
-        findSnippetSet(id) {
-            return this.snippetSets.find((element) => {
-                if (element.id === id) {
-                    return element;
-                }
+        createCloneErrorNote() {
+            this.createNotificationError({
+                title: this.$tc('sw-settings-snippet.setList.cloneNoteTitle'),
+                message: this.$tc('sw-settings-snippet.setList.cloneErrorMessage')
+            });
+        },
 
-                return false;
+        createNotEditableErrorNote() {
+            this.createNotificationError({
+                title: this.$tc('sw-settings-snippet.setList.notEditableNoteTitle'),
+                message: this.$tc('sw-settings-snippet.setList.notEditableNoteMessage')
             });
         }
     }

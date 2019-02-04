@@ -15,6 +15,33 @@ class SnippetFileCollection extends Collection
         $this->set($snippetFile->getName(), $snippetFile);
     }
 
+    public function getFilesArray(bool $isBase = true): array
+    {
+        return array_filter($this->toArray(), function ($file) use ($isBase) {
+            return $file['isBase'] === $isBase;
+        });
+    }
+
+    public function toArray(): array
+    {
+        $data = [];
+        foreach ($this->getListSortedByIso() as $isoFiles) {
+            /** @var SnippetFileInterface $snippetFile */
+            foreach ($isoFiles as $snippetFile) {
+                $name = $snippetFile->getName();
+                $data[$name] = [
+                    'name' => $name,
+                    'iso' => $snippetFile->getIso(),
+                    'path' => $snippetFile->getPath(),
+                    'author' => $snippetFile->getAuthor(),
+                    'isBase' => $snippetFile->isBase(),
+                ];
+            }
+        }
+
+        return $data;
+    }
+
     public function getIsoList(): array
     {
         return array_keys($this->getListSortedByIso());

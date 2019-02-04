@@ -24,12 +24,7 @@ interface SnippetServiceInterface
      *
      * @return array
      */
-    public function getList(
-        int $page,
-        int $limit,
-        Context $context,
-        array $filters
-    ): array;
+    public function getList(int $page, int $limit, Context $context, array $filters): array;
 
     /**
      * @param MessageCatalogueInterface $catalog

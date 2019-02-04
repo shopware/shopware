@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE;
 use Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\TestLanguageExtensionFile_de_DE;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\TestSnippetExtensionFile_de_DE;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 class SnippetFileCollectionTest extends TestCase
@@ -95,7 +95,7 @@ class SnippetFileCollectionTest extends TestCase
     private function getCollection(): SnippetFileCollection
     {
         $collection = new SnippetFileCollection(new ArrayCollection([]));
-        $collection->add(new TestLanguageExtensionFile_de_DE());
+        $collection->add(new TestSnippetExtensionFile_de_DE());
         $collection->add(new SnippetFile_de_DE());
         $collection->add(new SnippetFile_en_GB());
 

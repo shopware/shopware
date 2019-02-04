@@ -1,4 +1,5 @@
 import MD5 from 'md5-es';
+import isEqual from 'lodash/isEqual';
 
 /**
  * @module core/service/utils/format
@@ -33,12 +34,27 @@ export function currency(val, sign) {
  * Formats a Date object to a localized string
  *
  * @param {Date} val
- * @param {String} [locale='de-DE']
+ * @param {Object} options
  * @returns {string}
  */
-export function date(val, locale = 'de-DE', options = {}) {
+let dateTimeFormatter;
+let dateTimeOptions;
+export function date(val, options = {}) {
+    const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
+    const defaultOptions = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    };
+    options = Object.assign(defaultOptions, options);
+
+    if (!isEqual(dateTimeOptions, options)) {
+        dateTimeOptions = options;
+        dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, dateTimeOptions);
+    }
+
     const dateObj = new Date(val);
-    return dateObj.toLocaleString(locale, options);
+    return dateTimeFormatter.format(dateObj);
 }
 
 /**

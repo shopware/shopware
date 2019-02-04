@@ -1,0 +1,82 @@
+import utils from 'src/core/service/util.service';
+import template from './sw-radio-panel.html.twig';
+import './sw-radio-panel.less';
+
+/**
+ * @public
+ * @description Radio panel that can be used as an radio input with bigger content.
+ * It is possible to define custom content with a slot.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-radio-panel value="selectionValueIfSelected"
+ * v-model="selection"
+ * title="Example title"
+ * description="Example description"
+ * icon="default-badge-warning"
+ * ></sw-radio-panel>
+ */
+export default {
+    name: 'sw-radio-panel',
+    template,
+
+    model: {
+        prop: 'modelValue', // use the variable 'modelValue' instead of 'value' because both are relevant!
+        event: 'input'
+    },
+
+    props: {
+        value: {
+            type: String
+        },
+        modelValue: {
+            type: String
+        },
+        title: {
+            type: String,
+            default: ''
+        },
+        description: {
+            type: String,
+            default: ''
+        },
+        icon: {
+            type: String,
+            default: ''
+        },
+        id: {
+            type: String,
+            default() {
+                return `sw-radio-panel--${utils.createId()}`;
+            }
+        },
+        name: {
+            type: String,
+            default: null
+        },
+        required: {
+            type: Boolean,
+            default: false
+        },
+        disabled: {
+            type: Boolean,
+            default: false
+        },
+        truncate: {
+            type: Boolean,
+            default: false
+        }
+    },
+
+    computed: {
+        checked() {
+            return this.modelValue === this.value;
+        }
+    },
+
+    methods: {
+        toggle() {
+            this.$emit('input', this.value);
+        }
+    }
+};

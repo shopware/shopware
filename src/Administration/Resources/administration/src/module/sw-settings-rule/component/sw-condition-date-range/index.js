@@ -33,6 +33,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
         fromDate: {
             handler(newValue) {
                 if (!newValue) {
+                    this.condition.value.fromDate = null;
                     return;
                 }
                 this.condition.value.fromDate = this.convertValueToAtom(newValue);
@@ -41,6 +42,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
         toDate: {
             handler(newValue) {
                 if (!newValue) {
+                    this.condition.value.toDate = null;
                     return;
                 }
                 this.condition.value.toDate = this.convertValueToAtom(newValue);

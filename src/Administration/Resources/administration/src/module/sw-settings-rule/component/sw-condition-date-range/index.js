@@ -32,11 +32,17 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
         },
         fromDate: {
             handler(newValue) {
+                if (!newValue) {
+                    return;
+                }
                 this.condition.value.fromDate = this.convertValueToAtom(newValue);
             }
         },
         toDate: {
             handler(newValue) {
+                if (!newValue) {
+                    return;
+                }
                 this.condition.value.toDate = this.convertValueToAtom(newValue);
             }
         }

@@ -48,9 +48,9 @@ class PluginService
     }
 
     /**
-     * @throws PluginComposerJsonInvalidException
+     * @return PluginComposerJsonInvalidException[]
      */
-    public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): void
+    public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): array
     {
         $finder = new Finder();
         $filesystemPlugins = $finder->directories()->depth(0)->in($this->pluginPath)->getIterator();
@@ -58,11 +58,18 @@ class PluginService
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
 
         $plugins = [];
+        $errors = [];
         foreach ($filesystemPlugins as $plugin) {
             $pluginName = $plugin->getFilename();
             $pluginPath = $plugin->getPathname();
 
-            $info = $this->composerPackageProvider->getPluginInformation($pluginPath, $composerIO);
+            try {
+                $info = $this->composerPackageProvider->getPluginInformation($pluginPath, $composerIO);
+            } catch (PluginComposerJsonInvalidException $e) {
+                $errors[] = $e;
+                continue;
+            }
+
             $pluginVersion = $info->getVersion();
             /** @var array $extra */
             $extra = $info->getExtra();
@@ -121,6 +128,8 @@ class PluginService
             }
             $this->pluginRepo->delete($deletePlugins, $shopwareContext);
         }
+
+        return $errors;
     }
 
     /**

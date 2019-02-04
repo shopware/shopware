@@ -9,7 +9,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 ## Example `composer.json`
 ```json
 {
-    "name": "shopware-labs/swag-paypal",
+    "name": "swag/paypal",
     "description": "All PayPal payment methods in one plugin",
     "version": "v1.0.1",
     "type": "shopware-plugin",

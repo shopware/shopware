@@ -9,7 +9,7 @@
     ],
     "homepage": "http://www.shopware.com",
     "license": [
-        "AGPL-3.0",
+        "MIT",
         "proprietary"
     ],
     "autoload": {
@@ -67,7 +67,7 @@
         "symfony/phpunit-bridge": "^4.0",
         "symfony/var-dumper": "^4.0"
     },
-    "conflicts": {
+    "conflict": {
         "symfony/symfony": "*"
     },
     "config": {

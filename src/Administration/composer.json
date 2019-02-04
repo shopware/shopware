@@ -1,10 +1,14 @@
 {
-  "name": "shopware/administration",
-  "type": "library",
-  "autoload": {
-    "psr-4": { "Shopware\\Administration\\": "" },
-    "exclude-from-classmap": [
-      "/Test/"
-    ]
-  }
+    "name": "shopware/administration",
+    "description": "Administration frontend for the Shopware Core",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Shopware\\Administration\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Test/"
+        ]
+    }
 }

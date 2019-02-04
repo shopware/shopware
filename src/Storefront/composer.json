@@ -1,23 +1,27 @@
 {
-  "name": "shopware/storefront",
-  "type": "library",
-  "autoload": {
-    "psr-4": { "Shopware\\Storefront\\": "" },
-    "exclude-from-classmap": [
-      "/Test/"
-    ]
-  },
-  "require": {
-    "twig/twig": "^2.4",
-    "twig/extensions": "^1.5",
-    "symfony/asset": "^4.0",
-    "symfony/templating": "^4.0",
-    "symfony/options-resolver": "^4.0",
-    "symfony/config": "^4.0",
-    "symfony/http-kernel": "^4.0",
-    "symfony/http-foundation": "^4.0",
-    "symfony/routing": "^4.0",
-    "symfony/debug-bundle": "^4.0",
-    "cocur/slugify": "^3.1"
-  }
+    "name": "shopware/storefront",
+    "description": "Storefront for Shopware",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Shopware\\Storefront\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Test/"
+        ]
+    },
+    "require": {
+        "twig/twig": "^2.4",
+        "twig/extensions": "^1.5",
+        "symfony/asset": "^4.0",
+        "symfony/templating": "^4.0",
+        "symfony/options-resolver": "^4.0",
+        "symfony/config": "^4.0",
+        "symfony/http-kernel": "^4.0",
+        "symfony/http-foundation": "^4.0",
+        "symfony/routing": "^4.0",
+        "symfony/debug-bundle": "^4.0",
+        "cocur/slugify": "^3.1"
+    }
 }

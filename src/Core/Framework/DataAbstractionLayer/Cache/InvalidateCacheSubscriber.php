@@ -32,7 +32,9 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            EntityWrittenContainerEvent::NAME => 'entitiesWritten',
+            EntityWrittenContainerEvent::NAME => [
+                ['entitiesWritten', 1000],
+            ],
         ];
     }
 

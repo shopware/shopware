@@ -92,7 +92,7 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', false, 'id'),
             (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
-            new ManyToOneAssociationField('mainNavigation', 'main_navigation_Id', NavigationDefinition::class, false),
+            new ManyToOneAssociationField('mainNavigation', 'main_navigation_id', NavigationDefinition::class, false),
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Navigation\NavigationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -180,6 +181,11 @@ class CategoryEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var NavigationCollection|null
+     */
+    protected $navigations;
 
     public function getParentId(): ?string
     {
@@ -529,5 +535,15 @@ class CategoryEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getNavigations(): ?NavigationCollection
+    {
+        return $this->navigations;
+    }
+
+    public function setNavigations(NavigationCollection $navigations): void
+    {
+        $this->navigations = $navigations;
     }
 }

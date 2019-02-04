@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDef
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
+use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
@@ -117,6 +118,7 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('stateMachineStateTranslations', StateMachineStateTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('cmsPageTranslations', CmsPageTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('cmsSlotTranslations', CmsSlotTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('navigationTranslations', NavigationTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
         ]);
     }
 }

@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Seo\Category;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;

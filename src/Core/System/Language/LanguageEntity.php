@@ -11,6 +11,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
+use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
@@ -249,6 +250,11 @@ class LanguageEntity extends Entity
      * @var Collection|null
      */
     protected $cmsSlotTranslations;
+
+    /**
+     * @var NavigationTranslationCollection|null
+     */
+    protected $navigationTranslations;
 
     public function getParentId(): ?string
     {
@@ -668,5 +674,15 @@ class LanguageEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getNavigationTranslations(): ?NavigationTranslationCollection
+    {
+        return $this->navigationTranslations;
+    }
+
+    public function setNavigationTranslations(NavigationTranslationCollection $navigationTranslations): void
+    {
+        $this->navigationTranslations = $navigationTranslations;
     }
 }

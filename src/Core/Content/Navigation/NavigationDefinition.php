@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class NavigationDefinition extends EntityDefinition
 {
@@ -66,6 +68,8 @@ class NavigationDefinition extends EntityDefinition
             (new TranslationsAssociationField(NavigationTranslationDefinition::class, 'navigation_id'))->addFlags(new Required()),
             new ChildrenAssociationField(self::class),
             new ParentAssociationField(self::class, false),
+
+            new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'main_navigation_id', false),
         ]);
     }
 }

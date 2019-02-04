@@ -33,8 +33,8 @@
         </service>
 
         <service id="Shopware\Core\Content\Navigation\DataAbstractionLayer\NavigationSynchronizer">
-            <argument id="navigation.repository" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service" />
+            <argument type="service" id="navigation.repository" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="shopware.dbal_indexing.indexer" priority="100"/>
         </service>
 

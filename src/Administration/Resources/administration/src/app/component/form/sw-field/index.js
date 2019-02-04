@@ -14,7 +14,7 @@ export default {
             const components = {
                 boolean: 'sw-boolean-field',
                 checkbox: 'sw-checkbox-field',
-                color: 'sw-colorpicker',
+                colorpicker: 'sw-colorpicker',
                 date: 'sw-datepicker',
                 datepicker: 'sw-datepicker',
                 datetime: 'sw-datepicker',

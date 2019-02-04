@@ -217,6 +217,11 @@ Component.register('sw-condition-and-container', {
                 child.position -= 1;
             });
 
+            if (this.condition.children.length === 1) {
+                this.onDeleteAll();
+                return;
+            }
+
             condition.delete();
             this.condition.children.splice(this.condition.children.indexOf(condition), 1);
 

@@ -55,9 +55,11 @@ Component.register('sw-condition-base', {
         },
         disableContextDeleteButton() {
             const parent = this.conditionAssociations.getById(this.condition.parentId);
+            const parentElement = this.$parent;
 
             return this.condition.type === PLACEHOLDER_NAME
-                   && parent.children.length === 1;
+                   && parent.children.length === 1
+                   && parentElement.level <= 1;
         }
     },
 

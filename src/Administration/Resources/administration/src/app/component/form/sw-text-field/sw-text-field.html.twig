@@ -1,8 +1,8 @@
 {% block sw_text_field %}
     <div class="sw-field" :class="fieldClasses">
         {% block sw_text_field_label %}
-            <label v-if="label" :for="id">
-                <slot name="label">{{ label }}</slot>
+            <label v-if="fieldLabel" :for="id">
+                <slot name="label">{{ fieldLabel }}</slot>
             </label>
         {% endblock %}
         {% block sw_text_field_input %}
@@ -11,7 +11,7 @@
                        :id="id"
                        ref="textfield"
                        :name="displayName"
-                       :placeholder="placeholder"
+                       :placeholder="fieldPlaceholder"
                        :disabled="disabled ? 'disabled' : false"
                        @change="onChange"
                        @input="onInput"
@@ -21,7 +21,8 @@
 
                 {% block sw_text_field_copyable %}
                     <sw-field-copyable v-if="copyAble"
-                                       :displayName="displayName"></sw-field-copyable>
+                                       :displayName="displayName">
+                    </sw-field-copyable>
                 {% endblock %}
             </div>
         {% endblock %}

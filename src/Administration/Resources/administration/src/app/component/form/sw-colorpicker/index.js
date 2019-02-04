@@ -14,12 +14,6 @@ export default {
             default: ''
         },
 
-        label: {
-            type: String,
-            required: false,
-            default: ''
-        },
-
         disabled: {
             type: Boolean,
             required: false,

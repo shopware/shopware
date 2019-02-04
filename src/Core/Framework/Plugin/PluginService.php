@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Composer\IO\IOInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Changelog\ChangelogParserInterface;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider;
@@ -35,16 +37,23 @@ class PluginService
      */
     private $composerPackageProvider;
 
+    /**
+     * @var ChangelogParserInterface
+     */
+    private $changelogParser;
+
     public function __construct(
         string $pluginPath,
         EntityRepositoryInterface $pluginRepo,
         EntityRepositoryInterface $languageRepo,
-        ComposerPackageProvider $composerPackageProvider
+        ComposerPackageProvider $composerPackageProvider,
+        ChangelogParserInterface $changelogParser
     ) {
         $this->pluginPath = $pluginPath;
         $this->pluginRepo = $pluginRepo;
         $this->languageRepo = $languageRepo;
         $this->composerPackageProvider = $composerPackageProvider;
+        $this->changelogParser = $changelogParser;
     }
 
     /**
@@ -94,6 +103,17 @@ class PluginService
             $pluginData = $this->getTranslation($extra, $pluginData, 'description', 'description', $shopwareContext);
             $pluginData = $this->getTranslation($extra, $pluginData, 'manufacturerLink', 'manufacturerLink', $shopwareContext);
             $pluginData = $this->getTranslation($extra, $pluginData, 'supportLink', 'supportLink', $shopwareContext);
+
+            if ($changelogFiles = $this->getChangelogFiles($pluginPath)) {
+                foreach ($changelogFiles as $file) {
+                    $languageId = $this->getLanguageIdForLocale(
+                        $this->getLocaleFromChangelogFile($file),
+                        $shopwareContext
+                    );
+
+                    $pluginData['translations'][$languageId]['changelog'] = $this->changelogParser->parseChangelog($file);
+                }
+            }
 
             /** @var PluginEntity $currentPluginEntity */
             $currentPluginEntity = $installedPlugins->filterByProperty('name', $pluginName)->first();
@@ -194,5 +214,31 @@ class PluginService
         $languageEntity = $result->first();
 
         return $languageEntity->getId();
+    }
+
+    private function getChangelogFiles(string $pluginPath): array
+    {
+        $finder = new Finder();
+
+        $finder->files()->in($pluginPath)->name('CHANGELOG.md')->name('CHANGELOG-??_??.md');
+
+        $files = [];
+
+        foreach ($finder as $file) {
+            $files[] = $file->getRealPath();
+        }
+
+        return $files;
+    }
+
+    private function getLocaleFromChangelogFile($file): string
+    {
+        $fileName = basename($file, '.md');
+
+        if ($fileName === 'CHANGELOG') {
+            return Defaults::LOCALE_EN_GB_ISO;
+        }
+
+        return substr($fileName, strpos($fileName, '-') + 1, 5);
     }
 }

@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\IO\NullIO;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -57,13 +59,37 @@ class PluginServiceTest extends TestCase
         self::assertNull($plugin->getUpgradeVersion());
         self::assertNull($plugin->getInstalledAt());
         self::assertNull($plugin->getUpgradedAt());
-        self::assertNull($plugin->getChangelog());
         self::assertSame('shopware AG', $plugin->getAuthor());
         self::assertSame('(c) by shopware AG', $plugin->getCopyright());
         self::assertSame('MIT', $plugin->getLicense());
         self::assertSame('English description', $plugin->getDescription());
         self::assertSame('https://www.test.com/', $plugin->getManufacturerLink());
         self::assertSame('https://www.test.com/support', $plugin->getSupportLink());
+        self::assertSame($this->getValidEnglishChangelog(), $plugin->getChangelog());
+    }
+
+    public function testRefreshPluginsWithGermanContext(): void
+    {
+        $context = new Context(new SourceContext(), [Defaults::CATALOG], [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE]);
+
+        $this->pluginService->refreshPlugins($context, new NullIO());
+
+        /** @var PluginEntity $plugin */
+        $plugin = $this->pluginRepo->search(new Criteria(), $context)->first();
+
+        $this->performDefaultGermanTests($plugin);
+        self::assertNotNull($plugin->getCreatedAt());
+        self::assertNull($plugin->getUpdatedAt());
+        self::assertNull($plugin->getUpgradeVersion());
+        self::assertNull($plugin->getInstalledAt());
+        self::assertNull($plugin->getUpgradedAt());
+        self::assertSame('shopware AG', $plugin->getAuthor());
+        self::assertSame('(c) by shopware AG', $plugin->getCopyright());
+        self::assertSame('MIT', $plugin->getLicense());
+        self::assertSame('Deutsche Beschreibung', $plugin->getDescription());
+        self::assertSame('https://www.test.de/', $plugin->getManufacturerLink());
+        self::assertSame('https://www.test.de/support', $plugin->getSupportLink());
+        self::assertSame($this->getValidGermanChangelog(), $plugin->getChangelog());
     }
 
     public function testRefreshPluginsExistingWithPluginUpdate(): void
@@ -140,5 +166,40 @@ class PluginServiceTest extends TestCase
         self::assertSame(\SwagTest\SwagTest::PLUGIN_NAME, $plugin->getName());
         self::assertSame(\SwagTest\SwagTest::PLUGIN_LABEL, $plugin->getLabel());
         self::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getVersion());
+    }
+
+    private function performDefaultGermanTests(PluginEntity $plugin)
+    {
+        self::assertSame(\SwagTest\SwagTest::PLUGIN_NAME, $plugin->getName());
+        self::assertSame(\SwagTest\SwagTest::PLUGIN_GERMAN_LABEL, $plugin->getLabel());
+        self::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getVersion());
+    }
+
+    private function getValidEnglishChangelog(): array
+    {
+        return [
+            '1.0.0' => [
+                0 => 'initialized SwagTest',
+                1 => 'refactored composer.json',
+            ],
+            '1.0.1' => [
+                0 => 'added migrations',
+                1 => 'done nothing',
+            ],
+        ];
+    }
+
+    private function getValidGermanChangelog(): array
+    {
+        return [
+            '1.0.0' => [
+                0 => 'SwagTest initialisiert',
+                1 => 'composer.json angepasst',
+            ],
+            '1.0.1' => [
+                0 => 'Migrationen hinzugefügt',
+                1 => 'nichts gemacht',
+            ],
+        ];
     }
 }

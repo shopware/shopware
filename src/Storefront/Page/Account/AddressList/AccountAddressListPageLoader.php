@@ -4,11 +4,12 @@ namespace Shopware\Storefront\Page\Account\AddressList;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AccountAddressListPageLoader
+class AccountAddressListPageLoader implements PageLoaderInterface
 {
     /**
      * @var AccountAddressListPageletLoader

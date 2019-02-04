@@ -4,10 +4,11 @@ namespace Shopware\Storefront\Page\Account\Overview;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AccountOverviewPageLoader
+class AccountOverviewPageLoader implements PageLoaderInterface
 {
     /**
      * @var PageWithHeaderLoader

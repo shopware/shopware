@@ -2,9 +2,11 @@ import { Module } from 'src/core/shopware';
 import './component/sw-navigation-tree';
 import './component/sw-navigation-view';
 import './page/sw-navigation-detail';
+import { NEXT1594 } from '../../flag/feature_next1594';
 
 Module.register('sw-navigation', {
     type: 'core',
+    flag: NEXT1594,
     name: 'Navigations',
     description: 'The module for managing navigations.',
     version: '1.0.0',

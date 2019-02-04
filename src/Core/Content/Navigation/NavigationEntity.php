@@ -7,6 +7,7 @@ use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationT
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeAwareInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class NavigationEntity extends Entity implements TreeAwareInterface
 {
@@ -71,6 +72,11 @@ class NavigationEntity extends Entity implements TreeAwareInterface
      * @var CategoryEntity|null
      */
     protected $category;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
 
     public function getParentId(): ?string
     {
@@ -190,5 +196,15 @@ class NavigationEntity extends Entity implements TreeAwareInterface
     public function setCategory(?CategoryEntity $category): void
     {
         $this->category = $category;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

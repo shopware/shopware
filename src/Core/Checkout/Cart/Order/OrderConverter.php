@@ -95,7 +95,10 @@ class OrderConverter
             }
             throw new DeliveryWithoutAddressException();
         }
-        $data = CartTransformer::transform($cart, $context);
+        $data = CartTransformer::transform($cart,
+            $context,
+            $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context->getContext())->getId()
+        );
 
         if ($conversionContext->shouldIncludeCustomer()) {
             $data['orderCustomer'] = CustomerTransformer::transform($context->getCustomer());
@@ -110,7 +113,7 @@ class OrderConverter
             $data['deliveries'] = DeliveryTransformer::transformCollection(
                 $cart->getDeliveries(),
                 $convertedLineItems,
-                $this->stateMachineRegistry,
+                $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context->getContext())->getId(),
                 $context->getContext(),
                 $shippingAddresses
             );
@@ -130,7 +133,9 @@ class OrderConverter
         }
 
         if ($conversionContext->shouldIncludeTransactions()) {
-            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions(), $this->stateMachineRegistry, $context->getContext());
+            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions(),
+                $this->stateMachineRegistry->getInitialState(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context->getContext())->getId(),
+                $context->getContext());
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
@@ -140,8 +145,6 @@ class OrderConverter
         if ($idStruct !== null) {
             $data['id'] = $idStruct->getId();
         }
-
-        $data['stateId'] = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context->getContext())->getId();
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
 

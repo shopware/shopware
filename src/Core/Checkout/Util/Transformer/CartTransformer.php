@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Random;
 
 class CartTransformer
 {
-    public static function transform(Cart $cart, CheckoutContext $context): array
+    public static function transform(Cart $cart, CheckoutContext $context, string $stateId): array
     {
         $currency = $context->getCurrency();
 
@@ -18,7 +18,7 @@ class CartTransformer
             'date' => (new DateTime())->format(Defaults::DATE_FORMAT),
             'price' => $cart->getPrice(),
             'shippingCosts' => $cart->getShippingCosts(),
-            'stateId' => Defaults::ORDER_STATE_OPEN,
+            'stateId' => $stateId,
             'paymentMethodId' => $context->getPaymentMethod()->getId(),
             'currencyId' => $currency->getId(),
             'currencyFactor' => $currency->getFactor(),

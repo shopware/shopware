@@ -4,6 +4,7 @@ namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
@@ -50,6 +51,21 @@ class StateMachineEntity extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var StateMachineHistoryCollection|null
+     */
+    protected $historyEntries;
+
+    public function getHistoryEntries(): ?StateMachineHistoryCollection
+    {
+        return $this->historyEntries;
+    }
+
+    public function setHistoryEntries(?StateMachineHistoryCollection $historyEntries): void
+    {
+        $this->historyEntries = $historyEntries;
+    }
 
     public function getTechnicalName(): string
     {

@@ -7,14 +7,18 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,14 +32,19 @@ class OrderActionControllerTest extends TestCase
     private $stateMachineRegistry;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $stateMachineHistoryRepository;
 
     public function setUp(): void
     {
@@ -44,6 +53,7 @@ class OrderActionControllerTest extends TestCase
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->stateMachineHistoryRepository = $this->getContainer()->get('state_machine_history.repository');
     }
 
     public function testOrderNotFoundException(): void
@@ -90,6 +100,7 @@ class OrderActionControllerTest extends TestCase
 
         $actionUrl = $response['transitions'][0]['url'];
         $transitionTechnicalName = $response['transitions'][0]['technicalName'];
+        $startStateTechnicalName = $response['currentState']['technicalName'];
 
         $this->getClient()->request('POST', $actionUrl);
 
@@ -100,18 +111,34 @@ class OrderActionControllerTest extends TestCase
         static::assertEquals($orderId, $response['data']['id']);
 
         $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
+        // $newStateTechnicalName = $response['data']['relationships']['stateMachineState']['data']['technicalName'];
         static::assertNotNull($stateId);
 
-        $actualTechnicalName = null;
+        $destinationStateTechnicalName = null;
 
         foreach ($response['included'] as $relationship) {
             if ($relationship['type'] === StateMachineStateDefinition::getEntityName()) {
-                $actualTechnicalName = $relationship['attributes']['technicalName'];
+                $destinationStateTechnicalName = $relationship['attributes']['technicalName'];
                 break;
             }
         }
 
-        static::assertEquals($transitionTechnicalName, $actualTechnicalName);
+        static::assertEquals($transitionTechnicalName, $destinationStateTechnicalName);
+
+        // test whether the state history was written
+        /** @var StateMachineHistoryCollection $history */
+        $history = $this->stateMachineHistoryRepository->search(new Criteria(), $context);
+
+        static::assertEquals(1, \count($history->getElements()), 'Expected history to be written');
+        /** @var StateMachineHistoryEntity $historyEntry */
+        $historyEntry = array_values($history->getElements())[0];
+
+        static::assertEquals($startStateTechnicalName, $historyEntry->getFromStateMachineState()->getTechnicalName());
+        static::assertEquals($destinationStateTechnicalName, $historyEntry->getToStateMachineState()->getTechnicalName());
+
+        static::assertEquals(OrderDefinition::getEntityName(), $historyEntry->getEntityName());
+        static::assertEquals($orderId, $historyEntry->getEntityId()['id']);
+        static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getEntityId()['version_id']);
     }
 
     public function testTransitionToNotAllowedState(): void

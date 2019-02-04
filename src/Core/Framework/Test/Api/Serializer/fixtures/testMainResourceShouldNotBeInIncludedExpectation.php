@@ -44,6 +44,12 @@ return [
                     'related' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c/locale',
                 ],
             ],
+            'stateMachineHistoryEntries' => [
+                'data' => [],
+                'links' => [
+                    'related' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c/state-machine-history-entries',
+                ],
+            ],
         ],
         'meta' => null,
     ],

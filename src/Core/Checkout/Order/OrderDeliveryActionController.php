@@ -8,14 +8,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\StateMachine\IllegalTransitionException;
+use Shopware\Core\Framework\StateMachine\StateMachineNotFoundException;
 use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,69 +22,50 @@ use Symfony\Component\Routing\Annotation\Route;
 class OrderDeliveryActionController extends AbstractController
 {
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
-    private $orderDeliveryRepository;
+    protected $orderDeliveryRepository;
 
     /**
      * @var StateMachineRegistry
      */
-    private $stateMachineRegistry;
+    protected $stateMachineRegistry;
 
-    public function __construct(EntityRepository $orderDeliveryRepository, StateMachineRegistry $stateMachineRegistry)
+    public function __construct(EntityRepositoryInterface $orderDeliveryRepository, StateMachineRegistry $stateMachineRegistry)
     {
         $this->orderDeliveryRepository = $orderDeliveryRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**
-     * @Route("/api/v{version}/order-delivery/{deliveryId}/actions/state", name="api.order_delivery.get_state", methods={"GET"})
+     * @Route("/api/v{version}/_action/order-delivery/{deliveryId}/state", name="api.action.order_delivery.state", methods={"GET"})
+     *
+     * @throws StateMachineNotFoundException
+     * @throws ResourceNotFoundException
+     * @throws InconsistentCriteriaIdsException
      */
     public function getAvailableTransitions(Request $request, Context $context, string $deliveryId): Response
     {
         $delivery = $this->getOrderDelivery($deliveryId, $context);
-        $stateMachine = $this->stateMachineRegistry->getStateMachine(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context);
 
-        $transitions = [];
-        $baseUrl = $this->generateUrl('api.order_delivery.transition_state', [
+        $baseUrl = $this->generateUrl('api.action.order_delivery.transition_state', [
             'deliveryId' => $delivery->getId(),
             'version' => $request->get('version'),
         ]);
 
-        $currentState = null;
-
-        /** @var StateMachineStateEntity $place */
-        foreach ($stateMachine->getStates()->getElements() as $place) {
-            if ($place->getTechnicalName() === $delivery->getStateMachineState()->getTechnicalName()) {
-                $currentState = [
-                    'name' => $place->getName(),
-                    'technicalName' => $place->getTechnicalName(),
-                ];
-            }
-        }
-
-        /** @var StateMachineTransitionEntity $transition */
-        foreach ($stateMachine->getTransitions()->getElements() as $transition) {
-            if ($transition->getFromStateMachineState()->getTechnicalName() !== $delivery->getStateMachineState()->getTechnicalName()) {
-                continue;
-            }
-
-            $transitions[] = [
-                'name' => $transition->getToStateMachineState()->getName(),
-                'technicalName' => $transition->getToStateMachineState()->getTechnicalName(),
-                'actionName' => $transition->getActionName(),
-                'url' => $baseUrl . '/' . $transition->getActionName(),
-            ];
-        }
-
-        return new JsonResponse([
-            'currentState' => $currentState,
-            'transitions' => $transitions,
-        ]);
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(Defaults::ORDER_DELIVERY_STATE_MACHINE,
+            $delivery->getStateMachineState()->getTechnicalName(),
+            $baseUrl,
+            $context);
     }
 
     /**
-     * @Route("/api/v{version}/order-delivery/{deliveryId}/actions/state/{transition?}", name="api.order_delivery.transition_state", methods={"POST"})
+     * @Route("/api/v{version}/_action/order-delivery/{deliveryId}/state/{transition?}", name="api.action.order_delivery.transition_state", methods={"POST"})
+     *
+     * @throws StateMachineNotFoundException
+     * @throws IllegalTransitionException
+     * @throws ResourceNotFoundException
+     * @throws InconsistentCriteriaIdsException
      */
     public function transitionOrderState(
         Request $request,
@@ -96,16 +76,12 @@ class OrderDeliveryActionController extends AbstractController
     ): Response {
         $delivery = $this->getOrderDelivery($deliveryId, $context);
 
-        if (empty($transition)) {
-            $transitions = $this->stateMachineRegistry->getAvailableTransitions(Defaults::ORDER_DELIVERY_STATE_MACHINE, $delivery->getStateMachineState()->getTechnicalName(), $context);
-            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
-                return $transition->getActionName();
-            }, $transitions);
-
-            throw new IllegalTransitionException($delivery->getStateMachineState()->getName(), '', $transitionNames);
-        }
-
-        $toPlace = $this->stateMachineRegistry->transition(Defaults::ORDER_DELIVERY_STATE_MACHINE, $delivery->getStateMachineState()->getTechnicalName(), $transition, $context);
+        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context),
+            $delivery->getStateMachineState(),
+            OrderDeliveryDefinition::getEntityName(),
+            $delivery->getId(),
+            $context,
+            $transition);
 
         $payload = [
             ['id' => $delivery->getId(), 'stateId' => $toPlace->getId()],
@@ -119,6 +95,10 @@ class OrderDeliveryActionController extends AbstractController
         return $responseFactory->createDetailResponse($delivery, OrderDeliveryDefinition::class, $request, $context);
     }
 
+    /**
+     * @throws ResourceNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     */
     private function getOrderDelivery(string $id, Context $context): OrderDeliveryEntity
     {
         $result = $this->orderDeliveryRepository->search(new Criteria([$id]), $context);

@@ -2,19 +2,23 @@
 
 namespace Shopware\Core\Checkout\Test\Order;
 
+use Composer\Repository\RepositoryInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,6 +46,11 @@ class OrderDeliveryActionControllerTest extends TestCase
      */
     private $orderDeliveryRepository;
 
+    /**
+     * @var RepositoryInterface
+     */
+    private $stateMachineHistoryRepository;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -50,11 +59,12 @@ class OrderDeliveryActionControllerTest extends TestCase
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $this->stateMachineHistoryRepository = $this->getContainer()->get('state_machine_history.repository');
     }
 
     public function testOrderNotFoundException(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order-delivery/20080911ffff4fffafffffff19830531/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/action/order-delivery/20080911ffff4fffafffffff19830531/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -70,7 +80,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $deliveryId = $this->createOrderDelivery($orderId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order-delivery/' . $deliveryId . '/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-delivery/' . $deliveryId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -80,7 +90,7 @@ class OrderDeliveryActionControllerTest extends TestCase
 
         static::assertCount(3, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
-        static::assertStringEndsWith('/order-delivery/' . $deliveryId . '/actions/state/cancel', $response['transitions'][0]['url']);
+        static::assertStringEndsWith('/order-delivery/' . $deliveryId . '/state/cancel', $response['transitions'][0]['url']);
     }
 
     public function testTransitionToAllowedState(): void
@@ -90,13 +100,14 @@ class OrderDeliveryActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $deliveryId = $this->createOrderDelivery($orderId, $context);
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order-delivery/' . $deliveryId . '/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-delivery/' . $deliveryId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         $actionUrl = $response['transitions'][0]['url'];
         $transitionTechnicalName = $response['transitions'][0]['technicalName'];
+        $startStateTechnicalName = $response['currentState']['technicalName'];
 
         $this->getClient()->request('POST', $actionUrl);
 
@@ -109,16 +120,31 @@ class OrderDeliveryActionControllerTest extends TestCase
         $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
         static::assertNotNull($stateId);
 
-        $actualTechnicalName = null;
+        $destinationStateTechnicalName = null;
 
         foreach ($response['included'] as $relationship) {
             if ($relationship['type'] === StateMachineStateDefinition::getEntityName()) {
-                $actualTechnicalName = $relationship['attributes']['technicalName'];
+                $destinationStateTechnicalName = $relationship['attributes']['technicalName'];
                 break;
             }
         }
 
-        static::assertEquals($transitionTechnicalName, $actualTechnicalName);
+        static::assertEquals($transitionTechnicalName, $destinationStateTechnicalName);
+
+        // test whether the state history was written
+        /** @var StateMachineHistoryCollection $history */
+        $history = $this->stateMachineHistoryRepository->search(new Criteria(), $context);
+
+        static::assertEquals(1, \count($history->getElements()), 'Expected history to be written');
+        /** @var StateMachineHistoryEntity $historyEntry */
+        $historyEntry = array_values($history->getElements())[0];
+
+        static::assertEquals($startStateTechnicalName, $historyEntry->getFromStateMachineState()->getTechnicalName());
+        static::assertEquals($destinationStateTechnicalName, $historyEntry->getToStateMachineState()->getTechnicalName());
+
+        static::assertEquals(OrderDeliveryDefinition::getEntityName(), $historyEntry->getEntityName());
+        static::assertEquals($deliveryId, $historyEntry->getEntityId()['id']);
+        static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getEntityId()['version_id']);
     }
 
     public function testTransitionToNotAllowedState(): void
@@ -128,7 +154,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $deliveryId = $this->createOrderDelivery($orderId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/order-delivery/' . $deliveryId . '/actions/state/foo');
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-delivery/' . $deliveryId . '/state/foo');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -144,7 +170,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $deliveryId = $this->createOrderDelivery($orderId, $context);
 
-        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/order-delivery/' . $deliveryId . '/actions/state');
+        $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order-delivery/' . $deliveryId . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);

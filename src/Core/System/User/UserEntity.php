@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 
 class UserEntity extends Entity
@@ -80,6 +81,21 @@ class UserEntity extends Entity
      * @var UserAccessKeyCollection|null
      */
     protected $accessKeys;
+
+    /**
+     * @var StateMachineHistoryCollection|null
+     */
+    protected $stateMachineHistoryEntries;
+
+    public function getStateMachineHistoryEntries(): ?StateMachineHistoryCollection
+    {
+        return $this->stateMachineHistoryEntries;
+    }
+
+    public function setStateMachineHistoryEntries(?StateMachineHistoryCollection $stateMachineHistoryEntries): void
+    {
+        $this->stateMachineHistoryEntries = $stateMachineHistoryEntries;
+    }
 
     public function getLocaleId(): string
     {

@@ -38,7 +38,8 @@
                         <sw-button class="sw-condition-or-container__actions--delete"
                                    :disabled="disabledDeleteButton"
                                    @click="onDeleteAll">
-                            {{ $tc('global.sw-condition.condition.deleteConditions') }}
+                            <span v-if="level !== 0">{{ $tc('global.sw-condition.condition.deleteConditions') }}</span>
+                            <span v-else>{{ $tc('global.sw-condition.condition.deleteAllConditions') }}</span>
                         </sw-button>
                     </div>
                 {% endblock %}

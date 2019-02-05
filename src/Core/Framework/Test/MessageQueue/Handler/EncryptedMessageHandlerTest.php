@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue\Handler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
-use Shopware\Core\Framework\Test\MessageQueue\TestMessage;
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -14,6 +14,17 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 class EncryptedMessageHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public function testGetHandledMessages()
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $handler = new EncryptedMessageHandler($bus, $this->getContainer()->get('shopware.private_key'));
+
+        $subscribedMessages = $handler::getHandledMessages();
+
+        static::assertCount(1, $subscribedMessages);
+        static::assertEquals(EncryptedMessage::class, $subscribedMessages[0]);
+    }
 
     public function testItDecryptsEncryptedMessage()
     {

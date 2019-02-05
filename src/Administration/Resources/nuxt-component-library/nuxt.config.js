@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const fileParser = require(__dirname + '/lib/file-parser');
+const process = require('process');
 
 function getPathFromRoot(directory) {
-    return path.join(__dirname, '../../../../../../../', directory);
+    return path.join(process.env.PROJECT_ROOT, directory);
 }
 
 console.log();

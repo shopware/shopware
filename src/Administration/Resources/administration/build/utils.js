@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const merge = require('webpack-merge');
 const dotenv = require('dotenv');
 const fs = require('fs');
+const process = require('process');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -15,7 +16,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
  * @returns {String}
  */
 exports.resolveFromRootPath = function(directory) {
-    return path.join(__dirname, '../../../../../../../../', directory);
+    return path.join(process.env.PROJECT_ROOT, directory);
 };
 
 /**

@@ -10,9 +10,26 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TestKernel extends Kernel
 {
+    /**
+     * @var string
+     */
+    private $projectDir;
+
     public function getProjectDir()
     {
-        return __DIR__ . '/../../../../../../../../';
+        if ($this->projectDir === null) {
+            $r = new \ReflectionClass($_SERVER['KERNEL_CLASS']);
+            $dir = $rootDir = \dirname($r->getFileName());
+            while (!file_exists($dir . '/composer.json')) {
+                if ($dir === \dirname($dir)) {
+                    return $this->projectDir = $rootDir;
+                }
+                $dir = \dirname($dir);
+            }
+            $this->projectDir = $dir;
+        }
+
+        return $this->projectDir;
     }
 
     /**

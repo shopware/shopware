@@ -65,28 +65,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'versionId' => $master->headers->get(PlatformRequest::HEADER_VERSION_ID),
         ];
 
-        if ($sourceContext->getUserId()) {
-            $params = array_replace_recursive($params, $this->getUserParameters($sourceContext->getUserId()));
-        }
-
         $runtimeParams = $this->getRuntimeParameters($master);
         $params = array_replace_recursive($params, $runtimeParams);
 
         return $params;
-    }
-
-    private function getUserParameters(string $userId): array
-    {
-        return [];
-        $sql = <<<SQL
-SELECT '20080911ffff4fffafffffff19830531' as languageId, '20080911ffff4fffafffffff19830531' as currencyId
-FROM user
-WHERE id = :userId
-SQL;
-
-        $user = $this->connection->executeQuery($sql, ['userId' => Uuid::fromHexToBytes($userId)])->fetch();
-
-        return $user ?: [];
     }
 
     private function getRuntimeParameters(Request $request): array

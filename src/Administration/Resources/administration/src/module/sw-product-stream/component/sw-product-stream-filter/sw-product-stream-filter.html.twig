@@ -1,0 +1,54 @@
+{% block sw_condition_field_condition %}
+{% endblock %}
+
+{% block sw_condition_fields %}
+    <sw-select v-for="definition, index in definitions"
+               :key="index"
+               :store="getDefinitionStore(definition)"
+               v-model="fields[index].name"
+               itemValueKey="name"
+               :id="createId()"
+               class="field field--select field--condition"
+               :class="{ 'is--first' : !index }"
+               :required="true"
+               @input="selectFilter(index, $event)">
+    </sw-select>
+
+    <sw-select :store="getTypeStore()"
+               v-model="type"
+               :id="createId()"
+               itemValueKey="type"
+               displayName="name"
+               :criteria="operatorCriteria"
+               :required="true"
+               class="field field--select has--arrow"
+               @input="selectType">
+    </sw-select>
+
+    <sw-select v-if="lastField.entity && condition.type == 'equals'"
+               :store="getStore(lastField.entity)"
+               v-model="condition.value"
+               :required="true"
+               :id="createId()"
+               class="field field--select field--main">
+    </sw-select>
+    <sw-select v-else-if="lastField.entity && condition.type === 'equalsAny'"
+               multi
+               :store="getStore(lastField.entity)"
+               :associationStore="getStore(lastField.entity)"
+               v-model="multiValue"
+               :id="createId()"
+               class="field field--select field--multi field--main"
+               @input="updateTaggedValue">
+    </sw-select>
+    <sw-tagged-field v-else-if="condition.type == 'equalsAny'"
+                     v-model="multiValue"
+                     class="field field--multi field--main"
+                     @input="updateTaggedValue">
+    </sw-tagged-field>
+    <sw-field v-else
+              type="text"
+              class="field field--main"
+              v-model="condition.value">
+    </sw-field>
+{% endblock %}

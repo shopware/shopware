@@ -1,4 +1,5 @@
 import { Component, State } from 'src/core/shopware';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-shipping-country.html.twig';
 
 /**
@@ -11,17 +12,26 @@ import template from './sw-condition-shipping-country.html.twig';
  */
 Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
         operators() {
-            return this.conditionStore.operatorSets.multiStore;
+            const operators = {};
+            Object.values(this.ruleConditionDataProviderService.operatorSets.multiStore).forEach(operator => {
+                operators[operator.identifier] = operator;
+                operators[operator.identifier].meta = {
+                    viewData: { label: this.$tc(operator.label), identifier: this.$tc(operator.label) }
+                };
+            });
+
+            return new LocalStore(operators, 'identifier');
         },
         fieldNames() {
             return ['operator', 'countryIds'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

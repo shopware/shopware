@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-cart-amount.html.twig';
 
 /**
@@ -11,17 +12,26 @@ import template from './sw-condition-cart-amount.html.twig';
  */
 Component.extend('sw-condition-cart-amount', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
         operators() {
-            return this.conditionStore.operatorSets.number;
+            const operators = {};
+            Object.values(this.ruleConditionDataProviderService.operatorSets.number).forEach(operator => {
+                operators[operator.identifier] = operator;
+                operators[operator.identifier].meta = {
+                    viewData: { label: this.$tc(operator.label), identifier: this.$tc(operator.label) }
+                };
+            });
+
+            return new LocalStore(operators, 'identifier');
         },
         fieldNames() {
             return ['operator', 'amount'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

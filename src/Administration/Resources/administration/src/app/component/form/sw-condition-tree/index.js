@@ -1,8 +1,8 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-condition-tree.html.twig';
-
-const AND_CONTAINER_NAME = 'andContainer';
-const OR_CONTAINER_NAME = 'orContainer';
+import './sw-condition-base';
+import './sw-condition-and-container';
+import './sw-condition-or-container';
 
 export default {
     name: 'sw-condition-tree',
@@ -24,12 +24,8 @@ export default {
             type: Object,
             required: true
         },
-        conditionIdentifier: {
-            type: String,
-            required: true
-        },
-        entityName: {
-            type: String,
+        config: {
+            type: Object,
             required: true
         }
     },
@@ -39,7 +35,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.entityAssociationStore = this.entity.getAssociation(this.conditionIdentifier);
+            this.entityAssociationStore = this.entity.getAssociation(this.config.conditionIdentifier);
             this.entityAssociationStore.getList({
                 page: 1,
                 limit: 500,
@@ -54,8 +50,8 @@ export default {
                 if (current.parentId === parentId) {
                     const children = this.buildNestedConditions(conditions, current.id);
                     children.forEach((child) => {
-                        if (current.children.indexOf(child) === -1) {
-                            current.children.push(child);
+                        if (current[this.config.childName].indexOf(child) === -1) {
+                            current[this.config.childName].push(child);
                         }
                     });
 
@@ -69,14 +65,14 @@ export default {
         // todo: standardized container
         checkRootContainer(nestedConditions) {
             if (nestedConditions.length === 1
-                && nestedConditions[0].type === OR_CONTAINER_NAME) {
-                if (nestedConditions[0].children.length > 0) {
+                && this.config.isOrContainer(nestedConditions[0])) {
+                if (nestedConditions[0][this.config.childName].length > 0) {
                     return nestedConditions[0];
                 }
 
                 nestedConditions[0].children = [
                     this.createCondition(
-                        AND_CONTAINER_NAME,
+                        this.config.andContainer,
                         nestedConditions[0].id
                     )
                 ];
@@ -84,13 +80,13 @@ export default {
                 return nestedConditions[0];
             }
 
-            const rootCondition = this.createCondition(OR_CONTAINER_NAME, null);
+            const rootCondition = this.createCondition(this.config.orContainer, null);
             const subCondition = this.createCondition(
-                AND_CONTAINER_NAME,
+                this.config.andContainer,
                 rootCondition.id,
                 nestedConditions
             );
-            rootCondition.children = [subCondition];
+            rootCondition[this.config.childName] = [subCondition];
 
             if (!nestedConditions.length) {
                 return rootCondition;
@@ -107,18 +103,15 @@ export default {
             return rootCondition;
         },
 
-        createCondition(type, parentId, children = null) {
+        createCondition(conditionData, parentId, children) {
             const conditionId = utils.createId();
-            const conditionData = {
-                type: type,
-                parentId: parentId
-            };
+            conditionData.parentId = parentId;
 
             if (children) {
                 children.forEach((child) => {
                     child.parentId = conditionId;
                 });
-                conditionData.children = children;
+                conditionData[this.config.childName] = children;
             }
 
             return Object.assign(this.entityAssociationStore.create(conditionId), conditionData);

@@ -1,12 +1,12 @@
 {% block sw_condition_fields %}
     {% block sw_condition_fields_value %}
-        <sw-field type="select"
-                  name="isNew"
-                  v-model="isNew"
-                  class="field field--select field--main">
-            <option v-for="item in selectValues" :value="item.value">
-                {{ $tc(item.label) }}
-            </option>
-        </sw-field>
+        <sw-select name="operator"
+                   id="createId()"
+                   itemValueKey="value"
+                   displayName="label"
+                   :store="selectValues"
+                   v-model="isNew"
+                   class="field field--select field--main">
+        </sw-select>
     {% endblock %}
 {% endblock %}

@@ -1433,7 +1433,13 @@
       "buttonDelete": "Delete"
     },
     "filter": {
-      "valid": "Show only valid product streams"
+      "valid": "Show only valid product streams",
+      "type": {
+        "equals": "equals",
+        "equalsAny": "equals any",
+        "contains": "contains",
+        "range": "range"
+      }
     },
     "detail": {
       "titleCard": "Settings",

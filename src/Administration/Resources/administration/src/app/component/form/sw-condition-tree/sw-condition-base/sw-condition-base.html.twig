@@ -2,17 +2,17 @@
 <div class="sw-condition-base" :class="[conditionClass, { 'has--error': hasErrors }]">
     <div class="sw-condition-base__container">
         {% block sw_condition_field_condition %}
-            <sw-field type="select"
-                      name="type"
-                      v-model="condition.type"
-                      class="field field--select field--condition"
-                      :title="$tc(getLabel(condition.type))">
-                <option v-for="(innerCondition, innerConditionType) in conditionStore.getConditions()"
-                        :selected="innerConditionType === condition.type"
-                        :value="innerConditionType">
-                    {{ $tc(getLabel(innerConditionType)) }}
-                </option>
-            </sw-field>
+            <sw-select name="type"
+                       id="createId()"
+                       itemValueKey="name"
+                       displayName="label"
+                       :store="conditionStore"
+                       v-model="condition.type"
+                       :required="true"
+                       class="field field--select field--condition is--first"
+                       :title="$tc(getLabel(condition.type))"
+                       @input="conditionChanged">
+            </sw-select>
         {% endblock %}
 
         {% block sw_condition_fields %}

@@ -1,5 +1,6 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
@@ -17,7 +18,37 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             nestedConditions: {},
-            conditionStore: {}
+            conditionStore: {},
+            treeConfig: {
+                entityName: 'rule',
+                conditionIdentifier: 'conditions',
+                childName: 'children',
+                andContainer: {
+                    type: 'andContainer'
+                },
+                orContainer: {
+                    type: 'orContainer'
+                },
+                placeholder: {
+                    type: 'placeholder'
+                },
+                getComponent: (condition, callback) => {
+                    condition = this.conditionStore.getById(condition.type);
+                    if (!condition) {
+                        return 'sw-condition-not-found';
+                    }
+
+                    if (callback) {
+                        this.$nextTick(() => {
+                            callback(condition.component);
+                        });
+                    }
+                    return condition.component;
+                },
+                isAndContainer: (condition) => condition.type === 'andContainer',
+                isOrContainer: (condition) => condition.type === 'orContainer',
+                isPlaceholder: (condition) => condition.type === 'placeholder'
+            }
         };
     },
 
@@ -38,7 +69,17 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule = this.ruleStore.getById(this.$route.params.id);
-            this.conditionStore = this.ruleConditionDataProviderService;
+            const conditions = this.ruleConditionDataProviderService.getConditions();
+            Object.keys(conditions).forEach(key => {
+                conditions[key].meta = {
+                    viewData: {
+                        label: this.$tc(conditions[key].label),
+                        name: this.$tc(conditions[key].label)
+                    }
+                };
+                conditions[key].name = key;
+            });
+            this.conditionStore = new LocalStore(this.ruleConditionDataProviderService.getConditions(), 'name');
         },
 
         onSave() {

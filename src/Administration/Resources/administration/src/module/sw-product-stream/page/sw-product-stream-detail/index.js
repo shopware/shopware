@@ -1,6 +1,8 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin, State, Entity } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-product-stream-detail.html.twig';
+import './sw-product-stream-detail.scss';
 
 Component.register('sw-product-stream-detail', {
     template,
@@ -8,12 +10,56 @@ Component.register('sw-product-stream-detail', {
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('product-stream')
+        Mixin.getByName('discard-detail-page-changes')('product_stream')
     ],
 
     data() {
         return {
-            productStream: {}
+            productStream: {},
+            nestedFilters: {},
+            filterAssociations: {},
+            treeConfig: {
+                entityName: 'product-stream',
+                conditionIdentifier: 'filters',
+                childName: 'queries',
+                andContainer: {
+                    type: 'multi',
+                    operator: 'AND'
+                },
+                orContainer: {
+                    type: 'multi',
+                    operator: 'OR'
+                },
+                placeholder: {
+                    type: 'equals'
+                },
+                getComponent: (condition, callback) => {
+                    let component = 'sw-product-stream-filter';
+
+                    if (condition.type === 'multi') {
+                        component = 'sw-condition-and-container';
+
+                        if (condition.operator.toLowerCase() === 'or') {
+                            component = 'sw-condition-or-container';
+                        }
+                    }
+
+                    if (callback) {
+                        this.$nextTick(() => callback(component));
+                    }
+
+                    return component;
+                },
+                isAndContainer: (condition) => {
+                    return condition.type.toLowerCase() === 'multi' && condition.operator.toLowerCase() === 'and';
+                },
+                isOrContainer: (condition) => {
+                    return condition.type.toLowerCase() === 'multi' && condition.operator.toLowerCase() === 'or';
+                },
+                isPlaceholder: (condition) => {
+                    return condition.field === 'product' && !(condition.value || Object.keys(condition.parameters).length);
+                }
+            }
         };
     },
 
@@ -23,9 +69,6 @@ Component.register('sw-product-stream-detail', {
         },
         productStreamFilterStore() {
             return State.getStore('product_stream_filter');
-        },
-        filterAssociationStore() {
-            return this.productStream.getAssociation('filters');
         }
     },
 
@@ -52,16 +95,8 @@ Component.register('sw-product-stream-detail', {
         },
 
         loadEntityData() {
-            this.productStream = this.productStreamStore.getByIdAsync(this.productStreamId).then((productStream) => {
-                this.productStream = productStream;
-
-                this.filterAssociationStore.getList({
-                    page: 1,
-                    limit: 500,
-                    sortBy: 'position',
-                    sortDirection: 'ASC'
-                });
-            });
+            this.productStream = this.productStreamStore.getById(this.productStreamId);
+            this.filterAssociations = this.productStream.getAssociation('filters');
         },
 
         abortOnLanguageChange() {
@@ -74,6 +109,15 @@ Component.register('sw-product-stream-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        getDefinitionStore() {
+            const definition = Entity.getDefinition('product');
+            Object.keys(definition.properties).forEach((key) => {
+                definition.properties[key].name = key;
+            });
+
+            return new LocalStore(definition.properties, 'name');
         },
 
         onSave() {

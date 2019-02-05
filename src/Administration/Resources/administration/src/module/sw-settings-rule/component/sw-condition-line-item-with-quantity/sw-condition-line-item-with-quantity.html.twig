@@ -3,19 +3,21 @@
         <sw-select :store="getProductStore()"
                    name="id"
                    :id="condition.id"
-                   class="field sw-condition-line-item-with-quantity__id-select has--arrow"
+                   :required="true"
+                   class="field field--select field--main has--arrow"
                    v-model="condition.value.id">
         </sw-select>
     {% endblock %}
     {% block sw_condition_fields_operator %}
-        <sw-field type="select"
-                  name="operator"
-                  v-model="condition.value.operator"
-                  class="field field--select has--arrow">
-            <option v-for="operator in operators" :value="operator.identifier">
-                {{ $tc(operator.label) }}
-            </option>
-        </sw-field>
+        <sw-select name="operator"
+                   id="createId()"
+                   itemValueKey="identifier"
+                   displayName="label"
+                   :store="operators"
+                   :required="true"
+                   v-model="condition.value.operator"
+                   class="field field--select has--arrow">
+        </sw-select>
     {% endblock %}
     {% block sw_condition_fields_value %}
         <sw-field type="number"

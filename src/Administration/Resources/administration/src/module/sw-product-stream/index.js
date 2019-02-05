@@ -3,6 +3,7 @@ import './page/sw-product-stream-list';
 import './page/sw-product-stream-detail';
 import './page/sw-product-stream-create';
 import { NEXT739 } from 'src/flag/feature_next739';
+import './component/sw-product-stream-filter';
 
 Module.register('sw-product-stream', {
     type: 'core',

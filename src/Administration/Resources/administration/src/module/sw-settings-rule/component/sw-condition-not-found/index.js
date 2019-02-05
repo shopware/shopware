@@ -12,6 +12,7 @@ import './sw-condition-not-found.scss';
  */
 Component.extend('sw-condition-not-found', 'sw-condition-base', {
     template,
+
     computed: {
         errorMessage() {
             const fields = JSON.stringify(this.condition.value);

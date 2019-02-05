@@ -1429,7 +1429,13 @@
       "buttonDelete": "Löschen"
     },
     "filter": {
-      "valid": "Nur valide Produkt-Streams anzeigen"
+      "valid": "Nur valide Produkt-Streams anzeigen",
+      "type": {
+        "equals": "Gleich",
+        "equalsAny": "Einer von",
+        "contains": "Enthält",
+        "range": "Reichweite"
+      }
     },
     "detail": {
       "titleCard": "Einstellungen",

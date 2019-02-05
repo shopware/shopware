@@ -1,4 +1,5 @@
 import { Mixin, State } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
 
@@ -64,6 +65,9 @@ export default {
     },
 
     methods: {
+        createId() {
+            return utils.createId();
+        },
         checkErrors() {
             const values = Object.values(this.formErrors);
             this.hasErrors = values.length && values.filter(error => error.detail.length > 0).length;
@@ -90,7 +94,8 @@ export default {
             fieldNames.push('type');
 
             fieldNames.forEach(fieldName => {
-                const boundExpression = `${this.entityName}.${this.conditionIdentifier}.${this.condition.id}.${fieldName}`;
+                const boundExpression =
+                    `${this.config.entityName}.${this.config.conditionIdentifier}.${this.condition.id}.${fieldName}`;
                 this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
             });
 
@@ -115,7 +120,12 @@ export default {
         },
 
         getLabel(type) {
-            return this.conditionStore.getByType(type).label;
+            const condition = this.conditionStore.getById(type);
+            if (!condition) {
+                return 'global.sw-condition.condition.not-found.label';
+            }
+
+            return condition.label;
         },
         createdComponent() {
             if (!this.condition.value) {
@@ -146,6 +156,13 @@ export default {
                     this.condition.value[key] = this.defaultValues[key];
                 }
             });
+        },
+        conditionChanged(value) {
+            if (value) {
+                return;
+            }
+
+            this.$emit('delete-condition', this.condition);
         }
     }
 };

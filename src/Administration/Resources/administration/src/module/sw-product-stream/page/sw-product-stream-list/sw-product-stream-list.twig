@@ -139,7 +139,7 @@
                                                     {% endblock %}
 
                                                     {% block sw_product_stream_list_grid_columns_actions_duplicate %}
-                                                        <sw-context-menu-item :disabled="true">
+                                                        <sw-context-menu-item @click="onDuplicate(item.id)">
                                                             {{ $tc('sw-product-stream.list.contextMenuDuplicate') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}

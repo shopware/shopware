@@ -89,6 +89,17 @@ Component.register('sw-product-stream-list', {
             return this.productStreamStore.getById(id).delete(true).then(() => {
                 this.getList();
             });
+        },
+
+        onDuplicate(id) {
+            this.productStreamStore.apiService.clone(id).then((productStream) => {
+                this.$router.push(
+                    {
+                        name: 'sw.product.stream.detail',
+                        params: { id: productStream.id }
+                    }
+                );
+            });
         }
     }
 });

@@ -8,7 +8,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 class ChangelogParser implements ChangelogParserInterface
 {
     /**
-     * @throws PluginChangelogInvalidException
+     * {@inheritdoc}
      */
     public function parseChangelog(string $path): array
     {

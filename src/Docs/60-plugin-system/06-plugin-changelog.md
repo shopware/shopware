@@ -3,8 +3,8 @@
 
 ## Overview
 In this guide, you'll learn how to maintain local changelogs for your plugin.
-With `local changelogs` is meant, that these changelog's ship with your plugin and serve the purpose as a fallback,
-if for whatever reason the changelog's from the `Shopware Account` are not present.
+`Local changelogs` mean, that these changelogs are shipped with your plugin and serve as a fallback,
+if for whatever reason the changelogs from the `Shopware Account` are not present.
 Creating and maintaining a local changelog for your plugin is pretty straight forward.
 All you need to do is to create a `CHANGELOG.md` in the root of your plugin and stick to our markdown specifications.
 

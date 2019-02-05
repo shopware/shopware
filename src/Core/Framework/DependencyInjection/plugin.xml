@@ -18,7 +18,7 @@
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginLifecycleService">
@@ -33,6 +33,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
+
+        <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
+        </service>
 
         <!-- Commands -->
         <service id="Shopware\Core\Framework\Plugin\Command\PluginRefreshCommand">

@@ -3,7 +3,7 @@ class SearchPageObject {
         this.browser = browser;
 
         this.elements = {
-            searchInput: 'form-inline input[type="text"]'
+            searchInput: '.form-inline input[type="text"]'
         };
     }
 }

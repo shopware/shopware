@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\InternalRequest;
 
-class ImageTypeDatResolverTest extends TestCase
+class ImageTypeDataResolverTest extends TestCase
 {
     /**
      * @var ImageTypeDataResolver

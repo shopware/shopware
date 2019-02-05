@@ -71,9 +71,6 @@ class CmsBlockEntity extends Entity
         return $this->pageId;
     }
 
-    /**
-     * @param string $pageId
-     */
     public function setPageId(string $pageId): void
     {
         $this->pageId = $pageId;

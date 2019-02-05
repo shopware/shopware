@@ -99,7 +99,7 @@ class MonitoringBusDecorator implements MessageBusInterface
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('name', $name));
-        /** @var ?MessageQueueStatsEntity $queueSize */
+        /** @var MessageQueueStatsEntity|null $queueSize */
         $queueSize = $this->messageQueueRepository->search($criteria, $context)->first();
 
         if (!$queueSize) {

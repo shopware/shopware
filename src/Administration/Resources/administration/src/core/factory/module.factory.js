@@ -252,45 +252,32 @@ function createRouteComponentList(route, moduleId, module) {
         route.flag = module.flag;
     }
 
-    if (route.components && Object.keys(route.components).length) {
-        const componentList = {};
-
-        Object.keys(route.components).forEach((componentKey) => {
-            const component = route.components[componentKey];
-
-            // Don't register a component without a name
-            if (!component.length || component.length <= 0) {
-                warn(
-                    'ModuleFactory',
-                    `The route definition of module "${moduleId}" is not valid. 
-                        A route needs an assigned component name.`
-                );
-                return;
-            }
-
-            componentList[componentKey] = component;
-        });
-
-        route.components = componentList;
-
-        return route;
-    }
-
-    if (!route.component || !route.component.length) {
-        warn(
-            'ModuleFactory',
-            `The route definition of module "${moduleId}" is not valid. 
-                A route needs an assigned component name.`
-        );
-        return false;
-    }
-
-    route.components = {
-        default: route.component
-    };
-
     // Remove the component cause we remapped it to the components object of the route object
-    delete route.component;
+    if (route.component) {
+        route.components = {
+            default: route.component
+        };
+        delete route.component;
+    }
+
+    const componentList = {};
+    Object.keys(route.components).forEach((componentKey) => {
+        const component = route.components[componentKey];
+
+        // Don't register a component without a name
+        if (!component) {
+            warn(
+                'ModuleFactory',
+                `The route definition of module "${moduleId}" is not valid. 
+                    A route needs an assigned component name.`
+            );
+            return;
+        }
+
+        componentList[componentKey] = component;
+    });
+
+    route.components = componentList;
 
     return route;
 }

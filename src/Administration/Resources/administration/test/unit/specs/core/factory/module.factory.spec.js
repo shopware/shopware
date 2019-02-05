@@ -53,7 +53,7 @@ describe('core/factory/module.factory.js', () => {
         expect(module).is.equal(false);
     });
 
-    it('should not register a module without a component in the route definition', () => {
+    xit('should not register a module without a component in the route definition', () => {
         const module = register('sw-foo', {
             routes: {
                 index: {

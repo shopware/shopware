@@ -1476,5 +1476,11 @@
       "titleSaveSuccess": "Produkt Streams",
       "messageSaveSuccess": "Der Produkt Stream \"{name}\" wurde erfolgreich gespeichert."
     }
+  },
+  "sw-config-form-renderer": {
+    "placeholder": "Bitte {name} ausfüllen...",
+    "option": "Für die Sprache \"{locale}\" wurde kein label gesetzt...",
+    "configLoadErrorMessage": "Beim laden der Konfiguration ist ein Fehler aufgetreten: | Beim laden der Konfiguration sind Fehler aufgetreten:",
+    "configLoadErrorTitle": "Fehler beim laden der Konfiguration!"
   }
 }

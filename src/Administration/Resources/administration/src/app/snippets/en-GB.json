@@ -1475,5 +1475,11 @@
       "titleSaveSuccess": "Product streams",
       "messageSaveSuccess": "The product stream \"{name}\" was saved."
     }
+  },
+  "sw-config-form-renderer": {
+    "placeholder": "Please fill in {name}...",
+    "option": "No label set for locale \"{locale}\"...",
+    "configLoadErrorMessage": "There was one error while loading the configuration: | There where errors loading the configuration:",
+    "configLoadErrorTitle": "Error loading the configuration!"
   }
 }

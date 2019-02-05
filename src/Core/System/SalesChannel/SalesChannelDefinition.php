@@ -36,6 +36,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesC
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
+use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 
 class SalesChannelDefinition extends EntityDefinition
 {
@@ -88,6 +89,7 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('orders', OrderDefinition::class, 'sales_channel_id', false, 'id'),
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', false, 'id'),
             (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
         ]);
     }
 }

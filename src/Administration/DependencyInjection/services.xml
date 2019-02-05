@@ -21,5 +21,9 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <service id="Shopware\Administration\Controller\SystemConfigController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
+        </service>
     </services>
 </container>

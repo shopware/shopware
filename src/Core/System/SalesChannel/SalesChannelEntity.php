@@ -20,6 +20,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
 class SalesChannelEntity extends Entity
 {
@@ -168,6 +169,11 @@ class SalesChannelEntity extends Entity
      * @var SalesChannelDomainCollection|null
      */
     protected $domains;
+
+    /**
+     * @var SystemConfigCollection|null
+     */
+    protected $systemConfigs;
 
     public function getLanguageId(): string
     {
@@ -457,5 +463,15 @@ class SalesChannelEntity extends Entity
     public function setDomains(?SalesChannelDomainCollection $domains): void
     {
         $this->domains = $domains;
+    }
+
+    public function getSystemConfigs(): ?SystemConfigCollection
+    {
+        return $this->systemConfigs;
+    }
+
+    public function setSystemConfigs(SystemConfigCollection $systemConfigs): void
+    {
+        $this->systemConfigs = $systemConfigs;
     }
 }

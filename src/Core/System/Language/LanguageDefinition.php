@@ -12,7 +12,6 @@ use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDef
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -114,7 +113,6 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('salesChannelTranslations', SalesChannelTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('salesChannelTypeTranslations', SalesChannelTypeTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('searchDocuments', SearchDocumentDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('mediaFolderTranslations', MediaFolderTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('pluginTranslations', PluginTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productStreamTranslations', ProductStreamTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('stateMachineTranslations', StateMachineTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),

@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -67,11 +66,6 @@ class MediaFolderEntity extends Entity
      * @var MediaFolderCollection|null
      */
     protected $children;
-
-    /**
-     * @var MediaFolderTranslationCollection|null
-     */
-    protected $translations;
 
     /**
      * @var MediaDefaultFolderCollection|null
@@ -186,16 +180,6 @@ class MediaFolderEntity extends Entity
     public function setChildren(?MediaFolderCollection $children): void
     {
         $this->children = $children;
-    }
-
-    public function getTranslations(): ?MediaFolderTranslationCollection
-    {
-        return $this->translations;
-    }
-
-    public function setTranslations(?MediaFolderTranslationCollection $translations): void
-    {
-        $this->translations = $translations;
     }
 
     public function getDefaultFolders(): ?MediaDefaultFolderCollection

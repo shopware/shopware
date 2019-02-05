@@ -693,6 +693,32 @@ class WriterTest extends TestCase
         static::assertEquals($mediaId, $manufacturer->getMediaId());
     }
 
+    public function testWriteTranslatedEntityWithoutRequiredFieldsNotInSystemLanguage(): void
+    {
+        $mediaRepo = $this->getContainer()->get('media.repository');
+        $mediaId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext();
+        $context = new Context(
+            $context->getSourceContext(),
+            $context->getCatalogIds(),
+            $context->getRules(),
+            $context->getCurrencyId(),
+            [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]
+        );
+
+        $mediaRepo->create([
+            [
+                'id' => $mediaId,
+                'name' => 'media',
+            ],
+        ], $context);
+
+        static::assertEquals(
+            1,
+            $mediaRepo->search(new Criteria([$mediaId]), $context)->getEntities()->count()
+        );
+    }
+
     /**
      * @return WriteContext
      */

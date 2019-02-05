@@ -43,6 +43,21 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         return static::getParentDefinitionClass()::isVersionAware();
     }
 
+    public static function hasRequiredField(): bool
+    {
+        return static::getFields()
+                ->filterByFlag(Required::class)
+                ->filter(function (Field $field) {
+                    return !(
+                        $field instanceof FkField ||
+                        $field instanceof CreatedAtField ||
+                        $field instanceof UpdatedAtField
+                    );
+                })
+                ->count()
+            > 0;
+    }
+
     /**
      * @return Field[]
      */

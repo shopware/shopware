@@ -11,7 +11,6 @@ use Shopware\Core\Content\Catalog\Aggregate\CatalogTranslation\CatalogTranslatio
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderTranslation\MediaFolderTranslationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
@@ -207,11 +206,6 @@ class LanguageEntity extends Entity
      * @var SnippetCollection|null
      */
     protected $snippets;
-
-    /**
-     * @var MediaFolderTranslationCollection| null
-     */
-    protected $mediaFolderTranslations;
 
     /**
      * @var DiscountSurchargeTranslationCollection| null
@@ -601,16 +595,6 @@ class LanguageEntity extends Entity
     public function setSnippets(SnippetCollection $snippets): void
     {
         $this->snippets = $snippets;
-    }
-
-    public function getMediaFolderTranslations(): ?MediaFolderTranslationCollection
-    {
-        return $this->mediaFolderTranslations;
-    }
-
-    public function setMediaFolderTranslations(MediaFolderTranslationCollection $mediaFolderTranslations): void
-    {
-        $this->mediaFolderTranslations = $mediaFolderTranslations;
     }
 
     public function getSalesChannelDomains(): ?SalesChannelDomainCollection

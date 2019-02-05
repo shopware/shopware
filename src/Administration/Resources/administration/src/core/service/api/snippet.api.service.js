@@ -15,9 +15,10 @@ class SnippetApiService extends ApiService {
      * @returns {Promise<T>}
      */
     save(snippet) {
-        if (snippet.id === null) {
+        if (!snippet.hasOwnProperty('id') || snippet.id === null) {
             return this.create(snippet);
         }
+
         return this.updateById(snippet.id, snippet);
     }
 

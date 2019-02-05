@@ -1006,6 +1006,7 @@
       "errorBackRoutingMessage": "The requested page could not be loaded. You have been redirected.",
       "placeholderSearchBarSets": "Find snippet sets (name, base file)",
       "placeholderSearchBarSnippets": "Find snippets (name, content, section)",
+      "placeholderValue": "Define content",
       "searchBarTitleSets": "Snippet sets",
       "searchBarTitleSnippets": "Snippets"
     },
@@ -1022,7 +1023,6 @@
       "messageKeyExists": "Please choose a name | Snippets already exists for \"{key}\". Please choose a new name.",
       "messageSaveError": "Snippets for \"{key}\" could not be saved.",
       "messageSaveSuccess": "Snippets for \"{key}\" has been saved successfully.",
-      "placeholderValue": "Define content",
       "textHeadline": "New snippet",
       "titleSaveError": "Error: Snippets",
       "titleSaveSuccess": "Snippets"

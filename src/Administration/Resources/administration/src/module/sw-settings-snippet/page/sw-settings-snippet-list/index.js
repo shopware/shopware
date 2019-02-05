@@ -6,7 +6,7 @@ import './sw-settings-snippet-list.scss';
 Component.register('sw-settings-snippet-list', {
     template,
 
-    inject: ['snippetSetService', 'snippetService'],
+    inject: ['snippetSetService', 'snippetService', 'userService'],
 
     mixins: [
         Mixin.getByName('sw-settings-list')
@@ -21,9 +21,12 @@ Component.register('sw-settings-snippet-list', {
             resetItems: [],
             hasResetableItems: true,
             filterItems: [],
+            authorFilters: [],
             isCustomState: false,
             emptySnippets: false,
             appliedFilter: [],
+            appliedAuthors: [],
+            currentAuthor: '',
             emptyIcon: this.$route.meta.$module.icon
         };
     },
@@ -53,6 +56,10 @@ Component.register('sw-settings-snippet-list', {
                 return;
             }
 
+            this.userService.getUser().then((response) => {
+                this.currentAuthor = `user/${response.data.name}`;
+            });
+
             this.isLoading = true;
             this.queryIds = this.$route.query.ids;
             const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
@@ -61,13 +68,17 @@ Component.register('sw-settings-snippet-list', {
                 this.filterItems = response.data;
             });
 
+            this.snippetSetService.getAuthors().then((response) => {
+                this.authorFilters = response.data;
+            });
+
             const filter = {
-                isCustom: this.isCustomState,
-                emptySnippets: this.emptySnippets,
+                custom: this.isCustomState,
+                empty: this.emptySnippets,
                 term: this.term,
-                namespaces: this.appliedFilter,
-                authors: [],
-                translationKeys: []
+                namespace: this.appliedFilter,
+                author: this.appliedAuthors,
+                translationKey: []
             };
 
             this.snippetSetService.getCustomList(this.page, this.limit, filter).then((response) => {
@@ -119,6 +130,10 @@ Component.register('sw-settings-snippet-list', {
 
                 if (snippet.value === '') {
                     snippet.value = snippet.origin;
+                }
+
+                if (!snippet.hasOwnProperty('author') || snippet.author === '') {
+                    snippet.author = this.currentAuthor;
                 }
 
                 if (snippet.origin !== snippet.value) {
@@ -301,30 +316,42 @@ Component.register('sw-settings-snippet-list', {
 
         onChange(field) {
             this.page = 1;
-
-            if (field.name === 'customSnippets') {
+            if (field.group === 'customSnippets') {
                 this.isCustomState = field.value;
                 this.initializeSnippetSet();
                 return;
             }
 
-            if (field.name === 'emptySnippets') {
+            if (field.group === 'emptySnippets') {
                 this.emptySnippets = field.value;
                 this.initializeSnippetSet();
                 return;
             }
 
+            let selector = 'appliedFilter';
+            if (field.group === 'authorFilter') {
+                selector = 'appliedAuthors';
+            }
+
             if (field.value) {
-                if (this.appliedFilter.indexOf(field.name) !== -1) {
+                if (this[selector].indexOf(field.name) !== -1) {
                     return;
                 }
 
-                this.appliedFilter.push(field.name);
+                this[selector].push(field.name);
                 this.initializeSnippetSet();
                 return;
             }
 
-            this.appliedFilter.splice(this.appliedFilter.indexOf(field.name), 1);
+            this[selector].splice(this[selector].indexOf(field.name), 1);
+            this.initializeSnippetSet();
+        },
+
+        onSidebarClose() {
+            this.isCustomState = false;
+            this.emptySnippets = false;
+            this.appliedAuthors = [];
+            this.appliedFilter = [];
             this.initializeSnippetSet();
         }
     }

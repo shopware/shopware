@@ -100,7 +100,7 @@
                                                               :ref="`field-${item[metaId].translationKey}`"
                                                               :class="`field-${item[metaId].translationKey}`"
                                                               v-model="item[set.id].value"
-                                                              :placeholder="item[set.id].origin"
+                                                              :placeholder="item[set.id].origin || $tc('sw-settings-snippet.general.placeholderValue')"
                                                               slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
@@ -224,7 +224,9 @@
                                         <sw-settings-snippet-sidebar
                                                 @change="onChange"
                                                 @sw-sidebar-collaps-refresh-grid="getList"
-                                                :filterItems="filterItems">
+                                                @sw-sidebar-close="onSidebarClose"
+                                                :filterItems="filterItems"
+                                                :authorFilters="authorFilters">
                                         </sw-settings-snippet-sidebar>
                                     {% endblock %}
                                 </template>

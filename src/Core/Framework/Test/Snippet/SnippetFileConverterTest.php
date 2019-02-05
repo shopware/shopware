@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
-use Shopware\Core\Framework\Snippet\Services\SnippetFileConverter;
-use Shopware\Core\Framework\Snippet\Services\SnippetFlattener;
+use Shopware\Core\Framework\Snippet\SnippetFileConverter;
+use Shopware\Core\Framework\Snippet\SnippetFlattener;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
@@ -67,10 +67,10 @@ class SnippetFileConverterTest extends TestCase
     public function dataProviderForTestGetFileContent(): array
     {
         return [
-            [new SnippetFileMock(__DIR__ . '/../_fixtures/contentFile_1.json'), []],
-            [new SnippetFileMock(__DIR__ . '/../_fixtures/contentFile_2.json'), []],
-            [new SnippetFileMock(__DIR__ . '/../_fixtures/contentFile_3.json'), ['index' => []]],
-            [new SnippetFileMock(__DIR__ . '/../_fixtures/testLanguage.json'), ['frontend' => ['AccountLoginTitle' => 'Login']]],
+            [new SnippetFileMock(__DIR__ . '/_fixtures/contentFile_1.json'), []],
+            [new SnippetFileMock(__DIR__ . '/_fixtures/contentFile_2.json'), []],
+            [new SnippetFileMock(__DIR__ . '/_fixtures/contentFile_3.json'), ['index' => []]],
+            [new SnippetFileMock(__DIR__ . '/_fixtures/testLanguage.json'), ['frontend' => ['AccountLoginTitle' => 'Login']]],
         ];
     }
 
@@ -92,7 +92,7 @@ class SnippetFileMock implements SnippetFileInterface
     public $isBase;
 
     public function __construct(
-        string $path = __DIR__ . '/../_fixtures/test_three.json',
+        string $path = __DIR__ . '/_fixtures/test_three.json',
         string $name = 'SnippetFileMock',
         string $iso = 'en_GB',
         string $author = 'tests/shopware',

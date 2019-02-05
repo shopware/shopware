@@ -96,7 +96,6 @@ class TranslatorTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'translationKey' => 'foo',
             'value' => 'bar',
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'setId' => Defaults::SNIPPET_BASE_SET_EN,
             'author' => Defaults::SNIPPET_AUTHOR,
         ];

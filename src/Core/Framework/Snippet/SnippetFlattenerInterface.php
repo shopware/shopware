@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Snippet\Services;
-
-use Shopware\Core\Framework\Snippet\SnippetEntity;
+namespace Shopware\Core\Framework\Snippet;
 
 interface SnippetFlattenerInterface
 {
@@ -13,7 +11,7 @@ interface SnippetFlattenerInterface
      * from:    [a => [b => [c => 1]]]
      * to:      [a.b.c => 1]
      */
-    public function flatten(array $snippets, string $prefix = ''): array;
+    public function flatten(array $snippets, string $prefix = '', ?array $additionalParameters = null): array;
 
     /**
      * Unflattens a flatten array (explode by ".")

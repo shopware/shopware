@@ -20,6 +20,7 @@
                     {% block sw_settings_snippet_grid_sidebar_filter_only_empty %}
                         <sw-settings-snippet-boolean-filter-item
                                 name="emptySnippets"
+                                group="emptySnippets"
                                 type="small"
                                 :label="$tc('sw-settings-snippet.filter.showOnlyEmpty')"
                                 @change="onChange">
@@ -29,6 +30,7 @@
                     {% block sw_settings_snippet_grid_sidebar_filter_custom %}
                         <sw-settings-snippet-boolean-filter-item
                                 name="customSnippets"
+                                group="customSnippets"
                                 type="small"
                                 :label="$tc('sw-settings-snippet.list.textSidebarCustomItems')"
                                 @change="onChange">
@@ -38,7 +40,16 @@
                     {% block sw_settings_snippet_grid_sidebar_filter_author %}
                         <sw-sidebar-collapse>
                             <template slot="header">{{ $tc('sw-settings-snippet.filter.author') }}</template>
-                            <template slot="content"></template>
+                            <template slot="content">
+                                <div v-for="(item, index) in authorFilters">
+                                    <sw-settings-snippet-boolean-filter-item
+                                            :name="item"
+                                            group="authorFilter"
+                                            :label="item"
+                                            @change="onChange">
+                                    </sw-settings-snippet-boolean-filter-item>
+                                </div>
+                            </template>
                         </sw-sidebar-collapse>
                     {% endblock %}
 
@@ -49,6 +60,7 @@
                                 <div v-for="(item, index) in filterItems">
                                     <sw-settings-snippet-boolean-filter-item
                                             :name="item"
+                                            group="namespaceFilters"
                                             :label="item"
                                             @change="onChange">
                                     </sw-settings-snippet-boolean-filter-item>

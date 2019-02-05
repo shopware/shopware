@@ -1,14 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\Services;
+namespace Shopware\Core\Framework\Test\Snippet;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\Framework\Snippet\Services\SnippetFlattener;
-use Shopware\Core\Framework\Snippet\Services\SnippetService;
+use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
+use Shopware\Core\Framework\Snippet\SnippetFlattener;
+use Shopware\Core\Framework\Snippet\SnippetService;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\SnippetFileMock;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e1;
@@ -78,7 +79,7 @@ class SnippetServiceTest extends TestCase
         $service = $this->getSnippetService();
         $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'fillBlankSnippets');
 
-        $isoList = ['unit_TEST', 'en_GB'];
+        $isoList = ['unit_TEST' => 'unit_TEST', 'en_GB' => 'en_GB'];
 
         $expectedResult = $snippetList = [
             'unit_TEST' => [
@@ -93,14 +94,14 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        $result = $mehtod->invokeArgs($service, [$isoList, $snippetList]);
+        $result = $mehtod->invokeArgs($service, [$snippetList, $isoList]);
 
         static::assertSame($expectedResult, $result);
     }
 
     public function testFetchSnippetsFromDatabase()
     {
-        $sql = file_get_contents(__DIR__ . '/../_fixtures/snippets-for-searching.sql');
+        $sql = file_get_contents(__DIR__ . '/_fixtures/snippets-for-searching.sql');
         $this->getContainer()->get(Connection::class)->executeQuery($sql);
 
         $service = $this->getSnippetService();
@@ -126,31 +127,6 @@ class SnippetServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderForTestMergeSnippets
-     */
-    public function testMergeSnippets(array $fileSnippets, array $dbSnippets, $snippetSetId, $expectedResult)
-    {
-        $service = $this->getSnippetService();
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'mergeSnippets');
-
-        $result = $mehtod->invokeArgs($service, [$fileSnippets, $dbSnippets, $snippetSetId]);
-
-        static::assertArraySubset($expectedResult, $result);
-    }
-
-    public function dataProviderForTestMergeSnippets()
-    {
-        $parameter = require __DIR__ . '/../_fixtures/FileSnippets.php';
-
-        return [
-            [[], [], Defaults::SNIPPET_BASE_SET_EN, []],
-            [$parameter['set1'], $parameter['dbSet1'], Defaults::SNIPPET_BASE_SET_EN, $parameter['result1']],
-            [$parameter['set2'], $parameter['dbSet2'], Defaults::SNIPPET_BASE_SET_EN, $parameter['result2']],
-            [$parameter['set3'], $parameter['dbSet3'], Defaults::SNIPPET_BASE_SET_EN, $parameter['result3']],
-        ];
-    }
-
-    /**
      * @dataProvider DataProviderForTestMergeSnippetsComparison
      */
     public function testMergeSnippetsComparison(array $sets, $expectedResult)
@@ -165,7 +141,7 @@ class SnippetServiceTest extends TestCase
 
     public function DataProviderForTestMergeSnippetsComparison()
     {
-        $parameter = require __DIR__ . '/../_fixtures/SnippetComparison.php';
+        $parameter = require __DIR__ . '/_fixtures/SnippetComparison.php';
 
         return [
             [[], []],
@@ -182,19 +158,19 @@ class SnippetServiceTest extends TestCase
         $snippetFileMock = new SnippetFileMock();
 
         $expectedResult = [
-            'only.possible.with.unitTests.test1' => 'this is test 1.',
-            'only.possible.with.unitTests.test2' => 'this is test 2.',
-            'only.possible.with.unitTests.test3' => 'this is test 3.',
-            'only.possible.with.unitTests.test4' => 'this is test 4.',
-            'only.possible.with.unitTests.test5' => 'this is test 5.',
-            'only.possible.with.unitTests.test6' => 'this is test 6.',
-            'only.possible.with.unitTests.test7' => 'this is test 7.',
-            'only.possible.with.unitTests.test8' => 'this is test 8.',
+            'only.possible.with.unitTests.test1' => ['value' => 'this is test 1.', 'origin' => 'this is test 1.', 'translationKey' => 'only.possible.with.unitTests.test1', 'setId' => 'setId'],
+            'only.possible.with.unitTests.test2' => ['value' => 'this is test 2.', 'origin' => 'this is test 2.', 'translationKey' => 'only.possible.with.unitTests.test2', 'setId' => 'setId'],
+            'only.possible.with.unitTests.test3' => ['value' => 'this is test 3.', 'origin' => 'this is test 3.', 'translationKey' => 'only.possible.with.unitTests.test3', 'setId' => 'setId'],
+            'only.possible.with.unitTests.test4' => ['value' => 'this is test 4.', 'origin' => 'this is test 4.', 'translationKey' => 'only.possible.with.unitTests.test4', 'setId' => 'setId'],
+            'only.possible.with.unitTests.test5' => ['value' => 'this is test 5.', 'origin' => 'this is test 5.', 'translationKey' => 'only.possible.with.unitTests.test5', 'setId' => 'setId'],
+            'only.possible.with.unitTests.test6' => ['value' => 'this is test 6.', 'origin' => 'this is test 6.', 'translationKey' => 'only.possible.with.unitTests.test6', 'setId' => 'setId'],
+            'only.possible.with.unitTests.test7' => ['value' => 'this is test 7.', 'origin' => 'this is test 7.', 'translationKey' => 'only.possible.with.unitTests.test7', 'setId' => 'setId'],
+            'only.possible.with.unitTests.test8' => ['value' => 'this is test 8.', 'origin' => 'this is test 8.', 'translationKey' => 'only.possible.with.unitTests.test8', 'setId' => 'setId'],
         ];
 
-        $result = $mehtod->invoke($service, [$snippetFileMock]);
+        $result = $mehtod->invokeArgs($service, [[$snippetFileMock], 'setId']);
 
-        static::assertSame($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     public function testGetSnippetFilesByIso()
@@ -230,7 +206,8 @@ class SnippetServiceTest extends TestCase
             $this->getContainer()->get(SnippetFlattener::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),
-            $this->getContainer()->get('snippet_set.repository')
+            $this->getContainer()->get('snippet_set.repository'),
+            $this->getContainer()->get(SnippetFilterFactory::class)
         );
     }
 

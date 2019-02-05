@@ -6,13 +6,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
-class InvalidSnippetFileException extends ShopwareHttpException
+class MethodNotOverriddenException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-SNIPPET-FILE';
+    protected $code = 'METHOD-NOT-OVERRIDDEN';
 
-    public function __construct(string $locale, int $code = 0, Throwable $previous = null)
+    public function __construct(string $method, string $class, int $code = 0, Throwable $previous = null)
     {
-        $message = sprintf('The base snippet file for locale %s is not registered', $locale);
+        $message = sprintf('The %s method of %s requires to be overridden', $method, $class);
 
         parent::__construct($message, $code, $previous);
     }

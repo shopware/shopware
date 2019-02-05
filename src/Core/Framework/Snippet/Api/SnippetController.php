@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\Framework\Snippet\Services\SnippetServiceInterface;
+use Shopware\Core\Framework\Snippet\SnippetServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,23 +36,12 @@ class SnippetController extends AbstractController
      */
     public function getList(Request $request, Context $context): Response
     {
-        $defaultFilters = [
-            'isCustom' => false,
-            'emptySnippets' => false,
-            'term' => null,
-            'namespaces' => [],
-            'authors' => [],
-            'translationKeys' => [],
-        ];
-
-        $filter = array_merge($defaultFilters, $request->get('filters', []));
-
         return new JsonResponse(
             $this->snippetService->getList(
                 (int) $request->get('page', 1),
                 (int) $request->get('limit', 25),
                 $context,
-                $filter
+                $request->get('filters', [])
             )
         );
     }
@@ -71,7 +60,7 @@ class SnippetController extends AbstractController
     }
 
     /**
-     * @Route("/api/{version}/_action/snippet-set/getBaseFiles", name="api.action.snippet-set.get-base-files", methods={"GET"})
+     * @Route("/api/{version}/_action/snippet-set/baseFile", name="api.action.snippet-set.base-file", methods={"GET"})
      */
     public function getBaseFiles(): Response
     {
@@ -80,6 +69,19 @@ class SnippetController extends AbstractController
         return new JsonResponse([
             'items' => $files,
             'total' => count($files),
+        ]);
+    }
+
+    /**
+     * @Route("/api/{version}/_action/snippet-set/author", name="api.action.snippet-set.author", methods={"GET"})
+     */
+    public function getAuthors(Context $context): Response
+    {
+        $authors = $this->snippetService->getAuthors($context);
+
+        return new JsonResponse([
+            'total' => count($authors),
+            'data' => $authors,
         ]);
     }
 }

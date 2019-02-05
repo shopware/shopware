@@ -138,7 +138,7 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="shopware.cache"/>
             <argument type="service" id="translator.formatter"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetService"/>
             <tag name="monolog.logger"/>
         </service>
 
@@ -148,37 +148,68 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener" public="true"/>
+        <!-- Snippets -->
+        <service id="Shopware\Core\Framework\Snippet\SnippetFlattener" public="true"/>
 
-        <service id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection" public="true">
-            <argument type="tagged" tag="shopware.language.file"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Snippet\Services\SnippetFileConverter" public="true">
+        <service id="Shopware\Core\Framework\Snippet\SnippetFileConverter" public="true">
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetFlattener"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Services\SnippetService" public="true">
+        <service id="Shopware\Core\Framework\Snippet\SnippetService" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetFlattener"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetFlattener"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
             <argument type="service" id="snippet.repository"/>
             <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Api\SnippetController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Services\SnippetService"/>
+            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetService"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection" public="true">
+            <argument type="tagged" tag="shopware.snippet.file"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory" public="true">
+            <argument type="tagged" tag="shopware.snippet.filter"/>
         </service>
 
         <!--SnippetFiles-->
         <service id="Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE" public="true">
-            <tag name="shopware.language.file" priority="100"/>
+            <tag name="shopware.snippet.file" priority="100"/>
         </service>
 
         <service id="Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB" public="true">
-            <tag name="shopware.language.file" priority="100"/>
+            <tag name="shopware.snippet.file" priority="100"/>
+        </service>
+
+        <!--SnippetFilters-->
+        <service id="Shopware\Core\Framework\Snippet\Filter\AuthorFilter">
+            <tag name="shopware.snippet.filter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Filter\CustomFilter">
+            <tag name="shopware.snippet.filter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Filter\EmptySnippetFilter">
+            <tag name="shopware.snippet.filter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Filter\NamespaceFilter">
+            <tag name="shopware.snippet.filter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Filter\TermFilter">
+            <tag name="shopware.snippet.filter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Filter\TranslationKeyFilter">
+            <tag name="shopware.snippet.filter"/>
         </service>
 
         <!-- Twig -->

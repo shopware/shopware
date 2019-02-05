@@ -1,0 +1,7 @@
+{
+  "swag-custom-rule": {
+    "condition": {
+      "count-42": "Anzahl 42"
+    }
+  }
+}

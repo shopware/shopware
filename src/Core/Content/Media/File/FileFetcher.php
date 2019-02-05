@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcher
 {
+    const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
+
     public function fetchRequestData(Request $request, string $fileName): MediaFile
     {
         $extension = $this->getExtensionFromRequest($request);
@@ -134,6 +136,16 @@ class FileFetcher
 
     private function isUrlValid(string $url): bool
     {
-        return (bool) filter_var($url, FILTER_VALIDATE_URL) && preg_match('/^https?:/', $url);
+        return (bool) filter_var($url, FILTER_VALIDATE_URL) && $this->isProtocolAllowed($url);
+    }
+
+    private function isProtocolAllowed(string $url): bool
+    {
+        $fragments = explode(':', $url);
+        if (count($fragments) > 1) {
+            return in_array($fragments[0], self::ALLOWED_PROTOCOLS);
+        }
+
+        return false;
     }
 }

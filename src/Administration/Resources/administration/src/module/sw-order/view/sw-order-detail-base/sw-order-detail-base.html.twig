@@ -325,6 +325,12 @@
             </sw-card>
         {% endblock %}
 
+        <sw-order-state-history-card v-if="next1567 && hasAssociations"
+                             :title="$tc('sw-order.stateCard.cardTitle')"
+                             :isLoading="isLoading"
+                             :order="currentOrder">
+        </sw-order-state-history-card>
+
         {% block sw_order_detail_delivery_metadata %}
             <sw-order-delivery-metadata v-if="hasDeliveries"
                                         class="sw-order-delivery-metadata"

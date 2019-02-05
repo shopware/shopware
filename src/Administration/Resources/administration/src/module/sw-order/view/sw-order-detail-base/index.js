@@ -183,7 +183,11 @@ Component.register('sw-order-detail-base', {
                 { page: 1, limit: 50, versionId: this.currentOrder.versionId }
             );
 
-            return Promise.all([addresses, delivieries]).then(() => {
+            const transactions = this.currentOrder.getAssociation('transactions').getList(
+                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+            );
+
+            return Promise.all([addresses, delivieries, transactions]).then(() => {
                 this.hasDeliveries = this.currentOrder &&
                     this.currentOrder.deliveries &&
                     this.currentOrder.deliveries.length > 0;

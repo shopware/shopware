@@ -817,6 +817,12 @@
       "description" : "You have unsaved changes. Are you sure that you want to leave this page?",
       "confirmButton" : "Leave Page",
       "cancelButton" : "Stay on Page"
+    },
+    "stateCard": {
+      "cardTitle": "States",
+      "headlineOrderState": "Orderstate",
+      "headlineTransactionState": "Paymentstate",
+      "labelSystemUser":"System"
     }
   },
   "sw-sales-channel": {

@@ -1,0 +1,13 @@
+<sw-card :title="title" :isLoading="isLoading" class="sw-order-state-card">
+    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
+        <sw-order-state-card-entry :entries="transactionStateHistory"
+                                   :title="$tc('sw-order.stateCard.headlineTransactionState')">
+        </sw-order-state-card-entry>
+
+        <sw-order-state-card-entry :entries="orderStateHistory"
+            :title="$tc('sw-order.stateCard.headlineOrderState')">
+        </sw-order-state-card-entry>
+
+
+    </sw-container>
+</sw-card>

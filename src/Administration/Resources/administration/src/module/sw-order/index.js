@@ -9,6 +9,8 @@ import './component/sw-order-saveable-field';
 import './../sw-customer/component/sw-customer-address-form';
 import './component/sw-order-address-modal';
 import './component/sw-order-leave-page-modal';
+import './component/sw-order-state-history-card';
+import './component/sw-order-state-history-card-entry';
 
 Module.register('sw-order', {
     type: 'core',

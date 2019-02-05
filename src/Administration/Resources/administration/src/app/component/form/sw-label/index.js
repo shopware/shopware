@@ -41,6 +41,11 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        circle: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -50,7 +55,8 @@ export default {
                 [`sw-label--${this.variant}`]: this.variant,
                 'sw-label--dismiss-able': this.dismissAble,
                 'sw-label--pill': this.pill,
-                'sw-label--ghost': this.ghost
+                'sw-label--ghost': this.ghost,
+                'sw-label--circle': this.circle
             };
         }
     }

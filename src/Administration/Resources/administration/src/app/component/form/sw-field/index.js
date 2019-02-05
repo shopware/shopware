@@ -46,7 +46,8 @@ export default {
             type: String,
             required: false,
             validator(value) {
-                return ['text',
+                return [
+                    'text',
                     'select',
                     'boolean',
                     'checkbox',
@@ -61,7 +62,8 @@ export default {
                     'colorpicker',
                     'confirm',
                     'password',
-                    'datetime-local'].includes(value);
+                    'datetime-local'
+                ].includes(value);
             }
         }
     }

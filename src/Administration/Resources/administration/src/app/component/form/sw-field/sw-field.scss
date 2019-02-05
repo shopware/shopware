@@ -17,15 +17,43 @@ $sw-field-color-error: $color-crimson;
     width: 100%;
     margin-bottom: 22px;
 
-    &.has--suffix {
+    &.has--suffix  {
+        .sw-field__input {
+            display: flex;
+
+            .sw-help-text {
+                right: 10px;
+            }
+        }
+
+        input,
+        .sw-field__select select {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            min-width: 0;
+        }
+    }
+
+    &.has--prefix  {
         .sw-field__input {
             display: flex;
         }
 
         input,
         .sw-field__select select {
-            border-radius: $sw-field-border-radius 0 0 $sw-field-border-radius;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
             min-width: 0;
+        }
+    }
+
+    &.has--tooltip  {
+        .sw-field__input {
+            position: relative;
+        }
+
+        .sw-field__select ~ .sw-help-text {
+            right: 33px;
         }
     }
 
@@ -135,6 +163,13 @@ $sw-field-color-error: $color-crimson;
             }
         }
     }
+    &.sw-field--password {
+      &.has--tooltip {
+        .sw-help-text {
+          right: 40px;
+        }
+      }
+    }
 
     label {
         display: block;
@@ -190,6 +225,11 @@ $sw-field-color-error: $color-crimson;
         }
     }
 
+    .sw_field_input__wrapper {
+      position: relative;
+      flex-grow: 1;
+    }
+
     textarea {
         font-family: $sw-field-font-family;
         color: $sw-field-color-text;
@@ -207,7 +247,7 @@ $sw-field-color-error: $color-crimson;
         .sw-icon {
             display: block;
             position: absolute;
-            top: 14px;
+            top: calc(50% - 8px);
             right: 12px;
             text-align: center;
             color: $sw-field-color-text;
@@ -491,13 +531,14 @@ $sw-field-color-error: $color-crimson;
 
     .sw-field__suffix {
         min-width: 50px;
+        flex-shrink: 0;
         background: $sw-field-suffix-background;
         border-radius: 0 $sw-field-border-radius $sw-field-border-radius 0;
         border: 1px solid $sw-field-color-border;
         border-left: 0 none;
         line-height: 27px;
         text-align: center;
-        padding: 8px 10px;
+        padding: 8px 15px;
         font-size: $sw-field-font-size;
         color: $sw-field-color-text;
         transition: $sw-field-transition;
@@ -506,6 +547,18 @@ $sw-field-color-error: $color-crimson;
             width: 16px;
             height: 16px;
         }
+
+        &.is--prefix {
+            border-radius: $sw-field-border-radius 0 0 $sw-field-border-radius;
+            border-right: 0 none;
+            border-left: 1px solid $sw-field-color-border;
+        }
+    }
+
+    .sw-help-text {
+        position: absolute;
+        top: calc(50% - 8px);
+        right: 18px;
     }
 
     .sw-field__help {

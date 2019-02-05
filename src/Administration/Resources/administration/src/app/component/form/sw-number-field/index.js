@@ -51,16 +51,6 @@ export default {
     computed: {
         hasSuffix() {
             return this.suffix.length || !!this.$slots.suffix;
-        },
-
-        fieldClasses() {
-            return [
-                'sw-field--number',
-                {
-                    'has--error': !!this.hasErrorCls,
-                    'has--suffix': this.hasSuffix,
-                    'is--disabled': !!this.$props.disabled
-                }];
         }
     },
 

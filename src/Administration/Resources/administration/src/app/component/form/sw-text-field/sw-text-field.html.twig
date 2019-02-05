@@ -7,32 +7,51 @@
         {% endblock %}
         {% block sw_text_field_input %}
             <div class="sw-field__input">
-                <input type=text
-                       :id="id"
-                       ref="textfield"
-                       :name="displayName"
-                       :placeholder="fieldPlaceholder"
-                       :disabled="disabled ? 'disabled' : false"
-                       @change="onChange"
-                       @input="onInput"
-                       v-on="additionalEventListeners"
-                       :value="currentValue"/>
 
+                {% block sw_prefix %}
+                    <sw-field-suffix v-if="prefix" :suffix="prefix" :is-prefix="true"></sw-field-suffix>
+                {% endblock %}
+
+                <div class="sw_field_input__wrapper">
+                    {% block sw_text_field_input_element %}
+                        <input type=text
+                               :id="id"
+                               ref="textfield"
+                               :name="displayName"
+                               :placeholder="fieldPlaceholder"
+                               :disabled="disabled ? 'disabled' : false"
+                               @change="onChange"
+                               @input="onInput"
+                               v-on="additionalEventListeners"
+                               :value="currentValue" />
+                    {% endblock %}
+
+                    {% block sw_text_field_input_extras %}
+                    {% endblock %}
+
+                    {% block sw_tooltip %}
+                        <sw-help-text v-if="tooltipText" :text="tooltipText" :tooltipPosition="tooltipPosition"></sw-help-text>
+                    {% endblock %}
+                </div>
+
+                {% block sw_suffix %}
+                    <sw-field-suffix v-if="containSuffix" :suffix="suffix">
+                        <slot name="suffix"></slot>
+                    </sw-field-suffix>
+                {% endblock %}
 
                 {% block sw_text_field_copyable %}
-                    <sw-field-copyable v-if="copyAble"
-                                       :displayName="displayName">
-                    </sw-field-copyable>
+                    <sw-field-copyable v-if="copyAble" :displayName="displayName"></sw-field-copyable>
                 {% endblock %}
             </div>
         {% endblock %}
 
-        {% block sw_text_field_helptext %}
-            <sw-field-helptext v-if="helpText" :helpText="helpText" :id="id"></sw-field-helptext>
-        {% endblock %}
-
         {% block sw_text_field_error %}
             <sw-field-error v-if="hasError" :errorMessage="errorMessage" :formError="formError"></sw-field-error>
+        {% endblock %}
+
+        {% block sw_text_field_helptext %}
+            <sw-field-helptext v-if="helpText" :helpText="helpText" :id="id"></sw-field-helptext>
         {% endblock %}
     </div>
 {% endblock %}

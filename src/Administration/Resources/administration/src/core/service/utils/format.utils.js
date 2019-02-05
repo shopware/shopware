@@ -1,5 +1,5 @@
 import MD5 from 'md5-es';
-import isEqual from 'lodash/isEqual';
+import types from 'src/core/service/utils/types.utils';
 
 /**
  * @module core/service/utils/format
@@ -46,9 +46,9 @@ export function date(val, options = {}) {
         month: '2-digit',
         year: 'numeric'
     };
-    options = Object.assign(defaultOptions, options);
+    options = { ...defaultOptions, ...options };
 
-    if (!isEqual(dateTimeOptions, options)) {
+    if (!types.isEqual(dateTimeOptions, options)) {
         dateTimeOptions = options;
         dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, dateTimeOptions);
     }

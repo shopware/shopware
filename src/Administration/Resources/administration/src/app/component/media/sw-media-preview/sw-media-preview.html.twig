@@ -42,6 +42,10 @@
                 {% endblock %}
             </template>
 
+            <template v-else-if="isUrl && !urlPreviewFailed">
+                <img :src="previewUrl" @error="removeUrlPreview" class="sw-media-preview__item">
+            </template>
+
             <template v-else>
                 {% block sw_media_preview_file_type_else %}
                     <sw-icon class="sw-media-preview__item sw-media-preview__placeholder"

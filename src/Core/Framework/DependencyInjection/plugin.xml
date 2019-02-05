@@ -18,6 +18,7 @@
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginLifecycleService">
@@ -30,6 +31,8 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
 
         <!-- Commands -->
         <service id="Shopware\Core\Framework\Plugin\Command\PluginRefreshCommand">

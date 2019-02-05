@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider;
 use Shopware\Core\Framework\Plugin\PluginService;
 
@@ -17,7 +18,8 @@ trait PluginTestsHelper
             __DIR__ . '/_fixture',
             $pluginRepo,
             $languageRepo,
-            new ComposerPackageProvider()
+            new ComposerPackageProvider(),
+            new ChangelogParser()
         );
     }
 

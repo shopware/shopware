@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 
 abstract class MigrationStep
 {
-    const MIGRATION_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
+    public const MIGRATION_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
 
     /**
      * get creation timestamp

@@ -51,8 +51,8 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
             ['field' => 'stock', 'type' => 'equals', 'value' => '1000'],
             ['field' => 'maxDeliveryTime', 'type' => 'range', 'parameters' => [RangeFilter::LT => random_int(0, 5)]],
             ['field' => 'name', 'type' => 'contains', 'value' => 'Awesome'],
-            ['field' => 'categories.id', 'type' => 'equalsAny', 'value' => join('|', [$categories[random_int(0, \count($categories) - 1)], $categories[random_int(0, \count($categories) - 1)]])],
-            ['field' => 'id', 'type' => 'equalsAny', 'value' => join('|', [$products[random_int(0, \count($products) - 1)], $products[random_int(0, \count($products) - 1)]])],
+            ['field' => 'categories.id', 'type' => 'equalsAny', 'value' => implode('|', [$categories[random_int(0, \count($categories) - 1)], $categories[random_int(0, \count($categories) - 1)]])],
+            ['field' => 'id', 'type' => 'equalsAny', 'value' => implode('|', [$products[random_int(0, \count($products) - 1)], $products[random_int(0, \count($products) - 1)]])],
             ['field' => 'manufacturerId', 'type' => 'equals', 'value' => $manufacturer[random_int(0, \count($manufacturer) - 1)]],
         ];
 
@@ -63,7 +63,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $filters = [];
 
-            for ($j = 0; $j < random_int(1, 5); ++$j) {
+            for ($j = 0, $jMax = random_int(1, 5); $j < $jMax; ++$j) {
                 $filters[] = $pool[random_int(0, \count($pool) - 1)];
             }
 

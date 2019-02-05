@@ -13,6 +13,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 class OrderTransactionEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

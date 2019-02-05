@@ -26,7 +26,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context
             ->method('getShippingLocation')
-            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
+            ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -46,7 +46,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context
             ->method('getShippingLocation')
-            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
+            ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -66,7 +66,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context
             ->method('getShippingLocation')
-            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
+            ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -86,7 +86,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context
             ->method('getShippingLocation')
-            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
+            ->willReturn(ShippingLocation::createFromCountry($country));
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -113,7 +113,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context
             ->method('getShippingLocation')
-            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
+            ->willReturn(ShippingLocation::createFromCountry($country));
 
         $rule->match(new CartRuleScope($cart, $context))->matches();
     }
@@ -131,7 +131,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context
             ->method('getShippingLocation')
-            ->will(static::returnValue(ShippingLocation::createFromCountry($country)));
+            ->willReturn(ShippingLocation::createFromCountry($country));
 
         try {
             $rule->match(new CartRuleScope($cart, $context));

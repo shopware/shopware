@@ -21,16 +21,6 @@ class StateMachineTranslationEntity extends TranslationEntity
      */
     protected $stateMachine;
 
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime|null
-     */
-    protected $updatedAt;
-
     public function getName(): string
     {
         return $this->name;
@@ -59,25 +49,5 @@ class StateMachineTranslationEntity extends TranslationEntity
     public function setStateMachine(StateMachineEntity $stateMachine): void
     {
         $this->stateMachine = $stateMachine;
-    }
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 }

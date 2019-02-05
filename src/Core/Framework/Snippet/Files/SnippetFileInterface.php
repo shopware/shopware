@@ -4,17 +4,15 @@ namespace Shopware\Core\Framework\Snippet\Files;
 
 interface SnippetFileInterface
 {
-    const BASE_LANGUAGE_FILE = true;
+    public const BASE_LANGUAGE_FILE = true;
 
-    const PLUGIN_LANGUAGE_EXTENSION_FILE = false;
+    public const PLUGIN_LANGUAGE_EXTENSION_FILE = false;
 
     /**
      * Returns the displayed name.
      *
      * Example:
      * messages.en_GB
-     *
-     * @return string
      */
     public function getName(): string;
 
@@ -23,8 +21,6 @@ interface SnippetFileInterface
      *
      * Example:
      * /appPath/subDirectory/messages.en_GB.json
-     *
-     * @return string
      */
     public function getPath(): string;
 
@@ -34,8 +30,6 @@ interface SnippetFileInterface
      * Example:
      * en_GB
      * de_DE
-     *
-     * @return string
      */
     public function getIso(): string;
 
@@ -45,15 +39,11 @@ interface SnippetFileInterface
      * Example:
      * shopware
      * pluginName
-     *
-     * @return string
      */
     public function getAuthor(): string;
 
     /**
      * Returns a boolean which determines if its a base language file
-     *
-     * @return bool
      */
     public function isBase(): bool;
 }

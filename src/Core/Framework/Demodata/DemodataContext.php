@@ -92,8 +92,6 @@ class DemodataContext
 
     /**
      * @param string|EntityDefinition $definition
-     * @param int                     $numberOfItems
-     * @param float                   $end
      */
     public function setTiming(string $definition, int $numberOfItems, float $end): void
     {
@@ -109,7 +107,7 @@ class DemodataContext
         return $this->timings;
     }
 
-    public function getProjectDir()
+    public function getProjectDir(): string
     {
         return $this->projectDir;
     }

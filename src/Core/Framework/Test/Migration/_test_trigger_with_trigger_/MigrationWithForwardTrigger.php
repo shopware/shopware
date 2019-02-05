@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 class MigrationWithForwardTrigger extends MigrationStep
 {
-    const TRIGGER_NAME = 'testForwardTrigger';
+    public const TRIGGER_NAME = 'testForwardTrigger';
 
     /**
      * get creation timestamp

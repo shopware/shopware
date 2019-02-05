@@ -111,8 +111,6 @@ class EntityCacheKeyGeneratorTest extends TestCase
         $criteria->addSorting(new FieldSorting('product.categories.name'));
         $criteria->addSorting(new FieldSorting('product.categories.media.title'));
 
-        $context = Context::createDefaultContext();
-
         $tags = $this->generator->getSearchTags(ProductDefinition::class, $criteria);
 
         static::assertCount(9, $tags, print_r($tags, true));

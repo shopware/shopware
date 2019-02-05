@@ -11,7 +11,6 @@ use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Metadata\Type\DocumentMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\ImageMetadata;
-use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\VideoMetadata;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -183,13 +182,5 @@ class MetadataLoaderTest extends TestCase
         self::assertSame($pages, $type->getPages());
         self::assertSame($creator, $type->getCreator());
         self::assertSame($title, $type->getTitle());
-    }
-
-    private function assertNoMetadata(Metadata $result): void
-    {
-        $type = $result->getType();
-        self::assertInstanceOf(NoMetadata::class, $type);
-
-        $this->getMetadataLoader()->updateMetadata($result);
     }
 }

@@ -28,7 +28,7 @@ class MissingTranslationLanguageException extends ConstraintViolationException
                 self::VIOLATION_MISSING_TRANSLATION_LANGUAGE
             ),
         ]);
-        parent::__construct($constraintViolationList, $path, 0, null, '');
+        parent::__construct($constraintViolationList, $path);
     }
 
     public function getStatusCode(): int

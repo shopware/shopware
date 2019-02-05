@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Demodata;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
+use RuntimeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Faker\Commerce;
@@ -57,7 +58,7 @@ class DemodataService
             $generator = $this->generators[$definition] ?? null;
 
             if (!$generator) {
-                throw new \RuntimeException(sprintf('Could not generate demodata for "%s" because no generator is registered.', $definition));
+                throw new RuntimeException(sprintf('Could not generate demodata for "%s" because no generator is registered.', $definition));
             }
 
             $start = microtime(true);

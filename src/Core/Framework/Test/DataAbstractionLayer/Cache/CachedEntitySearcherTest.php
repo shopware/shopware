@@ -38,19 +38,17 @@ class CachedEntitySearcherTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $dbalSearcher->expects(static::exactly(1))
+        $dbalSearcher->expects(static::once())
             ->method('search')
-            ->will(
-                $this->returnValue(
-                    new IdSearchResult(
-                        0,
-                        [
-                            $id1 => ['id' => $id1],
-                            $id2 => ['id' => $id2],
-                        ],
-                        $criteria,
-                        $context
-                    )
+            ->willReturn(
+                new IdSearchResult(
+                    0,
+                    [
+                        $id1 => ['id' => $id1],
+                        $id2 => ['id' => $id2],
+                    ],
+                    $criteria,
+                    $context
                 )
             );
 

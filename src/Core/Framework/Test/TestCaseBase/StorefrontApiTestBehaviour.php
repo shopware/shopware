@@ -64,7 +64,7 @@ trait StorefrontApiTestBehaviour
     public function createCustomStorefrontClient(array $salesChannelOverride = []): Client
     {
         $kernel = KernelLifecycleManager::getKernel();
-        $storefrontApiClient = KernelLifecycleManager::createClient($kernel, false);
+        $storefrontApiClient = KernelLifecycleManager::createClient($kernel);
         $storefrontApiClient->setServerParameters([
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',

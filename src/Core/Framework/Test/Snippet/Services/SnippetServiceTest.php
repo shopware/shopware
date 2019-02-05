@@ -39,9 +39,9 @@ class SnippetServiceTest extends TestCase
         $service = $this->getSnippetService();
         $result = $service->getStorefrontSnippets($catalog, Defaults::SNIPPET_BASE_SET_EN);
 
-        $this->assertArraySubset($expectedResult, $result);
-        $this->assertNotEmpty($result);
-        $this->assertTrue(count($expectedResult) < count($result));
+        static::assertArraySubset($expectedResult, $result);
+        static::assertNotEmpty($result);
+        static::assertTrue(count($expectedResult) < count($result));
     }
 
     public function dataProviderForTestGetStoreFrontSnippets(): array
@@ -61,8 +61,8 @@ class SnippetServiceTest extends TestCase
         $result_en_GB = $method->invoke($service, Defaults::SNIPPET_BASE_SET_EN);
         $result_de_DE = $method->invoke($service, Defaults::SNIPPET_BASE_SET_DE);
 
-        $this->assertSame(Defaults::LOCALE_EN_GB_ISO, $result_en_GB);
-        $this->assertSame(Defaults::LOCALE_DE_DE_ISO, $result_de_DE);
+        static::assertSame(Defaults::LOCALE_EN_GB_ISO, $result_en_GB);
+        static::assertSame(Defaults::LOCALE_DE_DE_ISO, $result_de_DE);
     }
 
     public function testGetDefaultLocale_expect_en_GB(): void
@@ -70,7 +70,7 @@ class SnippetServiceTest extends TestCase
         $method = ReflectionHelper::getMethod(SnippetService::class, 'getDefaultLocale');
         $result = $method->invoke($this->getSnippetService());
 
-        $this->assertSame(Defaults::LOCALE_EN_GB_ISO, $result);
+        static::assertSame(Defaults::LOCALE_EN_GB_ISO, $result);
     }
 
     public function testFillBlankSnippets()
@@ -95,7 +95,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $mehtod->invokeArgs($service, [$isoList, $snippetList]);
 
-        $this->assertSame($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function testFetchSnippetsFromDatabase()
@@ -122,7 +122,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $mehtod->invoke($service, Defaults::SNIPPET_BASE_SET_EN);
 
-        $this->assertSame($expextedResult, $result);
+        static::assertSame($expextedResult, $result);
     }
 
     /**
@@ -135,7 +135,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $mehtod->invokeArgs($service, [$fileSnippets, $dbSnippets, $snippetSetId]);
 
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     public function dataProviderForTestMergeSnippets()
@@ -160,7 +160,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $mehtod->invoke($service, $sets);
 
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     public function DataProviderForTestMergeSnippetsComparison()
@@ -194,7 +194,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $mehtod->invoke($service, [$snippetFileMock]);
 
-        $this->assertSame($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function testGetSnippetFilesByIso()
@@ -214,8 +214,8 @@ class SnippetServiceTest extends TestCase
         $result1 = $mehtod->invoke($service, ['de_AT']);
         $result2 = $mehtod->invoke($service, ['en_US']);
 
-        $this->assertCount(3, $result1['de_AT']);
-        $this->assertCount(3, $result2['en_US']);
+        static::assertCount(3, $result1['de_AT']);
+        static::assertCount(3, $result2['en_US']);
     }
 
     private function getSnippetService(array $snippetFiles = []): SnippetService
@@ -226,7 +226,7 @@ class SnippetServiceTest extends TestCase
         }
 
         return new SnippetService(
-            $this->getContainer()->get('Doctrine\DBAL\Connection'),
+            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(SnippetFlattener::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),

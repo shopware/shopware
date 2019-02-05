@@ -68,24 +68,23 @@ class CachedEntityAggregatorTest extends TestCase
         //read in EntityReader will be only called once
         $dbalReader->expects(static::once())
             ->method('aggregate')
-            ->will(
-                $this->returnValue(
-                    new AggregatorResult(
-                        new AggregationResultCollection([
-                                new EntityAggregationResult(
-                                    $datasheetAggregation,
-                                    new EntityCollection([$configGroupEntity])
-                                ),
-                                new EntityAggregationResult(
-                                    $manufacturerAggregation,
-                                    new EntityCollection([$manufacturerEntity])
-                                ),
-                                new StatsAggregationResult($priceAggregation),
-                            ]
-                        ),
-                        $context,
-                        $criteria
-                    )
+            ->willReturn(
+                new AggregatorResult(
+                    new AggregationResultCollection(
+                        [
+                            new EntityAggregationResult(
+                                $datasheetAggregation,
+                                new EntityCollection([$configGroupEntity])
+                            ),
+                            new EntityAggregationResult(
+                                $manufacturerAggregation,
+                                new EntityCollection([$manufacturerEntity])
+                            ),
+                            new StatsAggregationResult($priceAggregation),
+                        ]
+                    ),
+                    $context,
+                    $criteria
                 )
             );
 
@@ -130,8 +129,8 @@ class CachedEntityAggregatorTest extends TestCase
         //read in EntityReader will be only called once
         $dbalReader->expects(static::exactly(2))
             ->method('aggregate')
-            ->will(
-                $this->returnCallback(function ($definition, $criteria, $context) {
+            ->willReturnCallback(
+                function ($definition, $criteria, $context) {
                     $configGroupEntity = new ConfigurationGroupOptionEntity();
                     $configGroupEntity->setUniqueIdentifier('test');
 
@@ -139,21 +138,28 @@ class CachedEntityAggregatorTest extends TestCase
                     $manufacturerEntity->setUniqueIdentifier('test');
                     if (!$criteria->getAggregation('tax')) {
                         return new AggregatorResult(
-                            (new AggregationResultCollection([
+                            new AggregationResultCollection(
+                                [
                                     new EntityAggregationResult(
                                         new EntityAggregation(
-                                            'product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet'
+                                            'product.datasheet.id',
+                                            ConfigurationGroupOptionDefinition::class,
+                                            'datasheet'
                                         ),
-                                        new EntityCollection([
+                                        new EntityCollection(
+                                            [
                                                 $configGroupEntity,
                                             ]
                                         )
                                     ),
                                     new EntityAggregationResult(
                                         new EntityAggregation(
-                                            'product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer'
+                                            'product.manufacturer.id',
+                                            ProductManufacturerDefinition::class,
+                                            'manufacturer'
                                         ),
-                                        new EntityCollection([
+                                        new EntityCollection(
+                                            [
                                                 $manufacturerEntity,
                                             ]
                                         )
@@ -162,23 +168,24 @@ class CachedEntityAggregatorTest extends TestCase
                                         new StatsAggregation('product.listingPrices', 'price', false)
                                     ),
                                 ]
-                            )),
+                            ),
                             $context,
                             $criteria
                         );
                     }
 
                     return new AggregatorResult(
-                            (new AggregationResultCollection([
-                                    new StatsAggregationResult(
-                                        new StatsAggregation('product.tax', 'tax', false)
-                                    ),
-                                ]
-                            )),
-                            $context,
-                            $criteria
-                        );
-                })
+                        new AggregationResultCollection(
+                            [
+                                new StatsAggregationResult(
+                                    new StatsAggregation('product.tax', 'tax', false)
+                                ),
+                            ]
+                        ),
+                        $context,
+                        $criteria
+                    );
+                }
             );
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);

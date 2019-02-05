@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
+use DateTime;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
@@ -22,7 +23,7 @@ class VersionCommitEntity extends Entity
     protected $message;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     protected $createdAt;
 
@@ -56,84 +57,49 @@ class VersionCommitEntity extends Entity
      */
     protected $version;
 
-    /**
-     * @return int
-     */
     public function getAutoIncrement(): int
     {
         return $this->autoIncrement;
     }
 
-    /**
-     * @param int $autoIncrement
-     */
     public function setAutoIncrement(int $autoIncrement): void
     {
         $this->autoIncrement = $autoIncrement;
     }
 
-    /**
-     * @return string|null
-     */
     public function getMessage(): ?string
     {
         return $this->message;
     }
 
-    /**
-     * @param string $message
-     */
     public function setMessage(?string $message): void
     {
         $this->message = $message;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
-    /**
-     * @param \DateTime $createdAt
-     */
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    /**
-     * @return string|null
-     */
     public function getUserId(): ?string
     {
         return $this->userId;
     }
 
-    /**
-     * @param string|null $userId
-     */
     public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
     }
 
-    /**
-     * @return string
-     */
     public function getVersionId(): string
     {
         return $this->versionId;
-    }
-
-    /**
-     * @param string $versionId
-     */
-    public function setVersionId(string $versionId): void
-    {
-        $this->versionId = $versionId;
     }
 
     public function getData(): VersionCommitDataCollection

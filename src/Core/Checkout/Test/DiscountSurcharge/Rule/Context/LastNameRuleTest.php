@@ -13,7 +13,7 @@ class LastNameRuleTest extends TestCase
 {
     public function testExactMatch(): void
     {
-        $rule = new LastNameRule('shopware');
+        $rule = new LastNameRule();
 
         $cart = $this->createMock(Cart::class);
 
@@ -24,7 +24,7 @@ class LastNameRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue($customer));
+            ->willReturn($customer);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -33,7 +33,7 @@ class LastNameRuleTest extends TestCase
 
     public function testCaseInsensitive(): void
     {
-        $rule = new LastNameRule('SHOPWARE');
+        $rule = new LastNameRule();
 
         $cart = $this->createMock(Cart::class);
 
@@ -44,7 +44,7 @@ class LastNameRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue($customer));
+            ->willReturn($customer);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -53,7 +53,7 @@ class LastNameRuleTest extends TestCase
 
     public function testContains(): void
     {
-        $rule = new LastNameRule('olor');
+        $rule = new LastNameRule();
 
         $cart = $this->createMock(Cart::class);
 
@@ -64,7 +64,7 @@ class LastNameRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue($customer));
+            ->willReturn($customer);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -73,7 +73,7 @@ class LastNameRuleTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $rule = new LastNameRule('test');
+        $rule = new LastNameRule();
 
         $cart = $this->createMock(Cart::class);
 
@@ -81,7 +81,7 @@ class LastNameRuleTest extends TestCase
 
         $context
             ->method('getCustomer')
-            ->will(static::returnValue(null));
+            ->willReturn(null);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()

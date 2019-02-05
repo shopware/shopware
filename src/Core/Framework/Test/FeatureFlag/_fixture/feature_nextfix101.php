@@ -30,6 +30,6 @@ namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test "next-fix-101"');
+        $test::markTestSkipped('Skipping feature test "next-fix-101"');
     }
 }

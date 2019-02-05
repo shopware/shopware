@@ -240,8 +240,7 @@ class TranslationTest extends TestCase
                 'translations' => [
                     $langId => ['name' => 'translated'],
                 ],
-            ],
-            $langId
+            ]
         );
     }
 

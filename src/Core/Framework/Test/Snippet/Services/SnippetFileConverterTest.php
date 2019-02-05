@@ -26,8 +26,8 @@ class SnippetFileConverterTest extends TestCase
 
         $result = $converter->convert($struct);
 
-        $this->assertTrue(is_array($result));
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertInternalType('array', $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     public function dataProviderForTestConvert(): array
@@ -61,7 +61,7 @@ class SnippetFileConverterTest extends TestCase
 
         $result = $method->invoke($converter, $languageFile);
 
-        $this->assertArraySubset($expectedResult, $result);
+        static::assertArraySubset($expectedResult, $result);
     }
 
     public function dataProviderForTestGetFileContent(): array

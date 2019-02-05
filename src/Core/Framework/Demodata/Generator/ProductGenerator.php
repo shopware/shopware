@@ -194,8 +194,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 $this->productRepository->upsert([$product], $context->getContext());
 
                 $variantEvent = $this->variantGenerator->generate($product['id'], $context->getContext());
-                $productEvents = $variantEvent->getEventByDefinition(ProductDefinition::class);
-                $variantProductIds = $productEvents->getIds();
+                $variantProductIds = $variantEvent->getEventByDefinition(ProductDefinition::class)->getIds();
 
                 $variantImagePayload = [];
                 foreach ($variantProductIds as $y => $variantProductId) {
@@ -347,19 +346,24 @@ class ProductGenerator implements DemodataGeneratorInterface
         $categories = $context->getIds(CategoryDefinition::class);
         $rules = $context->getIds(RuleDefinition::class);
 
+        $faker = $context->getFaker();
         $product = [
             'id' => Uuid::uuid4()->getHex(),
             'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
-            'name' => $context->getFaker()->productName,
-            'description' => $context->getFaker()->text(),
-            'descriptionLong' => $this->generateRandomHTML(10, ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite'], $context),
+            'name' => $faker->productName,
+            'description' => $faker->text(),
+            'descriptionLong' => $this->generateRandomHTML(
+                10,
+                ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite'],
+                $context
+            ),
             'taxId' => $taxes[array_rand($taxes)],
             'manufacturerId' => $manufacturer[array_rand($manufacturer)],
             'active' => true,
             'categories' => [
                 ['id' => $categories[array_rand($categories)]],
             ],
-            'stock' => $context->getFaker()->randomNumber(),
+            'stock' => $faker->randomNumber(),
             'priceRules' => $this->createPrices($rules),
         ];
 
@@ -414,23 +418,35 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function getRandomImage(DemodataContext $context, ?string $text): string
     {
-        $images = (new Finder())
-            ->files()
-            ->in($context->getProjectDir() . '/build/media')
-            ->name('/\.(jpg|png)$/')
-            ->getIterator();
-
-        $images = array_values(iterator_to_array($images));
+        $images = array_values(
+            iterator_to_array(
+                (new Finder())
+                    ->files()
+                    ->in($context->getProjectDir() . '/build/media')
+                    ->name('/\.(jpg|png)$/')
+                    ->getIterator()
+            )
+        );
 
         if (\count($images)) {
             return $images[array_rand($images)]->getPathname();
         }
 
         if (!$text) {
+            /** @var string $text */
             $text = $context->getFaker()->words(1, true);
         }
 
-        return $this->tmpImages[] = $context->getFaker()->imageGenerator(null, $context->getFaker()->numberBetween(600, 800), $context->getFaker()->numberBetween(400, 600), 'jpg', true, $text, '#d8dde6', '#333333');
+        return $this->tmpImages[] = $context->getFaker()->imageGenerator(
+            null,
+            $context->getFaker()->numberBetween(600, 800),
+            $context->getFaker()->numberBetween(400, 600),
+            'jpg',
+            true,
+            $text,
+            '#d8dde6',
+            '#333333'
+        );
     }
 
     private function buildProductConfigurator(array $groups): array

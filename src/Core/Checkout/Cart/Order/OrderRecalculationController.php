@@ -95,7 +95,7 @@ class OrderRecalculationController extends AbstractController
      */
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {
-        $identifier = $request->request->get('identifier', null);
+        $identifier = $request->request->get('identifier');
         $type = $request->request->get('type', ProductCollector::LINE_ITEM_TYPE);
         $quantity = $request->request->getInt('quantity', 1);
 
@@ -131,7 +131,7 @@ class OrderRecalculationController extends AbstractController
         $stackable = $request->request->get('stackable', true);
         $payload = $request->request->get('payload', []);
         $priority = $request->request->get('priority', LineItem::GOODS_PRIORITY);
-        $priceDefinition = $request->request->get('priceDefinition', null);
+        $priceDefinition = $request->request->get('priceDefinition');
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);

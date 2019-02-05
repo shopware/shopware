@@ -36,7 +36,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
 
             $expr->setAttribute('value', $parent);
         } elseif ($expr->hasAttribute('name')) {
-            return new SwInclude($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag(), $this->finder);
+            return new SwInclude($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
         }
 
         return new Twig_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());

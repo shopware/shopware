@@ -31,10 +31,10 @@ class TaxAmountCalculatorTest extends TestCase
     public function testCalculation(string $calculationType, TaxDetector $taxDetector, PriceCollection $prices, CalculatedTaxCollection $expected): void
     {
         $shop = $this->createMock(SalesChannelEntity::class);
-        $shop->method('getTaxCalculationType')->will(static::returnValue($calculationType));
+        $shop->method('getTaxCalculationType')->willReturn($calculationType);
 
         $context = $this->createMock(CheckoutContext::class);
-        $context->method('getSalesChannel')->will(static::returnValue($shop));
+        $context->method('getSalesChannel')->willReturn($shop);
 
         $taxAmountCalculator = new TaxAmountCalculator(
             new PercentageTaxRuleBuilder(),
@@ -54,15 +54,15 @@ class TaxAmountCalculatorTest extends TestCase
     public function calculationProvider(): array
     {
         $grossPriceDetector = $this->createMock(TaxDetector::class);
-        $grossPriceDetector->method('useGross')->will(static::returnValue(true));
+        $grossPriceDetector->method('useGross')->willReturn(true);
 
         $netPriceDetector = $this->createMock(TaxDetector::class);
-        $netPriceDetector->method('useGross')->will(static::returnValue(false));
-        $netPriceDetector->method('isNetDelivery')->will(static::returnValue(false));
+        $netPriceDetector->method('useGross')->willReturn(false);
+        $netPriceDetector->method('isNetDelivery')->willReturn(false);
 
         $netDeliveryDetector = $this->createMock(TaxDetector::class);
-        $netDeliveryDetector->method('useGross')->will(static::returnValue(false));
-        $netDeliveryDetector->method('isNetDelivery')->will(static::returnValue(true));
+        $netDeliveryDetector->method('useGross')->willReturn(false);
+        $netDeliveryDetector->method('isNetDelivery')->willReturn(true);
 
         return [
             //0

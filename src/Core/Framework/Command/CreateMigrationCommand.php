@@ -31,9 +31,9 @@ class CreateMigrationCommand extends Command
     protected function configure()
     {
         $this->setName('database:create-migration')
-            ->addArgument('directory', InputArgument::OPTIONAL, '', null)
-            ->addArgument('namespace', InputArgument::OPTIONAL, '', null)
-            ->addOption('plugin', 'p', InputOption::VALUE_REQUIRED, '')
+            ->addArgument('directory', InputArgument::OPTIONAL)
+            ->addArgument('namespace', InputArgument::OPTIONAL)
+            ->addOption('plugin', 'p', InputOption::VALUE_REQUIRED)
             ->addOption('name', '',InputOption::VALUE_REQUIRED,
                 'An optional descriptive name for the migration which will be used as a suffix for the filename.');
     }

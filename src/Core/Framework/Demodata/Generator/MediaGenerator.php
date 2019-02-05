@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -52,7 +53,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $file = $this->getRandomFile();
 
-            $mediaId = \Ramsey\Uuid\Uuid::uuid4()->getHex();
+            $mediaId = Uuid::uuid4()->getHex();
             $this->writer->insert(
                 MediaDefinition::class,
                 [['id' => $mediaId, 'name' => "File #{$i}: {$file}"]],

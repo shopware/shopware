@@ -25,8 +25,8 @@ class EntityAggregatorTest extends TestCase
 
     public function testAggregateNonExistingShouldFail(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
 
         $context = Context::createDefaultContext();
 

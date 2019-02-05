@@ -43,33 +43,31 @@ class CachedEntityReaderTest extends TestCase
         //read in EntityReader will be only called once
         $dbalReader->expects(static::once())
             ->method('read')
-            ->will(
-                $this->returnValue(
-                    new TaxCollection([
-                        (new TaxEntity())->assign([
-                            'id' => $id1,
-                            '_uniqueIdentifier' => $id1,
-                            'taxRate' => 15,
-                            'name' => 'test',
-                            'products' => new ProductCollection([
-                                (new ProductEntity())->assign([
+            ->willReturn(
+                new TaxCollection([
+                    (new TaxEntity())->assign([
+                        'id' => $id1,
+                        '_uniqueIdentifier' => $id1,
+                        'taxRate' => 15,
+                        'name' => 'test',
+                        'products' => new ProductCollection([
+                            (new ProductEntity())->assign([
+                                'id' => $id1,
+                                '_uniqueIdentifier' => $id1,
+                                'tax' => (new TaxEntity())->assign([
                                     'id' => $id1,
                                     '_uniqueIdentifier' => $id1,
-                                    'tax' => (new TaxEntity())->assign([
-                                        'id' => $id1,
-                                        '_uniqueIdentifier' => $id1,
-                                    ]),
                                 ]),
                             ]),
                         ]),
-                        (new TaxEntity())->assign([
-                            'id' => $id2,
-                            '_uniqueIdentifier' => $id2,
-                            'taxRate' => 12,
-                            'name' => 'test2',
-                        ]),
-                    ])
-                )
+                    ]),
+                    (new TaxEntity())->assign([
+                        'id' => $id2,
+                        '_uniqueIdentifier' => $id2,
+                        'taxRate' => 12,
+                        'name' => 'test2',
+                    ]),
+                ])
             );
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
@@ -109,59 +107,61 @@ class CachedEntityReaderTest extends TestCase
         //read in EntityReader will be only called twice
         $dbalReader->expects(static::exactly(2))
             ->method('read')
-            ->will(
-                $this->returnValueMap(
+            ->willReturnMap(
+                [
                     [
-                        [
-                            TaxDefinition::class, $criteria, $context,
-                            new TaxCollection([
-                                (new TaxEntity())->assign([
-                                    'id' => $id1,
-                                    '_uniqueIdentifier' => $id1,
-                                    'taxRate' => 15,
-                                    'name' => 'test',
-                                    'products' => new ProductCollection([
-                                        (new ProductEntity())->assign([
+                        TaxDefinition::class,
+                        $criteria,
+                        $context,
+                        new TaxCollection([
+                            (new TaxEntity())->assign([
+                                'id' => $id1,
+                                '_uniqueIdentifier' => $id1,
+                                'taxRate' => 15,
+                                'name' => 'test',
+                                'products' => new ProductCollection([
+                                    (new ProductEntity())->assign([
+                                        'id' => $id1,
+                                        '_uniqueIdentifier' => $id1,
+                                        'tax' => (new TaxEntity())->assign([
                                             'id' => $id1,
                                             '_uniqueIdentifier' => $id1,
-                                            'tax' => (new TaxEntity())->assign([
-                                                'id' => $id1,
-                                                '_uniqueIdentifier' => $id1,
-                                            ]),
-                                        ]),
-                                    ]),
-                                ]),
-                                (new TaxEntity())->assign([
-                                    'id' => $id2,
-                                    '_uniqueIdentifier' => $id2,
-                                    'taxRate' => 12,
-                                    'name' => 'test2',
-                                ]),
-                            ]),
-                        ],
-                        [
-                            TaxDefinition::class, $criteria2, $context,
-                            new TaxCollection([
-                                (new TaxEntity())->assign([
-                                    'id' => $id1,
-                                    '_uniqueIdentifier' => $id1,
-                                    'taxRate' => 15,
-                                    'name' => 'test',
-                                    'products' => new ProductCollection([
-                                        (new ProductEntity())->assign([
-                                            'id' => $id1,
-                                            '_uniqueIdentifier' => $id1,
-                                            'tax' => (new TaxEntity())->assign([
-                                                'id' => $id1,
-                                                '_uniqueIdentifier' => $id1,
-                                            ]),
                                         ]),
                                     ]),
                                 ]),
                             ]),
-                        ],
-                    ]
-                )
+                            (new TaxEntity())->assign([
+                                'id' => $id2,
+                                '_uniqueIdentifier' => $id2,
+                                'taxRate' => 12,
+                                'name' => 'test2',
+                            ]),
+                        ]),
+                    ],
+                    [
+                        TaxDefinition::class,
+                        $criteria2,
+                        $context,
+                        new TaxCollection([
+                            (new TaxEntity())->assign([
+                                'id' => $id1,
+                                '_uniqueIdentifier' => $id1,
+                                'taxRate' => 15,
+                                'name' => 'test',
+                                'products' => new ProductCollection([
+                                    (new ProductEntity())->assign([
+                                        'id' => $id1,
+                                        '_uniqueIdentifier' => $id1,
+                                        'tax' => (new TaxEntity())->assign([
+                                            'id' => $id1,
+                                            '_uniqueIdentifier' => $id1,
+                                        ]),
+                                    ]),
+                                ]),
+                            ]),
+                        ]),
+                    ],
+                ]
             );
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);

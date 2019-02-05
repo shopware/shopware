@@ -103,7 +103,7 @@ class ProductStreamIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
@@ -152,7 +152,7 @@ class ProductStreamIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
         /** @var ProductStreamEntity $entity */
@@ -198,7 +198,7 @@ class ProductStreamIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
@@ -238,7 +238,7 @@ class ProductStreamIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
@@ -278,7 +278,7 @@ class ProductStreamIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 
@@ -318,7 +318,7 @@ class ProductStreamIndexerTest extends TestCase
             )
         );
 
-        $this->eventIdExtractor->expects($this->once())->method('getProductStreamIds')->willReturn([$id]);
+        $this->eventIdExtractor->expects(static::once())->method('getProductStreamIds')->willReturn([$id]);
 
         $this->indexer->refresh(new EntityWrittenContainerEvent($this->context, $this->createMock(NestedEventCollection::class), []));
 

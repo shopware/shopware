@@ -201,7 +201,7 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
-        static::expectException(DuplicatedMediaFileNameException::class);
+        $this->expectException(DuplicatedMediaFileNameException::class);
 
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -315,7 +315,7 @@ class FileSaverTest extends TestCase
 
     public function testRenameMediaThrowsExceptionIfMediaDoesNotExist(): void
     {
-        static::expectException(MediaNotFoundException::class);
+        $this->expectException(MediaNotFoundException::class);
 
         $context = Context::createDefaultContext();
         $this->fileSaver->renameMedia(Uuid::uuid4()->getHex(), 'new file destination', $context);
@@ -323,7 +323,7 @@ class FileSaverTest extends TestCase
 
     public function testRenameMediaThrowsExceptionIfMediaHasNoFileAttached()
     {
-        static::expectException(MissingFileException::class);
+        $this->expectException(MissingFileException::class);
 
         $context = Context::createDefaultContext();
         $id = Uuid::uuid4()->getHex();
@@ -339,7 +339,7 @@ class FileSaverTest extends TestCase
 
     public function testRenameMediaThrowsExceptionIfFileNameAlreadyExists(): void
     {
-        static::expectException(DuplicatedMediaFileNameException::class);
+        $this->expectException(DuplicatedMediaFileNameException::class);
 
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -420,7 +420,7 @@ class FileSaverTest extends TestCase
 
     public function testRenameMediaMakesRollbackOnFailure(): void
     {
-        static::expectException(CouldNotRenameFileException::class);
+        $this->expectException(CouldNotRenameFileException::class);
 
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -431,11 +431,11 @@ class FileSaverTest extends TestCase
         $searchResult = new EntitySearchResult(1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects($this->exactly(2))
+        $repositoryMock->expects(static::exactly(2))
             ->method('search')
             ->willReturn($searchResult);
 
-        $repositoryMock->expects($this->once())
+        $repositoryMock->expects(static::once())
             ->method('update')
             ->willThrowException(new \Exception());
 

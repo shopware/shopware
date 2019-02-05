@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
@@ -35,21 +34,14 @@ class ProductCategoryTreeIndexer implements IndexerInterface
      */
     private $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
-
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor,
-        EntityRepositoryInterface $categoryRepository
+        EventIdExtractor $eventIdExtractor
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
-        $this->categoryRepository = $categoryRepository;
     }
 
     public function index(\DateTime $timestamp): void

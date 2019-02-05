@@ -17,7 +17,7 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @var string
      */
-    private $baseUrl = null;
+    private $baseUrl;
 
     /**
      * @var PathnameStrategyInterface

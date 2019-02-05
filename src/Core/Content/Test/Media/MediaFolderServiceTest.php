@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaFolderService;
@@ -59,7 +58,7 @@ class MediaFolderServiceTest extends TestCase
 
     public function testDissolveForNonExistingFolder()
     {
-        static::expectException(MediaFolderNotFoundException::class);
+        $this->expectException(MediaFolderNotFoundException::class);
 
         $this->mediaFolderService->dissolve(Uuid::uuid4()->getHex(), $this->context);
     }
@@ -441,14 +440,5 @@ class MediaFolderServiceTest extends TestCase
     private function assertConfigIsSame(MediaFolderEntity $folder, MediaFolderEntity $childFolder): void
     {
         static::assertEquals($folder->getConfigurationId(), $childFolder->getConfigurationId());
-    }
-
-    private function assertConfigValuesEqual(
-        MediaFolderConfigurationEntity $expected,
-        MediaFolderConfigurationEntity $actual
-    ): void {
-        static::assertEquals($expected->getCreateThumbnails(), $actual->getCreateThumbnails());
-        static::assertEquals($expected->getKeepAspectRatio(), $actual->getKeepAspectRatio());
-        static::assertEquals($expected->getThumbnailQuality(), $actual->getThumbnailQuality());
     }
 }

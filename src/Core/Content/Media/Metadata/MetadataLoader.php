@@ -14,15 +14,9 @@ class MetadataLoader
      */
     private $metadataLoader;
 
-    /**
-     * @var array
-     */
-    private $metadataTypes;
-
-    public function __construct(iterable $metadataLoader, array $typeClasses)
+    public function __construct(iterable $metadataLoader)
     {
         $this->metadataLoader = $metadataLoader;
-        $this->metadataTypes = $typeClasses;
     }
 
     public function loadFromFile(MediaFile $mediaFile, MediaType $mediaType): Metadata

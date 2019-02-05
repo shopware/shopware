@@ -22,11 +22,11 @@ class CurrencyRuleTest extends TestCase
         $context = $this->createMock(Context::class);
         $context
             ->method('getCurrencyId')
-            ->will(static::returnValue('SWAG-CURRENCY-ID-1'));
+            ->willReturn('SWAG-CURRENCY-ID-1');
 
         $checkoutContext
             ->method('getContext')
-            ->will(static::returnValue($context));
+            ->willReturn($context);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
@@ -44,11 +44,11 @@ class CurrencyRuleTest extends TestCase
         $context = $this->createMock(Context::class);
         $context
             ->method('getCurrencyId')
-            ->will(static::returnValue('SWAG-CURRENCY-ID-5'));
+            ->willReturn('SWAG-CURRENCY-ID-5');
 
         $checkoutContext
             ->method('getContext')
-            ->will(static::returnValue($context));
+            ->willReturn($context);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
@@ -66,11 +66,11 @@ class CurrencyRuleTest extends TestCase
         $context = $this->createMock(Context::class);
         $context
             ->method('getCurrencyId')
-            ->will(static::returnValue('SWAG-CURRENCY-ID-3'));
+            ->willReturn('SWAG-CURRENCY-ID-3');
 
         $checkoutContext
             ->method('getContext')
-            ->will(static::returnValue($context));
+            ->willReturn($context);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()

@@ -66,8 +66,8 @@ class PriceCalculatorTest extends TestCase
         QuantityPriceDefinition $priceDefinition
     ): void {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will(static::returnValue(false));
-        $detector->method('isNetDelivery')->will(static::returnValue(false));
+        $detector->method('useGross')->willReturn(false);
+        $detector->method('isNetDelivery')->willReturn(false);
 
         $taxCalculator = new TaxCalculator(
             new PriceRounding(2),
@@ -98,8 +98,8 @@ class PriceCalculatorTest extends TestCase
         QuantityPriceDefinition $priceDefinition
     ): void {
         $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->will(static::returnValue(false));
-        $detector->method('isNetDelivery')->will(static::returnValue(true));
+        $detector->method('useGross')->willReturn(false);
+        $detector->method('isNetDelivery')->willReturn(true);
 
         $taxCalculator = new TaxCalculator(
             new PriceRounding(2),

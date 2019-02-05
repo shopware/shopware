@@ -107,7 +107,7 @@ EOF;
         $this->createStateMachineWithoutInitialState($context);
 
         $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineWithoutInitialName, $context);
-        $this->assertNotNull($stateMachine);
+        static::assertNotNull($stateMachine);
 
         $this->expectException(StateMachineWithoutInitialStateException::class);
         $this->stateMachineRegistry->getInitialState($this->stateMachineWithoutInitialName, $context);
@@ -120,11 +120,11 @@ EOF;
 
         $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineName, $context);
 
-        $this->assertNotNull($stateMachine);
-        $this->assertNotNull($stateMachine->getStates());
-        $this->assertEquals(3, $stateMachine->getStates()->count());
-        $this->assertNotNull($stateMachine->getTransitions());
-        $this->assertEquals(4, $stateMachine->getTransitions()->count());
+        static::assertNotNull($stateMachine);
+        static::assertNotNull($stateMachine->getStates());
+        static::assertEquals(3, $stateMachine->getStates()->count());
+        static::assertNotNull($stateMachine->getTransitions());
+        static::assertEquals(4, $stateMachine->getTransitions()->count());
     }
 
     private function createStateMachine(Context $context): void

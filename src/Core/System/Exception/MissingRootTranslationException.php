@@ -32,7 +32,7 @@ class MissingRootTranslationException extends ConstraintViolationException
                 self::VIOLATION_MISSING_ROOT_TRANSLATION
             ),
         ]);
-        parent::__construct($constraintViolationList, $path, 0, null, '');
+        parent::__construct($constraintViolationList, $path);
     }
 
     public function getStatusCode(): int

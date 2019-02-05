@@ -49,6 +49,7 @@ class Framework extends Bundle
         $loader->load('rule.xml');
         $loader->load('attribute.xml');
         $loader->load('message-queue.xml');
+        $loader->load('demodata.xml');
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ExtensionCompilerPass());

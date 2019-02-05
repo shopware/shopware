@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Framework\Demodata\DemodataService">
+            <argument type="tagged" tag="shopware.demodata_generator" />
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <!-- Generators -->
+        <service id="Shopware\Core\Framework\Demodata\Generator\RuleGenerator">
+            <argument type="service" id="rule.repository" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <tag name="shopware.demodata_generator" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\CustomerGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="customer_group.repository" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\ConfigurationGroupGenerator">
+            <argument type="service" id="configuration_group.repository" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\ShippingMethodPriceGenerator">
+            <argument type="service" id="shipping_method_price.repository" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\CategoryGenerator">
+            <argument type="service" id="category.repository"/>
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\ProductGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="media_default_folder.repository" />
+            <argument type="service" id="tax.repository" />
+            <argument type="service" id="product.repository" />
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver" />
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider" />
+            <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\MediaGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver" />
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\ProductStreamGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\OrderGenerator">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\CmsPageGenerator">
+            <argument type="service" id="cms_page.repository" />
+            <argument type="service" id="product.repository" />
+            <argument type="service" id="media.repository" />
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+    </services>
+</container>

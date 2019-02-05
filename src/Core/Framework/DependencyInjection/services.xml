@@ -52,26 +52,8 @@
 
         <service id="Shopware\Core\Framework\Command\DemodataCommand">
             <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="rule.repository"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="tax.repository"/>
-            <argument type="service" id="customer_group.repository"/>
-            <argument type="service" id="shipping_method_price.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <argument type="service" id="media_default_folder.repository"/>
-            <argument type="service" id="configuration_group.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
-            <argument type="service" id="cms_page.repository"/>
-            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Demodata\DemodataService"/>
             <argument>%kernel.environment%</argument>
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Provisioning\UserProvisioner">

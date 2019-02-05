@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\AssetService;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -312,7 +313,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(MigrationCollection::class),
             $this->container->get(MigrationCollectionLoader::class),
             $this->container->get(MigrationRuntime::class),
-            $this->connection
+            $this->connection,
+            $this->container->get(AssetService::class)
         );
     }
 

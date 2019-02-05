@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\Util\AssetServiceInterface;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -76,6 +77,11 @@ class PluginLifecycleService
      */
     private $connection;
 
+    /**
+     * @var AssetServiceInterface
+     */
+    private $assetInstaller;
+
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
@@ -84,7 +90,8 @@ class PluginLifecycleService
         MigrationCollection $migrationCollection,
         MigrationCollectionLoader $migrationLoader,
         MigrationRuntime $migrationRunner,
-        Connection $connection
+        Connection $connection,
+        AssetServiceInterface $assetInstaller
     ) {
         $this->pluginRepo = $pluginRepo;
         $this->eventDispatcher = $eventDispatcher;
@@ -94,6 +101,7 @@ class PluginLifecycleService
         $this->migrationLoader = $migrationLoader;
         $this->migrationRunner = $migrationRunner;
         $this->connection = $connection;
+        $this->assetInstaller = $assetInstaller;
     }
 
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
@@ -279,6 +287,7 @@ class PluginLifecycleService
         );
 
         $pluginBaseClass->activate($activateContext);
+        $this->assetInstaller->copyAssetsFromBundle($pluginName);
 
         $this->updatePluginData(
             [
@@ -327,6 +336,7 @@ class PluginLifecycleService
         );
 
         $pluginBaseClass->deactivate($deactivateContext);
+        $this->assetInstaller->removeAssetsOfBundle($pluginName);
 
         $this->updatePluginData(
             [

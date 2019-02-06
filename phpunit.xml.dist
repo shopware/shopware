@@ -41,19 +41,20 @@
         </testsuite>
 
         <testsuite name="framework">
-            <directory>src/Core/Framework/Test/Serializer</directory>
-            <directory>src/Core/Framework/Test/Rule</directory>
-            <directory>src/Core/Framework/Test/Migration</directory>
-            <directory>src/Core/Framework/Test/Translation</directory>
+            <directory>src/Core/Framework/Test/Attribute</directory>
             <directory>src/Core/Framework/Test/Command</directory>
-            <directory>src/Core/Framework/Test/Plugin</directory>
             <directory>src/Core/Framework/Test/FeatureFlag</directory>
-            <directory>src/Core/Framework/Test/Struct</directory>
-            <directory>src/Core/Framework/Test/TestCaseBase</directory>
+            <directory>src/Core/Framework/Test/MessageQueue</directory>
+            <directory>src/Core/Framework/Test/Migration</directory>
+            <directory>src/Core/Framework/Test/Plugin</directory>
+            <directory>src/Core/Framework/Test/Routing</directory>
+            <directory>src/Core/Framework/Test/Rule</directory>
+            <directory>src/Core/Framework/Test/Serializer</directory>
             <directory>src/Core/Framework/Test/Snippet</directory>
             <directory>src/Core/Framework/Test/StateMachine</directory>
-            <directory>src/Core/Framework/Test/MessageQueue</directory>
-            <directory>src/Core/Framework/Test/Attribute</directory>
+            <directory>src/Core/Framework/Test/Struct</directory>
+            <directory>src/Core/Framework/Test/TestCaseBase</directory>
+            <directory>src/Core/Framework/Test/Translation</directory>
 
             <file>src/Core/Framework/Test/ClassNamespaceTest.php</file>
             <file>src/Core/Framework/Test/ServiceDefinitionTest.php</file>

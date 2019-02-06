@@ -1,3 +1,5 @@
+const productStreamPage = require('administration/page-objects/module/sw-product-stream.page-object.js');
+
 module.exports = {
     '@tags': ['product-stream-inline-edit', 'product-stream', 'inline-edit'],
     '@disabled': !global.flags.isActive('next739'),
@@ -9,28 +11,29 @@ module.exports = {
     'navigate to product stream module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/product/stream/index', 'Product streams')
-            .assert.urlContains('#/sw/product/stream/index')
             .waitForElementVisible('.sw-button__content');
     },
     'inline edit product stream name and description and verify edits': (browser) => {
-        browser
-            .waitForElementVisible('.sw-grid-row:first-child .sw-context-button__button')
-            .expect.element('.sw-grid-row:first-child .sw-product-stream-list__column-name').to.have.text.that.equals('1st product stream');
+        const page = productStreamPage(browser);
 
         browser
-            .moveToElement('.sw-grid-row:first-child', 5, 5).doubleClick()
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .expect.element(`${page.elements.gridRow}--0 .sw-product-stream-list__column-name`).to.have.text.that.equals('1st product stream');
+
+        browser
+            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .waitForElementVisible('.is--inline-editing')
             .fillField('input[name=sw-field--item-name]', 'Stream it', true)
-            .waitForElementVisible('.sw-grid-row__inline-edit-action')
-            .click('.sw-grid-row__inline-edit-action')
+            .waitForElementVisible(page.elements.gridRowInlineEdit)
+            .click(page.elements.gridRowInlineEdit)
             .waitForElementNotPresent('.is--inline-editing ')
             .refresh()
-            .waitForElementVisible('.sw-page__smart-bar-amount')
+            .waitForElementVisible(page.elements.smartBarAmount)
             .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left', 'Stream it')
-            .moveToElement('.sw-grid-row:first-child .sw-grid-column:nth-child(3)', 5, 5).doubleClick()
-            .waitForElementVisible('.sw-grid-row__inline-edit-action')
+            .moveToElement(`${page.elements.gridRow}--0 .sw-grid-column:nth-child(3)`, 5, 5).doubleClick()
+            .waitForElementVisible(page.elements.gridRowInlineEdit)
             .fillField('input[name=sw-field--item-description]', 'Edit the first stream', true)
-            .click('.sw-grid-row__inline-edit-action')
+            .click(page.elements.gridRowInlineEdit)
             .waitForElementNotPresent('.is--inline-editing ')
             .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left:nth-child(2)', 'Stream it');
     },

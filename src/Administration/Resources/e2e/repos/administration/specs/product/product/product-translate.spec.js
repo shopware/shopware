@@ -42,6 +42,7 @@ module.exports = {
         browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch').before(5000);
         browser
             .click('.sw-select-option:last-child')
+            .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementVisible(page.elements.modal)
             .assert.containsText(`${page.elements.modal}__body`, 'There are unsaved changes in the current language. Do you want to save them now?')
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
@@ -80,6 +81,7 @@ module.exports = {
 
         browser
             .click('.sw-select-option:first-child')
+            .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(`${page.elements.gridRow}--0  .sw-product-list__column-product-name`).to.have.text.that.equals(fixture.name).before(5000);
     },

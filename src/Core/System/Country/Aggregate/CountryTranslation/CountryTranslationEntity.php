@@ -22,6 +22,11 @@ class CountryTranslationEntity extends TranslationEntity
      */
     protected $country;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCountryId(): string
     {
         return $this->countryId;
@@ -50,5 +55,15 @@ class CountryTranslationEntity extends TranslationEntity
     public function setCountry(CountryEntity $country): void
     {
         $this->country = $country;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

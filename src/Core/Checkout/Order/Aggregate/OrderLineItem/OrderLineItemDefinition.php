@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -79,6 +80,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FloatField('total_price', 'totalPrice'))->addFlags(new ReadOnly()),
             new StringField('description', 'description'),
             new StringField('type', 'type'),
+            new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),

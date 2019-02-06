@@ -26,6 +26,11 @@ class CurrencyTranslationEntity extends TranslationEntity
      */
     protected $currency;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCurrencyId(): string
     {
         return $this->currencyId;
@@ -64,5 +69,15 @@ class CurrencyTranslationEntity extends TranslationEntity
     public function setCurrency(CurrencyEntity $currency): void
     {
         $this->currency = $currency;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

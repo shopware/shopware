@@ -45,6 +45,11 @@ class StateMachineTransitionEntity extends Entity
     protected $toStateMachineState;
 
     /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
      * @var \DateTime
      */
     protected $createdAt;
@@ -112,6 +117,16 @@ class StateMachineTransitionEntity extends Entity
     public function setToStateMachineState(StateMachineStateEntity $toStateMachineState): void
     {
         $this->toStateMachineState = $toStateMachineState;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 
     public function getCreatedAt(): \DateTime

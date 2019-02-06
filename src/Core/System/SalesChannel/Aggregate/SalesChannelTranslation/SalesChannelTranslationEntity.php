@@ -22,6 +22,11 @@ class SalesChannelTranslationEntity extends TranslationEntity
      */
     protected $salesChannel;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
@@ -50,5 +55,15 @@ class SalesChannelTranslationEntity extends TranslationEntity
     public function setSalesChannel(SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

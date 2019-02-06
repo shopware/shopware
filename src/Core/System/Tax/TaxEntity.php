@@ -41,6 +41,11 @@ class TaxEntity extends Entity
      */
     protected $productServices;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getTaxRate(): float
     {
         return $this->taxRate;
@@ -99,5 +104,15 @@ class TaxEntity extends Entity
     public function setProductServices(ProductServiceCollection $productServices): void
     {
         $this->productServices = $productServices;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

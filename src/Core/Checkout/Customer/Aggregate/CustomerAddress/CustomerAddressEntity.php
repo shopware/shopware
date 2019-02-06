@@ -117,6 +117,11 @@ class CustomerAddressEntity extends Entity
      */
     protected $customer;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCustomerId(): string
     {
         return $this->customerId;
@@ -325,5 +330,15 @@ class CustomerAddressEntity extends Entity
     public function setCustomer(CustomerEntity $customer): void
     {
         $this->customer = $customer;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

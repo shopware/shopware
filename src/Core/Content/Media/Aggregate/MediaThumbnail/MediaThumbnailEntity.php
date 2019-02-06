@@ -45,6 +45,11 @@ class MediaThumbnailEntity extends Entity
      */
     protected $updatedAt;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getWidth(): int
     {
         return $this->width;
@@ -120,5 +125,15 @@ class MediaThumbnailEntity extends Entity
         $identifier = sprintf('%dx%d', $this->getWidth(), $this->getHeight());
 
         return  $identifier;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

@@ -44,6 +44,11 @@ class ShippingMethodPriceEntity extends Entity
      */
     protected $shippingMethod;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getShippingMethodId(): string
     {
         return $this->shippingMethodId;
@@ -112,5 +117,15 @@ class ShippingMethodPriceEntity extends Entity
     public function setShippingMethod(ShippingMethodEntity $shippingMethod): void
     {
         $this->shippingMethod = $shippingMethod;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

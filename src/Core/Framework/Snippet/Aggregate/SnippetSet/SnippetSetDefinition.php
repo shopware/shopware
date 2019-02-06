@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Snippet\Aggregate\SnippetSet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -40,6 +41,7 @@ class SnippetSetDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('base_file', 'baseFile'))->addFlags(new Required()),
             (new StringField('iso', 'iso'))->addFlags(new Required()),
+            new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false))->addFlags(new CascadeDelete()),

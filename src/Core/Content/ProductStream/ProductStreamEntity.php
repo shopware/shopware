@@ -50,6 +50,11 @@ class ProductStreamEntity extends Entity
      */
     protected $translations;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getName(): string
     {
         return $this->name;
@@ -128,5 +133,15 @@ class ProductStreamEntity extends Entity
     public function setTranslations(?ProductStreamTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

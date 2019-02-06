@@ -27,6 +27,11 @@ class LocaleTranslationEntity extends TranslationEntity
      */
     protected $locale;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getLocaleId(): string
     {
         return $this->localeId;
@@ -65,5 +70,15 @@ class LocaleTranslationEntity extends TranslationEntity
     public function setLocale(LocaleEntity $locale): void
     {
         $this->locale = $locale;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

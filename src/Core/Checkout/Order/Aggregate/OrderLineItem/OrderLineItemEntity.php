@@ -122,6 +122,11 @@ class OrderLineItemEntity extends Entity
      */
     protected $children;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -340,5 +345,15 @@ class OrderLineItemEntity extends Entity
     public function setChildren(OrderLineItemCollection $children): void
     {
         $this->children = $children;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

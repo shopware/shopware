@@ -21,6 +21,11 @@ class StateMachineTranslationEntity extends TranslationEntity
      */
     protected $stateMachine;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getName(): string
     {
         return $this->name;
@@ -49,5 +54,15 @@ class StateMachineTranslationEntity extends TranslationEntity
     public function setStateMachine(StateMachineEntity $stateMachine): void
     {
         $this->stateMachine = $stateMachine;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

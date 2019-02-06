@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Produ
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -77,6 +78,7 @@ class LanguageDefinition extends EntityDefinition
             new FkField('translation_code_id', 'translationCodeId', LocaleDefinition::class),
 
             (new StringField('name', 'name'))->addFlags(new Required()),
+            new AttributesField(),
 
             new CreatedAtField(),
             new UpdatedAtField(),

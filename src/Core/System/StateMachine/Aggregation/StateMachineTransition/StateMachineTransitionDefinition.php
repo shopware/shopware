@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -50,6 +51,8 @@ class StateMachineTransitionDefinition extends EntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
+
+            new AttributesField(),
         ]);
     }
 }

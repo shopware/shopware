@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Seo;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -43,6 +44,7 @@ class SeoUrlDefinition extends EntityDefinition
             (new StringField('seo_path_info', 'seoPathInfo'))->addFlags(new Required()),
             new BoolField('is_canonical', 'isCanonical'),
             new BoolField('is_modified', 'isModified'),
+            new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),

@@ -59,6 +59,11 @@ class ProductServiceEntity extends Entity
     protected $product;
 
     /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
      * @var \DateTime
      */
     protected $createdAt;
@@ -194,5 +199,15 @@ class ProductServiceEntity extends Entity
     public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

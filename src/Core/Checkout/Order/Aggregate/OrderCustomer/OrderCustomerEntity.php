@@ -64,6 +64,11 @@ class OrderCustomerEntity extends Entity
      */
     protected $orders;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getEmail(): string
     {
         return $this->email;
@@ -172,5 +177,15 @@ class OrderCustomerEntity extends Entity
     public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

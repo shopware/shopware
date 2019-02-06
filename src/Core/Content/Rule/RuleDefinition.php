@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -48,6 +49,7 @@ class RuleDefinition extends EntityDefinition
             new LongTextField('description', 'description'),
             (new ObjectField('payload', 'payload'))->addFlags(new ReadOnly(), new Internal()),
             (new BoolField('invalid', 'invalid'))->addFlags(new ReadOnly()),
+            new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
 

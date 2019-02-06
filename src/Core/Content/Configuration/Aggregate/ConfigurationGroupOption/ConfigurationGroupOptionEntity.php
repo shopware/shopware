@@ -85,6 +85,11 @@ class ConfigurationGroupOptionEntity extends Entity
      */
     protected $media;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
@@ -223,5 +228,15 @@ class ConfigurationGroupOptionEntity extends Entity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

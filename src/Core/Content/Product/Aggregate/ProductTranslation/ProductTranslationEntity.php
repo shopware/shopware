@@ -63,6 +63,11 @@ class ProductTranslationEntity extends TranslationEntity
      */
     protected $catalog;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getProductId(): string
     {
         return $this->productId;
@@ -171,5 +176,15 @@ class ProductTranslationEntity extends TranslationEntity
     public function setCatalog(CatalogEntity $catalog): void
     {
         $this->catalog = $catalog;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

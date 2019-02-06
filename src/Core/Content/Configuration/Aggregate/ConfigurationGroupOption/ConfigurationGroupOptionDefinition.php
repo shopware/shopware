@@ -64,6 +64,7 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new TranslatedField('position'),
             new StringField('color_hex_code', 'colorHexCode'),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),

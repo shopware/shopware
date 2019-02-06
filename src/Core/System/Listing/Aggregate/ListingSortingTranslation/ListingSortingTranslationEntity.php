@@ -22,6 +22,11 @@ class ListingSortingTranslationEntity extends TranslationEntity
      */
     protected $listingSorting;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getListingSortingId(): string
     {
         return $this->listingSortingId;
@@ -50,5 +55,15 @@ class ListingSortingTranslationEntity extends TranslationEntity
     public function setListingSorting(ListingSortingEntity $listingSorting): void
     {
         $this->listingSorting = $listingSorting;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

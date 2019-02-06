@@ -87,6 +87,11 @@ class UserEntity extends Entity
      */
     protected $stateMachineHistoryEntries;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
         return $this->stateMachineHistoryEntries;
@@ -235,5 +240,15 @@ class UserEntity extends Entity
     public function setAccessKeys(UserAccessKeyCollection $accessKeys): void
     {
         $this->accessKeys = $accessKeys;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

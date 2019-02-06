@@ -64,6 +64,11 @@ class OrderTransactionEntity extends Entity
      */
     protected $stateId;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -162,5 +167,15 @@ class OrderTransactionEntity extends Entity
     public function setStateId(string $stateId): void
     {
         $this->stateId = $stateId;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

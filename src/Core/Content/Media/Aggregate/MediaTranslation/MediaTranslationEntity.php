@@ -27,6 +27,11 @@ class MediaTranslationEntity extends TranslationEntity
      */
     protected $media;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getMediaId(): string
     {
         return $this->mediaId;
@@ -65,5 +70,15 @@ class MediaTranslationEntity extends TranslationEntity
     public function setMedia(MediaEntity $media): void
     {
         $this->media = $media;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

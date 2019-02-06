@@ -4,6 +4,7 @@ namespace Shopware\Core\System\User;
 
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -53,6 +54,7 @@ class UserDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new IntField('failed_logins', 'failedLogins'),
             new DateField('locked_until', 'lockedUntil'),
+            new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),

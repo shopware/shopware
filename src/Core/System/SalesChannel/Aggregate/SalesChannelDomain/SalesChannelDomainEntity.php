@@ -18,11 +18,6 @@ class SalesChannelDomainEntity extends Entity
     protected $url;
 
     /**
-     * @var bool
-     */
-    protected $canonical;
-
-    /**
      * @var string|null
      */
     protected $currencyId;
@@ -71,6 +66,21 @@ class SalesChannelDomainEntity extends Entity
      * @var LanguageEntity
      */
     protected $language;
+
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
 
     public function getSalesChannelId(): string
     {
@@ -132,16 +142,6 @@ class SalesChannelDomainEntity extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function isCanonical(): bool
-    {
-        return $this->canonical;
-    }
-
-    public function setCanonical(bool $canonical): void
-    {
-        $this->canonical = $canonical;
-    }
-
     public function getCurrencyId(): ?string
     {
         return $this->currencyId;
@@ -180,5 +180,15 @@ class SalesChannelDomainEntity extends Entity
     public function setSnippetSet(?SnippetSetEntity $snippetSet): void
     {
         $this->snippetSet = $snippetSet;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

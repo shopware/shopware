@@ -25,6 +25,11 @@ class CustomerGroupTranslationEntity extends TranslationEntity
      */
     protected $customerGroup;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCustomerGroupId(): string
     {
         return $this->customerGroupId;
@@ -53,5 +58,15 @@ class CustomerGroupTranslationEntity extends TranslationEntity
     public function setCustomerGroup(CustomerGroupEntity $customerGroup): void
     {
         $this->customerGroup = $customerGroup;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

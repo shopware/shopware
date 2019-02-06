@@ -89,6 +89,11 @@ class OrderDeliveryEntity extends Entity
      */
     protected $positions;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -237,5 +242,15 @@ class OrderDeliveryEntity extends Entity
     public function setStateMachineState(StateMachineStateEntity $stateMachineState): void
     {
         $this->stateMachineState = $stateMachineState;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

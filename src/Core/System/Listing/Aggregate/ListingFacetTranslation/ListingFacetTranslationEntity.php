@@ -22,6 +22,11 @@ class ListingFacetTranslationEntity extends TranslationEntity
      */
     protected $listingFacet;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getListingFacetId(): string
     {
         return $this->listingFacetId;
@@ -50,5 +55,15 @@ class ListingFacetTranslationEntity extends TranslationEntity
     public function setListingFacet(ListingFacetEntity $listingFacet): void
     {
         $this->listingFacet = $listingFacet;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

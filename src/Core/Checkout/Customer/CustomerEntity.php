@@ -226,6 +226,11 @@ class CustomerEntity extends Entity
      */
     protected $searchKeywords;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function __toString()
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
@@ -658,5 +663,15 @@ class CustomerEntity extends Entity
     public function setSearchKeywords(?SearchDocumentCollection $searchKeywords): void
     {
         $this->searchKeywords = $searchKeywords;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

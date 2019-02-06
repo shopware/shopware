@@ -65,6 +65,11 @@ class ProductStreamFilterEntity extends Entity
      */
     protected $parameters;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getField(): ?string
     {
         return $this->field;
@@ -173,5 +178,15 @@ class ProductStreamFilterEntity extends Entity
     public function setParameters(?array $parameters): void
     {
         $this->parameters = $parameters;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

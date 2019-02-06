@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Integration;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -40,6 +41,7 @@ class IntegrationDefinition extends EntityDefinition
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
             new BoolField('write_access', 'writeAccess'),
             new DateField('last_usage_at', 'lastUsageAt'),
+            new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
         ]);

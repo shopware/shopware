@@ -177,6 +177,11 @@ class ShippingMethodEntity extends Entity
      */
     protected $salesChannels;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getType(): int
     {
         return $this->type;
@@ -505,5 +510,15 @@ class ShippingMethodEntity extends Entity
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

@@ -257,7 +257,11 @@ class FileSaver
         try {
             $this->filesystem->putStream($path, $stream);
         } finally {
-            fclose($stream);
+            // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
+            // error, we therefore need to check whether the stream has been closed yet.
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
         }
     }
 

@@ -244,6 +244,7 @@
 
                                         {% block sw_settings_snippet_set_list_columns_clone_modal %}
                                             <sw-modal v-if="showCloneModal === item.id"
+                                                      @closeModal="closeCloneModal"
                                                       :title="$tc('sw-settings-snippet.setList.modalTitleClone')"
                                                       variant="small">
                                                 {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}

@@ -65,6 +65,10 @@ class AttributesFieldSerializer extends JsonFieldSerializer
 
     public function decode(Field $field, $attributes)
     {
+        if ($attributes === null) {
+            return null;
+        }
+
         if (!is_array($attributes)) {
             $attributes = parent::decode($field, $attributes);
         }

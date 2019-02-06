@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -178,6 +179,7 @@ class EntityHydrator
 
         if ($translations !== null) {
             $entity->assign(['translations' => $translations]);
+            $this->mergeTranslatedAttributes($entity->getViewData(), $definition, $translations);
         }
 
         //write object cache key to prevent multiple hydration for the same entity
@@ -186,6 +188,30 @@ class EntityHydrator
         }
 
         return $entity;
+    }
+
+    private function mergeTranslatedAttributes(Entity $viewData, string $definition, EntityCollection $translations): void
+    {
+        /** @var string|EntityDefinition $definition */
+        $translationDefinition = $definition::getTranslationDefinitionClass();
+        $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
+
+        foreach ($translatedAttributeFields as $field) {
+            $property = $field->getPropertyName();
+            $values = [];
+            /** @var Entity $translation */
+            foreach ($translations as $translation) {
+                $value = $translation->get($property);
+                if ($value !== null) {
+                    $values[] = $value;
+                }
+            }
+            if (empty($values)) {
+                continue;
+            }
+            $merged = call_user_func_array('array_merge', array_reverse($values, false));
+            $viewData->assign([$property => $merged]);
+        }
     }
 
     private function extractManyToManyIds(string $root, ManyToManyAssociationField $field, array $row): ?array

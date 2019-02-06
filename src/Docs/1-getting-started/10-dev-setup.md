@@ -26,7 +26,7 @@ It should be easy to setup different environments.
 ## Repository structure
 
 This guide uses the [development] template from github. The [core] system, that contains most of the code, is pulled
-into `vendor/shopware/platform` as a composer dependency.
+into `platform` as a composer dependency.
 
 ## Hard requirements
 
@@ -57,6 +57,7 @@ docker commands with root-permissions.
 ```bash
 git clone http://github.com/shopware/development.git shopware-dev
 cd shopware-dev
+git clone http://github.com/shopware/platform.git platform
 
 # start the docker containers
 ./psh.phar docker:start
@@ -95,8 +96,8 @@ Docker maps some directories on your system into the container. That means that 
 the container.
 
 - `.:/app`: the container maps the project root directory into `/app`
-- `~/.composer/cache:/.composer/cache`: maps the users composer cache into the container
-- `~/.npm:/home/app/.npm`: maps the users npm directory into the container
+- `~/.composer:/.composer`: maps the users composer directory into the container
+- `~/.npm:/home/application/.npm`: maps the users npm directory into the container
 
 When changing branches you should always clear your cache.
 
@@ -148,6 +149,7 @@ Clone the development repository from github
 ```bash
 git clone https://github.com/shopware/development.git $HOME/shopware-dev
 cd $HOME/shopware-dev
+git clone https://github.com/shopware/platform.git platform
 ```
 
 Follow the steps described in [common setup steps](#Common-setup-steps) and return here once you are done.
@@ -307,7 +309,7 @@ git pull origin master
 
 To pull the Platform repository use
 ```bash
-cd $HOME/shopware-dev/vendor/shopware/platform/
+cd $HOME/shopware-dev/platform/
 git pull origin master
 ```
 After pulling the latest changes you should clear the cache via
@@ -355,9 +357,9 @@ You can customize your setup by
 
 ### Configure PHPStorm
 
-- Add `vendor/shopware/platform` as your source directory
+- Add `platform` as your source directory
   - settings > directories > select directory > Mark as: Sources
-- Add `vendor/shopware/platform` directory to your version control
+- Add `platform` directory to your version control
   - settings > Version Control > "+" > select directory
 - To improve the performance of PHPStorm, you should exclude the `/var` directory from indexing
   - settings > directories > select `/var` > Mark as: Excluded

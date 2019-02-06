@@ -11,6 +11,8 @@ parameters:
         - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductGenerator.php
         - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductStreamGenerator.php
         - %rootDir%/../../src/Core/Framework/Faker/Commerce.php
+        - %rootDir%/../../src/Core/TestBootstrap.php
+        - %rootDir%/../../src/Core/System/Test/SystemConfig/TestKernel.php
         - %rootDir%/../../src/Docs/*
     ignoreErrors:
         - '#PHPDoc tag @param for parameter.*EntityDefinition.*is not subtype of native type string#'

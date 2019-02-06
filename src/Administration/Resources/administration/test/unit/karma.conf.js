@@ -4,8 +4,9 @@
 //   https://github.com/webpack/karma-webpack
 const webpackConfig = require('../../build/webpack.test.conf');
 const path = require('path');
+const process = require('process');
 
-const artifactsPath = path.join(__dirname, '../../../../../../../../../build/artifacts');
+const artifactsPath = path.join(process.env.PROJECT_ROOT, '/build/artifacts');
 
 module.exports = function (config) {
     config.set({

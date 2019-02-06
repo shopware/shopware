@@ -6,12 +6,15 @@ import './sw-category-detail.scss';
 Component.register('sw-category-detail', {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
+    ],
 
     data() {
         return {
             category: null,
-            categories: null,
+            categories: [],
             isLoading: false,
             mediaItem: null,
             isMobileViewport: null,
@@ -30,6 +33,10 @@ Component.register('sw-category-detail', {
 
         uploadStore() {
             return State.getStore('upload');
+        },
+
+        languageStore() {
+            return State.getStore('language');
         },
 
         pageClasses() {
@@ -72,6 +79,7 @@ Component.register('sw-category-detail', {
         },
 
         getCategories() {
+            this.isLoading = true;
             const params = { page: 1, limit: 500 };
             return this.categoryStore.getList(params).then((response) => {
                 this.isLoading = false;
@@ -81,6 +89,7 @@ Component.register('sw-category-detail', {
         },
 
         setCategory() {
+            this.isLoading = true;
             const categoryId = this.$route.params.id;
 
             if (categoryId) {
@@ -139,8 +148,22 @@ Component.register('sw-category-detail', {
             this.category.mediaId = null;
         },
 
+        onChangeLanguage() {
+            this.getCategories().then(() => {
+                this.setCategory();
+            });
+        },
+
+        abortOnLanguageChange() {
+            return this.category ? this.category.hasChanges() : false;
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
         onSave() {
-            const categoryName = this.category.name;
+            const categoryName = this.category.name || this.category.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-category.general.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-category.general.messageSaveSuccess', 0, { name: categoryName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

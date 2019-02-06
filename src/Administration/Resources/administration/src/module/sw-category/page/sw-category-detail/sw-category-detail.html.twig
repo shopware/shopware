@@ -3,8 +3,18 @@
 
         <template slot="smart-bar-header">
             {% block sw_category_smart_bar_header %}
-                <h2 v-if="category && !isLoading">{{ category.name }}</h2>
+                <h2 v-if="category">{{ placeholder(category, 'name') }}</h2>
                 <h2 v-else>{{ $tc('sw-category.general.headlineCategories') }}</h2>
+            {% endblock %}
+        </template>
+
+        <template slot="language-switch">
+            {% block sw_category_language_switch %}
+                <sw-language-switch
+                    @on-change="onChangeLanguage"
+                    :saveChangesFunction="saveOnLanguageChange"
+                    :abortChangeFunction="abortOnLanguageChange">
+                </sw-language-switch>
             {% endblock %}
         </template>
 
@@ -31,7 +41,7 @@
 
         <template slot="content">
             {% block sw_category_content %}
-                <sw-category-view v-if="!isMobileViewport || isMobileViewport && category"
+                <sw-category-view v-if="!isMobileViewport && category || isMobileViewport && category"
                     :category="category"
                     :mediaItem="mediaItem"
                     :isLoading="isLoading"

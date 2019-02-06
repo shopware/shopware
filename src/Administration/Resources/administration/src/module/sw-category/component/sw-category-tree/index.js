@@ -1,9 +1,11 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
 
 Component.register('sw-category-tree', {
     template,
+
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         categories: {

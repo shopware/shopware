@@ -52,7 +52,7 @@ class AdministrationDumpPluginsCommand extends Command
                 $indexFile = null;
             }
 
-            if (empty($indexFile)) {
+            if ($indexFile === null) {
                 // If we haven't found a javascript file, try to find a TypeScript file
                 try {
                     $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/main.ts');

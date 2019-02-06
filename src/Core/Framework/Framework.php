@@ -41,15 +41,16 @@ class Framework extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(self::BUNDLE_DIR . '/DependencyInjection/'));
-        $loader->load('services.xml');
-        $loader->load('data-abstraction-layer.xml');
-        $loader->load('filesystem.xml');
         $loader->load('api.xml');
+        $loader->load('attribute.xml');
+        $loader->load('data-abstraction-layer.xml');
+        $loader->load('demodata.xml');
+        $loader->load('filesystem.xml');
+        $loader->load('message-queue.xml');
         $loader->load('plugin.xml');
         $loader->load('rule.xml');
-        $loader->load('attribute.xml');
-        $loader->load('message-queue.xml');
-        $loader->load('demodata.xml');
+        $loader->load('services.xml');
+        $loader->load('util.xml');
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ExtensionCompilerPass());

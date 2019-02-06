@@ -6,19 +6,15 @@
         <title lang="de_DE">Grundeinstellungen</title>
         <input-field>
             <name>email</name>
+            <copyable>true</copyable>
             <label>eMail</label>
             <label lang="de_DE">E-Mail</label>
             <placeholder>Enter your eMail address</placeholder>
             <placeholder lang="de_DE">Bitte gib deine E-Mail Adresse ein</placeholder>
-            <copyable>true</copyable>
         </input-field>
 
         <input-field type="select">
             <name>mailMethod</name>
-            <label>Mailing protocol</label>
-            <label lang="de_DE">E-Mail Versand Protokoll</label>
-            <placeholder>Choose your preferred transfer method</placeholder>
-            <placeholder lang="de_DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
             <options>
                 <option>
                     <value>smtp</value>
@@ -29,6 +25,10 @@
                     <label>POP3</label>
                 </option>
             </options>
+            <label>Mailing protocol</label>
+            <label lang="de_DE">E-Mail Versand Protokoll</label>
+            <placeholder>Choose your preferred transfer method</placeholder>
+            <placeholder lang="de_DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
         </input-field>
     </card>
 </config>

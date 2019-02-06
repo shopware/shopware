@@ -1,0 +1,59 @@
+const FixtureService = require('./../fixture.service.js').default;
+
+export default class SnippetFixtureService extends FixtureService {
+    constructor() {
+        super();
+        this.snippetFixture = this.loadJson('snippet.json');
+    }
+
+    setSnippetBaseFixture(json) {
+        this.snippetFixture = json;
+    }
+
+    setSnippetFixtures(userData) {
+        const startTime = new Date();
+        global.logger.lineBreak();
+        global.logger.title('Set snippet fixtures...');
+
+        let languageId = '';
+        let setId = '';
+
+        const snippetData = this.snippetFixture;
+
+        return this.apiClient.post('/v1/search/language?response=true', {
+            filter: [{
+                field: "name",
+                type: "equals",
+                value: "English",
+            }]
+        }).then((data) => {
+            languageId = data.id;
+        }).then(() => {
+            return this.apiClient.post('/v1/search/snippet-set?response=true', {
+                filter: [{
+                    field: "name",
+                    type: "equals",
+                    value: "BASE en_GB",
+                }]
+            })
+        }).then((data) => {
+            setId = data.id;
+        }).then(() => {
+            return this.mergeFixtureWithData({
+                languageId: languageId,
+                setId: setId,
+            }, snippetData);
+        }).then((finalSnippetData) => {
+            return this.apiClient.post('/v1/snippet?_response=true', finalSnippetData, userData);
+        }).then((data) => {
+            const endTime = new Date() - startTime;
+            global.logger.success(`${data.id} (${endTime / 1000}s)`);
+            global.logger.lineBreak();
+        }).catch((err) => {
+            global.logger.error(err);
+            global.logger.lineBreak();
+        });
+    }
+}
+
+global.SnippetFixtureService = new SnippetFixtureService();

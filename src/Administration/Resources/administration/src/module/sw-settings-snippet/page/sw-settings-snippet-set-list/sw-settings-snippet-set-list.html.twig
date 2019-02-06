@@ -188,7 +188,7 @@
                                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
                                                     <sw-context-button>
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
-                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
+                                                            <sw-context-menu-item class="sw-setting-snippet-set-list__edit-action" :routerLink="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
                                                                 {{ $tc('sw-settings-snippet.setList.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

@@ -1,19 +1,44 @@
-<div class="sw-order-state-card-entry">
-    <div><h2 v-if="title">{{this.title}} </h2></div>
+{% block sw_order_state_card_entry %}
+    <div class="sw-order-state-card-entry">
+        {% block sw_order_state_card_entry_headline %}
+            <div>
+                <h2 v-if="title">{{this.title}}</h2>
+            </div>
+        {% endblock %}
 
-    <div v-for="entry in entries" class='sw-order-state-card__history-entry'>
-        <sw-label circle :class="getLabelColorFromState(entry.stateMachineName,entry.state.technicalName)">
-            <sw-icon :name="getIconFromState(entry.stateMachineName,entry.state.technicalName)"
-                     :class="getIconColorFromState(entry.stateMachineName,entry.state.technicalName)"></sw-icon>
-        </sw-label>
-        <span>{{ entry.state.meta.viewData.name}}</span>
+        {% block sw_order_state_card_entry_history %}
+            <div v-for="entry in history" class='sw-order-state-card__history-entry'>
 
-        <span class="sw-order-state-card__date"
-          v-tooltip="{
-            showDelay: 300,
-            message:userDisplayName(entry.user)
-        }">
-            {{ entry.createdAt| date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
-        </span>
+                {% block sw_order_state_card_entry_icon %}
+                    <sw-label circle :class="getBackgroundColorFromState(entry.state.technicalName)">
+                        <sw-icon :name="getIconFromState(entry.state.technicalName)"
+                            :class="getIconColorFromState(entry.state.technicalName)"
+                            size="16">
+                        </sw-icon>
+                    </sw-label>
+                {% endblock%}
+
+                {% block sw_order_state_card_entry_description %}
+                    <span>{{ entry.state.meta.viewData.name}}</span>
+                {% endblock %}
+
+                {% block sw_order_state_card_entry_date %}
+                    <span class="sw-order-state-card__date"
+                      v-tooltip="{
+                        showDelay: 300,
+                        message:userDisplayName(entry.user)
+                    }">
+                        {{ entry.createdAt| date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+                    </span>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_order_state_card_entry_state_select %}
+            <sw-order-state-select :transitionOptions="transitionOptions"
+                v-on="$listeners">
+            </sw-order-state-select>
+        {% endblock %}
+
     </div>
-</div>
+{% endblock %}

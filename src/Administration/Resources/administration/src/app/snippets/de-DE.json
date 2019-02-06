@@ -787,7 +787,12 @@
       "cardTitle": "Statusverlauf",
       "headlineOrderState": "Bestellstatus",
       "headlineTransactionState": "Zahlungsstatus",
-      "labelSystemUser":"System"
+      "labelSystemUser":"System",
+      "labelSelectStatePlaceholder":"Bitte wählen...",
+      "labelSelectStateButton":"Status setzen",
+      "headlineErrorStateChange":"Fehler",
+      "labelErrorStateChange":"Beim setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
+      "labelErrorNoAction":"Kein neuer Zustand gewählt."
     }
   },
   "sw-sales-channel": {

@@ -1,13 +1,28 @@
-<sw-card :title="title" :isLoading="isLoading" class="sw-order-state-card">
-    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
-        <sw-order-state-card-entry :entries="transactionStateHistory"
-                                   :title="$tc('sw-order.stateCard.headlineTransactionState')">
-        </sw-order-state-card-entry>
+{% block sw_order_state_history_card %}
 
-        <sw-order-state-card-entry :entries="orderStateHistory"
-            :title="$tc('sw-order.stateCard.headlineOrderState')">
-        </sw-order-state-card-entry>
+    <sw-card :title="title"
+            :isLoading="isLoading || statesLoading"
+            class="sw-order-state-card">
+        {% block sw_order_state_history_card_container %}
+            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
+                {% block sw_order_state_history_card_transaction %}
+                    <sw-order-state-card-entry @state-selected="onTransactionStateSelected"
+                        :history="transactionHistory"
+                        :transitionOptions="transactionOptions"
+                        stateMachineName="order_transaction.state"
+                        :title="$tc('sw-order.stateCard.headlineTransactionState')">
+                    </sw-order-state-card-entry>
+                {% endblock %}
 
-
-    </sw-container>
-</sw-card>
+                {% block sw_order_state_history_card_order%}
+                    <sw-order-state-card-entry @state-selected="onOrderStateSelected"
+                        :history="orderHistory"
+                        :transitionOptions="orderOptions"
+                        stateMachineName="order.state"
+                        :title="$tc('sw-order.stateCard.headlineOrderState')">
+                    </sw-order-state-card-entry>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

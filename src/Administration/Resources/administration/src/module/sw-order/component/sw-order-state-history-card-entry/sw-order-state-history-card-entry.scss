@@ -9,42 +9,43 @@ $sw-order-state-card-success: $color-emerald;
 
   .sw-order-state-card__history-entry{
     display:block;
+    padding-bottom:4px;
 
     .sw-order-state-card__date{
       float: right;
-      line-height: 32px;
+      line-height: 24px;
       font-size: 12px;
     }
 
-    .sw-order-state-card__neutral-label{
+    .sw-order-state__neutral-icon-bg{
       background: lighten($sw-order-state-card-neutral,40%);
     }
 
-    .sw-order-state-card__progress-label{
+    .sw-order-state__progress-icon-bg{
       background: lighten($sw-order-state-card-progress,40%);
     }
 
-    .sw-order-state-card__danger-label{
-      background: lighten($sw-order-state-card-danger,40%);
+    .sw-order-state__danger-icon-bg{
+      background: lighten($sw-order-state-card-danger,25%);
     }
 
-    .sw-order-state-card__success-label{
+    .sw-order-state__success-icon-bg{
       background: lighten($sw-order-state-card-success,40%);
     }
 
-    .sw-order-state-card__neutral-icon{
+    .sw-order-state__neutral-icon{
       color: $sw-order-state-card-neutral;
     }
 
-    .sw-order-state-card__progress-icon{
+    .sw-order-state__progress-icon{
       color: $sw-order-state-card-progress;
     }
 
-    .sw-order-state-card__danger-icon{
+    .sw-order-state__danger-icon{
       color: $sw-order-state-card-danger;
     }
 
-    .sw-order-state-card__success-icon{
+    .sw-order-state__success-icon{
       color: $sw-order-state-card-success;
     }
   }

@@ -18,7 +18,7 @@ class Migration1536233330StateMachineHistory extends MigrationStep
 CREATE TABLE `state_machine_history` (
   `id` BINARY(16) NOT NULL,
   `state_machine_id` BINARY(16) NOT NULL,
-  `entity_class_name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `entity_name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `entity_id` JSON NOT NULL,
   `from_state_id` BINARY(16) NOT NULL,
   `to_state_id` BINARY(16) NOT NULL,

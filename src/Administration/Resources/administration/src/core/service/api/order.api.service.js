@@ -13,36 +13,33 @@ class OrderApiService extends ApiService {
         this.name = 'orderService';
     }
 
-    recalculateOrder(orderId, versionId, additionalParams, additionalHeaders) {
+    recalculateOrder(orderId, versionId, additionalParams = {}, additionalHeaders = {}) {
         const route = `/_action/order/${orderId}/recalculate`;
 
-        const params = Object.assign({}, additionalParams);
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
             .post(route, {}, {
-                params,
+                additionalParams,
                 headers
             });
     }
 
-    addProductToOrder(orderId, versionId, productId, quantity, additionalParams, additionalHeaders) {
+    addProductToOrder(orderId, versionId, productId, quantity, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/product/${productId}`;
 
-        const params = Object.assign({ }, additionalParams);
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
             .post(route, { quantity: quantity }, {
-                params,
+                additionalParams,
                 headers
             });
     }
 
-    addCustomLineItemToOrder(orderId, versionId, item, additionalParams, additionalHeaders) {
+    addCustomLineItemToOrder(orderId, versionId, item, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/lineItem`;
 
-        const params = Object.assign({ }, additionalParams);
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         const dummyPrice = deepCopyObject(item.priceDefinition);
@@ -59,7 +56,7 @@ class OrderApiService extends ApiService {
                         description: item.description,
                         priceDefinition: dummyPrice }
                 ), {
-                    params,
+                    additionalParams,
                     headers
                 });
     }
@@ -73,6 +70,30 @@ class OrderApiService extends ApiService {
         return this.httpClient
             .post(route, {}, {
                 params,
+                headers
+            });
+    }
+
+    getState(orderId, versionId, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/state`;
+
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        return this.httpClient
+            .get(route, {
+                additionalParams,
+                headers
+            });
+    }
+
+    transitionState(orderId, versionId, actionName, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/state/${actionName}`;
+
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        return this.httpClient
+            .post(route, {}, {
+                additionalParams,
                 headers
             });
     }

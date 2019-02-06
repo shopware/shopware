@@ -1,0 +1,79 @@
+@import "~scss/variables";
+@import "./../sw-order-state-history-card-entry/sw-order-state-history-card-entry.scss";
+
+$sw-order-state-select-option: $color-gutenberg;
+$sw-order-state-select-option-disabled: $color-steam-cloud;
+
+.sw-order-state-select{
+
+  .sw-order-state-select__field {
+    margin-bottom: 0;
+    .sw-field__select {
+      select {
+        padding: 0 8px 0 8px;
+        height: 40px;
+        margin-bottom: 0;
+      }
+
+      select option {
+        color: $sw-order-state-select-option;
+      }
+
+      select option:disabled {
+        color: $sw-order-state-select-option-disabled;
+      }
+    }
+  }
+
+  .sw-order-state-select__field--rounded {
+
+    margin-bottom: 0;
+
+    .sw-field__select {
+      .sw-field__select-load-placeholder, select {
+        padding: 0 8px 0 8px;
+        border-radius: 15px;
+        height: 32px;
+        margin-bottom: 0;
+      }
+
+      select option {
+        color: $sw-order-state-select-option;
+      }
+
+      select option:disabled {
+        color: $sw-order-state-select-option-disabled;
+      }
+      select.is--placeholder {
+        color: $sw-order-state-select-option;
+      }
+    }
+
+  }
+  .sw-order-state__neutral-select .sw-field__select{
+    select {
+      background: none;
+    }
+  }
+
+  .sw-order-state__progress-select .sw-field__select{
+    select {
+      background: lighten($sw-order-state-card-progress,40%);
+      border: none;
+    }
+  }
+
+  .sw-order-state__danger-select .sw-field__select{
+    select {
+      background: lighten($sw-order-state-card-danger,25%);
+      border: none;
+    }
+  }
+
+  .sw-order-state__success-select .sw-field__select{
+    select {
+      background: lighten($sw-order-state-card-success,40%);
+      border: none;
+    }
+  }
+}

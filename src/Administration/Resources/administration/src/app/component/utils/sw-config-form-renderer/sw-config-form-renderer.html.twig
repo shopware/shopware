@@ -14,7 +14,8 @@
                                   :label="getLabel(field)"
                                   :placeholder="getPlaceholder(field)"
                                   :copyAble=field.copyable
-                                  :options="getOptions(field)">
+                                  :options="getOptions(field)"
+                                  :helpText="getHelpText(field)">
                         </sw-field>
                     </sw-card>
                 {% endblock %}

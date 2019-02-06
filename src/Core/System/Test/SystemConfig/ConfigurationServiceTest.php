@@ -132,6 +132,7 @@ class ConfigurationServiceTest extends TestCase
                     0 => [
                         'type' => 'text',
                         'name' => 'email',
+                        'copyable' => true,
                         'label' => [
                             'en_GB' => 'eMail',
                             'de_DE' => 'E-Mail',
@@ -140,20 +141,11 @@ class ConfigurationServiceTest extends TestCase
                             'en_GB' => 'Enter your eMail address',
                             'de_DE' => 'Bitte gib deine E-Mail Adresse ein',
                         ],
-                        'copyable' => true,
                         'value' => null,
                     ],
                     1 => [
                         'type' => 'select',
                         'name' => 'mailMethod',
-                        'label' => [
-                            'en_GB' => 'Mailing protocol',
-                            'de_DE' => 'E-Mail Versand Protokoll',
-                        ],
-                        'placeholder' => [
-                            'en_GB' => 'Choose your preferred transfer method',
-                            'de_DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
-                        ],
                         'options' => [
                             0 => [
                                 'value' => 'smtp',
@@ -167,6 +159,14 @@ class ConfigurationServiceTest extends TestCase
                                     'en_GB' => 'POP3',
                                 ],
                             ],
+                        ],
+                        'label' => [
+                            'en_GB' => 'Mailing protocol',
+                            'de_DE' => 'E-Mail Versand Protokoll',
+                        ],
+                        'placeholder' => [
+                            'en_GB' => 'Choose your preferred transfer method',
+                            'de_DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
                         ],
                         'value' => null,
                     ],

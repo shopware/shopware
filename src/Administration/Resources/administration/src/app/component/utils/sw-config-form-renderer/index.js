@@ -24,7 +24,8 @@ export default {
         return {
             config: {},
             locale: {},
-            fallbackLocale: {}
+            fallbackLocale: {},
+            defaultHelpText: ''
         };
     },
 
@@ -90,6 +91,22 @@ export default {
             }
 
             return this.$tc('sw-config-form-renderer.placeholder', 0, { name: this.getLabel(field) });
+        },
+
+        getHelpText(field) {
+            if (!field.helpText) {
+                return this.defaultHelpText;
+            }
+
+            if (field.helpText[this.locale]) {
+                return field.helpText[this.locale];
+            }
+
+            if (field.helpText[this.fallbackLocale]) {
+                return field.helpText[this.fallbackLocale];
+            }
+
+            return this.defaultHelpText;
         },
 
         getOptions(field) {

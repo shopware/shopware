@@ -121,7 +121,7 @@
 
                                                     {% block sw_settings_snippet_list_grid_column_actions_delete %}
                                                         <sw-context-menu-item @click="onReset(item)" variant="danger">
-                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete') }}
+                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete', isCustomState) }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
                                                 </sw-context-button>
@@ -135,11 +135,23 @@
                                                   :title="$tc('sw-settings-snippet.list.modalTitleDelete')"
                                                   variant="large">
                                             {% block sw_settings_snippet_list_delete_modal_text %}
-                                                <span class="modal__confirm-delete-text">
-                                                    {{ $tc('sw-settings-snippet.list.textDeleteConfirm', queryIdCount, { key: item[metaId].translationKey }) }}
-                                                </span>
+                                                {% block sw_settings_snippet_list_delete_modal_text_reset %}
+                                                    <span v-if="!isCustomState"
+                                                          class="modal__confirm-reset-text">
+                                                        {{ $tc('sw-settings-snippet.list.textResetConfirm', queryIdCount, { key: item[metaId].translationKey }) }}
+                                                    </span>
+                                                {% endblock %}
+
+                                                {% block sw_settings_snippet_list_delete_modal_text_delete %}
+                                                    <span v-else
+                                                          class="modal__confirm-delete-text">
+                                                        {{ $tc('sw-settings-snippet.list.textDeleteConfirm', 0, { key: item[metaId].translationKey }) }}
+                                                    </span>
+                                                {% endblock %}
+
                                                 {% block sw_settings_snippet_list_delete_modal_grid %}
-                                                    <sw-grid :items="resetItems"
+                                                    <sw-grid v-if="!isCustomState && resetItems.length > 1"
+                                                             :items="resetItems"
                                                              @sw-grid-select-item="onSelectionChanged"
                                                              @sw-grid-select-all="onSelectionChanged"
                                                              table>
@@ -180,7 +192,7 @@
 
                                                     {% block sw_settings_snippet_list_delete_modal_confirm %}
                                                         <sw-button @click="onConfirmReset(item)"
-                                                                   :disabled="hasResetableItems"
+                                                                   :disabled="hasResetableItems && !isCustomState && resetItems.length !== 1"
                                                                    variant="primary"
                                                                    size="small">
                                                             {{ $tc('sw-settings-snippet.list.contextMenuDelete') }}
@@ -211,6 +223,7 @@
                                     {% block sw_settings_snippet_list_grid_sidebar %}
                                         <sw-settings-snippet-sidebar
                                                 @change="onChange"
+                                                @sw-sidebar-collaps-refresh-grid="getList"
                                                 :filterItems="filterItems">
                                         </sw-settings-snippet-sidebar>
                                     {% endblock %}

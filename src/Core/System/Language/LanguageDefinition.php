@@ -35,7 +35,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 use Shopware\Core\Framework\Search\SearchDocumentDefinition;
-use Shopware\Core\Framework\Snippet\SnippetDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
@@ -89,7 +88,6 @@ class LanguageDefinition extends EntityDefinition
             new ChildrenAssociationField(self::class),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, false, 'language_id', 'sales_channel_id'),
             new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'language_id', false, 'id'),
-            new OneToManyAssociationField('snippets', SnippetDefinition::class, 'language_id', false, 'id'),
             (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'language_id', false))->addFlags(new RestrictDelete()),
 
             (new OneToManyAssociationField('catalogTranslations', CatalogTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),

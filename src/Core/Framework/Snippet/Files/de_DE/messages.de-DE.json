@@ -256,5 +256,31 @@
     "cookie": {
         "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href='#'>Mehr Informationen</a>",
         "accept": "Einverstanden"
-    }
+    },
+    "document": {
+      "invoiceNumber": "Rechnung Nr. %invoiceNumber%",
+      "customerNumber": "Kunden-Nr.: %customerNumber%",
+      "date": "Datum: %date%",
+      "deliveryDate": "Liefertermin: %deliveryDate%",
+      "page": "Seite %pageNumber%",
+      "orderNumber": "Bestell-Nr.: %orderNumber%",
+      "lineItems": {
+        "header": {
+          "position": "Pos.",
+          "label": "Bezeichnung",
+          "quantity": "Anz.",
+          "tax": "MwSt.",
+          "unitPrice": "Stückpreis",
+          "articleNumber": "Art Nr.",
+          "total": "Gesamt"
+        },
+        "tax": "zzgl. %taxRate%% MwSt.:",
+        "total": "Gesamtsumme:",
+        "totalNet": "Gesamtsumme Netto:"
+      },
+      "paymentShippingInfo": {
+        "paymentMethod": "Gewählte Zahlungsart: %paymentMethod%",
+        "shippingMethod": "Gewählte Versandart: %shippingMethod%",
+        "additionalInfo": "Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum."
+      }
 }

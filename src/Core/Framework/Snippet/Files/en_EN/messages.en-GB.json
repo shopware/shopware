@@ -256,5 +256,32 @@
     "cookie": {
         "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href='#'>Mehr Informationen</a>",
         "accept": "Accept"
+    },
+    "document": {
+      "invoiceNumber": "Invoice No. %invoiceNumber%",
+      "customerNumber": "Customer No. %customerNumber%",
+      "date": "Date: %date%",
+      "deliveryDate": "Delivery date: %deliveryDate%",
+      "page": "Page %pageNumber%",
+      "orderNumber": "Order No. %orderNumber%",
+      "lineItems": {
+        "header": {
+          "position": "Pos.",
+          "label": "Label",
+          "tax": "VAT",
+          "quantity": "QTY",
+          "unitPrice": "Unit price",
+          "articleNumber": "Art No.",
+          "total": "Total"
+        },
+        "tax": "plus %taxRate%% VAT:",
+        "total": "Total:",
+        "totalNet": "Net total:"
+      },
+      "paymentShippingInfo": {
+        "paymentMethod": "Payment method: %paymentMethod%",
+        "shippingMethod": "Shipping method: %shippingMethod%",
+        "additionalInfo": "The delivered goods remain our property until complete payment has been made."
+      }
     }
 }

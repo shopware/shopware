@@ -1,0 +1,318 @@
+{% block document_base %}
+{# @var order \Shopware\Core\Checkout\Order\OrderEntity #}
+{# @var documentContext \Shopware\Core\Checkout\Document\DocumentContext #}
+{# @var context \Shopware\Core\Framework\Context #}
+
+{# @var customer \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity #}
+{% set customer = order.orderCustomer %}
+
+{# @var billingAddress \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity #}
+{% set billingAddress = order.addresses.get(order.billingAddressId) %}
+
+{% set currencyIsoCode = order.currency.isoCode %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block document_head %}
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            {#{% if documentContext.title %}#}
+                <title>{% block document_title_tag %}{% endblock %}</title>
+            {#{% endif %}#}
+            <style type="text/css">
+                {% block document_style %}
+                /* Fonts */
+                @font-face {
+                    font-family: 'Source Sans Pro';
+                    font-style: normal;
+                    font-weight: normal;
+                    src: url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400') format('truetype');
+                }
+                /*@font-face {*/
+                    /*font-family: 'Roboto2';*/
+                    /*font-style: normal;*/
+                    /*font-weight: normal;*/
+                    /*src: url('https://fonts.googleapis.com/css?family=Roboto') format('truetype');*/
+                /*}*/
+
+                body {
+                    font-family: 'Source Sans Pro', sans-serif;
+                    /*font-family: 'Roboto2', sans-serif;*/
+                    font-size: 12px;
+                    line-height: 12px;
+                    width: 100%;
+                }
+
+                /* Helper classes */
+                .align-right {
+                    text-align: right;
+                }
+
+                .bold {
+                    font-weight: bold;
+                }
+
+                .small-padding-top {
+                    padding-top: 15px;
+                }
+
+                /*Page */
+                @page {
+                    margin-top: 100px;
+                }
+
+                /* Header */
+                header {
+                    position: fixed;
+                    top: -75px;
+                }
+
+                .logo {
+                    width: 30%;
+                }
+
+                /* Document title */
+                .document-title-container {
+                    margin: 45px 0 20px 0;
+                }
+
+                /* Sender info section (top right) */
+                .sender-address-container {
+                    top: 0;
+                    right: 30px;
+                    position: absolute;
+                }
+
+                /* Receipt address section */
+                .recipient-address-container {
+                    margin-top: 100px;
+                }
+
+                /* Line item section */
+                .line-item-table {
+                    width: 100%;
+                    border-spacing: 0 2px;
+                }
+
+                .line-item-table-header > th, .line-item-table:last-child {
+                    padding-bottom: 20px;
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+                }
+
+                .line-item, .sum-container, .payment-shipping-container {
+                    line-height: 16px;
+                }
+
+                .line-item.first > td {
+                    padding-top: 20px;
+                }
+
+                /* Payment/shipping details*/
+                .payment-shipping-container {
+                    padding-top: 25px;
+                }
+
+                /* Page count */
+                .page-count {
+                    margin: 10px 0;
+                }
+
+                .pagenum:after {
+                    content: counter(page);
+                }
+
+                /* Subtotal/Total section */
+                .sum-container {
+                    margin-top: 20px;
+                    text-align: right;
+                    float: right;
+                    right: 30px;
+                }
+
+                .sum-table {
+                    border-spacing: 20px 0;
+                }
+
+                /* Footer */
+                footer {
+                    position: fixed;
+                    bottom: 50px;
+                    left: -40px;
+                    font-size: 8px;
+                }
+
+                footer:after {
+                    clear: both;
+                }
+
+                footer > ul {
+                    list-style-type: none;
+                    float: left;
+                }
+                {% endblock %}
+            </style>
+        {% endblock %}
+    </head>
+    <body>
+    {% block document_body %}
+         {# To include a header or footer on every site, these elements have to be defined before the content #}
+        {% if documentContext.shouldDisplayHeader %}
+            <header>
+                {% block document_header %}
+                <img src="../fixture/shopware_logo_blue.svg" class="logo"/>
+                {% endblock %}
+            </header>
+        {% endif %}
+
+        {% if documentContext.shouldDisplayFooter %}
+            <footer>
+                {% block document_footer %}
+                    <ul>
+                        <li class="bold">shopware AG</li>
+                        <li>Steuer-Nr.: 5133081508159</li>
+                        <li>Ust-Id: DE 136 695 976</li>
+                        <li>Finanzamt Coesfeld</li>
+                    </ul>
+                    <ul>
+                        <li class="bold">Bankverbindung</li>
+                        <li>Sparkasse Musterstadt</li>
+                        <li>IBAN: DE12500105170648489890</li>
+                    </ul>
+                    <ul>
+                        <li class="bold">AGN</li>
+                        <li>Gerichtsstand ist Coesfeld</li>
+                        <li>Erfüllungsort: Schöppingen</li>
+                        <li>{% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}</li>
+                    </ul>
+                    <ul>
+                        <li class="bold">Geschäftsführer</li>
+                        <li>Max Mustermann</li>
+                    </ul>
+                {% endblock %}
+            </footer>
+        {% endif %}
+
+        <div class="recipient-address-container">
+            {% block document_recipient %}
+                <span class="sender-address-small">
+                    {% block document_recipient_sender %}
+                    shopware AG - Ebbinghoff 10 - 48624 Schöppingen<br><br>
+                    {% endblock %}
+                </span>
+                 {# todo support companys #}
+                {{ customer.salutation }} {{ customer.firstName }} {{ customer.lastName }}<br>
+                {{ billingAddress.street }}<br>
+                {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
+                {{ billingAddress.country.name }}<br>
+            {% endblock %}
+        </div>
+
+        <div class="sender-address-container">
+            {% block document_sender_address %}
+                <table>
+                     {# todo save address with sales channel? #}
+                    <tr><td class="bold">shopware AG</td></tr>
+                    <tr><td>48624 Schöppingen</td></tr>
+                    <tr><td>Ebbinghoff 10</td></tr>
+                    <tr><td>Fon: 01234 / 56789</td></tr>
+                    <tr><td>Fax: 01234 / 56789</td></tr>
+                    <tr><td>info@shopware.com</td></tr>
+                    <tr><td>www.shopware.com</td></tr>
+                    <tr><td>{% trans with {'%customerNumber%': '1337'} %}document.customerNumber{% endtrans %}</td></tr>
+                    <tr><td>{% trans with {'%orderNumber%': order.id | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
+                    <tr><td>{% trans with {'%date%': order.date|date('d.m.Y')} %}document.date{% endtrans %}</td></tr>
+                    <tr><td>{% trans with {'%deliveryDate%': '10.02.2019'} %}document.deliveryDate{% endtrans %}</td></tr>
+                </table><br>
+            {% endblock %}
+        </div>
+
+        <div class="document-title-container">
+            {% block document_headline %}{% endblock %}
+        </div>
+
+        {% if documentContext.shouldDisplayPageCount %}
+            <div class="page-count">
+                {% block document_page_count %}
+                    {% trans with {'%pageNumber%': '<span class="pagenum"></span>'} %}document.page{% endtrans %}
+                {% endblock %}
+            </div>
+        {% endif %}
+
+        {% if documentContext.shouldDisplayLineItems %}
+            <div class="line-item-container">
+                {% block document_line_items %}
+                    <table class="line-item-table">
+                        <thead>
+                            <tr class="line-item-table-header">
+                                {% block document_line_item_table_head %}
+                                    {% if documentContext.shouldDisplayLineItemPosition %}
+                                        <th>{% trans %}document.lineItems.header.position{% endtrans %}</th>
+                                    {% endif %}
+                                    <th>{% trans %}document.lineItems.header.articleNumber{% endtrans %}</th>
+                                    <th>{% trans %}document.lineItems.header.label{% endtrans %}</th>
+                                    <th>{% trans %}document.lineItems.header.quantity{% endtrans %}</th>
+                                    {% if documentContext.shouldDisplayPrices %}
+                                        <th>{% trans %}document.lineItems.header.tax{% endtrans %}</th>
+                                        <th>{% trans %}document.lineItems.header.unitPrice{% endtrans %}</th>
+                                        <th>{% trans %}document.lineItems.header.total{% endtrans %}</th>
+                                    {% endif %}
+                                {% endblock %}
+                            </tr>
+                        </thead>
+
+                         {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
+                        {% for lineItem in order.lineItems %}
+                            <tr class="line-item{% if loop.first %} first{% endif %}">
+                                {% block document_line_item_row %}
+                                    {% if documentContext.shouldDisplayLineItemPosition %}
+                                        <td>{{ loop.index }}</td>
+                                    {% endif %}
+                                    <td>{{ lineItem.id | truncate(10) }}</td>
+                                    <td>{{ lineItem.label }}</td>
+                                    <td class="align-right">{{ lineItem.quantity }}</td>
+                                    {% if documentContext.shouldDisplayPrices %}
+                                        <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
+                                        <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
+                                        <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
+                                    {% endif %}
+                                {% endblock %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endblock %}
+            </div>
+        {% endif %}
+
+        <div class="sum-container">
+            <table class="sum-table">
+                {% block document_sum %}
+                    <tr>
+                        <td class="align-right">{% trans %}document.lineItems.totalNet{% endtrans %}</td>
+                        <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
+                    </tr>
+                     {# @var calculatedTax \Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax #}
+                    {% for calculatedTax in order.price.calculatedTaxes.sortedByTax %}
+                        <tr>
+                            <td class="align-right">{% trans with {'%taxRate%': calculatedTax.taxRate} %}document.lineItems.tax{% endtrans %}</td>
+                            <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="bold">
+                        <td class="align-right">{% trans %}document.lineItems.total{% endtrans %}</td>
+                        <td class="align-right">{{ order.amountTotal|currency(currencyIsoCode) }}</td>
+                    </tr>
+                {% endblock %}
+            </table>
+        </div>
+
+        <div class="payment-shipping-container">
+            {% block document_payment_shipping %}
+                {% trans with {'%paymentMethod%': order.transactions.first.paymentMethod.name} %}document.paymentShippingInfo.paymentMethod{% endtrans %}<br>
+                {% trans with {'%shippingMethod%': order.deliveries.first.shippingMethod.name} %}document.paymentShippingInfo.shippingMethod{% endtrans %}<br>
+                {% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}<br>
+            {% endblock %}
+        </div>
+    {% endblock %}
+    </body>
+    </html>
+{% endblock %}

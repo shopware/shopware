@@ -1,7 +1,7 @@
 const integrationPage = require('../../../page-objects/module/sw-integration.page-object.js');
 
 module.exports = {
-    '@tags': ['integration-create','integration', 'create'],
+    '@tags': ['settings', 'integration-create','integration', 'create'],
     'open integration module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');

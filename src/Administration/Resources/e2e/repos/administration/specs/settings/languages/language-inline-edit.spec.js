@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting','language-inline-edit', 'language', 'inline-edit'],
+    '@tags': ['settings', 'language-inline-edit', 'language', 'inline-edit'],
     before: (browser, done) => {
         global.LanguageFixtureService.setLanguageFixtures().then(() => {
             done();

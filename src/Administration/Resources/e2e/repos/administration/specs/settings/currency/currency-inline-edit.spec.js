@@ -8,7 +8,7 @@ const fixture = {
 };
 
 module.exports = {
-    '@tags': ['setting','currency-inline-edit', 'currency', 'inline-edit'],
+    '@tags': ['settings', 'currency-inline-edit', 'currency', 'inline-edit'],
     before: (browser, done) => {
         global.FixtureService.create('currency', fixture).then(() => {
             done();
@@ -28,7 +28,7 @@ module.exports = {
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-shortName]`, 'GCr', true)
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-symbol]`, '%', true)
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-factor]`, '2.58', true)
-            .waitForElementVisible( `${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .waitForElementNotPresent('.is--inline-editing');
     },

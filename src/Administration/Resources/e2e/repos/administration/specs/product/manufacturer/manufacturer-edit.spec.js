@@ -12,7 +12,6 @@ module.exports = {
 
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
-            .assert.urlContains('#/sw/manufacturer/index')
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
     },

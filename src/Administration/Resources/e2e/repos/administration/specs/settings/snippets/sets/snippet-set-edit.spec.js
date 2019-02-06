@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting', 'snippet-set-delete', 'snippets', 'snippet-set', 'delete'],
+    '@tags': ['settings', 'snippet-set-delete', 'snippets', 'snippet-set', 'delete'],
     '@disabled': !global.flags.isActive('next717'),
     before: (browser, done) => {
         global.FixtureService.create('snippet-set').then(() => {

@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting','tax-inline-edit', 'tax', 'inline-edit'],
+    '@tags': ['settings','tax-inline-edit', 'tax', 'inline-edit'],
     before: (browser, done) => {
         global.FixtureService.create('tax').then(() => {
             done();

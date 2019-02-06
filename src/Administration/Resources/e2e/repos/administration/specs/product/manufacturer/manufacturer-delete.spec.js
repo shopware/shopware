@@ -9,8 +9,7 @@ module.exports = {
     },
     'navigate to manufacturer module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
-            .assert.urlContains('#/sw/manufacturer/index');
+            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer');
     },
     'check if new manufacturer exists in overview': (browser) => {
         const page = manufacturerPage(browser);

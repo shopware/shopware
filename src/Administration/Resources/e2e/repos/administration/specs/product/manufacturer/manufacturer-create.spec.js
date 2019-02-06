@@ -5,7 +5,6 @@ module.exports = {
     'navigate to manufacturer module and click on add manufacturer': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
-            .assert.urlContains('#/sw/manufacturer/index')
             .waitForElementPresent('.sw-button__content')
             .click('.sw-button__content');
     },

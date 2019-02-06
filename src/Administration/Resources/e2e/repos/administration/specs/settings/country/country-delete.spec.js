@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting', 'country-delete', 'country', 'delete'],
+    '@tags': ['settings', 'country-delete', 'country', 'delete'],
     before: (browser, done) => {
         global.FixtureService.create('country').then(() => {
             done();

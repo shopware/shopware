@@ -45,6 +45,24 @@ export default {
         type: {
             type: String,
             required: false,
+            validValues: [
+                'text',
+                'select',
+                'boolean',
+                'checkbox',
+                'switch',
+                'number',
+                'radio',
+                'textarea',
+                'datetime',
+                'date',
+                'time',
+                'datepicker',
+                'colorpicker',
+                'confirm',
+                'password',
+                'datetime-local'
+            ],
             validator(value) {
                 return [
                     'text',

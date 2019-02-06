@@ -23,10 +23,9 @@ export default {
         },
 
         fieldClasses() {
-            return [
-                {
-                    'is--prefix': !!this.isPrefix
-                }];
+            return {
+                'is--prefix': !!this.isPrefix
+            };
         }
     }
 };

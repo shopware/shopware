@@ -34,7 +34,7 @@ $sw-field-color-error: $color-crimson;
         }
     }
 
-    &.has--prefix  {
+    &.has--prefix {
         .sw-field__input {
             display: flex;
         }
@@ -47,7 +47,7 @@ $sw-field-color-error: $color-crimson;
         }
     }
 
-    &.has--tooltip  {
+    &.has--tooltip {
         .sw-field__input {
             position: relative;
         }

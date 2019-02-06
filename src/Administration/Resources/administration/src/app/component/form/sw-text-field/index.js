@@ -121,7 +121,7 @@ export default {
             return this.label;
         },
         fieldPlaceholder() {
-            if (this.placeholder) {
+            if (!this.placeholder) {
                 return '';
             }
 

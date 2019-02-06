@@ -1,7 +1,9 @@
 import { Component } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import template from './sw-settings-shipping-create.html.twig';
 
 Component.extend('sw-settings-shipping-create', 'sw-settings-shipping-detail', {
+    template,
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.settings.shipping.create') && !to.params.id) {
             to.params.id = utils.createId();

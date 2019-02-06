@@ -6,7 +6,8 @@ Component.register('sw-settings-shipping-list', {
     template,
 
     mixins: [
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('sw-settings-list'),
+        Mixin.getByName('placeholder')
     ],
 
     data() {

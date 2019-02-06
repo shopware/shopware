@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -60,6 +63,7 @@ class RuleDefinition extends EntityDefinition
             (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, ShippingMethodRuleDefinition::class, false, 'rule_id', 'shipping_method_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

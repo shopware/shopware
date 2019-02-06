@@ -39,6 +39,10 @@
                 </template>
             {% endblock %}
 
+            {% block sw_settings_shipping_stream_list_language_switch %}
+                <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+            {% endblock %}
+
             {% block sw_settings_shipping_list_content %}
                 <sw-card-view slot="content">
                     {% block sw_settings_shipping_list_content_card %}
@@ -63,7 +67,7 @@
                                                         <router-link :title="$tc('sw-settings-shipping.list.contextMenuEdit')"
                                                                      :to="{ name: 'sw.settings.shipping.detail', params: { id: item.id } }">
                                                             {% block sw_settings_shipping_list_columns_name_link %}
-                                                                {{ item.name }}
+                                                                {{ placeholder(item, 'name', item.name) }}
                                                             {% endblock %}
                                                         </router-link>
                                                     {% endblock %}

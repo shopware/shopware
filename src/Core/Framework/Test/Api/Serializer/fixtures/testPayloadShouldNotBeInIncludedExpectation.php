@@ -29,6 +29,10 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/product-price-rules'],
                 ],
+                'shippingMethods' => [
+                    'data' => [],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-methods'],
+                ],
             ],
             'meta' => [
                 'viewData' => [
@@ -49,6 +53,7 @@ return [
                     'id' => null,
                     'versionId' => null,
                     'attributes' => null,
+                    'shippingMethods' => null,
                     '_class' => 'Shopware\Core\Content\Rule\RuleEntity',
                 ],
             ],

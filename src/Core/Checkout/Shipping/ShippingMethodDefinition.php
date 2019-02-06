@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -16,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -47,30 +48,13 @@ class ShippingMethodDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new IntField('type', 'type'))->addFlags(new Required()),
             (new BoolField('bind_shippingfree', 'bindShippingfree'))->addFlags(new Required()),
-            new BoolField('bind_laststock', 'bindLaststock'),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
-            new IntField('position', 'position'),
             new IntField('calculation', 'calculation'),
-            new IntField('surcharge_calculation', 'surchargeCalculation'),
-            new IntField('tax_calculation', 'taxCalculation'),
             new IntField('min_delivery_time', 'minDeliveryTime'),
             new IntField('max_delivery_time', 'maxDeliveryTime'),
             new FloatField('shipping_free', 'shippingFree'),
-            new IntField('bind_time_from', 'bindTimeFrom'),
-            new IntField('bind_time_to', 'bindTimeTo'),
-            new BoolField('bind_instock', 'bindInstock'),
-            new IntField('bind_weekday_from', 'bindWeekdayFrom'),
-            new IntField('bind_weekday_to', 'bindWeekdayTo'),
-            new FloatField('bind_weight_from', 'bindWeightFrom'),
-            new FloatField('bind_weight_to', 'bindWeightTo'),
-            new FloatField('bind_price_from', 'bindPriceFrom'),
-            new FloatField('bind_price_to', 'bindPriceTo'),
-            new LongTextField('bind_sql', 'bindSql'),
-            new LongTextField('status_link', 'statusLink'),
-            new LongTextField('calculation_sql', 'calculationSql'),
             new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
@@ -81,6 +65,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, false, 'shipping_method_id', 'sales_channel_id'),
+            (new ManyToManyAssociationField('availabilityRules', RuleDefinition::class, ShippingMethodRuleDefinition::class, false, 'shipping_method_id', 'rule_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

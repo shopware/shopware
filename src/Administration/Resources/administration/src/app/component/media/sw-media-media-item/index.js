@@ -105,7 +105,7 @@ export default {
 
         getMetaData() {
             const metadata = [
-                this.dateFilter(this.item.uploadedAt, this.locale, { year: 'numeric', month: 'long', day: 'numeric' })
+                this.dateFilter(this.item.uploadedAt, { month: 'long' })
             ];
 
             if (this.item.fileSize) {

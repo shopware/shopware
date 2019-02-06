@@ -17,7 +17,7 @@ $sw-field-color-error: $color-crimson;
     width: 100%;
     margin-bottom: 22px;
 
-    &.has--suffix  {
+    &.has--suffix {
         .sw-field__input {
             display: flex;
 
@@ -58,7 +58,7 @@ $sw-field-color-error: $color-crimson;
     }
 
     &.is--disabled {
-        .sw-field__suffix {
+        .sw-field__addition {
             background: $color-light-gray;
             border-color: $color-steam-cloud;
             color: lighten($sw-field-color-text, 40%);
@@ -164,11 +164,11 @@ $sw-field-color-error: $color-crimson;
         }
     }
     &.sw-field--password {
-      &.has--tooltip {
-        .sw-help-text {
-          right: 40px;
+        &.has--tooltip {
+            .sw-help-text {
+                right: 40px;
+            }
         }
-      }
     }
 
     label {
@@ -209,12 +209,12 @@ $sw-field-color-error: $color-crimson;
             outline: none;
         }
 
-        &:focus + .sw-field__suffix {
+        &:focus + .sw-field__addition {
             border-color: darken($sw-field-color-border, 10%);
         }
 
         &:disabled,
-        &:disabled + .sw-field__suffix {
+        &:disabled + .sw-field__addition {
             background: $color-light-gray;
             border-color: $color-steam-cloud;
             color: lighten($sw-field-color-text, 40%);
@@ -297,7 +297,7 @@ $sw-field-color-error: $color-crimson;
                 outline: none;
             }
 
-            &:focus + .sw-field__suffix {
+            &:focus + .sw-field__addition {
                 border-color: $sw-field-color-focus;
             }
 
@@ -306,7 +306,7 @@ $sw-field-color-error: $color-crimson;
             }
 
             &:disabled,
-            &:disabled + .sw-field__suffix {
+            &:disabled + .sw-field__addition {
                 background: $color-light-gray;
                 border-color: $color-steam-cloud;
                 color: lighten($sw-field-color-text, 40%);
@@ -529,7 +529,7 @@ $sw-field-color-error: $color-crimson;
         }
     }
 
-    .sw-field__suffix {
+    .sw-field__addition {
         min-width: 50px;
         flex-shrink: 0;
         background: $sw-field-suffix-background;
@@ -589,10 +589,10 @@ $sw-field-color-error: $color-crimson;
         input:disabled,
         textarea:disabled,
         select:disabled,
-        .sw-field__suffix {
+        .sw-field__addition {
             border-color: $sw-field-color-error;
 
-            & + .sw-field__suffix {
+            & + .sw-field__addition {
                 border-color: $sw-field-color-error;
             }
 
@@ -619,7 +619,7 @@ $sw-field-color-error: $color-crimson;
             }
         }
 
-        .sw-field__suffix {
+        .sw-field__addition {
             color: $sw-field-color-error;
         }
     }

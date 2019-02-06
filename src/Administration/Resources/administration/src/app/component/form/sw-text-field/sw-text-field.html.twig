@@ -9,7 +9,7 @@
             <div class="sw-field__input">
 
                 {% block sw_prefix %}
-                    <sw-field-suffix v-if="prefix" :suffix="prefix" :is-prefix="true"></sw-field-suffix>
+                    <sw-field-addition v-if="prefix" :text="prefix" :isPrefix="true"></sw-field-addition>
                 {% endblock %}
 
                 <div class="sw_field_input__wrapper">
@@ -35,9 +35,9 @@
                 </div>
 
                 {% block sw_suffix %}
-                    <sw-field-suffix v-if="containSuffix" :suffix="suffix">
+                    <sw-field-addition v-if="containSuffix" :text="suffix">
                         <slot name="suffix"></slot>
-                    </sw-field-suffix>
+                    </sw-field-addition>
                 {% endblock %}
 
                 {% block sw_text_field_copyable %}

@@ -136,7 +136,7 @@ $sw-condition-base-color-error: $color-crimson;
       width: 100%;
     }
 
-    .sw-field__suffix {
+    .sw-field__addition {
       display: none;
     }
   }
@@ -293,7 +293,7 @@ $sw-condition-base-color-error: $color-crimson;
   }
 
   &.has--error .sw-condition-base__container {
-    .sw-field__suffix {
+    .sw-field__addition {
       border: none;
       background: none;
       padding-top: 11px;

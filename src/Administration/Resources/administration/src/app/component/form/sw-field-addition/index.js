@@ -1,11 +1,11 @@
-import template from './sw-field-suffix.html.twig';
+import template from './sw-field-addition.html.twig';
 
 export default {
-    name: 'sw-field-suffix',
+    name: 'sw-field-addition',
     template,
 
     props: {
-        suffix: {
+        text: {
             type: String,
             required: false,
             default: ''
@@ -18,10 +18,6 @@ export default {
     },
 
     computed: {
-        hasSuffix() {
-            return this.suffix.length || !!this.$slots.default;
-        },
-
         fieldClasses() {
             return {
                 'is--prefix': !!this.isPrefix

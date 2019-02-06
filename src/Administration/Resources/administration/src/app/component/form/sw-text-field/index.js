@@ -31,7 +31,6 @@ export default {
             default: 'text'
         },
         label: {
-            type: String,
             required: false,
             default: ''
         },
@@ -49,7 +48,6 @@ export default {
             default: null
         },
         placeholder: {
-            type: String,
             required: false,
             default: ''
         },
@@ -76,6 +74,44 @@ export default {
     },
 
     computed: {
+        locale() {
+            return this.$root.$i18n.locale;
+        },
+        fallbackLocale() {
+            return this.$root.$i18n.fallbackLocale;
+        },
+        fieldLabel() {
+            if (!this.label) {
+                return '';
+            }
+
+            // Check if label is translated
+            if (this.label[this.locale]) {
+                return this.label[this.locale];
+            }
+
+            if (this.label[this.fallbackLocale]) {
+                return this.label[this.fallbackLocale];
+            }
+
+            return this.label;
+        },
+        fieldPlaceholder() {
+            if (this.placeholder) {
+                return '';
+            }
+
+            // Check if placeholder is translated
+            if (this.placeholder[this.locale]) {
+                return this.placeholder[this.locale];
+            }
+
+            if (this.placeholder[this.fallbackLocale]) {
+                return this.placeholder[this.fallbackLocale];
+            }
+
+            return this.placeholder;
+        },
         id() {
             return `sw-field--${this.utilsId}`;
         },

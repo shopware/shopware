@@ -11,14 +11,16 @@
                     :value="value">
 
                 {% block sw_field_input_select_field_placeholder_option %}
-                    <option class="sw-field__placeholder-option" v-if="placeholder"
-                            :value="null">{{ placeholder }}</option>
+                    <option class="sw-field__placeholder-option" v-if="fieldPlaceholder"
+                            :value="null">{{ fieldPlaceholder }}</option>
                 {% endblock %}
 
                 {% block sw_field_input_select_field_options %}
                     <slot v-if="!options"></slot>
 
-                    <option v-else v-for="option in options" :value="option.id">{{ option.name }}</option>
+                    <option v-else v-for="option in options" :value="option.id">
+                        {{ getOptionName(option.name) }}
+                    </option>
                 {% endblock %}
 
             </select>

@@ -17,8 +17,8 @@
         {% endblock %}
 
         {% block sw_field_label_boolean %}
-            <label v-if="label" :for="id">
-                <slot name="label">{{ label }}</slot>
+            <label v-if="fieldLabel" :for="id">
+                <slot name="label">{{ fieldLabel }}</slot>
             </label>
         {% endblock %}
     </div>

@@ -31,5 +31,21 @@ export default {
         typeFieldClass() {
             return 'sw-field--select';
         }
+    },
+
+    methods: {
+        getOptionName(name) {
+            if (name) {
+                if (name[this.locale]) {
+                    return name[this.locale];
+                }
+
+                if (name[this.fallbackLocale]) {
+                    return name[this.fallbackLocale];
+                }
+            }
+
+            return '';
+        }
     }
 };

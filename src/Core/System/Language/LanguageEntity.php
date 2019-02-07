@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
-use Shopware\Core\Framework\Snippet\SnippetCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
@@ -201,11 +200,6 @@ class LanguageEntity extends Entity
      * @var SearchDocumentCollection|null
      */
     protected $searchDocuments;
-
-    /**
-     * @var SnippetCollection|null
-     */
-    protected $snippets;
 
     /**
      * @var DiscountSurchargeTranslationCollection| null
@@ -585,16 +579,6 @@ class LanguageEntity extends Entity
     public function setSearchDocuments(SearchDocumentCollection $searchDocuments): void
     {
         $this->searchDocuments = $searchDocuments;
-    }
-
-    public function getSnippets(): ?SnippetCollection
-    {
-        return $this->snippets;
-    }
-
-    public function setSnippets(SnippetCollection $snippets): void
-    {
-        $this->snippets = $snippets;
     }
 
     public function getSalesChannelDomains(): ?SalesChannelDomainCollection

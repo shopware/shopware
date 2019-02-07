@@ -196,14 +196,14 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onReset(item) {
-            const keys = Object.keys(item).filter((name) => { return name !== 'id'; });
-            const criteria = CriteriaFactory.equalsAny('id', keys);
+            const ids = this.$route.query.ids;
+            const criteria = CriteriaFactory.equalsAny('id', ids);
             this.isLoading = true;
 
             this.snippetSetStore.getList({ criteria }).then((response) => {
                 const resetItems = [];
                 Object.values(item).forEach((currentItem, index) => {
-                    if (!(currentItem instanceof Object)) {
+                    if (!(currentItem instanceof Object) || !ids.find(id => id === currentItem.setId)) {
                         return;
                     }
 
@@ -216,7 +216,7 @@ Component.register('sw-settings-snippet-list', {
                     resetItems.push(currentItem);
                 });
 
-                this.resetItems = resetItems;
+                this.resetItems = resetItems.sort((a, b) => { return a.setName <= b.setName ? -1 : 1; });
                 this.showDeleteModal = item;
             }).finally(() => {
                 this.isLoading = false;
@@ -240,12 +240,20 @@ Component.register('sw-settings-snippet-list', {
             this.hasResetableItems = this.selectionCount === 0;
         },
 
-        onConfirmReset() {
-            const items = Object.values(this.selection);
+        onConfirmReset(fullSelection) {
+            let items;
+            if (this.isCustomState) {
+                items = Object.values(fullSelection).filter(item => typeof item !== 'string');
+            } else if (this.selection !== undefined) {
+                items = Object.values(this.selection);
+            } else {
+                items = Object.values(this.resetItems);
+            }
+
             this.showDeleteModal = false;
 
             items.forEach((item) => {
-                if (item.hasOwnProperty('isFileSnippet')) {
+                if (item.hasOwnProperty('isFileSnippet') || item.id === null) {
                     return;
                 }
                 this.isLoading = true;

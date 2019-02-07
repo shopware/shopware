@@ -40,6 +40,12 @@ export function currency(val, sign) {
 let dateTimeFormatter;
 let dateTimeOptions;
 export function date(val, options = {}) {
+    const dateObj = new Date(val);
+    // eslint-disable-next-line
+    if (isNaN(dateObj)) {
+        return '';
+    }
+
     const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
     const defaultOptions = {
         day: '2-digit',
@@ -53,7 +59,6 @@ export function date(val, options = {}) {
         dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, dateTimeOptions);
     }
 
-    const dateObj = new Date(val);
     return dateTimeFormatter.format(dateObj);
 }
 

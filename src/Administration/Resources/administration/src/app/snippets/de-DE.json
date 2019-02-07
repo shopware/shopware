@@ -139,8 +139,8 @@
       "cancel": "Abbrechen",
       "example": "https://www.beispiel.de",
       "labelFileExtension": "Dateiendung",
-      "invalidUrl": "Bitte gib eine valide URL ein, um eine Datei herunterzuladen.",
-      "missingFileExtension": "Eine Url enthält keine Dateiendung. Bitte gib eine Dateiendung an."
+      "invalidUrl": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
+      "missingFileExtension": "In der angegebenen URL konnte keine Dateiendung gefunden werden. Bitte gib eine Dateiendung an."
     },
     "sw-media-modal-folder-settings": {
       "labelSettings": "Einstellungen",

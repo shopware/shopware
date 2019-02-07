@@ -117,17 +117,6 @@ Component.register('sw-product-detail', {
             );
 
             return this.product.save().then(() => {
-                const productId = this.product.id;
-                const totalTasks = this.uploadStore.getPendingTaskCount(productId);
-
-                return this.uploadStore.runUploads(productId, (runningTasks) => {
-                    const count = totalTasks - runningTasks;
-                    this.createNotification({
-                        title: titleSaveSuccess,
-                        message: this.$tc('sw-product.detail.messageUploadSuccess', 0, { count, total: totalTasks })
-                    });
-                });
-            }).then(() => {
                 this.$refs.mediaSidebarItem.getList();
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
@@ -149,36 +138,15 @@ Component.register('sw-product-detail', {
                 });
                 return;
             }
-
             const productMedia = this.productMediaStore.create();
-            productMedia.isLoading = true;
-            productMedia.catalogId = this.product.catalogId;
-            productMedia.type = 'product_media';
-
-            if (this.product.media.length === 0) {
-                productMedia.position = 0;
-                this.product.coverId = productMedia.id;
-            } else {
-                productMedia.position = this.product.media.length + 1;
-            }
-
-            delete mediaItem.catalog;
-            delete mediaItem.user;
-
-            productMedia.media = mediaItem;
             productMedia.mediaId = mediaItem.id;
-            productMedia.productId = this.product.id;
-
-            productMedia.isLoading = false;
             this.product.media.push(productMedia);
         },
 
         _checkIfMediaIsAlreadyUsed(mediaId) {
-            const index = this.product.media.findIndex((media) => {
-                return media.mediaId === mediaId;
+            return this.product.media.some((productMedia) => {
+                return productMedia.mediaId === mediaId;
             });
-
-            return index > -1;
         }
     }
 });

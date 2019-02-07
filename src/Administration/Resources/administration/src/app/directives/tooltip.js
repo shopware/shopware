@@ -29,7 +29,8 @@ class Tooltip {
         width = 200,
         element,
         showDelay = 100,
-        hideDelay = showDelay
+        hideDelay = showDelay,
+        disabled = false
     }) {
         this._id = id;
         this._position = Tooltip.validatePosition(position);
@@ -38,6 +39,7 @@ class Tooltip {
         this._parentDOMElement = element;
         this._showDelay = showDelay;
         this._hideDelay = hideDelay;
+        this._disabled = disabled;
         this._isShown = false;
         this._state = false;
 
@@ -66,7 +68,7 @@ class Tooltip {
      * @param {number} obj.showDelay
      * @param {number} obj.hideDelay
      */
-    update({ message, position, width, showDelay, hideDelay }) {
+    update({ message, position, width, showDelay, hideDelay, disabled }) {
         if (message && this._message !== message) {
             this._message = Tooltip.validateMessage(message);
             this._DOMElement.innerHTML = this._message;
@@ -90,6 +92,10 @@ class Tooltip {
 
         if (hideDelay && this._hideDelay !== hideDelay) {
             this._hideDelay = hideDelay;
+        }
+
+        if (disabled && this._disabled !== disabled) {
+            this._disabled = disabled;
         }
     }
 
@@ -132,6 +138,10 @@ class Tooltip {
      * Shows or hides the tooltip.
      */
     _toggle() {
+        if (this._disabled) {
+            return;
+        }
+
         if (this._state && !this._isShown) {
             document.body.appendChild(this._DOMElement);
             this._setTooltipDOMElementPosition();
@@ -260,6 +270,7 @@ Directive.register('tooltip', {
         const position = value.position || Object.keys(modifiers)[0];
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;
+        const disabled = value.disabled;
         const width = value.width;
         const tooltip = new Tooltip({
             message: message,
@@ -267,7 +278,8 @@ Directive.register('tooltip', {
             position: position,
             element: el,
             showDelay: showDelay,
-            hideDelay: hideDelay
+            hideDelay: hideDelay,
+            disabled: disabled
         });
 
         tooltipRegistry.set(tooltip.id, tooltip);
@@ -288,6 +300,7 @@ Directive.register('tooltip', {
         const position = value.position || Object.keys(modifiers)[0];
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;
+        const disabled = value.disabled;
         const width = value.width;
 
         if (el.hasAttribute('tooltip-id')) {
@@ -297,7 +310,8 @@ Directive.register('tooltip', {
                 position: position,
                 width: width,
                 showDelay: showDelay,
-                hideDelay: hideDelay
+                hideDelay: hideDelay,
+                disabled: disabled
             });
         }
     }

@@ -9,8 +9,8 @@
                 {% block sw_media_field_preview %}
                     <sw-media-media-item
                         class="sw-media-field__media-list-item sw-media-field__input"
-                        v-if="mediaEntity"
-                        :item="mediaEntity"
+                        v-if="mediaId"
+                        :source="mediaId"
                         :isList="true"
                         :showContextMenuButton="false"
                         :editable="false">
@@ -59,10 +59,10 @@
                         </sw-media-upload>
                     {% endblock %}
 
-                <div v-else class="sw-media-field__media-selection">
-                    {% block sw_media_field_search_field %}
-                        <sw-simple-search-field v-model="searchTerm"></sw-simple-search-field>
-                    {% endblock %}
+                    <div v-else class="sw-media-field__media-selection">
+                        {% block sw_media_field_search_field %}
+                            <sw-simple-search-field v-model="searchTerm"></sw-simple-search-field>
+                        {% endblock %}
 
                     {% block sw_media_field_media_list %}
                         <sw-loader v-if="isLoadingSuggestions" class="sw-media-field__picker-loader" ></sw-loader>

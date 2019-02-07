@@ -1,5 +1,5 @@
 import { Mixin, State } from 'src/core/shopware';
-import util, { fileReader } from 'src/core/service/util.service';
+import util from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import { next1207 } from 'src/flag/feature_next1207';
 import template from './sw-media-upload.html.twig';
@@ -78,7 +78,7 @@ export default {
         return {
             multiSelect: this.allowMultiSelect,
             showUrlInput: false,
-            previewMediaEntity: null,
+            preview: null,
             isDragActive: false,
             defaultFolderPromise: Promise.resolve(null),
             showDuplicatedMediaModal: false,
@@ -115,7 +115,7 @@ export default {
         },
 
         hasPreviewFile() {
-            return this.previewMediaEntity !== null;
+            return this.preview !== null;
         },
 
         toggleButtonCaption() {
@@ -198,9 +198,13 @@ export default {
          */
         onDrop(event) {
             const newMediaFiles = Array.from(event.dataTransfer.files);
-            this.handleUpload(newMediaFiles);
-
             this.isDragActive = false;
+
+            if (newMediaFiles.length === 0) {
+                return;
+            }
+
+            this.handleUpload(newMediaFiles);
         },
 
         onDragEnter() {
@@ -251,21 +255,21 @@ export default {
         onUrlUpload({ url, fileExtension }) {
             if (!this.multiSelect) {
                 this.uploadStore.removeByTag(this.uploadTag);
-                this.createPreviewFromUrl(url);
+                this.preview = url;
             }
 
             this.getMediaEntityForUpload().then((mediaEntity) => {
-                this.uploadStore.addUpload(
+                const taskId = this.uploadStore.addUpload(
                     this.uploadTag,
                     this.buildUrlUpload(
                         url,
                         fileExtension,
                         mediaEntity
                     )
-                );
+                ).id;
 
                 this.$emit('sw-media-upload-new-uploads-added',
-                    { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url }] });
+                    { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url, taskId }] });
             });
 
             this.closeUrlModal();
@@ -296,7 +300,7 @@ export default {
                 this.uploadStore.removeByTag(this.uploadTag);
 
                 const fileToUpload = newMediaFiles.pop();
-                this.createPreviewFromFile(fileToUpload);
+                this.preview = fileToUpload;
                 newMediaFiles = [fileToUpload];
             }
 
@@ -305,10 +309,11 @@ export default {
             const p = newMediaFiles.reduce((promise, file) => {
                 return promise.then(() => {
                     return this.getMediaEntityForUpload().then((mediaEntity) => {
-                        this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
+                        const task = this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
                         data.push({
                             entity: mediaEntity,
-                            src: file
+                            src: file,
+                            taskId: task.id
                         });
                     });
                 });
@@ -391,24 +396,6 @@ export default {
                 }).catch((error) => {
                     return this.handleError(error, mediaEntity, failureMessage, url);
                 });
-            };
-        },
-
-        createPreviewFromFile(file) {
-            fileReader.readAsDataURL(file).then((dataUrl) => {
-                this.previewMediaEntity = {
-                    dataUrl,
-                    mimeType: file.type,
-                    hasFile: true
-                };
-            });
-        },
-
-        createPreviewFromUrl(url) {
-            this.previewMediaEntity = {
-                url: url.href,
-                mimeType: 'image/*',
-                hasFile: true
             };
         },
 

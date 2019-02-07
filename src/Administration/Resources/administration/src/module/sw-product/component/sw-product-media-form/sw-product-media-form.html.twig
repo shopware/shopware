@@ -5,7 +5,6 @@
             <sw-media-upload
                     :uploadTag="product.id"
                     :variant="'regular'"
-                    :autoUpload="false"
                     :scrollTarget="$parent.$el"
                     :defaultFolder="product.entityName"
                     @sw-media-upload-media-upload-success="successfulUpload"
@@ -18,18 +17,16 @@
 
         {% block sw_product_media_form_grid %}
             <div class="sw-product-media-form__grid" ref="grid" :style="gridAutoRows">
+                <sw-loader v-if="product.isLoading"></sw-loader>
                 {%  block sw_product_media_form_grid_items %}
-                    <template v-for="mediaItem in mediaItems">
-                        <sw-loader v-if="mediaItem.isLoading"></sw-loader>
-                        <sw-product-image v-else
-                                @sw-product-image-delete="removeFile(mediaItem.mediaId)"
-                                @sw-product-image-cover="markMediaAsCover(mediaItem)"
-                                :key="mediaItem.mediaId"
-                                :isCover="isCover(mediaItem)"
-                                :isPlaceholder="mediaItem.isPlaceholder"
-                                :item="mediaItem.media">
-                        </sw-product-image>
-                    </template>
+                    <sw-product-image v-for="mediaItem in mediaItems"
+                            @sw-product-image-delete="removeFile(mediaItem)"
+                            @sw-product-image-cover="markMediaAsCover(mediaItem)"
+                            :key="getKey(mediaItem)"
+                            :isCover="isCover(mediaItem)"
+                            :isPlaceholder="mediaItem.isPlaceholder"
+                            :item="mediaItem">
+                    </sw-product-image>
                 {% endblock %}
             </div>
         {% endblock %}

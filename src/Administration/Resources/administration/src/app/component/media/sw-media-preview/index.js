@@ -1,3 +1,5 @@
+import { State, Filter } from 'src/core/shopware';
+import { fileReader } from 'src/core/service/util.service';
 import template from './sw-media-preview.html.twig';
 import './sw-media-preview.scss';
 
@@ -13,11 +15,34 @@ export default {
     name: 'sw-media-preview',
     template,
 
-    props: {
-        item: {
-            required: true,
-            type: Object
+    playableVideoFormats: [
+        'video/mp4',
+        'video/ogg',
+        'video/webm'
+    ],
 
+    playableAudioFormats: [
+        'audio/mp3',
+        'audio/mpeg',
+        'audio/ogg',
+        'audio/wav'
+    ],
+
+    placeHolderThumbnails: {
+        'application/pdf': 'file-thumbnail-pdf',
+        'application/msword': 'file-thumbnail-doc',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-thumbnail-doc',
+        'application/vnd.ms-excel': 'file-thumbnail-xls',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-thumbnail-xls',
+        'application/svg': 'file-thumbnail-svg',
+        'application/vnd.ms-powerpoint': 'file-thumbnail-ppt',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'file-thumbnail-ppt',
+        'application/svg+xml': 'file-thumbnail-svg'
+    },
+
+    props: {
+        source: {
+            required: true
         },
 
         showControls: {
@@ -42,121 +67,194 @@ export default {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        hideTooltip: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
+    data() {
+        return {
+            trueSource: null,
+            width: 0,
+            dataUrl: ''
+        };
+    },
+
     computed: {
+        mediaStore() {
+            return State.getStore('media');
+        },
+
         mediaPreviewClasses() {
             return {
-                'shows--transparency': this.checkForFileTypeImage && this.transparency,
-                'is--icon': this.checkForFileTypeSvg
+                'is--icon': this.isIcon
             };
         },
 
         transparencyClass() {
             return {
-                'shows--transparency': this.checkForFileTypeImage && this.transparency
+                'shows--transparency': this.canBeTransparent
             };
         },
 
-        checkForFileTypeImage() {
-            return this.isFileType('image');
+        canBeTransparent() {
+            if (!this.transparency) {
+                return false;
+            }
+
+            return this.isIcon || this.mimeTypeGroup === 'image';
         },
 
-        checkForFileTypeVideo() {
-            return this.isFileType('video') && this.isVideoPlayable();
+        mimeType() {
+            if (this.trueSource instanceof File) {
+                return this.trueSource.type;
+            }
+
+            if (this.trueSource instanceof URL) {
+                return 'application/octet-stream';
+            }
+
+            return this.trueSource.mimeType;
         },
 
-        checkForFileTypeAudio() {
-            return this.isFileType('audio') && this.isAudioPlayable();
+        mimeTypeGroup() {
+            if (!this.mimeType) {
+                return '';
+            }
+
+            return this.mimeType.split('/')[0];
         },
 
-        checkForFileTypeSvg() {
-            const regEx = /.*svg.*/;
-            return regEx.test(this.item.mimeType);
+        isPlayable() {
+            if (this.$options.playableVideoFormats.includes(this.mimeType)) {
+                return true;
+            }
+
+            if (this.$options.playableAudioFormats.includes(this.mimeType)) {
+                return true;
+            }
+
+            return false;
+        },
+
+        isIcon() {
+            return /.*svg.*/.test(this.mimeType);
         },
 
         placeholderIcon() {
-            if (!this.item.hasFile) {
-                // ToDo change this if design has finished an broken file icon
-                return 'file-thumbnail-normal';
-            }
-
-            if (this.isFileType('video')) {
+            if (this.mimeTypeGroup === 'video') {
                 return 'file-thumbnail-mov';
             }
 
-            if (this.isFileType('audio')) {
+            if (this.mimeTypeGroup === 'audio') {
                 return 'file-thumbnail-mp3';
             }
 
-            const fileExtensions = {
-                'application/pdf': 'file-thumbnail-pdf',
-                'application/msword': 'file-thumbnail-doc',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-thumbnail-doc',
-                'application/vnd.ms-excel': 'file-thumbnail-xls',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-thumbnail-xls',
-                'application/svg': 'file-thumbnail-svg',
-                'application/vnd.ms-powerpoint': 'file-thumbnail-ppt',
-                'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'file-thumbnail-ppt',
-                'application/svg+xml': 'file-thumbnail-svg'
-            };
-
-            return fileExtensions[this.item.mimeType] || 'file-thumbnail-normal';
+            return this.$options.placeHolderThumbnails[this.mimeType] || 'file-thumbnail-normal';
         },
 
-        urlFromItem() {
-            if (this.item.dataUrl) {
-                return this.item.dataUrl;
+        previewUrl() {
+            if (this.trueSource instanceof File) {
+                this.getDataUrlFromFile();
+                return this.dataUrl;
             }
 
-            if (this.useThumbnails && this.item.thumbnails && this.item.thumbnails.length > 0) {
-                const thumbnails = this.item.thumbnails.filter((thumb) => {
-                    return thumb.height === 300;
-                });
-                if (thumbnails.length > 0) {
-                    return thumbnails[0].url;
-                }
-
-                return this.item.thumbnails[0].url;
+            if (this.trueSource instanceof URL) {
+                return this.trueSource.href;
             }
 
-            return this.item.url;
+            return this.getUrlFromMediaEntity();
+        },
+
+        alt() {
+            if (this.trueSource.alt) {
+                return this.trueSource.alt;
+            }
+            return this.trueSource.fileName;
+        },
+
+        mediaNameFilter() {
+            return Filter.getByName('mediaName');
         }
     },
 
+    watch: {
+        source() {
+            this.fetchSourceIfNecessary();
+        }
+    },
+
+    created() {
+        this.componentCreated();
+    },
+
+    mounted() {
+        this.width = this.$el.offsetWidth;
+    },
+
     methods: {
+        componentCreated() {
+            this.fetchSourceIfNecessary();
+        },
+
+        fetchSourceIfNecessary() {
+            if (typeof this.source === 'string') {
+                this.trueSource = this.mediaStore.getById(this.source);
+                return;
+            }
+
+            this.trueSource = this.source;
+        },
+
         onPlayClick(originalDomEvent) {
             if (!(originalDomEvent.shiftKey || originalDomEvent.ctrlKey)) {
                 originalDomEvent.stopPropagation();
                 this.$emit('sw-media-preview-play', {
                     originalDomEvent,
-                    item: this.item
+                    item: this.trueSource
                 });
             }
         },
 
-        isVideoPlayable() {
-            return [
-                'video/mp4',
-                'video/ogg',
-                'video/webm'
-            ].includes(this.item.mimeType);
+        getDataUrlFromFile() {
+            if (this.mimeTypeGroup !== 'image') {
+                return;
+            }
+
+            fileReader.readAsDataURL(this.trueSource).then((dataUrl) => {
+                this.dataUrl = dataUrl;
+            });
         },
 
-        isAudioPlayable() {
-            return [
-                'audio/mp3',
-                'audio/mpeg',
-                'audio/ogg',
-                'audio/wav'
-            ].includes(this.item.mimeType);
+        getUrlFromMediaEntity() {
+            if (!this.useThumbnails || this.width === 0) {
+                return this.trueSource.url;
+            }
+
+            return this._getBestFitUrl();
         },
 
-        isFileType(filetype) {
-            const regEx = new RegExp(`^${filetype}\\/+`);
+        _getBestFitUrl() {
+            if (this.trueSource.thumbnails.length === 0) {
+                return this.trueSource.url;
+            }
 
-            return regEx.test(this.item.mimeType);
+            const copyOfThumbnails = this.trueSource.thumbnails.slice(0);
+            const bestFitThumbnail = copyOfThumbnails.sort((a, b) => {
+                return a.width - b.width;
+            }).find((thumbnail) => {
+                return thumbnail.width >= this.width;
+            });
+
+            if (bestFitThumbnail) {
+                return bestFitThumbnail.url;
+            }
+
+            return this.trueSource.url;
         }
     }
 };

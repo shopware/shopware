@@ -139,7 +139,7 @@
       "cancel": "Cancel",
       "example": "https://www.example.com",
       "labelFileExtension": "File extension",
-      "invalidUrl": "Please enter a valid URL to download a file.",
+      "invalidUrl": "Please enter a valid URL to upload a file.",
       "missingFileExtension": "The URL does not contain a file extension. Please enter a file extension above."
     },
     "sw-media-modal-folder-settings": {

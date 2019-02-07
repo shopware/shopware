@@ -129,11 +129,16 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $values = [];
         $sets = [];
+
+        $query = new QueryBuilder($this->connection);
+        $query->update('`' . $command->getDefinition()::getEntityName() . '`');
+
         foreach ($command->getPayload() as $attribute => $value) {
+            // add path and value for each attribute value pair
             $values[] = '$.' . $attribute;
 
             if (is_array($value) || is_object($value)) {
-                $values[] = json_encode($value, JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_UNICODE);
+                $values[] = \json_encode($value, JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_UNICODE);
                 $sets[] = '?, CAST(? AS json)';
             } else {
                 $values[] = $value;
@@ -141,20 +146,18 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
         }
 
-        $identifier = $command->getPrimaryKey();
-        $conditions = [];
-        foreach ($identifier as $key => $value) {
-            $conditions[] = $key . ' = ?';
-        }
-
-        $tableExpression = $command->getDefinition()::getEntityName();
         $storageName = $command->getStorageName();
-        $sql = 'UPDATE `' . $tableExpression . '`'
-            . ' SET ' . $storageName . ' = JSON_SET(' . $storageName . ', ' . implode(', ', $sets) . ')'
-            . ' WHERE ' . implode(' AND ', $conditions);
+        $query->set(
+            $storageName,
+            sprintf('JSON_SET(%s, %s)', $storageName, implode(', ', $sets))
+        );
 
-        $values = array_merge($values, array_values($identifier));
-        $this->connection->executeUpdate($sql, $values);
+        $identifier = $command->getPrimaryKey();
+        foreach ($identifier as $key => $value) {
+            $query->andWhere($key . ' = ?');
+        }
+        $query->setParameters(array_merge($values, array_values($identifier)));
+        $query->execute();
     }
 
     /**

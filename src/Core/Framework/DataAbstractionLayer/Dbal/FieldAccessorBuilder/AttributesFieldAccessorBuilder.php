@@ -78,7 +78,6 @@ class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
                     $jsonValueExpr
                 );
             default:
-                // TODO: use connection collation? do we support different collations than utf8mb4_unicode_ci?
                 return sprintf(
                     'IF(JSON_TYPE(%s) != "NULL", JSON_UNQUOTE(%s) COLLATE utf8mb4_unicode_ci, NULL)',
                     $jsonValueExpr,

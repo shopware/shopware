@@ -12,7 +12,6 @@ module.exports = {
     'open order module and find order': (browser) => {
         const page = orderPage(browser);
 
-        console.log('timeout ', browser.waitForConditionTimeout);
         browser
             .openMainMenuEntry('#/sw/order/index', 'Orders')
             .waitForElementVisible('.smart-bar__actions')

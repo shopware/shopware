@@ -1,49 +1,50 @@
 #!/bin/sh
 
-PROJECT=`php -r "echo dirname(dirname(realpath('$0')));"`
-STAGED_FILES_CMD=`git diff --cached --name-only --diff-filter=ACMR HEAD | grep \\\\.php`
+PLATFORM_ROOT="$(git rev-parse --show-toplevel)"
+PROJECT_ROOT="${PROJECT_ROOT:-"$(cd "$PLATFORM_ROOT"/.. && git rev-parse --show-toplevel)"}"
+AUTOLOAD_FILE="$PROJECT_ROOT/vendor/autoload.php"
 
-# Determine if a file list is passed
-if [ "$#" -eq 1 ]
+function onExit {
+    if [[ $? != 0 ]]
+    then
+        echo "Fix the error before commit."
+    fi
+}
+trap onExit EXIT
+
+FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.php$')"
+
+# exit on non-zero return code
+set -e
+
+if [[ -z "$FILES" ]]
 then
-	oIFS=$IFS
-	IFS='
-	'
-	SFILES="$1"
-	IFS=$oIFS
+    exit 0
 fi
-SFILES=${SFILES:-$STAGED_FILES_CMD}
 
-for FILE in $SFILES
+for FILE in $FILES
 do
-	php -l -d display_errors=0 $PROJECT/$FILE 1> /dev/null
-	if [ $? != 0 ]
-	then
-		echo "Fix the error before commit."
-		exit 1
-	fi
-	FILES="$FILES $PROJECT/$FILE"
+    php -l -d display_errors=0 "$FILE" 1> /dev/null
 done
 
-if [ "$FILES" != "" ]
-then
-    PLATFORM="$(git rev-parse --show-toplevel)"
-    DEV="$(cd $PLATFORM/.. && git rev-parse --show-toplevel)"
-    AUTOLOAD_FILE="$DEV/vendor/autoload.php"
+bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file="$AUTOLOAD_FILE" $FILES
 
-	bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file=$AUTOLOAD_FILE $FILES
-	if [ $? != 0 ]
-	then
-		echo "Fix the error before commit."
-		exit 1
-	fi
+
+UNSTAGED_FILES="$(git diff --name-only -- $FILES)"
+
+if [[ -n "$UNSTAGED_FILES" ]]
+then
+    echo "Error: There are staged files with unstaged changes. We cannot automatically fix and add those.
+
+Please add or revert the following files:
+
+$UNSTAGED_FILES
+"
+    exit 1
 fi
 
-if [ "$FILES" != "" ]
-then
-    # fix code style and update the commit
-	bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv $FILES
-    git add $FILES
-fi
+# fix code style and update the commit
+bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv $FILES
+git add $FILES
 
-exit $?
+

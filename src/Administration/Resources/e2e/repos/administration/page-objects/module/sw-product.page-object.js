@@ -23,7 +23,7 @@ class ProductPageObject extends GeneralPageObject {
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
             .click(this.elements.productSaveAction)
-            .checkNotification(`Product "${productName}" has been saved successfully`);
+            .checkNotification(`Product "${productName}" has been saved successfully.`);
     }
 
     addProductImageViaUrl(imagePath, productName) {
@@ -38,10 +38,10 @@ class ProductPageObject extends GeneralPageObject {
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible('.sw-media-preview__item')
-            .checkNotification('File has been saved successfully')
+            .checkNotification('File has been saved successfully.')
             .waitForElementVisible(this.elements.productSaveAction)
             .click(this.elements.productSaveAction)
-            .checkNotification(`Product "${productName}" has been saved successfully`);
+            .checkNotification(`Product "${productName}" has been saved successfully.`);
     }
 
     deleteProduct(productName) {

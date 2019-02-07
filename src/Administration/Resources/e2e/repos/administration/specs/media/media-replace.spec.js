@@ -70,8 +70,8 @@ module.exports = {
             .waitForElementVisible(`${page.elements.gridItem}--0 ${page.elements.previewItem}`)
             .waitForElementVisible('.sw-media-replace__replace-media-action')
             .click('.sw-media-replace__replace-media-action')
-            .checkNotification('File replaced', `${page.elements.notification}--1`)
-            .checkNotification('File has been saved successfully');
+            .checkNotification('File successfully replaced.', `${page.elements.notification}--1`)
+            .checkNotification('File has been saved successfully.');
     },
     'verify if image was replaced correctly': (browser) => {
         const page = mediaPage(browser);

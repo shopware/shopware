@@ -3,7 +3,7 @@
     "notification": {
       "notificationSaveErrorTitle": "Fehler",
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
-      "notificationSaveSuccessTitle": "Erfolgreich",
+      "notificationSaveSuccessTitle": "Erfolg",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
     "sw-admin-menu": {
@@ -15,10 +15,10 @@
     },
     "sw-field": {
       "notification": {
-        "notificationCopySuccessTitle": "Erfolgreich",
-        "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert",
-        "notificationCopyFailureTitle": "Fehlgeschlagen",
-        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden"
+        "notificationCopySuccessTitle": "Erfolg",
+        "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert.",
+        "notificationCopyFailureTitle": "Fehler",
+        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden."
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen"
@@ -127,7 +127,7 @@
       "buttonFileUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
-      "buttonSwitchToUrlUpload": "Datei von Url hochladen",
+      "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",
       "notificationSuccess": "Datei erfolgreich gespeichert.",
       "notificationFailure": "Fehler beim Hochladen.",
@@ -207,15 +207,15 @@
         "currencyRule": "Währung",
         "billingCountryRule": "Rechnungsland",
         "billingStreetRule": "Rechnungsstraße",
-        "billingZipCodeRule": "Rechnung PLZ",
+        "billingZipCodeRule": "Rechnungs-PLZ",
         "customerGroupRule": "Kundengruppe",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Abweichende Adressen",
         "isNewCustomerRule": "Neuer Kunde",
-        "lastNameRule": "Kunden Nachname",
+        "lastNameRule": "Kunden-Nachname",
         "shippingCountryRule": "Lieferland",
         "shippingStreetRule": "Lieferstraße",
-        "shippingZipCodeRule": "Liefer PLZ",
+        "shippingZipCodeRule": "Liefer-PLZ",
         "cartAmountRule": "Warenkorbwert",
         "goodsCountRule": "Anzahl Warenkorb Artikel",
         "goodsPriceRule": "Gesamtpreis Warenkorb Artikel",
@@ -261,7 +261,7 @@
     "entities": {
       "cart": "Warenkorb | Warenkörbe",
       "catalog": "Katalog | Kataloge",
-      "category": "Kategorie | Kategorein",
+      "category": "Kategorie | Kategorien",
       "country": "Land | Länder",
       "currency": "Währung | Währungen",
       "customer": "Kunde | Kunden",
@@ -278,9 +278,9 @@
       "order_address": "Adresse | Adressen",
       "order_delivery": "Lieferung | Lieferungen",
       "order_line_item": "Bestellposition | Bestellpositionen",
-      "order_state": "Bestellstatus | Bestellstati",
+      "order_state": "Bestellstatus | Bestellstatus",
       "order_transaction": "Zahlung | Zahlungen",
-      "order_transaction_state": "Zahlungsstatus | Zahlungsstati",
+      "order_transaction_state": "Zahlungsstatus | Zahlungsstatus",
       "payment_method": "Zahlungsart | Zahlungsarten",
       "product": "Produkt | Produkte",
       "product_manufacturer": "Hersteller",
@@ -308,16 +308,16 @@
       "placeholderUsername": "Gib Deinen Benutzernamen ein...",
       "placeholderPassword": "Gib Dein Passwort ein...",
       "buttonLogin": "Anmelden",
-      "titleErrorMessage": "Anmeldung",
-      "messageUnsupportedGrantType": "Grant Type wird nicht unterstützt.",
+      "titleErrorMessage": "Fehler",
+      "messageUnsupportedGrantType": "Grant-Type wird nicht unterstützt.",
       "messageInvalidRequest": "Der Request war invalide.",
-      "messageInvalidClient": "Die Client Authentifizierung schlug fehl.",
+      "messageInvalidClient": "Die Client-Authentifizierung schlug fehl.",
       "messageInvalidScope": "Der angegebene Scope ist invalide.",
       "messageInvalidCredentials": "Die Benutzerinformationen sind invalide.",
       "messageServerError": "Ein allgemeiner Fehler beim Authenfizierungsserver ist aufgetreten.",
       "messageInvalidRefreshToken": "Der angegebene Refresh-Token ist invalide.",
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
-      "messageInvalidGrant": "Der Grant Type oder der Refresh-Token ist invalide.",
+      "messageInvalidGrant": "Der Grant-Type oder der Refresh-Token sind invalide.",
       "messageGeneralRequestError": "Der Request an \"{url}\" ist fehlgeschlagen."
     }
   },
@@ -339,7 +339,7 @@
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
       "buttonAddCustomer": "Kunden anlegen",
-      "columnCustomerNumber": "Kd. Nr.",
+      "columnCustomerNumber": "Kd.-Nr.",
       "columnName": "Name",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
@@ -393,8 +393,8 @@
     "detailBase": {
       "labelAccountCard": "Konto",
       "labelAddressesCard": "Adressen",
-      "titleDefaultShippingAddress": "Standard Lieferadresse",
-      "titleDefaultBillingAddress": "Standard Rechnungsadresse",
+      "titleDefaultShippingAddress": "Standard-Lieferadresse",
+      "titleDefaultBillingAddress": "Standard-Rechnungsadresse",
       "buttonAddAddress": "Adresse anlegen",
       "buttonTitleEditAddress": "Adresse bearbeiten",
       "buttonSave": "Speichern",
@@ -412,8 +412,8 @@
       "modalTitleEditAddress": "Adresse bearbeiten",
       "modalTitleDeleteAddress": "Adresse löschen",
       "textDeleteAddressConfirm": "Möchtest Du diese Adresse wirklich löschen?",
-      "columnDefaultShippingAddress": "Standard Lieferadresse",
-      "columnDefaultBillingAddress": "Standard Rechnungsadresse",
+      "columnDefaultShippingAddress": "Standard-Lieferadresse",
+      "columnDefaultBillingAddress": "Standard-Rechnungsadresse",
       "columnCompany": "Firma",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
@@ -446,7 +446,7 @@
       "headlineNewCustomer": "Neuer Kunde",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
-      "titleSaveSuccess": "Kunden",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gespeichert."
     }
   },
@@ -457,7 +457,7 @@
       "mainMenuItemCreate": "Katalog anlegen",
       "headlineCatalogs": "Kataloge",
       "introHeadlineCatalogs": "Willkommen in der Katalogverwaltung",
-      "introDescriptionCatalogs": "Alle Informationen, wie Produkte, Seiten oder Medien werden in einem Katalog abgelegt. Alle Daten eines Kataloges können in Kategorien strukturiert werden. Du kannst einen Katalog dazu benutzen, um Deine Produkte und Inhalte auf einem oder mehreren Verkaufskanälen auszuspielen. Man kann außerdem weitere Kataloge anlegen, um z.B. neue Sortimente besser zu verwalten.",
+      "introDescriptionCatalogs": "Alle Informationen, wie Produkte, Seiten oder Medien werden in Katalogen abgelegt. Alle Daten eines Kataloges können in Kategorien strukturiert werden. Du kannst einen Katalog dazu benutzen, um Deine Produkte und Inhalte auf einem oder mehreren Verkaufskanälen auszuspielen. Du kannst außerdem Kataloge anlegen, um z.B. neue Sortimente besser verwalten zu können.",
       "buttonCreateCatalog": "Katalog anlegen"
     },
     "list": {
@@ -499,8 +499,8 @@
       "descriptionLabel": "Beschreibung",
       "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
       "categoryNameLabel": "Name",
-      "titleSaveSuccess": "Kategorien",
-      "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
       "useAsLogo": "Als Logo verwenden",
       "treeHeadline": "Kategoriestruktur",
       "actions": {
@@ -519,7 +519,7 @@
       "headlineIntegrations": "Integrationen",
       "buttonCreateIntegration": "Integration anlegen",
       "heroHeadlineIntegrations": "Willkommen in der Integrationsverwaltung",
-      "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, werden zur Authentifizierung entsprechende Sicherheitsschlüssel benötigt. Du kannst Zugänge für jede einzelne Anwendung erstellen und so im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
+      "heroDescriptionIntegrations": "Shopware bietet Dir eine leistungsstarke API, um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit Shopware mit anderen Systemen kommunizieren kann, werden zur Authentifizierung sogenannte Sicherheitsschlüssel benötigt. Du kannst so Zugänge für jede einzelne Anwendung erstellen und dadurch im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
     },
     "list": {
       "contextMenuEdit": "Bearbeiten",
@@ -537,14 +537,14 @@
       "labelFieldLabel": "Name",
       "idFieldLabel": "Zugangs-ID",
       "secretFieldLabel": "Sicherheitsschlüssel",
-      "secretHelpText": "Der aktuell angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte speichere den Schlüssel zur Verwendung an einem sicheren Ort. Solltest Du den Schlüssel dennoch verlieren, kannst Du hier jederzeit einen Neuen für die Anwendung generieren.",
+      "secretHelpText": "Der aktuell angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte hinterlege den Schlüssel zur Verwendung an einem sicheren Ort. Solltest Du den Schlüssel dennoch verlieren, kannst Du hier jederzeit einen Neuen für die Anwendung generieren.",
       "secretHelpTextTitle": "Wichtig!",
       "writeAccessFieldLabel": "Schreibrechte",
-      "titleSaveSuccess": "Integration",
-      "messageSaveSuccess": "Integration erfolgreich gespeichert",
-      "titleSaveError": "Integration",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Integration erfolgreich gespeichert.",
+      "titleSaveError": "Fehler",
       "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
-      "titleCreateNewError": "Integration",
+      "titleCreateNewError": "Fehler",
       "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
     }
   },
@@ -575,9 +575,9 @@
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
-      "labelPurchasePriceGross": "Einkaufspreis (Netto)",
+      "labelPurchasePriceGross": "Einkaufspreis (Brutto)",
       "labelUnit": "Maßeinheit",
-      "labelPurchaseUnit": "Inhalt",
+      "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
       "placeholderTaxRate": "Wähle einen Steuersatz aus...",
@@ -587,7 +587,7 @@
       "placeholderReferenceUnit": "Grundeinheit...",
       "placeholderPackUnit": "Karton, Flasche...",
       "optionLitre": "Liter",
-      "optionKilogram": "KG",
+      "optionKilogram": "Kilogramm",
       "optionMetre": "Meter"
     },
     "settingsForm": {
@@ -606,7 +606,7 @@
       "labelShippingFree": "Versandkostenfrei",
       "labelMarkAsTopseller": "Produkt hervorheben",
       "placeholderCreatedAt": "Gib ein Erstelldatum ein...",
-      "placeholderReleaseDate": "Gib ein Einstellungsdatum ein...",
+      "placeholderReleaseDate": "Gib ein Einstelldatum ein...",
       "placeholderWidth": "500...",
       "placeholderHeight": "200...",
       "placeholderLength": "100...",
@@ -669,7 +669,7 @@
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften",
-      "titleSaveSuccess": "Produkte",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
     },
@@ -716,7 +716,7 @@
       "placeholderName": "Gib einen Herstellernamen ein...",
       "placeholderDescription": "Gib eine Herstellerbeschreibung ein...",
       "placeholderLink": "Gib die Herstellerwebseite ein...",
-      "titleSaveSuccess": "Hersteller",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert.",
       "labelUseAsLogo": "Als Logo nutzen"
     }
@@ -799,7 +799,7 @@
       "labelOrderVersionEditedByOtherUser" : "Sie wurde zuletzt durch einen anderen Nutzer editiert.",
       "buttonContinueOnVersionedOrder" : "Laden",
       "buttonAddDeliveryAddress" : "Neue Addresse hinzufügen",
-      "labelSameDeliveryAndBillingAddress" : "Rechungs- und Lieferadresse sind identisch",
+      "labelSameDeliveryAndBillingAddress" : "Rechnungs- und Lieferadresse sind identisch",
       "tax": "Enthaltene Steuern:",
       "shippingCostsTax": "{taxRate}%: {tax}"
     },
@@ -844,14 +844,14 @@
       "titleDescription": "Informationen"
     },
     "detail": {
-      "titleSaveSuccess": "Verkaufskanal",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Der Verkaufskanal {name} wurde erfolgreich gespeichert.",
       "buttonSave": "Speichern",
       "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
-      "labelAccessKeyField": "API Zugangs-ID",
-      "titleAPIError": "API Zugangs-ID!",
-      "messageAPIError": "Der API Schlüssel konnte nicht generiert werden",
+      "labelAccessKeyField": "API-Zugangs-ID",
+      "titleAPIError": "Fehler",
+      "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
       "titleGeneralSettings": "Grundeinstellungen",
       "labelInputName": "Name",
       "labelInputActive": "Aktiv",
@@ -921,7 +921,7 @@
       "metadata": {
         "name": "Name",
         "fileType": "Dateityp",
-        "altText": "Alt Text",
+        "altText": "Alt-Text",
         "title": "Titel",
         "mimeType": "MIME-Type",
         "fileSize": "Größe",
@@ -944,7 +944,7 @@
     },
     "index": {
       "buttonCreateFolder": "Neuen Ordner hinzufügen",
-      "messageEmpty": "Du hast noch keine Medien hochgeladen",
+      "messageEmpty": "Noch keine Medien hochgeladen",
       "labelSort": "Sortiere nach:",
       "labelPresentation": "Darstellung:",
       "labelPresentationSmall": "Kleine Vorschau",
@@ -986,7 +986,7 @@
       "buttonAddCurrency": "Währung anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Währung löschen",
-      "titleDeleteSuccess": "Währung",
+      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Währung {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -994,14 +994,14 @@
     "detail": {
       "textHeadline": "Neue Währung",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Währung",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Währung {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelShortName": "Kurzname",
       "labelSymbol": "Symbol",
       "labelFactor": "Faktor",
       "placeholderName": "Namen eingeben...",
-      "placeholderShortName": "Kurzname eingeben...",
+      "placeholderShortName": "Kurznamen eingeben...",
       "placeholderSymbol": "Symbol eingeben...",
       "placeholderFactor": "Faktor eingeben...",
       "buttonCancel": "Abbrechen",
@@ -1011,12 +1011,12 @@
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Textbausteine",
-      "description": "Das Shopware Textbausteine-Modul",
+      "description": "Das Shopware Textbaustein-Modul",
       "copyName": "Kopie",
-      "errorBackRoutingTitle": "Fehlerhafter Seitenaufruf",
+      "errorBackRoutingTitle": "Fehler",
       "errorBackRoutingMessage": "Die aufgerufene Seite konnte nicht verarbeitet werden. Du wurdest zurückgeleitet.",
-      "placeholderSearchBarSets": "Finde Textbaustein-Sets (Name, Basisdatei)",
-      "placeholderSearchBarSnippets": "Finde Textbausteine (Name, Inhalt, Bereich)",
+      "placeholderSearchBarSets": "Durchsuche alle Textbaustein-Sets",
+      "placeholderSearchBarSnippets": "Durchsuche alle Textbausteine",
       "placeholderValue": "Inhalt definieren",
       "searchBarTitleSets": "Textbaustein-Sets",
       "searchBarTitleSnippets": "Textbausteine"
@@ -1035,8 +1035,8 @@
       "messageSaveError": "Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
       "messageSaveSuccess": "Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
       "textHeadline": "Neuer Textbaustein",
-      "titleSaveError": "Fehler: Textbausteine",
-      "titleSaveSuccess": "Textbausteine"
+      "titleSaveError": "Fehler",
+      "titleSaveSuccess": "Erfolg"
     },
     "list": {
       "buttonAdd": "Neuer Textbaustein",
@@ -1058,17 +1058,17 @@
       "textResetConfirm": "Möchtest Du den Textbaustein \"{key}\" für dieses Textbaustein-Set wirklich zurücksetzen? | Möchtest Du die Textbausteine für \"{key}\" wirklich zurücksetzen?",
       "textSidebarCustomItems": "Eigene Textbausteine anzeigen",
       "textSnippetList": "Textbausteine von \"{setName}\" | Textbausteine",
-      "titleDeleteSuccess": "Textbausteine",
-      "titleSaveError": "Fehler: Textbausteine",
+      "titleDeleteSuccess": "Erfolg",
+      "titleSaveError": "Fehler",
       "resetErrorMessage": "Der Textbaustein \"{key}\" konnte nicht zurückgesetzt werden.",
       "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt.",
-      "titleSaveSuccess": "Textbausteine",
+      "titleSaveSuccess": "Erfolg",
       "titleSidebarCustomItems": "Eigene Textbausteine",
       "titleSidebarItemRefresh": "Aktualisieren"
     },
     "setList": {
       "title": "Textbaustein-Sets verwalten & bearbeiten",
-      "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle Sets aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst Du hier Textbaustein-Sets importieren, neue anlegen und bestehende als CSV-Datei exportieren.",
+      "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle ein Set aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst Du hier Textbaustein-Sets importieren, neue anlegen und bestehende als CSV-Datei exportieren.",
       "cardTitle" : "Testbaustein-Sets",
       "buttonAddSet": "Textbaustein-Set hinzufügen",
       "buttonCancel": "Abbrechen",
@@ -1105,7 +1105,7 @@
       "switchOnlyEmpty": "Leere Textbausteine",
       "showOnlyEmpty": "Leere Textbausteine anzeigen",
       "author": "Autor",
-      "more": "Weitere Filer"
+      "more": "Weitere Filter"
     }
   },
   "sw-settings-rule": {
@@ -1144,13 +1144,13 @@
       "labelName": "Name",
       "labelDescription": "Beschreibung",
       "labelPriority": "Priorität",
-      "placeholderName": "Lege einen Namen für diese Regel fest..",
-      "placeholderDescription": "Lege eine Beschreibung für diese Regel fest..",
-      "placeholderPriority": "Lege eine Priorität für diese Regel fest..",
-      "titleSaveSuccess": "Regel",
+      "placeholderName": "Lege einen Namen für diese Regel fest",
+      "placeholderDescription": "Lege eine Beschreibung für diese Regel fest",
+      "placeholderPriority": "Lege eine Priorität für diese Regel fest",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
       "ruleCard": "Bedingungen",
-      "titleSaveError": "Regel",
+      "titleSaveError": "Fehler",
       "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten."
     }
   },
@@ -1168,7 +1168,7 @@
       "buttonAddTax": "Steuer anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Steuer löschen",
-      "titleDeleteSuccess": "Steuern",
+      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Steuer {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -1176,7 +1176,7 @@
     "detail": {
       "textHeadline": "Neue Steuer",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Steuer",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Steuer {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelTaxRate": "Steuersatz",
@@ -1196,13 +1196,13 @@
       "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache {name} löschen möchtest?",
       "columnName": "Name",
       "columnLocaleName": "Lokalisierung",
-      "columnIsoCode": "ISO Code ",
+      "columnIsoCode": "ISO-Code ",
       "columnInherit": "Erbt von",
       "columnDefault": "Standard",
       "buttonAddLanguage": "Sprache anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Sprache löschen",
-      "titleDeleteSuccess": "Sprachen",
+      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Sprache {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
@@ -1214,24 +1214,24 @@
     "detail": {
       "textHeadline": "Neue Sprache",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Sprachen",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Sprache {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelLocale": "Lokalisierung",
       "labelParent": "Erben von",
       "labelIsoCode": "ISO Code",
-      "labelDefault": "Als Standard System Sprache benutzen",
+      "labelDefault": "Als Systemstandardsprache benutzen",
       "placeholderName": "Namen eingeben...",
       "placeholderPleaseSelect": "Bitte wählen...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "tooltipLanguageNotChoosable": "Es kann nur von einer Sprache geerbt werden, welche nicht bereits selbst erbt.",
-      "tooltipIsoCodeNotChoosable": "Es können nur ungenutzte Sprachcodes verwendet werden.",
+      "tooltipLanguageNotChoosable": "Es kann nur von einer Sprache geerbt werden, die nicht bereits selbst erbt.",
+      "tooltipIsoCodeNotChoosable": "Es können nur bisher ungenutzte Sprachcodes verwendet werden.",
       "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
       "titleAlertChangeParent": "Achtung",
-      "textIsoCodeIsInUse": "Dieser ISO Code wird bereits verwendet.",
-      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen.",
-      "helpTextDefaultField": "Das Ändern der System Standard Sprache ist zur Zeit leider noch nicht möglich."
+      "textIsoCodeIsInUse": "Dieser ISO-Code wird bereits verwendet.",
+      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen Sprache.",
+      "helpTextDefaultField": "Das Ändern der Systemstandardsprache ist zur Zeit leider noch nicht möglich."
     }
   },
   "sw-settings-payment": {
@@ -1248,7 +1248,7 @@
       "buttonAddPaymentMethod": "Zahlungsart anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Zahlungsart löschen",
-      "titleDeleteSuccess": "Zahlungsart",
+      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Zahlungsart {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -1256,7 +1256,7 @@
     "detail": {
       "textHeadline": "Neue Zahlungsart",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Zahlungsart",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Zahlungsart {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelTechnicalName": "Technischer Name",
@@ -1275,7 +1275,7 @@
   "sw-settings-shipping": {
     "general": {
       "mainMenuItemGeneral": "Versandarten",
-      "placeholderSearchBar": "Durchsuchen aller Versandarten"
+      "placeholderSearchBar": "Durchsuche alle Versandarten"
     },
     "list": {
       "textHeadline": "Versandarten",
@@ -1286,7 +1286,7 @@
       "buttonAddShippingMethod": "Versandart anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Versandart löschen",
-      "titleDeleteSuccess": "Versandart",
+      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Versandart {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -1294,12 +1294,12 @@
     "detail": {
       "textHeadline": "Neue Versandart",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Versandart",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Versandart {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelActive": "Aktiv",
       "labelBindShippingfree": "Versandkostenfrei",
-      "placeholderName": "Name eingeben...",
+      "placeholderName": "Namen eingeben...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }
@@ -1317,7 +1317,7 @@
       "buttonAddCountry": "Land anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Land löschen",
-      "titleDeleteSuccess": "Land",
+      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Das Land {name} wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -1325,7 +1325,7 @@
     "detail": {
       "textHeadline": "Neues Land",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Land",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Land {name} wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelActive": "Aktiv",
@@ -1345,7 +1345,7 @@
     },
     "index": {
       "buttonSaveLabel": "Speichern",
-      "titleInfoCard": "Profilinformation",
+      "titleInfoCard": "Profilinformationen",
       "titleImageCard": "Profilbild",
       "titlePasswordCard": "Passwort",
       "labelNameField": "Name",
@@ -1353,17 +1353,17 @@
       "labelEmailField": "E-Mail",
       "labelPasswordField": "Neues Passwort",
       "labelPasswordConfirmField": "Passwort bestätigen",
-      "textImageInfo": "Wir benutzen das <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> Profilbild, welches für Deine E-Mail Addresse hinterlegt ist.",
-      "notificationPasswordErrorTitle": "Passwort Fehler",
+      "textImageInfo": "Wir benutzen das <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> Profilbild, das für Deine E-Mail Addresse hinterlegt ist.",
+      "notificationPasswordErrorTitle": "Fehler",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwortinformationen sind nicht valide.",
-      "notificationSaveSuccessTitle": "Dein Profil",
+      "notificationSaveSuccessTitle": "Erfolg",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert."
     }
   },
   "sw-error": {
     "general": {
       "statusCodePlaceholder": "Fehler",
-      "messagePlaceholder": "Es ist ein Fehler aufgetreten und die Seite konnte nicht geladen werden",
+      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden.",
       "textLink": "Zurück"
     }
   },
@@ -1395,7 +1395,7 @@
       "numericSortingType": "Numerisch",
       "alphanumericSortingType": "Alphanumerisch",
       "positionSortingType": "Individuell",
-      "cardTitleGroupInfo": "Basis Information",
+      "cardTitleGroupInfo": "Basisinformation",
       "labelName": "Name",
       "placeholderName": "Namen eingeben",
       "labelDisplayType": "Darstellung",
@@ -1403,7 +1403,7 @@
       "labelOptionName": "Name",
       "labelOptionColor": "Farbe",
       "labelOptionMedia": "Bild",
-      "placeholderOptionName": "Name eingeben",
+      "placeholderOptionName": "Namen eingeben",
       "labelOptionPosition": "Position",
       "addMediaCaption": "Bild verwenden",
       "buttonApply": "Übernehmen",
@@ -1417,7 +1417,7 @@
       "addOption": "Neue hinzufügen",
       "contextMenuOptionResetDelete": "Wiederherstellen",
       "textOptionHeadline": "Neue Option",
-      "titleSaveSuccess": "Eigenschaft",
+      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Eigenschaft erfolgreich gespeichert",
       "messageOptionsEmpty": "Noch keine Optionen"
     }
@@ -1444,18 +1444,18 @@
   },
   "sw-product-stream": {
     "general": {
-      "mainMenuItemGeneral": "Produkt Streams",
-      "placeholderSearchBar": "Durchsuche alle Produkt Streams",
-      "descriptionTextModule": "Verwaltung von Produkt Streams."
+      "mainMenuItemGeneral": "Produkt-Streams",
+      "placeholderSearchBar": "Durchsuche alle Produkt-Streams",
+      "descriptionTextModule": "Verwaltung von Produkt-Streams."
     },
     "list": {
-      "textProductStreamOverview": "Produkt Streams",
+      "textProductStreamOverview": "Produkt-Streams",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnDateUpdated": "Änderungsdatum",
       "columnStatus": "Status",
       "titleSidebarItemRefresh": "Refresh",
-      "buttonAddProductStream": "Produkt Stream anlegen",
+      "buttonAddProductStream": "Produkt-Stream anlegen",
       "status": {
         "valid": "Valide",
         "invalid": "Invalide"
@@ -1463,34 +1463,34 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
-      "messageEmpty": "Noch keine Produkt Streams",
+      "messageEmpty": "Noch keine Produkt-Streams",
       "modalTitleDelete": "Produkt Stream löschen",
-      "textDeleteConfirm": "Möchtest Du den Produkt Stream \"{name}\" wirklich löschen?",
+      "textDeleteConfirm": "Möchtest Du den Produkt-Stream \"{name}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
     "filter": {
-      "valid": "Nur valide Produkt Streams anzeigen"
+      "valid": "Nur valide Produkt-Streams anzeigen"
     },
     "detail": {
       "titleCard": "Einstellungen",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "labelName": "Name",
-      "placeholderName": "Gib ein Produkt Stream Namen ein...",
+      "placeholderName": "Gib ein Produkt-Stream-Namen ein...",
       "labelDescription": "Beschreibung",
-      "placeholderDescription": "Gib eine Produkt Stream Beschreibung ein...",
-      "textHeadline": "Neuer Produkt Stream",
+      "placeholderDescription": "Gib eine Produkt-Stream-Beschreibung ein...",
+      "textHeadline": "Neuer Produkt-Stream",
       "titleFilter": "Filter",
       "titleResult": "Produkte",
-      "titleSaveSuccess": "Produkt Streams",
-      "messageSaveSuccess": "Der Produkt Stream \"{name}\" wurde erfolgreich gespeichert."
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Der Produkt-Stream \"{name}\" wurde erfolgreich gespeichert."
     }
   },
   "sw-config-form-renderer": {
     "placeholder": "Bitte {name} ausfüllen...",
-    "option": "Für die Sprache \"{locale}\" wurde kein label gesetzt...",
-    "configLoadErrorMessage": "Beim laden der Konfiguration ist ein Fehler aufgetreten: | Beim laden der Konfiguration sind Fehler aufgetreten:",
-    "configLoadErrorTitle": "Fehler beim laden der Konfiguration!"
+    "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt...",
+    "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
+    "configLoadErrorTitle": "Fehler beim Laden der Konfiguration!"
   }
 }

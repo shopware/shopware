@@ -23,7 +23,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
         this.browser
             .waitForElementVisible('.sw-settings-rule-detail__save-action')
             .click('.sw-settings-rule-detail__save-action')
-            .checkNotification(`The rule "${name}" was saved.`);
+            .checkNotification(`The rule "${name}" has been saved successfully.`);
     }
 
     createBasicSelectCondition(type, operator, valueSelector, value) {

@@ -114,7 +114,7 @@ class SalesChannelPageObject extends GeneralPageObject {
                 .getLocationInView(me.elements.apiAccessKeyField)
                 .waitForElementVisible('.sw-field__copy-button')
                 .click('.sw-field__copy-button')
-                .checkNotification('Text has been copied to clipboard')
+                .checkNotification('Text has been copied to clipboard.')
                 .getLocationInView(me.elements.salesChannelNameInput)
                 .clearValue(me.elements.salesChannelNameInput)
                 .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])

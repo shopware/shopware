@@ -32,7 +32,7 @@ into `platform` as a composer dependency.
 
 The following software is always required:
 
-- php >= 7.1
+- php >= 7.2
 - php extensions: dom, fileinfo, gd, iconv, intl, json, mbstring, pdo, pdo_mysql, phar, simplexml, tokenizer, xml,
 xmlwriter, zip
 - mysql >= 5.7 or mariadb >= 10.3

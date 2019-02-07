@@ -53,7 +53,7 @@
       "labelContextMenuShowSettings": "Settings",
       "labelContextMenuDissolve": "Dissolve",
       "notificationErrorBlankItemName": "The folder could not be saved. Please enter a name.",
-      "notificationRenamingError": "Error saving folder"
+      "notificationRenamingError": "Error saving folder."
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Delete",
@@ -62,9 +62,9 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "labelContextMenuMove": "Move",
-      "notificationErrorBlankItemName": "The media could not be saved: Please enter a name",
+      "notificationErrorBlankItemName": "The media could not be saved: Please enter a name.",
       "notificationRenamingSuccess": "Media item has been renamed successfully.",
-      "notificationRenamingError": "Error saving file",
+      "notificationRenamingError": "Error saving file.",
       "labelUploading": "Uploading..."
     },
     "sw-media-modal-delete": {
@@ -72,20 +72,20 @@
       "deleteMessage": "Are you sure you want to delete \"{mediaName}\" ? | Are you sure you want to delete {count} media items?",
       "buttonDelete": "Delete",
       "buttonCancel": "Cancel",
-      "notificationSuccessSingle": "File \"{mediaName}\"  has been deleted successfully ",
-      "notificationErrorSingle": "Error deleting \"{mediaName}\"",
-      "notificationSuccessOverall": "Files have been deleted successfully",
-      "notificationErrorOverall": "Error deleting files"
+      "notificationSuccessSingle": "File \"{mediaName}\"  has been deleted successfully.",
+      "notificationErrorSingle": "Error deleting \"{mediaName}\".",
+      "notificationSuccessOverall": "Files have been deleted successfully.",
+      "notificationErrorOverall": "Error deleting files."
     },
     "sw-media-modal-folder-dissolve": {
       "titleModal": "Dissolve folder",
       "dissolveMessage":"Are you sure you want to dissolve \"{folderName}\" ? | Are you sure you want to dissolve {count} folders?",
       "buttonDissolve": "Dissolve",
       "buttonCancel": "Cancel",
-      "notificationSuccessSingle": "Folder \"{folderName}\"  has been dissolved successfully",
-      "notificationErrorSingle": "Error dissolving \"{folderName}\"",
-      "notificationSuccessOverall": "Folders have been dissolved successfully",
-      "notificationErrorOverall": "Error dissolving folders"
+      "notificationSuccessSingle": "Folder \"{folderName}\"  has been dissolved successfully.",
+      "notificationErrorSingle": "Error dissolving \"{folderName}\".",
+      "notificationSuccessOverall": "Folders have been dissolved successfully.",
+      "notificationErrorOverall": "Error dissolving folders."
     },
     "sw-media-modal-duplicate-media": {
       "titleModal": "File already exists",
@@ -105,19 +105,19 @@
       "titleModal": "Move \"{mediaName}\" | Move {count} items",
       "buttonMove": "Move",
       "buttonAbort": "Cancel",
-      "notificationSuccessSingle": "File \"{mediaName}\" successfully Moved",
-      "notificationErrorSingle": "Error moving \"{mediaName}\"",
+      "notificationSuccessSingle": "File \"{mediaName}\" successfully Moved.",
+      "notificationErrorSingle": "Error moving \"{mediaName}\".",
       "notificationSuccessOverall": "Media item successfully moved.",
-      "notificationErrorOverall": "Error moving item"
+      "notificationErrorOverall": "Error moving item."
     },
     "sw-media-modal-replace": {
       "titleModal": "Replace media files",
       "buttonUpload": "Upload",
       "buttonCancel": "Cancel",
       "buttonReplace": "Replace",
-      "notificationSuccess": "File replaced",
-      "notificationFailure": "An error occurred while replacing {mediaName}",
-      "notificationFileReaderError": "Error reading file"
+      "notificationSuccess": "File replaced.",
+      "notificationFailure": "An error occurred while replacing {mediaName}.",
+      "notificationFileReaderError": "Error reading file."
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
@@ -129,8 +129,8 @@
       "buttonSwitchToFileUpload": "Upload file from your computer",
       "buttonSwitchToUrlUpload": "Upload file from url",
       "buttonOpenMedia": "Open media",
-      "notificationSuccess": "File has been saved successfully",
-      "notificationFailure": "Error uploading",
+      "notificationSuccess": "File has been saved successfully.",
+      "notificationFailure": "Error uploading.",
       "caption": "Drag files here to upload them"
     },
     "sw-media-url-form": {
@@ -156,8 +156,8 @@
       "labelCancel": "Cancel",
       "labelKeepProportions": "Keep aspect ratio",
       "titleDeleteThumbnails": "Delete",
-      "notificationSuccess": "Settings have been saved successfully",
-      "notificationError": "Error saving settings",
+      "notificationSuccess": "Settings have been saved successfully.",
+      "notificationError": "Error saving settings.",
       "labelDefaultFolder": "Default location for:"
     },
     "sw-media-add-thumbnail-form": {
@@ -885,7 +885,7 @@
       "mainMenuItemGeneral": "Media",
       "descriptionTextModule": "Manage media here",
       "placeholderSearchBar": "Search media",
-      "notificationUrlCopied": "copied URL to clipboard"
+      "notificationUrlCopied": "copied URL to clipboard."
     },
     "smart-bar": {
       "smartBarHeader": "Media"
@@ -938,7 +938,7 @@
       }
     },
     "index": {
-      "buttonCreateFolder": "Add new Folder",
+      "buttonCreateFolder": "Add new folder",
       "messageEmpty": "You haven't uploaded any media yet",
       "labelSort": "Sort by:",
       "labelPresentation": "Presentation:",

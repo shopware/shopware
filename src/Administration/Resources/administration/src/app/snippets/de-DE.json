@@ -53,7 +53,7 @@
       "labelContextMenuShowSettings": "Einstellungen",
       "labelContextMenuDissolve": "Auflösen",
       "notificationErrorBlankItemName": "Der Ordner konnte nicht gespeichert werden. Bitte füge einen Ordnernamen hinzu.",
-      "notificationRenamingError": "Fehler beim Speichern des Ordners"
+      "notificationRenamingError": "Fehler beim Speichern des Ordners."
     },
     "sw-media-media-item": {
       "labelContextMenuDelete": "Löschen",
@@ -63,8 +63,8 @@
       "labelContextMenuDetail": "Informationen",
       "labelContextMenuMove": "Verschieben",
       "notificationErrorBlankItemName": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu.",
-      "notificationRenamingSuccess": "Medium erfolgreich umbenannt",
-      "notificationRenamingError": "Fehler beim Umbenennen",
+      "notificationRenamingSuccess": "Medium erfolgreich umbenannt.",
+      "notificationRenamingError": "Fehler beim Umbenennen.",
       "labelUploading": "Wird hochgeladen..."
     },
     "sw-media-modal-delete": {
@@ -72,20 +72,20 @@
       "deleteMessage":"Möchtest Du \"{mediaName}\" wirklich löschen? | Möchtest Du diese {count} Medien wirklich löschen?",
       "buttonDelete": "Löschen",
       "buttonCancel": "Abbrechen",
-      "notificationSuccessSingle": "Datei \"{mediaName}\" erfolgreich gelöscht",
-      "notificationErrorSingle": "Fehler beim Löschen von \"{mediaName}\"",
-      "notificationSuccessOverall": "Dateien erfolgreich gelöscht",
-      "notificationErrorOverall": "Die Dateien konnten nicht gelöscht werden"
+      "notificationSuccessSingle": "Datei \"{mediaName}\" erfolgreich gelöscht.",
+      "notificationErrorSingle": "Fehler beim Löschen von \"{mediaName}\".",
+      "notificationSuccessOverall": "Dateien erfolgreich gelöscht.",
+      "notificationErrorOverall": "Die Dateien konnten nicht gelöscht werden."
     },
     "sw-media-modal-folder-dissolve": {
       "titleModal": "Ordner auflösen",
       "dissolveMessage": "Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
       "buttonDissolve": "Auflösen",
       "buttonCancel": "Abbrechen",
-      "notificationSuccessSingle": "Ordner \"{folderName}\" erfolgreich aufgelöst",
-      "notificationErrorSingle": "Fehler beim Auflösen von \"{folderName}\"",
-      "notificationSuccessOverall": "Ordner erfolgreich aufgelöst",
-      "notificationErrorOverall": "Die Ordner konnten nicht aufgelöst werden"
+      "notificationSuccessSingle": "Ordner \"{folderName}\" erfolgreich aufgelöst.",
+      "notificationErrorSingle": "Fehler beim Auflösen von \"{folderName}\".",
+      "notificationSuccessOverall": "Ordner erfolgreich aufgelöst.",
+      "notificationErrorOverall": "Die Ordner konnten nicht aufgelöst werden."
     },
     "sw-media-modal-duplicate-media": {
       "titleModal": "Datei existiert bereits",
@@ -105,19 +105,19 @@
       "titleModal": "\"{mediaName}\" verschieben | {count} Objekte verschieben",
       "buttonMove": "Verschieben",
       "buttonAbort": "Abbrechen",
-      "notificationSuccessSingle": "\"{mediaName}\" erfolgreich verschoben",
-      "notificationErrorSingle": "Fehler beim Verschieben von \"{mediaName}\"",
+      "notificationSuccessSingle": "\"{mediaName}\" erfolgreich verschoben.",
+      "notificationErrorSingle": "Fehler beim Verschieben von \"{mediaName}\".",
       "notificationSuccessOverall": "Objekte erfolgreich verschoben.",
-      "notificationErrorOverall": "Fehler beim Verschieben"
+      "notificationErrorOverall": "Fehler beim Verschieben."
     },
     "sw-media-modal-replace": {
       "titleModal": "Medien ersetzen",
       "buttonUpload": "Upload",
       "buttonCancel": "Abbrechen",
       "buttonReplace": "Ersetzen",
-      "notificationSuccess": "Datei erfolgreich ersetzt",
-      "notificationFailure": "Fehler beim Ersetzen von {mediaName}",
-      "notificationFileReaderError": "Die Datei konnte nicht gelesen werden"
+      "notificationSuccess": "Datei erfolgreich ersetzt.",
+      "notificationFailure": "Fehler beim Ersetzen von {mediaName}.",
+      "notificationFileReaderError": "Die Datei konnte nicht gelesen werden."
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
@@ -129,8 +129,8 @@
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
       "buttonSwitchToUrlUpload": "Datei von Url hochladen",
       "buttonOpenMedia": "Medien öffnen",
-      "notificationSuccess": "Datei erfolgreich gespeichert",
-      "notificationFailure": "Fehler beim Hochladen",
+      "notificationSuccess": "Datei erfolgreich gespeichert.",
+      "notificationFailure": "Fehler beim Hochladen.",
       "caption": "Dateien zum Hochladen hierhin ziehen"
     },
     "sw-media-url-form": {
@@ -156,8 +156,8 @@
       "labelCancel": "Abbrechen",
       "labelKeepProportions": "Seitenverhältnis beibehalten",
       "titleDeleteThumbnails": "Löschen",
-      "notificationSuccess": "Einstellungen erfolgreich gespeichert",
-      "notificationError": "Fehler beim Speichern der Einstellungen",
+      "notificationSuccess": "Einstellungen erfolgreich gespeichert.",
+      "notificationError": "Fehler beim Speichern der Einstellungen.",
       "labelDefaultFolder": "Standardspeicherort für:"
     },
     "sw-media-add-thumbnail-form": {
@@ -887,7 +887,7 @@
       "mainMenuItemGeneral": "Medien",
       "descriptionTextModule": "Verwaltung von Mediendateien",
       "placeholderSearchBar": "Durchsuche alle Medien",
-      "notificationUrlCopied": "URL in Zwischenablage kopiert"
+      "notificationUrlCopied": "URL in Zwischenablage kopiert."
     },
     "smart-bar": {
       "smartBarHeader": "Medien"

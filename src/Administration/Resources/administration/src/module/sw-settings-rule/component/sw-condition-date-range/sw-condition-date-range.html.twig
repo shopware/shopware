@@ -8,13 +8,13 @@
         </sw-field>
         <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
                   name="fromDate"
-                  :datepickerConfig="datepickerConfig"
+                  :config="datepickerConfig"
                   v-model="fromDate"
                   class="field field--main field--date has--arrow">
         </sw-field>
         <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
                   name="toDate"
-                  :datepickerConfig="datepickerConfig"
+                  :config="datepickerConfig"
                   v-model="toDate"
                   class="field field--main field--date">
         </sw-field>

@@ -17,12 +17,12 @@ class SnippetSetApiService extends ApiService {
     getCustomList(page = 1, limit = 25, filters = {}) {
         const headers = this.getBasicHeaders();
         const defaultFilters = {
-            isCustom: false,
-            emptySnippets: false,
+            custom: false,
+            empty: false,
             term: null,
-            namespaces: [],
-            authors: [],
-            translationKeys: []
+            namespace: [],
+            author: [],
+            translationKey: []
         };
         filters = { ...defaultFilters, ...filters };
 
@@ -47,7 +47,17 @@ class SnippetSetApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/getBaseFiles`, { params, headers })
+            .get(`/_action/${this.getApiBasePath()}/baseFile`, { params, headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    getAuthors() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/author`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

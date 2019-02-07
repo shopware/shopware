@@ -5,7 +5,7 @@ import template from './sw-settings-snippet-detail.html.twig';
 Component.register('sw-settings-snippet-detail', {
     template,
 
-    inject: ['snippetService', 'snippetSetService'],
+    inject: ['snippetService', 'snippetSetService', 'userService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -69,6 +69,10 @@ Component.register('sw-settings-snippet-detail', {
 
     methods: {
         createdComponent() {
+            this.userService.getUser().then((response) => {
+                this.currentAuthor = `user/${response.data.name}`;
+            });
+
             if (!this.$route.params.key && !this.isCreate) {
                 this.isCreate = true;
                 this.onNewKeyRedirect();
@@ -94,12 +98,12 @@ Component.register('sw-settings-snippet-detail', {
                 1,
                 25,
                 {
-                    isCustom: false,
-                    emptySnippets: false,
+                    custom: false,
+                    empty: false,
                     term: null,
-                    namespaces: [],
-                    authors: [],
-                    translationKeys: []
+                    namespace: [],
+                    author: [],
+                    translationKey: [this.translationKey]
                 }
             ).then((response) => {
                 if (!response.total) {
@@ -113,9 +117,9 @@ Component.register('sw-settings-snippet-detail', {
 
         createSnippetDummy() {
             const snippets = [];
-            this.sets.forEach((set) => {
+            Object.values(this.sets).forEach((set) => {
                 snippets.push({
-                    author: '1',
+                    author: this.currentAuthor,
                     id: null,
                     value: null,
                     translationKey: this.translationKey,
@@ -129,7 +133,11 @@ Component.register('sw-settings-snippet-detail', {
         onSave() {
             const responses = [];
             this.snippets.forEach((snippet) => {
-                if (snippet.value === null) {
+                if (!snippet.author) {
+                    snippet.author = this.currentAuthor;
+                }
+
+                if (!snippet.hasOwnProperty('value') || snippet.value === null) {
                     snippet.value = snippet.origin;
                 }
 
@@ -137,6 +145,7 @@ Component.register('sw-settings-snippet-detail', {
                     if (snippet.id !== null) {
                         responses.push(this.snippetService.delete(snippet.id));
                     }
+
                     if (snippet.value === null || snippet.value === '') {
                         return;
                     }
@@ -146,7 +155,7 @@ Component.register('sw-settings-snippet-detail', {
                     responses.push(this.snippetService.save(snippet));
                 } else if (snippet.origin !== snippet.value) {
                     responses.push(this.snippetService.save(snippet));
-                } else if (snippet.id !== null) {
+                } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
                     responses.push(this.snippetService.delete(snippet.id));
                 }
             });
@@ -194,12 +203,12 @@ Component.register('sw-settings-snippet-detail', {
                 1,
                 25,
                 {
-                    isCustom: false,
-                    emptySnippets: false,
+                    custom: false,
+                    empty: false,
                     term: null,
-                    namespaces: [],
-                    authors: [],
-                    translationKeys: [this.translationKey]
+                    namespace: [],
+                    author: [],
+                    translationKey: [this.translationKey]
                 }
             ).then((response) => {
                 if (!response.total) {
@@ -214,6 +223,7 @@ Component.register('sw-settings-snippet-detail', {
         }, 500),
 
         onNewKeyRedirect() {
+            this.isCreate = false;
             this.$router.push({
                 name: 'sw.settings.snippet.detail',
                 params: {

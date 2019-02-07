@@ -17,6 +17,11 @@ Component.register('sw-settings-snippet-boolean-filter-item', {
             required: true
         },
 
+        group: {
+            type: String,
+            required: false
+        },
+
         borderTop: {
             type: Boolean,
             required: false,
@@ -58,7 +63,8 @@ Component.register('sw-settings-snippet-boolean-filter-item', {
     methods: {
         onChange(value) {
             const name = this.name;
-            this.$emit('change', { value, name });
+            const group = this.group;
+            this.$emit('change', { value, name, group });
         }
     }
 });

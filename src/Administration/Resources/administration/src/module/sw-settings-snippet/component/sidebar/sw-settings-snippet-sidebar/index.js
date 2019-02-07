@@ -8,6 +8,11 @@ Component.register('sw-settings-snippet-sidebar', {
         filterItems: {
             type: Array,
             required: true
+        },
+
+        authorFilters: {
+            type: Array,
+            required: true
         }
     },
 
@@ -16,11 +21,14 @@ Component.register('sw-settings-snippet-sidebar', {
             if (this.filterSidebarIsOpen) {
                 this.$refs.filterSideBar.closeContent();
                 this.filterSidebarIsOpen = false;
+                this.$emit('sw-sidebar-close');
                 return;
             }
 
             this.$refs.filterSideBar.openContent();
             this.filterSidebarIsOpen = true;
+
+            this.$emit('sw-sidebar-open');
         },
 
         onChange(field) {

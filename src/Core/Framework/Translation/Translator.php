@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Snippet\Services\SnippetServiceInterface;
+use Shopware\Core\Framework\Snippet\SnippetServiceInterface;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\Exception\LogicException;

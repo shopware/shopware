@@ -1014,6 +1014,7 @@
       "errorBackRoutingMessage": "Die aufgerufene Seite konnte nicht verarbeitet werden. Du wurdest zurückgeleitet.",
       "placeholderSearchBarSets": "Finde Textbaustein-Sets (Name, Basisdatei)",
       "placeholderSearchBarSnippets": "Finde Textbausteine (Name, Inhalt, Bereich)",
+      "placeholderValue": "Inhalt definieren",
       "searchBarTitleSets": "Textbaustein-Sets",
       "searchBarTitleSnippets": "Textbausteine"
     },
@@ -1030,7 +1031,6 @@
       "messageKeyExists": "Bitte gib einen Namen ein | Es existieren bereits Textbausteine für \"{key}\". Bitte wähle einen anderen Namen.",
       "messageSaveError": "Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
       "messageSaveSuccess": "Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
-      "placeholderValue": "Inhalt definieren",
       "textHeadline": "Neuer Textbaustein",
       "titleSaveError": "Fehler: Textbausteine",
       "titleSaveSuccess": "Textbausteine"

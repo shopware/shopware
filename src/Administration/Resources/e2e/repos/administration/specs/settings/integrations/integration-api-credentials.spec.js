@@ -1,7 +1,7 @@
 const integrationPage = require('../../../page-objects/module/sw-integration.page-object.js');
 
 module.exports = {
-    '@tags': ['integration-api-credentials', 'integration', 'api-credentials'],
+    '@tags': ['settings', 'integration-api-credentials', 'integration', 'api-credentials'],
     before: (browser, done) => {
         global.IntegrationFixtureService.setIntegrationFixtures().then(() => {
             done();

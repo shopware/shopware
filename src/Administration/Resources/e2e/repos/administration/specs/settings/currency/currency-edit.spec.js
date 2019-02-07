@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting', 'currency-edit', 'currency', 'edit'],
+    '@tags': ['settings', 'currency-edit', 'currency', 'edit'],
     before: (browser, done) => {
         global.FixtureService.create('currency').then(() => {
             done();

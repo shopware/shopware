@@ -1,7 +1,7 @@
 const integrationPage = require('../../../page-objects/module/sw-integration.page-object.js');
 
 module.exports = {
-    '@tags': ['integration-edit', 'integration', 'edit'],
+    '@tags': ['settings', 'integration-edit', 'integration', 'edit'],
     before: (browser, done) => {
         global.IntegrationFixtureService.setIntegrationFixtures().then(() => {
             done();

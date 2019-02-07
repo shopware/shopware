@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting', 'country-edit', 'country', 'edit'],
+    '@tags': ['settings', 'country-edit', 'country', 'edit'],
     before: (browser, done) => {
         global.FixtureService.create('country').then(() => {
             done();
@@ -15,7 +15,7 @@ module.exports = {
             .waitForElementVisible('.sw-settings-country-list-grid')
             .waitForElementNotPresent(`${page.elements.alert}__message`)
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`,  global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`, global.FixtureService.basicFixture.name);
     },
     'edit country': (browser) => {
         const page = settingsPage(browser);

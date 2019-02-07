@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting', 'language-delete', 'language', 'delete'],
+    '@tags': ['settings', 'language-delete', 'language', 'delete'],
     before: (browser, done) => {
         global.LanguageFixtureService.setLanguageFixtures().then(() => {
             done();

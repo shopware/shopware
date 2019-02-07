@@ -31,7 +31,9 @@ exports.command = function openMainMenuEntry(mainMenuPath, menuTitle, subMenuIte
         return this;
     }
 
-    this.assert.containsText(mainMenuItem, menuTitle);
-    // Just click the main menu item
-    return this.click(mainMenuItem);
+    this.assert.containsText(mainMenuItem, menuTitle)
+        .click(mainMenuItem)
+        .assert.urlContains(mainMenuPath);
+    
+    return this;
 };

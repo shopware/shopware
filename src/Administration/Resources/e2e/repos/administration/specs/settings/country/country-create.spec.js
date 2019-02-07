@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['setting','country-create', 'country', 'create'],
+    '@tags': ['settings', 'country-create', 'country', 'create'],
     'open country module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries');
@@ -18,7 +18,7 @@ module.exports = {
             .waitForElementPresent('input[name=sw-field--country-active]')
             .tickCheckbox('input[name=sw-field--country-active]', 'on')
             .click(page.elements.countrySaveAction)
-            .checkNotification( 'Country "1.Niemandsland" has been saved successfully.')
+            .checkNotification('Country "1.Niemandsland" has been saved successfully.')
             .assert.urlContains('#/sw/settings/country/detail');
     },
     'go back to listing and verify creation': (browser) => {

@@ -10,7 +10,6 @@ module.exports = {
     'navigate to manufacturer module': (browser) => {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
-            .assert.urlContains('#/sw/manufacturer/index')
             .waitForElementVisible('.sw-button__content');
     },
     'inline edit manufacturer name and website and verify edits': (browser) => {

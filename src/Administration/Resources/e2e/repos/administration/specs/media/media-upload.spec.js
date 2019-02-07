@@ -12,17 +12,18 @@ module.exports = {
 
     },
     'look and search for the items in media index': (browser) => {
+        const page = mediaPage(browser);
         browser
             .fillGlobalSearchField('sw-login-background')
             .refresh()
-            .waitForElementVisible('.sw-media-media-item:nth-of-type(1)');
+            .waitForElementVisible(page.elements.mediaNameLabel);
     },
     'click preview thumbnail to open sidebar': (browser) => {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridItem}--0`)
-            .click(`${page.elements.gridItem}--0`)
+            .waitForElementVisible(`${page.elements.previewItem}`)
+            .click(`${page.elements.previewItem}`)
             .waitForElementVisible('.sw-media-quickinfo');
     },
     'verify meta data': (browser) => {

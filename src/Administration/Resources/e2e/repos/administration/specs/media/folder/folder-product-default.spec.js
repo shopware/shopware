@@ -10,7 +10,7 @@ module.exports = {
     '@disabled': !global.flags.isActive('next1207'),
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture(fixtures).then(() => {
-            return global.ProductFixtureService.setProductFixtures();
+            return global.ProductFixtureService.setProductFixture();
         }).then(() => {
             done();
         });

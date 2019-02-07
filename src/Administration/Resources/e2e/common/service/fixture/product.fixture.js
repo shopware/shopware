@@ -11,7 +11,7 @@ export default class ProductFixture extends FixtureService {
         this.productFixture = json;
     }
 
-    setProductFixtures(userData) {
+    setProductFixture(userData) {
         const startTime = new Date();
         global.logger.lineBreak();
         global.logger.title('Set product fixtures...');

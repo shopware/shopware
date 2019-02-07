@@ -43,6 +43,8 @@ export default {
                 if (name[this.fallbackLocale]) {
                     return name[this.fallbackLocale];
                 }
+
+                return name;
             }
 
             return '';

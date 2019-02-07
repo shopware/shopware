@@ -64,6 +64,16 @@
                     {% block sw_category_tree_items_actions %}
                         <template slot="actions" slot-scope="{ item, openTreeItem }">
                             <sw-context-button>
+                                <div class="sw-context-menu__group">
+                                    {% block sw_category_tree_items_actions_subcategory %}
+                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
+                                                            @click="addSubcategory(item); openTreeItem(true)">
+                                        {{ $tc('sw-category.general.actions.createSub') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+                                </div>
+
+                                <div class="sw-context-menu__group">
                                 {% block sw_category_tree_items_actions_categorybefore %}
                                     <sw-context-menu-item :disabled="currentEditCategory !== null"
                                                           @click="addCategory(item, 'before');">
@@ -76,12 +86,7 @@
                                         {{ $tc('sw-category.general.actions.createAfter') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
-                                {% block sw_category_tree_items_actions_subcategory %}
-                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
-                                                          @click="addSubcategory(item); openTreeItem(true)">
-                                        {{ $tc('sw-category.general.actions.createSub') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
+                                </div>
 
                                 {% block sw_category_tree_items_actions_group %}
                                     <div class="sw-context-menu__group">

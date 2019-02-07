@@ -42,7 +42,7 @@ Component.register('sw-category-detail', {
 
         pageClasses() {
             return {
-                'has--category': !!this.category && !this.isLoading,
+                'has--category': !!this.category,
                 'is--mobile': !!this.isMobileViewport
             };
         }
@@ -51,6 +51,7 @@ Component.register('sw-category-detail', {
     watch: {
         '$route.params.id'() {
             this.setCategory();
+            console.log(this.category);
         }
     },
 
@@ -93,20 +94,20 @@ Component.register('sw-category-detail', {
         },
 
         setCategory() {
-            this.resetCategory();
             const categoryId = this.$route.params.id;
 
-            if (categoryId) {
+            if (this.$route.params.id) {
                 this.getCategory(categoryId).then(response => {
                     this.category = response;
                     this.mediaItem = this.category.mediaId
                         ? this.mediaStore.getById(this.category.mediaId) : null;
                     this.isLoading = false;
                 });
+            } else {
+                this.isLoading = true;
+                this.category = null;
+                this.mediaItem = null;
             }
-            // } else {
-            //     this.resetCategory();
-            // }
         },
 
         onRefreshCategories() {
@@ -118,10 +119,10 @@ Component.register('sw-category-detail', {
         },
 
         resetCategory() {
-            this.$router.push({ name: 'sw.category.index' });
+            // this.$router.push({ name: 'sw.category.index' });
+            this.isLoading = true;
             this.category = null;
             this.mediaItem = null;
-            this.isLoading = false;
         },
 
         onDuplicateCategory(item) {
@@ -169,6 +170,7 @@ Component.register('sw-category-detail', {
         },
 
         onSave() {
+            const categoryView = this.$refs.categoryView;
             const categoryName = this.category.name || this.category.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-category.general.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-category.general.messageSaveSuccess', 0, { name: categoryName });
@@ -176,12 +178,16 @@ Component.register('sw-category-detail', {
             const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessage',
                 0, { entityName: categoryName });
 
+            this.isLoading = true;
             return this.category.save().then(() => {
+                categoryView.getList();
+                this.isLoading = false;
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
             }).catch(exception => {
+                this.isLoading = false;
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError

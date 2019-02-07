@@ -34,12 +34,13 @@ Component.register('sw-category-view', {
             entityName: 'product',
             sortBy: 'name',
             sortDirection: 'ASC',
-            productsLoaded: false
+            isLoadingProducts: false,
+            deleteButtonDisabled: true
         };
     },
 
     watch: {
-        '$route.params.id'() {
+        category() {
             this.getList();
         }
     },
@@ -61,23 +62,63 @@ Component.register('sw-category-view', {
     methods: {
         componentCreated() {
             this.getList();
-            console.log('createdView', this.$route.params.id, this.category.id);
         },
 
         getList() {
-            console.log('getListView', this.$route.params.id, this.category.id);
+            this.isLoadingProducts = true;
             const params = this.getListingParams();
-            this.productsLoaded = false;
-            this.products = [];
+            // this.resetAssignedProducts();
 
-            this.categoryProductStore.getList(params).then(response => {
+            return this.categoryProductStore.getList(params).then(response => {
                 this.total = response.total;
-                this.items = response.items;
                 this.products = response.items;
-                this.productsLoaded = true;
-                console.log(response.total);
-                console.log(response.items);
+                this.isLoadingProducts = false;
+                // this.buildGridArray();
+                return this.products;
             });
+        },
+
+        // getList() {
+        //     this.isLoading = true;
+        //     const params = this.getListingParams();
+
+        //     this.items = [];
+
+        //     return this.store.getList(params).then((response) => {
+        //         this.total = response.total;
+        //         this.items = response.items;
+        //         this.isLoading = false;
+
+        //         return this.items;
+        //     });
+        // },
+
+        onChangeLanguage() {
+            this.getList();
+        },
+
+        buildGridArray() {
+            this.products = this.products;
+            // console.log(this.products.filter(product => product.isLocal === true));
+            // this.products = this.products.filter(value => value.isLocal === false);
+            // console.log(this.products);
+            // console.log(this.getNewItems());
+            // this.products.splice(0, 0, ...this.getNewItems());
+        },
+
+        // resetAssignedProducts() {
+        //     this.isLoadingProducts = false;
+        //     this.products = [];
+        // },
+
+        getNewItems() {
+            const newProducts = [];
+            this.categoryProductStore.forEach((product) => {
+                if (product.isLocal) {
+                    newProducts.push(product);
+                }
+            });
+            return newProducts;
         },
 
         onUploadAdded({ uploadTag }) {
@@ -92,37 +133,74 @@ Component.register('sw-category-view', {
             this.$emit('sw-category-view-on-remove-media', mediaItem);
         },
 
-        openMediaSidebar() {
-            this.$refs.mediaSidebarItem.openContent();
+        onViewProduct(productId) {
+            const route = this.$router.resolve({ name: 'sw.product.detail', params: { id: productId } });
+            window.open(route.href, '_blank');
         },
 
-        onAddProduct(productId) {
-            // remove product if its already added
+        onSelectProduct(productId) {
             if (this.products.find(product => product.id === productId)) {
-                this.onRemoveProduct(productId);
-                return false;
+                this.onRemoveDuplicate(productId);
+            } else {
+                this.addProduct(productId);
+            }
+        },
+
+        addProduct(productId) {
+            const product = this.productStore.getById(productId);
+
+            if (!this.categoryProductStore.hasId(productId)) {
+                const newProduct = this.categoryProductStore.create(productId);
+                newProduct.setData(product);
+                newProduct.isLocal = true;
+                this.products.push(newProduct);
             }
 
-            const product = this.productStore.getById(productId);
-            // do a loop if multiselect is possible in the sw-select without fuckups
-            if (!this.categoryProductStore.store[product.id]) {
-                this.categoryProductStore.create(product.id, product, true);
-            }
-            // In case the entity was already created but was deleted before
-            this.categoryProductStore.store[product.id].isDeleted = false;
-            // push the product into the local variable
-            this.products.push(product);
+            this.buildGridArray();
             return true;
         },
 
-        onRemoveProduct(productId) {
-            // remove product out of the associationStore
-            const productStoreEntry = this.categoryProductStore.getById(productId);
-            productStoreEntry.delete();
-            // remove product out of the local products variable
-            const match = this.products.find(assignedProduct => assignedProduct.id === productId);
-            const index = this.products.indexOf(match);
-            this.products.splice(index, 1);
+        selectionChanged() {
+            const selection = this.$refs.grid.getSelection();
+            this.deleteButtonDisabled = Object.keys(selection).length <= 0;
+        },
+
+        onRemoveProducts() {
+            const selection = this.$refs.grid.getSelection();
+            Object.values(selection).forEach(product => {
+                this.onRemoveProduct(product, true);
+                this.$refs.grid.selectItem(false, product);
+            });
+        },
+
+        onRemoveDuplicate(productId) {
+            const product = this.products.find(match => match.id === productId);
+            this.onRemoveProduct(product);
+        },
+
+        onRemoveProduct(product, ignoreUndo = false) {
+            if (product.isDeleted && !ignoreUndo) {
+                product.isDeleted = false;
+                return;
+            }
+
+            if (product.isLocal) {
+                this.categoryProductStore.removeById(product.id);
+                product.delete();
+                this.removeSelection(product.id);
+            } else {
+                product.isDeleted = true;
+            }
+
+            this.buildGridArray();
+        },
+
+        removeSelection(productId) {
+            this.products.forEach((item, index) => {
+                if (item.id === productId) {
+                    this.products.splice(index, 1);
+                }
+            });
         }
     }
 });

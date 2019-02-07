@@ -7,12 +7,21 @@
     .sw-text-editor {
         margin-bottom: 0;
     }
-    .grid-link {
-        text-decoration: none;
-    }
     .sw-category-view__product-search {
         border-bottom: 1px solid $color-steam-cloud;
         padding: 30px;
+    }
+
+    .sw--category-view__multi-delete {
+        z-index: 5;
+        position: absolute;
+        right: 20px;
+        top: 122px;
+
+        // @todo
+        &:not([disabled]) {
+            border-color: $color-shopware-blue;
+        }
     }
 
     @media screen and (min-width: 1580px) {

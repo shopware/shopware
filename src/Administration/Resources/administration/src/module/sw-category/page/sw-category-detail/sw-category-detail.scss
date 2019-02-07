@@ -2,7 +2,6 @@
     .sw-page__back-btn-container {
         display: none;
     }
-
     .sw-page__content.has--side-content .sw-page__side-content {
         background: white;
     }
@@ -11,9 +10,15 @@
         .sw-page__content.has--side-content {
             grid-template-columns: 1fr;
         }
+        .sw-page__main-content {
+            display: none;
+        }
 
         &.has--category {
             .sw-page__back-btn-container {
+                display: block;
+            }
+            .sw-page__main-content {
                 display: block;
             }
             .sw-page__side-content {

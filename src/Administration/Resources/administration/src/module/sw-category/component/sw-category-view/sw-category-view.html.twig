@@ -6,7 +6,7 @@
         {% endblock %}
 
         {% block sw_category_view_information %}
-            <sw-card :title="$tc('sw-category.general.headlineInformationCard')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-category.general.headlineInformationCard')" :isLoading="isLoading || isLoadingProducts">
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-category__infos">
                     {% block sw_category_view_information_name %}
                         <sw-field
@@ -43,6 +43,7 @@
 
                 {% block sw_category_view_information_media %}
                     <sw-media-upload
+                        label="Anzeigebild"
                         variant="regular"
                         :source="mediaItem"
                         :uploadTag="category.id"
@@ -57,26 +58,43 @@
         {% endblock %}
 
         {% block sw_category_view_products %}
-            <sw-card :title="$tc('sw-category.general.productAssignmentHeadline')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-category.general.productAssignmentHeadline')" :isLoading="isLoading || isLoadingProducts">
 
                 {% block sw_category_view_products_search %}
                     <div class="sw-category-view__product-search">
-                        <sw-category-select :hasPreview="false" :store="productStore" id="productSelection" placeholder="Produkte durchsuchen und zuweisen..." @input="onAddProduct"></sw-category-select>
+                        <sw-category-select
+                            :hasPreview="false"
+                            :store="productStore"
+                            :associationStore="categoryProductStore"
+                            itemValueKey="id" id="productSelection"
+                            placeholder="Produkte durchsuchen und zuweisen..."
+                            @sw-category-select-on-select="onSelectProduct">
+                        </sw-category-select>
                     </div>
+
+                    <sw-button class="sw--category-view__multi-delete" :disabled="deleteButtonDisabled" @click="onRemoveProducts" square size="small">
+                        <sw-icon name="default-action-trash" small />
+                    </sw-button>
                 {% endblock %}
 
                 {% block sw_category_view_products_grid %}
                     <sw-container slot="grid" type="row" v-if="products">
                         <sw-grid
+                            ref="grid"
+                            selectable
                             :items="products"
                             :sortBy="sortBy"
                             :sortDirection="sortDirection"
-                            :isLoading="productsLoaded"
+                            :isLoading="isLoadingProducts"
+                            @sw-grid-select-item="selectionChanged"
+                            @sw-grid-select-all="selectionChanged"
                             table>
 
                             <template slot="columns" slot-scope="{ item }">
                                 <sw-grid-column flex="minmax(200px, 1fr)" label="Name">
-                                    {{ placeholder(item, 'name' ) }}
+                                    <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}" target="_blank">
+                                        {{ placeholder(item, 'name' ) }}
+                                    </router-link>
                                 </sw-grid-column>
                                 <sw-grid-column flex="minmax(200px, 1fr)" label="Hersteller">
                                     {{ placeholder(item.manufacturer, 'name' ) }}
@@ -84,13 +102,11 @@
 
                                 <sw-grid-column flex="70px" align="center">
                                     <sw-context-button>
-                                        <router-link class="sw-category-view__grid-link" target="_blank" :to="{ name:'sw.product.detail', params: { id: item.id }}">
-                                            <sw-context-menu-item>
-                                                Details
-                                            </sw-context-menu-item>
-                                        </router-link>
-                                        <sw-context-menu-item @click="onRemoveProduct(item.id)">
-                                            Remove
+                                        <sw-context-menu-item @click="onViewProduct(item.id)">
+                                            Details
+                                        </sw-context-menu-item>
+                                        <sw-context-menu-item @click="onRemoveProduct(item)">
+                                            {{ item.isDeleted ? 'Undo' : 'Remove' }}
                                         </sw-context-menu-item>
                                     </sw-context-button>
                                 </sw-grid-column>
@@ -102,6 +118,7 @@
                                     :limit="limit"
                                     :total="total"
                                     :total-visible="7"
+                                    :steps="[5, 10, 25]"
                                     @page-change="onPageChange">
                                 </sw-pagination>
                             </template>
@@ -110,18 +127,6 @@
                     </sw-container>
                 {% endblock %}
             </sw-card>
-        {% endblock %}
-
-        {% block sw_category_view_sidebar %}
-            <template slot="card-view-sidebar">
-                <sw-sidebar-media-item ref="mediaSidebarItem">
-                    <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
-                            {{ $tc('sw-category.general.useAsLogo') }}
-                        </sw-context-menu-item>
-                    </template>
-                </sw-sidebar-media-item>
-            </template>
         {% endblock %}
 
     </sw-card-view>

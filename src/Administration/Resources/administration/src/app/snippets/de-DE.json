@@ -630,6 +630,7 @@
       "useAsLogo": "Als Logo verwenden",
       "treeHeadline": "Kategoriestruktur",
       "treeHeadSelected": "{count} selektiert",
+      "productAssignmentHeadline": "Produktzuweisung",
       "actions": {
           "createSub": "Neue Subkategorie",
           "createBefore": "Neue Kategorie davor",

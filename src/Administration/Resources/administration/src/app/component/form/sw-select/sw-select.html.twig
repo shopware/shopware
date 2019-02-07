@@ -32,7 +32,7 @@
                                 {% block sw_select_selection_item %}
                                     <sw-label dismissAble
                                               @selected="changeDefaultItemId(selection.id)"
-                                              @dismiss="onDismissSelection(selection.id)">
+                                              @dismiss="onDismissSelection(selection)">
                                         <template>
                                             {% block sw_select_selection_item_text %}
                                                 <span class="sw-select__selection-item">

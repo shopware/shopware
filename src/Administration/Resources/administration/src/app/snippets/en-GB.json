@@ -633,6 +633,7 @@
       "useAsLogo": "Use as logo",
       "treeHeadline": "Category structure",
       "treeHeadSelected": "{count} selected",
+      "productAssignmentHeadline": "Product assignment",
       "actions": {
         "createSub": "New subcategory",
         "createBefore": "New category before",

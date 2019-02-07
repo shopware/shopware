@@ -29,7 +29,6 @@
         <template slot="side-content">
             {% block sw_category_side_content %}
                 <sw-category-tree
-                    v-if="!isMobileViewport || isMobileViewport && !category"
                     :categories="categories"
                     @sw-category-on-save="onSaveCategories"
                     @sw-category-on-refresh="onRefreshCategories"
@@ -43,6 +42,7 @@
         <template slot="content">
             {% block sw_category_content %}
                 <sw-category-view v-if="!isMobileViewport && category || isMobileViewport && category"
+                    ref="categoryView"
                     :category="category"
                     :mediaItem="mediaItem"
                     :isLoading="isLoading"
@@ -56,6 +56,16 @@
                 <sw-loader v-if="!categories"></sw-loader>
             {% endblock %}
         </template>
+
+        <sw-sidebar slot="sidebar">
+            <sw-sidebar-media-item ref="mediaSidebarItem">
+                <template slot="context-menu-items" slot-scope="media">
+                    <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
+                        {{ $tc('sw-category.general.useAsLogo') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-sidebar-media-item>
+        </sw-sidebar>
 
     </sw-page>
 {% endblock %}

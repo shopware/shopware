@@ -429,7 +429,7 @@ export default {
 
             if (this.multi) {
                 if (this.isInSelections(item)) {
-                    this.onDismissSelection(item.id);
+                    this.onDismissSelection(item);
                     return;
                 }
 
@@ -457,21 +457,21 @@ export default {
             this.$emit('sw-select-on-keyup-enter', this.activeResultPosition);
         },
 
-        onDismissSelection(id) {
-            this.dismissSelection(id);
+        onDismissSelection(item) {
+            this.dismissSelection(item);
             this.setFocus();
         },
 
-        dismissSelection(id) {
-            if (!id) {
+        dismissSelection(item) {
+            if (!item[this.itemValueKey]) {
                 return;
             }
 
-            this.selections = this.selections.filter((entry) => entry.id !== id);
+            this.selections = this.selections.filter((entry) => entry[this.itemValueKey] !== item[this.itemValueKey]);
 
             this.emitChanges(this.selections);
 
-            if (this.defaultItemId && this.defaultItemId === id) {
+            if (this.defaultItemId && this.defaultItemId === item[this.itemValueKey]) {
                 if (this.selections.length >= 1) {
                     this.changeDefaultItemId(this.selections[0].id);
                 } else {
@@ -489,9 +489,8 @@ export default {
                 return;
             }
 
-            const lastSelectionId = this.selections[this.selections.length - 1].id;
-
-            this.dismissSelection(lastSelectionId);
+            const lastSelection = this.selections[this.selections.length - 1];
+            this.dismissSelection(lastSelection);
         },
 
         emitChanges(items) {

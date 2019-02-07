@@ -43,10 +43,6 @@ export default {
     },
 
     computed: {
-        locale() {
-            return this.$root.$i18n.locale;
-        },
-
         baseComponent() {
             return this.$refs.innerComponent;
         },

@@ -67,6 +67,14 @@ $sw-label-warning-color-border: $color-pumpkin-spice;
         }
     }
 
+    &.sw-label--circle {
+        width: 32px;
+        height: 32px;
+        padding: 4px;
+        border-radius: 16px;
+        border: 0;
+    }
+
     &.sw-label--ghost {
         background: transparent;
         border-color: $sw-label-color-border;

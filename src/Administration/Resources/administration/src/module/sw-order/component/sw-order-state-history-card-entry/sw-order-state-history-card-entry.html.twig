@@ -1,0 +1,19 @@
+<div class="sw-order-state-card-entry">
+    <div><h2 v-if="title">{{this.title}} </h2></div>
+
+    <div v-for="entry in entries" class='sw-order-state-card__history-entry'>
+        <sw-label circle :class="getLabelColorFromState(entry.stateMachineName,entry.state.technicalName)">
+            <sw-icon :name="getIconFromState(entry.stateMachineName,entry.state.technicalName)"
+                     :class="getIconColorFromState(entry.stateMachineName,entry.state.technicalName)"></sw-icon>
+        </sw-label>
+        <span>{{ entry.state.meta.viewData.name}}</span>
+
+        <span class="sw-order-state-card__date"
+          v-tooltip="{
+            showDelay: 300,
+            message:userDisplayName(entry.user)
+        }">
+            {{ entry.createdAt| date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+        </span>
+    </div>
+</div>

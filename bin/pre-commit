@@ -27,7 +27,11 @@ done
 
 if [ "$FILES" != "" ]
 then
-	bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file=../../autoload.php $FILES
+    PLATFORM="$(git rev-parse --show-toplevel)"
+    DEV="$(cd $PLATFORM/.. && git rev-parse --show-toplevel)"
+    AUTOLOAD_FILE="$DEV/vendor/autoload.php"
+
+	bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file=$AUTOLOAD_FILE $FILES
 	if [ $? != 0 ]
 	then
 		echo "Fix the error before commit."

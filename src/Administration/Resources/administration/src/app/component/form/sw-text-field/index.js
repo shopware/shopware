@@ -56,10 +56,34 @@ export default {
             required: false,
             default: ''
         },
+        tooltipText: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        tooltipPosition: {
+            type: String,
+            required: false,
+            default: 'top',
+            validValues: ['top', 'bottom', 'left', 'right'],
+            validator(value) {
+                return ['top', 'bottom', 'left', 'right'].includes(value);
+            }
+        },
         copyAble: {
             type: Boolean,
             required: false,
             default: false
+        },
+        suffix: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        prefix: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
@@ -116,6 +140,10 @@ export default {
             return `sw-field--${this.utilsId}`;
         },
 
+        containSuffix() {
+            return !!this.$scopedSlots.suffix || !!this.$slots.suffix || this.suffix;
+        },
+
         displayName() {
             if (this.$attrs.name && this.$attrs.name.length > 0) {
                 return this.$attrs.name;
@@ -165,7 +193,9 @@ export default {
                 this.typeFieldClass,
                 {
                     'has--error': !!this.hasErrorCls,
-                    'has--suffix': !!this.copyAble,
+                    'has--suffix': !!this.copyAble || !!this.containSuffix,
+                    'has--prefix': !!this.prefix,
+                    'has--tooltip': !!this.tooltipText,
                     'is--disabled': !!this.$props.disabled
                 }];
         }

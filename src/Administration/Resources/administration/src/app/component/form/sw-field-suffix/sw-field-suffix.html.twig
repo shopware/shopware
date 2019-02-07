@@ -1,9 +1,0 @@
-{% block sw_suffix_field %}
-    <span v-if="hasSuffix" class="sw-field__suffix">
-        <slot>
-            {% block sw_field_slot_suffix %}
-                {{ suffix }}
-            {% endblock %}
-        </slot>
-    </span>
-{% endblock %}

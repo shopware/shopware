@@ -1,6 +1,6 @@
 {% block sw_text_field_input %}
     <div class="sw-datepicker sw-field__input">
         <input type="text" @input="onInput" ref="flatpickrInput" :placeholder="currentFlatpickrConfig.dateFormat">
-        <sw-field-suffix><sw-icon :name="suffixName"></sw-icon></sw-field-suffix>
+        <sw-field-addition><sw-icon :name="suffixName"></sw-icon></sw-field-addition>
     </div>
 {% endblock %}

@@ -8,7 +8,7 @@ const fixture = {
 module.exports = {
     '@tags': ['product', 'product-translate', 'translation', 'language-switch'],
     before: (browser, done) => {
-        global.ProductFixtureService.setProductFixtures(fixture).then(() => {
+        global.ProductFixtureService.setProductFixture(fixture).then(() => {
             done();
         });
     },

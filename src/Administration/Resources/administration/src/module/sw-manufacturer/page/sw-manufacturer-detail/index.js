@@ -129,6 +129,7 @@ Component.register('sw-manufacturer-detail', {
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
+                throw exception;
             });
         }
     }

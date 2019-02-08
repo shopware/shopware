@@ -39,7 +39,7 @@ class TwigIncludeTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
         $template = $twig->loadTemplate('frontend/index.html.twig');
-        $this->assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
+        static::assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
     }
 
     /**
@@ -63,7 +63,7 @@ class TwigIncludeTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
         $template = $twig->loadTemplate('frontend/withvars.html.twig');
-        $this->assertSame('innerblockvaluefromindex', $template->render([]));
+        static::assertSame('innerblockvaluefromindex', $template->render([]));
     }
 
     /**
@@ -87,7 +87,7 @@ class TwigIncludeTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
         $template = $twig->loadTemplate('frontend/withvarsonly.html.twig');
-        $this->assertSame('innerblockvaluefromindexnotvisibleinnerblockvaluefromindex', $template->render([]));
+        static::assertSame('innerblockvaluefromindexnotvisibleinnerblockvaluefromindex', $template->render([]));
     }
 
     /**
@@ -111,7 +111,7 @@ class TwigIncludeTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
         $template = $twig->loadTemplate('frontend/templatenameexpression.html.twig');
-        $this->assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
+        static::assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
     }
 
     /**
@@ -131,6 +131,6 @@ class TwigIncludeTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
         $template = $twig->loadTemplate('frontend/notemplatefound.html.twig');
-        $this->assertSame('nothingelse', $template->render([]));
+        static::assertSame('nothingelse', $template->render([]));
     }
 }

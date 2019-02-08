@@ -16,7 +16,7 @@ class VersionTest extends TestCase
      */
     private $unauthorizedClient;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->unauthorizedClient = $this->getClient();
         $this->unauthorizedClient->setServerParameters([

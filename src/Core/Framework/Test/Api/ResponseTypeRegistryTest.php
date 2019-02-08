@@ -31,7 +31,7 @@ class ResponseTypeRegistryTest extends TestCase
      */
     private $responseRegistry;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->responseRegistry = $this->getContainer()->get(ResponseFactoryRegistry::class);
     }

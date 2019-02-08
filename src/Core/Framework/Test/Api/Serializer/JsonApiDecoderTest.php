@@ -14,7 +14,7 @@ class JsonApiDecoderTest extends TestCase
      */
     private $decoder;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->decoder = new JsonApiDecoder();
     }

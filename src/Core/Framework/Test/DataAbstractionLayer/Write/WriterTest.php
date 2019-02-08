@@ -36,7 +36,7 @@ class WriterTest extends TestCase
     private $connection;
     private $idBytes;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->id = Uuid::uuid4()->getHex();
         $this->idBytes = Uuid::fromStringToBytes($this->id);

@@ -27,7 +27,7 @@ class AccountServiceTest extends TestCase
      */
     private $checkoutContext;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->accountService = $this->getContainer()->get(AccountService::class);
         $checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);

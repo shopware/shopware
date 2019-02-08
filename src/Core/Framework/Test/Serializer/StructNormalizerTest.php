@@ -15,7 +15,7 @@ class StructNormalizerTest extends TestCase
      */
     private $normalizer;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->normalizer = new StructNormalizer();
     }

@@ -35,7 +35,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
      */
     private $productStreamRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product_stream_filter.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');

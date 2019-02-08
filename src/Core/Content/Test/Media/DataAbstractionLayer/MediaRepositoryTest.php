@@ -28,7 +28,7 @@ class MediaRepositoryTest extends TestCase
      */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext();

@@ -10,12 +10,12 @@ class KernelTestBehaviourTest extends TestCase
 
     private $kernelId;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->kernelId = spl_object_hash($this->getKernel());
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (!$this->kernelId === spl_object_hash($this->getKernel())) {
             throw new \RuntimeException('Kernel has changed');

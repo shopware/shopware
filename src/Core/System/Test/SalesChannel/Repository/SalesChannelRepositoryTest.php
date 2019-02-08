@@ -58,7 +58,7 @@ class SalesChannelRepositoryTest extends TestCase
      */
     private $shippingMethodRepository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->catalogRepository = $this->getContainer()->get('catalog.repository');

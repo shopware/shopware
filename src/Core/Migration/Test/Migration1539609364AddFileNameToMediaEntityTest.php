@@ -16,7 +16,7 @@ class Migration1539609364AddFileNameToMediaEntityTest extends TestCase
     /** @var Connection */
     private $connection;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
     }

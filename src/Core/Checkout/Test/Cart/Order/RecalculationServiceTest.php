@@ -62,7 +62,7 @@ class RecalculationServiceTest extends TestCase
      */
     protected $customerId;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->context = Context::createDefaultContext();

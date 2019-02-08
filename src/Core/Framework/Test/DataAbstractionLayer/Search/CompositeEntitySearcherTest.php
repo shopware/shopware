@@ -42,7 +42,7 @@ class CompositeEntitySearcherTest extends TestCase
      */
     private $userId;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
 

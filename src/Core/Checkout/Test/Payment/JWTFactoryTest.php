@@ -30,7 +30,7 @@ class JWTFactoryTest extends TestCase
      */
     private $paymentService;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);
         $this->paymentService = $this->getContainer()->get(PaymentService::class);

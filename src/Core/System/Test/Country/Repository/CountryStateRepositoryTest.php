@@ -29,7 +29,7 @@ class CountryStateRepositoryTest extends TestCase
      */
     private $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('country_state.repository');
         $this->connection = $this->getContainer()->get(Connection::class);

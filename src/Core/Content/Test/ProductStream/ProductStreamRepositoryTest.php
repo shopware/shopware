@@ -25,7 +25,7 @@ class ProductStreamRepositoryTest extends TestCase
      */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product_stream.repository');
         $this->context = Context::createDefaultContext();

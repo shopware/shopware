@@ -54,7 +54,7 @@ class StorefrontCustomerControllerTest extends TestCase
      */
     private $customerAddressRepository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->serializer = $this->getContainer()->get('serializer');
         $this->productRepository = $this->getContainer()->get('product.repository');

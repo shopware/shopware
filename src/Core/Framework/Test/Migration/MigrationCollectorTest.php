@@ -29,7 +29,7 @@ class MigrationCollectorTest extends TestCase
      */
     private $loader;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $container = $this->getContainer();
         $this->connection = $container->get(Connection::class);
@@ -37,7 +37,7 @@ class MigrationCollectorTest extends TestCase
         $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->connection->executeQuery(
             'DELETE FROM `migration`

@@ -14,7 +14,7 @@ class TwigIncludeTest extends TestCase
 {
     use StorefrontFunctionalTestBehaviour;
 
-    public function setUp()
+    protected function setUp(): void
     {
     }
 

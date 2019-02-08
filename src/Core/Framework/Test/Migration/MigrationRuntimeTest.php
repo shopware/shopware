@@ -34,7 +34,7 @@ class MigrationRuntimeTest extends TestCase
      */
     private $loader;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $container = $this->getContainer();
 
@@ -49,7 +49,7 @@ class MigrationRuntimeTest extends TestCase
         $this->loader->syncMigrationCollection('Shopware\Core\Framework\Test\Migration');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->connection->executeQuery(
             'DELETE FROM `migration`

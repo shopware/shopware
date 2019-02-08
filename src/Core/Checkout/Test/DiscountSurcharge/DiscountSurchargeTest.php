@@ -69,7 +69,7 @@ class DiscountSurchargeTest extends TestCase
      */
     public static $connection;
 
-    public function setUp()
+    protected function setUp(): void
     {
         self::$ruleRepository = $this->getContainer()->get('rule.repository');
 

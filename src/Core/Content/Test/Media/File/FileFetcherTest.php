@@ -19,7 +19,7 @@ class FileFetcherTest extends TestCase
      */
     private $fileFetcher;
 
-    public function SetUp()
+    protected function setUp(): void
     {
         $this->fileFetcher = new FileFetcher();
     }

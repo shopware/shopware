@@ -38,7 +38,7 @@ class CatalogTest extends TestCase
      */
     private $productRepository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->catalogRepository = $this->getContainer()->get('catalog.repository');

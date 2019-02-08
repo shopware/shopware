@@ -54,7 +54,7 @@ class EntityReaderTest extends TestCase
      */
     private $languageRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');

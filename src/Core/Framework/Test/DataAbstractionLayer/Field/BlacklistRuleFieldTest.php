@@ -35,7 +35,7 @@ class BlacklistRuleFieldTest extends TestCase
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('product.repository');

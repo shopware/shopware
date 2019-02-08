@@ -49,7 +49,7 @@ class EnrichmentTest extends TestCase
      */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);

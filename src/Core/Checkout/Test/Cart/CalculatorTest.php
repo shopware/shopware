@@ -38,7 +38,7 @@ class CalculatorTest extends TestCase
      */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->calculator = $this->getContainer()->get(Calculator::class);
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);

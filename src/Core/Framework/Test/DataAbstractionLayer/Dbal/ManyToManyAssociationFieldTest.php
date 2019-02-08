@@ -36,7 +36,7 @@ class ManyToManyAssociationFieldTest extends TestCase
      */
     private $categoryRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');

@@ -54,7 +54,7 @@ class EntityExtensionTest extends TestCase
      */
     private $writer;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -66,7 +66,7 @@ class EntityExtensionTest extends TestCase
         $this->writer = $this->getContainer()->get(EntityWriter::class);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         ProductDefinition::getFields()->remove('myPrices');

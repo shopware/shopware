@@ -25,7 +25,7 @@ class ProductApiTest extends TestCase
      */
     private $repository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product.repository');
     }

@@ -30,7 +30,7 @@ class JsonFieldTest extends TestCase
      */
     private $connection;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
 

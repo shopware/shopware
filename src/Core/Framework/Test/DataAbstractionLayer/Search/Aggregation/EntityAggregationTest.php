@@ -32,7 +32,7 @@ class EntityAggregationTest extends TestCase
      */
     private $productRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->taxRepository = $this->getContainer()->get('tax.repository');

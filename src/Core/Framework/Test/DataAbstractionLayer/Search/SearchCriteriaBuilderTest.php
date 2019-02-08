@@ -35,7 +35,7 @@ class SearchCriteriaBuilderTest extends TestCase
      */
     private $url;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);

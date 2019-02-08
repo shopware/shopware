@@ -71,7 +71,7 @@ class PaymentServiceTest extends TestCase
      */
     private $stateMachineRegistry;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
         $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);

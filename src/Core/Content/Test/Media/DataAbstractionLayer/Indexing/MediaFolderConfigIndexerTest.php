@@ -35,7 +35,7 @@ class MediaFolderConfigIndexerTest extends TestCase
      */
     private $configIndexer;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->folderRepository = $this->getContainer()->get('media_folder.repository');
         $this->conncetion = $this->getContainer()->get(Connection::class);

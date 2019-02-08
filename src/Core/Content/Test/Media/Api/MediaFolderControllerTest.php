@@ -30,7 +30,7 @@ class MediaFolderControllerTest extends TestCase
      */
     private $mediaFolderConfigRepo;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mediaFolderRepo = $this->getContainer()->get('media_folder.repository');
         $this->mediaFolderConfigRepo = $this->getContainer()->get('media_folder_configuration.repository');

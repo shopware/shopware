@@ -32,7 +32,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
      */
     private $cmsPageRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $contextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
 

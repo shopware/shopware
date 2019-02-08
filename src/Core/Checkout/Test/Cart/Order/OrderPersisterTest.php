@@ -44,7 +44,7 @@ class OrderPersisterTest extends TestCase
      */
     private $orderConverter;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->cartProcessor = $this->getContainer()->get(Processor::class);

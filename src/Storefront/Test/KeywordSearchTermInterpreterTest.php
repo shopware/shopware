@@ -25,7 +25,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     private $interpreter;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->interpreter = $this->getContainer()->get(KeywordSearchTermInterpreterInterface::class);

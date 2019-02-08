@@ -44,7 +44,7 @@ class MediaFolderServiceTest extends TestCase
      */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mediaRepo = $this->getContainer()->get('media.repository');
         $this->mediaFolderRepo = $this->getContainer()->get('media_folder.repository');

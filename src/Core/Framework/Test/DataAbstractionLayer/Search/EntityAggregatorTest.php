@@ -18,7 +18,7 @@ class EntityAggregatorTest extends TestCase
      */
     private $aggregator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->aggregator = $this->getContainer()->get(EntityAggregatorInterface::class);
     }

@@ -42,7 +42,7 @@ class ChildCountIndexerTest extends TestCase
      */
     private $connection;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext();

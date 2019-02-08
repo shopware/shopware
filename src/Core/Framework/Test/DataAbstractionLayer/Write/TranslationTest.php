@@ -57,7 +57,7 @@ class TranslationTest extends TestCase
      */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');

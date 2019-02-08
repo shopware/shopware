@@ -19,7 +19,7 @@ class RequestCriteriaBuilderTest extends TestCase
      */
     private $requestCriteriaBuilder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);

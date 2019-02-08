@@ -21,7 +21,7 @@ export default {
         },
         switchLabel: {
             type: String,
-            required: false,
+            required: true,
             default: ''
         }
     },
@@ -55,9 +55,6 @@ export default {
         },
 
         customPrefix() {
-            console.log('Scoped Slot Prefix', this.$scopedSlots.prefix);
-            console.log('Slot Prefix', this.$slots.prefix);
-            console.log('Prefix', this.prefix);
             return !!this.$scopedSlots.prefix || !!this.$slots.prefix || !!this.prefix;
         }
     },

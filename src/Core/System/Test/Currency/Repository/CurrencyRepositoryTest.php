@@ -29,7 +29,7 @@ class CurrencyRepositoryTest extends TestCase
      */
     private $repository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('currency.repository');
         $this->connection = $this->getContainer()->get(Connection::class);

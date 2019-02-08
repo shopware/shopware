@@ -49,7 +49,7 @@ class ThumbnailServiceTest extends TestCase
      */
     private $thumbnailRepository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->mediaRepository = $this->getContainer()->get('media.repository');

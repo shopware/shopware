@@ -34,7 +34,7 @@ class MediaThumbnailRepositoryTest extends TestCase
      */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');

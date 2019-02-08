@@ -32,7 +32,7 @@ class MediaUploadControllerTest extends TestCase
     /** @var Context */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);

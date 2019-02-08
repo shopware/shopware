@@ -43,7 +43,7 @@ class FileSaverTest extends TestCase
     /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);

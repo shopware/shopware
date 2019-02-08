@@ -38,7 +38,7 @@ class RuleValidatorTest extends TestCase
      */
     private $conditionRegistry;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
         $symfonyValidator = $this->getContainer()->get('validator');

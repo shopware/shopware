@@ -43,7 +43,7 @@ class TreeIndexerTest extends TestCase
      */
     private $connection;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->folderRepository = $this->getContainer()->get('media_folder.repository');

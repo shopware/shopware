@@ -59,7 +59,7 @@ class OrderRepositoryTest extends TestCase
      */
     private $stateMachineRegistry;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);

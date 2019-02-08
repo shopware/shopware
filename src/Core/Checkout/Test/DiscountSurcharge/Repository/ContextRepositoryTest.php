@@ -34,7 +34,7 @@ class ContextRepositoryTest extends TestCase
      */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('rule.repository');
         $this->connection = $this->getContainer()->get(Connection::class);

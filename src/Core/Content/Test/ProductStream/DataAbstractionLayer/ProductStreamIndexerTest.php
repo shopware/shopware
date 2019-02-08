@@ -57,7 +57,7 @@ class ProductStreamIndexerTest extends TestCase
      */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->productRepo = $this->getContainer()->get('product.repository');

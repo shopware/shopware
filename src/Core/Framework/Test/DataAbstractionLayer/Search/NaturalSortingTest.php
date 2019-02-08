@@ -26,7 +26,7 @@ class NaturalSortingTest extends TestCase
      */
     private $optionRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->groupRepository = $this->getContainer()->get('configuration_group.repository');

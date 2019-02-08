@@ -19,7 +19,7 @@ class MigrationCommandTest extends TestCase
     use IntegrationTestBehaviour;
     private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid';
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $connection = $this->getConnection();
 

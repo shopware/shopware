@@ -23,7 +23,7 @@ class FileNameProviderTest extends TestCase
      */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->nameProvider = $this->getContainer()->get(FileNameProvider::class);
 

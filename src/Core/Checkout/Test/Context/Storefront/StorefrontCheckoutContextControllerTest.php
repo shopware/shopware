@@ -32,7 +32,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
      */
     private $customerAddressRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $kernel = KernelLifecycleManager::getKernel();
         $this->customerRepository = $kernel->getContainer()->get('customer.repository');

@@ -29,7 +29,7 @@ class PriceActionControllerTest extends TestCase
      */
     private $serializer;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->taxRepository = $this->getContainer()->get('tax.repository');
         $this->serializer = $this->getContainer()->get('serializer');

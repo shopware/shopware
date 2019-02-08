@@ -23,7 +23,7 @@ class ImageTypeDataResolverTest extends TestCase
      */
     private $imageResolver;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->imageResolver = new ImageTypeDataResolver();
     }

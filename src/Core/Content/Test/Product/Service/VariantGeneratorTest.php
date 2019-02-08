@@ -35,7 +35,7 @@ class VariantGeneratorTest extends TestCase
      */
     private $connection;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->generator = $this->getContainer()->get(VariantGenerator::class);

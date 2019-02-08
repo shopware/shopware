@@ -25,7 +25,7 @@ class ParentChildTest extends TestCase
      */
     private $connection;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->categoryRepository = $this->getContainer()->get('category.repository');

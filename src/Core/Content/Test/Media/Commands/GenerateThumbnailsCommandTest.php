@@ -47,7 +47,7 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');

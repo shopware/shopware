@@ -37,7 +37,7 @@ class ProcessorTest extends TestCase
      */
     private $processor;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);

@@ -13,7 +13,7 @@ class ConfigReaderTest extends TestCase
      */
     private $configReader;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->configReader = new ConfigReader();
     }

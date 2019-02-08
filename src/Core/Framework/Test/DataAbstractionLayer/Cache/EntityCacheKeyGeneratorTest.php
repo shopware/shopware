@@ -25,7 +25,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
      */
     private $generator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->generator = new EntityCacheKeyGenerator();

@@ -40,7 +40,7 @@ class RulePayloadIndexerTest extends TestCase
      */
     private $connection;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('rule.repository');
         $this->indexer = $this->getContainer()->get(RulePayloadIndexer::class);

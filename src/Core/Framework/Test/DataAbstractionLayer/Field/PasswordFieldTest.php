@@ -28,7 +28,7 @@ class PasswordFieldTest extends TestCase
      */
     private $field;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->field = new PasswordField('password', 'password');
         $this->field->setConstraintBuilder($this->getContainer()->get(ConstraintBuilder::class));

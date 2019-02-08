@@ -59,7 +59,7 @@ class StateMachineRegistryTest extends TestCase
     private $stateMachineWithoutInitialId;
     private $stateMachineWithoutInitialName;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);

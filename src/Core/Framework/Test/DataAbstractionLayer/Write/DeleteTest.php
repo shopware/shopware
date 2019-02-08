@@ -21,7 +21,7 @@ class DeleteTest extends TestCase
      */
     private $writer;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->writer = $this->getContainer()->get(EntityWriter::class);
 

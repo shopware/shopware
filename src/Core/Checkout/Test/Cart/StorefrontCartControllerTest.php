@@ -59,7 +59,7 @@ class StorefrontCartControllerTest extends TestCase
      */
     private $router;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');

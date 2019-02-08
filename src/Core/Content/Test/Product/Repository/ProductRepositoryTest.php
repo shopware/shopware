@@ -51,7 +51,7 @@ class ProductRepositoryTest extends TestCase
      */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product.repository');
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');

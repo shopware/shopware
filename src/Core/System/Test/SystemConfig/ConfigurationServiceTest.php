@@ -58,7 +58,7 @@ class ConfigurationServiceTest extends TestCase
         $this->configurationService = $this->getConfigurationService();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $ids = $this->systemConfigRepository->searchIds(new Criteria(), $this->context)->getIds();
 

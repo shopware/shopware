@@ -26,7 +26,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
     /** @var Context */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->mediaRepo = $this->getContainer()->get('media.repository');
 

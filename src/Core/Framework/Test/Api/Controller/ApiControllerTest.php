@@ -26,7 +26,7 @@ class ApiControllerTest extends TestCase
      */
     private $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $dropStatement = <<<EOF
 DROP TABLE IF EXISTS `named`;

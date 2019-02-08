@@ -14,7 +14,7 @@ class DatabaseTransactionBehaviourTest extends TestCase
      */
     private $setUpIsInTransaction = false;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->setUpIsInTransaction = KernelLifecycleManager::getKernel()
             ->getContainer()
@@ -22,7 +22,7 @@ class DatabaseTransactionBehaviourTest extends TestCase
             ->isTransactionActive();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $tearDownIsInTransaction = KernelLifecycleManager::getKernel()
             ->getContainer()

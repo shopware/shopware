@@ -25,7 +25,7 @@ class LanguageValidatorTest extends TestCase
      */
     private $languageRepository;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

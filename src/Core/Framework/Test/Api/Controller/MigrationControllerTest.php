@@ -18,7 +18,7 @@ class MigrationControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid';
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $connection = $this->getConnection();
 

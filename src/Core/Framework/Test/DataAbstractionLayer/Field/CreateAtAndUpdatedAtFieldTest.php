@@ -31,7 +31,7 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
      */
     private $repo;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repo = new EntityRepository(

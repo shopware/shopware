@@ -27,7 +27,7 @@ class CachedEntityReaderTest extends TestCase
      */
     protected $cache;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->cache = $this->getContainer()->get('shopware.cache');

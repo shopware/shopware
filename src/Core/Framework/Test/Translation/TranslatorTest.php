@@ -39,7 +39,7 @@ class TranslatorTest extends TestCase
      */
     private $languageRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->translator = $this->getContainer()->get(Translator::class);

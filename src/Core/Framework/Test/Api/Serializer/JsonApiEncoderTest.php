@@ -21,7 +21,7 @@ class JsonApiEncoderTest extends TestCase
      */
     private $encoder;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->encoder = $this->getContainer()->get(JsonApiEncoder::class);
     }

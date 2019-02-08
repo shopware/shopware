@@ -21,7 +21,7 @@ class ProductActionControllerTest extends TestCase
      */
     private $productRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
     }

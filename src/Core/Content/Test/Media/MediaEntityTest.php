@@ -28,7 +28,7 @@ class MediaEntityTest extends TestCase
     /** @var Context */
     private $context;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('media.repository');

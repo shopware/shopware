@@ -15,18 +15,18 @@ Component.register('sw-settings-snippet-list', {
     data() {
         return {
             entityName: 'snippets',
-            snippetSets: {},
-            grid: [],
             metaId: '',
-            resetItems: [],
+            currentAuthor: '',
+            snippetSets: {},
             hasResetableItems: true,
-            filterItems: [],
-            authorFilters: [],
             isCustomState: false,
             emptySnippets: false,
+            grid: [],
+            resetItems: [],
+            filterItems: [],
+            authorFilters: [],
             appliedFilter: [],
             appliedAuthors: [],
-            currentAuthor: '',
             emptyIcon: this.$route.meta.$module.icon
         };
     },

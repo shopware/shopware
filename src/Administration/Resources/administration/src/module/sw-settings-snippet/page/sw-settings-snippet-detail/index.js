@@ -1,5 +1,4 @@
 import { Component, State, Mixin } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-settings-snippet-detail.html.twig';
 
 Component.register('sw-settings-snippet-detail', {
@@ -74,10 +73,8 @@ Component.register('sw-settings-snippet-detail', {
             });
 
             if (!this.$route.params.key && !this.isCreate) {
-                this.isCreate = true;
                 this.onNewKeyRedirect();
             }
-
             this.translationKey = this.$route.params.key || '';
             this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC' }).then((response) => {
                 const sets = [];
@@ -110,9 +107,22 @@ Component.register('sw-settings-snippet-detail', {
                     this.isCustomState = true;
                     return;
                 }
-                this.snippets = response.data[this.translationKey];
-                this.isCustomState = response.data[this.translationKey].origin === '';
+                this.applySnippetsToDummies(response.data[this.translationKey]);
             });
+        },
+
+        applySnippetsToDummies(data) {
+            const snippets = this.snippets;
+            const patchedSnippets = [];
+            snippets.forEach((snippet) => {
+                const newSnippet = data.find(item => item.setId === snippet.setId);
+                if (newSnippet) {
+                    snippet = newSnippet;
+                }
+                patchedSnippets.push(snippet);
+            });
+            this.snippets = patchedSnippets;
+            this.isCustomState = data.some(item => item.author.startsWith('user/') || item.author === '');
         },
 
         createSnippetDummy() {
@@ -184,20 +194,26 @@ Component.register('sw-settings-snippet-detail', {
             });
         },
 
-        debouncedTranslationKeyChange: utils.debounce(function debouncedSearch() {
-            if (
-                !this.translationKey ||
-                this.translationKey === this.$route.params.key ||
-                this.translationKey.trim().length <= 0
-            ) {
+        onFocus() {
+            this.isSavable = false;
+        },
+
+        onBlurTranslationKeyChange() {
+            if (!this.translationKey || this.translationKey.trim().length <= 0) {
                 this.isInvalidKey = true;
                 return;
             }
 
             this.translationKey = this.translationKey.trim();
+            this.translationKey = this.translationKey.charAt(0).toLowerCase() + this.translationKey.slice(1);
             this.isInvalidKey = false;
             this.isLoading = true;
             this.isSavable = true;
+
+            if (this.translationKey === this.$route.params.key) {
+                this.isLoading = false;
+                return;
+            }
 
             this.snippetSetService.getCustomList(
                 1,
@@ -220,7 +236,7 @@ Component.register('sw-settings-snippet-detail', {
             }).finally(() => {
                 this.isLoading = false;
             });
-        }, 500),
+        },
 
         onNewKeyRedirect() {
             this.isCreate = false;

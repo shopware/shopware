@@ -4,7 +4,7 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 module.exports = {
     '@tags': ['product-create', 'product', 'create', 'upload'],
     before: (browser, done) => {
-        global.FixtureService.create('category').then(() => {
+        global.AdminFixtureService.create('category').then(() => {
             done();
         });
     },
@@ -33,9 +33,9 @@ module.exports = {
             .fillSwSelectComponent(
                 '.sw-product-detail__select-category',
                 {
-                    value: global.FixtureService.basicFixture.name,
+                    value: global.AdminFixtureService.basicFixture.name,
                     isMulti: true,
-                    searchTerm: global.FixtureService.basicFixture.name
+                    searchTerm: global.AdminFixtureService.basicFixture.name
                 }
             )
             .click('.sw-product-detail__save-action')
@@ -78,7 +78,7 @@ module.exports = {
             .waitForElementPresent('.sw-product-category-form .sw-select__selection-item')
             .assert.containsText('.ql-editor', 'My very first description')
             .getLocationInView('.sw-select__selection-item')
-            .assert.containsText('.sw-select__selection-item', global.FixtureService.basicFixture.name)
+            .assert.containsText('.sw-select__selection-item', global.AdminFixtureService.basicFixture.name)
             .click(page.elements.smartBarBack);
     },
     after: (browser) => {

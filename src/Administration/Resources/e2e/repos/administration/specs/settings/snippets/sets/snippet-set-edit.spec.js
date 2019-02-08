@@ -4,7 +4,7 @@ module.exports = {
     '@tags': ['settings', 'snippet-set-delete', 'snippets', 'snippet-set', 'delete'],
     '@disabled': !global.flags.isActive('next717'),
     before: (browser, done) => {
-        global.FixtureService.create('snippet-set').then(() => {
+        global.AdminFixtureService.create('snippet-set').then(() => {
             done();
         });
     },
@@ -24,7 +24,7 @@ module.exports = {
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton)
             .waitForElementVisible(page.elements.modal)
-            .assert.containsText(`${page.elements.modal} ${page.elements.modal}__body`, `Are you sure you want to delete the snippet set "${global.FixtureService.basicFixture.name}"?`)
+            .assert.containsText(`${page.elements.modal} ${page.elements.modal}__body`, `Are you sure you want to delete the snippet set "${global.AdminFixtureService.basicFixture.name}"?`)
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification('Snippet set has been deleteced successfully.')
             .waitForElementNotPresent(page.elements.loader);

@@ -2,7 +2,7 @@ const salesChannelPage = require('administration/page-objects/module/sw-sales-ch
 
 const userFixture = {
     name: '2nd Epic Sales Channel',
-    accessKey: global.FixtureService.createUuid()
+    accessKey: global.AdminFixtureService.createUuid()
 };
 
 module.exports = {

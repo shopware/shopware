@@ -1,4 +1,4 @@
-const ApiService = require('./api.service');
+const ApiService = require('../api.service');
 
 export default class StorefrontApiService extends ApiService {
     loginByUserName(username = 'admin', password = 'shopware') {

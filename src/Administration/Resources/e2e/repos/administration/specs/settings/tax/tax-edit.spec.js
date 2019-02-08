@@ -3,7 +3,7 @@ const settingsPage = require('administration/page-objects/module/sw-settings.pag
 module.exports = {
     '@tags': ['settings', 'tax-edit', 'tax', 'edit'],
     before: (browser, done) => {
-        global.FixtureService.create('tax').then(() => {
+        global.AdminFixtureService.create('tax').then(() => {
             done();
         });
     },
@@ -19,7 +19,7 @@ module.exports = {
             .waitForElementPresent(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
             .getLocationInView(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
             .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, global.FixtureService.basicFixture.name)
+            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, global.AdminFixtureService.basicFixture.name)
             .clickContextMenuItem('.sw-tax-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate', true)

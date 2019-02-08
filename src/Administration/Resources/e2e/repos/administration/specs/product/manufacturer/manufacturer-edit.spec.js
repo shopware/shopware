@@ -3,7 +3,7 @@ const manufacturerPage = require('administration/page-objects/module/sw-manufact
 module.exports = {
     '@tags': ['product', 'manufacturer-edit', 'manufacturer', 'edit'],
     before: (browser, done) => {
-        global.FixtureService.create('product-manufacturer').then(() => {
+        global.AdminFixtureService.create('product-manufacturer').then(() => {
             done();
         });
     },
@@ -13,7 +13,7 @@ module.exports = {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
     },
     'open manufacturer details and change the given data': (browser) => {
         const page = manufacturerPage(browser);

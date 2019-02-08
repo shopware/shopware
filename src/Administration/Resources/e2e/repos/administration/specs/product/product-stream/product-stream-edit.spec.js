@@ -4,7 +4,7 @@ module.exports = {
     '@tags': ['product', 'product-stream-edit', 'product-stream', 'edit'],
     '@disabled': !global.flags.isActive('next739'),
     before: (browser, done) => {
-        global.FixtureService.create('product-stream').then(() => {
+        global.AdminFixtureService.create('product-stream').then(() => {
             done();
         });
     },
@@ -14,7 +14,7 @@ module.exports = {
         browser
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/product/stream/index', 'Product streams')
             .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
     },
     'open product stream details and change the given data': (browser) => {
         const page = productStreamPage(browser);

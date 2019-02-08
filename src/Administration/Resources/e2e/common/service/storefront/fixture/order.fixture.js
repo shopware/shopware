@@ -1,6 +1,6 @@
-const FixtureService = require('./../fixture.service.js').default;
+const StorefrontFixtureService = require('../../storefront/fixture.service.js').default;
 
-export default class OrderFixtureService extends FixtureService {
+export default class OrderFixtureService extends StorefrontFixtureService {
     constructor() {
         super();
 
@@ -13,10 +13,10 @@ export default class OrderFixtureService extends FixtureService {
 
         global.logger.title('Set guest order fixtures...');
 
-        return global.FixtureService.getClientId().then((result) => {
-            return this.storefrontApiClient.setAccessKey(result);
+        return global.AdminFixtureService.getClientId().then((result) => {
+            return this.apiClient.setAccessKey(result);
         }).then(() => {
-            return this.apiClient.post('/v1/search/country?response=true', {
+            return this.adminApiClient.post('/v1/search/country?response=true', {
                 filter: [{
                     field: "iso",
                     type: "equals",
@@ -28,15 +28,15 @@ export default class OrderFixtureService extends FixtureService {
                 "billingAddress.country": country.id,
             });
         }).then(() => {
-            return this.storefrontApiClient.setContextToken(this.createUuid().replace(/-/g,''));
+            return this.apiClient.setContextToken(this.createUuid().replace(/-/g,''));
         }).then(() => {
-            return this.storefrontApiClient.post('/v1/checkout/cart');
+            return this.apiClient.post('/v1/checkout/cart');
         }).then(() => {
-            return this.storefrontApiClient.post(`/v1/checkout/cart/line-item/${productId}`, {
+            return this.apiClient.post(`/v1/checkout/cart/line-item/${productId}`, {
                 type: 'product'
             })
         }).then(() => {
-            return this.storefrontApiClient.post(`/v1/checkout/guest-order`, customerRawData)
+            return this.apiClient.post(`/v1/checkout/guest-order`, customerRawData)
         }).then((result) => {
             const endTime = new Date() - startTime;
             global.logger.success(`${result['data'].id} (${endTime / 1000}s)`);

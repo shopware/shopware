@@ -4,7 +4,7 @@ module.exports = {
     '@tags': ['product-stream-inline-edit', 'product-stream', 'inline-edit'],
     '@disabled': !global.flags.isActive('next739'),
     before: (browser, done) => {
-        global.FixtureService.create('product-stream').then(() => {
+        global.AdminFixtureService.create('product-stream').then(() => {
             done();
         });
     },

@@ -36,7 +36,7 @@ module.exports = {
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent(`${page.elements.modal}l__footer`)
             .waitForElementNotPresent(page.elements.loader)
-            .checkNotification('File "sw-login-background.png" has been deleted successfully', false)
+            .checkNotification('File "sw-login-background.png" has been deleted successfully', `${page.elements.notification}--0`, false)
             .click(page.elements.alertClose)
             .expect.element(`${page.elements.alert}__message`).to.have.text.not.equals('File "sw-login-background.png" has been deleted successfully').before(500);
         browser.checkNotification('Files have been deleted successfully');

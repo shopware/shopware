@@ -65,7 +65,7 @@ module.exports = {
             .waitForElementVisible(page.elements.previewItem)
             .waitForElementVisible('.sw-media-replace__replace-media-action')
             .click('.sw-media-replace__replace-media-action')
-            .checkNotification('File has been saved successfully', false)
+            .checkNotification('File has been saved successfully', `${page.elements.notification}--0`, false)
             .click('.sw-alert__close')
             .expect.element('.sw-alert__message').to.have.text.not.equals('File has been saved successfully').before(500);
 

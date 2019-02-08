@@ -21,7 +21,7 @@ module.exports = {
         page.addManufacturerLogo(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-test-image.png`);
         browser
             .click(page.elements.primaryButton)
-            .checkNotification('Manufacturer "shopware AG" has been saved successfully.', true);
+            .checkNotification('Manufacturer "shopware AG" has been saved successfully.');
     },
     'verify upload in media module': (browser) => {
         const page = mediaPage(browser);

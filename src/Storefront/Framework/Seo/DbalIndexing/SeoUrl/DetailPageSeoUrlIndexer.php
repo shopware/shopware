@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
+use DateTime;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
@@ -90,7 +91,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->checkoutContextFactory = $checkoutContextFactory;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(DateTime $timestamp): void
     {
         $defaultContext = Context::createDefaultContext();
 
@@ -181,7 +182,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $products = $this->productRepository->search(new Criteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($products->getIds(), $context->getSourceContext()->getSalesChannelId());
-        $timestamp = new \DateTime();
+        $timestamp = new DateTime();
 
         foreach ($products as $product) {
             $existing = [

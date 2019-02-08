@@ -32,8 +32,8 @@ class TwigIncludeTest extends TestCase
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1', 'TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2', 'TestPlugin1');
+        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
+        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
@@ -56,8 +56,8 @@ class TwigIncludeTest extends TestCase
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1', 'TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2', 'TestPlugin1');
+        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
+        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
@@ -80,8 +80,8 @@ class TwigIncludeTest extends TestCase
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1', 'TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2', 'TestPlugin1');
+        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
+        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
@@ -104,8 +104,8 @@ class TwigIncludeTest extends TestCase
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1', 'TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2', 'TestPlugin1');
+        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
+        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));

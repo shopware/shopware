@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Controller;
 
+use RuntimeException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Twig\TemplateFinder;
@@ -81,7 +82,7 @@ abstract class StorefrontController extends AbstractController
     {
         $parsedUrl = parse_url(urldecode($url));
         if (array_key_exists('host', $parsedUrl)) {
-            throw new \RuntimeException('Absolute URLs are prohibited for the redirectTo parameter.');
+            throw new RuntimeException('Absolute URLs are prohibited for the redirectTo parameter.');
         }
 
         $redirectUrl = $parsedUrl['path'];

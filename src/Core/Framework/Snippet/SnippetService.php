@@ -66,7 +66,7 @@ class SnippetService implements SnippetServiceInterface
     /**
      * {@inheritdoc}
      */
-    public function getList(int $page, int $limit, Context $context, array $requestFilters): array
+    public function getList(int $page, int $limit, Context $context, array $requestFilters, array $sort): array
     {
         --$page;
         $metaData = $this->getSetMetaData($context);
@@ -89,6 +89,8 @@ class SnippetService implements SnippetServiceInterface
         foreach ($requestFilters as $requestFilterName => $requestFilterValue) {
             $snippets = $this->snippetFilterFactory->getFilter($requestFilterName)->filter($snippets, $requestFilterValue, $additionalData);
         }
+
+        $snippets = $this->sortSnippets($sort, $snippets);
 
         $total = 0;
         foreach ($snippets as $setId => &$set) {
@@ -383,5 +385,42 @@ class SnippetService implements SnippetServiceInterface
     private function findSnippetSetInDatabase(Criteria $criteria, Context $context): array
     {
         return $this->snippetSetRepository->search($criteria, $context)->getEntities()->getElements();
+    }
+
+    private function sortSnippets(array $sort, array $snippets): array
+    {
+        if ($sort['sortBy'] === null) {
+            return $snippets;
+        }
+
+        if ($sort['sortBy'] === 'translationKey') {
+            foreach ($snippets as $setId => &$set) {
+                if ($sort['sortDirection'] === 'ASC') {
+                    ksort($set['snippets']);
+                } elseif ($sort['sortDirection'] === 'DESC') {
+                    krsort($set['snippets']);
+                }
+            }
+
+            return $snippets;
+        }
+
+        $mainSet = $snippets[$sort['sortBy']];
+        unset($snippets[$sort['sortBy']]);
+
+        if ($sort['sortDirection'] === 'ASC') {
+            asort($mainSet['snippets']);
+        } elseif ($sort['sortDirection'] === 'DESC') {
+            arsort($mainSet['snippets']);
+        }
+
+        $result = [$sort['sortBy'] => $mainSet];
+        foreach ($snippets as $setId => $set) {
+            foreach ($mainSet['snippets'] as $currentKey => $value) {
+                $result[$setId]['snippets'][$currentKey] = $set['snippets'][$currentKey];
+            }
+        }
+
+        return $result;
     }
 }

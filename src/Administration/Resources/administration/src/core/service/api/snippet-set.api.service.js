@@ -14,7 +14,7 @@ class SnippetSetApiService extends ApiService {
     /**
      * @returns {Promise<T>}
      */
-    getCustomList(page = 1, limit = 25, filters = {}) {
+    getCustomList(page = 1, limit = 25, filters = {}, sort = {}) {
         const headers = this.getBasicHeaders();
         const defaultFilters = {
             custom: false,
@@ -24,12 +24,18 @@ class SnippetSetApiService extends ApiService {
             author: [],
             translationKey: []
         };
+        const defaultSort = {
+            sortBy: null,
+            sortDirection: null
+        };
+
         filters = { ...defaultFilters, ...filters };
+        sort = { ...defaultSort, ...sort };
 
         return this.httpClient
             .post(
                 `/_action/${this.getApiBasePath()}`,
-                { page, limit, filters },
+                { page, limit, filters, sort },
                 { headers }
             )
             .then((response) => {

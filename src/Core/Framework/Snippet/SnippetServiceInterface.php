@@ -16,8 +16,13 @@ interface SnippetServiceInterface
      *      'authors' => array,
      *      'translationKeys' => array,
      * ]
+     *
+     * sort: [
+     *      'column' => NULL || the string -> 'translationKey' || setId
+     *      'direction' => 'ASC' || 'DESC'
+     * ]
      */
-    public function getList(int $page, int $limit, Context $context, array $filters): array;
+    public function getList(int $page, int $limit, Context $context, array $filters, array $sort): array;
 
     public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array;
 

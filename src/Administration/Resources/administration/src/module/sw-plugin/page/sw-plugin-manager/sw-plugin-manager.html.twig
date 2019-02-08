@@ -1,0 +1,56 @@
+{% block sw_plugin_manager %}
+<sw-page class="sw-plugin-list">
+    {% block sw_plugin_manager_search_bar %}
+        <template slot="search-bar">
+            <sw-search-bar :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
+                           :searchType="$tc('sw-plugin.general.mainMenuItemGeneral')">
+            </sw-search-bar>
+        </template>
+    {% endblock %}
+
+    {% block sw_plugin_manager_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_plugin_manager_smart_bar_header_title %}
+        <h2>
+            {% block sw_plugin_manager_smart_bar_header_title_text %}
+            {{ $tc('sw-plugin.list.textPluginManager') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_plugin_manager_content %}
+    <sw-card-view slot="content">
+        {% block sw_plugin_manager_content_tabs %}
+        <sw-tabs>
+            {% block sw_plugin_manager_content_tab_list %}
+            <sw-tabs-item :route="{ name: 'sw.plugin.index.list' }"
+                          :title="$tc('sw-plugin.general.tabList')">
+                {{ $tc('sw-plugin.general.tabList') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_plugin_manager_content_tab_licenses %}
+            <sw-tabs-item :route="{ name: 'sw.plugin.index.licenses' }"
+                          :title="$tc('sw-plugin.general.tabLicenses')">
+                {{ $tc('sw-plugin.general.tabLicenses') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_plugin_manager_content_tab_updates %}
+            <sw-tabs-item :route="{ name: 'sw.plugin.index.updates' }"
+                          :title="$tc('sw-plugin.general.tabUpdates')">
+                {{ $tc('sw-plugin.general.tabUpdates') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </sw-tabs>
+        {% endblock %}
+
+        {% block sw_plugin_manager_content_view %}
+        <router-view></router-view>
+        {% endblock %}
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
+{% endblock %}

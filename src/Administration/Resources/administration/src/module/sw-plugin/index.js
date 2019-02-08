@@ -1,7 +1,9 @@
 import { Module } from 'src/core/shopware';
 import { NEXT1223 } from 'src/flag/feature_next1223';
-import './page/sw-plugin-list';
-import './page/sw-plugin-license-list';
+import './page/sw-plugin-manager';
+import './view/sw-plugin-list';
+import './view/sw-plugin-license-list';
+import './view/sw-plugin-updates-list';
 import './component/sw-plugin-file-upload';
 import './component/sw-plugin-store-login';
 
@@ -19,14 +21,26 @@ Module.register('sw-plugin', {
     routes: {
         index: {
             components: {
-                default: 'sw-plugin-list'
+                default: 'sw-plugin-manager'
+            },
+            redirect: {
+                name: 'sw.plugin.index.list'
             },
             path: 'index',
-            alias: 'list'
-        },
-        licenseList: {
-            component: 'sw-plugin-license-list',
-            path: 'licenses'
+            children: {
+                list: {
+                    component: 'sw-plugin-list',
+                    path: 'list'
+                },
+                licenses: {
+                    component: 'sw-plugin-license-list',
+                    path: 'licenses'
+                },
+                updates: {
+                    component: 'sw-plugin-updates-list',
+                    path: 'updates'
+                }
+            }
         }
     },
 
@@ -37,13 +51,5 @@ Module.register('sw-plugin', {
         path: 'sw.plugin.index',
         icon: 'default-object-plug',
         position: 9999
-    }, {
-        path: 'sw.plugin.index',
-        label: 'sw-plugin.general.mainMenuPluginList',
-        parent: 'sw-plugin'
-    }, {
-        path: 'sw.plugin.licenseList',
-        label: 'sw-plugin.general.mainMenuLicenseList',
-        parent: 'sw-plugin'
     }]
 });

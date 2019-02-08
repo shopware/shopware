@@ -12,10 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -26,10 +26,14 @@ class AttributesFieldSerializer extends JsonFieldSerializer
      */
     private $attributeRepository;
 
-    public function __construct(FieldSerializerRegistry $compositeHandler, ConstraintBuilder $constraintBuilder, ValidatorInterface $validator, EntityRepositoryInterface $attributeRepository)
+    /** @var WriteCommandExtractor */
+    private $writeExtractor;
+
+    public function __construct(FieldSerializerRegistry $compositeHandler, ConstraintBuilder $constraintBuilder, ValidatorInterface $validator, EntityRepositoryInterface $attributeRepository, WriteCommandExtractor $writeExtractor)
     {
         parent::__construct($compositeHandler, $constraintBuilder, $validator);
         $this->attributeRepository = $attributeRepository;
+        $this->writeExtractor = $writeExtractor;
     }
 
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
@@ -49,15 +53,7 @@ class AttributesFieldSerializer extends JsonFieldSerializer
 
             return;
         }
-
-        $jsonUpdateCommand = new JsonUpdateCommand(
-            $existence->getDefinition(),
-            $field->getStorageName(),
-            $existence->getPrimaryKey(),
-            $attributes,
-            $existence
-        );
-        $parameters->getCommandQueue()->add($jsonUpdateCommand->getDefinition(), $jsonUpdateCommand);
+        $this->writeExtractor->extractJsonUpdate([$field->getStorageName() => $attributes], $existence, $parameters);
 
         return;
         yield __CLASS__ => __METHOD__;

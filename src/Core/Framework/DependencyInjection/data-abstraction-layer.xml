@@ -1384,6 +1384,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
             <argument type="service" id="attribute.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
 
             <tag name="shopware.field_serializer"/>
         </service>

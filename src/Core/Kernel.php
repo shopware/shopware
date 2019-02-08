@@ -10,7 +10,8 @@ use RuntimeException;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\BundleCollection;
+use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -34,7 +35,7 @@ class Kernel extends HttpKernel
     protected static $connection;
 
     /**
-     * @var BundleCollection
+     * @var KernelPluginCollection
      */
     protected static $plugins;
 
@@ -45,7 +46,7 @@ class Kernel extends HttpKernel
     {
         parent::__construct($environment, $debug);
 
-        self::$plugins = new BundleCollection();
+        self::$plugins = new KernelPluginCollection();
         self::$connection = null;
     }
 
@@ -108,7 +109,7 @@ class Kernel extends HttpKernel
         $this->booted = true;
     }
 
-    public static function getPlugins(): BundleCollection
+    public static function getPlugins(): KernelPluginCollection
     {
         return self::$plugins;
     }
@@ -153,7 +154,7 @@ class Kernel extends HttpKernel
             return;
         }
 
-        self::$plugins = new BundleCollection();
+        self::$plugins = new KernelPluginCollection();
         self::$connection = null;
 
         parent::shutdown();
@@ -226,13 +227,10 @@ class Kernel extends HttpKernel
             'SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installed_at` IS NOT NULL'
         );
         $activePlugins = $stmt->fetchAll(FetchMode::COLUMN);
+        $pluginNamesWithPaths = PluginFinder::findPlugins($this->getPluginDir(), $this->getProjectDir());
 
-        $finder = new Finder();
-        $iterator = $finder->directories()->depth(0)->in($this->getPluginDir())->getIterator();
-
-        foreach ($iterator as $pluginDir) {
-            $pluginName = $pluginDir->getFilename();
-            $pluginFile = $pluginDir->getPath() . '/' . $pluginName . '/' . $pluginName . '.php';
+        foreach ($pluginNamesWithPaths as $pluginName => $pluginPath) {
+            $pluginFile = $pluginPath . '/' . $pluginName . '.php';
             if (!is_file($pluginFile)) {
                 continue;
             }
@@ -249,7 +247,7 @@ class Kernel extends HttpKernel
             $isActive = \in_array($pluginName, $activePlugins, true);
 
             /** @var \Shopware\Core\Framework\Plugin $plugin */
-            $plugin = new $className($isActive);
+            $plugin = new $className($isActive, $pluginPath);
 
             if (!$plugin instanceof Plugin) {
                 throw new RuntimeException(
@@ -296,7 +294,7 @@ class Kernel extends HttpKernel
 
     private function addPluginRoutes(RouteCollectionBuilder $routes): void
     {
-        foreach (static::$plugins->getActives() as $plugin) {
+        foreach (self::$plugins->getActives() as $plugin) {
             $plugin->configureRoutes($routes, (string) $this->environment);
         }
     }

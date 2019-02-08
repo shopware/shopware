@@ -13,24 +13,31 @@
             <tag name="shopware.entity.definition" entity="plugin_translation"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\KernelPluginCollection">
+            <factory service="kernel" method="getPlugins"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Plugin\PluginService">
             <argument>%kernel.plugin_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\PackageProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginLifecycleService">
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="kernel"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Util\AssetService"/>
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
@@ -80,11 +87,16 @@
             <tag name="console.command"/>
         </service>
 
+        <!-- Composer -->
+        <service id="Shopware\Core\Framework\Plugin\Composer\PackageProvider"/>
+
+        <service id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor">
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
         <!-- Helper -->
         <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider" public="true">
             <argument type="service" id="plugin.repository"/>
         </service>
-
-        <service id="Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider"/>
     </services>
 </container>

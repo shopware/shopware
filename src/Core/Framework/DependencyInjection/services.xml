@@ -30,11 +30,6 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
-        <!-- Plugins -->
-        <service id="Shopware\Core\Framework\Plugin\BundleCollection">
-            <factory service="kernel" method="getPlugins"/>
-        </service>
-
         <!-- Cache -->
         <service id="shopware.cache" class="Symfony\Component\Cache\Adapter\TagAwareAdapter" public="true">
             <argument type="service" id="cache.app" />

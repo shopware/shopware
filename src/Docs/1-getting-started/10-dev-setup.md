@@ -262,6 +262,17 @@ In the file `.psh.yml.override` any of the information entered during the setup 
 
 **Only local installations:** Append `CHROME_BIN: "chromium-browser"` to the `.psh.yml.override` const section.
 
+Shopware needs the `COMPOSER_HOME` environment variable to be set.
+Per default it will be set to the global `COMPOOSER_HOME` value. If this is empty, `/home/<user>/.composer` will be used.
+To override this behaviour, use the `.psh.yaml.override` and add the following:
+
+```yaml
+...
+dynamic:
+  COMPOSER_HOME: echo "./foo"
+```
+This will set the `COMPOSER_HOME` to `./foo`
+
 Finally init/build the administration app.
 ```bash
 ./psh.phar administration:init

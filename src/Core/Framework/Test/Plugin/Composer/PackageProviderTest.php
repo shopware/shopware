@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Helper;
+namespace Shopware\Core\Framework\Test\Plugin\Composer;
 
 use Composer\IO\NullIO;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
-use Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider;
 
-class ComposerPackageProviderTest extends TestCase
+class PackageProviderTest extends TestCase
 {
     public function testGetPluginInformation(): void
     {
@@ -38,8 +38,8 @@ class ComposerPackageProviderTest extends TestCase
         $packageProvider->getPluginInformation($pluginPath, new NullIO());
     }
 
-    private function createProvider(): ComposerPackageProvider
+    private function createProvider(): PackageProvider
     {
-        return new ComposerPackageProvider();
+        return new PackageProvider();
     }
 }

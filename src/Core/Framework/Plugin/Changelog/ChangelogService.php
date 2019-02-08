@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Changelog;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Symfony\Component\Finder\Finder;
 
 class ChangelogService
@@ -43,6 +44,9 @@ class ChangelogService
         return substr($fileName, strpos($fileName, '-') + 1, 5);
     }
 
+    /**
+     * @throws PluginChangelogInvalidException
+     */
     public function parseChangelog(string $file): array
     {
         return $this->changelogParser->parseChangelog($file);

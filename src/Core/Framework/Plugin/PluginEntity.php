@@ -18,6 +18,11 @@ class PluginEntity extends Entity
     protected $name;
 
     /**
+     * @var string|null
+     */
+    protected $composerName;
+
+    /**
      * @var bool
      */
     protected $active;
@@ -110,6 +115,16 @@ class PluginEntity extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getComposerName(): ?string
+    {
+        return $this->composerName;
+    }
+
+    public function setComposerName(string $composerName): void
+    {
+        $this->composerName = $composerName;
     }
 
     public function getActive(): bool

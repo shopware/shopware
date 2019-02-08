@@ -8,20 +8,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
+use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider;
+use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
-use Symfony\Component\Finder\Finder;
 
 class PluginService
 {
     /**
      * @var string
      */
-    private $pluginPath;
+    private $pluginDir;
+
+    /**
+     * @var string
+     */
+    private $projectDir;
 
     /**
      * @var EntityRepositoryInterface
@@ -34,7 +39,7 @@ class PluginService
     private $languageRepo;
 
     /**
-     * @var ComposerPackageProvider
+     * @var PackageProvider
      */
     private $composerPackageProvider;
 
@@ -44,13 +49,15 @@ class PluginService
     private $changelogService;
 
     public function __construct(
-        string $pluginPath,
+        string $pluginDir,
+        string $projectDir,
         EntityRepositoryInterface $pluginRepo,
         EntityRepositoryInterface $languageRepo,
-        ComposerPackageProvider $composerPackageProvider,
+        PackageProvider $composerPackageProvider,
         ChangelogService $changelogService
     ) {
-        $this->pluginPath = $pluginPath;
+        $this->pluginDir = $pluginDir;
+        $this->projectDir = $projectDir;
         $this->pluginRepo = $pluginRepo;
         $this->languageRepo = $languageRepo;
         $this->composerPackageProvider = $composerPackageProvider;
@@ -62,17 +69,13 @@ class PluginService
      */
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): array
     {
-        $finder = new Finder();
-        $filesystemPlugins = $finder->directories()->depth(0)->in($this->pluginPath)->getIterator();
+        $pluginNamesWithPaths = PluginFinder::findPlugins($this->pluginDir, $this->projectDir);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
 
         $plugins = [];
         $errors = [];
-        foreach ($filesystemPlugins as $plugin) {
-            $pluginName = $plugin->getFilename();
-            $pluginPath = $plugin->getPathname();
-
+        foreach ($pluginNamesWithPaths as $pluginName => $pluginPath) {
             try {
                 $info = $this->composerPackageProvider->getPluginInformation($pluginPath, $composerIO);
             } catch (PluginComposerJsonInvalidException $e) {
@@ -94,6 +97,7 @@ class PluginService
 
             $pluginData = [
                 'name' => $pluginName,
+                'composerName' => $info->getName(),
                 'author' => $authors,
                 'copyright' => $extra['copyright'] ?? null,
                 'license' => implode(', ', $license),

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Plugin\Helper;
+namespace Shopware\Core\Framework\Plugin\Composer;
 
 use Composer\Factory;
 use Composer\IO\IOInterface;
@@ -8,7 +8,7 @@ use Composer\Package\RootPackageInterface;
 use Composer\Util\ConfigValidator;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 
-class ComposerPackageProvider
+class PackageProvider
 {
     /**
      * @throws PluginComposerJsonInvalidException
@@ -21,7 +21,7 @@ class ComposerPackageProvider
         [$errors, $publishErrors, $warnings] = $validator->validate($composerJsonPath);
         $errors = array_merge($errors, $publishErrors);
         if (\count($errors) !== 0) {
-            throw new PluginComposerJsonInvalidException(implode("\n", $errors));
+            throw new PluginComposerJsonInvalidException($composerJsonPath, implode("\n", $errors));
         }
 
         if (\count($warnings) !== 0) {

@@ -31,13 +31,13 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    padding: 0 ($sw-modal-gap / 2);
 
     .sw-modal__dialog {
         background-color: $sw-modal-dialog-color-background;
         border-radius: $sw-modal-border-radius;
         color: $sw-modal-color-text;
         max-height: calc(100vh - #{$sw-modal-gap});
-        max-width: calc(100vw - #{$sw-modal-gap});
         min-height: 200px;
         width: 100%;
         outline: none;
@@ -82,10 +82,15 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
     }
 
     .sw-modal__header {
-        padding: 20px 80px 20px 30px;
         border-bottom: 1px solid $sw-modal-color-border;
+        display: flex;
+        flex-shrink: 0;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         position: relative;
-        min-height: 65px;
+        padding: 0 32px;
+        height: 64px;
     }
 
     .sw-modal__title {
@@ -127,11 +132,17 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
     }
 
     .sw-modal__footer {
-        padding: 20px 30px;
-        border-top: 1px solid $sw-modal-color-border;
-        background-color: $sw-modal-footer-color-background;
         border-radius: 0 0 $sw-modal-border-radius $sw-modal-border-radius;
-        text-align: right;
+        background-color: $sw-modal-footer-color-background;
+        display: grid;
+        grid-auto-columns: min-content;
+        grid-auto-flow: column;
+        grid-column-gap: 8px;
+        justify-content: end;
+        align-items: center;
+        flex-shrink: 0;
+        height: 72px;
+        padding: 0 32px;
     }
 
     .sw-loader {

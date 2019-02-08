@@ -33,9 +33,7 @@ class SortingSubscriber implements EventSubscriberInterface
 
     public function buildCriteria(ListingPageletCriteriaCreatedEvent $event): void
     {
-        $request = $event->getRequest();
-
-        $sortingKey = $request->optionalGet(self::SORTING_PARAMETER);
+        $sortingKey = $event->getRequest()->optionalGet(self::SORTING_PARAMETER);
         if (!$sortingKey) {
             return;
         }

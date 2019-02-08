@@ -18,11 +18,7 @@ class PageWithHeaderLoader implements PageLoaderInterface
         $this->headerLoader = $headerLoader;
     }
 
-    /**
-     * @param InternalRequest $request
-     * @param CheckoutContext $context
-     */
-    public function load(InternalRequest $request, CheckoutContext $context)
+    public function load(InternalRequest $request, CheckoutContext $context): PageWithHeader
     {
         $header = $this->headerLoader->load($request, $context);
 

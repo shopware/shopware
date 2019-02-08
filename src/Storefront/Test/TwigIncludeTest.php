@@ -14,17 +14,13 @@ class TwigIncludeTest extends TestCase
 {
     use StorefrontFunctionalTestBehaviour;
 
-    protected function setUp(): void
-    {
-    }
-
     /**
      * @throws \Throwable
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Runtime
      * @throws \Twig_Error_Syntax
      */
-    public function testMultipleInheritance()
+    public function testMultipleInheritance(): void
     {
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
@@ -48,7 +44,7 @@ class TwigIncludeTest extends TestCase
      * @throws \Twig_Error_Runtime
      * @throws \Twig_Error_Syntax
      */
-    public function testIncludeWithVars()
+    public function testIncludeWithVars(): void
     {
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
@@ -72,7 +68,7 @@ class TwigIncludeTest extends TestCase
      * @throws \Twig_Error_Runtime
      * @throws \Twig_Error_Syntax
      */
-    public function testIncludeWithVarsOnly()
+    public function testIncludeWithVarsOnly(): void
     {
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
@@ -96,7 +92,7 @@ class TwigIncludeTest extends TestCase
      * @throws \Twig_Error_Runtime
      * @throws \Twig_Error_Syntax
      */
-    public function testIncludeTemplatenameExpression()
+    public function testIncludeTemplatenameExpression(): void
     {
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
@@ -120,7 +116,7 @@ class TwigIncludeTest extends TestCase
      * @throws \Twig_Error_Runtime
      * @throws \Twig_Error_Syntax
      */
-    public function testIncludeIgnoreMissing()
+    public function testIncludeIgnoreMissing(): void
     {
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');

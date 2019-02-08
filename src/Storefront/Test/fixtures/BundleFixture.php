@@ -9,106 +9,63 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class BundleFixture implements BundleInterface
 {
+    /**
+     * @var string
+     */
     private $path;
-    private $name;
 
     /**
-     * BundleFixture constructor.
-     *
-     * @param string $name
-     * @param string $path
+     * @var string
      */
-    public function __construct($name, $path)
+    private $name;
+
+    public function __construct(string $name, string $path)
     {
         $this->name = $name;
         $this->path = $path;
     }
 
-    /**
-     * Boots the Bundle.
-     */
-    public function boot()
+    public function boot(): void
     {
     }
 
-    /**
-     * Shutdowns the Bundle.
-     */
-    public function shutdown()
+    public function shutdown(): void
     {
     }
 
-    /**
-     * Builds the bundle.
-     *
-     * It is only ever called once when the cache is empty.
-     */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
     }
 
-    /**
-     * @param ContainerInterface|null $container
-     */
-    public function setContainer(ContainerInterface $container = null)
+    public function setContainer(ContainerInterface $container = null): void
     {
     }
 
-    /**
-     * Returns the container extension that should be implicitly loaded.
-     *
-     * @return ExtensionInterface|null The default extension or null if there is none
-     */
-    public function getContainerExtension()
+    public function getContainerExtension(): ?ExtensionInterface
     {
+        return null;
     }
 
-    /**
-     * Returns the bundle name (the class short name).
-     *
-     * @param string $name
-     */
     public function setName($name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * Returns the bundle name (the class short name).
-     *
-     * @return string The Bundle name
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * Gets the Bundle namespace.
-     *
-     * @return string The Bundle namespace
-     */
-    public function getNamespace()
+    public function getNamespace(): string
     {
+        return '';
     }
 
-    /**
-     * Gets the Bundle directory path.
-     *
-     * The path should always be returned as a Unix path (with /).
-     *
-     * @return string The Bundle absolute path
-     */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
 
-    /**
-     * Sets the Bundle directory path.
-     *
-     * @param string $path
-     */
     public function setPath($path): void
     {
         $this->path = $path;

@@ -16,7 +16,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         parent::__construct($salesChannelRepository);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 

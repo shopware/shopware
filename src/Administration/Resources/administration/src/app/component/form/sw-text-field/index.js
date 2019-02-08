@@ -141,7 +141,11 @@ export default {
         },
 
         containSuffix() {
-            return !!this.$scopedSlots.suffix || !!this.$slots.suffix || this.suffix;
+            return !!this.$scopedSlots.suffix || !!this.$slots.suffix || !!this.suffix;
+        },
+
+        containPrefix() {
+            return !!this.$scopedSlots.prefix || !!this.$slots.prefix || !!this.prefix;
         },
 
         displayName() {
@@ -194,7 +198,7 @@ export default {
                 {
                     'has--error': !!this.hasErrorCls,
                     'has--suffix': !!this.copyAble || !!this.containSuffix,
-                    'has--prefix': !!this.prefix,
+                    'has--prefix': !!this.containPrefix,
                     'has--tooltip': !!this.tooltipText,
                     'is--disabled': !!this.$props.disabled
                 }];

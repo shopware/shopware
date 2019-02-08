@@ -1,0 +1,41 @@
+{% block sw_prefix %}
+    <sw-field-addition :isPrefix="true">
+        <slot name="prefix" v-if="customPrefix">{{ prefix }}</slot>
+        <span v-else class="sw-field__url-input__prefix" :class="prefixClass">
+            <sw-icon name="default-lock-closed"
+                     :small="true"
+                     v-if="sslActive">
+            </sw-icon>
+            <sw-icon name="default-lock-open"
+                     :small="true"
+                     v-else>
+            </sw-icon>
+            {{ urlPrefix }}
+        </span>
+    </sw-field-addition>
+{% endblock %}
+
+{% block sw_text_field_input_element %}
+    <input type=text
+           :id="id"
+           name="sw-field-url"
+           ref="urlField"
+           class="sw-url-input-field__input"
+           :label="label"
+           :placeholder="fieldPlaceholder"
+           :disabled="disabled ? 'disabled' : false"
+           @change="onChange"
+           @input="urlChanged"
+           v-on="additionalEventListeners"
+           v-model="urlInput" />
+{% endblock %}
+
+{% block sw_text_field_extras %}
+    <sw-field type="switch"
+              name="sw-field--url-ssl"
+              class="sw-url-input-ssl-switch__field"
+              :label="switchLabel"
+              :value="sslActive"
+              @change="sslChanged">
+    </sw-field>
+{% endblock %}

@@ -12,6 +12,7 @@ $sw-field-border-radius: $border-radius-default;
 $sw-field-color-label: $color-kashmir;
 $sw-field-color-placeholder: lighten($sw-field-color-text, 25%);
 $sw-field-color-error: $color-crimson;
+$sw-field-color-secure: $color-emerald;
 
 .sw-field {
     width: 100%;
@@ -527,6 +528,15 @@ $sw-field-color-error: $color-crimson;
                 border-radius: 8px;
             }
         }
+    }
+
+    .sw-field__url-input__prefix {
+        &.is--ssl {
+            color: $sw-field-color-secure;
+        }
+    }
+    .sw-url-input-ssl-switch__field {
+        margin-top: 22px;
     }
 
     .sw-field__addition {

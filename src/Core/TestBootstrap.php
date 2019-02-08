@@ -9,7 +9,7 @@ function getProjectDir(): string
         return $_ENV['PROJECT_ROOT'];
     }
 
-    $dir = $rootDir = getcwd();
+    $dir = $rootDir = __DIR__;
     while (!file_exists($dir . '/.env')) {
         if ($dir === \dirname($dir)) {
             return $rootDir;

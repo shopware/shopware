@@ -2,9 +2,15 @@
 
 function getProjectDir(): string
 {
-    $r = new \ReflectionClass($_SERVER['KERNEL_CLASS']);
-    $dir = $rootDir = \dirname($r->getFileName());
-    while (!file_exists($dir . '/composer.json')) {
+    if (isset($_SERVER['PROJECT_ROOT']) && file_exists($_SERVER['PROJECT_ROOT'])) {
+        return $_SERVER['PROJECT_ROOT'];
+    }
+    if (isset($_ENV['PROJECT_ROOT']) && file_exists($_ENV['PROJECT_ROOT'])) {
+        return $_ENV['PROJECT_ROOT'];
+    }
+
+    $dir = $rootDir = getcwd();
+    while (!file_exists($dir . '/.env')) {
         if ($dir === \dirname($dir)) {
             return $rootDir;
         }

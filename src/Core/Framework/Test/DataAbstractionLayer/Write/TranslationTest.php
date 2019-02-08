@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStack
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -31,7 +32,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 class TranslationTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour,
+        AssertArraySubsetBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -93,8 +95,8 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        $this->silentAssertArraySubset(['name' => $name], $payload);
+        $this->silentAssertArraySubset(['shortName' => $shortName], $payload);
     }
 
     public function testCurrencyWithTranslationViaLanguageIdSimpleNotation(): void
@@ -125,8 +127,8 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        $this->silentAssertArraySubset(['name' => $name], $payload);
+        $this->silentAssertArraySubset(['shortName' => $shortName], $payload);
     }
 
     public function testCurrencyWithTranslationMergeViaLocaleAndLanguageId(): void
@@ -159,8 +161,8 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        $this->silentAssertArraySubset(['name' => $name], $payload);
+        $this->silentAssertArraySubset(['shortName' => $shortName], $payload);
     }
 
     public function testCurrencyWithTranslationMergeOverwriteViaLocaleAndLanguageId(): void
@@ -194,8 +196,8 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        $this->silentAssertArraySubset(['name' => $name], $payload);
+        $this->silentAssertArraySubset(['shortName' => $shortName], $payload);
     }
 
     public function testCurrencyWithTranslationViaLocaleAndLanguageId(): void
@@ -256,7 +258,7 @@ class TranslationTest extends TestCase
         $payload1 = $translations->getPayloads()[0];
         $payload2 = $translations->getPayloads()[1];
 
-        static::assertArraySubset(
+        $this->silentAssertArraySubset(
             [
                 'shortName' => $germanShortName,
                 'name' => $germanName,
@@ -264,7 +266,7 @@ class TranslationTest extends TestCase
             $payload1
         );
 
-        static::assertArraySubset(
+        $this->silentAssertArraySubset(
             [
                 'shortName' => $englishShortName,
                 'name' => $englishName,
@@ -300,8 +302,8 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $englishName], $payload);
-        static::assertArraySubset(['shortName' => $englishShortName], $payload);
+        $this->silentAssertArraySubset(['name' => $englishName], $payload);
+        $this->silentAssertArraySubset(['shortName' => $englishShortName], $payload);
 
         $germanLanguageId = Uuid::uuid4()->getHex();
         $data = [
@@ -347,11 +349,11 @@ class TranslationTest extends TestCase
 
         $payload = $translations->getPayloads();
 
-        static::assertArraySubset(['name' => 'default'], $payload[0]);
-        static::assertArraySubset(['shortName' => 'def'], $payload[0]);
+        $this->silentAssertArraySubset(['name' => 'default'], $payload[0]);
+        $this->silentAssertArraySubset(['shortName' => 'def'], $payload[0]);
 
-        static::assertArraySubset(['name' => $nlName], $payload[1]);
-        static::assertArraySubset(['shortName' => $nlShortName], $payload[1]);
+        $this->silentAssertArraySubset(['name' => $nlName], $payload[1]);
+        $this->silentAssertArraySubset(['shortName' => $nlShortName], $payload[1]);
     }
 
     public function testCurrencyTranslationWithInvalidLocaleCode(): void

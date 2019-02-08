@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 
 class StorefrontSalesChannelControllerTest extends TestCase
 {
-    use StorefrontFunctionalTestBehaviour;
+    use StorefrontFunctionalTestBehaviour,
+        AssertArraySubsetBehaviour;
 
     /**
      * @var Connection
@@ -52,7 +54,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
                 continue;
             }
 
-            static::assertArraySubset($originalCurrency, $currency);
+            $this->silentAssertArraySubset($originalCurrency, $currency);
 
             return;
         }
@@ -75,7 +77,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
                 continue;
             }
 
-            static::assertArraySubset($originalLanguage, $language);
+            $this->silentAssertArraySubset($originalLanguage, $language);
 
             return;
         }
@@ -98,7 +100,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
                 continue;
             }
 
-            static::assertArraySubset($originalCountry, $country);
+            $this->silentAssertArraySubset($originalCountry, $country);
 
             return;
         }
@@ -123,7 +125,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $this->sortById($originalStates);
         $this->sortById($states);
 
-        static::assertArraySubset($originalStates, $states);
+        $this->silentAssertArraySubset($originalStates, $states);
     }
 
     public function testGetSalesChannelPaymentMethods(): void
@@ -141,7 +143,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
                 continue;
             }
 
-            static::assertArraySubset($originalPaymentMethod, $paymentMethod);
+            $this->silentAssertArraySubset($originalPaymentMethod, $paymentMethod);
 
             return;
         }
@@ -164,7 +166,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
                 continue;
             }
 
-            static::assertArraySubset($originalShippingMethod, $shippingMethod);
+            $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
 
             return;
         }

@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
@@ -18,7 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StorefrontCheckoutControllerTest extends TestCase
 {
-    use StorefrontFunctionalTestBehaviour;
+    use StorefrontFunctionalTestBehaviour,
+        AssertArraySubsetBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -487,7 +489,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), print_r($response, true));
 
         $actualOrder = json_decode($response->getContent(), true);
-        static::assertArraySubset($expectedOrder, $actualOrder);
+        $this->silentAssertArraySubset($expectedOrder, $actualOrder);
     }
 
     public function testDeepLinkGuestOrderWithAccessKey(): void
@@ -501,7 +503,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $actualOrder = json_decode($response->getContent(), true);
-        static::assertArraySubset($expectedOrder, $actualOrder);
+        $this->silentAssertArraySubset($expectedOrder, $actualOrder);
     }
 
     public function testDeepLinkGuestOrderWithWrongCode(): void

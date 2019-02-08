@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Kernel;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class KernelLifecycleManagerTest extends TestCase
 {
@@ -12,14 +11,13 @@ class KernelLifecycleManagerTest extends TestCase
 
     public function testIfTheManagerNeedsAnUpdate(): void
     {
-        $reflection = new \ReflectionClass(KernelTestCase::class);
+        $kernelTestCaseFileName = TEST_PROJECT_DIR . '/vendor/symfony/framework-bundle/Test/KernelTestCase.php';
 
-        static::assertFileExists($reflection->getFileName());
-
+        static::assertFileExists($kernelTestCaseFileName);
         static::assertSame(
             self::BUILD_AGAINST_FILE_HASH,
-            sha1_file($reflection->getFileName()),
-            sprintf('You need to update the class %s and update the local hash', KernelLifecycleManager::class)
+            sha1_file($kernelTestCaseFileName),
+            sprintf('You need to update the class KernelTestCase from %s and update the local hash', $kernelTestCaseFileName)
         );
     }
 

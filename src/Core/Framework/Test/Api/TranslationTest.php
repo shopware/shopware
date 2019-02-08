@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Exception\MissingSystemTranslationException;
 use Shopware\Core\System\Language\TranslationValidator;
@@ -17,7 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TranslationTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminFunctionalTestBehaviour,
+        AssertArraySubsetBehaviour;
 
     public function testNoOverride(): void
     {
@@ -795,7 +797,7 @@ class TranslationTest extends TestCase
 
         static::assertArrayHasKey('data', $responseData, $response->getContent());
 
-        static::assertArraySubset($expectedTranslations, $responseData['data']);
+        $this->silentAssertArraySubset($expectedTranslations, $responseData['data']);
     }
 
     private function createLanguage($langId, $fallbackId = null): void

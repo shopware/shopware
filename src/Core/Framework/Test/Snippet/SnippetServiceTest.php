@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_A
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e1;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e2;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\Translation\MessageCatalogue;
@@ -28,7 +29,8 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class SnippetServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour,
+        AssertArraySubsetBehaviour;
 
     /**
      * @param MessageCatalogueInterface $catalog
@@ -42,7 +44,7 @@ class SnippetServiceTest extends TestCase
         $service = $this->getSnippetService();
         $result = $service->getStorefrontSnippets($catalog, Defaults::SNIPPET_BASE_SET_EN);
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
         static::assertNotEmpty($result);
         static::assertTrue(count($expectedResult) < count($result));
     }
@@ -138,7 +140,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $mehtod->invoke($service, $sets);
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     public function DataProviderForTestMergeSnippetsComparison()
@@ -172,7 +174,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $mehtod->invokeArgs($service, [[$snippetFileMock], 'setId']);
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     public function testGetSnippetFilesByIso()

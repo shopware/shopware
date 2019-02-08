@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\SnippetFileConverter;
 use Shopware\Core\Framework\Snippet\SnippetFlattener;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testConvert\SnippetFile_de_DE;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testConvert\SnippetFile_en_GB;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -15,7 +16,8 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 class SnippetFileConverterTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use KernelTestBehaviour,
+        AssertArraySubsetBehaviour;
 
     /**
      * @param SnippetSetEntity $struct
@@ -34,8 +36,8 @@ class SnippetFileConverterTest extends TestCase
 
         $result = $converter->convert($struct);
 
-        static::assertInternalType('array', $result);
-        static::assertArraySubset($expectedResult, $result);
+        static::assertIsArray($result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     public function dataProviderForTestConvert(): array
@@ -71,7 +73,7 @@ class SnippetFileConverterTest extends TestCase
 
         $result = $method->invoke($converter, $languageFile);
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     public function dataProviderForTestGetFileContent(): array

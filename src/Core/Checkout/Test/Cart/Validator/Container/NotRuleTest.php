@@ -28,11 +28,9 @@ class NotRuleTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testExceptionByMultipleRules(): void
     {
+        $this->expectException(\RuntimeException::class);
         new NotRule([
             new FalseRule(),
             new FalseRule(),

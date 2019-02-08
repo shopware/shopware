@@ -5,9 +5,12 @@ namespace Shopware\Core\Framework\Test\Snippet\Services;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\SnippetEntity;
 use Shopware\Core\Framework\Snippet\SnippetFlattener;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 
 class SnippetFlattenerTest extends TestCase
 {
+    use AssertArraySubsetBehaviour;
+
     public function testFlatten(): void
     {
         $flattener = $this->getFlattener();
@@ -16,7 +19,7 @@ class SnippetFlattenerTest extends TestCase
         $expectedResult = json_decode(file_get_contents(__DIR__ . '/_fixtures/testLanguageFlatten.json'), true);
         $result = $flattener->flatten($arrayToFlatten);
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     public function testUnflatten(): void
@@ -35,7 +38,7 @@ class SnippetFlattenerTest extends TestCase
         $expectedResult = json_decode(file_get_contents(__DIR__ . '/_fixtures/testLanguage.json'), true);
         $result = $flattener->unflatten($snippets);
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     private function getFlattener()

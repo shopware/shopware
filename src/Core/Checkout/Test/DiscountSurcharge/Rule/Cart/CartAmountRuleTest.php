@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 
 class CartAmountRuleTest extends TestCase
 {
@@ -132,13 +133,11 @@ class CartAmountRuleTest extends TestCase
 
     /**
      * @dataProvider unsupportedOperators
-     *
-     * @expectedException \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
-     *
-     * @param string $operator
      */
     public function testUnsupportedOperators(string $operator): void
     {
+        $this->expectException(UnsupportedOperatorException::class);
+
         $rule = (new CartAmountRule())->assign(['amount' => 100, 'operator' => $operator]);
 
         $cart = Generator::createCart();
@@ -152,8 +151,7 @@ class CartAmountRuleTest extends TestCase
     public function unsupportedOperators(): array
     {
         return [
-            [true],
-            [false],
+            ['random'],
             [''],
         ];
     }

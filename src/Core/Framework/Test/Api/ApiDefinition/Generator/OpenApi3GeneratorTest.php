@@ -6,9 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 
 class OpenApi3GeneratorTest extends TestCase
 {
+    use AssertArraySubsetBehaviour;
+
     /**
      * @var array
      */
@@ -39,13 +42,13 @@ class OpenApi3GeneratorTest extends TestCase
     {
         $properties = $this->schema[$this->entityName]['properties'];
 
-        static::assertArraySubset(['type' => 'string', 'format' => 'uuid'], $properties['id']);
-        static::assertArraySubset(['type' => 'string'], $properties['stringField']);
-        static::assertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['intField']);
-        static::assertArraySubset(['type' => 'number', 'format' => 'float'], $properties['floatField']);
-        static::assertArraySubset(['type' => 'boolean'], $properties['boolField']);
-        static::assertArraySubset(['type' => 'string'], $properties['stringField']);
-        static::assertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['childCount']);
+        $this->silentAssertArraySubset(['type' => 'string', 'format' => 'uuid'], $properties['id']);
+        $this->silentAssertArraySubset(['type' => 'string'], $properties['stringField']);
+        $this->silentAssertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['intField']);
+        $this->silentAssertArraySubset(['type' => 'number', 'format' => 'float'], $properties['floatField']);
+        $this->silentAssertArraySubset(['type' => 'boolean'], $properties['boolField']);
+        $this->silentAssertArraySubset(['type' => 'string'], $properties['stringField']);
+        $this->silentAssertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['childCount']);
     }
 
     public function testFlagConversion(): void
@@ -53,7 +56,7 @@ class OpenApi3GeneratorTest extends TestCase
         $properties = $this->schema[$this->entityName]['properties'];
         $requiredFields = $this->schema[$this->entityName]['required'];
 
-        static::assertArraySubset(['requiredField'], $requiredFields);
-        static::assertArraySubset(['readOnly' => true], $properties['readOnlyField']);
+        $this->silentAssertArraySubset(['requiredField'], $requiredFields);
+        $this->silentAssertArraySubset(['readOnly' => true], $properties['readOnlyField']);
     }
 }

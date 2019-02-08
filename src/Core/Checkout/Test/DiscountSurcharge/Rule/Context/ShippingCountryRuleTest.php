@@ -96,13 +96,15 @@ class ShippingCountryRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
-     *
      * @param string $operator
      */
     public function testUnsupportedOperators(string $operator): void
     {
-        $rule = (new ShippingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], 'operator' => $operator]);
+        $rule = (new ShippingCountryRule())
+            ->assign([
+                'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
+                'operator' => $operator,
+            ]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -115,12 +117,17 @@ class ShippingCountryRuleTest extends TestCase
             ->method('getShippingLocation')
             ->willReturn(ShippingLocation::createFromCountry($country));
 
+        $this->expectException(UnsupportedOperatorException::class);
         $rule->match(new CartRuleScope($cart, $context))->matches();
     }
 
     public function testUnsupportedOperatorMessage(): void
     {
-        $rule = (new ShippingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], 'operator' => ShippingCountryRule::OPERATOR_GTE]);
+        $rule = (new ShippingCountryRule())
+            ->assign([
+                'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
+                'operator' => ShippingCountryRule::OPERATOR_GTE,
+            ]);
 
         $cart = $this->createMock(Cart::class);
 
@@ -144,8 +151,6 @@ class ShippingCountryRuleTest extends TestCase
     public function unsupportedOperators(): array
     {
         return [
-            [true],
-            [false],
             [''],
             [ShippingCountryRule::OPERATOR_GTE],
             [ShippingCountryRule::OPERATOR_LTE],

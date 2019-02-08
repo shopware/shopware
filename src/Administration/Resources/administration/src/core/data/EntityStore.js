@@ -336,7 +336,9 @@ export default class EntityStore {
             this.isLoading = false;
             payload.forEach((update) => {
                 update.payload.forEach((entity) => {
-                    this.store[entity.id].isLocal = false;
+                    if (this.store[entity.id]) {
+                        this.store[entity.id].isLocal = false;
+                    }
                 });
             });
         });

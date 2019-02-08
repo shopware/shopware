@@ -465,6 +465,7 @@
       "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
       "useAsLogo": "Als Logo verwenden",
       "treeHeadline": "Kategoriestruktur",
+      "treeHeadSelected": "{count} selektiert",
       "actions": {
           "createSub": "Neue Subkategorie",
           "createBefore": "Neue Kategorie davor",

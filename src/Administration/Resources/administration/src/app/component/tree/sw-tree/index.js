@@ -89,7 +89,6 @@ export default {
             if (this.items.length === 1 && this.items[0] && this.items[0].isDeleted) {
                 return true;
             }
-
             return this.items.length < 1;
         }
     },
@@ -124,8 +123,7 @@ export default {
                     parentId: parentId,
                     position: item[this.positionProperty],
                     childCount: item[this.childCountProperty],
-                    children: this.getTreeItems(item.id),
-                    checked: false
+                    children: this.getTreeItems(item.id)
                 });
             });
             treeItems.sort((a, b) => {
@@ -144,7 +142,7 @@ export default {
         },
 
         endDrag() {
-            if (this.draggedItem.parentId !== this.droppedItem.parentId) {
+            if (this.droppedItem && this.draggedItem.parentId !== this.droppedItem.parentId) {
                 if (this.draggedItem.parentId !== null) {
                     const draggedParent = this.findById(this.treeItems, this.draggedItem.parentId);
                     draggedParent.data.childCount -= 1;

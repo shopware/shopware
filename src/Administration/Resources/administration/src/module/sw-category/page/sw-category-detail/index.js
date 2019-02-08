@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
@@ -78,12 +79,15 @@ Component.register('sw-category-detail', {
             this.isMobileViewport = this.$device.getViewportWidth() < this.splitBreakpoint;
         },
 
-        getCategories() {
+        getCategories(parentId = null) {
             this.isLoading = true;
-            const params = { page: 1, limit: 500 };
-            return this.categoryStore.getList(params).then((response) => {
+            return this.categoryStore.getList({
+                page: 1,
+                limit: 500,
+                criteria: CriteriaFactory.equals('category.parentId', parentId)
+            }).then((response) => {
                 this.isLoading = false;
-                this.categories = response.items;
+                this.categories = Object.values(this.categoryStore.store);
                 return response.items;
             });
         },
@@ -113,6 +117,7 @@ Component.register('sw-category-detail', {
         },
 
         resetCategory() {
+            this.$router.push({ name: 'sw.category.index' });
             this.category = null;
             this.mediaItem = null;
             this.isLoading = false;

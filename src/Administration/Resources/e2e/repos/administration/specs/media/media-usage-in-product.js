@@ -23,7 +23,7 @@ module.exports = {
         page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-test-image.png`, 'Ultimate Product');
         browser
             .click(page.elements.primaryButton)
-            .checkNotification('Product "Ultimate Product" has been saved successfully.', true);
+            .checkNotification('Product "Ultimate Product" has been saved successfully.');
     },
     'verify upload in media module': (browser) => {
         const page = mediaPage(browser);

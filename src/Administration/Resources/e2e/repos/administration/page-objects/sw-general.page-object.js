@@ -26,7 +26,8 @@ export default class GeneralPageObject {
             modalFooter: '.sw-modal__footer',
 
             alert: '.sw-alert',
-            alertClose: '.sw-alert__close'
+            alertClose: '.sw-alert__close',
+            notification: '.sw-notifications__notification'
         };
     }
 }

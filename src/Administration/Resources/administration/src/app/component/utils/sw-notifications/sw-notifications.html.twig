@@ -1,8 +1,8 @@
 <transition name="sw-notifications-slide-fade">
     <div v-if="notifications.length" class="sw-notifications" :style="notificationsStyle">
         <transition-group name="sw-notifications-slide-fade">
-            <sw-alert v-for="notification in notifications"
-                      class="sw-notification__alert"
+            <sw-alert v-for="(notification, index) in notifications"
+                      :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
                       :key="notification.uuid"
                       :title="notification.title"
                       :variant="notification.variant"

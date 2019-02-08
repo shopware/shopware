@@ -2278,10 +2278,11 @@ export interface NightwatchCustomCommands {
      * Checks the notification and its message: Checks if a notification prints out the message the user expects to get. Afterwards the notification can be closed, if required
      *
      * @param {String} message
+     * @param {String} [notification=.sw-notifications__notification--0]
      * @param {Boolean} [toBeClosed=true]
      * @param {Boolean} [type=.sw-alert]
      */
-    checkNotification(message: string, toBeClosed?: boolean, type?: string): this,
+    checkNotification(message: string, notification?: string, toBeClosed?: boolean, type?: string): this,
 
     /**
      * Opens and clicks a context menu item, even if it's in a specific parent

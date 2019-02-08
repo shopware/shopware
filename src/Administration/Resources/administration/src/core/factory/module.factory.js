@@ -95,16 +95,24 @@ function registerModule(moduleId, module) {
     Object.keys(module.routes).forEach((routeKey) => {
         let route = module.routes[routeKey];
 
-        // Rewrite name and path
-        route.name = `${splitModuleId.join('.')}.${routeKey}`;
+        // Check if custom prefix name exists
+        const routePrefixName = module.routePrefixName ? module.routePrefixName : splitModuleId.join('.');
 
-        // Set the type of the route e.g. "core" or "plugin"
-        route.type = type;
+        // Rewrite name
+        route.name = `${routePrefixName}.${routeKey}`;
+
+        // Check if custom prefix path exists
+        const routePrefixPath = module.routePrefixPath ? module.routePrefixPath : splitModuleId.join('.');
 
         // Core routes don't need to be nested
         if (!route.coreRoute) {
-            route.path = `/${splitModuleId.join('/')}/${route.path}`;
+            // Rewrite path
+            route.path = `${routePrefixPath}/${route.path}`;
         }
+
+
+        // Set the type of the route e.g. "core" or "plugin"
+        route.type = type;
 
         // Generate the component list based on a route
         route = createRouteComponentList(route, moduleId, module);

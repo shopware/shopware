@@ -9,8 +9,8 @@
                 {% block sw_media_field_preview %}
                     <sw-media-media-item
                         class="sw-media-field__media-list-item sw-media-field__input"
-                        v-if="mediaId"
-                        :source="mediaId"
+                        v-if="mediaEntity"
+                        :item="mediaEntity"
                         :isList="true"
                         :showContextMenuButton="false"
                         :editable="false">

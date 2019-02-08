@@ -72,6 +72,7 @@ const defaultDragConfig = {
     invalidDragCls: 'is--invalid-drag',
     preventEvent: true,
     validateDrop: null,
+    validateDrag: null,
     onDragStart: null,
     onDragEnter: null,
     onDragLeave: null,
@@ -107,13 +108,13 @@ const defaultDropConfig = {
  * @param {HTMLElement} el
  * @param {DragConfig} dragConfig
  * @param {(MouseEvent|TouchEvent)} event
+ * @return {boolean}
  */
 function onDrag(el, dragConfig, event) {
     if (dragConfig.preventEvent === true) {
         event.preventDefault();
         event.stopPropagation();
     }
-
     if (dragConfig.delay === null || dragConfig.delay <= 0) {
         startDrag(el, dragConfig, event);
     } else {
@@ -223,11 +224,13 @@ function stopDrag() {
         return;
     }
 
-    if (validateDrop() === true) {
+    if (validateDrag() === true) {
         if (types.isFunction(currentDrag.dragConfig.onDrop)) {
-            currentDrag.dragConfig.onDrop(currentDrag.dragConfig.data, currentDrop.dropConfig.data);
+            currentDrag.dragConfig.onDrop(currentDrag.dragConfig.data);
         }
+    }
 
+    if (validateDrop() === true) {
         if (types.isFunction(currentDrop.dropConfig.onDrop)) {
             currentDrop.dropConfig.onDrop(currentDrag.dragConfig.data, currentDrop.dropConfig.data);
         }
@@ -271,7 +274,6 @@ function enterDropZone(el, dropConfig) {
     if (currentDrag === null) {
         return;
     }
-
     currentDrop = { el, dropConfig };
 
     const valid = validateDrop();
@@ -345,6 +347,28 @@ function validateDrop() {
     }
 
     return valid && customDragValidation && customDropValidation;
+}
+/**
+ * Validates a drag using the {currentDrag} configuration.
+ * Also calls the custom validator functions of the config.
+ *
+ * @return {boolean}
+ */
+function validateDrag() {
+    let valid = true;
+    let customDragValidation = true;
+
+    // Validate if the drag and drop are using the same drag group.
+    if (currentDrag === null) {
+        valid = false;
+    }
+
+    // Check the custom drag validate function.
+    if (currentDrag !== null && types.isFunction(currentDrag.dragConfig.validateDrag)) {
+        customDragValidation = currentDrag.dragConfig.validateDrag(currentDrag.dragConfig.data, currentDrop.dropConfig.data);
+    }
+
+    return valid && customDragValidation;
 }
 
 /**

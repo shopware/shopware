@@ -1,0 +1,28 @@
+{% block sw_tree_input_field %}
+    <div class="sw-tree-item sw-tree-input-field is--no-children">
+
+        {% block sw_tree_input_fieldelement %}
+            <div class="sw-tree-item__element">
+
+                {% block sw_tree_input_fieldelement_grip %}
+                    <div class="sw-tree-item__icon">
+                        <sw-icon name="small-default-circle-small" size="18"></sw-icon>
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_input_fieldelement_content %}
+                    <div class="sw-tree-item__content">
+                        <slot name="content">
+                            {% block sw_tree_input_fieldslot_content %}
+                                <sw-confirm-field :value="currentValue"
+                                                  @input="createNewItem"
+                                                  :placeholder="$tc('sw-category.general.buttonCreateCategory')">
+                                </sw-confirm-field>
+                            {% endblock %}
+                        </slot>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

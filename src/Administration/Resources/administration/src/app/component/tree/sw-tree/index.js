@@ -50,10 +50,9 @@ export default {
             default: true
         },
 
-        sortable: {
-            type: Boolean,
-            required: false,
-            default: false
+        createFirstItem: {
+            type: Function,
+            required: true
         }
     },
 
@@ -84,6 +83,14 @@ export default {
 
         hasActionSlot() {
             return this.$slots && this.$slots.actions;
+        },
+
+        hasNoItems() {
+            if (this.items.length === 1 && this.items[0] && this.items[0].isDeleted) {
+                return true;
+            }
+
+            return this.items.length < 1;
         }
     },
 
@@ -111,17 +118,16 @@ export default {
                 if (parentId !== false && item[this.parentProperty] !== parentId) {
                     return;
                 }
-
                 treeItems.push({
                     data: item,
                     id: item.id,
                     parentId: parentId,
                     position: item[this.positionProperty],
                     childCount: item[this.childCountProperty],
-                    children: this.getTreeItems(item.id)
+                    children: this.getTreeItems(item.id),
+                    checked: false
                 });
             });
-
             treeItems.sort((a, b) => {
                 if (a[this.positionProperty] < b[this.positionProperty]) return -1;
                 if (a[this.positionProperty] > b[this.positionProperty]) return 1;
@@ -138,19 +144,30 @@ export default {
         },
 
         endDrag() {
+            if (this.draggedItem.parentId !== this.droppedItem.parentId) {
+                if (this.draggedItem.parentId !== null) {
+                    const draggedParent = this.findById(this.treeItems, this.draggedItem.parentId);
+                    draggedParent.data.childCount -= 1;
+                }
+                if (this.droppedItem.parentId !== null) {
+                    const droppedParent = this.findById(this.treeItems, this.droppedItem.parentId);
+                    droppedParent.data.childCount += 1;
+                }
+            }
+
             this.draggedItem = null;
+            this.droppedItem = null;
             this.$emit('sw-tree-on-drag-end');
         },
 
-        moveDrag(droppedComponent) {
-            if (!this.draggedItem ||
-                this.draggedItem === null ||
-                this.draggedItem.data.id === droppedComponent.item.data.id) {
+        moveDrag(draggedComponent, droppedComponent) {
+            if (!draggedComponent ||
+                !droppedComponent ||
+                draggedComponent.id === droppedComponent.id) {
                 return;
             }
-
-            const dragItem = this.draggedItem.data;
-            const dropItem = droppedComponent.item.data;
+            const dragItem = draggedComponent.data;
+            const dropItem = droppedComponent.data;
 
             if (dragItem[this.parentProperty] !== dropItem[this.parentProperty]) {
                 const leftParentId = dragItem[this.parentProperty];
@@ -168,6 +185,7 @@ export default {
             } else if (dragItem[this.positionProperty] >= dropItem[this.positionProperty]) {
                 this.moveItemsDown(dragItem, dropItem);
             }
+            this.droppedItem = droppedComponent;
         },
 
         updateChildPositions(parentId, startPosition) {
@@ -208,6 +226,25 @@ export default {
 
                 item[this.positionProperty] += 1;
             });
+        },
+
+        findById(object, id) {
+            if (object.id === id) {
+                return object;
+            }
+            let result;
+            Object.keys(object).filter((key) => {
+                return key === 'children' || !Number.isNaN(Number.parseInt(key, 0));
+            }).some((key) => {
+                if (object.hasOwnProperty(key) && typeof object[key] === 'object') {
+                    result = this.findById(object[key], id);
+                    if (result) {
+                        return result;
+                    }
+                }
+                return null;
+            });
+            return result;
         }
     }
 };

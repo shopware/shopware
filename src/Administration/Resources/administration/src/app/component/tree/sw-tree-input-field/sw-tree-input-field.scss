@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+$sw-tree-item-color-border: $color-steam-cloud;
+$sw-tree-item-color-background: $color-iron;
+$sw-tree-item-color-text: $color-gutenberg;
+
+.sw-tree {
+    .sw-tree-input-field {
+        .sw-tree-item__element {
+            grid-template-columns: 20px auto;
+            padding: 0 35px 0 73px;
+        }
+    }
+
+    &.sw-tree-input-field {
+        .sw-tree-item__element {
+            grid-template-columns: 22px auto;
+            padding: 0 35px 0 67px;
+        }
+
+    }
+}

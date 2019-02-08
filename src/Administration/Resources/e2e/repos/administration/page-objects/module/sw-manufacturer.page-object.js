@@ -37,8 +37,9 @@ class ManufacturerPageObject extends GeneralPageObject {
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(this.elements.loader)
             .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
-            .waitForElementVisible('.sw-modal')
-            .assert.containsText(`${this.elements.modal}__body`, `Are you sure you want to delete the manufacturer "${manufacturerName}"?`)
+            .expect.element(`${this.elements.modal}__body`).text.that.equals(`Are you sure you want to delete the manufacturer "${manufacturerName}"?`);
+
+        this.browser
             .click(`${this.elements.modal}__footer ${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal);
     }

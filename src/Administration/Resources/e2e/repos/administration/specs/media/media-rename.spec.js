@@ -16,12 +16,11 @@ module.exports = {
         browser
             .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
-            .clearValue('.sw-media-quickinfo-metadata-name input')
-            .setValue('.sw-media-quickinfo-metadata-name input', 'new file name')
+            .fillField('.sw-media-quickinfo-metadata-name input', 'new file name',true)
             .click('.sw-media-quickinfo-metadata-name .sw-confirm-field__button--submit')
             .waitForElementPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
             .waitForElementNotPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
-            .assert.containsText(`${page.elements.gridItem}--0 .sw-media-base-item__name`, 'new file name');
+            .expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.contains('new file name');
     },
     after: (browser) => {
         browser.end();

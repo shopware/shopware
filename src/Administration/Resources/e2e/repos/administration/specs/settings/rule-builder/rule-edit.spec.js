@@ -21,17 +21,14 @@ module.exports = {
     'find rule to be edited': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser
-            .waitForElementVisible(page.elements.columnName)
-            .assert.containsText(page.elements.columnName, global.AdminFixtureService.basicFixture.name);
+        browser.expect.element(page.elements.columnName).to.have.text.that.contains(global.FixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
     },
     'edit rule and add conditions': (browser) => {
         const page = ruleBuilderPage(browser);
 
         browser
             .clickContextMenuItem('.sw-rule-list__rule-edit-action', '.sw-context-button__button')
-            .waitForElementVisible('.sw-settings-rule-detail .sw-card__content')
-            .assert.containsText(`${page.elements.smartBarHeader} h2`, global.AdminFixtureService.basicFixture.name);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.FixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
 
         page.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
 
@@ -47,8 +44,7 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(page.elements.columnName)
-            .assert.containsText(page.elements.columnName, 'Ediths rule');
+            .expect.element(page.elements.columnName).to.have.text.that.contains('Ediths rule').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

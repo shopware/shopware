@@ -29,8 +29,8 @@ class IntegrationPageObject extends GeneralPageObject {
                 .click('.sw-field__copy-button:nth-of-type(1)')
                 .checkNotification('Text has been copied to clipboard.')
                 .clearValue(me.elements.integrationName)
-                .setValue(me.elements.integrationName, ['', me.browser.Keys.CONTROL, 'v'])
-                .expect.element(me.elements.integrationName).value.to.equal(me.accessKeyId);
+                .setValue(me.elements.integrationName, [me.browser.Keys.CONTROL, 'v'])
+                .expect.element(me.elements.integrationName).value.that.equals(me.accessKeyId);
         });
 
         this.browser
@@ -43,15 +43,14 @@ class IntegrationPageObject extends GeneralPageObject {
         const me = this;
 
         this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
-            me.newAccessKeyId = result.value;
+            me.accessKeyId = result.value;
 
             me.browser
                 .waitForElementPresent('.sw-button--danger')
                 .click('.sw-button--danger')
-                .waitForElementPresent(me.elements.apiAccessKeyField)
-                .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
-                    this.assert.notEqual(secondResult, me.accessKeyId);
-                })
+                .expect.element(me.elements.apiAccessKeyField).value.that.not.equals(me.accessKeyId);
+
+            me.browser
                 .waitForElementVisible('.sw-integration-detail-modal__save-action')
                 .click('.sw-integration-detail-modal__save-action')
                 .waitForElementNotPresent(me.elements.loader)
@@ -65,12 +64,7 @@ class IntegrationPageObject extends GeneralPageObject {
         this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
             me.newAccessKeyId = result.value;
 
-            me.browser
-                .waitForElementPresent(me.elements.apiAccessKeyField)
-                .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
-                    this.assert.notEqual(secondResult, me.accessKeyId);
-                })
-                .expect.element(me.elements.apiAccessKeyField).value.to.equal(me.newAccessKeyId);
+            me.browser.expect.element(me.elements.apiAccessKeyField).value.that.equals(me.newAccessKeyId);
         });
 
         this.browser
@@ -82,13 +76,13 @@ class IntegrationPageObject extends GeneralPageObject {
     deleteSingleIntegration(integrationName) {
         this.browser
             .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
-            .waitForElementVisible(this.elements.modal)
-            .assert.containsText(`${this.elements.modal}__body`, `Are you sure you want to delete this integration? ${integrationName}`)
+            .expect.element(`${this.elements.modal}__body`).text.that.equals(`Are you sure you want to delete this integration? ${integrationName}`);
+
+        this.browser
             .click(`${this.elements.modal} button.sw-button--primary`)
             .waitForElementNotPresent(this.elements.modal)
             .waitForElementNotPresent(this.elements.listColumnName)
-            .waitForElementPresent('.sw-empty-state__title')
-            .assert.containsText('.sw-empty-state__title', 'No integrations yet');
+            .expect.element('.sw-empty-state__title').text.that.equals('No integrations yet');
     }
 }
 

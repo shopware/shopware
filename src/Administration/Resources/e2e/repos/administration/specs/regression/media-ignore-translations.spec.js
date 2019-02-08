@@ -33,18 +33,18 @@ module.exports = {
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementNotPresent(page.elements.loader);
 
-        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch').before(5000);
+        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch').before(browser.globals.waitForConditionTimeout);
         browser
             .click('.sw-select-option:last-child')
             .waitForElementNotPresent('.sw-field__select-load-placeholder');
 
         if (global.flags.isActive('next1207')) {
-            browser.expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(5000);
-            browser.expect.element(`${page.elements.gridItem}--1 .sw-media-base-item__name`).to.have.text.that.equals('sw-login-background.png').before(5000);
+            browser.expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            browser.expect.element(`${page.elements.gridItem}--1 .sw-media-base-item__name`).to.have.text.that.equals('sw-login-background.png');
 
             page.createFolder('German crowd');
         } else {
-            browser.expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals('sw-login-background.png').before(5000);
+            browser.expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals('sw-login-background.png');
         }
     },
     after: (browser) => {

@@ -7,9 +7,7 @@
  */
 exports.command = function clickUserActionMenu(name, open = true) {
     this
-        .waitForElementVisible('.sw-admin-menu__user-actions-toggle')
-        .waitForElementVisible('.sw-admin-menu__user-name')
-        .assert.containsText('.sw-admin-menu__user-name', name);
+        .waitForElementVisible('.sw-admin-menu__user-actions-toggle');
 
     if (open) {
         this

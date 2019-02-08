@@ -17,9 +17,10 @@ module.exports = {
 
         browser
             .click('a[href="#/sw/settings/country/create"]')
-            .waitForElementVisible('.sw-settings-country-detail .sw-card__content')
+            .expect.element(page.elements.cardTitle).to.have.text.that.contains('Settings');
+
+        browser
             .assert.urlContains('#/sw/settings/country/create')
-            .assert.containsText(page.elements.cardTitle, 'Settings')
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland')
             .waitForElementPresent('input[name=sw-field--country-active]')
             .tickCheckbox('input[name=sw-field--country-active]', 'on')
@@ -32,9 +33,7 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .waitForElementVisible('.sw-settings-country-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`, '1.Niemandsland');
+            .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains('1.Niemandsland');
     },
     after: (browser) => {
         browser.end();

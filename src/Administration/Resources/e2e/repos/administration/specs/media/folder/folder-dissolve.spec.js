@@ -19,8 +19,7 @@ module.exports = {
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
             .waitForElementVisible('.icon--folder-thumbnail-back')
-            .waitForElementVisible('.smart-bar__header')
-            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
     },
     'upload image to folder and verify placement in folder': (browser) => {
         const page = mediaPage(browser);
@@ -28,7 +27,7 @@ module.exports = {
 
         browser
             .assert.containsText(page.elements.mediaNameLabel, 'sw-login-background.png')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
     },
     'navigate back to root folder': (browser) => {
         const page = mediaPage(browser);
@@ -43,8 +42,9 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-media-context-item__dissolve-folder-action', page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
-            .waitForElementVisible(page.elements.modal)
-            .assert.containsText(`${page.elements.modal}__body`, `Are you sure you want to dissolve "${global.MediaFixtureService.mediaFolderFixture.name}" ?`)
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to dissolve "${global.MediaFixtureService.mediaFolderFixture.name}" ?`).before(browser.globals.waitForConditionTimeout);
+
+        browser
             .waitForElementVisible('.sw-media-modal-folder-dissolve__confirm')
             .click('.sw-media-modal-folder-dissolve__confirm')
             .checkNotification('Folders have been dissolved successfully', `${page.elements.notification}--1`)
@@ -57,7 +57,7 @@ module.exports = {
             .waitForElementPresent(page.elements.previewItem)
             .waitForElementVisible(page.elements.mediaNameLabel)
             .waitForElementNotPresent(page.elements.folderNameLabel)
-            .expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
+            .expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

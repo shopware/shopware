@@ -17,16 +17,14 @@ module.exports = {
                 index: 5,
                 subMenuItemPath: '#/sw/settings/currency/index',
                 subMenuTitle: 'Currencies'
-            })
-            .waitForElementVisible('.sw-settings-currency-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.AdminFixtureService.basicFixture.name);
+            });
+
+        browser.expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'edit currency': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.AdminFixtureService.basicFixture.name)
             .clickContextMenuItem('.sw-currency-list__edit-action', '.sw-context-button__button', `${page.elements.gridRow}--3`)
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .clearValue('input[name=sw-field--currency-name]')
@@ -41,9 +39,7 @@ module.exports = {
 
         browser
             .click('a.smart-bar__back-btn')
-            .waitForElementVisible('.sw-settings-currency-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, 'Yen but true');
+            .expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Yen but true').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

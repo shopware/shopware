@@ -18,17 +18,16 @@ module.exports = {
                 subMenuItemPath: '#/sw/settings/tax/index',
                 subMenuTitle: 'Tax'
             })
-            .waitForElementVisible('.sw-settings-tax-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete tax': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
-            .waitForElementVisible(page.elements.modal)
-            .assert.containsText(`${page.elements.modal} ${page.elements.modal}__body`, `Are you sure you want to delete the tax "${global.AdminFixtureService.basicFixture.name}"?`)
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the tax "${global.AdminFixtureService.basicFixture.name}"?`);
+
+        browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification(`Tax "${global.AdminFixtureService.basicFixture.name}" has been deleted successfully.`);
     },

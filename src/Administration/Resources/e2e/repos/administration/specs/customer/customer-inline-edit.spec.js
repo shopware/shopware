@@ -16,9 +16,7 @@ module.exports = {
                 menuTitle: 'Customers',
                 index: 3
             })
-            .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
     },
     'edit customer email via inline editing and verify edits': (browser) => {
         const page = customerPage(browser);
@@ -33,8 +31,7 @@ module.exports = {
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .waitForElementNotPresent('.is--inline-editing')
             .refresh()
-            .waitForElementVisible(`.sw-grid-row ${page.elements.contextMenuButton}`)
-            .assert.containsText(page.elements.columnName, 'Meghan Markle');
+            .expect.element(page.elements.columnName).to.have.text.that.equals('Meghan Markle');
     },
     after: (browser) => {
         browser.end();

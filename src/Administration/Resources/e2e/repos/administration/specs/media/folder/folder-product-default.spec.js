@@ -24,15 +24,15 @@ module.exports = {
             .click(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .waitForElementVisible('.quickaction--settings')
             .click('.quickaction--settings')
-            .waitForElementVisible(`${page.elements.modal}__title`)
-            .assert.containsText(`${page.elements.modal}__title`, 'Products for the good');
+            .expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('Products for the good').before(browser.globals.waitForConditionTimeout);
     },
     'set as default for products': (browser) => {
         const page = mediaPage(browser);
 
+        browser.expect.element('.sw-media-folder-settings-modal__default-folder-select.sw-select label').to.have.text
+            .that.equals('Default location for:').before(5000);
+
         browser
-            .waitForElementVisible('.sw-media-folder-settings-modal__default-folder-select.sw-select')
-            .assert.containsText('.sw-media-folder-settings-modal__default-folder-select.sw-select label', 'Default location for:')
             .fillSwSelectComponent(
                 '.sw-media-folder-settings-modal__default-folder-select .sw-select__inner',
                 {
@@ -41,8 +41,9 @@ module.exports = {
                     searchTerm: 'Product Media'
                 }
             )
-            .waitForElementVisible('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection')
-            .assert.containsText('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection', 'Product Media')
+            .expect.element('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection').to.have.text.that.equals('Product Media').before(browser.globals.waitForConditionTimeout);
+
+        browser
             .waitForElementNotPresent('.sw-select__results')
             .waitForElementVisible(page.elements.saveSettingsAction)
             .click(page.elements.saveSettingsAction)
@@ -55,12 +56,13 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
-            .waitForElementVisible('.sw-product-list__column-product-name')
-            .assert.containsText('.sw-product-list__column-product-name', global.ProductFixtureService.productFixture.name)
+            .expect.element('.sw-product-list__column-product-name').to.have.text.that.equals(global.ProductFixtureService.productFixture.name).before(browser.globals.waitForConditionTimeout);
+
+        browser
             .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
     },
@@ -72,13 +74,11 @@ module.exports = {
 
         browser
             .waitForElementVisible('.sw-product-image__image')
-            .getAttribute('.sw-product-image__image .sw-media-preview__item', 'src', function (result) {
-                this.assert.ok(result.value);
-                this.assert.notEqual(result.value, `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
-            })
+            .expect.element(mediaPageObject.elements.previewItem).to.have.attribute('src').contains('sw-login-background.png');
+
+        browser
             .waitForElementVisible('.sw-sidebar-navigation-item')
             .click('.sw-sidebar-navigation-item')
-            .waitForElementVisible('.sw-media-folder-item .icon--default-symbol-products')
             .expect.element(mediaPageObject.elements.folderNameLabel).to.have.text.that.equals(fixtures.name);
 
         browser
@@ -92,7 +92,6 @@ module.exports = {
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
-            .waitForElementVisible(page.elements.smartBarHeader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixtures.name);
 
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');

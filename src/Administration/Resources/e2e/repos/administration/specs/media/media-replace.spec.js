@@ -16,14 +16,14 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
-            .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', 'Products')
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Products');
+
+        browser
             .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button')
-            .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', global.ProductFixtureService.productFixture.name);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name).before(browser.globals.waitForConditionTimeout);
 
         productPageObject.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, global.ProductFixtureService.productFixture.name);
 
@@ -49,15 +49,12 @@ module.exports = {
         page.openMediaModal('.sw-media-context-item__replace-media-action', 0);
     },
     'ensure image cannot be replaced with empty input': (browser) => {
+        browser.expect.element('.sw-media-replace__replace-media-action').to.not.be.enabled;
+
         browser
-            .getAttribute('.sw-media-replace__replace-media-action', 'disabled', function (result) {
-                this.assert.equal(result.value, 'true');
-            })
             .waitForElementVisible('.sw-media-upload__switch-mode')
             .click('.sw-media-upload__switch-mode')
-            .getAttribute('.sw-media-replace__replace-media-action', 'disabled', function (result) {
-                this.assert.equal(result.value, 'true');
-            });
+            .expect.element('.sw-media-replace__replace-media-action').to.not.be.enabled;
     },
     'replace image with a valid one': (browser) => {
         const page = mediaPage(browser);
@@ -95,17 +92,13 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
-            .waitForElementVisible('.smart-bar__header')
-            .assert.containsText('.smart-bar__header h2', 'Products')
+            .waitForElementVisible(page.elements.smartBarHeader)
+            .assert.containsText(page.elements.smartBarHeader, 'Products')
             .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button')
-            .waitForElementVisible(page.elements.previewItem)
-            .getAttribute('.sw-media-preview__item', 'alt', function (result) {
-                this.assert.ok(result.value);
-                this.assert.equal(result.value, 'sw-test-image');
-            });
+            .expect.element(page.elements.previewItem).to.have.attribute('alt').equals('sw-test-image');
     },
     after: (browser) => {
         browser.end();

@@ -27,9 +27,10 @@ class RuleBuilderPageObject extends GeneralPageObject {
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(this.elements.loader)
-            .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
-            .waitForElementVisible(this.elements.modal)
-            .assert.containsText(`${this.elements.modal}__body`, `Are you sure you want to delete the product stream "${productStreamName}"?`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0` )
+            .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the product stream "${productStreamName}"?`);
+
+        this.browser
             .click(`.sw-modal__footer button${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal);
     }

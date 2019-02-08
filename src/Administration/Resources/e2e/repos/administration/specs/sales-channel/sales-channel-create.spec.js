@@ -4,27 +4,22 @@ const customerPage = require('administration/page-objects/module/sw-customer.pag
 module.exports = {
     '@tags': ['sales-channel-create', 'sales-channel', 'create'],
     'open sales channel creation': (browser) => {
-        const page = salesChannelPage(browser);
+        browser.expect.element('.sw-admin-menu__headline').to.have.text.that.contains('Sales channel').before(browser.globals.waitForConditionTimeout);
 
         browser
-            .waitForElementVisible('.sw-admin-menu__headline')
-            .assert.containsText('.sw-admin-menu__headline', 'Sales channel')
-            .waitForElementVisible('.sw-admin-menu__headline-action')
             .click('.sw-admin-menu__headline-action')
-            .waitForElementVisible(page.elements.salesChannelModal)
-            .waitForElementVisible('.sw-sales-channel-modal__title')
-            .assert.containsText('.sw-sales-channel-modal__title', 'Add sales channel');
+            .expect.element('.sw-sales-channel-modal__title').to.have.text.that.contains('Add sales channel').before(browser.globals.waitForConditionTimeout);
     },
     'show details of a storefront sales channel': (browser) => {
         const page = salesChannelPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`)
-            .assert.containsText(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`, 'Storefront')
+            .expect.element(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`).to.have.text.that.contains('Storefront').before(browser.globals.waitForConditionTimeout);
+
+        browser
             .waitForElementVisible(`${page.elements.gridRow}--0 .sw-sales-channel-modal__show-detail-action`)
             .click(`${page.elements.gridRow}--0 .sw-sales-channel-modal__show-detail-action`)
-            .waitForElementVisible('.sw-sales-channel-modal__title')
-            .assert.containsText('.sw-sales-channel-modal__title', 'Details of Storefront');
+            .expect.element('.sw-sales-channel-modal__title').to.have.text.that.contains('Details of Storefront').before(browser.globals.waitForConditionTimeout);
     },
     'open module to add new storefront sales channel': (browser) => {
         const page = salesChannelPage(browser);
@@ -32,10 +27,8 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-sales-channel-modal__add-sales-channel-action')
             .click('.sw-sales-channel-modal__add-sales-channel-action')
-            .waitForElementVisible(`${page.elements.cardTitle}:nth-of-type(1)`)
-            .waitForElementVisible('.sw-sales-channel-detail-base')
-            .assert.urlContains('#/sw/sales/channel/create')
-            .assert.containsText(`${page.elements.cardTitle}:nth-of-type(1)`, 'General Settings');
+            .expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.contains('General Settings').before(browser.globals.waitForConditionTimeout);
+        browser.assert.urlContains('#/sw/sales/channel/create');
     },
     'fill in form and save new sales channel': (browser) => {
         const page = salesChannelPage(browser);
@@ -50,8 +43,7 @@ module.exports = {
         page.openSalesChannel('1st Epic Sales Channel');
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible('input[name=sw-field--salesChannel-name]')
-            .expect.element(page.elements.salesChannelNameInput).to.have.value.that.equals('1st Epic Sales Channel');
+            .expect.element(page.elements.salesChannelNameInput).to.have.value.that.equals('1st Epic Sales Channel').before(browser.globals.waitForConditionTimeout);
     },
     'check if the sales channel can be used in other modules': (browser) => {
         const customerPageObject = customerPage(browser);

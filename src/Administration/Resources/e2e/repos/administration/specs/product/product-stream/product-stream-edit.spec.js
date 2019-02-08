@@ -12,9 +12,14 @@ module.exports = {
         const page = productStreamPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/product/stream/index', 'Product streams')
-            .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/stream/index',
+                subMenuTitle: 'Product streams'
+            })
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.FixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
     },
     'open product stream details and change the given data': (browser) => {
         const page = productStreamPage(browser);
@@ -25,26 +30,29 @@ module.exports = {
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-product-stream-detail__empty-title)`)
-            .assert.containsText(page.elements.smartBarHeader, '1st product stream')
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('1st product stream').before(browser.globals.waitForConditionTimeout);
+
+        browser
             .fillField('input[name=sw-field--productStream-name]', 'Edited product stream', true)
             .fillField('textarea[name=sw-field--productStream-description]', 'The product stream was edited by an e2e test', true)
             .waitForElementVisible(page.elements.streamSaveAction)
             .click(page.elements.streamSaveAction)
-            .checkNotification('The product stream "Edited product stream" was saved.')
-            .click('.sw-button__content');
+            .checkNotification('The product stream "Edited product stream" was saved.');
     },
     'check if updated product stream exists in overview': (browser) => {
         const page = productStreamPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/product/stream/index', 'Product streams')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/stream/index',
+                subMenuTitle: 'Product streams'
+            })
             .refresh()
-            .waitForElementPresent('.sw-button__content')
-            .assert.urlContains('#/sw/product/stream/index')
-            .assert.containsText(page.elements.smartBarHeader, 'Product stream')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, 'Edited product stream');
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Edited product stream').before(browser.globals.waitForConditionTimeout);
+        browser.assert.urlContains('#/sw/product/stream/index')
     },
     after: (browser) => {
         browser.end();

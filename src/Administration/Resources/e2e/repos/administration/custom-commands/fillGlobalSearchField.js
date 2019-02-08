@@ -11,7 +11,7 @@ exports.command = function fillGlobalSearchField(value, clearField = false) {
     this.waitForElementVisible(searchInputCssSelector);
 
     if (clearField) {
-        this.clearInputField(searchInputCssSelector);
+        this.clearField(searchInputCssSelector);
     }
 
     this.setValue(searchInputCssSelector, [value, this.Keys.ENTER]);

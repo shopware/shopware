@@ -17,14 +17,12 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
-            .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .assert.containsText(page.elements.productListName, fixture.name);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)').before(browser.globals.waitForConditionTimeout);
+
+        browser.expect.element(page.elements.productListName).to.have.text.that.contains(fixture.name).before(browser.globals.waitForConditionTimeout);
     },
     'edit product name via inline editing and verify edit': (browser) => {
         const page = productPage(browser);
@@ -37,8 +35,7 @@ module.exports = {
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .waitForElementNotPresent('.is--inline-editing')
             .refresh()
-            .waitForElementVisible(page.elements.productListName)
-            .assert.containsText(page.elements.productListName, 'Cyberdyne Systems T800');
+            .expect.element(page.elements.productListName).to.have.text.that.contains('Cyberdyne Systems T800').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

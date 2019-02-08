@@ -26,17 +26,14 @@ module.exports = {
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, '1. Valhalla', true)
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
-            .waitForElementNotPresent('.is--inline-editing')
-            .refresh();
+            .waitForElementNotPresent('.is--inline-editing');
     },
     'verify edited country': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible('.sw-settings-country-list-grid')
-            .waitForElementNotPresent(`${page.elements.alert}__message`)
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`, '1. Valhalla');
+            .refresh()
+            .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains('1. Valhalla');
     },
     after: (browser) => {
         browser.end();

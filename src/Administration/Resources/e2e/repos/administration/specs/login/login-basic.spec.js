@@ -16,7 +16,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-login')
             .assert.urlContains('#/login')
-            .assert.containsText(`${page.elements.loginForm}-headline`, 'Log in to your Shopware store');
+            .expect.element(`${page.elements.loginForm}-headline`).to.have.text.that.equals('Log in to your Shopware store');
     },
     'attempt to log in using invalid credentials': (browser) => {
         const page = loginPage(browser);

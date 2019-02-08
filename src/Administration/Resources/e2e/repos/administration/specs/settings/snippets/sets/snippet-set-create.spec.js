@@ -31,7 +31,7 @@ module.exports = {
 
         browser
             .refresh()
-            .expect.element(`${page.elements.gridRow}--2 a`).to.have.text.that.equals('Snip Snap');
+            .expect.element(`${page.elements.gridRow}--2 a`).to.have.text.that.equals('Snip Snap').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

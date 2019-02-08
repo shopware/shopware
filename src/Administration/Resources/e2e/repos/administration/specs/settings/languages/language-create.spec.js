@@ -17,9 +17,10 @@ module.exports = {
 
         browser
             .click('a[href="#/sw/settings/language/create"]')
-            .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
+            .expect.element(page.elements.cardTitle).to.have.text.that.contains('Settings');
+
+        browser
             .assert.urlContains('#/sw/settings/language/create')
-            .assert.containsText(page.elements.cardTitle, 'Settings')
             .fillField('input[name=sw-field--language-name]', 'Philippine English')
             .fillSwSelectComponent(
                 '.sw-settings-language-detail__select-locale',
@@ -45,9 +46,7 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .waitForElementVisible('.sw-settings-language-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, 'Philippine English');
+            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains('Philippine English');
     },
     after: (browser) => {
         browser.end();

@@ -18,15 +18,13 @@ module.exports = {
                 subMenuItemPath: '#/sw/settings/language/index',
                 subMenuTitle: 'Languages'
             })
-            .waitForElementVisible('.sw-settings-language-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, global.LanguageFixtureService.languageFixture.name);
+            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.languageFixture.name);
+
     },
     'edit language': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, 'Philippine English')
             .clickContextMenuItem('.sw-language-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--2`)
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English', true)
@@ -40,9 +38,7 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .waitForElementVisible('.sw-settings-language-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, 'Very Philippine English');
+            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains('Very Philippine English').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

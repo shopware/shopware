@@ -9,6 +9,7 @@ module.exports = {
         });
     },
     'open media listing': (browser) => {
+        console.log(browser.globals.waitForConditionTimeout);
         const page = mediaPage(browser);
         page.openMediaIndex();
     },
@@ -17,10 +18,8 @@ module.exports = {
 
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton,`${page.elements.gridItem}--0`)
-            .waitForElementVisible('.icon--folder-thumbnail-back')
-            .waitForElementVisible(page.elements.smartBarHeader)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
     },
     'navigate back and edit folder name via context menu': (browser) => {
         const page = mediaPage(browser);
@@ -28,8 +27,8 @@ module.exports = {
         browser
             .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.icon--folder-breadcrumbs-back-to-root')
-            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
+            .waitForElementVisible('.sw-media-base-item__preview-container')
+            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton)
             .waitForElementVisible(`${page.elements.folderNameInput}`)
             .setValue(page.elements.folderNameInput, [browser.Keys.CONTROL, 'a'])
             .setValue(page.elements.folderNameInput, browser.Keys.DELETE)
@@ -40,9 +39,7 @@ module.exports = {
     'verify changed folder name': (browser) => {
         const page = mediaPage(browser);
 
-        browser
-            .waitForElementVisible(page.elements.folderNameLabel)
-            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith gets a new name');
+        browser.expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith gets a new name').before(browser.globals.waitForConditionTimeout).before(browser.globals.waitForConditionTimeout);
     },
     'edit folder name via settings modal': (browser) => {
         const page = mediaPage(browser);
@@ -57,9 +54,7 @@ module.exports = {
     'verify changed folder name again': (browser) => {
         const page = mediaPage(browser);
 
-        browser
-            .waitForElementVisible(page.elements.folderNameLabel)
-            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith Finch');
+        browser.expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith Finch').before(browser.globals.waitForConditionTimeout);
     },
     'edit folder name via sidebar': (browser) => {
         const page = mediaPage(browser);
@@ -67,8 +62,7 @@ module.exports = {
         browser
             .waitForElementVisible(page.elements.baseItem)
             .click(page.elements.baseItem)
-            .waitForElementVisible('.sw-media-folder-info')
-            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Edith Finch');
+            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Edith Finch').before(browser.globals.waitForConditionTimeout);
 
         browser
             .fillField('input[name=sw-field--draft]', 'What remains of Ediths Name', true)
@@ -81,7 +75,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-media-index__parent-folder')
             .click('.sw-media-index__parent-folder')
-            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('What remains of Ediths Name');
+            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('What remains of Ediths Name').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

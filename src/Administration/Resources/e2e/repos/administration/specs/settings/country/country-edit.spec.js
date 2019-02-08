@@ -18,18 +18,14 @@ module.exports = {
                 subMenuItemPath: '#/sw/settings/country/index',
                 subMenuTitle: 'Countries'
             })
-            .waitForElementVisible('.sw-settings-country-list-grid')
             .waitForElementNotPresent(`${page.elements.alert}__message`)
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`, global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'edit country': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .clickContextMenuItem('.sw-country-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .waitForElementVisible('.sw-settings-country-detail .sw-card__content')
-            .assert.containsText(page.elements.cardTitle, 'Settings')
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2', true)
             .click(page.elements.countrySaveAction)
             .checkNotification('Country "1.Niemandsland x2" has been saved successfully.')
@@ -40,10 +36,7 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .waitForElementVisible('.sw-settings-country-list-grid')
-            .waitForElementNotPresent(`${page.elements.alert}__message`)
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`, '1.Niemandsland x2');
+            .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains('1.Niemandsland x2');
     },
     after: (browser) => {
         browser.end();

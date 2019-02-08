@@ -33,9 +33,7 @@ module.exports = {
             .refresh()
             .waitForElementPresent(`${page.elements.gridRow}--0 .sw-manufacturer-list_column-manufacturer-name`)
             .assert.urlContains('#/sw/manufacturer/index')
-            .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, 'MAN-U-FACTURE');
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('MAN-U-FACTURE').before(browser.globals.waitForConditionTimeout);
     },
     'verify manufacturer details': (browser) => {
         const page = manufacturerPage(browser);
@@ -48,14 +46,13 @@ module.exports = {
             .waitForElementVisible(page.elements.contextMenu)
             .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-manufacturer-detail__empty-title)`)
-            .assert.containsText(page.elements.smartBarHeader, 'MAN-U-FACTURE');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('MAN-U-FACTURE').before(browser.globals.waitForConditionTimeout);
     },
     'check if the manufacturer can be used in product': (browser) => {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')

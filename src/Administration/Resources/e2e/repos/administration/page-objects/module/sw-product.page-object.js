@@ -46,8 +46,9 @@ class ProductPageObject extends GeneralPageObject {
     deleteProduct(productName) {
         this.browser
             .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
-            .waitForElementVisible(this.elements.modal)
-            .assert.containsText(`${this.elements.modal} .sw-product-list__confirm-delete-text`, `Are you sure you really want to delete the product "${productName}"?`)
+            .expect.element(`${this.elements.modal} .sw-product-list__confirm-delete-text`).text.that.equals(`Are you sure you really want to delete the product "${productName}"?`);
+
+        this.browser
             .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal)
             .waitForElementNotPresent(this.elements.columnProductName);

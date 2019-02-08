@@ -64,7 +64,6 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton,`${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
-            .waitForElementVisible('.smart-bar__header')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
 
         page.createFolder('Child folder');
@@ -76,15 +75,13 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
             .click('.sw-media-folder-settings__thumbnails-tab')
-            .getValue('input[name=sw-field--configuration-keepAspectRatio]', function checkValueNotPresent(secondResult) {
-                this.assert.equal(secondResult.value, 'on');
-            })
-            .getValue('input[name=sw-field--configuration-thumbnailQuality]', function checkValueNotPresent(secondResult) {
-                this.assert.equal(secondResult.value, '90');
-            });
+            .expect.element('input[name=sw-field--configuration-keepAspectRatio]').to.not.be.selected;
 
-        browser.expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals('1920x1080');
-        browser.expect.element('input[name=thumbnail-size-active]').to.have.value.that.equals('on');
+        browser.expect.element('input[name=sw-field--configuration-thumbnailQuality]').to.have.value.that.equals('90');
+
+        browser
+            .assert.containsText('.sw-media-modal-folder-settings__thumbnail-size-entry label', '1920x1080')
+            .expect.element('input[name=thumbnail-size-active]').to.be.selected.before(browser.globals.waitForConditionTimeout);
     },
     'deactivate inheritance': (browser) => {
         const page = mediaPage(browser);
@@ -110,8 +107,8 @@ module.exports = {
         browser
             .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.router-link-active')
-            .waitForElementVisible(page.elements.folderNameLabel)
-            .assert.containsText(page.elements.folderNameLabel, global.MediaFixtureService.mediaFolderFixture.name);
+            .expect.element(page.elements.folderNameLabel).to.have.value.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+
     },
     'verify deactivated inheritance': (browser) => {
         const page = mediaPage(browser);
@@ -120,15 +117,12 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
             .click('.sw-media-folder-settings__thumbnails-tab')
-            .getValue('input[name=sw-field--configuration-keepAspectRatio]', function checkValueNotPresent(secondResult) {
-                this.assert.equal(secondResult.value, 'on');
-            })
-            .getValue('input[name=sw-field--configuration-thumbnailQuality]', function checkValueNotPresent(secondResult) {
-                this.assert.equal(secondResult.value, '90');
-            });
+            .expect.element('input[name=sw-field--configuration-keepAspectRatio]').to.not.be.selected;
+
+        browser.expect.element('input[name=sw-field--configuration-thumbnailQuality]').to.have.value.that.equals('90');
 
         browser.expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals('1920x1080');
-        browser.expect.element('input[name=thumbnail-size-active]').to.be.selected.before(500);
+        browser.expect.element('input[name=thumbnail-size-active]').to.be.selected.before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

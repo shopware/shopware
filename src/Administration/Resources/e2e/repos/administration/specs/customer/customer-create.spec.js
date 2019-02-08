@@ -11,18 +11,17 @@ module.exports = {
                 menuTitle: 'Customers',
                 index: 3
             })
-            .waitForElementVisible('.smart-bar__actions')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(0)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(0)');
     },
     'create a customer, fill basic data': (browser) => {
         const page = customerPage(browser);
 
         browser
             .click('a[href="#/sw/customer/create"]')
-            .waitForElementVisible('.sw-customer-base-form')
             .assert.urlContains('#/sw/customer/create')
-            .assert.containsText(page.elements.cardTitle, 'Account')
+            .expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.equals('Account').before(browser.globals.waitForConditionTimeout);
+
+        browser
             .fillField('input[name=sw-field--customer-salutation]', 'Mr')
             .fillField('input[name=sw-field--customer-firstName]', 'Pep')
             .fillField('input[name=sw-field--customer-lastName]', 'Eroni')
@@ -38,9 +37,9 @@ module.exports = {
     'add customer address': (browser) => {
         const page = customerPage(browser);
 
+        browser.expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.equals('Account');
+
         browser
-            .assert.urlContains('#/sw/customer/create')
-            .assert.containsText(page.elements.cardTitle, 'Account')
             .fillField('input[name=sw-field--address-salutation]', 'Mr')
             .fillField('input[name=sw-field--address-firstName]', 'Pep')
             .fillField('input[name=sw-field--address-lastName]', 'Eroni')
@@ -62,10 +61,8 @@ module.exports = {
             .waitForElementVisible(page.elements.customerMetaData)
             .assert.containsText(`${page.elements.customerMetaData}-user-name`, 'Mr Pep Eroni')
             .assert.containsText(`${page.elements.customerMetaData}-item`, 'test@example.com')
-            .waitForElementVisible('.sw-description-list')
             .assert.containsText('.sw-customer-base__label-customer-number', 'cn-1234321')
             .assert.containsText('.sw-customer-base__label-customer-group', 'Standard customer group')
-            .waitForElementVisible('.sw-address')
             .assert.containsText('.sw-address__location', '48624');
     },
     'go back to listing und verify data there': (browser) => {
@@ -76,10 +73,8 @@ module.exports = {
             .waitForElementVisible('.sw-customer-list__content')
             .fillGlobalSearchField('Pep Eroni')
             .refresh()
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)')
-            .waitForElementPresent(page.elements.columnName)
-            .assert.containsText(page.elements.columnName, 'Pep Eroni');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni').before(browser.globals.waitForConditionTimeout);
     },
     after: (browser) => {
         browser.end();

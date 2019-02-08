@@ -82,7 +82,10 @@ class NotificationStore {
         if (config.timeoutId) {
             clearTimeout(config.timeoutId);
         }
-        this._notifications.splice(this.findIndexOfNotification(config), 1);
+        const index = this._notifications.findIndex((item) => {
+            return config.uuid === item.uuid;
+        });
+        this._notifications.splice(index, 1);
 
         return true;
     }
@@ -103,7 +106,9 @@ class NotificationStore {
      * @returns {void|Object}
      */
     findIndexOfNotification(config) {
-        return this._notifications.find(item => config.uuid === item.uuid);
+        return this._notifications.find((item) => {
+            return config.uuid === item.uuid;
+        });
     }
 
     get notifications() {

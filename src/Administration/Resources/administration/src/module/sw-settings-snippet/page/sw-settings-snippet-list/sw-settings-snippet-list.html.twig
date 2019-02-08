@@ -54,6 +54,9 @@
                                  :items="grid"
                                  :isFullpage="true"
                                  :sidebar="true"
+                                 @sort-column="onSortColumn"
+                                 :sortDirection="sortDirection"
+                                 :sortBy="sortBy"
                                  @edit="onEdit"
                                  @inline-edit-cancel="onInlineEditCancel"
                                  @inline-edit-finish="onInlineEditSave">
@@ -63,8 +66,9 @@
                                         {% block sw_settings_snippet_list_column_key %}
                                             <sw-grid-column flex="minmax(200px, 1fr)"
                                                             :label="$tc('sw-settings-snippet.list.columnKey')"
-                                                            sortable
                                                             truncate
+                                                            dataIndex="translationKey"
+                                                            sortable
                                                             editable>
                                                 {% block sw_settings_snippet_list_column_key_link %}
                                                     <router-link :to="{
@@ -89,6 +93,7 @@
                                         {% block sw_settings_snippet_list_column_value %}
                                             <sw-grid-column flex="minmax(200px, 1fr)"
                                                             :label="set.name"
+                                                            :dataIndex="set.id"
                                                             sortable
                                                             truncate
                                                             editable

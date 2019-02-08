@@ -81,7 +81,12 @@ Component.register('sw-settings-snippet-list', {
                 translationKey: []
             };
 
-            this.snippetSetService.getCustomList(this.page, this.limit, filter).then((response) => {
+            const sort = {
+                sortBy: this.sortBy,
+                sortDirection: this.sortDirection
+            };
+
+            this.snippetSetService.getCustomList(this.page, this.limit, filter, sort).then((response) => {
                 this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC', criteria }).then((sets) => {
                     this.snippetSets = sets.items;
                     this.metaId = this.queryIds[0];
@@ -231,7 +236,9 @@ Component.register('sw-settings-snippet-list', {
                     resetItems.push(currentItem);
                 });
 
-                this.resetItems = resetItems.sort((a, b) => { return a.setName <= b.setName ? -1 : 1; });
+                this.resetItems = resetItems.sort((a, b) => {
+                    return a.setName <= b.setName ? -1 : 1;
+                });
                 this.showDeleteModal = item;
             }).finally(() => {
                 this.isLoading = false;
@@ -353,6 +360,23 @@ Component.register('sw-settings-snippet-list', {
             this.appliedAuthors = [];
             this.appliedFilter = [];
             this.initializeSnippetSet();
+        },
+
+        onSortColumn(column) {
+            if (column.dataIndex !== this.sortBy) {
+                this.sortBy = column.dataIndex;
+                this.sortDirection = 'ASC';
+                this.getList();
+                return;
+            }
+
+            if (this.sortDirection === 'ASC') {
+                this.sortDirection = 'DESC';
+            } else {
+                this.sortDirection = 'ASC';
+            }
+
+            this.getList();
         }
     }
 });

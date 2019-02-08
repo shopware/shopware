@@ -38,10 +38,11 @@ class SnippetController extends AbstractController
     {
         return new JsonResponse(
             $this->snippetService->getList(
-                (int) $request->get('page', 1),
-                (int) $request->get('limit', 25),
+                (int) $request->request->get('page', 1),
+                (int) $request->request->get('limit', 25),
                 $context,
-                $request->get('filters', [])
+                $request->request->get('filters', []),
+                $request->request->get('sort', [])
             )
         );
     }

@@ -32,9 +32,9 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .click('.icon--folder-breadcrumbs-back-to-root')
+            .click('.icon--multicolor-folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementNotPresent('.icon--folder-breadcrumbs-back-to-root')
+            .waitForElementNotPresent('.icon--multicolor-folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.previewItem);
     },
     'dissolve folder': (browser) => {

@@ -16,7 +16,7 @@ class MediaPageObject extends GeneralPageObject {
                 folderItem: '.sw-media-folder-item',
                 folderNameInput: 'input[name=media-item-name]',
                 folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
-                folderBreadcrumbBack: '.icon--folder-breadcrumbs-dropdown',
+                folderBreadcrumbBack: '.icon--multicolor-folder-breadcrumbs-dropdown',
                 mediaNameLabel: '.sw-media-media-item .sw-media-base-item__name',
                 showMediaAction: '.sw-media-context-item__show-media-action',
                 showSettingsAction: '.sw-media-context-item__open-settings-action',
@@ -60,7 +60,7 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementVisible(`${this.elements.gridItem}--${itemPosition} ${this.elements.baseItem}`)
             .moveToElement(this.elements.baseItem, 5, 5)
             .clickContextMenuItem(action, '.sw-context-button__button', `${this.elements.gridItem}--0`)
-            .waitForElementVisible('.sw-modal__title')
+            .waitForElementVisible('.sw-modal__title');
     }
 
     moveMediaItem(name, itemType, position = 0) {
@@ -94,7 +94,7 @@ class MediaPageObject extends GeneralPageObject {
         this.browser
             .waitForElementNotPresent(this.elements.loader)
             .click('.sw-media-index__create-folder-action')
-            .waitForElementVisible(`${this.elements.gridItem}--0 .icon--folder-thumbnail`)
+            .waitForElementVisible(`${this.elements.gridItem}--0 .icon--multicolor-folder-thumbnail`)
             .fillField(this.elements.folderNameInput, name)
             .setValue(this.elements.folderNameInput, this.browser.Keys.ENTER)
             .waitForElementNotPresent('.sw-media-base-item__loader');

@@ -62,15 +62,17 @@ directiveRegistry.forEach((directive, name) => {
     Vue.directive(name, directive);
 });
 
-// Override for the sw-icon component to adjust the path
-Shopware.Component.override('sw-icon', {
-    computed: {
-        iconSetPath() {
-            return this.multicolor ?
-                `./administration/static/img/sw-icons-multicolor.svg#${this.iconNamePrefix + this.name}` :
-                `./administration/static/img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
-        }
-    }
+import iconComponents from 'src/app/assets/icons/icons';
+
+const iconNames = [];
+
+iconComponents.forEach((component) => {
+    Shopware.Component.register(component.name, component);
+    iconNames.push(component.name);
+});
+
+Shopware.Application.addServiceProvider('iconNames', () => {
+    return iconNames;
 });
 
 Shopware.Component.override('sw-error', {

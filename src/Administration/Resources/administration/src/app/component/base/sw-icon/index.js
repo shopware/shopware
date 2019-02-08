@@ -4,7 +4,7 @@ import './sw-icon.scss';
 
 /**
  * @public
- * @description Renders an icon from the icon library we're having in place.
+ * @description Renders an icon from the icon library.
  * @status ready
  * @example-type static
  * @component-example
@@ -21,6 +21,7 @@ import './sw-icon.scss';
  */
 export default {
     name: 'sw-icon',
+
     template,
 
     props: {
@@ -28,13 +29,19 @@ export default {
             type: String,
             required: true
         },
+        color: {
+            type: String,
+            required: false
+        },
         small: {
             type: Boolean,
-            required: false
+            required: false,
+            default: false
         },
         large: {
             type: Boolean,
-            required: false
+            required: false,
+            default: false
         },
         size: {
             type: String,
@@ -42,54 +49,18 @@ export default {
         },
         title: {
             type: String,
-            required: false
-        },
-        color: {
-            type: String,
-            required: false
+            required: false,
+            default: ''
         },
         multicolor: {
             type: Boolean,
-            required: false
+            required: false,
+            default: false
         },
         decorative: {
             type: Boolean,
             required: false,
             default: false
-        }
-    },
-
-    computed: {
-        iconNamePrefix() {
-            return 'icon--';
-        },
-
-        iconSetPath() {
-            return this.multicolor ?
-                `/administration/static/img/sw-icons-multicolor.svg#${this.iconNamePrefix + this.name}` :
-                `/administration/static/img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
-        },
-
-        iconClasses() {
-            return {
-                [this.iconNamePrefix + this.name]: this.name,
-                'sw-icon--small': this.small,
-                'sw-icon--large': this.large
-            };
-        },
-
-        iconStyles() {
-            let size = this.size;
-
-            if (!Number.isNaN(parseFloat(size)) && !Number.isNaN(size - 0)) {
-                size = `${size}px`;
-            }
-
-            return {
-                color: this.color,
-                width: size,
-                height: size
-            };
         }
     },
 
@@ -105,6 +76,37 @@ export default {
                     `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`
                 );
             }
+        }
+    },
+
+    computed: {
+        iconName() {
+            return `icons-${this.name}`;
+        },
+
+        classes() {
+            return [
+                `icon--${this.name}`,
+                this.multicolor ? 'sw-icon--multicolor' : 'sw-icon--fill',
+                {
+                    'sw-icon--small': this.small,
+                    'sw-icon--large': this.large
+                }
+            ];
+        },
+
+        styles() {
+            let size = this.size;
+
+            if (!Number.isNaN(parseFloat(size)) && !Number.isNaN(size - 0)) {
+                size = `${size}px`;
+            }
+
+            return {
+                color: this.color,
+                width: size,
+                height: size
+            };
         }
     }
 };

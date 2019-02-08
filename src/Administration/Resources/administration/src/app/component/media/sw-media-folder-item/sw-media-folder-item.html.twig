@@ -16,7 +16,7 @@
                         {% block sw_media_folder_parent_icon%}
                             <sw-icon v-if="isParent"
                                      key="sw-media-folder-preview"
-                                     name="folder-thumbnail-back"
+                                     name="multicolor-folder-thumbnail-back"
                                      size="90%"
                                      class="sw-media-folder-item__folder-thumbnails"
                                      multicolor>
@@ -30,7 +30,8 @@
                                          class="sw-media-folder-item__folder-thumbnails"
                                          :color="iconConfig.color">
                                 </sw-icon>
-                                <sw-icon :name="iconConfig.name"
+                                <sw-icon v-if="iconConfig.name"
+                                         :name="iconConfig.name"
                                          size="45%"
                                          class="sw-media-folder-item__folder-thumbnails is--inner"
                                          :color="iconConfig.color">
@@ -42,7 +43,7 @@
                             <sw-icon v-else
                                      key="sw-media-folder-preview"
                                      size="90%"
-                                     name="folder-thumbnail"
+                                     name="multicolor-folder-thumbnail"
                                      class="sw-media-folder-item__folder-thumbnails"
                                      multicolor>
                             </sw-icon>

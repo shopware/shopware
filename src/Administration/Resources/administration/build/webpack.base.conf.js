@@ -93,10 +93,21 @@ module.exports = {
             },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                exclude: resolve('src/app/assets/icons/svg'),
                 loader: 'url-loader',
                 options: {
                     limit: 10000,
                     name: utils.assetsPath('img/[name].[ext]')
+                }
+            },
+            {
+                test: /\.svg$/,
+                include: [
+                    resolve('src/app/assets/icons/svg')
+                ],
+                loader: 'svg-inline-loader',
+                options: {
+                    removeSVGTagAttrs: false
                 }
             },
             {

@@ -143,10 +143,11 @@ class EntityAggregator implements EntityAggregatorInterface
             $definition::getEntityName(),
             $context
         );
+        $accessor->addParametersToQuery($query);
 
         if ($aggregation instanceof EntityAggregation) {
-            $query->select([$accessor]);
-            $query->groupBy($accessor);
+            $query->select([$accessor->getSQL()]);
+            $query->groupBy($accessor->getSQL());
 
             $ids = $query->execute()->fetchAll(FetchMode::COLUMN);
             $ids = array_filter($ids);
@@ -162,10 +163,10 @@ class EntityAggregator implements EntityAggregatorInterface
 
         if ($aggregation instanceof ValueCountAggregation) {
             $query->select([
-                $accessor . ' as `key`',
-                'COUNT(' . $accessor . ')' . ' as `count`',
+                $accessor->getSQL() . ' as `key`',
+                'COUNT(' . $accessor->getSQL() . ')' . ' as `count`',
             ]);
-            $query->groupBy($accessor);
+            $query->groupBy($accessor->getSQL());
 
             $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
 
@@ -175,19 +176,19 @@ class EntityAggregator implements EntityAggregatorInterface
         if ($aggregation instanceof StatsAggregation) {
             $select = [];
             if ($aggregation->fetchCount()) {
-                $select[] = 'COUNT(' . $accessor . ')' . ' as `count`';
+                $select[] = 'COUNT(' . $accessor->getSQL() . ')' . ' as `count`';
             }
             if ($aggregation->fetchAvg()) {
-                $select[] = 'AVG(' . $accessor . ')' . ' as `avg`';
+                $select[] = 'AVG(' . $accessor->getSQL() . ')' . ' as `avg`';
             }
             if ($aggregation->fetchSum()) {
-                $select[] = 'SUM(' . $accessor . ')' . ' as `sum`';
+                $select[] = 'SUM(' . $accessor->getSQL() . ')' . ' as `sum`';
             }
             if ($aggregation->fetchMin()) {
-                $select[] = 'MIN(' . $accessor . ')' . ' as `min`';
+                $select[] = 'MIN(' . $accessor->getSQL() . ')' . ' as `min`';
             }
             if ($aggregation->fetchMax()) {
-                $select[] = 'MAX(' . $accessor . ')' . ' as `max`';
+                $select[] = 'MAX(' . $accessor->getSQL() . ')' . ' as `max`';
             }
 
             if (empty($select)) {
@@ -209,8 +210,8 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         if ($aggregation instanceof ValueAggregation) {
-            $query->select([$accessor . ' as `value`']);
-            $query->groupBy($accessor);
+            $query->select([$accessor->getSQL() . ' as `value`']);
+            $query->groupBy($accessor->getSQL());
 
             $data = $query->execute()->fetchAll(FetchMode::COLUMN);
 
@@ -224,7 +225,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         if ($aggregation instanceof AvgAggregation) {
-            $query->select('AVG(' . $accessor . ') as `avg`');
+            $query->select('AVG(' . $accessor->getSQL() . ') as `avg`');
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 
@@ -232,7 +233,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         if ($aggregation instanceof MaxAggregation) {
-            $query->select('MAX(' . $accessor . ') as `max`');
+            $query->select('MAX(' . $accessor->getSQL() . ') as `max`');
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 
@@ -240,7 +241,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         if ($aggregation instanceof CountAggregation) {
-            $query->select('COUNT(' . $accessor . ') as `count`');
+            $query->select('COUNT(' . $accessor->getSQL() . ') as `count`');
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 
@@ -248,7 +249,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         if ($aggregation instanceof MinAggregation) {
-            $query->select('MIN(' . $accessor . ') as `min`');
+            $query->select('MIN(' . $accessor->getSQL() . ') as `min`');
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 
@@ -256,7 +257,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         if ($aggregation instanceof SumAggregation) {
-            $query->select('SUM(' . $accessor . ') as `sum`');
+            $query->select('SUM(' . $accessor->getSQL() . ') as `sum`');
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 

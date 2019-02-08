@@ -10,12 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 
 class DefaultFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
-    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): string
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?FieldAccessor
     {
         if (!$field instanceof StorageAware) {
             throw new FieldNotStorageAwareException($root . '.' . $field->getPropertyName());
         }
 
-        return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+        return new FieldAccessor(
+            EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
+        );
     }
 }

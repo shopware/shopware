@@ -49,8 +49,15 @@ class EntityDefinitionQueryHelperTest extends TestCase
             JsonObjectTestDefinition::getEntityName(),
             Context::createDefaultContext()
         );
+        $parameters = $accessor->getParameters();
 
-        self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, \'$.gross\'))', $accessor);
+        static::assertCount(1, $parameters);
+        static::assertEquals('$.gross', current($parameters));
+
+        self::assertEquals(
+            sprintf('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, :%s))', key($parameters)),
+            $accessor->getSQL()
+        );
     }
 
     public function testNestedJsonObjectAccessor(): void
@@ -68,7 +75,14 @@ class EntityDefinitionQueryHelperTest extends TestCase
             Context::createDefaultContext()
         );
 
-        self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, \'$.gross.value\'))', $accessor);
+        $parameters = $accessor->getParameters();
+        static::assertCount(1, $parameters);
+        static::assertEquals('$.gross.value', current($parameters));
+
+        self::assertEquals(
+            sprintf('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, :%s))', key($parameters)),
+            $accessor->getSQL()
+        );
     }
 
     public function testGetFieldWithJsonAccessor(): void

@@ -68,7 +68,7 @@ class DemodataCommand extends Command
         if ($this->kernelEnv !== 'prod') {
             $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
 
-            return;
+            return null;
         }
 
         $io = new SymfonyStyle($input, $output);

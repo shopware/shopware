@@ -16,8 +16,8 @@ exports.command = function checkNotification(message, notification = defaultNoti
 
     if (toBeClosed) {
         this
-            .waitForElementVisible(`${type}__close`)
-            .click(`${type}__close`)
+            .waitForElementVisible(`${notification} ${type}__close`)
+            .click(`${notification} ${type}__close`)
             .waitForElementNotPresent(notification);
     }
     return this;

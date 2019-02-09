@@ -47,11 +47,8 @@ module.exports = {
             .assert.containsText(`${page.elements.modal}__body`, `Are you sure you want to dissolve "${global.MediaFixtureService.mediaFolderFixture.name}" ?`)
             .waitForElementVisible('.sw-media-modal-folder-dissolve__confirm')
             .click('.sw-media-modal-folder-dissolve__confirm')
-            .checkNotification(`Folder "${global.MediaFixtureService.mediaFolderFixture.name}" has been dissolved successfully`, `${page.elements.notification}--0`, false)
-            .click(page.elements.alertClose)
-            .expect.element('.sw-alert__message').to.have.text.not.equals('Folder ${global.MediaFixtureService.mediaFolderFixture.name} has been dissolved successfully').before(500);
-
-        browser.checkNotification('Folders have been dissolved successfully');
+            .checkNotification('Folders have been dissolved successfully', `${page.elements.notification}--1`)
+            .checkNotification(`Folder "${global.MediaFixtureService.mediaFolderFixture.name}" has been dissolved successfully`);
     },
     'verify if folder was removed and images persisted': (browser) => {
         const page = mediaPage(browser);

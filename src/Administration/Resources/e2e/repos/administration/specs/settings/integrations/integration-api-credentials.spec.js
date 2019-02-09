@@ -11,18 +11,24 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/integration/index',
+                subMenuTitle: 'Integrations'
+            })
             .waitForElementVisible(page.elements.listHeadline)
             .assert.containsText(page.elements.listHeadline, 'Welcome to the integration management')
             .assert.urlContains('#/sw/integration/index')
             .waitForElementPresent(page.elements.listColumnName)
-            .assert.containsText(`${page.elements.listColumnName} .sw-grid__cell-content`, global.IntegrationFixtureService.integrationFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`, global.IntegrationFixtureService.integrationFixture.name);
     },
     'check the clipboard': (browser) => {
         const page = integrationPage(browser);
 
         browser
-            .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
+            .clickContextMenuItem(`.sw_integration_list__edit-action`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible(page.elements.modalTitle)
             .assert.containsText(page.elements.modalTitle, 'Integration');
 
@@ -32,7 +38,7 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
+            .clickContextMenuItem(`.sw_integration_list__edit-action`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible(page.elements.modalTitle)
             .assert.containsText(page.elements.modalTitle, 'Integration');
 
@@ -44,7 +50,7 @@ module.exports = {
         browser
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementPresent(page.elements.listColumnName)
-            .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
+            .clickContextMenuItem(`.sw_integration_list__edit-action`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible(page.elements.integrationName);
 
         page.verifyChangedApiCredentials();

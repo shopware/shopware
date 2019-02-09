@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['settings','tax-inline-edit', 'tax', 'inline-edit'],
+    '@tags': ['settings', 'tax-inline-edit', 'tax', 'inline-edit'],
     before: (browser, done) => {
         global.AdminFixtureService.create('tax').then(() => {
             done();
@@ -9,7 +9,13 @@ module.exports = {
     },
     'open tax module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/tax/index',
+                subMenuTitle: 'Tax'
+            });
     },
     'inline edit tax': (browser) => {
         const page = settingsPage(browser);

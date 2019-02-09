@@ -2165,6 +2165,14 @@ interface fillSwSelectComponentOptions {
     searchTerm?: string
 }
 
+interface openMainMenuEntryOptions {
+    mainMenuPath: string,
+    menuTitle: string,
+    index?: number
+    subMenuItemPath?: string,
+    subMenuTitle?: string
+}
+
 export interface NightwatchCustomCommands {
     /**
      * Finds a form field in the Administration using the provided css selector. It tries to find the element on the page,
@@ -2246,12 +2254,14 @@ export interface NightwatchCustomCommands {
      * browser.openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries');
      * ```
      *
-     * @param {String} mainMenuPath
-     * @param {String} menuTitle
-     * @param {String|null} [subMenuItemSelector=null]
-     * @param {String|null} [subMenuTitle=null]
+     * @param {Object} obj
+     * @param {String} obj.mainMenuPath
+     * @param {String} obj.menuTitle
+     * @param {Number} obj.index
+     * @param {String} obj.subMenuItemPath
+     * @param {String} obj.subMenuTitle
      */
-    openMainMenuEntry(mainMenuPath: string, menuTitle: string, subMenuItemSelector?: string | null, subMenuTitle?: string | null): this,
+    openMainMenuEntry( obj: openMainMenuEntryOptions): this,
 
     /**
      * Uses the global search input field in the Administration for finding a product or other entity.

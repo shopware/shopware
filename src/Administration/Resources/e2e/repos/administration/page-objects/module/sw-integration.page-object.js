@@ -26,7 +26,7 @@ class IntegrationPageObject extends GeneralPageObject {
 
             me.browser
                 .waitForElementVisible('.sw-field__copy-button')
-                .click('.sw-field__copy-button')
+                .click('.sw-field__copy-button:nth-of-type(1)')
                 .checkNotification('Text has been copied to clipboard')
                 .clearValue(me.elements.integrationName)
                 .setValue(me.elements.integrationName, ['', me.browser.Keys.CONTROL, 'v'])

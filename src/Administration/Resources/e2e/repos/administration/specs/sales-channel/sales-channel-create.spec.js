@@ -57,7 +57,11 @@ module.exports = {
         const customerPageObject = customerPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/customer/index', 'Customers')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/customer/index',
+                menuTitle: 'Customers',
+                index: 3
+            })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/customer/create"]')
             .click('.smart-bar__actions a[href="#/sw/customer/create"]')
             .waitForElementVisible(customerPageObject.elements.customerForm)

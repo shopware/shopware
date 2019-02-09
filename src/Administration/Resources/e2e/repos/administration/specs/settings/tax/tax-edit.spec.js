@@ -9,7 +9,13 @@ module.exports = {
     },
     'open tax module and look for the tax to be edited': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/tax/index',
+                subMenuTitle: 'Tax'
+            })
             .waitForElementVisible('.sw-settings-tax-list-grid');
     },
     'edit tax': (browser) => {

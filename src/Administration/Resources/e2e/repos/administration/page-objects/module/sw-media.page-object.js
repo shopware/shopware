@@ -45,7 +45,11 @@ class MediaPageObject extends GeneralPageObject {
 
     openMediaIndex() {
         this.browser
-            .openMainMenuEntry('#/sw/media/index', 'Media')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/media/index',
+                menuTitle: 'Media',
+                index: 4
+            })
             .assert.containsText(`${this.elements.adminMenu}__navigation-list-item.sw-media span.collapsible-text`, 'Media')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]');
     }
@@ -58,23 +62,17 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementVisible('.sw-modal__title');
     }
 
-    createFolder(name, child = false) {
+    createFolder(name, position = 0) {
         this.browser
             .waitForElementVisible('.sw-media-index__create-folder-action')
             .click('.sw-media-index__create-folder-action')
             .waitForElementNotPresent('.sw-empty-state__title')
-            .waitForElementVisible('.icon--folder-thumbnail')
+            .waitForElementVisible(`${this.elements.gridItem}--${position} .icon--folder-thumbnail`)
             .fillField(this.elements.folderNameInput, name)
             .setValue(this.elements.folderNameInput, this.browser.Keys.ENTER)
             .waitForElementNotPresent('.sw-media-base-item__loader')
-            .waitForElementVisible(`${this.elements.gridItem}--0`);
-
-        if (child) {
-            this.browser
-                .expect.element(`.sw-media-folder-item:last-child .sw-media-base-item__name`).to.have.text.that.equals(name);
-        } else {
-            this.browser.expect.element(this.elements.folderNameLabel).to.have.text.that.equals(name);
-        }
+            .waitForElementVisible(`${this.elements.gridItem}--${position}`)
+            .expect.element(`${this.elements.gridItem}--${position}`).to.have.text.that.contains(name);
     }
 
     setThumbnailSize(width, height) {

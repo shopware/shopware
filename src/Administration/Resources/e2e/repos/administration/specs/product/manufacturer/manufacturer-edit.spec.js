@@ -11,7 +11,13 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            })
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
     },
@@ -21,7 +27,7 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0 .sw-context-button__button`)
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .waitForElementVisible(page.elements.contextMenu)
             .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)

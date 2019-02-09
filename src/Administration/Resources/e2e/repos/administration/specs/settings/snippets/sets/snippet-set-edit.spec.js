@@ -10,7 +10,13 @@ module.exports = {
     },
     'open snippet module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/snippet/index', 'Snippets');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/snippets/index',
+                subMenuTitle: 'Snippets'
+            });
     },
     'verify snippet set to be edited': (browser) => {
         const page = settingsPage(browser);

@@ -67,7 +67,7 @@ module.exports = {
             .waitForElementVisible('.smart-bar__header')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
 
-        page.createFolder('Child folder', true);
+        page.createFolder('Child folder', 1);
     },
     'check inheritance of parent thumbnail settings and sizes': (browser) => {
         const page = mediaPage(browser);

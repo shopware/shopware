@@ -4,7 +4,14 @@ module.exports = {
     '@tags': ['product', 'manufacturer-create', 'manufacturer', 'create', 'upload'],
     'navigate to manufacturer module and click on add manufacturer': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            })
+            //.openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .waitForElementPresent('.sw-button__content')
             .click('.sw-button__content');
     },
@@ -17,7 +24,13 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            })
             .refresh()
             .waitForElementPresent('.sw-button__content')
             .assert.urlContains('#/sw/manufacturer/index')
@@ -41,7 +54,11 @@ module.exports = {
     },
     'check if the manufacturer can be used in product': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')

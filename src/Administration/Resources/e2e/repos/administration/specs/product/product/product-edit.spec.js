@@ -14,7 +14,11 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible(page.elements.smartBarAmount)
             .assert.containsText(page.elements.smartBarAmount, '(1)');
@@ -27,7 +31,7 @@ module.exports = {
             .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .waitForElementVisible(page.elements.contextMenu)
             .click('.sw-context-menu-item__text')
-            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .fillField('input[name=sw-field--product-name]', 'Geändertes, immernoch supergeiles Produkt', true)
             .fillField('.ql-editor', 'Cant you see this is a great product?', true, 'editor')
             .click(page.elements.productSaveAction)

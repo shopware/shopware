@@ -53,7 +53,11 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', global.ProductFixtureService.productFixture.name)

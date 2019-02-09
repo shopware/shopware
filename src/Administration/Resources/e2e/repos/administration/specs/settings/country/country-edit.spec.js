@@ -11,7 +11,13 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/country/index',
+                subMenuTitle: 'Countries'
+            })
             .waitForElementVisible('.sw-settings-country-list-grid')
             .waitForElementNotPresent(`${page.elements.alert}__message`)
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)

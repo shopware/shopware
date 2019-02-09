@@ -11,7 +11,13 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/tax/index',
+                subMenuTitle: 'Tax'
+            })
             .waitForElementVisible('.sw-settings-tax-list-grid')
             .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
             .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, global.AdminFixtureService.basicFixture.name);

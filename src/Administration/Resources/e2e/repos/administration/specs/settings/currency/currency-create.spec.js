@@ -4,7 +4,13 @@ module.exports = {
     '@tags': ['settings', 'currency-create', 'currency', 'create'],
     'open currency module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/currency/index',
+                subMenuTitle: 'Currencies'
+            });
     },
     'create new currency (Yen)': (browser) => {
         const page = settingsPage(browser);

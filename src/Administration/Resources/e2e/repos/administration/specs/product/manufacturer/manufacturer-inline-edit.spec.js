@@ -9,7 +9,13 @@ module.exports = {
     },
     'navigate to manufacturer module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            })
             .waitForElementVisible('.sw-button__content');
     },
     'inline edit manufacturer name and website and verify edits': (browser) => {

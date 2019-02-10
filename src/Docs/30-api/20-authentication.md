@@ -128,8 +128,7 @@ client under **Settings → Integrations**.
 
 The following examples show how to retrieve a token by password and how
 to get a new token by refresh token.
-```php
-    <?php
+```javascript
     const baseUrl = '{insert your url}';
     const data = {
         client_id: "administration",

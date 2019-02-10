@@ -57,7 +57,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class SwagExample extends Plugin
 {
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
 

@@ -68,7 +68,7 @@ class SwagExample extends Plugin
 {
     public function isActive(): bool
     {
-        if(//your condition) {
+        if(/*your condition*/) {
             return true;
         }
 

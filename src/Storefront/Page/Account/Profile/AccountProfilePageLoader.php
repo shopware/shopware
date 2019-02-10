@@ -33,7 +33,10 @@ class AccountProfilePageLoader
 
         $page = AccountProfilePage::createFrom($page);
 
-        $page->setCustomer($context->getCustomer());
+        $customer = $context->getCustomer();
+        if ($customer !== null) {
+            $page->setCustomer($customer);
+        }
 
         $this->eventDispatcher->dispatch(
             AccountProfilePageLoadedEvent::NAME,

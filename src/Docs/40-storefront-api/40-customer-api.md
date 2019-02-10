@@ -204,8 +204,7 @@ required
 
 ## Full example
 
-```php
-    <?php
+```javascript
     const accessKey = '{insert your storefront access key}';
     const baseUrl = '{insert your url}';
     

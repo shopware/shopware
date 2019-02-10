@@ -20,8 +20,7 @@ The following example shows how to authenticate a user by password.
 Detailed information about the authentication can be found
 [here](./20-authentication.md).
 
-```php
-<?php
+```javascript
     const baseUrl = '{insert your url}';
     const data = {
         client_id: "administration",
@@ -51,8 +50,7 @@ Resources](./30-standard-resources.md)
 and [Special
 Resources](./40-special-resources.md).
 
-```php
-<?php
+```javascript
     const baseUrl = '{insert your url}';
     const data = {
         client_id: "administration",
@@ -183,18 +181,18 @@ can be requested by setting the **Accept** header to
                     "taxRate": 20,
                     "name": "20%",
                     "createdAt": "2018-09-13T09:54:01+02:00",
-                    "id": "792203a53e564e28bcb7ffa1867fb485",
+                    "id": "792203a53e564e28bcb7ffa1867fb485"
                 },
                 "manufacturer": {
                     "catalogId": "20080911ffff4fffafffffff19830531",
                     "name": "Arnold",
                     "createdAt": "2018-09-13T10:17:04+02:00",
                     "products": null,
-                    "id": "f85bda8491fd4d61bcd2c7982204c638",
+                    "id": "f85bda8491fd4d61bcd2c7982204c638"
                 },
                 "parent": null,
                 "children": null,
-                "id": "01bd7e70a50443ec96a01fd34890dcc5",
+                "id": "01bd7e70a50443ec96a01fd34890dcc5"
             }
         ],
         "aggregations": []

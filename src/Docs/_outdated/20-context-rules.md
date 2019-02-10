@@ -9,7 +9,7 @@ An entire simple rule might look like this:
 
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
-use \Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Rule\RuleScope;
 
 class TrueRule extends Rule
 {

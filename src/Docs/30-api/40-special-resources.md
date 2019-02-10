@@ -30,7 +30,7 @@ body:
 | term         | string | Simple term to search for                                                                                              |
 | limit        | string | Result set limit, see [Limit & page](./50-filter-search-limit.md#limit-and-page) |
 | page         | string | Result set page, see [Limit & page](./50-filter-search-limit.md#limit-and-page)  |
-| filter       | object | See [Filter](./50-filter-search-limit.mdi#filter)                                 |
+| filter       | object | See [Filter](./50-filter-search-limit.md#filter)                                 |
 | post-filter  | object | Same as filter but does not affect aggregations                                                                        |
 | sort         | mixed  | See [Sort](./50-filter-search-limit.md#sort)                                     |
 | aggregations | object | See below                                                                                                              |
@@ -59,8 +59,7 @@ supported:
 **POST /api/v1/search/category**
 
 
-```php
-<?php
+```javascript
     const data = {
         aggregations: {
             product_count: { count: { field: "category.products.id" } }

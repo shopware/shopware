@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Command;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\Command\SalesChannelCreateCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -11,12 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
-    public function __construct(EntityRepositoryInterface $salesChannelRepository)
-    {
-        parent::__construct($salesChannelRepository);
-    }
-
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 

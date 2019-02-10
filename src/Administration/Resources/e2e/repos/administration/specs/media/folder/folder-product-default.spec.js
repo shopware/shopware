@@ -90,7 +90,7 @@ module.exports = {
         page.openMediaIndex();
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible(page.elements.smartBarHeader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixtures.name);

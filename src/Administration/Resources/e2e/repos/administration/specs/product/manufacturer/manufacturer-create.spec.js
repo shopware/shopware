@@ -11,7 +11,6 @@ module.exports = {
                 subMenuItemPath: '#/sw/manufacturer/index',
                 subMenuTitle: 'Manufacturer'
             })
-            //.openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
             .waitForElementPresent('.sw-button__content')
             .click('.sw-button__content');
     },
@@ -32,7 +31,7 @@ module.exports = {
                 subMenuTitle: 'Manufacturer'
             })
             .refresh()
-            .waitForElementPresent('.sw-button__content')
+            .waitForElementPresent(`${page.elements.gridRow}--0 .sw-manufacturer-list_column-manufacturer-name`)
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)

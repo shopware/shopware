@@ -13,7 +13,6 @@ export default class MediaFixtureService extends AdminFixtureService {
 
     setFolderFixture(userData) {
         const startTime = new Date();
-        global.logger.lineBreak();
         global.logger.title('Set media folder fixtures...');
 
         const mediaFolderJson = this.mediaFolderFixture;

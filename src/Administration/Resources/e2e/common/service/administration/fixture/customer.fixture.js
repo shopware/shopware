@@ -10,7 +10,6 @@ export default class CustomerFixtureService extends AdminFixtureService {
 
     setCustomerFixture(userData) {
         const startTime = new Date();
-        global.logger.lineBreak();
         global.logger.title('Set customer fixtures...');
 
         const customerJson = this.customerFixture;

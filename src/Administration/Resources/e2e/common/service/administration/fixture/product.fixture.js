@@ -13,7 +13,6 @@ export default class ProductFixture extends AdminFixtureService {
 
     setProductFixture(userData) {
         const startTime = new Date();
-        global.logger.lineBreak();
         global.logger.title('Set product fixtures...');
 
         const productData = this.productFixture;

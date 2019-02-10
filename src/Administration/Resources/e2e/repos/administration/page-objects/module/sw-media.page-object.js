@@ -58,7 +58,7 @@ class MediaPageObject extends GeneralPageObject {
         this.browser
             .waitForElementVisible(`${this.elements.gridItem}--${itemPosition} ${this.elements.baseItem}`)
             .moveToElement(this.elements.baseItem, 5, 5)
-            .clickContextMenuItem(action, '.sw-context-button__button')
+            .clickContextMenuItem(action, '.sw-context-button__button', `${this.elements.gridItem}--0`)
             .waitForElementVisible('.sw-modal__title');
     }
 
@@ -67,7 +67,7 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementVisible('.sw-media-index__create-folder-action')
             .click('.sw-media-index__create-folder-action')
             .waitForElementNotPresent('.sw-empty-state__title')
-            .waitForElementVisible(`${this.elements.gridItem}--${position} .icon--folder-thumbnail`)
+            .waitForElementVisible(`${this.elements.gridItem}--0 .icon--folder-thumbnail`)
             .fillField(this.elements.folderNameInput, name)
             .setValue(this.elements.folderNameInput, this.browser.Keys.ENTER)
             .waitForElementNotPresent('.sw-media-base-item__loader')

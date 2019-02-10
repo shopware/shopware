@@ -12,7 +12,6 @@ export default class SnippetFixtureService extends AdminFixtureService {
 
     setSnippetFixtures(userData) {
         const startTime = new Date();
-        global.logger.lineBreak();
         global.logger.title('Set snippet fixtures...');
 
         let languageId = '';

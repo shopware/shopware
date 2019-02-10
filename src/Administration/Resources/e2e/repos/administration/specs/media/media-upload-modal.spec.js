@@ -50,7 +50,7 @@ module.exports = {
             .waitForElementVisible(page.elements.alertClose)
             .click(page.elements.alertClose);
 
-        browser.expect.element(page.elements.baseItem).to.have.text.that.equals('sw-login-background_(1).png');
+        browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItem}`).to.have.text.that.equals('sw-login-background_(1).png');
     },
     'trigger duplicate media modal one last time by uploading the existing media item': (browser) => {
         const page = mediaPage(browser);
@@ -67,7 +67,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-field__radio-group')
             .click('input#sw-field--selectedOption-2')
-            .waitForElementVisible(page.elements.primaryButton)
+            .waitForElementVisible(`.sw-media-modal-duplicate-media__right_footer ${page.elements.primaryButton}`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
 
         browser.expect.element('.sw-media-grid-item__item--0').to.have.text.that.equals('sw-login-background_(1).png');

@@ -2251,7 +2251,13 @@ export interface NightwatchCustomCommands {
      *
      * Usage:
      * ```
-     * browser.openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries');
+     * .openMainMenuEntry({
+     *          mainMenuPath: '#/sw/settings/index',
+     *          menuTitle: 'Settings',
+     *          index: 6,
+     *          subMenuItemPath: '#/sw/settings/country/index',
+     *          subMenuTitle: 'Countries'
+     * });
      * ```
      *
      * @param {Object} obj
@@ -2261,7 +2267,7 @@ export interface NightwatchCustomCommands {
      * @param {String} obj.subMenuItemPath
      * @param {String} obj.subMenuTitle
      */
-    openMainMenuEntry( obj: openMainMenuEntryOptions): this,
+    openMainMenuEntry(obj: openMainMenuEntryOptions): this,
 
     /**
      * Uses the global search input field in the Administration for finding a product or other entity.

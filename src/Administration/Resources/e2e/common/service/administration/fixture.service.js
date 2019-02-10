@@ -21,7 +21,6 @@ export default class AdminFixtureService {
 
     create(type, userData = {}) {
         const startTime = new Date();
-        global.logger.lineBreak();
         global.logger.title(`Set ${type} fixtures...`);
 
         this.setBasicFixture(`${type}.json`);

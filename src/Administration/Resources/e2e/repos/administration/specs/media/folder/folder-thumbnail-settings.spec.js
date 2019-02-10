@@ -62,12 +62,12 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton,`${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible('.smart-bar__header')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
 
-        page.createFolder('Child folder', 1);
+        page.createFolder('Child folder');
     },
     'check inheritance of parent thumbnail settings and sizes': (browser) => {
         const page = mediaPage(browser);

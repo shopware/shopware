@@ -21,8 +21,8 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`)
             .assert.containsText(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`, 'Storefront')
-            .waitForElementVisible('.sw-sales-channel-modal__show-detail-action')
-            .click('.sw-sales-channel-modal__show-detail-action')
+            .waitForElementVisible(`${page.elements.gridRow}--0 .sw-sales-channel-modal__show-detail-action`)
+            .click(`${page.elements.gridRow}--0 .sw-sales-channel-modal__show-detail-action`)
             .waitForElementVisible('.sw-sales-channel-modal__title')
             .assert.containsText('.sw-sales-channel-modal__title', 'Details of Storefront');
     },
@@ -32,10 +32,10 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-sales-channel-modal__add-sales-channel-action')
             .click('.sw-sales-channel-modal__add-sales-channel-action')
-            .waitForElementVisible(page.elements.cardTitle)
+            .waitForElementVisible(`${page.elements.cardTitle}:nth-of-type(1)`)
             .waitForElementVisible('.sw-sales-channel-detail-base')
             .assert.urlContains('#/sw/sales/channel/create')
-            .assert.containsText(page.elements.cardTitle, 'General Settings');
+            .assert.containsText(`${page.elements.cardTitle}:nth-of-type(1)`, 'General Settings');
     },
     'fill in form and save new sales channel': (browser) => {
         const page = salesChannelPage(browser);

@@ -16,8 +16,9 @@ const flyoutMenuCssSelector = '.sw-admin-menu__flyout';
 
  * @returns {exports}
  */
-//exports.command = function openMainMenuEntry(mainMenuPath, menuTitle, subMenuItemPath = null, subMenuTitle = null) {
-exports.command = function openMainMenuEntry({mainMenuPath, menuTitle, index = null, subMenuItemPath = null, subMenuTitle = null }) {
+exports.command = function openMainMenuEntry(
+    {mainMenuPath, menuTitle, index = null, subMenuItemPath = null, subMenuTitle = null}
+) {
     let mainMenuItem = `${menuLinkCssSelector}[href="${mainMenuPath}"]`;
 
     if (index !== null) {

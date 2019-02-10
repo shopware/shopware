@@ -12,7 +12,7 @@ export default class LanguageFixtureService extends AdminFixtureService {
 
     setLanguageFixtures(userData) {
         const startTime = new Date();
-        global.logger.lineBreak();
+
         global.logger.title('Set language fixtures...');
         let localeId = '';
 

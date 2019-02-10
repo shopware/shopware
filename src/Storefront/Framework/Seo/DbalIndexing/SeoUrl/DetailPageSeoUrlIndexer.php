@@ -118,7 +118,6 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
                 )
             );
 
-            /* @var ProductSearchResult $products */
             while ($ids = $iterator->fetchIds()) {
                 $this->updateProducts($ids, $context);
 

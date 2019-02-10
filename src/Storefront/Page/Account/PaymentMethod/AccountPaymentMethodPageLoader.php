@@ -41,7 +41,10 @@ class AccountPaymentMethodPageLoader
 
         $page = AccountPaymentMethodPage::createFrom($page);
 
-        $page->setCustomer($context->getCustomer());
+        $customer = $context->getCustomer();
+        if ($customer !== null) {
+            $page->setCustomer($customer);
+        }
 
         $page->setPaymentMethods(
             $this->accountPaymentMethodPageletLoader->load($request, $context)

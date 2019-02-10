@@ -146,8 +146,7 @@ returned when a guest order is placed.
 **Response:** If successful, the order will be returned.
 
 ## Full example
-```php
-    <?php
+```javascript
     const accessKey = '{insert your storefront access key}';
     const baseUrl = '{insert your url}';
     

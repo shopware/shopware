@@ -1184,7 +1184,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class GettingStarted extends Plugin
 {
-    public function boot()
+    public function boot(): void
     {
         parent::boot();
     }
@@ -1244,7 +1244,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PromotionExtension implements EntityExtensionInterface, EventSubscriberInterface
 {
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [];
     }

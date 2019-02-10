@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use SwagCustomRule\Core\Rule\Count42Rule;
-use SwagCustomRule\SwagCustomRule;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -32,13 +31,13 @@ class Count42RuleTest extends TestCase
 
     public function testConstraint(): void
     {
-        $rule = new Count42Rule();
-        $constraints = $rule->getConstraints();
+        $constraints = (new Count42Rule())->getConstraints();
         static::assertEquals(
             [
                 'operator' => [new Choice([Count42Rule::OPERATOR_EQ, Count42Rule::OPERATOR_NEQ])],
                 'count' => [new NotBlank(), new Type('int')],
-            ], $constraints
+            ],
+            $constraints
         );
     }
 

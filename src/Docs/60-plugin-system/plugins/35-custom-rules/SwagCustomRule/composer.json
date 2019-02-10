@@ -1,35 +1,35 @@
 {
-  "name": "swag/customrule",
-  "description": "An example plugin to extend the rule system",
-  "version": "v1.0.0",
-  "type": "shopware-plugin",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "shopware AG"
+    "name": "swag/customrule",
+    "description": "An example plugin to extend the rule system",
+    "version": "v1.0.0",
+    "type": "shopware-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG"
+        }
+    ],
+    "require": {
+        "shopware/platform": "@latest"
+    },
+    "extra": {
+        "installer-name": "SwagCustomRule",
+        "copyright": "(c) by shopware AG",
+        "label": {
+            "de_DE": "Weitere Regeln für Shopware",
+            "en_GB": "More rules for Shopware"
+        },
+        "description": {
+            "de_DE": "Fügt weitere Regeln hinzu, die im Regelsystem genutzt werden.",
+            "en_GB": "Add more rules, which are used by the rule system."
+        },
+        "manufacturerLink": {
+            "de_DE": "https://store.shopware.com/shopware-ag.html",
+            "en_GB": "https://store.shopware.com/en/shopware-ag.html"
+        },
+        "supportLink": {
+            "de_DE": "https://docs.shopware.com/de",
+            "en_GB": "https://docs.shopware.com/en"
+        }
     }
-  ],
-  "require": {
-    "shopware/platform": "@latest"
-  },
-  "extra": {
-    "installer-name": "SwagCustomRule",
-    "copyright": "(c) by shopware AG",
-    "label": {
-      "de_DE": "Weitere Regeln für Shopware",
-      "en_GB": "More rules for Shopware"
-    },
-    "description": {
-      "de_DE": "Fügt weitere Regeln hinzu, die im Regelsystem genutzt werden.",
-      "en_GB": "Add more rules, which are used by the rule system."
-    },
-    "manufacturerLink": {
-      "de_DE": "https://store.shopware.com/shopware-ag.html",
-      "en_GB": "https://store.shopware.com/en/shopware-ag.html"
-    },
-    "supportLink": {
-      "de_DE": "https://docs.shopware.com/de",
-      "en_GB": "https://docs.shopware.com/en"
-    }
-  }
 }

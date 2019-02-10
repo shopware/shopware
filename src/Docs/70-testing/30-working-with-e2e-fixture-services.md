@@ -64,7 +64,7 @@ In general, the `FixtureService` serves as a basic for any custom services, prov
 
 ### globals.js and before-hooks 
 
-In order to be accessible globally, the integration of the file of the `FixtureServise` is located in `globals.js`. As described in paragraph "before-hooks with fixtures" of the in depth [guide concearning nightwatch tests](../30-api/30-special-resources.md), the application of these services is located in the before-hooks of the test suites. An example of a service's usage below:
+In order to be accessible globally, the integration of the file of the `FixtureServise` is located in `globals.js`. As described in paragraph "before-hooks with fixtures" of the in depth [guide concearning nightwatch tests](../30-api/40-special-resources.md), the application of these services is located in the before-hooks of the test suites. An example of a service's usage below:
 
 ```javascript
 before: (browser, done) => {
@@ -189,7 +189,7 @@ export default class IntegrationFixtureService extends FixtureService {
 global.IntegrationFixtureService = new IntegrationFixtureService();
 ```
 
-All custom services hold a distinct method for creating fixtures: First, it's important to collect the necessary data via REST API. This is done by filtered POST requests, as described in the API guide concerning [special resources](../30-api/30-special-resources.md). As soon 
+All custom services hold a distinct method for creating fixtures: First, it's important to collect the necessary data via REST API. This is done by filtered POST requests, as described in the API guide concerning [special resources](../30-api/40-special-resources.md). As soon 
 In case of your `IntegrationFixture`, you will need the ID of the integration you just created in order to display it. 
 
 ```javascript

@@ -363,7 +363,7 @@ public function getDeliveries(CheckoutContext $checkoutContext)
     /** @var CartService $cartService */
     $cart = $cartService->getCart($checkoutContext);
     
-    $deliveries = $cart->getDeliveries();;
+    $deliveries = $cart->getDeliveries();
 }
 ```
 

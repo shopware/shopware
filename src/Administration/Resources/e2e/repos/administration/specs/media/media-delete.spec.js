@@ -3,9 +3,8 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 module.exports = {
     '@tags': ['media', 'media-delete', 'delete'],
     'open media listing': (browser) => {
-        browser
-            .openMainMenuEntry('#/sw/media/index', 'Media')
-            .assert.urlContains('#/sw/media/index');
+        const page = mediaPage(browser);
+        page.openMediaIndex();
     },
     'upload and create new media item': (browser) => {
         const page = mediaPage(browser);
@@ -36,10 +35,8 @@ module.exports = {
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent(`${page.elements.modal}l__footer`)
             .waitForElementNotPresent(page.elements.loader)
-            .checkNotification('File "sw-login-background.png" has been deleted successfully', `${page.elements.notification}--0`, false)
-            .click(page.elements.alertClose)
-            .expect.element(`${page.elements.alert}__message`).to.have.text.not.equals('File "sw-login-background.png" has been deleted successfully').before(500);
-        browser.checkNotification('Files have been deleted successfully');
+            .checkNotification('Files have been deleted successfully', `${page.elements.notification}--1`)
+            .checkNotification('File "sw-login-background.png" has been deleted successfully');
     },
     after: (browser) => {
         browser.end();

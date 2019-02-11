@@ -65,12 +65,8 @@ module.exports = {
             .waitForElementVisible(page.elements.previewItem)
             .waitForElementVisible('.sw-media-replace__replace-media-action')
             .click('.sw-media-replace__replace-media-action')
-            .checkNotification('File has been saved successfully', `${page.elements.notification}--0`, false)
-            .click('.sw-alert__close')
-            .expect.element('.sw-alert__message').to.have.text.not.equals('File has been saved successfully').before(500);
-
-        browser
-            .checkNotification('File replaced');
+            .checkNotification('File replaced', `${page.elements.notification}--1`)
+            .checkNotification('File has been saved successfully');
     },
     'verify if image was replaced correctly': (browser) => {
         const page = mediaPage(browser);

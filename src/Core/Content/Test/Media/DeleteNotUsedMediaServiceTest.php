@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Test\Media;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepository;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator;
 use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -20,7 +20,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
     /** @var DeleteNotUsedMediaService */
     private $deleteMediaService;
 
-    /** @var MediaRepository */
+    /** @var MediaRepositoryDecorator */
     private $mediaRepo;
 
     /** @var Context */

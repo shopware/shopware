@@ -5,20 +5,18 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class MediaThumbnailRepository extends EntityRepository
+class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 {
     /**
      * @var UrlGeneratorInterface
@@ -30,27 +28,25 @@ class MediaThumbnailRepository extends EntityRepository
      */
     private $filesystem;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $innerRepo;
+
     public function __construct(
-        string $definition,
-        EntityReaderInterface $reader,
-        VersionManager $versionManager,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
+        EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
         FilesystemInterface $filesystem
     ) {
-        parent::__construct(
-            $definition,
-            $reader,
-            $versionManager,
-            $searcher,
-            $aggregator,
-            $eventDispatcher
-        );
-
+        $this->eventDispatcher = $eventDispatcher;
         $this->urlGenerator = $urlGenerator;
         $this->filesystem = $filesystem;
+        $this->innerRepo = $innerRepo;
     }
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
@@ -60,13 +56,51 @@ class MediaThumbnailRepository extends EntityRepository
         return $this->deleteFromCollection($thumbnails, $context);
     }
 
-    public function deleteCascadingFromMedia(MediaEntity $mediaEntity, Context $context): EntityWrittenContainerEvent
-    {
-        foreach ($mediaEntity->getThumbnails() as $thumbnail) {
-            $thumbnail->setMedia($mediaEntity);
-        }
+    // Unchanged methods
 
-        return $this->deleteFromCollection($mediaEntity->getThumbnails(), $context);
+    public function aggregate(Criteria $criteria, Context $context): AggregatorResult
+    {
+        return $this->innerRepo->aggregate($criteria, $context);
+    }
+
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
+    {
+        return $this->innerRepo->searchIds($criteria, $context);
+    }
+
+    public function clone(string $id, Context $context, string $newId = null): EntityWrittenContainerEvent
+    {
+        return $this->innerRepo->clone($id, $context, $newId);
+    }
+
+    public function search(Criteria $criteria, Context $context): EntitySearchResult
+    {
+        return $this->innerRepo->search($criteria, $context);
+    }
+
+    public function update(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        return $this->innerRepo->update($data, $context);
+    }
+
+    public function upsert(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        return $this->innerRepo->upsert($data, $context);
+    }
+
+    public function create(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        return $this->innerRepo->create($data, $context);
+    }
+
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
+    {
+        return $this->innerRepo->createVersion($id, $context, $name, $versionId);
+    }
+
+    public function merge(string $versionId, Context $context): void
+    {
+        $this->innerRepo->merge($versionId, $context);
     }
 
     private function getThumbnailsByIds(array $ids, Context $context): MediaThumbnailCollection
@@ -113,6 +147,6 @@ class MediaThumbnailRepository extends EntityRepository
             }
         }
 
-        return parent::delete($thumbnailIds, $context);
+        return $this->innerRepo->delete($thumbnailIds, $context);
     }
 }

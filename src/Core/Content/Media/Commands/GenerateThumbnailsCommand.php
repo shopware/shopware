@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Media\Commands;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -30,7 +29,7 @@ class GenerateThumbnailsCommand extends Command
     private $thumbnailService;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $mediaRepository;
 
@@ -51,7 +50,7 @@ class GenerateThumbnailsCommand extends Command
 
     public function __construct(
         ThumbnailService $thumbnailService,
-        EntityRepository $mediaRepository,
+        EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $mediaFolderRepository
     ) {
         parent::__construct();

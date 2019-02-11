@@ -14,14 +14,14 @@ Component.extend('sw-condition-customer-number', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionDataProviderService.operatorSets.multiStore;
+            return this.conditionStore.operatorSets.multiStore;
         },
         fieldNames() {
             return ['operator', 'numbers'];
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
+                operator: this.conditionStore.operators.isOneOf.identifier
             };
         }
     }

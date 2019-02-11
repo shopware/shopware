@@ -5,10 +5,7 @@ import './extension/sw-settings-index';
 import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 import './page/sw-settings-rule-create';
-import './component/sw-condition-base';
 import './component/sw-condition-not-found';
-import './component/sw-condition-and-container';
-import './component/sw-condition-or-container';
 
 Module.register('sw-settings-rule', {
     flag: NEXT516,

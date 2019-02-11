@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Mixin } from 'src/core/shopware';
 import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.scss';
 
@@ -14,47 +14,19 @@ const AND_CONTAINER_NAME = 'andContainer';
  * @component-example
  * <sw-condition-and-container :condition="condition"></sw-condition-and-container>
  */
-Component.register('sw-condition-and-container', {
+export default {
+    name: 'sw-condition-and-container',
     template,
-
-    inject: ['ruleConditionDataProviderService'],
     mixins: [
         Mixin.getByName('validation'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('condition')
     ],
 
     /**
      * All additional passed attributes are bound explicit to the correct child element.
      */
     inheritAttrs: false,
-
-    props: {
-        condition: {
-            type: Object,
-            required: false,
-            default() {
-                return {};
-            }
-        },
-        conditionAssociations: {
-            type: Object,
-            required: true
-        },
-        level: {
-            type: Number,
-            required: true,
-            default() {
-                return 1;
-            }
-        }
-    },
-
-    data() {
-        return {
-            disabledDeleteButton: false,
-            detailPage: undefined
-        };
-    },
 
     computed: {
         containerRowClass() {
@@ -73,50 +45,12 @@ Component.register('sw-condition-and-container', {
                 return [];
             }
             return this.condition.children.sort((child1, child2) => { return child1.position - child2.position; });
-        }
-    },
-
-    mounted() {
-        this.$on('finish-loading', this.onFinishLoading);
-        this.createComponent();
-    },
-
-    methods: {
-        createComponent() {
-            this.locateDetailPage();
-            if (this.detailPage) {
-                this.detailPage.$on('check-delete-all', () => {
-                    this.disabledDeleteButton = this.onCheckDeleteAll();
-                });
-            }
-            this.condition.value = {};
-
-            if (typeof this.condition.children === 'undefined') {
-                this.condition.children = [];
-                return;
-            }
-
-            if (!this.condition.children.length) {
-                this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
-            }
         },
-        onCheckDeleteAll() {
-            if (this.level > 1) {
-                return false;
-            }
-
-            if (this.level === 1) {
-                const parent = this.conditionAssociations.getById(this.condition.parentId);
-
-                if (parent.children.length === 1
-                    && this.condition.type === AND_CONTAINER_NAME
-                    && this.condition.children.length === 1
-                    && this.condition.children[0].type === PLACEHOLDER_NAME) {
-                    return true;
-                }
-            }
-
+        disabledDeleteButton() {
+            // todo: make it standardized
             if (this.level === 0
+                && this.condition
+                && this.condition.children
                 && this.condition.children.length === 1
                 && this.condition.children[0].type === AND_CONTAINER_NAME
                 && this.condition.children[0].children.length === 1
@@ -124,33 +58,51 @@ Component.register('sw-condition-and-container', {
                 return true;
             }
 
+            if (this.level === 1) {
+                return this.parentDisabledDelete;
+            }
+
             return false;
-        },
-        onFinishLoading() {
-            this.createComponent();
+        }
+    },
+
+    watch: {
+        condition() {
+            this.createFirstPlaceholderIfNecessary();
+        }
+    },
+
+    created() {
+        this.createFirstPlaceholderIfNecessary();
+    },
+
+    methods: {
+        createFirstPlaceholderIfNecessary() {
+            if (!this.condition.children) {
+                this.condition.children = [];
+            }
+
+            if (!this.condition.children.length) {
+                this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
+            }
         },
         getComponent(type) {
-            const condition = this.ruleConditionDataProviderService.getByType(type);
+            const condition = this.conditionStore.getByType(type);
             if (!condition) {
                 return 'sw-condition-not-found';
             }
 
-            this.$nextTick(() => {
-                this.emitConditionContainerChangeEvent();
-            });
             return condition.component;
         },
         onAddAndClick() {
             this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
-            this.emitConditionContainerChangeEvent();
         },
         onAddChildClick() {
             this.createCondition(OR_CONTAINER_NAME, this.nextPosition);
-            this.emitConditionContainerChangeEvent();
         },
         createCondition(type, position) {
             const condition = Object.assign(
-                this.conditionAssociations.create(),
+                this.entityAssociationStore.create(),
                 {
                     type: type,
                     parentId: this.condition.id,
@@ -196,8 +148,6 @@ Component.register('sw-condition-and-container', {
             this.condition.children = [];
 
             this.$emit('delete-condition', this.condition);
-
-            this.emitConditionContainerChangeEvent();
         },
         deleteChildren(children) {
             children.forEach((child) => {
@@ -225,8 +175,6 @@ Component.register('sw-condition-and-container', {
             condition.delete();
             this.condition.children.splice(this.condition.children.indexOf(condition), 1);
 
-            this.emitConditionContainerChangeEvent();
-
             if (this.condition.children.length <= 0) {
                 this.$nextTick(() => {
                     if (this.level === 0) {
@@ -236,31 +184,6 @@ Component.register('sw-condition-and-container', {
                     }
                 });
             }
-        },
-        locateDetailPage() {
-            let parent = this.$parent;
-
-            while (parent) {
-                if (['sw-settings-rule-create', 'sw-settings-rule-detail'].includes(parent.$options.name)) {
-                    this.detailPage = parent;
-                    return;
-                }
-
-                parent = parent.$parent;
-            }
-        },
-        emitConditionContainerChangeEvent() {
-            if (!this.detailPage) {
-                return;
-            }
-
-            this.detailPage.$emit(
-                'check-delete-all',
-                {
-                    condition: this.condition,
-                    level: this.level
-                }
-            );
         }
     }
-});
+};

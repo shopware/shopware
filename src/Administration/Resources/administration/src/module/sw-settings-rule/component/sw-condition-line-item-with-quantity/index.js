@@ -15,7 +15,7 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionDataProviderService.operatorSets.number;
+            return this.conditionStore.operatorSets.number;
         },
         fieldNames() {
             return ['id', 'operator', 'quantity'];
@@ -25,7 +25,7 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
+                operator: this.conditionStore.operators.equals.identifier
             };
         }
     },

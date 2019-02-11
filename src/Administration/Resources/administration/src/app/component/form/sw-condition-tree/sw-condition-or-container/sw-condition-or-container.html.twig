@@ -12,10 +12,14 @@
                             </div>
                         {% endblock %}
                         {% block sw_condition_container_children_component %}
-                            <component v-bind:is="getComponent(child.type)"
+                            <component :is="getComponent(child.type)"
                                        :condition="child"
-                                       :conditionAssociations="conditionAssociations"
+                                       :entityAssociationStore="entityAssociationStore"
+                                       :entityName="entityName"
+                                       :conditionIdentifier="conditionIdentifier"
+                                       :conditionStore="conditionStore"
                                        :level="level + 1"
+                                       :parentDisabledDelete="disabledDeleteButton"
                                        @delete-condition="onDeleteCondition"
                                        @create-before="createPlaceholderBefore"
                                        @create-after="createPlaceholderAfter">

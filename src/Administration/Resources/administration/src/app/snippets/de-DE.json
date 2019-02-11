@@ -245,7 +245,8 @@
         "subCondition": "Unterbedingung",
         "deleteConditions": "Alle entfernen",
         "createBefore": "Davor erstellen",
-        "createAfter": "Danach erstellen"
+        "createAfter": "Danach erstellen",
+        "delete": "Löschen"
       }
     },
     "sw-product-image": {

@@ -14,14 +14,14 @@ Component.extend('sw-condition-last-name', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.ruleConditionDataProviderService.operatorSets.string;
+            return this.conditionStore.operatorSets.string;
         },
         fieldNames() {
             return ['operator', 'lastName'];
         },
         defaultValues() {
             return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
+                operator: this.conditionStore.operators.equals.identifier
             };
         }
     }

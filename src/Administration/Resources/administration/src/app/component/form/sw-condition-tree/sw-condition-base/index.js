@@ -1,8 +1,6 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Mixin, State } from 'src/core/shopware';
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
-
-const PLACEHOLDER_NAME = 'placeholder';
 
 /**
  * @public
@@ -12,33 +10,20 @@ const PLACEHOLDER_NAME = 'placeholder';
  * @component-example
  * <sw-condition-base :condition="condition"></sw-condition-base>
  */
-Component.register('sw-condition-base', {
+export default {
+    name: 'sw-condition-base',
     template,
 
-    inject: ['ruleConditionDataProviderService'],
     mixins: [
         Mixin.getByName('validation'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('condition')
     ],
 
     /**
      * All additional passed attributes are bound explicit to the correct child element.
      */
     inheritAttrs: false,
-
-    props: {
-        condition: {
-            type: Object,
-            required: false,
-            default() {
-                return {};
-            }
-        },
-        conditionAssociations: {
-            type: Object,
-            required: true
-        }
-    },
 
     computed: {
         fieldNames() {
@@ -52,22 +37,18 @@ Component.register('sw-condition-base', {
         },
         errorStore() {
             return State.getStore('error');
-        },
-        disableContextDeleteButton() {
-            const parent = this.conditionAssociations.getById(this.condition.parentId);
-            const parentElement = this.$parent;
-
-            return this.condition.type === PLACEHOLDER_NAME
-                   && parent.children.length === 1
-                   && parentElement.level <= 1;
         }
+    },
+
+    beforeDestroy() {
+        this.conditionTreeComponent.$off('on-save', this.checkErrors);
     },
 
     data() {
         return {
             formErrors: {},
             hasErrors: false,
-            rulePageComponent: undefined
+            conditionTreeComponent: null
         };
     },
 
@@ -109,7 +90,7 @@ Component.register('sw-condition-base', {
             fieldNames.push('type');
 
             fieldNames.forEach(fieldName => {
-                const boundExpression = `rule.conditions.${this.condition.id}.${fieldName}`;
+                const boundExpression = `${this.entityName}.${this.conditionIdentifier}.${this.condition.id}.${fieldName}`;
                 this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
             });
 
@@ -134,27 +115,30 @@ Component.register('sw-condition-base', {
         },
 
         getLabel(type) {
-            return this.ruleConditionDataProviderService.getByType(type).label;
+            return this.conditionStore.getByType(type).label;
         },
         createdComponent() {
             if (!this.condition.value) {
                 this.condition.value = {};
             }
 
+            this.locateConditionTreeComponent();
+
+            this.conditionTreeComponent.$on('on-save', this.checkErrors);
+        },
+        locateConditionTreeComponent() {
             let parent = this.$parent;
 
             while (parent) {
-                if (['sw-settings-rule-create', 'sw-settings-rule-detail'].includes(parent.$options.name)) {
-                    this.rulePageComponent = parent;
-                    break;
+                if (parent.$options.name === 'sw-condition-tree') {
+                    this.conditionTreeComponent = parent;
+                    return;
                 }
 
                 parent = parent.$parent;
             }
 
-            if (this.rulePageComponent) {
-                this.rulePageComponent.$on('on-save-rule', () => { this.checkErrors(); });
-            }
+            throw new Error('component \'sw-condition-tree\' not found');
         },
         applyDefaultValues() {
             Object.keys(this.defaultValues).forEach(key => {
@@ -164,4 +148,4 @@ Component.register('sw-condition-base', {
             });
         }
     }
-});
+};

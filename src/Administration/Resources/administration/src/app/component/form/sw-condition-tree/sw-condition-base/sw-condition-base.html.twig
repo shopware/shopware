@@ -7,7 +7,7 @@
                       v-model="condition.type"
                       class="field field--select field--condition"
                       :title="$tc(getLabel(condition.type))">
-                <option v-for="(innerCondition, innerConditionType) in ruleConditionDataProviderService.getConditions()"
+                <option v-for="(innerCondition, innerConditionType) in conditionStore.getConditions()"
                         :selected="innerConditionType === condition.type"
                         :value="innerConditionType">
                     {{ $tc(getLabel(innerConditionType)) }}
@@ -39,9 +39,9 @@
                         {{ $tc('global.sw-condition.condition.createAfter') }}
                     </sw-context-menu-item>
                     <sw-context-menu-item @click="$emit('delete-condition', condition)"
-                                          :disabled="disableContextDeleteButton"
+                                          :disabled="parentDisabledDelete"
                                           variant="danger">
-                        {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
+                        {{ $tc('global.sw-condition.condition.delete') }}
                     </sw-context-menu-item>
                 </sw-context-button>
             </div>

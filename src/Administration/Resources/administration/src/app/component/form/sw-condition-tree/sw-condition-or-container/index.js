@@ -1,5 +1,5 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-condition-or-container.html.twig';
+import AndContainer from '../sw-condition-and-container';
 import './sw-condition-or-container.scss';
 
 const AND_CONTAINER_NAME = 'andContainer';
@@ -12,7 +12,9 @@ const AND_CONTAINER_NAME = 'andContainer';
  * @component-example
  * <sw-condition-or-container :condition="condition"></sw-condition-or-container>
  */
-Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
+export default {
+    name: 'sw-condition-or-container',
+    extends: AndContainer,
     template,
 
     methods: {
@@ -36,4 +38,4 @@ Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
             }
         }
     }
-});
+};

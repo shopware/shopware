@@ -56,8 +56,6 @@ module.exports = {
         page.deleteManufacturer(global.AdminFixtureService.basicFixture.name);
 
         browser
-            .waitForElementVisible('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.equals('shopware AG');
 

@@ -20,9 +20,9 @@ module.exports = {
                 menuTitle: 'Products',
                 index: 1
             })
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
 
-        browser.expect.element(page.elements.productListName).to.have.text.that.contains(fixture.name).before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(page.elements.productListName).to.have.text.that.contains(fixture.name);
     },
     'edit product name via inline editing and verify edit': (browser) => {
         const page = productPage(browser);
@@ -35,7 +35,7 @@ module.exports = {
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .waitForElementNotPresent('.is--inline-editing')
             .refresh()
-            .expect.element(page.elements.productListName).to.have.text.that.contains('Cyberdyne Systems T800').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.productListName).to.have.text.that.contains('Cyberdyne Systems T800');
     },
     after: (browser) => {
         browser.end();

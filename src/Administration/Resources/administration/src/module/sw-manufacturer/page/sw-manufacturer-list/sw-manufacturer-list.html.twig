@@ -110,7 +110,8 @@
                                                     {% block sw_product_list_grid_columns_actions_edit %}
                                                         <sw-context-menu-item :routerLink="{
                                                                 name: 'sw.manufacturer.detail',
-                                                                params: { id: item.id } }">
+                                                                params: { id: item.id } }"
+                                                                class="sw-manufacturer-list__edit-action">
                                                             {{ $tc('sw-manufacturer.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}

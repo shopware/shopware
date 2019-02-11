@@ -24,12 +24,8 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .waitForElementVisible(page.elements.contextMenu)
-            .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
+            .refresh()
+            .clickContextMenuItem('.sw-manufacturer-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('MAN-U-FACTURE');
     },

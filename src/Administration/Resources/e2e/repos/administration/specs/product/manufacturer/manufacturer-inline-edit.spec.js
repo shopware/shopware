@@ -26,7 +26,9 @@ module.exports = {
             .doubleClick()
             .waitForElementPresent('.is--inline-editing ')
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'I am Groot', true)
-            .waitForElementVisible(page.elements.gridRowInlineEdit);
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(` ${page.elements.gridRowInlineEdit}`)
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('I am Groot');
     },
     after: (browser) => {
         browser.end();

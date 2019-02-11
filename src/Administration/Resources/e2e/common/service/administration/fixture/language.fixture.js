@@ -1,6 +1,6 @@
-const FixtureService = require('./../fixture.service.js').default;
+const AdminFixtureService = require('./../fixture.service.js').default;
 
-export default class LanguageFixtureService extends FixtureService {
+export default class LanguageFixtureService extends AdminFixtureService {
     constructor() {
         super();
         this.languageFixture = this.loadJson('language.json');

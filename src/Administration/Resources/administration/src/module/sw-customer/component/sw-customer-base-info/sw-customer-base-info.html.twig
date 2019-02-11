@@ -4,12 +4,12 @@
             <sw-description-list>
                 {% block sw_customer_base_metadata_customer_number %}
                     <dt>{{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}</dt>
-                    <dd>{{ customer.customerNumber }}</dd>
+                    <dd class="sw-customer-base__label-customer-number">{{ customer.customerNumber }}</dd>
                 {% endblock %}
 
                 {% block sw_customer_base_metadata_customer_group %}
                     <dt>{{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}</dt>
-                    <dd>{{ customer.group.name }}</dd>
+                    <dd class="sw-customer-base__label-customer-group">{{ customer.group.name }}</dd>
                 {% endblock %}
 
                 {% block sw_customer_base_metadata_birthday %}

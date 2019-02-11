@@ -4,7 +4,7 @@ module.exports = {
     '@tags': ['settings', 'rule', 'rule-edit', 'edit'],
     '@disabled': !global.flags.isActive('next516'),
     before: (browser, done) => {
-        global.FixtureService.create('rule').then(() => {
+        global.AdminFixtureService.create('rule').then(() => {
             done();
         });
     },
@@ -17,7 +17,7 @@ module.exports = {
 
         browser
             .waitForElementVisible(page.elements.columnName)
-            .assert.containsText(page.elements.columnName, global.FixtureService.basicFixture.name);
+            .assert.containsText(page.elements.columnName, global.AdminFixtureService.basicFixture.name);
     },
     'edit rule and add conditions': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -25,7 +25,7 @@ module.exports = {
         browser
             .clickContextMenuItem('.sw-rule-list__rule-edit-action', '.sw-context-button__button')
             .waitForElementVisible('.sw-settings-rule-detail .sw-card__content')
-            .assert.containsText(`${page.elements.smartBarHeader} h2`, global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.smartBarHeader} h2`, global.AdminFixtureService.basicFixture.name);
 
         page.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
 

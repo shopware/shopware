@@ -3,7 +3,7 @@ const manufacturerPage = require('administration/page-objects/module/sw-manufact
 module.exports = {
     '@tags': ['product', 'manufacturer-delete', 'manufacturer', 'delete'],
     before: (browser, done) => {
-        global.FixtureService.create('product-manufacturer').then(() => {
+        global.AdminFixtureService.create('product-manufacturer').then(() => {
             done();
         });
     },
@@ -19,7 +19,7 @@ module.exports = {
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
             .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
     },
     'verify manufacturer details': (browser) => {
         const page = manufacturerPage(browser);
@@ -33,7 +33,7 @@ module.exports = {
             .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-manufacturer-detail__empty-title)`)
-            .assert.containsText(page.elements.smartBarHeader, global.FixtureService.basicFixture.name);
+            .assert.containsText(page.elements.smartBarHeader, global.AdminFixtureService.basicFixture.name);
     },
     'enter manufacturer logo': (browser) => {
         const page = manufacturerPage(browser);
@@ -44,7 +44,7 @@ module.exports = {
             .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer');
 
         const page = manufacturerPage(browser);
-        page.deleteManufacturer(global.FixtureService.basicFixture.name);
+        page.deleteManufacturer(global.AdminFixtureService.basicFixture.name);
 
         browser
             .waitForElementVisible('.sw-sidebar__navigation .sw-sidebar-navigation-item')

@@ -1,4 +1,4 @@
-const ApiService = require('./api.service');
+const ApiService = require('../api.service');
 
 export default class AdminApiService extends ApiService {
     /**
@@ -42,11 +42,20 @@ export default class AdminApiService extends ApiService {
 
     request({url, method, params, data}) {
         return this.loginByUserName().then(() => {
-            return super.request({url, method, params, data}).catch(({config, response}) => {
-                if (response.data && response.data.errors) {
-                    console.log(response.data.errors);
+            const requestConfig = {
+                headers: this.getHeaders(),
+                url,
+                method,
+                params,
+                data
+            };
+
+            return this.client.request(requestConfig).then((response) => {
+                if (Array.isArray(response.data.data) && response.data.data.length === 1) {
+                    return response.data.data[0];
                 }
-            })
+                return response.data.data;
+            });
         }).catch(({config, response}) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);

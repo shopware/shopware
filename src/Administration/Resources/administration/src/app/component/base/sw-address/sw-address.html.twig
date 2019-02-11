@@ -10,37 +10,37 @@
         {% block sw_address_body %}
             <div class="sw-address__body">
                 {% block sw_address_company %}
-                    <div v-if="address.company" class="sw-address__line">
+                    <div v-if="address.company" class="sw-address__company sw-address__line">
                         {{ address.company }}
                     </div>
                 {% endblock %}
 
                 {% block sw_address_full_name %}
-                    <div v-if="fullName" class="sw-address__line">
+                    <div v-if="fullName" class="sw-address__full-name sw-address__line">
                         {{ fullName }}
                     </div>
                 {% endblock %}
 
                 {% block sw_address_street %}
-                    <div v-if="address.street" class="sw-address__line">
+                    <div v-if="address.street" class="sw-address__street sw-address__line">
                         {{ address.street }}
                     </div>
                 {% endblock %}
 
                 {% block sw_address_additional_address_line_1 %}
-                    <div v-if="address.additionalAddressLine1" class="sw-address__line">
+                    <div v-if="address.additionalAddressLine1" class="sw-address__additional-line-1 sw-address__line">
                         {{ address.additionalAddressLine1 }}
                     </div>
                 {% endblock %}
 
                 {% block sw_address_additional_address_line_2 %}
-                    <div v-if="address.additionalAddressLine2" class="sw-address__line">
+                    <div v-if="address.additionalAddressLine2" class="sw-address__additional-line-2 sw-address__line">
                         {{ address.additionalAddressLine2 }}
                     </div>
                 {% endblock %}
 
                 {% block sw_address_city_zipcode %}
-                    <div v-if="address.city || address.zipcode" class="sw-address__line">
+                    <div v-if="address.city || address.zipcode" class="sw-address__location sw-address__line">
                         {% block sw_address_zipcode %}
                             <span v-if="address.zipcode">{{ address.zipcode }} </span>
                         {% endblock %}
@@ -52,7 +52,7 @@
                 {% endblock %}
 
                 {% block sw_address_country %}
-                    <div v-if="address.country.name" class="sw-address__line">
+                    <div v-if="address.country.name" class="sw-address__country sw-address__line">
                         {{ address.country.name }}
                     </div>
                 {% endblock %}

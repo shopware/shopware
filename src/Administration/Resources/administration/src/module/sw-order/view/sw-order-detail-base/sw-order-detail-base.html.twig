@@ -193,7 +193,7 @@
 
                                     {% block sw_order_detail_base_secondary_info_sales_channel %}
                                         <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
-                                        <dd>{{ currentOrder.salesChannel.meta.viewData.name }}</dd>
+                                        <dd class="sw-order-base__label-sales-channel">{{ currentOrder.salesChannel.meta.viewData.name }}</dd>
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_secondary_info_payment %}

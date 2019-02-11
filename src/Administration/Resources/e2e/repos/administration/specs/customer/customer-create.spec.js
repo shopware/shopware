@@ -29,7 +29,7 @@ module.exports = {
             .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
             .waitForElementNotPresent('.sw-field--customer-defaultPaymentMethodId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
-            .fillField('input[name=sw-field--customer-customerNumber]', '1234321');
+            .fillField('input[name=sw-field--customer-customerNumber]', 'cn-1234321');
     },
     'add customer address': (browser) => {
         const page = customerPage(browser);
@@ -59,10 +59,10 @@ module.exports = {
             .assert.containsText(`${page.elements.customerMetaData}-user-name`, 'Mr Pep Eroni')
             .assert.containsText(`${page.elements.customerMetaData}-item`, 'test@example.com')
             .waitForElementVisible('.sw-description-list')
-            .assert.containsText('.sw-description-list', '1234321')
-            .assert.containsText('.sw-description-list', 'Standard customer group')
-            .waitForElementVisible('.sw-card-section--divider-right .sw-address__line span')
-            .assert.containsText('.sw-card-section--divider-right .sw-address__line span', '48624');
+            .assert.containsText('.sw-customer-base__label-customer-number', 'cn-1234321')
+            .assert.containsText('.sw-customer-base__label-customer-group', 'Standard customer group')
+            .waitForElementVisible('.sw-address')
+            .assert.containsText('.sw-address__location', '48624');
     },
     'go back to listing und verify data there': (browser) => {
         const page = customerPage(browser);

@@ -3,6 +3,8 @@ import axios from 'axios';
 export default class ApiService {
     constructor(basePath) {
         this.authInformation = {};
+        this.accessKey = '';
+        this.contextToken = '';
         this.basePath = basePath;
 
         this.client = axios.create({
@@ -89,18 +91,6 @@ export default class ApiService {
     }
 
     request({url, method, params, data}) {
-        const requestConfig = {
-            headers: this.getHeaders(),
-            url,
-            method,
-            params,
-            data
-        };
-        return this.client.request(requestConfig).then((response) => {
-            if (Array.isArray(response.data.data) && response.data.data.length === 1) {
-                return response.data.data[0];
-            }
-            return response.data.data;
-        });
+        throw new Error('Implement method request()');
     }
 }

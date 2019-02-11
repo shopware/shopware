@@ -4,7 +4,7 @@ module.exports = {
     '@tags': ['product', 'product-stream-delete', 'product-stream', 'delete'],
     '@disabled': !global.flags.isActive('next739'),
     before: (browser, done) => {
-        global.FixtureService.create('product-stream').then(() => {
+        global.AdminFixtureService.create('product-stream').then(() => {
             done();
         });
     },
@@ -20,7 +20,7 @@ module.exports = {
             .assert.urlContains('#/sw/product/stream/index')
             .assert.containsText(page.elements.smartBarHeader, 'Product streams')
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
     },
     'verify product stream details': (browser) => {
         const page = productStreamPage(browser);
@@ -34,7 +34,7 @@ module.exports = {
             .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-product-stream-detail__empty-title)`)
-            .assert.containsText(page.elements.smartBarHeader, global.FixtureService.basicFixture.name);
+            .assert.containsText(page.elements.smartBarHeader, global.AdminFixtureService.basicFixture.name);
     },
     'delete product stream': (browser) => {
         const page = productStreamPage(browser);
@@ -44,7 +44,7 @@ module.exports = {
             .waitForElementVisible(page.elements.smartBarAmount)
             .assert.containsText(page.elements.smartBarAmount, '(1)');
 
-        page.deleteProductStream(global.FixtureService.basicFixture.name);
+        page.deleteProductStream(global.AdminFixtureService.basicFixture.name);
 
         browser
             .waitForElementNotPresent(page.elements.loader)

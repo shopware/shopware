@@ -10,7 +10,7 @@ const fixture = {
 module.exports = {
     '@tags': ['settings', 'currency-inline-edit', 'currency', 'inline-edit'],
     before: (browser, done) => {
-        global.FixtureService.create('currency', fixture).then(() => {
+        global.AdminFixtureService.create('currency', fixture).then(() => {
             done();
         });
     },

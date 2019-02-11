@@ -5,10 +5,12 @@ class RuleBuilderPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            columnName: '.sw-product-stream-list__column-name',
-            streamSaveAction: '.sw-product-stream-detail__save-action'
-        });
+        this.elements = {
+            ...this.elements, ...{
+                columnName: '.sw-product-stream-list__column-name',
+                streamSaveAction: '.sw-product-stream-detail__save-action'
+            }
+        };
     }
 
     createBasicProductStream(name, description) {
@@ -25,7 +27,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(this.elements.loader)
-            .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0` )
+            .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
             .waitForElementVisible(this.elements.modal)
             .assert.containsText(`${this.elements.modal}__body`, `Are you sure you want to delete the product stream "${productStreamName}"?`)
             .click(`.sw-modal__footer button${this.elements.primaryButton}`)

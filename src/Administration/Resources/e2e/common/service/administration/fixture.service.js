@@ -4,7 +4,7 @@ const glob = require('glob');
 const path = require('path');
 const uuid = require('uuid/v4');
 
-export default class FixtureService {
+export default class AdminFixtureService {
     constructor() {
         this.apiClient = new AdminApiService(process.env.APP_URL);
         this.basicFixture = '';
@@ -57,11 +57,23 @@ export default class FixtureService {
 
     loadJson(fileName) {
         try {
-            return require(`./../@fixtures/${fileName}`);
+            return require(`./../../@fixtures/${fileName}`);
         } catch (err) {
             global.logger.error(err);
         }
     }
+
+    getClientId(salesChannelName = 'Storefront API') {
+        return this.apiClient.post('/v1/search/sales-channel?response=true', {
+            filter: [{
+                field: "name",
+                type: "equals",
+                value: salesChannelName,
+            }]
+        }).then((result) => {
+            return result['attributes'].accessKey;
+        });
+    }
 }
 
-global.FixtureService = new FixtureService();
+global.AdminFixtureService = new AdminFixtureService();

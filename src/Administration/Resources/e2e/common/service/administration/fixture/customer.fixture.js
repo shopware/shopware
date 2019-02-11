@@ -1,19 +1,11 @@
-const FixtureService = require('./../fixture.service.js').default;
+const AdminFixtureService = require('./../fixture.service.js').default;
 
-export default class CustomerFixtureService extends FixtureService {
+export default class CustomerFixtureService extends AdminFixtureService {
     constructor() {
         super();
 
         this.customerFixture = this.loadJson('customer.json');
         this.customerAddressFixture = this.loadJson('customer-address.json');
-    }
-
-    setCustomerBaseFixture(json) {
-        this.customerFixture = json;
-    }
-
-    setCustomerAddressBaseFixture(json) {
-        this.customerAddressFixture = json;
     }
 
     setCustomerFixture(userData) {

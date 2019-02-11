@@ -4,14 +4,16 @@ class SalesChannelPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            salesChannelMenuName: '.sw-admin-menu__sales-channel-item',
-            salesChannelModal: '.sw-sales-channel-modal',
-            salesChannelNameInput: 'input[name=sw-field--salesChannel-name]',
-            salesChannelMenuTitle: '.sw-admin-menu__sales-channel-item .collapsible-text',
-            apiAccessKeyField: 'input[name=sw-field--salesChannel-accessKey]',
-            salesChannelSaveAction: '.sw-sales-channel-detail__save-action'
-        });
+        this.elements = {
+            ...this.elements, ...{
+                salesChannelMenuName: '.sw-admin-menu__sales-channel-item',
+                salesChannelModal: '.sw-sales-channel-modal',
+                salesChannelNameInput: 'input[name=sw-field--salesChannel-name]',
+                salesChannelMenuTitle: '.sw-admin-menu__sales-channel-item .collapsible-text',
+                apiAccessKeyField: 'input[name=sw-field--salesChannel-accessKey]',
+                salesChannelSaveAction: '.sw-sales-channel-detail__save-action'
+            }
+        };
 
         this.accessKeyId = '';
         this.newAccessKeyId = '';
@@ -91,9 +93,9 @@ class SalesChannelPageObject extends GeneralPageObject {
             .click(this.elements.dangerButton)
             .waitForElementVisible(this.elements.modal)
             .assert.containsText(
-                `${this.elements.modal}__body`,
-                `Are you sure you want to delete this sales channel? ${salesChannelName}`
-            )
+            `${this.elements.modal}__body`,
+            `Are you sure you want to delete this sales channel? ${salesChannelName}`
+        )
             .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal)
             .getValue(this.elements.salesChannelMenuTitle, function checkValueNotPresent(result) {

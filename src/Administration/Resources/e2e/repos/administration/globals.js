@@ -1,7 +1,8 @@
 // Register flags and fixtures globally so we have to import them one time
 require('./../../common/helper/cliOutputHelper');
 require('./../../common/flags.js');
-require('./../../common/service/fixture.service');
+require('../../common/service/administration/fixture.service');
+require('../../common/service/storefront/fixture.service');
 
 const beforeScenarioActions = require('./specs/before-scenario.js');
 
@@ -23,7 +24,7 @@ module.exports = {
         }
         browser.url(launch_url);
 
-        return global.CustomerFixtureService.apiClient.loginToAdministration().then((result) => {
+        return global.AdminFixtureService.apiClient.loginToAdministration().then((result) => {
             const startTime = new Date();
 
             return browser.execute(function (result) {
@@ -56,7 +57,7 @@ module.exports = {
 
         const startTime = new Date();
         clearDatabase()
-            .then(global.FixtureService.apiClient.clearCache())
+            .then(global.AdminFixtureService.apiClient.clearCache())
             .then(() => {
                 const endTime = new Date() - startTime;
                 global.logger.success(`Successfully reset database and cache! (${endTime / 1000}s)`);

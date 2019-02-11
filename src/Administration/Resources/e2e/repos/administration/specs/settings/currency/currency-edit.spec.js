@@ -3,7 +3,7 @@ const settingsPage = require('administration/page-objects/module/sw-settings.pag
 module.exports = {
     '@tags': ['settings', 'currency-edit', 'currency', 'edit'],
     before: (browser, done) => {
-        global.FixtureService.create('currency').then(() => {
+        global.AdminFixtureService.create('currency').then(() => {
             done();
         });
     },
@@ -14,13 +14,13 @@ module.exports = {
             .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies')
             .waitForElementVisible('.sw-settings-currency-list-grid')
             .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.FixtureService.basicFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.AdminFixtureService.basicFixture.name);
     },
     'edit currency': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.FixtureService.basicFixture.name)
+            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.AdminFixtureService.basicFixture.name)
             .clickContextMenuItem('.sw-currency-list__edit-action', '.sw-context-button__button', `${page.elements.gridRow}--3`)
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .clearValue('input[name=sw-field--currency-name]')

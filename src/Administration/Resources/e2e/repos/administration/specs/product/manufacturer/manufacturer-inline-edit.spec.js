@@ -3,7 +3,7 @@ const manufacturerPage = require('administration/page-objects/module/sw-manufact
 module.exports = {
     '@tags': ['manufacturer-inline-edit', 'manufacturer', 'inline-edit'],
     before: (browser, done) => {
-        global.FixtureService.create('product-manufacturer').then(() => {
+        global.AdminFixtureService.create('product-manufacturer').then(() => {
             done();
         });
     },

@@ -1,6 +1,6 @@
-const FixtureService = require('./../fixture.service.js').default;
+const AdminFixtureService = require('./../fixture.service.js').default;
 
-export default class ProductFixture extends FixtureService {
+export default class ProductFixture extends AdminFixtureService {
     constructor() {
         super();
 
@@ -40,16 +40,6 @@ export default class ProductFixture extends FixtureService {
         }).then((data) => {
             manufacturerId = data.id;
         }).then(() => {
-            return this.apiClient.post('/v1/search/product-manufacturer', {
-                filter: [{
-                    field: "name",
-                    type: "equals",
-                    value: "shopware AG",
-                }]
-            });
-        }).then((data) => {
-            manufacturerId = data.id;
-        }).then(() => {
             return Object.assign({}, {
                 taxId: taxId,
                 manufacturerId: manufacturerId
@@ -60,6 +50,8 @@ export default class ProductFixture extends FixtureService {
             const endTime = new Date() - startTime;
             global.logger.success(`${data.id} (${endTime / 1000}s)`);
             global.logger.lineBreak();
+
+            return data.id;
         }).catch((err) => {
             global.logger.error(err);
             global.logger.lineBreak();

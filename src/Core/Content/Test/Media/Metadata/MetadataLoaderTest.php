@@ -26,7 +26,7 @@ class MetadataLoaderTest extends TestCase
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
-        $this->assertImageMetadata($result, 1021, 1530);
+        $this->assertImageMetadata($result, 1530, 1021);
     }
 
     public function testGif(): void
@@ -37,7 +37,7 @@ class MetadataLoaderTest extends TestCase
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
-        $this->assertImageMetadata($result, 37, 142);
+        $this->assertImageMetadata($result, 142, 37);
     }
 
     public function testPng(): void
@@ -48,7 +48,7 @@ class MetadataLoaderTest extends TestCase
 
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
-        $this->assertImageMetadata($result, 266, 499);
+        $this->assertImageMetadata($result, 499, 266);
     }
 
     public function testSvg(): void
@@ -82,7 +82,7 @@ class MetadataLoaderTest extends TestCase
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
 
-        $this->assertImageMetadata($result, 320, 560);
+        $this->assertImageMetadata($result, 560, 320);
         $this->assertVideoMetadata($result, 30.0);
     }
 
@@ -95,7 +95,7 @@ class MetadataLoaderTest extends TestCase
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
 
-        $this->assertImageMetadata($result, 320, 560);
+        $this->assertImageMetadata($result, 560, 320);
         $this->assertVideoMetadata($result, 30.0);
     }
 
@@ -108,7 +108,7 @@ class MetadataLoaderTest extends TestCase
         self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         self::assertArrayNotHasKey('error', $result->getRawMetadata());
 
-        $this->assertImageMetadata($result, 320, 560);
+        $this->assertImageMetadata($result, 560, 320);
         $this->assertVideoMetadata($result, 30.0);
     }
 

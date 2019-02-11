@@ -75,6 +75,11 @@ class NavigationEntity extends Entity implements TreeAwareInterface
     protected $cmsPageId;
 
     /**
+     * @var array|null
+     */
+    protected $slotConfig;
+
+    /**
      * @var CategoryEntity|null
      */
     protected $category;
@@ -237,5 +242,15 @@ class NavigationEntity extends Entity implements TreeAwareInterface
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
+    }
+
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    public function setSlotConfig(?array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 }

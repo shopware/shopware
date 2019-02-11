@@ -1470,15 +1470,19 @@
   },
   "sw-navigation": {
     "general": {
+      "titleSaveSuccess": "Navigationbuilder",
+      "messageSaveSuccess": "Der Navigationspunkt \"{name}\" wurde erfolgreich gespeichert",
       "mainMenuItemIndex": "Navigation",
-      "headlineInformationCard": "Navigation Einstellugen",
+      "descriptionTextModule": "Verwaltung von Navigationen",
+      "headlineInformationCard": "Navigation Einstellungen",
       "navigationNameLabel": "Label",
       "headlineNavigations": "Navigationbuilder",
       "buttonSafeNavigation": "Speichern",
       "actions": {
         "delete": "Löschen",
         "create": "Neuer Unterpunkt"
-      }
+      },
+      "newItemName": "Neuer Navigationspunkt"
     }
   }
 }

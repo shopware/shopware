@@ -551,7 +551,7 @@ export default class EntityProxy {
 
         items.forEach((item) => {
             const entity = store.create(item.id);
-            entity.setData(item);
+            entity.setData(item, false, true, true);
         });
 
         return store;

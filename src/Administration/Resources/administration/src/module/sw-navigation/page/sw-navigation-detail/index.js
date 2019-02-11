@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import type from 'src/core/service/utils/types.utils';
 import template from './sw-navigation-detail.html.twig';
 import './sw-navigation-detail.scss';
 
@@ -61,18 +62,29 @@ Component.register('sw-navigation-detail', {
         setNavigation() {
             const navigationId = this.$route.params.id;
 
-            if (navigationId) {
-                this.getNavigation(navigationId).then(response => {
-                    this.navigation = response;
-                    this.isLoading = false;
-                });
-            } else {
+            if (!navigationId) {
                 this.resetNavigation();
+                return;
             }
+
+            this.navigation = null;
+            this.isLoading = true;
+
+            this.navigationStore.getByIdAsync(navigationId).then((response) => {
+                response = this.initLayoutConfig(response);
+                this.navigation = response;
+                this.isLoading = false;
+            });
         },
 
-        onRefreshNavigations() {
-            this.getNavigations();
+        initLayoutConfig(navigation) {
+            if (!type.isPlainObject(navigation.slotConfig)) {
+                navigation.setLocalData({
+                    slotConfig: {}
+                });
+            }
+
+            return navigation;
         },
 
         onSaveNavigations() {
@@ -82,17 +94,6 @@ Component.register('sw-navigation-detail', {
         resetNavigation() {
             this.navigation = null;
             this.isLoading = false;
-        },
-
-        onDuplicateNavigation(item) {
-            this.navigationStore.duplicate(item.id, true);
-            this.onSaveNavigations().then(() => {
-                this.getNavigations();
-            });
-        },
-
-        getNavigation(navigationId) {
-            return this.navigationStore.getByIdAsync(navigationId);
         },
 
         onSave() {

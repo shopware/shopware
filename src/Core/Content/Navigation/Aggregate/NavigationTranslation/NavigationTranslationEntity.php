@@ -22,6 +22,11 @@ class NavigationTranslationEntity extends TranslationEntity
      */
     protected $navigation;
 
+    /**
+     * @var array|null
+     */
+    protected $slotConfig;
+
     public function getNavigationId(): string
     {
         return $this->navigationId;
@@ -50,5 +55,15 @@ class NavigationTranslationEntity extends TranslationEntity
     public function setNavigation(NavigationEntity $navigation): void
     {
         $this->navigation = $navigation;
+    }
+
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    public function setSlotConfig(?array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 }

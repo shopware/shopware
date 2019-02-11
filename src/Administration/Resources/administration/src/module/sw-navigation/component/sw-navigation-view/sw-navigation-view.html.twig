@@ -15,6 +15,7 @@
             <sw-card :title="$tc('sw-navigation.general.headlineLayoutCard')" :isLoading="isLoading">
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-navigation__infos">
                     <sw-select :store="cmsPageStore"
+                               @input="cmsPageChanged"
                                name="cmsPageId"
                                id="cmsPageId"
                                :value="navigation.cmsPageId"
@@ -23,5 +24,11 @@
                 </sw-container>
             </sw-card>
         {% endblock %}
+
+        <div v-if="cmsPage && !isLoading" title="Layout config">
+            <sw-card v-for="block in cmsBlocks" :key="block.id" :title="block.type">
+                <sw-cms-block-config :block="block" :config="navigation.slotConfig"></sw-cms-block-config>
+            </sw-card>
+        </div>
     </sw-card-view>
 {% endblock %}

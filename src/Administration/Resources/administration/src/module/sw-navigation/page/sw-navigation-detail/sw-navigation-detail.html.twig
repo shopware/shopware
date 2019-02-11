@@ -21,7 +21,6 @@
                     v-if="!isMobileViewport || isMobileViewport && !navigation"
                     :navigations="navigations"
                     @sw-navigation-on-save="onSaveNavigations"
-                    @sw-navigation-on-refresh="onRefreshNavigations"
                     @sw-navigation-on-reset-details="resetNavigation"
                 ></sw-navigation-tree>
             {% endblock %}
@@ -30,6 +29,7 @@
         <template slot="content">
             {% block sw_navigation_content %}
                 <sw-navigation-view v-if="navigation"
+                    ref="navigationView"
                     :navigation="navigation"
                     :isLoading="isLoading"
                 ></sw-navigation-view>

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
@@ -61,6 +62,7 @@ class NavigationDefinition extends EntityDefinition
             new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, false),
 
             new TranslatedField('name'),
+            new TranslatedField('slotConfig'),
 
             new TreeLevelField('level', 'level'),
             new TreePathField('path', 'path'),

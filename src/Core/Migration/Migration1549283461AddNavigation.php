@@ -53,6 +53,7 @@ ADD FOREIGN KEY `fk.sales_channel.main_navigation_id` (`main_navigation_id`, `ma
               `navigation_version_id` binary(16) NOT NULL,
               `language_id` binary(16) NOT NULL,
               `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
+              `slot_config` json,
               `created_at` datetime(3) NOT NULL,
               `updated_at` datetime(3),
               PRIMARY KEY (`navigation_id`, `navigation_version_id`, `language_id`),

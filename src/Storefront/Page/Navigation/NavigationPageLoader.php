@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
@@ -84,6 +85,19 @@ class NavigationPageLoader
 
     private function overwriteSlotConfig(CmsPageEntity $page, NavigationEntity $navigation): void
     {
+        $config = $navigation->getSlotConfig();
+
+        if (!$config || !$page->getBlocks()) {
+            return;
+        }
+
+        /** @var CmsSlotEntity $slot */
+        foreach ($page->getBlocks()->getSlots() as $slot) {
+            if (!isset($config[$slot->getId()])) {
+                continue;
+            }
+            $slot->setConfig($config[$slot->getId()]);
+        }
     }
 
     private function loadSlotData(CmsPageEntity $page, InternalRequest $request, CheckoutContext $context): void

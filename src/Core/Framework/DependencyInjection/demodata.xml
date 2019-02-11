@@ -62,6 +62,13 @@
             <tag name="shopware.demodata_generator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Demodata\Generator\NavigationGenerator">
+            <argument id="navigation.repository" type="service"/>
+            <argument id="category.repository" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <tag name="shopware.demodata_generator" priority="-100"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductStreamGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <tag name="shopware.demodata_generator"/>

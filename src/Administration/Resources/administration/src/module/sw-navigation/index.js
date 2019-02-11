@@ -8,7 +8,7 @@ Module.register('sw-navigation', {
     type: 'core',
     flag: NEXT1594,
     name: 'Navigations',
-    description: 'The module for managing navigations.',
+    description: 'sw-navigation.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',

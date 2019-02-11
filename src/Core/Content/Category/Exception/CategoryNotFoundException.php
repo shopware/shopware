@@ -9,9 +9,9 @@ class CategoryNotFoundException extends ShopwareHttpException
 {
     public const CODE = 400000;
 
-    public function __construct(string $navigationId, int $code = self::CODE, \Throwable $previous = null)
+    public function __construct(string $categoryId, int $code = self::CODE, \Throwable $previous = null)
     {
-        $message = sprintf('Category for id %s not found', $navigationId);
+        $message = sprintf('Category for id %s not found', $categoryId);
 
         parent::__construct($message, $code, $previous);
     }

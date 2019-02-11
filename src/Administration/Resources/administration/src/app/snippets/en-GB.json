@@ -1467,5 +1467,22 @@
     "option": "No label set for locale \"{locale}\"...",
     "configLoadErrorMessage": "Encountered an error while loading the configuration: | There were errors loading the configuration:",
     "configLoadErrorTitle": "Error"
+  },
+  "sw-navigation": {
+    "general": {
+      "titleSaveSuccess": "Navigation builder",
+      "messageSaveSuccess": "The navigation point \"{name}\"  was saved.",
+      "mainMenuItemIndex": "Navigation",
+      "descriptionTextModule": "Manage navigations here",
+      "headlineInformationCard": "Navigation settings",
+      "navigationNameLabel": "Label",
+      "headlineNavigations": "Navigation builder",
+      "buttonSafeNavigation": "Save",
+      "actions": {
+        "delete": "Delete",
+        "create": "New navigation point"
+      },
+      "newItemName": "New navigation point"
+    }
   }
 }

@@ -104,14 +104,14 @@ class NavigationSynchronizer implements IndexerInterface
             }
 
             $categoryId = Uuid::fromBytesToHex($navigation['category_id']);
-            $categoryParentId = $categories[$categoryId]['parent_id'];
+            $categoryParentId = $categories[$categoryId];
 
             $query->setParameter('id', Uuid::fromHexToBytes($categoryParentId));
             $query->setParameter('path', '%|' . $rootId . '|%');
             $query->setParameter('root', Uuid::fromHexToBytes($rootId));
 
             $navigationParent = $query->execute()->fetchColumn();
-            $navigationParent = $navigationParent ? Uuid::fromBytesToHex($navigationParent) : null;
+            $navigationParent = $navigationParent ? Uuid::fromBytesToHex((string) $navigationParent) : null;
 
             $updates[] = ['id' => $id, 'parentId' => $navigationParent];
         }
@@ -216,7 +216,7 @@ class NavigationSynchronizer implements IndexerInterface
         }, $categoryIds);
 
         $categories = $this->connection->fetchAll(
-            'SELECT id, parent_id, path FROM category WHERE id IN (:ids)',
+            'SELECT id, parent_id FROM category WHERE id IN (:ids)',
             ['ids' => $bytes],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -226,9 +226,7 @@ class NavigationSynchronizer implements IndexerInterface
             $id = Uuid::fromBytesToHex($category['id']);
             $parentId = $category['parent_id'] ? Uuid::fromBytesToHex($category['parent_id']) : null;
 
-            $mapped[$id] = [
-                'parent_id' => $parentId,
-            ];
+            $mapped[$id] = $parentId;
         }
 
         return $mapped;

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation;
 
 use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
@@ -34,6 +35,7 @@ class NavigationTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
+            new JsonField('slot_config', 'slotConfig'),
         ]);
     }
 }

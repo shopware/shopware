@@ -46,6 +46,9 @@ Component.register('sw-navigation-tree', {
             });
         },
 
+        createNewNavigation() {
+        },
+
         getActiveNavigation() {
             this.activeNavigationId = this.$route.params.id;
         },
@@ -56,10 +59,12 @@ Component.register('sw-navigation-tree', {
 
         onAddSubNavigation(parent) {
             const item = this.navigationStore.create();
+
             item.setLocalData({
                 parentId: parent.id,
-                name: 'Neue Navigationspunkt'
+                name: this.$tc('sw-navigation.general.newItemName')
             });
+
             item.save().then(() => {
                 this.loadNavigation(parent.id);
             });

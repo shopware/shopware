@@ -1,0 +1,13 @@
+@import "~scss/variables";
+$sw-field-color-secure: $color-emerald;
+
+.sw-field {
+    .sw-field__url-input__prefix {
+        &.is--ssl {
+            color: $sw-field-color-secure;
+        }
+    }
+    .sw-url-input-ssl-switch__field {
+        margin-top: 22px;
+    }
+}

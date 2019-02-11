@@ -9,7 +9,9 @@
             <div class="sw-field__input">
 
                 {% block sw_prefix %}
-                    <sw-field-addition v-if="prefix" :text="prefix" :isPrefix="true"></sw-field-addition>
+                    <sw-field-addition v-if="containPrefix" :text="prefix" :isPrefix="true">
+                        <slot name="prefix"></slot>
+                    </sw-field-addition>
                 {% endblock %}
 
                 <div class="sw_field_input__wrapper">
@@ -44,6 +46,9 @@
                     <sw-field-copyable v-if="copyAble" :displayName="displayName"></sw-field-copyable>
                 {% endblock %}
             </div>
+        {% endblock %}
+
+        {% block sw_text_field_extras %}
         {% endblock %}
 
         {% block sw_text_field_error %}

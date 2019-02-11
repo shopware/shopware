@@ -25,7 +25,8 @@ export default {
                 select: 'sw-select-field',
                 switch: 'sw-switch-field',
                 textarea: 'sw-textarea-field',
-                time: 'sw-datepicker'
+                time: 'sw-datepicker',
+                url: 'sw-url-field'
             };
             return components[context.props.type] || 'sw-text-field';
         }
@@ -61,7 +62,8 @@ export default {
                 'colorpicker',
                 'confirm',
                 'password',
-                'datetime-local'
+                'datetime-local',
+                'url'
             ],
             validator(value) {
                 return [
@@ -80,7 +82,8 @@ export default {
                     'colorpicker',
                     'confirm',
                     'password',
-                    'datetime-local'
+                    'datetime-local',
+                    'url'
                 ].includes(value);
             }
         }

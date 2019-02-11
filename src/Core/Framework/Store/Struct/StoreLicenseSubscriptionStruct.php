@@ -11,21 +11,20 @@ class StoreLicenseSubscriptionStruct extends Struct
      */
     private $expirationDate;
 
-    /**
-     * StoreLicenseSubscriptionStruct constructor.
-     *
-     * @param \DateTime $expirationDate
-     */
     public function __construct(\DateTime $expirationDate)
     {
         $this->expirationDate = $expirationDate;
     }
 
-    /**
-     * @return \DateTime
-     */
     public function getExpirationDate(): \DateTime
     {
         return $this->expirationDate;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'expirationDate' => $this->getExpirationDate()->format(DATE_ATOM),
+        ];
     }
 }

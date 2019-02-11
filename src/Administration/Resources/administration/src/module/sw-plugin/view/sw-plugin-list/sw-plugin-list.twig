@@ -93,6 +93,18 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
+                            {% block sw_plugin_list_grid_columns_actions_update %}
+                            <sw-context-menu-item @click="onUpdatePlugin(item)">
+                                {{ $tc('sw-plugin.list.contextUpdate') }} {{ item.upgradeVersion }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_plugin_list_grid_columns_actions_delete %}
+                            <sw-context-menu-item @click="onDeletePlugin(item)">
+                                {{ $tc('sw-plugin.list.contextDelete') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
                         </sw-context-button>
                         {% endblock %}
                     </sw-grid-column>

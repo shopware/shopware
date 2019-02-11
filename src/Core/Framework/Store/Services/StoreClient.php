@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
@@ -17,7 +16,7 @@ final class StoreClient
      */
     private $client;
 
-    public function __construct(ClientInterface $client)
+    public function __construct(Client $client)
     {
         $this->client = $client;
     }
@@ -25,28 +24,52 @@ final class StoreClient
     public function loginWithShopwareId(string $shopwareId, string $password): AccessTokenStruct
     {
         $response = $this->client->post(
-            '/accesstokens',
+            '/swplatform/login',
             [
                 'body' => \json_encode([
                     'shopwareId' => $shopwareId,
-                    'password' => $password
+                    'password' => $password,
                 ]),
+                'query' => $this->getDefaultQueryParameters(),
                 'headers' => [
                     'Content-type' => 'application/json',
-                    'ACCEPT' => ['application/json']
-                ]
+                    'ACCEPT' => ['application/json'],
+                ],
             ]
         );
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $accessTokenStruct = new AccessTokenStruct($data['token'], new \DateTime($data['expire']['date']), $data['userId']);
+        $accessTokenStruct = new AccessTokenStruct($data['token'], new \DateTime($data['expirationDate']));
 
         return $accessTokenStruct;
     }
 
     /**
      * @param string $token
+     *
+     * @return bool
+     */
+    public function checkLogin(string $token): bool
+    {
+        $this->client->get(
+            '/accesstokens/' . $token,
+            [
+                'query' => $this->getDefaultQueryParameters(),
+                'headers' => [
+                    'Content-type' => 'application/json',
+                    'ACCEPT' => ['application/json'],
+                ],
+            ]
+        );
+
+        return true;
+    }
+
+    /**
+     * @param string $token
+     *
+     * @throws \Exception
      *
      * @return array|StoreLicenseStruct[]
      */
@@ -55,15 +78,12 @@ final class StoreClient
         $response = $this->client->get(
             '/licenses',
             [
-                'query' => [
-                    'shopwareVersion' => Framework::VERSION,
-                    'domain' => 'fk2.test.shopware.in',
-                ],
+                'query' => $this->getDefaultQueryParameters(),
                 'headers' => [
                     'X-Shopware-Token' => $token,
                     'Content-type' => 'application/json',
-                    'ACCEPT' => ['application/vnd.api+json,application/json']
-                ]
+                    'ACCEPT' => ['application/vnd.api+json,application/json'],
+                ],
             ]
         );
 
@@ -76,6 +96,9 @@ final class StoreClient
             $licenseStruct->setName($license['description']);
             $licenseStruct->setTechnicalPluginName($license['name']);
             $licenseStruct->setCreationDate(new \DateTime($license['creationDate']));
+            if (isset($license['expirationDate'])) {
+                $licenseStruct->setExpirationDate(new \DateTime($license['expirationDate']));
+            }
             $licenseStruct->setAvailableVersion('');
             if (isset($license['priceModel']['type'])) {
                 $type = new StoreLicenseTypeStruct($license['priceModel']['type']);
@@ -89,5 +112,14 @@ final class StoreClient
         }
 
         return $licenseList;
+    }
+
+    private function getDefaultQueryParameters(): array
+    {
+        return [
+            'shopwareVersion' => Framework::VERSION,
+            'language' => 'de_DE',
+            'domain' => 'fk2.test.shopware.in',
+        ];
     }
 }

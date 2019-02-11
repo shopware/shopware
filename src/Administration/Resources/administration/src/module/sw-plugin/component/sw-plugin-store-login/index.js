@@ -23,12 +23,10 @@ Component.register('sw-plugin-store-login', {
 
     methods: {
         onLoginClick() {
-            console.log(this.shopwareId);
-            console.log(this.password);
             this.storeService.login(this.shopwareId, this.password).then(() => {
                 this.createNotificationSuccess({
-                    title: 'Shopware Account',
-                    message: 'Login erfolgreich'
+                    title: this.$tc('sw-plugin.store-login.titleLoginSuccess'),
+                    message: this.$tc('sw-plugin.store-login.titleLoginMessage')
                 });
                 this.$emit('sw-plugin-store-login-success');
             });

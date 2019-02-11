@@ -21,6 +21,16 @@ class StoreApiService extends ApiService {
             });
     }
 
+    checkLogin() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get(`/_custom/${this.getApiBasePath()}/checklogin`, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     getLicenseList() {
         const headers = this.getBasicHeaders();
 

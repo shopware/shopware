@@ -3,7 +3,7 @@
 
         {% block sw_plugin_licenses_list_file_upload %}
             <div class="top-actions">
-                Top Actions
+                <h1>{{ $tc('sw-plugin.license-list.textMyPurchases') }}</h1>
             </div>
         {% endblock %}
 
@@ -21,22 +21,11 @@
                                          :sidebar="true"
                                          :selectable="false"
                                          :isFullpage="true"
-                                         @sort-column="onSortColumn">
+                                         @sort-column="onSortColumn"
+                                         table>
 
                                     {% block sw_plugin_license_list_grid_slots %}
                                         <template slot="columns" slot-scope="{ item }">
-
-                                            {% block sw_plugin_license_list_grid_columns_id %}
-                                                <sw-grid-column flex="minmax(100px, 1fr)"
-                                                                :label="$tc('sw-plugin.license-list.columnId')"
-                                                                dataIndex="id"
-                                                                truncate
-                                                                sortable>
-                                                    {% block sw_plugin_license_list_grid_columns_id_label %}
-                                                        {{ item.id }}
-                                                    {% endblock %}
-                                                </sw-grid-column>
-                                            {% endblock %}
 
                                             {% block sw_plugin_license_list_grid_columns_name %}
                                                 <sw-grid-column flex="minmax(100px, 1fr)"
@@ -45,7 +34,51 @@
                                                                 truncate
                                                                 sortable>
                                                     {% block sw_plugin_license_list_grid_columns_name_label %}
-                                                        {{ item.description }} ({{ item.name }})
+                                                        {{ item.name }}
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_plugin_license_list_grid_columns_creation_date %}
+                                                <sw-grid-column flex="minmax(80px, 130px)"
+                                                                :label="$tc('sw-plugin.license-list.columnCreationDate')"
+                                                                dataIndex="creationDate"
+                                                                truncate
+                                                                sortable>
+                                                    {% block sw_plugin_license_list_grid_columns_creation_date_label %}
+                                                        {{ item.creationDate | date }}
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_plugin_license_list_grid_columns_type %}
+                                                <sw-grid-column flex="minmax(80px, 150px)"
+                                                                :label="$tc('sw-plugin.license-list.columnType')"
+                                                                dataIndex="type.name"
+                                                                truncate
+                                                                sortable>
+                                                    {% block sw_plugin_license_list_grid_columns_type_label %}
+                                                        {{ $tc('sw-plugin.license-list.labelType_' + item.type.name) }}
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_plugin_license_list_grid_columns_expiration_date %}
+                                                <sw-grid-column flex="minmax(80px, 120px)"
+                                                                :label="$tc('sw-plugin.license-list.columnExpirationDate')"
+                                                                dataIndex="expirationDate"
+                                                                truncate
+                                                                sortable>
+                                                    {% block sw_plugin_license_list_grid_columns_expiration_date_label %}
+                                                        <template v-if="item.expirationDate">
+                                                            {{ item.expirationDate | date }}
+                                                        </template>
+                                                        <template v-if="item.subscription">
+                                                            {{ item.subscription.expirationDate | date }}
+                                                        </template>
+                                                        <template v-if="!item.expirationDate && !item.subscription">
+                                                            -
+                                                        </template>
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}
@@ -69,17 +102,6 @@
 
                                         </template>
                                     {% endblock %}
-
-                                    <template slot="pagination">
-                                        {% block sw_plugin_license_list_grid_pagination %}
-                                            <sw-pagination :page="page"
-                                                           :limit="limit"
-                                                           :total="total"
-                                                           :total-visible="7"
-                                                           @page-change="onPageChange">
-                                            </sw-pagination>
-                                        {% endblock %}
-                                    </template>
 
                                 </sw-grid>
                             {% endblock %}

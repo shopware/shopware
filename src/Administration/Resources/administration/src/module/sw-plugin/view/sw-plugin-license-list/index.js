@@ -1,6 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-plugin-license-list.twig';
-import './sw-plugin-licenses-list.scss';
+import './sw-plugin-license-list.scss';
 
 Component.register('sw-plugin-license-list', {
     template,
@@ -13,17 +13,10 @@ Component.register('sw-plugin-license-list', {
 
     data() {
         return {
-            limit: 25,
             licenses: [],
             isLoading: false,
-            showLoginModal: true
+            showLoginModal: false
         };
-    },
-
-    computed: {
-        showPagination() {
-            return (this.total >= 25);
-        }
     },
 
     watch: {
@@ -38,13 +31,29 @@ Component.register('sw-plugin-license-list', {
         },
 
         getList() {
-            this.storeService.getLicenseList().then((data) => {
-                this.licenses = data.items;
+            this.isLoading = true;
+            this.storeService.checkLogin().then((result) => {
+                if (result) {
+                    this.loadLicenses();
+                    return;
+                }
+                this.showLoginModal = true;
+            }).catch(() => {
+                this.showLoginModal = true;
+            });
+        },
+
+        loadLicenses() {
+            this.storeService.getLicenseList().then((response) => {
+                this.licenses = response.items;
+                this.total = response.total;
+                this.isLoading = false;
             });
         },
 
         loginSuccess() {
             this.showLoginModal = false;
+            this.loadLicenses();
         }
     }
 });

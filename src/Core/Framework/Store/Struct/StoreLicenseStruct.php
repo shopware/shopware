@@ -37,7 +37,7 @@ class StoreLicenseStruct extends Struct
     private $subscription;
 
     /**
-     * @var StoreLicenseTypeStruct|null
+     * @var StoreLicenseTypeStruct
      */
     private $type;
 
@@ -129,7 +129,7 @@ class StoreLicenseStruct extends Struct
     /**
      * @return \DateTime
      */
-    public function getExpirationDate(): \DateTime
+    public function getExpirationDate(): ?\DateTime
     {
         return $this->expirationDate;
     }
@@ -139,7 +139,7 @@ class StoreLicenseStruct extends Struct
      *
      * @return $this
      */
-    public function setExpirationDate(\DateTime $expirationDate)
+    public function setExpirationDate(\DateTime $expirationDate): self
     {
         $this->expirationDate = $expirationDate;
 
@@ -167,19 +167,19 @@ class StoreLicenseStruct extends Struct
     }
 
     /**
-     * @return StoreLicenseTypeStruct|null
+     * @return StoreLicenseTypeStruct
      */
-    public function getType(): ?StoreLicenseTypeStruct
+    public function getType(): StoreLicenseTypeStruct
     {
         return $this->type;
     }
 
     /**
-     * @param StoreLicenseTypeStruct|null $type
+     * @param StoreLicenseTypeStruct $type
      *
      * @return $this
      */
-    public function setType(StoreLicenseTypeStruct $type = null): self
+    public function setType(StoreLicenseTypeStruct $type): self
     {
         $this->type = $type;
 
@@ -211,8 +211,11 @@ class StoreLicenseStruct extends Struct
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
+            'creationDate' => $this->getCreationDate()->format(DATE_ATOM),
+            'expirationDate' => $this->getExpirationDate() !== null ? $this->getExpirationDate()->format(DATE_ATOM) : null,
             'technicalPluginName' => $this->getTechnicalPluginName(),
-            'type' => $this->getType()
+            'type' => $this->getType()->toArray(),
+            'subscription' => $this->getSubscription() !== null ? $this->getSubscription()->toArray() : null,
         ];
     }
 }

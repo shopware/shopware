@@ -17,22 +17,15 @@ class AccessTokenStruct extends Struct
     private $expirationDate;
 
     /**
-     * @var int
-     */
-    private $userId;
-
-    /**
      * AccessTokenStruct constructor.
      *
-     * @param string $token
+     * @param string    $token
      * @param \DateTime $expirationDate
-     * @param int $userId
      */
-    public function __construct(string $token, \DateTime $expirationDate, int $userId)
+    public function __construct(string $token, \DateTime $expirationDate)
     {
         $this->token = $token;
         $this->expirationDate = $expirationDate;
-        $this->userId = $userId;
     }
 
     /**
@@ -51,20 +44,11 @@ class AccessTokenStruct extends Struct
         return $this->expirationDate;
     }
 
-    /**
-     * @return int
-     */
-    public function getUserId(): int
-    {
-        return $this->userId;
-    }
-
     public function toArray()
     {
         return [
             'token' => $this->getToken(),
             'expirationDate' => $this->getExpirationDate()->format(DATE_ATOM),
-            'userId' => $this->getUserId()
         ];
     }
 }

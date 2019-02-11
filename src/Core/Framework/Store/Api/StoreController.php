@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Shopware\Core\Framework\Store\Api;
 
 use Shopware\Core\Framework\Store\Services\StoreClient;
@@ -32,6 +33,23 @@ class StoreController extends AbstractController
 
         $response = new JsonResponse($accessTokenStruct->toArray());
         $response->headers->setCookie(new Cookie('store_token', $accessTokenStruct->getToken()));
+
+        return $response;
+    }
+
+    /**
+     * @Route("/api/v{version}/_custom/store/checklogin", name="api.custom.store.checklogin", methods={"GET"})
+     */
+    public function checkLogin(Request $request): Response
+    {
+        $token = $request->cookies->get('store_token');
+
+        $isLoggedIn = $this->storeClient->checkLogin($token);
+
+        $response = new JsonResponse([
+            'success' => $isLoggedIn,
+        ]);
+
         return $response;
     }
 
@@ -46,7 +64,7 @@ class StoreController extends AbstractController
 
         return new JsonResponse([
             'items' => $licenseList,
-            'total' => count($licenseList)
+            'total' => count($licenseList),
         ]);
     }
 }

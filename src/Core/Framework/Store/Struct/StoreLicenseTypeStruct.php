@@ -22,11 +22,15 @@ class StoreLicenseTypeStruct extends Struct
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function toArray()
+    {
+        return [
+            'name' => $this->getName(),
+        ];
     }
 }

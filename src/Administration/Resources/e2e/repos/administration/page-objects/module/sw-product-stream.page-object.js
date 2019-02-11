@@ -19,7 +19,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
             .fillField('textarea[name=sw-field--productStream-description]', description)
             .waitForElementVisible(this.elements.streamSaveAction)
             .click(this.elements.streamSaveAction)
-            .checkNotification(`The product stream "${name}" was saved.`);
+            .checkNotification(`The product stream "${name}" has been saved successfully.`);
     }
 
     deleteProductStream(productStreamName) {

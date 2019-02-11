@@ -27,7 +27,7 @@ class IntegrationPageObject extends GeneralPageObject {
             me.browser
                 .waitForElementVisible('.sw-field__copy-button:nth-of-type(1)')
                 .click('.sw-field__copy-button:nth-of-type(1)')
-                .checkNotification('Text has been copied to clipboard')
+                .checkNotification('Text has been copied to clipboard.')
                 .clearValue(me.elements.integrationName)
                 .setValue(me.elements.integrationName, ['', me.browser.Keys.CONTROL, 'v'])
                 .expect.element(me.elements.integrationName).value.to.equal(me.accessKeyId);
@@ -54,7 +54,7 @@ class IntegrationPageObject extends GeneralPageObject {
                 })
                 .waitForElementVisible('.sw-integration-detail-modal__save-action')
                 .click('.sw-integration-detail-modal__save-action')
-                .checkNotification('Integration has been saved successfully');
+                .checkNotification('Integration has been saved successfully.');
         });
     }
 

@@ -17,7 +17,7 @@
       "notification": {
         "notificationCopySuccessTitle": "Success",
         "notificationCopySuccessMessage": "Text has been copied to clipboard.",
-        "notificationCopyFailureTitle": "Failure",
+        "notificationCopyFailureTitle": "Error",
         "notificationCopyFailureMessage": "Text could not be copied to clipboard."
       },
       "titleShowPassword": "Show password",
@@ -52,7 +52,7 @@
       "labelContextMenuShowMedia": "Show media",
       "labelContextMenuShowSettings": "Settings",
       "labelContextMenuDissolve": "Dissolve",
-      "notificationErrorBlankItemName": "The folder could not be saved. Please enter a name.",
+      "notificationErrorBlankItemName": "Folder could not be saved: Please enter a name.",
       "notificationRenamingError": "Error saving folder."
     },
     "sw-media-media-item": {
@@ -62,7 +62,7 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "labelContextMenuMove": "Move",
-      "notificationErrorBlankItemName": "The media could not be saved: Please enter a name.",
+      "notificationErrorBlankItemName": "Media item could not be saved: Please enter a name.",
       "notificationRenamingSuccess": "Media item has been renamed successfully.",
       "notificationRenamingError": "Error saving file.",
       "labelUploading": "Uploading..."
@@ -94,7 +94,7 @@
       "buttonRename": "Rename file",
       "buttonSkip": "Skip file",
       "buttonCancel": "Cancel",
-      "labelSaveSelection": "Save selection and apply to {count} more",
+      "labelSaveSelection": "Save selection and apply to {count} more.",
       "labelOptionReplace": "Upload and replace",
       "labelOptionRename": "Upload and rename",
       "labelOptionSkip": "Skip file",
@@ -105,7 +105,7 @@
       "titleModal": "Move \"{mediaName}\" | Move {count} items",
       "buttonMove": "Move",
       "buttonAbort": "Cancel",
-      "notificationSuccessSingle": "File \"{mediaName}\" successfully Moved.",
+      "notificationSuccessSingle": "File \"{mediaName}\" successfully moved.",
       "notificationErrorSingle": "Error moving \"{mediaName}\".",
       "notificationSuccessOverall": "Media item successfully moved.",
       "notificationErrorOverall": "Error moving item."
@@ -115,7 +115,7 @@
       "buttonUpload": "Upload",
       "buttonCancel": "Cancel",
       "buttonReplace": "Replace",
-      "notificationSuccess": "File replaced.",
+      "notificationSuccess": "File successfully replaced.",
       "notificationFailure": "An error occurred while replacing {mediaName}.",
       "notificationFileReaderError": "Error reading file."
     },
@@ -130,7 +130,7 @@
       "buttonSwitchToUrlUpload": "Upload file from url",
       "buttonOpenMedia": "Open media",
       "notificationSuccess": "File has been saved successfully.",
-      "notificationFailure": "Error uploading.",
+      "notificationFailure": "Error while uploading file.",
       "caption": "Drag files here to upload them"
     },
     "sw-media-url-form": {
@@ -157,7 +157,7 @@
       "labelKeepProportions": "Keep aspect ratio",
       "titleDeleteThumbnails": "Delete",
       "notificationSuccess": "Settings have been saved successfully.",
-      "notificationError": "Error saving settings.",
+      "notificationError": "Error while saving settings.",
       "labelDefaultFolder": "Default location for:"
     },
     "sw-media-add-thumbnail-form": {
@@ -240,7 +240,7 @@
         "placeholder-warning": "Please choose a condition",
         "not-found": {
           "label": "Condition was not found",
-          "error-message": "The conditiontype {type} was not found. The condition includes the field: {fields} | The conditiontype {type} was not found. The conditions include the fields: {fields}"
+          "error-message": "Condition type {type} was not found. The condition includes the field: {fields} | The condition type {type} was not found. The conditions include the fields: {fields}"
         },
         "subCondition": "subcondition",
         "deleteConditions": "Delete all",
@@ -308,7 +308,7 @@
       "placeholderUsername": "Enter your username",
       "placeholderPassword": "Enter your password",
       "buttonLogin": "Log in",
-      "titleErrorMessage": "Login",
+      "titleErrorMessage": "Error",
       "messageUnsupportedGrantType": "Authorization grant type not supported by authorization server.",
       "messageInvalidRequest": "Invalid request.",
       "messageInvalidClient": "Client authentication failed.",
@@ -446,7 +446,7 @@
       "headlineNewCustomer": "New customer",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
-      "titleSaveSuccess": "Customer",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Customer \"{name}\" has been saved successfully."
     }
   },
@@ -499,14 +499,14 @@
       "descriptionLabel": "Description",
       "showSubcategoryProductsLabel": "Includes products from subcategories",
       "categoryNameLabel": "Name",
-      "titleSaveSuccess": "Categories",
-      "messageSaveSuccess": "The category \"{name}\" was successfully saved",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Category \"{name}\" has been saved successfully.",
       "useAsLogo": "Use as logo",
       "treeHeadline": "Category structure",
       "actions": {
         "createSub": "New subcategory",
-        "createBefore": "New categorie before",
-        "createAfter": "New categorie after",
+        "createBefore": "New category before",
+        "createAfter": "New category after",
         "edit": "Edit",
         "duplicate": "Duplicate",
         "delete": "Delete"
@@ -519,7 +519,7 @@
       "headlineIntegrations": "Integrations",
       "buttonCreateIntegration": "Add integration",
       "heroHeadlineIntegrations": "Welcome to the integration management",
-      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys first. You can create those individual keys right here, enabling you to track changes, introduced by external applications, separately."
+      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper means of communication between those, Shopware requires external applications to authenticate through individual security keys. You can create these keys right here. This enables you to separately track changes, introduced e.g. by external applications."
     },
     "list": {
       "contextMenuEdit": "Edit",
@@ -537,15 +537,15 @@
       "labelFieldLabel": "Name",
       "idFieldLabel": "Access key ID",
       "secretFieldLabel": "Secret access key",
-      "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and store the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
+      "secretHelpText": "After you hit save, the access key will no longer be visible. Be sure to copy and store the key in a secure place before you proceed. In case you have lost the key anyway, you will have to come back here and generate a completely new key.",
       "secretHelpTextTitle": "Important!",
       "writeAccessFieldLabel": "Write access",
-      "titleSaveSuccess": "Integration",
-      "messageSaveSuccess": "Integration has been saved successfully",
-      "titleSaveError": "Integration",
-      "messageSaveError": "The integration could not be saved",
-      "titleCreateNewError": "Integration",
-      "messageCreateNewError": "The integration could not be saved."
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Integration has been saved successfully.",
+      "titleSaveError": "Error",
+      "messageSaveError": "Integration could not be saved.",
+      "titleCreateNewError": "Error",
+      "messageCreateNewError": "Integration could not be saved."
     }
   },
   "sw-product": {
@@ -575,13 +575,13 @@
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
-      "labelPurchasePriceGross": "Purchase price (net)",
+      "labelPurchasePriceGross": "Purchase price (gross)",
       "labelUnit": "Unit of measurement",
       "labelPurchaseUnit": "Purchase unit",
       "labelReferenceUnit": "Reference unit",
       "labelPackUnit": "Packaging unit",
       "placeholderTaxRate": "Tax rate",
-      "placeholderPurchasePriceGross": "Purchase price",
+      "placeholderPurchasePriceGross": "Purchase price (gross)",
       "placeholderUnit": "Select",
       "placeholderPurchaseUnit": "Purchase unit",
       "placeholderReferenceUnit": "Reference unit",
@@ -669,7 +669,7 @@
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
       "tabProperties": "Properties",
-      "titleSaveSuccess": "Products",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has been saved successfully.",
       "messageUploadSuccess": "{count} of {total} files saved."
     },
@@ -716,7 +716,7 @@
       "placeholderName": "Enter manufacturer name.",
       "placeholderDescription": "Enter manufacturer description.",
       "placeholderLink": "Enter manufacturer website.",
-      "titleSaveSuccess": "Manufacturer",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Manufacturer \"{name}\" has been saved successfully.",
       "labelUseAsLogo": "Use as Logo"
     }
@@ -842,13 +842,13 @@
       "titleDescription": "Information"
     },
     "detail": {
-      "titleSaveSuccess": "Sales channel",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Sales channel \"{name}\" has been saved successfully.",
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",
       "tabBase": "General",
       "labelAccessKeyField": "API access key",
-      "titleAPIError": "API access key",
+      "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",
       "titleGeneralSettings": "General Settings",
       "labelInputName": "Name",
@@ -888,7 +888,7 @@
       "mainMenuItemGeneral": "Media",
       "descriptionTextModule": "Manage media here",
       "placeholderSearchBar": "Search media",
-      "notificationUrlCopied": "copied URL to clipboard."
+      "notificationUrlCopied": "URL was copied to clipboard."
     },
     "smart-bar": {
       "smartBarHeader": "Media"
@@ -942,7 +942,7 @@
     },
     "index": {
       "buttonCreateFolder": "Add new folder",
-      "messageEmpty": "You haven't uploaded any media yet",
+      "messageEmpty": "No media uploaded yet",
       "labelSort": "Sort by:",
       "labelPresentation": "Presentation:",
       "labelPresentationSmall": "Small preview",
@@ -992,7 +992,7 @@
     "detail": {
       "textHeadline": "New currency",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Currency",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Currency \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelShortName": "Short name",
@@ -1013,8 +1013,8 @@
       "copyName": "copy",
       "errorBackRoutingTitle": "Invalid page request",
       "errorBackRoutingMessage": "The requested page could not be loaded. You have been redirected.",
-      "placeholderSearchBarSets": "Find snippet sets (name, base file)",
-      "placeholderSearchBarSnippets": "Find snippets (name, content, section)",
+      "placeholderSearchBarSets": "Search snippet sets",
+      "placeholderSearchBarSnippets": "Search snippets",
       "placeholderValue": "Define content",
       "searchBarTitleSets": "Snippet sets",
       "searchBarTitleSnippets": "Snippets"
@@ -1031,10 +1031,11 @@
       "labelNamespacePlaceholder": "Select section",
       "messageKeyExists": "Please choose a name | Snippets already exists for \"{key}\". Please choose a new name.",
       "messageSaveError": "Snippets for \"{key}\" could not be saved.",
-      "messageSaveSuccess": "Snippets for \"{key}\" has been saved successfully.",
+      "messageSaveSuccess": "Snippet for \"{key}\" has been saved successfully.",
+      "placeholderValue": "Define content",
       "textHeadline": "New snippet",
-      "titleSaveError": "Error: Snippets",
-      "titleSaveSuccess": "Snippets"
+      "titleSaveError": "Error",
+      "titleSaveSuccess": "Success"
     },
     "list": {
       "buttonAdd": "New Snippet",
@@ -1042,6 +1043,8 @@
       "buttonDelete": "Delete",
       "buttonEmpty": "Back to standard snippets",
       "columnKey": "Name",
+      "columnValue": "Current value",
+      "contextMenuDelete": "Reset",
       "columnValue": "Value",
       "contextMenuDelete": "Delete | Reset",
       "contextMenuEdit": "Edit",
@@ -1057,11 +1060,13 @@
       "textResetConfirm": "Are you sure you want to reset the snippet \"{key}\" for this set? | Are you sure you want to reset the snippets for \"{key}\"?",
       "textSidebarCustomItems": "Show custom snippets",
       "textSnippetList": "Snippets of \"{setName}\" | Snippets",
-      "titleDeleteSuccess": "Snippets",
-      "titleSaveError": "Error: Snippets",
+      "titleDeleteSuccess": "Success",
+      "titleSaveError": "Error",
+      "columnHeaderGridColumTitleSet": "Snippet set",
+      "columnHeaderResetTo": "Original value",
       "resetErrorMessage": "Snippet \"{key}\" could not be reset.",
-      "resetSuccessMessage": "Snippet \"{key}\" has been reset to \"{value}\" successfully .",
-      "titleSaveSuccess": "Snippets",
+      "resetSuccessMessage": "Snippet \"{key}\" has been reset to \"{value}\" successfully.",
+      "titleSaveSuccess": "Success",
       "titleSidebarCustomItems": "Custom snippets",
       "titleSidebarItemRefresh": "Refresh"
     },
@@ -1102,7 +1107,7 @@
     },
     "filter": {
       "switchOnlyEmpty": "Empty snippets",
-      "showOnlyEmpty": "Show only empty snippets",
+      "showOnlyEmpty": "Show empty snippets only",
       "author": "Author",
       "more": "More filters"
     }
@@ -1146,11 +1151,11 @@
       "placeholderName": "Set a name for this rule...",
       "placeholderDescription": "Set a description for this rule...",
       "placeholderPriority": "Set a priority for this rule...",
-      "titleSaveSuccess": "Rule",
-      "messageSaveSuccess": "The rule \"{name}\" was saved.",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The rule \"{name}\" has been saved successfully.",
       "ruleCard": "Condition",
-      "titleSaveError": "Rule",
-      "messageSaveError": "An error occurred while saving the rule \"{name}\"."
+      "titleSaveError": "Error",
+      "messageSaveError": "An error occurred while saving rule \"{name}\"."
     }
   },
   "sw-settings-tax": {
@@ -1167,7 +1172,7 @@
       "buttonAddTax": "Add tax",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete tax",
-      "titleDeleteSuccess": "Tax",
+      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Tax \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -1175,7 +1180,7 @@
     "detail": {
       "textHeadline": "New tax",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Tax",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Tax \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelTaxRate": "Tax rate",
@@ -1201,7 +1206,7 @@
       "buttonAddLanguage": "Add language",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete language",
-      "titleDeleteSuccess": "Languages",
+      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Language \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
@@ -1213,7 +1218,7 @@
     "detail": {
       "textHeadline": "New language",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Languages",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Language \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelLocale": "Locale",
@@ -1247,7 +1252,7 @@
       "buttonAddPaymentMethod": "Add payment method",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete payment method",
-      "titleDeleteSuccess": "Payment method",
+      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Payment method \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -1255,7 +1260,7 @@
     "detail": {
       "textHeadline": "New Payment method",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Payment methods",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Payment method \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelTechnicalName": "Technical name",
@@ -1285,7 +1290,7 @@
       "buttonAddShippingMethod": "Add shipping rate",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete shipping rate",
-      "titleDeleteSuccess": "Shipping rate",
+      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Shipping rate \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -1293,7 +1298,7 @@
     "detail": {
       "textHeadline": "New shipping rate",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Shipping rate",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Shipping rate \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelActive": "Active",
@@ -1316,7 +1321,7 @@
       "buttonAddCountry": "Add country",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete Country",
-      "titleDeleteSuccess": "Country",
+      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Country \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -1324,7 +1329,7 @@
     "detail": {
       "textHeadline": "New country",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Country",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Country \"{name}\" has been saved successfully.",
       "labelName": "Name",
       "labelActive": "Active",
@@ -1353,9 +1358,9 @@
       "labelPasswordField": "New password",
       "labelPasswordConfirmField": "Confirm password",
       "textImageInfo": "Shopware Playground uses <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> profile images.",
-      "notificationPasswordErrorTitle": "Password error",
+      "notificationPasswordErrorTitle": "Error",
       "notificationPasswordErrorMessage": "Invalid password.",
-      "notificationSaveSuccessTitle": "Your profile",
+      "notificationSaveSuccessTitle": "Success",
       "notificationSaveSuccessMessage": "Profile information has been saved successfully."
     }
   },
@@ -1416,7 +1421,7 @@
       "addOption": "Add new",
       "contextMenuOptionResetDelete": "Restore",
       "textOptionHeadline": "New option",
-      "titleSaveSuccess": "Property",
+      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Property \"{name}\" has been saved successfully.",
       "messageOptionsEmpty": "No options yet"
     }
@@ -1482,14 +1487,14 @@
       "textHeadline": "New product stream",
       "titleFilter": "Filter",
       "titleResult": "Product stream",
-      "titleSaveSuccess": "Product streams",
-      "messageSaveSuccess": "The product stream \"{name}\" was saved."
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The product stream \"{name}\" has been saved successfully."
     }
   },
   "sw-config-form-renderer": {
     "placeholder": "Please fill in {name}...",
     "option": "No label set for locale \"{locale}\"...",
-    "configLoadErrorMessage": "There was one error while loading the configuration: | There where errors loading the configuration:",
-    "configLoadErrorTitle": "Error loading the configuration!"
+    "configLoadErrorMessage": "Encountered an error while loading the configuration: | There were errors loading the configuration:",
+    "configLoadErrorTitle": "Error"
   }
 }

@@ -9,11 +9,11 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 class PageWithHeaderLoader implements PageLoaderInterface
 {
     /**
-     * @var HeaderPageletLoader
+     * @var HeaderPageletLoader|PageLoaderInterface
      */
     private $headerLoader;
 
-    public function __construct(HeaderPageletLoader $headerLoader)
+    public function __construct(PageLoaderInterface $headerLoader)
     {
         $this->headerLoader = $headerLoader;
     }

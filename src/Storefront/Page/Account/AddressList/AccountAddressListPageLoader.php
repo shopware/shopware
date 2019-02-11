@@ -12,12 +12,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AccountAddressListPageLoader implements PageLoaderInterface
 {
     /**
-     * @var AccountAddressListPageletLoader
+     * @var AccountAddressListPageletLoader|PageLoaderInterface
      */
     private $accountAddressPageletLoader;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -27,8 +27,8 @@ class AccountAddressListPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
-        AccountAddressListPageletLoader $accountAddressPageletLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
+        PageLoaderInterface $accountAddressPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;

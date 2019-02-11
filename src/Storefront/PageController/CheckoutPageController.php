@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
@@ -26,31 +27,31 @@ class CheckoutPageController extends StorefrontController
     private $cartService;
 
     /**
-     * @var CheckoutConfigPageLoader
+     * @var CheckoutConfigPageLoader|PageLoaderInterface
      */
     private $configPageLoader;
 
     /**
-     * @var CheckoutCartPageLoader
+     * @var CheckoutCartPageLoader|PageLoaderInterface
      */
     private $cartPageLoader;
 
     /**
-     * @var CheckoutConfirmPageLoader
+     * @var CheckoutConfirmPageLoader|PageLoaderInterface
      */
     private $confirmPageLoader;
 
     /**
-     * @var CheckoutFinishPageLoader
+     * @var CheckoutFinishPageLoader|PageLoaderInterface
      */
     private $finishPageLoader;
 
     public function __construct(
         CartService $cartService,
-        CheckoutCartPageLoader $cartPageLoader,
-        CheckoutConfirmPageLoader $confirmPageLoader,
-        CheckoutFinishPageLoader $finishPageLoader,
-        CheckoutConfigPageLoader $configPageLoader
+        PageLoaderInterface $cartPageLoader,
+        PageLoaderInterface $confirmPageLoader,
+        PageLoaderInterface $finishPageLoader,
+        PageLoaderInterface $configPageLoader
     ) {
         $this->cartService = $cartService;
         $this->configPageLoader = $configPageLoader;

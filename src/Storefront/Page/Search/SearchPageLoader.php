@@ -18,18 +18,18 @@ class SearchPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
     /**
-     * @var ListingPageletLoader
+     * @var ListingPageletLoader|PageLoaderInterface
      */
     private $listingPageletLoader;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
-        ListingPageletLoader $listingPageletLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
+        PageLoaderInterface $listingPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;

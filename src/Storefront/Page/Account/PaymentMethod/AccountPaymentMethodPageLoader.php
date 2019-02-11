@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AccountPaymentMethodPageLoader implements PageLoaderInterface
 {
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -22,13 +22,13 @@ class AccountPaymentMethodPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var AccountPaymentMethodPageletLoader
+     * @var AccountPaymentMethodPageletLoader|PageLoaderInterface
      */
     private $accountPaymentMethodPageletLoader;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
-        AccountPaymentMethodPageletLoader $accountPaymentMethodPageletLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
+        PageLoaderInterface $accountPaymentMethodPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;

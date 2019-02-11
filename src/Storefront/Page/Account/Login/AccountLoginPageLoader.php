@@ -17,7 +17,7 @@ class AccountLoginPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -27,7 +27,7 @@ class AccountLoginPageLoader implements PageLoaderInterface
     private $accountService;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
         AccountService $accountService,
         EventDispatcherInterface $eventDispatcher
     ) {

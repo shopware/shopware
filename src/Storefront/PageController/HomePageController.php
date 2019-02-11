@@ -5,6 +5,7 @@ namespace Shopware\Storefront\PageController;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Home\HomePageLoader;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,11 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class HomePageController extends StorefrontController
 {
     /**
-     * @var HomePageLoader
+     * @var HomePageLoader|PageLoaderInterface
      */
     private $homePageLoader;
 
-    public function __construct(HomePageLoader $homePageLoader)
+    public function __construct(PageLoaderInterface $homePageLoader)
     {
         $this->homePageLoader = $homePageLoader;
     }

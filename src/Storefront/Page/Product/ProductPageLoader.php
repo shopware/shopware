@@ -23,12 +23,12 @@ class ProductPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
         StorefrontProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher
     ) {

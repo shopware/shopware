@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AccountAddressPageLoader implements PageLoaderInterface
 {
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -28,7 +28,7 @@ class AccountAddressPageLoader implements PageLoaderInterface
     private $accountService;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
         AccountService $accountService,
         EventDispatcherInterface $eventDispatcher
     ) {

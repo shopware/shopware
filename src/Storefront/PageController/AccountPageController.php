@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as Custom
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader;
 use Shopware\Storefront\Page\Account\AddressList\AccountAddressListPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -19,48 +20,48 @@ use Symfony\Component\Routing\Annotation\Route;
 class AccountPageController extends StorefrontController
 {
     /**
-     * @var AccountAddressListPageLoader
+     * @var AccountAddressListPageLoader|PageLoaderInterface
      */
     private $addressListPageLoader;
 
     /**
-     * @var AccountLoginPageLoader
+     * @var AccountLoginPageLoader|PageLoaderInterface
      */
     private $loginPageLoader;
 
     /**
-     * @var AccountOverviewPageLoader
+     * @var AccountOverviewPageLoader|PageLoaderInterface
      */
     private $overviewPageLoader;
 
     /**
-     * @var AccountProfilePageLoader
+     * @var AccountProfilePageLoader|PageLoaderInterface
      */
     private $profilePageLoader;
 
     /**
-     * @var AccountPaymentMethodPageLoader
+     * @var AccountPaymentMethodPageLoader|PageLoaderInterface
      */
     private $paymentMethodPageLoader;
 
     /**
-     * @var AccountOrderPageLoader
+     * @var AccountOrderPageLoader|PageLoaderInterface
      */
     private $orderPageLoader;
 
     /**
-     * @var AccountAddressPageLoader
+     * @var AccountAddressPageLoader|PageLoaderInterface
      */
     private $addressPageLoader;
 
     public function __construct(
-        AccountLoginPageLoader $accountLoginPageLoader,
-        AccountOverviewPageLoader $accountOverviewPageLoader,
-        AccountAddressListPageLoader $accountAddressPageLoader,
-        AccountProfilePageLoader $accountProfilePageLoader,
-        AccountPaymentMethodPageLoader $accountPaymentMethodPageLoader,
-        AccountOrderPageLoader $accountOrderPageLoader,
-        AccountAddressPageLoader $addressPageLoader
+        PageLoaderInterface $accountLoginPageLoader,
+        PageLoaderInterface $accountOverviewPageLoader,
+        PageLoaderInterface $accountAddressPageLoader,
+        PageLoaderInterface $accountProfilePageLoader,
+        PageLoaderInterface $accountPaymentMethodPageLoader,
+        PageLoaderInterface $accountOrderPageLoader,
+        PageLoaderInterface $addressPageLoader
     ) {
         $this->loginPageLoader = $accountLoginPageLoader;
         $this->addressListPageLoader = $accountAddressPageLoader;

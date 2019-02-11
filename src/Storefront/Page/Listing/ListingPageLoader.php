@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ListingPageLoader implements PageLoaderInterface
 {
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $genericLoader;
 
@@ -22,14 +22,14 @@ class ListingPageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var ListingPageletLoader
+     * @var ListingPageletLoader|PageLoaderInterface
      */
     private $listingPageletLoader;
 
     public function __construct(
-        PageWithHeaderLoader $genericLoader,
+        PageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        ListingPageletLoader $listingPageletLoader
+        PageLoaderInterface $listingPageletLoader
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;

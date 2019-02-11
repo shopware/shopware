@@ -5,6 +5,7 @@ namespace Shopware\Storefront\PageController;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,11 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class NavigationPageController extends StorefrontController
 {
     /**
-     * @var NavigationPageLoader
+     * @var NavigationPageLoader|PageLoaderInterface
      */
     private $navigationPageLoader;
 
-    public function __construct(NavigationPageLoader $navigationPageLoader)
+    public function __construct(PageLoaderInterface $navigationPageLoader)
     {
         $this->navigationPageLoader = $navigationPageLoader;
     }

@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class HomePageLoader implements PageLoaderInterface
 {
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $genericLoader;
 
@@ -21,7 +21,7 @@ class HomePageLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     public function __construct(
-        PageWithHeaderLoader $genericLoader,
+        PageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;

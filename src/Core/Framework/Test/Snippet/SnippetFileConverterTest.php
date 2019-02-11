@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\SnippetFileConverter;
 use Shopware\Core\Framework\Snippet\SnippetFlattener;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testConvert\SnippetFile_de_DE;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testConvert\SnippetFile_en_GB;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
@@ -23,6 +25,12 @@ class SnippetFileConverterTest extends TestCase
     public function testConvert(SnippetSetEntity $struct, array $expectedResult): void
     {
         $converter = $this->getConverter();
+
+        $snippetFile = new SnippetFile_de_DE();
+        $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
+
+        $snippetFile = new SnippetFile_en_GB();
+        $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
 
         $result = $converter->convert($struct);
 
@@ -43,8 +51,10 @@ class SnippetFileConverterTest extends TestCase
 
         return [
             [$snippetSet_UNK, []],
-            [$snippetSet_DE, ['widgets.emotion.components.component_article.ListingBoxNoPicture' => 'No image']],
-            [$snippetSet_DE, ['widgets.emotion.components.component_blog.EmotionBlogPreviewNopic' => 'Kein Bild vorhanden']],
+            [$snippetSet_DE, ['frontend.note.item.ListingBoxLinkCompare' => 'Vergleichen']],
+            [$snippetSet_DE, ['test.snippetName' => 'aaaaa']],
+            [$snippetSet_EN, ['frontend.note.item.ListingBoxLinkCompare' => 'Compare']],
+            [$snippetSet_EN, ['test.anotherSnippetName' => 'bbbbb']],
         ];
     }
 

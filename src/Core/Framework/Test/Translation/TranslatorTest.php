@@ -7,9 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\SnippetDefinition;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Test\Translation\_fixtures\SnippetFile_UnitTest;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,26 +37,36 @@ class TranslatorTest extends TestCase
      */
     private $snippetRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
-
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->translator = $this->getContainer()->get(Translator::class);
         $this->snippetRepository = $this->getContainer()->get('snippet.repository');
-        $this->languageRepository = $this->getContainer()->get('language.repository');
 
         $this->translator->resetInMemoryCache();
     }
 
     public function testPassthru(): void
     {
+        $snippetFile = new SnippetFile_UnitTest();
+        $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
+
+        $stack = $this->getContainer()->get(RequestStack::class);
+        $prop = ReflectionHelper::getProperty(RequestStack::class, 'requests');
+        $prop->setValue($stack, []);
+
+        // fake request
+        $request = new Request();
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, Defaults::SNIPPET_BASE_SET_EN);
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, Defaults::LOCALE_EN_GB_ISO);
+
+        $stack->push($request);
+        $result = $this->translator->getCatalogue('en_GB')->get('frontend.note.item.NoteLinkZoom');
+        $prop->setValue($stack, []);
+
         static::assertEquals(
-            'Realized with Shopware',
-            $this->translator->getCatalogue('en_GB')->get('footer.copyright')
+            'Enlarge',
+            $result
         );
     }
 
@@ -64,7 +77,6 @@ class TranslatorTest extends TestCase
         $snippet = [
             'translationKey' => 'new.unit.test.key',
             'value' => 'Realisiert mit Unit test',
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'setId' => Defaults::SNIPPET_BASE_SET_EN,
             'author' => Defaults::SNIPPET_AUTHOR,
         ];

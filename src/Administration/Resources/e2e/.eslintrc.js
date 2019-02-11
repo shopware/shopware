@@ -1,5 +1,6 @@
 module.exports = {
     extends: 'eslint:recommended',
+    parser: "babel-eslint",
     root: true,
     env: {
         node: true

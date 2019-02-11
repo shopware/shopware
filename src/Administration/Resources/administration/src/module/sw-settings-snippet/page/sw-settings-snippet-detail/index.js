@@ -7,8 +7,7 @@ Component.register('sw-settings-snippet-detail', {
     inject: ['snippetService', 'snippetSetService', 'userService'],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('snippet')
+        Mixin.getByName('notification')
     ],
 
     data() {

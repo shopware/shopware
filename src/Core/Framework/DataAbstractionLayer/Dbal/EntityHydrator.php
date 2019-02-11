@@ -196,20 +196,30 @@ class EntityHydrator
         $translationDefinition = $definition::getTranslationDefinitionClass();
         $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
 
+        /*
+         * The translations are order like this:
+         * [0] => current language -> highest priority
+         * [1] => root language -> lower priority
+         * [2] => system language -> lowest priority
+         */
         foreach ($translatedAttributeFields as $field) {
             $property = $field->getPropertyName();
-            $values = [];
+            $attributeTranslations = [];
             /** @var Entity $translation */
             foreach ($translations as $translation) {
-                $value = $translation->get($property);
-                if ($value !== null) {
-                    $values[] = $value;
+                $attributeTranslation = $translation->get($property);
+                if ($attributeTranslation !== null) {
+                    $attributeTranslations[] = $attributeTranslation;
                 }
             }
-            if (empty($values)) {
+            if (empty($attributeTranslations)) {
                 continue;
             }
-            $merged = call_user_func_array('array_merge', array_reverse($values, false));
+            /**
+             * `array_merge`s ordering is reversed compared to the translations array.
+             * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
+             */
+            $merged = \array_merge(...\array_reverse($attributeTranslations, false));
             $viewData->assign([$property => $merged]);
         }
     }

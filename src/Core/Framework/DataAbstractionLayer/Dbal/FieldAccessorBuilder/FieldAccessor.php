@@ -16,11 +16,16 @@ class FieldAccessor
      */
     private $parameters = [];
 
-    public function __construct(string $sql, array $parameters = [])
+    /**
+     * @var array
+     */
+    private $parameterTypes = [];
+
+    public function __construct(string $sql, array $parameters = [], array $types = [])
     {
         $this->sql = $sql;
         foreach ($parameters as $key => $value) {
-            $this->addParameter($key, $value);
+            $this->addParameter($key, $value, $types[$key] ?? null);
         }
     }
 
@@ -29,9 +34,15 @@ class FieldAccessor
         return $this->sql;
     }
 
-    public function addParameter($key, $value)
+    /**
+     * @param string|int      $key
+     * @param mixed           $value
+     * @param string|int|null $type  one of the {@link \Doctrine\DBAL\ParameterType} constants
+     */
+    public function addParameter($key, $value, $type = null): void
     {
         $this->parameters[$key] = $value;
+        $this->parameterTypes[$key] = $type;
     }
 
     public function getParameters(): array
@@ -39,10 +50,15 @@ class FieldAccessor
         return $this->parameters;
     }
 
+    public function getParameterTypes(): array
+    {
+        return $this->parameterTypes;
+    }
+
     public function addParametersToQuery(QueryBuilder $builder): void
     {
         foreach ($this->parameters as $key => $value) {
-            $builder->setParameter($key, $value);
+            $builder->setParameter($key, $value, $this->parameterTypes[$key]);
         }
     }
 }

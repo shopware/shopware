@@ -99,7 +99,7 @@ class SqlQueryParser
         $key = $this->getKey();
 
         $accessor = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
-        $result->addParameters($accessor->getParameters());
+        $result->addParameters($accessor->getParameters(), $accessor->getParameterTypes());
 
         $where = [];
 
@@ -134,7 +134,7 @@ class SqlQueryParser
         $accessor = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $result = new ParseResult();
-        $result->addParameters($accessor->getParameters());
+        $result->addParameters($accessor->getParameters(), $accessor->getParameterTypes());
         $result->addWhere($accessor->getSQL() . ' LIKE :' . $key);
         $result->addParameter($key, '%' . $query->getValue() . '%');
 
@@ -148,7 +148,7 @@ class SqlQueryParser
         $field = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
-        $result->addParameters($select->getParameters());
+        $result->addParameters($select->getParameters(), $select->getParameterTypes());
 
         if ($field instanceof ListField) {
             $result->addWhere('JSON_CONTAINS(' . $select->getSQL() . ', JSON_ARRAY(:' . $key . '))');
@@ -183,7 +183,7 @@ class SqlQueryParser
         $field = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
-        $result->addParameters($select->getParameters());
+        $result->addParameters($select->getParameters(), $select->getParameterTypes());
 
         if ($field instanceof ListField) {
             $result->addWhere('JSON_CONTAINS(' . $select->getSQL() . ', JSON_ARRAY(:' . $key . '))');

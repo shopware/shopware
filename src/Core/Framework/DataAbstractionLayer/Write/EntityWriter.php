@@ -225,11 +225,6 @@ class EntityWriter implements EntityWriterInterface
         );
     }
 
-    private function combinedPk($primaryKey): string
-    {
-        return is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
-    }
-
     private function getWriteResults(WriteCommandQueue $queue): array
     {
         $identifiers = [];
@@ -253,30 +248,30 @@ class EntityWriter implements EntityWriterInterface
             /** @var WriteCommandInterface[] $commands */
             foreach ($commands as $command) {
                 $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
-                $pk = $this->combinedPk($primaryKey);
+                $uniqueId = is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
 
                 if ($command instanceof JsonUpdateCommand) {
-                    $jsonUpdateCommands[$pk] = $command;
+                    $jsonUpdateCommands[$uniqueId] = $command;
                     continue;
                 }
 
                 $payload = $this->getCommandPayload($command);
-                $writeResults[$pk] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
+                $writeResults[$uniqueId] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
             }
 
             /*
              * Updates for entities with attributes are split into two commands: an UpdateCommand and a JsonUpdateCommand.
              * We need to merge the payloads here.
              */
-            foreach ($jsonUpdateCommands as $pk => $command) {
+            foreach ($jsonUpdateCommands as $uniqueId => $command) {
                 $payload = [];
-                if (isset($writeResults[$pk])) {
-                    $payload = $writeResults[$pk]->getPayload();
+                if (isset($writeResults[$uniqueId])) {
+                    $payload = $writeResults[$uniqueId]->getPayload();
                 }
 
                 $mergedPayload = array_merge($payload, [$command->getStorageName() => $command->getPayload()]);
 
-                $writeResults[$pk] = new EntityWriteResult(
+                $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),
                     $mergedPayload,
                     $command->getEntityExistence()

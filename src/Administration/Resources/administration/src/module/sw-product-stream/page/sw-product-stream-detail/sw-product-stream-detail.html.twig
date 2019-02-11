@@ -57,6 +57,9 @@
                                       v-model="productStream.description">
                             </sw-field>
                         {% endblock %}
+                        <sw-button class="sw-product-stream-detail__open_modal_preview" :disabled="productStream.isLoading" @click.prevent="openModalPreview">
+                            {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
+                        </sw-button>
                     </sw-card>
                 {% endblock %}
 
@@ -76,6 +79,13 @@
                         {# TODO: Add result list #}
                     </sw-card>
                 {% endblock %}
+
+                <sw-product-stream-modal-preview
+                        v-if="showModalPreview"
+                        :productFilters="productStream.filters"
+                        ref="modalPreview"
+                        @sw-product-stream-modal-preview-close="closeModalPreview">
+                </sw-product-stream-modal-preview>
             </sw-card-view>
         {% endblock %}
     </sw-page>

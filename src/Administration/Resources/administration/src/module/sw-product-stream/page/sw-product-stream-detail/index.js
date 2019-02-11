@@ -57,7 +57,8 @@ Component.register('sw-product-stream-detail', {
                 isPlaceholder(condition) {
                     return condition.field === 'product' && !(condition.value || Object.keys(condition.parameters).length);
                 }
-            }
+            },
+            showModalPreview: false
         };
     },
 
@@ -79,7 +80,14 @@ Component.register('sw-product-stream-detail', {
             this.createdComponent();
         }
     },
-
+    beforeRouteLeave(to, from, next) {
+        if (!this.showModalPreview) {
+            next(true);
+        }
+        this.closeModalPreview().then(() => {
+            next(true);
+        });
+    },
     methods: {
         createdComponent() {
             if (this.$route.params.id) {
@@ -141,6 +149,17 @@ Component.register('sw-product-stream-detail', {
                     message: messageSaveError
                 });
                 warn(this._name, exception.message, exception.response);
+            });
+        },
+        openModalPreview() {
+            this.showModalPreview = true;
+        },
+        closeModalPreview() {
+            return new Promise((resolve) => {
+                this.showModalPreview = false;
+                this.$refs.modalPreview.$on('sw-product-stream-modal-preview-destroy', () => {
+                    resolve();
+                });
             });
         }
     }

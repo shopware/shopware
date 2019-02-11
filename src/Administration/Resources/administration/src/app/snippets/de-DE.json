@@ -1582,7 +1582,13 @@
       "titleFilter": "Filter",
       "titleResult": "Produkte",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Der Product-Stream \"{name}\" wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Der Product-Stream \"{name}\" wurde erfolgreich gespeichert.",
+      "buttonOpenPreview": "Vorschau"
+    },
+    "previewModal": {
+      "title": "Vorschau",
+      "empty": "Es wurden keine Produkte gefunden.",
+      "close": "Schließen"
     }
   },
   "sw-config-form-renderer": {

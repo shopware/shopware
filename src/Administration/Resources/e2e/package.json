@@ -29,5 +29,9 @@
     "engines": {
         "node": ">= 8.10.0",
         "npm": ">= 3.5.2"
+    },
+    "devDependencies": {
+        "babel-plugin-transform-object-rest-spread": "^6.26.0",
+        "babel-eslint": "^10.0.1"
     }
 }

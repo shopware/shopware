@@ -26,12 +26,23 @@ class DeliveryInformation extends Struct
      */
     protected $outOfStockDeliveryDate;
 
-    public function __construct(int $stock, float $weight, DeliveryDate $inStockDeliveryDate, DeliveryDate $outOfStockDeliveryDate)
-    {
+    /**
+     * @var bool
+     */
+    protected $freeDelivery;
+
+    public function __construct(
+        int $stock,
+        float $weight,
+        DeliveryDate $inStockDeliveryDate,
+        DeliveryDate $outOfStockDeliveryDate,
+        bool $freeDelivery
+    ) {
         $this->stock = $stock;
         $this->weight = $weight;
         $this->inStockDeliveryDate = $inStockDeliveryDate;
         $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
+        $this->freeDelivery = $freeDelivery;
     }
 
     public function getStock(): int
@@ -72,5 +83,15 @@ class DeliveryInformation extends Struct
     public function setOutOfStockDeliveryDate(DeliveryDate $outOfStockDeliveryDate): void
     {
         $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
+    }
+
+    public function getFreeDelivery(): bool
+    {
+        return $this->freeDelivery;
+    }
+
+    public function setFreeDelivery(bool $freeDelivery): void
+    {
+        $this->freeDelivery = $freeDelivery;
     }
 }

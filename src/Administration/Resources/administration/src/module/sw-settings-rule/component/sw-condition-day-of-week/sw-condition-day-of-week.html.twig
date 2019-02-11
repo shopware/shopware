@@ -1,0 +1,17 @@
+{% block sw_condition_fields %}
+    {% block sw_condition_fields_operator %}
+        <sw-condition-operator-select operatorSetName="string"
+                                      v-model="condition.value.operator">
+        </sw-condition-operator-select>
+    {% endblock %}
+    {% block sw_condition_fields_value %}
+        <sw-select name="dayOfWeek"
+                   id="dayOfWeek"
+                   itemValueKey="value"
+                   displayName="label"
+                   :store="weekdays"
+                   v-model="condition.value.dayOfWeek"
+                   class="field--main field--select">
+        </sw-select>
+    {% endblock %}
+{% endblock %}

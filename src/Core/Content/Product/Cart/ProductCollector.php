@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductCollector implements CollectorInterface
@@ -124,12 +125,14 @@ class ProductCollector implements CollectorInterface
             }
 
             if (!$lineItem->getDeliveryInformation()) {
+                /* @var ProductEntity $product */
                 $lineItem->setDeliveryInformation(
                     new DeliveryInformation(
                         (int) $product->getStock(),
                         (float) $product->getWeight(),
                         $product->getDeliveryDate(),
-                        $product->getRestockDeliveryDate()
+                        $product->getRestockDeliveryDate(),
+                        $product->getShippingFree()
                     )
                 );
             }

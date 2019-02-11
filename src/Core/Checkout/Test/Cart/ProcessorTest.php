@@ -72,7 +72,8 @@ class ProcessorTest extends TestCase
                         100,
                         100,
                         new DeliveryDate(new \DateTime(), new \DateTime()),
-                        new DeliveryDate(new \DateTime(), new \DateTime())
+                        new DeliveryDate(new \DateTime(), new \DateTime()),
+                        false
                     )
                 )
         );

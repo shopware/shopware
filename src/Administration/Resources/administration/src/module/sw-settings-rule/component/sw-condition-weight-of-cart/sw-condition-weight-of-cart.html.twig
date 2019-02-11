@@ -1,0 +1,15 @@
+{% block sw_condition_fields %}
+    {% block sw_condition_fields_operator %}
+        <sw-condition-operator-select operatorSetName="string"
+                                      v-model="condition.value.operator">
+        </sw-condition-operator-select>
+    {% endblock %}
+    {% block sw_condition_fields_value %}
+        <sw-field type="number"
+                  name="weight"
+                  :step="0.01"
+                  class="field--main"
+                  v-model="condition.value.weight">
+        </sw-field>
+    {% endblock %}
+{% endblock %}

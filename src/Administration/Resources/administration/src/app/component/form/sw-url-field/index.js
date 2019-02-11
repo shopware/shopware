@@ -1,4 +1,5 @@
 import template from './sw-url-field.html.twig';
+import './sw-url-field.scss';
 
 /**
  * @public

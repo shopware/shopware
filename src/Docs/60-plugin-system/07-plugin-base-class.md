@@ -47,6 +47,7 @@ Below you find a list of methods you can overwrite in your plugin base class.
 | [activate()](#activate())                           | [ActivateContext](./08-plugin-contexts.md#activateContext)     | Called while your plugin gets activated                                                             |
 | [deactivate()](#deactivate())                       | [DeactivateContext](./08-plugin-contexts.md#deactivateContext) | Called while your plugin gets deactivated                                                           |
 | [uninstall()](#uninstall())                         | [UninstallContext](./08-plugin-contexts.md#uninstallContext)   | Called while your plugin gets uninstalled                                                           |
+| [boot()](#boot())                                   | N/A                                                            | Called while the Shopware kernel is booted                                                          |
 | [build()](#build())                                 | ContainerBuilder                                               | Called while Symfony builds the Dependency-Injection-Container                                      |
 | [configureRoutes()](#configureRoutes())             | RouteCollectionBuilder, string $environment                    | Called on each kernel boot to register your controller routes                                       |
 | [getMigrationNamespace()](#getMigrationNamespace()) | N/A                                                            | Called whenever migrations get executed to add your migration namespace to the migration collection |
@@ -226,6 +227,25 @@ class SwagExample extends Plugin
 }
 ```
 *Please note, if your code fails or throws an exception, your plugin will not be uninstalled.*
+
+## boot()
+Boots your plugin and is called when the kernel gets booted.
+
+```php
+<?php declare(strict_types=1);
+
+namespace SwagExample;
+
+use Shopware\Core\Framework\Plugin;
+
+class SwagExample extends Plugin
+{
+    public function boot(): void
+    {
+        parent::boot();
+    }
+}
+```
 
 ## build()
 You can use this method, to build the `Dependency Injection Container` (DIC) how you need it.

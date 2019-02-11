@@ -33,12 +33,6 @@ export default {
     },
 
     computed: {
-        swFieldErrorClass() {
-            return {
-                'has--error': this.hasInvalidInput
-            };
-        },
-
         urlObject() {
             try {
                 return new URL(this.url);

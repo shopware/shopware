@@ -80,7 +80,8 @@ export default {
         return {
             trueSource: null,
             width: 0,
-            dataUrl: ''
+            dataUrl: '',
+            urlPreviewFailed: false
         };
     },
 
@@ -170,6 +171,10 @@ export default {
             return this.getUrlFromMediaEntity();
         },
 
+        isUrl() {
+            return this.trueSource instanceof URL;
+        },
+
         alt() {
             if (this.trueSource.alt) {
                 return this.trueSource.alt;
@@ -184,6 +189,7 @@ export default {
 
     watch: {
         source() {
+            this.urlPreviewFailed = false;
             this.fetchSourceIfNecessary();
         }
     },
@@ -255,6 +261,10 @@ export default {
             }
 
             return this.trueSource.url;
+        },
+
+        removeUrlPreview() {
+            this.urlPreviewFailed = true;
         }
     }
 };

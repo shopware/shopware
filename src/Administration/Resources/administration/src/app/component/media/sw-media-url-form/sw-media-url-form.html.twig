@@ -6,33 +6,23 @@
         v-on="$listeners">
 
         {% block sw_media_url_form_input %}
-            <sw-field class="sw-media-url-form__url-input"
-                      label="URL"
-                      :class="swFieldErrorClass"
-                      v-model="url"
-                      :placeholder="$tc('global.sw-media-url-form.example')">
-            </sw-field>
+            <sw-text-field
+                class="sw-media-url-form__url-input"
+                label="URL"
+                :errorMessage="hasInvalidInput ? $tc('global.sw-media-url-form.invalidUrl') : ''"
+                v-model="url"
+                :placeholder="$tc('global.sw-media-url-form.example')">
+            </sw-text-field>
 
-            <sw-field class="sw-media-url-form__extension-input"
-                      v-if="missingFileExtension"
-                      :label="$tc('global.sw-media-url-form.labelFileExtension')"
-                      :class="swFieldErrorClass"
-                      v-model="extensionFromInput"
-                      validation="required"
-                      placeholder="jpg">
-            </sw-field>
-        {% endblock %}
-
-        {% block sw_media_url_form_input_alert_invalid_url %}
-            <sw-alert v-if="hasInvalidInput" variant="info">
-                {{ $tc('global.sw-media-url-form.invalidUrl') }}
-            </sw-alert>
-        {% endblock %}
-
-        {% block sw_media_url_form_input_alert_missing_file_extension %}
-            <sw-alert v-if="missingFileExtension && !extensionFromInput" variant="info">
-                {{ $tc('global.sw-media-url-form.missingFileExtension') }}
-            </sw-alert>
+            <sw-text-field
+                v-if="missingFileExtension"
+                class="sw-media-url-form__extension-input"
+                :label="$tc('global.sw-media-url-form.labelFileExtension')"
+                v-model="extensionFromInput"
+                validation="required"
+                placeholder="jpg"
+                :helpText="$tc('global.sw-media-url-form.missingFileExtension')">
+            </sw-text-field>
         {% endblock %}
 
         {% block sw_media_url_form_footer %}
@@ -59,44 +49,14 @@
     </sw-modal>
 
     <div v-else-if="variant === 'inline'">
-        {% block sw_media_url_form_input %}
-            <sw-field class="sw-media-url-form__url-input"
-                      label="URL"
-                      :class="swFieldErrorClass"
-                      v-model="url"
-                      :placeholder="$tc('global.sw-media-url-form.example')">
-            </sw-field>
+        {% block sw_media_url_form_input %}{% endblock %}
 
-            <sw-field class="sw-media-url-form__extension-input"
-                      v-if="missingFileExtension"
-                      :label="$tc('global.sw-media-url-form.labelFileExtension')"
-                      :class="swFieldErrorClass"
-                      v-model="extensionFromInput"
-                      validation="required"
-                      placeholder="jpg">
-            </sw-field>
-        {% endblock %}
-
-        {% block sw_media_url_form_input_alert_invalid_url %}
-            <sw-alert v-if="hasInvalidInput" variant="info">
-                {{ $tc('global.sw-media-url-form.invalidUrl') }}
-            </sw-alert>
-        {% endblock %}
-
-        {% block sw_media_url_form_input_alert_missing_file_extension %}
-            <sw-alert v-if="missingFileExtension && !extensionFromInput" variant="info">
-                {{ $tc('global.sw-media-url-form.missingFileExtension') }}
-            </sw-alert>
-        {% endblock %}
-
-        {% block sw_media_url_form_upload_button %}
-            <sw-button class="sw-media-url-form__submit-button"
-                       :disabled="!isValid"
-                       size="small"
-                       variant="primary"
-                       @click="emitUrl">
-                {{ $tc('global.sw-media-url-form.upload') }}
-            </sw-button>
-        {% endblock %}
+        <sw-button class="sw-media-url-form__submit-button"
+                   :disabled="!isValid"
+                   size="small"
+                   variant="primary"
+                   @click="emitUrl">
+            {{ $tc('global.sw-media-url-form.upload') }}
+        </sw-button>
     </div>
 {% endblock %}

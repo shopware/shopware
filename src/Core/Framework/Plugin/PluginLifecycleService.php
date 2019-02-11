@@ -165,7 +165,7 @@ class PluginLifecycleService
     public function uninstallPlugin(
         PluginEntity $plugin,
         Context $shopwareContext,
-        bool $removeUserData = true
+        bool $keepUserData = false
     ): UninstallContext {
         $pluginName = $plugin->getName();
         if ($plugin->getInstalledAt() === null) {
@@ -179,7 +179,7 @@ class PluginLifecycleService
             $shopwareContext,
             Framework::VERSION,
             $plugin->getVersion(),
-            !$removeUserData
+            $keepUserData
         );
 
         $this->eventDispatcher->dispatch(
@@ -189,7 +189,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
-        if ($removeUserData) {
+        if ($keepUserData === false) {
             $this->removeMigrations($pluginBaseClass);
         }
 

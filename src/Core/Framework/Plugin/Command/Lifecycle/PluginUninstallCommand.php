@@ -17,7 +17,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
     protected function configure(): void
     {
         $this->configureCommand(self::LIFECYCLE_METHOD);
-        $this->addOption('remove-userdata', null, InputOption::VALUE_NONE, 'The plugins remove all created data');
+        $this->addOption('keep-user-data', null, InputOption::VALUE_NONE, 'Keep user data of the plugin');
     }
 
     /**
@@ -31,7 +31,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input->getArgument('plugins'), $context);
 
-        $removeUserData = (bool) $input->getOption('remove-userdata');
+        $keepUserData = (bool) $input->getOption('keep-user-data');
 
         $uninstalled = 0;
         /** @var PluginEntity $plugin */
@@ -42,7 +42,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
                 continue;
             }
 
-            $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $removeUserData);
+            $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $keepUserData);
             ++$uninstalled;
 
             $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getLabel()));

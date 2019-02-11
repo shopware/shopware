@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Snippet\Files;
 
 interface SnippetFileInterface
 {
-    public const BASE_LANGUAGE_FILE = true;
+    public const BASE_SNIPPET_FILE = true;
 
-    public const PLUGIN_LANGUAGE_EXTENSION_FILE = false;
+    public const PLUGIN_SNIPPET_EXTENSION_FILE = false;
 
     /**
      * Returns the displayed name.

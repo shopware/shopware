@@ -101,6 +101,7 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField('metaDescription'),
             new TranslatedField('cmsHeadline'),
             new TranslatedField('cmsDescription'),
+            new TranslatedField('attributes'),
 
             new ParentAssociationField(self::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),

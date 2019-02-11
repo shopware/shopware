@@ -361,6 +361,11 @@ class ProductEntity extends Entity
      */
     protected $whitelistIds;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function __construct()
     {
         $this->priceRules = new ProductPriceRuleCollection();
@@ -1132,5 +1137,15 @@ class ProductEntity extends Entity
     public function setWhitelistIds(array $whitelistIds): void
     {
         $this->whitelistIds = $whitelistIds;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

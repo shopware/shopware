@@ -88,6 +88,11 @@ class CurrencyEntity extends Entity
      */
     protected $salesChannelDomains;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getFactor(): float
     {
         return $this->factor;
@@ -236,5 +241,15 @@ class CurrencyEntity extends Entity
     public function setSalesChannelDomains(?SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

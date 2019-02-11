@@ -55,6 +55,7 @@ class PluginDefinition extends EntityDefinition
             new TranslatedField('manufacturerLink'),
             new TranslatedField('supportLink'),
             new TranslatedField('changelog'),
+            new TranslatedField('attributes'),
 
             new CreatedAtField(),
             new UpdatedAtField(),

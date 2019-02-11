@@ -59,6 +59,11 @@ class ListingFacetEntity extends Entity
      */
     protected $translations;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getUniqueKey(): string
     {
         return $this->uniqueKey;
@@ -157,5 +162,15 @@ class ListingFacetEntity extends Entity
     public function setTranslations(ListingFacetTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

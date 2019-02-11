@@ -82,6 +82,7 @@ class JsonApiEncoderTest extends TestCase
                     'mediaType' => null,
                     'uploadedAt' => null,
                     'mediaFolderId' => null,
+                    'attributes' => null,
                 ],
                 'meta' => null,
                 'links' => [

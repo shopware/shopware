@@ -56,6 +56,11 @@ class ListingSortingEntity extends Entity
      */
     protected $translations;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getPayload(): array
     {
         return $this->payload;
@@ -144,5 +149,15 @@ class ListingSortingEntity extends Entity
     public function setTranslations(ListingSortingTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

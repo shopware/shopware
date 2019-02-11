@@ -45,6 +45,7 @@ class ListingSortingDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new IntField('position', 'position'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(ListingSortingTranslationDefinition::class, 'listing_sorting_id'))->addFlags(new Required()),

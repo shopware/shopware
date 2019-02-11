@@ -41,6 +41,7 @@ class UnitDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new TranslatedField('shortCode'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('unit')),

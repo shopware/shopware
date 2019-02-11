@@ -20,6 +20,7 @@ return [
             'mediaType' => null,
             'uploadedAt' => null,
             'mediaFolderId' => null,
+            'attributes' => null,
         ],
         'links' => [
             'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',

@@ -21,6 +21,7 @@ return [
                 'mediaType' => null,
                 'uploadedAt' => null,
                 'mediaFolderId' => null,
+                'attributes' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -99,6 +100,7 @@ return [
                 'mediaType' => null,
                 'uploadedAt' => null,
                 'mediaFolderId' => null,
+                'attributes' => null,
             ],
             'relationships' => [
                 'translations' => [

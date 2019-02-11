@@ -67,6 +67,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             new BoolField('comparable', 'comparable'),
             (new StringField('display_type', 'displayType'))->setFlags(new Required()),
             (new StringField('sorting_type', 'sortingType'))->setFlags(new Required()),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),

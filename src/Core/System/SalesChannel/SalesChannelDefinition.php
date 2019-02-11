@@ -71,6 +71,7 @@ class SalesChannelDefinition extends EntityDefinition
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
             new StringField('tax_calculation_type', 'taxCalculationType'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->addFlags(new Required()),

@@ -90,6 +90,11 @@ class StateMachineStateEntity extends Entity
      */
     protected $toStateMachineHistoryEntries;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getToStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
         return $this->toStateMachineHistoryEntries;
@@ -238,5 +243,15 @@ class StateMachineStateEntity extends Entity
     public function setOrderDeliveries(OrderDeliveryCollection $orderDeliveries): void
     {
         $this->orderDeliveries = $orderDeliveries;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

@@ -57,6 +57,11 @@ class StateMachineEntity extends Entity
      */
     protected $historyEntries;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getHistoryEntries(): ?StateMachineHistoryCollection
     {
         return $this->historyEntries;
@@ -156,5 +161,15 @@ class StateMachineEntity extends Entity
     public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

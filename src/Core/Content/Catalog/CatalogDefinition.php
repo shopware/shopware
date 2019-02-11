@@ -52,6 +52,7 @@ class CatalogDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new TranslatedField('name'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'catalog_id', false, 'id'))->addFlags(new CascadeDelete()),

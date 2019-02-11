@@ -109,6 +109,11 @@ class CountryEntity extends Entity
      */
     protected $salesChannels;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -297,5 +302,15 @@ class CountryEntity extends Entity
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

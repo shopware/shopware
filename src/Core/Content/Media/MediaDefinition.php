@@ -74,6 +74,7 @@ class MediaDefinition extends EntityDefinition
             (new TranslatedField('alt'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('title'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('url', 'url'))->addFlags(new Deferred()),
+            new TranslatedField('attributes'),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
 

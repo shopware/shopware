@@ -47,6 +47,7 @@ class CmsPageDefinition extends EntityDefinition
             new TranslatedField('name'),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new StringField('entity', 'entity'),
+            new TranslatedField('attributes'),
 
             (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id', false))->addFlags(new CascadeDelete()),
             new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'),

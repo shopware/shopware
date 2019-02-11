@@ -79,6 +79,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
                     'mediaType' => null,
                     'uploadedAt' => null,
                     'mediaFolderId' => null,
+                    'attributes' => null,
                 ],
                 'links' => [
                     'self' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',

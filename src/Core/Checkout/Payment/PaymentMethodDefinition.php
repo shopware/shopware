@@ -64,6 +64,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
             new LongTextField('risk_rules', 'riskRules'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),

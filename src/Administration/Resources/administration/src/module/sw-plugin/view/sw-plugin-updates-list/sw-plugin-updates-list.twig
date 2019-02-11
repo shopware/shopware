@@ -1,96 +1,163 @@
 {% block sw_plugin_updates_list %}
 <div class="sw-plugin-updates-list">
 
-    {% block sw_plugin_updates_list_file_upload %}
-        <div class="top-actions">
-            Top Actions
-        </div>
+    {% block sw_plugin_updates_top_actions %}
+    <div class="top-actions">
+        <h1>{{ $tc('sw-plugin.updates-list.updateHeader') }}</h1>
+        <sw-button variant="ghost">
+            {{ $tc('sw-plugin.updates-list.update-all-button') }}
+        </sw-button>
+    </div>
     {% endblock %}
 
     <sw-card>
+        {% block sw_plugin_updates_list_content %}
         <sw-container slot="grid" type="row">
-            {% block sw_plugin_updates_list_content %}
-                {% block sw_plugin_updates_list_grid %}
-                    <sw-grid v-if="total || term"
-                             :items="updates"
-                             :sortBy="sortBy"
-                             :sortDirection="sortDirection"
-                             :sidebar="true"
-                             :selectable="false"
-                             :isFullpage="true"
-                             @sort-column="onSortColumn"
-                             table>
+            {% block sw_plugin_updates_list_grid %}
+            <sw-grid v-if="total || term"
+                     :items="updates"
+                     :selectable="false"
+                     :isFullpage="true"
+                     table>
 
-                        {% block sw_plugin_updates_list_grid_slots %}
-                            <template slot="columns" slot-scope="{ item }">
+                {% block sw_plugin_updates_list_grid_slots %}
+                <template slot="columns" slot-scope="{ item }">
 
-                                {% block sw_plugin_updates_list_grid_columns_id %}
-                                    <sw-grid-column flex="minmax(100px, 1fr)"
-                                                    :label="$tc('sw-plugin.updates-list.columnPlugin')"
-                                                    dataIndex="name"
-                                                    truncate
-                                                    sortable>
-                                        {% block sw_plugin_updates_list_grid_columns_id_label %}
-                                            {{ item.name }}
-                                        {% endblock %}
-                                    </sw-grid-column>
-                                {% endblock %}
-
-                                {% block sw_plugin_updates_list_grid_columns_name %}
-                                    <sw-grid-column flex="minmax(100px, 1fr)"
-                                                    :label="$tc('sw-plugin.updates-list.columnChangelog')"
-                                                    dataIndex="changelog"
-                                                    truncate
-                                                    sortable>
-                                        {% block sw_plugin_updates_list_grid_columns_name_label %}
-                                            {{ item.changelog }}
-                                        {% endblock %}
-                                    </sw-grid-column>
-                                {% endblock %}
-
-                                {% block sw_plugin_updates_list_grid_columns_actions %}
-                                    <sw-grid-column flex="minmax(100px, 100px)"
-                                                    align="center">
-                                        {% block sw_plugin_updates_list_grid_columns_actions_context_button %}
-                                            <sw-context-button>
-
-                                                {% block sw_plugin_updates_list_grid_columns_actions_view %}
-                                                    <sw-context-menu-item @click="onDownload(item.id)">
-                                                        Download
-                                                    </sw-context-menu-item>
-                                                {% endblock %}
-
-                                            </sw-context-button>
-                                        {% endblock %}
-                                    </sw-grid-column>
-                                {% endblock %}
-
-                            </template>
+                    {% block sw_plugin_updates_list_grid_columns_id %}
+                    <sw-grid-column flex="minmax(100px, 1fr)"
+                                    :label="$tc('sw-plugin.list.columnPlugin')"
+                                    dataIndex="name"
+                                    truncate
+                                    sortable>
+                        {% block sw_plugin_updates_list_grid_columns_id_label %}
+                        {{ item.name }}
                         {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
 
-                        <template slot="pagination">
-                            {% block sw_plugin_updates_list_grid_pagination %}
-                                <sw-pagination :page="page"
-                                               :limit="limit"
-                                               :total="total"
-                                               :total-visible="7"
-                                               @page-change="onPageChange">
-                                </sw-pagination>
+                    {% block sw_plugin_updates_list_grid_columns_name %}
+                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                        :label="$tc('sw-plugin.list.columnChangelog')"
+                                        dataIndex="changelog"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_updates_list_grid_columns_name_label %}
+                                {{ item.changelog }}
                             {% endblock %}
-                        </template>
-                    </sw-grid>
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_updates_list_grid_columns_action %}
+                        <sw-grid-column flex="minmax(100px, 0.5fr)"
+                                        align="center">
+                            {% block sw_plugin_updates_list_grid_columns_update_button %}
+                                <div class="update-context">
+                                    <sw-button class="update-button" variant="primary">
+                                        {{ $tc('sw-plugin.updates-list.update-button') }}
+                                    </sw-button>
+                                    <p class="highest-version version">{{ $tc('sw-plugin.general.version') }} {{ item.highestVersion }}</p>
+                                </div>
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                </template>
                 {% endblock %}
 
-                {% block sw_plugin_updates_list_empty_state %}
-                    <sw-empty-state v-else-if="!isLoading && !total"
-                                    :title="$tc('sw-plugin.updates-list.messageEmpty')"></sw-empty-state>
-                {% endblock %}
+                <template slot="pagination">
+                    {% block sw_plugin_updates_list_grid_pagination %}
+                        <sw-pagination :page="page"
+                                       :limit="limit"
+                                       :total="total"
+                                       :total-visible="7"
+                                       @page-change="onPageChange">
+                        </sw-pagination>
+                    {% endblock %}
+                </template>
+            </sw-grid>
+            {% endblock %}
 
-                {% block sw_plugin_updates_list_grid_loader %}
-                    <sw-loader v-if="isLoading"></sw-loader>
-                {% endblock %}
+            {% block sw_plugin_updates_list_empty_state %}
+                <sw-empty-state v-else-if="!isLoading && !total"
+                                :title="$tc('sw-plugin.updates-list.messageEmpty')"></sw-empty-state>
+            {% endblock %}
+
+            {% block sw_plugin_updates_list_grid_loader %}
+                <sw-loader v-if="isLoading"></sw-loader>
             {% endblock %}
         </sw-container>
+        {% endblock %}
     </sw-card>
+
+    {% block sw_plugin_updates_top_action_last_updates %}
+    <div class="top-actions">
+        <h1> {{ $tc('sw-plugin.updates-list.lastUpdatesHeader') }}</h1>
+    </div>
+    {% endblock %}
+
+    <sw-card>
+        {% block sw_plugin_last_updates_list_content %}
+        <sw-container slot="grid" type="row">
+            {% block sw_plugin_last_updates_list_grid %}
+            <sw-grid v-if="total || term"
+                     :items="updates"
+                     :selectable="false"
+                     :isFullpage="true"
+                     table>
+
+                {% block sw_plugin_last_updates_list_grid_slots %}
+                <template slot="columns" slot-scope="{ item }">
+
+                    {% block sw_plugin_last_updates_list_grid_columns_id %}
+                    <sw-grid-column flex="minmax(100px, 1fr)"
+                                    :label="$tc('sw-plugin.list.columnPlugin')"
+                                    dataIndex="name"
+                                    truncate
+                                    sortable>
+                        {% block sw_plugin_last_updates_list_grid_columns_id_label %}
+                        {{ item.name }}
+                        {% endblock %}
+                    </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_last_updates_list_grid_columns_name %}
+                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                        :label="$tc('sw-plugin.list.columnChangelog')"
+                                        dataIndex="changelog"
+                                        truncate
+                                        sortable>
+                            {% block sw_plugin_last_updates_list_grid_columns_name_label %}
+                                {{ item.changelog }}
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_plugin_last_updates_list_grid_columns_action %}
+                        <sw-grid-column flex="minmax(100px, 0.5fr)"
+                                        align="center">
+                            {% block sw_plugin_last_updates_list_grid_columns_update_button %}
+                                <p class="version">{{ $tc('sw-plugin.general.version') }} {{ item.highestVersion }}</p>
+                            {% endblock %}
+                        </sw-grid-column>
+                    {% endblock %}
+
+                </template>
+                {% endblock %}
+
+            </sw-grid>
+            {% endblock %}
+
+            {% block sw_plugin_updates_list_empty_state %}
+                <sw-empty-state v-else-if="!isLoading && !total"
+                                :title="$tc('sw-plugin.updates-list.messageEmpty')"></sw-empty-state>
+            {% endblock %}
+
+            {% block sw_plugin_updates_list_grid_loader %}
+                <sw-loader v-if="isLoading"></sw-loader>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </sw-card>
+
 </div>
 {% endblock %}

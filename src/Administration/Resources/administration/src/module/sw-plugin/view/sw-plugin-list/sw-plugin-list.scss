@@ -4,12 +4,9 @@
     .top-actions {
         max-width: 800px;
         margin: 0 auto 40px auto;
-    }
-
-    .sw-card {
-        height: 100%;
-        .sw-card__content {
-            height: 100%;
-        }
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
     }
 }

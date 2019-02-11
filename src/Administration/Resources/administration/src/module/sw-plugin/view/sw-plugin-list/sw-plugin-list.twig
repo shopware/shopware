@@ -3,6 +3,7 @@
 
     {% block sw_plugin_list_top_actions %}
         <div class="top-actions">
+            <h1>{{ $tc('sw-plugin.list.pluginHeader') }}</h1>
             <sw-plugin-file-upload @sw-plugin-file-upload-success="successfulUpload"></sw-plugin-file-upload>
         </div>
     {% endblock %}
@@ -70,33 +71,33 @@
                         <sw-context-button>
 
                             {% block sw_plugin_list_grid_columns_actions_install %}
-                            <sw-context-menu-item @click="onInstallPlugin(item)">
+                                <sw-context-menu-item @click="onInstallPlugin(item)">
                                 {{ $tc('sw-plugin.list.contextInstall') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
+                                </sw-context-menu-item>
+                                {% endblock %}
 
-                            {% block sw_plugin_list_grid_columns_actions_uninstall %}
-                            <sw-context-menu-item variant="danger" @click="onUninstallPlugin(item)">
-                                {{ $tc('sw-plugin.list.contextUninstall') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
+                                {% block sw_plugin_list_grid_columns_actions_uninstall %}
+                                <sw-context-menu-item variant="danger" @click="onUninstallPlugin(item)">
+                                    {{ $tc('sw-plugin.list.contextUninstall') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
 
-                            {% block sw_plugin_list_grid_columns_actions_activate %}
-                            <sw-context-menu-item @click="onActivatePlugin(item)">
-                                {{ $tc('sw-plugin.list.contextActivate') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
+                                {% block sw_plugin_list_grid_columns_actions_activate %}
+                                <sw-context-menu-item @click="onActivatePlugin(item)">
+                                    {{ $tc('sw-plugin.list.contextActivate') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
 
-                            {% block sw_plugin_list_grid_columns_actions_deactivate %}
-                            <sw-context-menu-item @click="onDeactivatePlugin(item)">
-                                {{ $tc('sw-plugin.list.contextDeactivate') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
+                                {% block sw_plugin_list_grid_columns_actions_deactivate %}
+                                <sw-context-menu-item @click="onDeactivatePlugin(item)">
+                                    {{ $tc('sw-plugin.list.contextDeactivate') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
 
-                            {% block sw_plugin_list_grid_columns_actions_update %}
-                            <sw-context-menu-item @click="onUpdatePlugin(item)">
+                                {% block sw_plugin_list_grid_columns_actions_update %}
+                                <sw-context-menu-item @click="onUpdatePlugin(item)">
                                 {{ $tc('sw-plugin.list.contextUpdate') }} {{ item.upgradeVersion }}
-                            </sw-context-menu-item>
+                                </sw-context-menu-item>
                             {% endblock %}
 
                             {% block sw_plugin_list_grid_columns_actions_delete %}

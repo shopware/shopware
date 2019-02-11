@@ -40,6 +40,16 @@ class StoreApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    getUpdateList() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get(`/_custom/${this.getApiBasePath()}/updates`, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 export default StoreApiService;

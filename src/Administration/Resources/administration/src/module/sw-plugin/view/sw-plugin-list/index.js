@@ -5,6 +5,13 @@ import './sw-plugin-list.scss';
 Component.register('sw-plugin-list', {
     template,
 
+    props: {
+        searchTerm: {
+            type: String,
+            required: false
+        }
+    },
+
     inject: ['pluginService'],
 
     mixins: [
@@ -33,6 +40,10 @@ Component.register('sw-plugin-list', {
     watch: {
         '$root.$i18n.locale'() {
             this.getList();
+        },
+
+        searchTerm() {
+            this.onSearch(this.searchTerm);
         }
     },
 

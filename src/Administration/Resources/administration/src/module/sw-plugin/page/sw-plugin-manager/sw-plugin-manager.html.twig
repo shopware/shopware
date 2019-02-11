@@ -3,7 +3,8 @@
     {% block sw_plugin_manager_search_bar %}
         <template slot="search-bar">
             <sw-search-bar :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
-                           :searchType="$tc('sw-plugin.general.mainMenuItemGeneral')">
+                           :searchType="$tc('sw-plugin.general.mainMenuItemGeneral')"
+                           @search="this.onSearch">
             </sw-search-bar>
         </template>
     {% endblock %}
@@ -48,7 +49,7 @@
         {% endblock %}
 
         {% block sw_plugin_manager_content_view %}
-        <router-view></router-view>
+        <router-view :searchTerm="searchTerm"></router-view>
         {% endblock %}
     </sw-card-view>
     {% endblock %}

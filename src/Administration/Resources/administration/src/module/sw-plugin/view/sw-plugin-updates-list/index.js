@@ -8,7 +8,8 @@ Component.register('sw-plugin-updates-list', {
     inject: ['storeService'],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -36,6 +37,17 @@ Component.register('sw-plugin-updates-list', {
         },
 
         getList() {
+            this.isLoading = true;
+            this.storeService.getUpdateList().then((data) => {
+                this.updates = data.items;
+                this.total = data.total;
+                this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$tc('sw-plugin.updates-list.updateError')
+                });
+            });
         }
     }
 });

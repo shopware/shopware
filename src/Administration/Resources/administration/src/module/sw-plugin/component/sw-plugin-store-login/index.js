@@ -2,7 +2,6 @@ import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-plugin-store-login.twig';
 
 Component.register('sw-plugin-store-login', {
-    name: 'sw-plugin-store-login',
     template,
 
     inject: ['storeService'],
@@ -14,11 +13,9 @@ Component.register('sw-plugin-store-login', {
     data() {
         return {
             shopwareId: '',
-            password: ''
+            password: '',
+            showModal: true
         };
-    },
-
-    computed: {
     },
 
     methods: {
@@ -30,6 +27,10 @@ Component.register('sw-plugin-store-login', {
                 });
                 this.$emit('sw-plugin-store-login-success');
             });
+        },
+
+        onCloseModal() {
+            this.showModal = false;
         }
     }
 });

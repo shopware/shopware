@@ -2,6 +2,10 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -17,9 +21,15 @@ class StoreController extends AbstractController
      */
     private $storeClient;
 
-    public function __construct(StoreClient $storeClient)
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $pluginRepo;
+
+    public function __construct(StoreClient $storeClient, EntityRepositoryInterface $pluginRepo)
     {
         $this->storeClient = $storeClient;
+        $this->pluginRepo = $pluginRepo;
     }
 
     /**
@@ -65,6 +75,25 @@ class StoreController extends AbstractController
         return new JsonResponse([
             'items' => $licenseList,
             'total' => count($licenseList),
+        ]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_custom/store/updates", name="api.custom.store.updates", methods={"GET"})
+     */
+    public function getUpdateList(Request $request): Response
+    {
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria();
+
+        /** @var PluginCollection $plugins */
+        $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
+
+        $updatesList = $this->storeClient->getUpdatesList($plugins);
+
+        return new JsonResponse([
+            'items' => $updatesList,
+            'total' => count($updatesList),
         ]);
     }
 }

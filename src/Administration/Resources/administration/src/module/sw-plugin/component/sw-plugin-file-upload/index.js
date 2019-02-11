@@ -3,7 +3,6 @@ import template from './sw-plugin-file-upload.twig';
 import './sw-plugin-file-upload.scss';
 
 Component.register('sw-plugin-file-upload', {
-    name: 'sw-plugin-file-upload',
     template,
 
     inject: ['pluginService'],
@@ -11,13 +10,6 @@ Component.register('sw-plugin-file-upload', {
     mixins: [
         Mixin.getByName('notification')
     ],
-
-    data() {
-        return {};
-    },
-
-    computed: {
-    },
 
     methods: {
         onClickUpload() {

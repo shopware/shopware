@@ -197,6 +197,7 @@
         <!-- Store -->
         <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
+            <argument type="service" id="plugin.repository"/>
         </service>
 
         <service class="GuzzleHttp\Client" id="shopware.store.api_client">

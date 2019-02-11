@@ -4,10 +4,13 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseSubscriptionStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
+use Shopware\Core\Framework\Store\Struct\StoreUpdatesStruct;
 
 final class StoreClient
 {
@@ -45,11 +48,6 @@ final class StoreClient
         return $accessTokenStruct;
     }
 
-    /**
-     * @param string $token
-     *
-     * @return bool
-     */
     public function checkLogin(string $token): bool
     {
         $this->client->get(
@@ -67,8 +65,6 @@ final class StoreClient
     }
 
     /**
-     * @param string $token
-     *
      * @throws \Exception
      *
      * @return array|StoreLicenseStruct[]
@@ -112,6 +108,47 @@ final class StoreClient
         }
 
         return $licenseList;
+    }
+
+    public function getUpdatesList(PluginCollection $pluginCollection): array
+    {
+        $pluginArray = [];
+        /** @var PluginEntity $plugin */
+        foreach ($pluginCollection as $plugin) {
+            $pluginArray[] = [
+                'pluginName' => $plugin->getName(),
+                'version' => $plugin->getVersion(),
+            ];
+        }
+
+        $response = $this->client->post(
+            '/pluginStore/updates', // old route
+            [
+                'query' => [
+                    'shopwareVersion' => '5.5.1',
+                    'domain' => 'fk2.test.shopware.in',
+                    'plugins' => [$pluginArray[0]['pluginName'] => $pluginArray[0]['version']],
+                ],
+                'body' => \json_encode([
+                    'shopwareVersion' => '5.5.1',
+                    'domain' => 'fk2.test.shopware.in',
+                    'plugins' => $pluginArray,
+                ]),
+                'headers' => [
+                    'Content-type' => 'application/json',
+                    'ACCEPT' => ['application/vnd.api+json,application/json'],
+                ],
+            ]
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $updateList = [];
+        foreach ($data as $update) {
+            $updateList[] = new StoreUpdatesStruct($update['code'], $update['highestVersion'], $update['id'], $update['name']);
+        }
+
+        return $updateList;
     }
 
     private function getDefaultQueryParameters(): array

@@ -191,7 +191,7 @@
                                                     {% block sw_settings_snippet_list_delete_modal_cancel %}
                                                         <sw-button @click="onCloseDeleteModal"
                                                                    size="small">
-                                                            {{ $tc('sw-settings-snippet.list.buttonCancel') }}
+                                                            {{ $tc('sw-settings-snippet.list.buttonCancel', isCustomState) }}
                                                         </sw-button>
                                                     {% endblock %}
 
@@ -200,7 +200,7 @@
                                                                    :disabled="hasResetableItems && !isCustomState && resetItems.length !== 1"
                                                                    variant="primary"
                                                                    size="small">
-                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete') }}
+                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete', isCustomState) }}
                                                         </sw-button>
                                                     {% endblock %}
                                                 </template>
@@ -210,7 +210,9 @@
                                 </template>
 
                                 <template slot="empty">
-                                    <sw-empty-state :title="$tc('sw-settings-snippet.list.emptyStateHeadLine')"></sw-empty-state>
+                                    {% block sw_settings_snippet_list_grid_empty_state %}
+                                        <sw-empty-state :title="$tc('sw-settings-snippet.list.emptyStateHeadLine')"></sw-empty-state>
+                                    {% endblock %}
                                 </template>
 
                                 <template slot="pagination">

@@ -229,21 +229,13 @@ class VersionManager
                         $id = $data->getEntityId();
                         $id = $this->addVersionToPayload($id, $dataDefinition, Defaults::LIVE_VERSION);
 
-                        if ($deleteProtectionKey = $dataDefinition::getDeleteProtectionKey()) {
-                            $liveContext->getContext()->getDeleteProtection()->allow($deleteProtectionKey);
-                        }
-
                         $deletedEvents[] = $this->entityWriter->delete($dataDefinition, [$id], $liveContext);
 
                         break;
                 }
             }
 
-            $liveContext->getContext()->getDeleteProtection()->allow(VersionCommitDefinition::getDeleteProtectionKey());
-
             $this->entityWriter->delete(VersionCommitDefinition::class, [['id' => $commit->getId()]], $liveContext);
-
-            $liveContext->getContext()->getDeleteProtection()->disallow(VersionCommitDefinition::getDeleteProtectionKey());
         }
 
         $newData = array_map(function (VersionCommitDataEntity $data) {
@@ -276,10 +268,7 @@ class VersionManager
         ];
 
         $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
-
-        $writeContext->getContext()->getDeleteProtection()->allow(VersionDefinition::getDeleteProtectionKey());
         $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $writeContext);
-        $writeContext->getContext()->getDeleteProtection()->disallow(VersionDefinition::getDeleteProtectionKey());
 
         foreach ($entities as $entity) {
             // this entity will be deleted because of it's constraint
@@ -292,19 +281,7 @@ class VersionManager
             $primary = $entity['primary'];
             $primary = $this->addVersionToPayload($primary, $definition, $versionId);
 
-            $wasDeletionAllowed = false;
-            $deleteProtectionKey = $definition::getDeleteProtectionKey();
-
-            if ($deleteProtectionKey) {
-                $wasDeletionAllowed = $writeContext->getContext()->getDeleteProtection()->isAllowed($deleteProtectionKey);
-                $writeContext->getContext()->getDeleteProtection()->allow(VersionDefinition::getDeleteProtectionKey());
-            }
-
             $this->entityWriter->delete($definition, [$primary], $versionContext);
-
-            if ($deleteProtectionKey && !$wasDeletionAllowed) {
-                $writeContext->getContext()->getDeleteProtection()->disallow($deleteProtectionKey);
-            }
         }
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($writtenEvents, $liveContext->getContext(), []);

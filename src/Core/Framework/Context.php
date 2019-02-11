@@ -43,11 +43,6 @@ class Context extends Struct
      */
     protected $writeProtection;
 
-    /**
-     * @var ProtectionStruct
-     */
-    protected $deleteProtection;
-
     public function __construct(
         SourceContext $sourceContext,
         array $rules = [],
@@ -69,7 +64,6 @@ class Context extends Struct
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
 
         $this->writeProtection = new ProtectionStruct();
-        $this->deleteProtection = new ProtectionStruct();
     }
 
     public static function createDefaultContext(): self
@@ -136,10 +130,5 @@ class Context extends Struct
     public function getWriteProtection(): ProtectionStruct
     {
         return $this->writeProtection;
-    }
-
-    public function getDeleteProtection(): ProtectionStruct
-    {
-        return $this->deleteProtection;
     }
 }

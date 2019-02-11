@@ -29,11 +29,6 @@ class VersionCommitDataDefinition extends EntityDefinition
         return false;
     }
 
-    public static function getDeleteProtectionKey(): ?string
-    {
-        return 'entity.version_commit_data';
-    }
-
     public static function getCollectionClass(): string
     {
         return VersionCommitDataCollection::class;

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -110,7 +109,6 @@ class EntityWriter implements EntityWriterInterface
      */
     public function delete(string $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
-        $this->validateDeleteProtection($definition, $writeContext->getContext());
         $this->validateWriteInput($ids);
 
         $commandQueue = new WriteCommandQueue();
@@ -390,22 +388,5 @@ class EntityWriter implements EntityWriterInterface
         }
 
         return $convertedPayload;
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function validateDeleteProtection($definition, Context $context): void
-    {
-        $protectionName = $definition::getDeleteProtectionKey();
-        if ($protectionName === null) {
-            return;
-        }
-
-        if ($context->getDeleteProtection()->isAllowed($protectionName)) {
-            return;
-        }
-
-        throw new InsufficientDeletePermissionException($protectionName);
     }
 }

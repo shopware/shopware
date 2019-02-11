@@ -17,7 +17,12 @@ class SnippetFlattener implements SnippetFlattenerInterface
                 $result = array_merge($result, $this->flatten($value, $newIndex, $additionalParameters));
             } else {
                 if (!empty($additionalParameters)) {
-                    $result[$newIndex] = array_merge(['value' => $value, 'origin' => $value, 'translationKey' => $newIndex], $additionalParameters);
+                    $result[$newIndex] = array_merge([
+                        'value' => $value,
+                        'origin' => $value,
+                        'resetTo' => $value,
+                        'translationKey' => $newIndex,
+                    ], $additionalParameters);
                     continue;
                 }
 

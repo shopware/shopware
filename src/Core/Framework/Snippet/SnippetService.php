@@ -291,6 +291,7 @@ class SnippetService implements SnippetServiceInterface
                             'translationKey' => $index,
                             'author' => '',
                             'origin' => '',
+                            'resetTo' => '',
                             'setId' => $currentSetId,
                             'id' => null,
                         ];

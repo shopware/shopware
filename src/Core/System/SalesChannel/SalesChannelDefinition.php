@@ -65,8 +65,8 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required()),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
-            new FkField('main_navigation_id', 'mainNavigationId', NavigationDefinition::class),
-            new ReferenceVersionField(NavigationDefinition::class, 'main_navigation_version_id'),
+            new FkField('navigation_id', 'navigationId', NavigationDefinition::class),
+            new ReferenceVersionField(NavigationDefinition::class, 'navigation_version_id'),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
@@ -92,7 +92,7 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', false, 'id'),
             (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
-            new ManyToOneAssociationField('mainNavigation', 'main_navigation_id', NavigationDefinition::class, false),
+            new ManyToOneAssociationField('navigation', 'navigation_id', NavigationDefinition::class, false),
         ]);
     }
 }

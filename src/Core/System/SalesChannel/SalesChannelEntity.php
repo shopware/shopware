@@ -25,6 +25,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 class SalesChannelEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */
@@ -58,7 +59,7 @@ class SalesChannelEntity extends Entity
     /**
      * @var string|null
      */
-    protected $mainNavigationId;
+    protected $navigationId;
 
     /**
      * @var string|null
@@ -183,7 +184,7 @@ class SalesChannelEntity extends Entity
     /**
      * @var NavigationEntity|null
      */
-    protected $mainNavigation;
+    protected $navigation;
 
     public function getLanguageId(): string
     {
@@ -485,23 +486,23 @@ class SalesChannelEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getMainNavigationId(): ?string
+    public function getNavigationId(): ?string
     {
-        return $this->mainNavigationId;
+        return $this->navigationId;
     }
 
-    public function setMainNavigationId(?string $mainNavigationId): void
+    public function setNavigationId(?string $navigationId): void
     {
-        $this->mainNavigationId = $mainNavigationId;
+        $this->navigationId = $navigationId;
     }
 
-    public function getMainNavigation(): ?NavigationEntity
+    public function getNavigation(): ?NavigationEntity
     {
-        return $this->mainNavigation;
+        return $this->navigation;
     }
 
-    public function setMainNavigation(?NavigationEntity $mainNavigation): void
+    public function setNavigation(?NavigationEntity $navigation): void
     {
-        $this->mainNavigation = $mainNavigation;
+        $this->navigation = $navigation;
     }
 }

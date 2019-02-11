@@ -92,7 +92,7 @@ class NavigationEntity extends Entity implements TreeAwareInterface
     /**
      * @var SalesChannelCollection|null
      */
-    protected $salesChannels;
+    protected $salesChannelNavigations;
 
     public function getParentId(): ?string
     {
@@ -214,14 +214,14 @@ class NavigationEntity extends Entity implements TreeAwareInterface
         $this->category = $category;
     }
 
-    public function getSalesChannels(): ?SalesChannelCollection
+    public function getSalesChannelNavigations(): ?SalesChannelCollection
     {
-        return $this->salesChannels;
+        return $this->salesChannelNavigations;
     }
 
-    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    public function setSalesChannelNavigations(SalesChannelCollection $salesChannelNavigations): void
     {
-        $this->salesChannels = $salesChannels;
+        $this->salesChannelNavigations = $salesChannelNavigations;
     }
 
     public function getCmsPageId(): ?string

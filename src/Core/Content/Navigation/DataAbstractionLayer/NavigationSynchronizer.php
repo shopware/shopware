@@ -4,13 +4,13 @@ namespace Shopware\Core\Content\Navigation\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class NavigationSynchronizer implements IndexerInterface
+class NavigationSynchronizer implements EventSubscriberInterface
 {
     /**
      * @var EntityRepositoryInterface
@@ -28,8 +28,11 @@ class NavigationSynchronizer implements IndexerInterface
         $this->connection = $connection;
     }
 
-    public function index(\DateTime $timestamp): void
+    public static function getSubscribedEvents()
     {
+        return [
+            'entity.written' => ['refresh', 100],
+        ];
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void

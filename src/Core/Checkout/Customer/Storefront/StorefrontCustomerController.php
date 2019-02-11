@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -37,7 +37,7 @@ class StorefrontCustomerController extends AbstractController
     private $accountService;
 
     /**
-     * @var CheckoutContextService
+     * @var CheckoutContextServiceInterface
      */
     private $checkoutContextService;
 
@@ -49,7 +49,7 @@ class StorefrontCustomerController extends AbstractController
     public function __construct(
         Serializer $serializer,
         AccountService $accountService,
-        CheckoutContextService $checkoutContextService,
+        CheckoutContextServiceInterface $checkoutContextService,
         EntityRepositoryInterface $orderRepository
     ) {
         $this->serializer = $serializer;
@@ -113,7 +113,8 @@ class StorefrontCustomerController extends AbstractController
         $this->accountService->saveEmail($request, $context);
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
-            $context->getToken()
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
         );
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
@@ -133,7 +134,8 @@ class StorefrontCustomerController extends AbstractController
         $this->accountService->savePassword($request, $context);
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
-            $context->getToken()
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
         );
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
@@ -147,7 +149,8 @@ class StorefrontCustomerController extends AbstractController
         $this->accountService->saveProfile($request, $context);
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
-            $context->getToken()
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
         );
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
@@ -207,7 +210,8 @@ class StorefrontCustomerController extends AbstractController
 
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
-            $context->getToken()
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
         );
 
         return new JsonResponse($this->serialize($addressId));

@@ -12,10 +12,11 @@ use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class NavigationPageLoader
+class NavigationPageLoader implements PageLoaderInterface
 {
     /**
      * @var StorefrontCmsPageRepository
@@ -28,7 +29,7 @@ class NavigationPageLoader
     private $slotDataResolver;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $genericLoader;
 
@@ -44,7 +45,7 @@ class NavigationPageLoader
 
     public function __construct(
         EntityRepositoryInterface $navigationRepository,
-        PageWithHeaderLoader $genericLoader,
+        PageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         StorefrontCmsPageRepository $storefrontCmsPageRepository,
         SlotDataResolver $slotDataResolver

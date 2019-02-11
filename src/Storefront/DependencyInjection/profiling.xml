@@ -7,6 +7,14 @@
     <services>
 
         <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
+                 id="NavigationPageLoaderProfiler"
+                 decorates="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
+
+            <argument type="service" id="NavigationPageLoaderProfiler.inner" />
+            <argument type="service" id="debug.stopwatch" />
+        </service>
+
+        <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
                  id="HomePageLoaderProfiler"
                  decorates="Shopware\Storefront\Page\Home\HomePageLoader">
 

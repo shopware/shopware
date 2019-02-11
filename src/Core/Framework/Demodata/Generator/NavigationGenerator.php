@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
@@ -56,7 +56,8 @@ class NavigationGenerator implements DemodataGeneratorInterface
         $this->faker = $demodataContext->getFaker();
 
         $pageIds = $this->connection->fetchAll('SELECT id FROM cms_page LIMIT 500');
-        $pageIds = array_map(function($id) {
+
+        $pageIds = array_map(function ($id) {
             return Uuid::fromBytesToHex($id['id']);
         }, $pageIds);
 
@@ -64,9 +65,11 @@ class NavigationGenerator implements DemodataGeneratorInterface
         $navigationRootId = Uuid::uuid4()->getHex();
 
         //clear all navigation items
+        $this->connection->executeUpdate('UPDATE sales_channel SET navigation_id = NULL');
+
         $this->connection->executeUpdate('DELETE FROM navigation');
 
-        $root = ['id' => $navigationRootId, 'name' => 'Main navigation'];
+        $root = ['id' => $navigationRootId, 'name' => 'Main navigation', 'cmsPageId' => $this->faker->randomElement($pageIds)];
 
         $context = Context::createDefaultContext();
 
@@ -89,7 +92,7 @@ class NavigationGenerator implements DemodataGeneratorInterface
         }
 
         $this->connection->executeUpdate(
-            'UPDATE sales_channel SET main_navigation_id = :id, main_navigation_version_id = :version',
+            'UPDATE sales_channel SET navigation_id = :id, navigation_version_id = :version',
             ['id' => Uuid::fromHexToBytes($navigationRootId), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
         );
 
@@ -101,8 +104,7 @@ class NavigationGenerator implements DemodataGeneratorInterface
         Context $context,
         string $navigationParentId,
         string $categoryParentId = null
-    ): array
-    {
+    ): array {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', $categoryParentId));
 

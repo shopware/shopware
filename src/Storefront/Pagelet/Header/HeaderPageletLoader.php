@@ -53,7 +53,7 @@ class HeaderPageletLoader implements PageLoaderInterface
     {
         $navigationId = $request->optionalRouting(
             'navigationId',
-            $context->getSalesChannel()->getMainNavigationId()
+            $context->getSalesChannel()->getNavigationId()
         );
 
         if (!$navigationId) {

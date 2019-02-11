@@ -52,5 +52,12 @@
 
             <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Attribute\Api\AttributeSetActionController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
     </services>
 </container>

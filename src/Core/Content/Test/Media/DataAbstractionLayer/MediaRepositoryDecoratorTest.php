@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -38,8 +37,6 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $mediaId = Uuid::uuid4()->getHex();
 
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-
         $this->mediaRepository->create([
                 [
                     'id' => $mediaId,
@@ -52,8 +49,6 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
-
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
@@ -68,10 +63,6 @@ class MediaRepositoryDecoratorTest extends TestCase
     public function testDeleteMediaEntityWithThumbnails(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
-        $this->context->getWriteProtection()->allow(
-            MediaProtectionFlags::WRITE_META_INFO,
-            MediaProtectionFlags::WRITE_THUMBNAILS
-        );
 
         $this->mediaRepository->create([
             [
@@ -93,9 +84,6 @@ class MediaRepositoryDecoratorTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
-
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
         $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, 100, 200, true);
@@ -114,7 +102,6 @@ class MediaRepositoryDecoratorTest extends TestCase
         $firstId = Uuid::uuid4()->getHex();
         $secondId = Uuid::uuid4()->getHex();
 
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->create([
             [
                 'id' => $firstId,
@@ -133,7 +120,6 @@ class MediaRepositoryDecoratorTest extends TestCase
         ],
             $this->context
         );
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $read = $this->mediaRepository->search(
             new Criteria(
@@ -173,7 +159,6 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $firstId = Uuid::uuid4()->getHex();
 
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->create([
             [
                 'id' => $firstId,
@@ -182,7 +167,6 @@ class MediaRepositoryDecoratorTest extends TestCase
         ],
             $this->context
         );
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 
@@ -194,7 +178,6 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $firstId = Uuid::uuid4()->getHex();
 
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->mediaRepository->create([
             [
                 'id' => $firstId,
@@ -206,7 +189,6 @@ class MediaRepositoryDecoratorTest extends TestCase
         ],
             $this->context
         );
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 

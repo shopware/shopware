@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteField
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -196,9 +195,6 @@ class WriteCommandExtractor
 
         /** @var Field $field */
         foreach ($fields as $field) {
-            if ($field->is(ReadOnly::class)) {
-                continue;
-            }
             $filtered[$field->getExtractPriority()][] = $field;
         }
 
@@ -343,16 +339,30 @@ class WriteCommandExtractor
         /** @var WriteProtected $flag */
         $flag = $field->getFlag(WriteProtected::class);
 
-        if ($parameters->getContext()->getContext()->getWriteProtection()->isAllowed($flag->getPermissionKey())) {
+        if ($flag->isAllowed($parameters->getContext()->getContext()->getSourceContext()->getOrigin())) {
             return;
+        }
+
+        $message = 'This field is write-protected.';
+        $allowedOrigins = '';
+        if ($flag->getAllowedOrigins()) {
+            $message .= ' (Got: %s and %s is required)';
+            $allowedOrigins = implode(' or ', $flag->getAllowedOrigins());
         }
 
         $violationList = new ConstraintViolationList();
         $violationList->add(
             new ConstraintViolation(
-                'This field is write-protected.',
-                'This field is write-protected.',
-                [],
+                sprintf(
+                    $message,
+                    $parameters->getContext()->getContext()->getSourceContext()->getOrigin(),
+                    $allowedOrigins
+                ),
+                $message,
+                [
+                    $parameters->getContext()->getContext()->getSourceContext()->getOrigin(),
+                    $allowedOrigins,
+                ],
                 $data->getValue(),
                 $data->getKey(),
                 $data->getValue()

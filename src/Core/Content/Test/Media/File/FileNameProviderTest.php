@@ -4,7 +4,6 @@ namespace src\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileNameProvider;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,7 +27,6 @@ class FileNameProviderTest extends TestCase
         $this->nameProvider = $this->getContainer()->get(FileNameProvider::class);
 
         $this->context = Context::createDefaultContext();
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->setFixtureContext($this->context);
     }

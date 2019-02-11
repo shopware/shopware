@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -31,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
@@ -316,7 +316,7 @@ class VersionManager
 
         $keepIds = $newId === $id;
 
-        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition);
+        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -324,22 +324,22 @@ class VersionManager
         return $this->entityWriter->insert($definition, [$data], $versionContext);
     }
 
-    private function filterPropertiesForClone(string $definition, array $data, bool $keepIds, string $cloneId, string $cloneDefinition): array
+    private function filterPropertiesForClone(string $definition, array $data, bool $keepIds, string $cloneId, string $cloneDefinition, Context $context): array
     {
         $extensions = [];
         $payload = [];
 
         /** @var string|EntityDefinition $definition */
-
-        /** @var FieldCollection $fields */
-        $fields = $definition::getFields()->filter(
-            function (Field $field) {
-                return !$field->is(ReadOnly::class);
-            }
-        );
+        $fields = $definition::getFields();
 
         /** @var Field $field */
         foreach ($fields as $field) {
+            /** @var WriteProtected|null $writeProtection */
+            $writeProtection = $field->getFlag(WriteProtected::class);
+            if ($writeProtection && !$writeProtection->isAllowed($context->getSourceContext()->getOrigin())) {
+                continue;
+            }
+
             //set data and payload cursor to root or extensions to simplify following if conditions
             $dataCursor = &$data;
 
@@ -392,7 +392,7 @@ class VersionManager
             if ($field instanceof OneToManyAssociationField) {
                 $nested = [];
                 foreach ($value as $item) {
-                    $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $item, $keepIds, $cloneId, $cloneDefinition);
+                    $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $item, $keepIds, $cloneId, $cloneDefinition, $context);
 
                     if (!$keepIds) {
                         $nestedItem = $this->removePrimaryKey($field, $nestedItem);
@@ -429,7 +429,7 @@ class VersionManager
             }
 
             if ($field instanceof OneToOneAssociationField && $value) {
-                $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $value, $keepIds, $cloneId, $cloneDefinition);
+                $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $value, $keepIds, $cloneId, $cloneDefinition, $context);
 
                 if (!$keepIds) {
                     $nestedItem = $this->removePrimaryKey($field, $nestedItem);

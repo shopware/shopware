@@ -5,17 +5,24 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 class WriteProtected extends Flag
 {
     /**
-     * @var string
+     * @var array[string]bool
      */
-    protected $permissionKey;
+    private $allowedOrigins = [];
 
-    public function __construct(string $permissionKey)
+    public function __construct(string ...$allowedOrigins)
     {
-        $this->permissionKey = $permissionKey;
+        foreach ($allowedOrigins as $origin) {
+            $this->allowedOrigins[$origin] = true;
+        }
     }
 
-    public function getPermissionKey(): string
+    public function getAllowedOrigins(): array
     {
-        return $this->permissionKey;
+        return array_keys($this->allowedOrigins);
+    }
+
+    public function isAllowed(string $origin): bool
+    {
+        return isset($this->allowedOrigins[$origin]);
     }
 }

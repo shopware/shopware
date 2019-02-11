@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -468,7 +467,6 @@ class WriterTest extends TestCase
         static::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
-        $writeContext->getContext()->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->getWriter()->insert(
             MediaDefinition::class,
             [
@@ -496,7 +494,6 @@ class WriterTest extends TestCase
         static::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
-        $writeContext->getContext()->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->getWriter()->insert(
             MediaDefinition::class,
             [

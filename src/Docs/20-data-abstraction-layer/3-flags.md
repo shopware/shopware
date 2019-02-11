@@ -54,7 +54,7 @@ This flag does not have any parameters.
 ### ReadOnly
 
 ```php
-(new IdField('id', 'id'))->addFlags(new ReadOnly())
+(new IdField('id', 'id'))->addFlags(new WriteProtected())
 ```
 
 Fields with this flag cannot be written.

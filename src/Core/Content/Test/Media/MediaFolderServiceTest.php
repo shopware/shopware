@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaFolderService;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -51,7 +50,6 @@ class MediaFolderServiceTest extends TestCase
         $this->mediaFolderConfigRepo = $this->getContainer()->get('media_folder_configuration.repository');
 
         $this->context = Context::createDefaultContext();
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->mediaFolderService = $this->getContainer()->get(MediaFolderService::class);
     }

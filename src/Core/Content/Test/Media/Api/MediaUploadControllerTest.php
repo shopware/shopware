@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\Media\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -269,10 +268,8 @@ class MediaUploadControllerTest extends TestCase
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->setFixtureContext($context);
         $media = $this->getPng();
-        $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $url = sprintf(
             '/api/v%s/_action/media/%s/rename',
@@ -301,10 +298,8 @@ class MediaUploadControllerTest extends TestCase
     public function testRenameMediaFileHappyPath(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->setFixtureContext($context);
         $media = $this->getPng();
-        $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->getPublicFilesystem()->put($this->urlGenerator->getRelativeMediaUrl($media), 'some content');
 
@@ -336,10 +331,8 @@ class MediaUploadControllerTest extends TestCase
     public function testProvideName(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->setFixtureContext($context);
         $media = $this->getPng();
-        $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $url = sprintf(
             '/api/v%s/_action/media/provide-name?fileName=%s&extension=png',
@@ -362,10 +355,8 @@ class MediaUploadControllerTest extends TestCase
     public function testProvideNameProvidesOwnName(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->setFixtureContext($context);
         $media = $this->getPng();
-        $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
 
         $url = sprintf(
             '/api/v%s/_action/media/provide-name?fileName=%s&extension=png&mediaId=%s',

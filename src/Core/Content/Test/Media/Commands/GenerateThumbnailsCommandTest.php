@@ -53,7 +53,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
-        $this->context = $this->getContextWithWriteAccess();
+        $this->context = Context::createDefaultContext();
     }
 
     public function testExecuteHappyPath(): void

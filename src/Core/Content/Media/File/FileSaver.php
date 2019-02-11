@@ -15,17 +15,20 @@ use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
-use Shopware\Core\Content\Media\Metadata\MetadataUpdater;
+use Shopware\Core\Content\Media\Metadata\Metadata;
+use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
+use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class FileSaver
@@ -61,16 +64,22 @@ class FileSaver
     private $messageBus;
 
     /**
-     * @var MetadataUpdater
+     * @var MetadataLoader
      */
-    private $metadataUpdater;
+    private $metadataLoader;
+
+    /**
+     * @var TypeDetector
+     */
+    private $typeDetector;
 
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,
-        MetadataUpdater $metadataUpdater,
+        MetadataLoader $metadataLoader,
+        TypeDetector $typeDetector,
         MessageBusInterface $messageBus
     ) {
         $this->mediaRepository = $mediaRepository;
@@ -78,8 +87,9 @@ class FileSaver
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailService = $thumbnailService;
         $this->fileNameValidator = new FileNameValidator();
+        $this->metadataLoader = $metadataLoader;
+        $this->typeDetector = $typeDetector;
         $this->messageBus = $messageBus;
-        $this->metadataUpdater = $metadataUpdater;
     }
 
     /**
@@ -118,14 +128,17 @@ class FileSaver
 
         $this->removeOldMediaData($currentMedia, $context);
 
+        $mediaType = $this->typeDetector->detect($mediaFile);
+        $rawMetadata = $this->metadataLoader->loadFromFile($mediaFile, $mediaType);
+
         $media = $this->updateMediaEntity(
             $mediaFile,
             $destination,
             $currentMedia,
+            $rawMetadata,
+            $mediaType,
             $context
         );
-
-        $this->metadataUpdater->updateMetadataAndMediaType($mediaFile, $mediaId);
 
         $this->saveFileToMediaDir($mediaFile, $media);
 
@@ -203,7 +216,6 @@ class FileSaver
             }
         }
 
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $updateData = [
             'id' => $updatedMedia->getId(),
             'fileName' => $updatedMedia->getFileName(),
@@ -211,7 +223,9 @@ class FileSaver
         ];
 
         try {
-            $this->mediaRepository->update([$updateData], $context);
+            $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($updateData) {
+                $this->mediaRepository->update([$updateData], $context);
+            });
         } catch (\Exception $e) {
             $this->rollbackRenameAction($currentMedia, $renamedFiles);
         }
@@ -276,6 +290,8 @@ class FileSaver
         MediaFile $mediaFile,
         string $destination,
         MediaEntity $media,
+        Metadata $metadata,
+        MediaType $mediaType,
         Context $context
     ): MediaEntity {
         $data = [
@@ -284,11 +300,14 @@ class FileSaver
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $destination,
+            'metaDataRaw' => serialize($metadata),
+            'mediaTypeRaw' => serialize($mediaType),
             'uploadedAt' => new \DateTime(),
         ];
 
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-        $this->mediaRepository->update([$data], $context);
+        $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($data) {
+            $this->mediaRepository->update([$data], $context);
+        });
 
         return $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
     }

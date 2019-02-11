@@ -26,8 +26,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Internal;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -282,7 +283,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $definition['required'] = $required;
         }
 
-        if ($jsonField->is(ReadOnly::class)) {
+        /** @var WriteProtected|null $writeProtection */
+        $writeProtection = $jsonField->getFlag(WriteProtected::class);
+        if ($writeProtection && !$writeProtection->isAllowed(SourceContext::ORIGIN_API)) {
             $definition['readOnly'] = true;
         }
 
@@ -378,7 +381,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             $attr = $this->getPropertyByField(\get_class($field));
-            if ($field->is(ReadOnly::class) || \in_array($field->getPropertyName(), ['createdAt', 'updatedAt'])) {
+
+            /** @var WriteProtected|null $writeProtectedFlag */
+            $writeProtectedFlag = $field->getFlag(WriteProtected::class);
+            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt']) || ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API))) {
                 $attr['readOnly'] = true;
             }
 
@@ -1088,7 +1094,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             if ($field instanceof OneToManyAssociationField) {
                 $schema = $this->createToManyLinkage($field, $path);
 
-                if ($field->is(ReadOnly::class)) {
+                /** @var WriteProtected|null $writeProtectedFlag */
+                $writeProtectedFlag = $field->getFlag(WriteProtected::class);
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
                     $schema['readOnly'] = true;
                 }
 
@@ -1100,7 +1108,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             if ($field instanceof ManyToManyAssociationField) {
                 $schema = $this->createToManyLinkage($field, $path);
 
-                if ($field->is(ReadOnly::class)) {
+                /** @var WriteProtected|null $writeProtectedFlag */
+                $writeProtectedFlag = $field->getFlag(WriteProtected::class);
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
                     $schema['readOnly'] = true;
                 }
 
@@ -1112,7 +1122,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $schema = $this->createToOneLinkage($field, $path);
 
-                if ($field->is(ReadOnly::class)) {
+                /** @var WriteProtected|null $writeProtectedFlag */
+                $writeProtectedFlag = $field->getFlag(WriteProtected::class);
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
                     $schema['readOnly'] = true;
                 }
 
@@ -1124,7 +1136,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             if ($field instanceof JsonField) {
                 $schema = $this->resolveJsonField($field);
 
-                if ($field->is(ReadOnly::class)) {
+                /** @var WriteProtected|null $writeProtectedFlag */
+                $writeProtectedFlag = $field->getFlag(WriteProtected::class);
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
                     $schema['readOnly'] = true;
                 }
 

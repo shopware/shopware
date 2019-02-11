@@ -12,8 +12,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -62,9 +62,6 @@ class EnrichmentTest extends TestCase
     {
         $id = Uuid::uuid4()->getHex();
 
-        $context = $this->context->getContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-
         $this->productRepository->create([
             [
                 'id' => $id,
@@ -84,7 +81,7 @@ class EnrichmentTest extends TestCase
                     ],
                 ],
             ],
-        ], $context);
+        ], Context::createDefaultContext());
 
         $cart = new Cart('test', 'test');
         $cart->add(
@@ -117,9 +114,6 @@ class EnrichmentTest extends TestCase
     {
         $id = Uuid::uuid4()->getHex();
 
-        $context = $this->context->getContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-
         $this->productRepository->create([
             [
                 'id' => $id,
@@ -142,7 +136,7 @@ class EnrichmentTest extends TestCase
                     ],
                 ],
             ],
-        ], $context);
+        ], Context::createDefaultContext());
 
         $cart = new Cart('test', 'test');
         $cart->add(

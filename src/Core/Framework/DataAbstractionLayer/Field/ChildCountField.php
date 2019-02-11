@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 
 class ChildCountField extends IntField
 {
     public function __construct()
     {
         parent::__construct('child_count', 'childCount');
-        $this->addFlags(new ReadOnly());
+        $this->addFlags(new WriteProtected());
     }
 }

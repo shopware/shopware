@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
@@ -1456,7 +1455,6 @@ class EntityReaderTest extends TestCase
     public function testReadRelationWithNestedToManyRelations(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO, MediaProtectionFlags::WRITE_THUMBNAILS);
 
         $data = [
             'id' => Uuid::uuid4()->getHex(),

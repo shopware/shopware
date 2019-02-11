@@ -16,9 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 
 class ProductStreamDefinition extends EntityDefinition
 {
@@ -41,8 +41,8 @@ class ProductStreamDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new JsonField('api_filter', 'apiFilter'))->setFlags(new ReadOnly()),
-            (new BoolField('invalid', 'invalid'))->setFlags(new ReadOnly()),
+            (new JsonField('api_filter', 'apiFilter'))->setFlags(new WriteProtected()),
+            (new BoolField('invalid', 'invalid'))->setFlags(new WriteProtected()),
             new CreatedAtField(),
             new UpdatedAtField(),
 

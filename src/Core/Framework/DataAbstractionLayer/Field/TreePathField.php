@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
+use Shopware\Core\Framework\SourceContext;
 
-class TreePathField extends LongTextField implements StorageAware
+class TreePathField extends LongTextField
 {
     private $pathField;
 
@@ -14,7 +14,7 @@ class TreePathField extends LongTextField implements StorageAware
         $this->pathField = $pathField;
         parent::__construct($storageName, $propertyName);
 
-        $this->addFlags(new ReadOnly());
+        $this->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM));
     }
 
     public function getPathField(): string

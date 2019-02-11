@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use RuntimeException;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\Metadata\MetadataUpdater;
+use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,9 +23,9 @@ class GenerateMediaTypesCommand extends Command
     private $io;
 
     /**
-     * @var MetadataUpdater
+     * @var TypeDetector
      */
-    private $updater;
+    private $typeDetector;
 
     /**
      * @var EntityRepositoryInterface
@@ -38,17 +37,18 @@ class GenerateMediaTypesCommand extends Command
      */
     private $batchSize;
 
-    public function __construct(MetadataUpdater $updater, EntityRepositoryInterface $mediaRepository)
+    public function __construct(TypeDetector $typeDetector, EntityRepositoryInterface $mediaRepository)
     {
         parent::__construct();
-        $this->updater = $updater;
+
+        $this->typeDetector = $typeDetector;
         $this->mediaRepository = $mediaRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function configure(): void
+    protected function configure()
     {
         $this
             ->setName('media:generate-media-types')
@@ -65,7 +65,6 @@ class GenerateMediaTypesCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->batchSize = $this->validateBatchSize($input);
 
         $this->io->comment('Starting to generate MediaTypes. This may take some time...');
@@ -84,7 +83,7 @@ class GenerateMediaTypesCommand extends Command
         }
 
         if (!is_numeric($batchSize)) {
-            throw new RuntimeException('BatchSize is not numeric');
+            throw new \Exception('BatchSize is not numeric');
         }
 
         return (int) $batchSize;
@@ -95,8 +94,9 @@ class GenerateMediaTypesCommand extends Command
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->setLimit(0);
+        $result = $this->mediaRepository->search($criteria, $context);
 
-        return $this->mediaRepository->search($criteria, $context)->getTotal();
+        return $result->getTotal();
     }
 
     private function detectMediaTypes($context): void
@@ -106,14 +106,14 @@ class GenerateMediaTypesCommand extends Command
         do {
             $result = $this->mediaRepository->search($criteria, $context);
             foreach ($result->getEntities() as $media) {
-                $this->detectMediaType($media);
+                $this->detectMediaType($context, $media);
             }
             $this->io->progressAdvance($result->count());
             $criteria->setOffset($criteria->getOffset() + $this->batchSize);
         } while ($result->getTotal() > $this->batchSize);
     }
 
-    private function detectMediaType(MediaEntity $media): void
+    private function detectMediaType(Context $context, MediaEntity $media): void
     {
         if (!$media->hasFile()) {
             return;
@@ -126,7 +126,12 @@ class GenerateMediaTypesCommand extends Command
             $media->getFileSize()
         );
 
-        $this->updater->updateMediaType($file, $media->getId());
+        $type = $this->typeDetector->detect($file);
+        $changeSet = ['id' => $media->getId(), 'mediaTypeRaw' => serialize($type)];
+
+        $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($changeSet) {
+            $this->mediaRepository->upsert([$changeSet], $context);
+        });
     }
 
     private function createCriteria(): Criteria

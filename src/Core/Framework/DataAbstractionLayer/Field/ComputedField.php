@@ -19,7 +19,7 @@ class ComputedField extends Field implements StorageAware
 
         $this->storageName = $storageName;
 
-        $this->addFlags(new ReadOnly(), new Internal());
+        $this->addFlags(new Internal());
     }
 
     public function getStorageName(): string

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 
 class VersionCommitDataDefinition extends EntityDefinition
@@ -52,7 +53,7 @@ class VersionCommitDataDefinition extends EntityDefinition
             new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, false),
             new IdField('user_id', 'userId'),
             new IdField('integration_id', 'integrationId'),
-            new IntField('auto_increment', 'autoIncrement'),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
             (new StringField('entity_name', 'entityName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new JsonField('entity_id', 'entityId'))->addFlags(new Required()),
             (new StringField('action', 'action'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),

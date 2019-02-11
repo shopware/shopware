@@ -47,7 +47,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->generateMediaTypesCommand = $this->getContainer()->get(GenerateMediaTypesCommand::class);
 
-        $this->context = $this->getContextWithWriteAccess();
+        $this->context = Context::createDefaultContext();
     }
 
     public function testExecuteHappyPath(): void

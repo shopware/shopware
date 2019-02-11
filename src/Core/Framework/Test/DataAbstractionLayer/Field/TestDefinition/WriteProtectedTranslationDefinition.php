@@ -27,6 +27,7 @@ class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             new StringField('protected', 'protected'),
+            new StringField('system_protected', 'systemProtected'),
         ]);
     }
 }

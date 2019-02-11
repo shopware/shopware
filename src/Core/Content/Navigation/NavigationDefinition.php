@@ -25,6 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class NavigationDefinition extends EntityDefinition
@@ -63,8 +65,8 @@ class NavigationDefinition extends EntityDefinition
             new TranslatedField('name'),
             new TranslatedField('slotConfig'),
 
-            new TreeLevelField('level', 'level'),
-            new TreePathField('path', 'path'),
+            (new TreeLevelField('level', 'level'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new TreePathField('path', 'path'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
             new ChildCountField(),
 
             new CreatedAtField(),

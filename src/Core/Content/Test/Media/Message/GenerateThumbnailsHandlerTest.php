@@ -3,7 +3,8 @@
 namespace Shopware\Core\Content\Test\Media\Message;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
@@ -19,13 +20,26 @@ class GenerateThumbnailsHandlerTest extends TestCase
     use IntegrationTestBehaviour,
         MediaFixtures;
 
+    /**
+     * @var UrlGeneratorInterface
+     */
     private $urlGenerator;
+
     /**
      * @var EntityRepositoryInterface
      */
     private $mediaRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $thumbnailRepository;
+
+    /**
+     * @var Context
+     */
     private $context;
+
     /**
      * @var GenerateThumbnailsHandler
      */
@@ -37,7 +51,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->handler = $this->getContainer()->get(GenerateThumbnailsHandler::class);
     }
@@ -47,7 +60,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
         $this->thumbnailRepository->create([
             [
                 'mediaId' => $media->getId(),
@@ -60,7 +72,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'height' => 150,
             ],
         ], $this->context);
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
+
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
@@ -77,7 +89,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
 
-        $filteredThumbnails = $media->getThumbnails()->filter(function ($thumbnail) {
+        $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
             return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300) ||
                 ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
@@ -88,7 +100,8 @@ class GenerateThumbnailsHandlerTest extends TestCase
             $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
-                'Thumbnail: ' . $path . ' does not exist');
+                'Thumbnail: ' . $path . ' does not exist'
+            );
         }
     }
 
@@ -97,7 +110,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
         $this->thumbnailRepository->create([
             [
                 'mediaId' => $media->getId(),
@@ -105,7 +117,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'height' => 987,
             ],
         ], $this->context);
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
+
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
@@ -119,21 +131,24 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $this->handler->__invoke($msg);
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
 
-        $filteredThumbnails = $media->getThumbnails()->filter(function ($thumbnail) {
+        $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
             return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300) ||
                 ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
 
         static::assertEquals(2, $filteredThumbnails->count());
+
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
             $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
-                'Thumbnail: ' . $path . ' does not exist');
+                'Thumbnail: ' . $path . ' does not exist'
+            );
         }
     }
 }

@@ -1787,7 +1787,7 @@ class ProductRepositoryTest extends TestCase
 
     private function createContext(array $ruleIds = []): Context
     {
-        $sourceContext = new SourceContext('cli');
+        $sourceContext = new SourceContext();
         $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         return new Context($sourceContext, $ruleIds);

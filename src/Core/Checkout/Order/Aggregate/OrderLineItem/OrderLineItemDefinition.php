@@ -27,8 +27,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 
 class OrderLineItemDefinition extends EntityDefinition
 {
@@ -76,15 +76,15 @@ class OrderLineItemDefinition extends EntityDefinition
             (new CalculatedPriceField('price', 'price'))->setFlags(new Required()),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->setFlags(new Required()),
 
-            (new FloatField('unit_price', 'unitPrice'))->addFlags(new ReadOnly()),
-            (new FloatField('total_price', 'totalPrice'))->addFlags(new ReadOnly()),
+            (new FloatField('unit_price', 'unitPrice'))->addFlags(new WriteProtected()),
+            (new FloatField('total_price', 'totalPrice'))->addFlags(new WriteProtected()),
             new StringField('description', 'description'),
             new StringField('type', 'type'),
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
-            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->addFlags(new CascadeDelete(), new ReadOnly()),
+            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             new ParentAssociationField(self::class, false),
             new ChildrenAssociationField(self::class),
         ]);

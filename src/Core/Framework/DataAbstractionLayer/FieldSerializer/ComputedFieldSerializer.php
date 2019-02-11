@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ComputedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -22,7 +23,11 @@ class ComputedFieldSerializer implements FieldSerializerInterface
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        throw new \RuntimeException('Computed fields can only be written using indexer.');
+        if (!$field instanceof ComputedField) {
+            throw new InvalidSerializerFieldException(ComputedField::class, $field);
+        }
+
+        yield $field->getStorageName() => $data->getValue();
     }
 
     public function decode(Field $field, $value)

@@ -8,9 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class WriteCommandQueue
@@ -93,10 +91,6 @@ class WriteCommandQueue
         /** @var string|EntityDefinition $definition */
         $fields = $definition::getFields()
             ->filter(function (Field $field) {
-                if ($field->is(ReadOnly::class)) {
-                    return false;
-                }
-
                 if ($field instanceof ManyToOneAssociationField) {
                     return true;
                 }
@@ -115,7 +109,6 @@ class WriteCommandQueue
         $dependencies = [];
 
         /** @var ManyToOneAssociationField $dependency */
-        /** @var FieldCollection $fields */
         foreach ($fields as $dependency) {
             $class = $dependency->getReferenceClass();
 

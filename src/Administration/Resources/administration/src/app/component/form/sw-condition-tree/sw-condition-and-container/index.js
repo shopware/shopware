@@ -68,19 +68,18 @@ export default {
 
     watch: {
         condition() {
-            this.conditionCheck();
+            this.createFirstPlaceholderIfNecessary();
         }
     },
 
     created() {
-        this.conditionCheck();
+        this.createFirstPlaceholderIfNecessary();
     },
 
     methods: {
-        conditionCheck() {
+        createFirstPlaceholderIfNecessary() {
             if (!this.condition.children) {
                 this.condition.children = [];
-                return;
             }
 
             if (!this.condition.children.length) {

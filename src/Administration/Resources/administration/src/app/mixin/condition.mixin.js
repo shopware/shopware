@@ -1,7 +1,7 @@
 import { Mixin } from 'src/core/shopware';
 
 /**
- * @module app/mixin/validation
+ * @module app/mixin/condition
  */
 Mixin.register('condition', {
     props: {

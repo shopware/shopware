@@ -74,6 +74,7 @@ return [
                 'mediaType' => null,
                 'uploadedAt' => null,
                 'mediaFolderId' => null,
+                'attributes' => null,
             ],
             'meta' => null,
             'relationships' => [

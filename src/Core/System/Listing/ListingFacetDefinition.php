@@ -46,6 +46,7 @@ class ListingFacetDefinition extends EntityDefinition
             new BoolField('display_in_categories', 'displayInCategories'),
             new BoolField('deletable', 'deletable'),
             new IntField('position', 'position'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(ListingFacetTranslationDefinition::class, 'listing_facet_id'))->addFlags(new Required()),

@@ -187,6 +187,11 @@ class CategoryEntity extends Entity
      */
     protected $nestedProducts;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -545,5 +550,15 @@ class CategoryEntity extends Entity
     public function setDisplayNestedProducts(bool $displayNestedProducts): void
     {
         $this->displayNestedProducts = $displayNestedProducts;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

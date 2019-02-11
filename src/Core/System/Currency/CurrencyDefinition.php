@@ -54,6 +54,7 @@ class CurrencyDefinition extends EntityDefinition
             new BoolField('is_default', 'isDefault'),
             new BoolField('placed_in_front', 'placedInFront'),
             new IntField('position', 'position'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'currency_id', false, 'id'))->addFlags(new RestrictDelete()),

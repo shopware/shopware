@@ -40,6 +40,11 @@ class UnitEntity extends Entity
      */
     protected $products;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getShortCode(): ?string
     {
         return $this->shortCode;
@@ -98,5 +103,15 @@ class UnitEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

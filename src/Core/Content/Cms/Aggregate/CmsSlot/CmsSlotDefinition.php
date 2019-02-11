@@ -50,6 +50,7 @@ class CmsSlotDefinition extends EntityDefinition
             (new StringField('slot', 'slot'))->addFlags(new Required()),
 
             new TranslatedField('config'),
+            new TranslatedField('attributes'),
 
             (new FkField('cms_block_id', 'blockId', CmsBlockDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, false),

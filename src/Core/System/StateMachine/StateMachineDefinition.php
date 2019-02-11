@@ -49,6 +49,7 @@ class StateMachineDefinition extends EntityDefinition
 
             (new StringField('technical_name', 'technicalName'))->setFlags(new Required()),
             (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            new TranslatedField('attributes'),
 
             new OneToManyAssociationField('states', StateMachineStateDefinition::class, 'state_machine_id', false),
             new OneToManyAssociationField('transitions', StateMachineTransitionDefinition::class, 'state_machine_id', false),

@@ -67,6 +67,11 @@ class CountryStateEntity extends Entity
      */
     protected $orderAddresses;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCountryId(): string
     {
         return $this->countryId;
@@ -175,5 +180,15 @@ class CountryStateEntity extends Entity
     public function setOrderAddresses(OrderAddressCollection $orderAddresses): void
     {
         $this->orderAddresses = $orderAddresses;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

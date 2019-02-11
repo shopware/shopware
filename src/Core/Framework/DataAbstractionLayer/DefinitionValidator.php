@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Column;
 use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -15,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
@@ -104,6 +107,10 @@ class DefinitionValidator
             }
 
             $violations = array_merge_recursive($violations, $this->validateAssociations($definition));
+
+            if (is_subclass_of($definition, EntityTranslationDefinition::class)) {
+                $violations = array_merge_recursive($violations, $this->validateEntityTranslationDefinitions($definition));
+            }
 
             $violations = array_merge_recursive($violations, $this->validateSchema($definition));
         }
@@ -310,6 +317,13 @@ class DefinitionValidator
                     $this->validateOneToMany($definition, $association)
                 );
 
+                if ($association instanceof TranslationsAssociationField) {
+                    $violations = array_merge_recursive(
+                        $violations,
+                        $this->validateTranslationAssociation($definition, $association->getReferenceClass())
+                    );
+                }
+
                 continue;
             }
 
@@ -328,6 +342,61 @@ class DefinitionValidator
                     $this->validateManyToMany($definition, $association)
                 );
             }
+        }
+
+        return $violations;
+    }
+
+    private function validateEntityTranslationDefinitions(string $translationDefinition): array
+    {
+        /** @var string|EntityTranslationDefinition $translationDefinition */
+        $violations = [];
+
+        $parentDefinitionClass = $translationDefinition::getParentDefinitionClass();
+        if (!\class_exists($parentDefinitionClass)) {
+            $violations[$translationDefinition] = sprintf('The getParentDefinitionClass `%s` for EntityTranslationDefinition `%s` does not exists', $parentDefinitionClass, $translationDefinition);
+        }
+
+        $translationsAssociationFields = $parentDefinitionClass::getFields()
+            ->filterInstance(TranslationsAssociationField::class)
+            ->filter(function (TranslationsAssociationField $f) use ($translationDefinition) {
+                return $f->getReferenceClass() === $translationDefinition;
+            })->getElements();
+
+        if (empty($translationsAssociationFields)) {
+            $violations[$parentDefinitionClass] = sprintf('The parentDefinitionClass `%s` for `%s` should define a `TranslationsAssociationField for `%s`. The parentDefinitionClass could be wrong too.', $parentDefinitionClass, $translationDefinition, $translationDefinition);
+        }
+
+        return $violations;
+    }
+
+    private function validateTranslationAssociation(string $parentDefinition, string $translationDefinition): array
+    {
+        if ($parentDefinition === CatalogDefinition::class) {
+            return []; // skip
+        }
+
+        /** @var string|EntityTranslationDefinition $parentDefinition */
+        /** @var string|EntityTranslationDefinition $translationDefinition */
+        $translatedFieldsInParent = array_keys($parentDefinition::getFields()->filterInstance(TranslatedField::class)->getElements());
+
+        $translatedFields = array_keys($translationDefinition::getFields()->filter(function (Field $f) {
+            return !$f->is(PrimaryKey::class)
+                && !$f instanceof AssociationInterface
+                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt'])
+                && !$f instanceof CatalogField;
+        })->getElements());
+
+        $violations = [];
+
+        $onlyParent = array_diff($translatedFieldsInParent, $translatedFields);
+        foreach ($onlyParent as $propertyName) {
+            $violations[$translationDefinition] = sprintf('Field `%s` defined in `%s`, but missing in `%s`', $propertyName, $parentDefinition, $translationDefinition);
+        }
+
+        $onlyTranslated = array_diff($translatedFields, $translatedFieldsInParent);
+        foreach ($onlyTranslated as $propertyName) {
+            $violations[$parentDefinition] = sprintf('Field `%s` defined in `%s`, but missing in `%s`. Please add `new TranslatedField(\'%s\') to `%s`', $propertyName, $translationDefinition, $parentDefinition, $propertyName, $parentDefinition);
         }
 
         return $violations;

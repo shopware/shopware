@@ -107,6 +107,11 @@ class PluginEntity extends Entity
      */
     protected $paymentMethods;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getName(): string
     {
         return $this->name;
@@ -295,5 +300,15 @@ class PluginEntity extends Entity
     public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

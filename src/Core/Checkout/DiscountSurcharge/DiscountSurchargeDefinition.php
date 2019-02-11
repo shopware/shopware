@@ -43,6 +43,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
             (new StringField('type', 'type'))->addFlags(new Required()),
             (new FloatField('amount', 'amount'))->addFlags(new Required()),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(DiscountSurchargeTranslationDefinition::class, 'discount_surcharge_id'))->addFlags(new Required()),

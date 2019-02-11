@@ -59,6 +59,7 @@ class CountryDefinition extends EntityDefinition
             (new StringField('iso3', 'iso3'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new BoolField('display_state_in_registration', 'displayStateInRegistration'),
             new BoolField('force_state_in_registration', 'forceStateInRegistration'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'country_id', false, 'id'))->addFlags(new RestrictDelete()),

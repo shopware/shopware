@@ -144,6 +144,11 @@ class MediaEntity extends Entity
      */
     protected $configurationGroupOptions;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function get(string $property)
     {
         if ($property === 'hasFile') {
@@ -396,5 +401,15 @@ class MediaEntity extends Entity
     public function setMediaTypeRaw(string $mediaTypeRaw): void
     {
         $this->mediaTypeRaw = $mediaTypeRaw;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

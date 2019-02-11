@@ -51,6 +51,11 @@ class LocaleEntity extends Entity
      */
     protected $languages;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCode(): string
     {
         return $this->code;
@@ -129,5 +134,15 @@ class LocaleEntity extends Entity
     public function setLanguages(LanguageCollection $languages): void
     {
         $this->languages = $languages;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

@@ -57,6 +57,7 @@ class CountryStateDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),

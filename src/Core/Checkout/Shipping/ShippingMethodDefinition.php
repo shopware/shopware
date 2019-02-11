@@ -71,6 +71,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new LongTextField('bind_sql', 'bindSql'),
             new LongTextField('status_link', 'statusLink'),
             new LongTextField('calculation_sql', 'calculationSql'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', false, 'id'))->addFlags(new RestrictDelete()),

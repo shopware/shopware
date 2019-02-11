@@ -175,6 +175,11 @@ class SalesChannelEntity extends Entity
      */
     protected $systemConfigs;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getLanguageId(): string
     {
         return $this->languageId;
@@ -473,5 +478,15 @@ class SalesChannelEntity extends Entity
     public function setSystemConfigs(SystemConfigCollection $systemConfigs): void
     {
         $this->systemConfigs = $systemConfigs;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

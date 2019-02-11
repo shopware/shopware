@@ -66,6 +66,11 @@ class ConfigurationGroupEntity extends Entity
      */
     protected $updatedAt;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
@@ -174,5 +179,15 @@ class ConfigurationGroupEntity extends Entity
     public function setSortingType(string $sortingType): void
     {
         $this->sortingType = $sortingType;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

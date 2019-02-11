@@ -7,11 +7,13 @@ $sw-pagination-controls-color-text: $color-gutenberg;
 $sw-pagination-border-radius: $border-radius-default;
 
 .sw-pagination {
+    min-height: 64px;
     padding: 15px 20px;
     background: $sw-pagination-color-background;
     text-align: center;
     color: $sw-pagination-controls-color-text;
     position: relative;
+    border-top: 1px solid $sw-pagination-controls-color-border;
 
     .sw-pagination__list {
         display: inline-block;
@@ -35,6 +37,22 @@ $sw-pagination-border-radius: $border-radius-default;
 
         &:hover {
             color: $sw-pagination-controls-color-hover;
+        }
+    }
+
+    .sw-pagination__page-button[disabled="disabled"] {
+        cursor: default;
+
+        &:hover {
+            color: $sw-pagination-controls-color-text;
+        }
+    }
+
+    .sw-pagination__list-separator {
+        cursor: default;
+
+        &:hover {
+            color: $sw-pagination-controls-color-text;
         }
     }
 

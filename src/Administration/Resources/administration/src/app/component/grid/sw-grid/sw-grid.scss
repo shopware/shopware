@@ -78,7 +78,7 @@ $sw-grid-table-row-color-background:      $color-white;
         }
 
         &.sw-grid__content--header.sw-grid__content--pagination {
-            grid-template-rows: 64px 1fr 64px;
+            grid-template-rows: 64px 1fr auto;
         }
     }
 
@@ -140,7 +140,6 @@ $sw-grid-table-row-color-background:      $color-white;
 
     .sw-grid__pagination {
         background: $sw-grid-item-color-background;
-        border-top: 1px solid $sw-grid-item-color-border;
     }
 
     .sw-grid__cell-content {

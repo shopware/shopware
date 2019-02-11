@@ -53,7 +53,7 @@ export default {
 
         displayedPages() {
             const maxLength = this.totalVisible;
-            const value = this.currentPage;
+            const currentPage = this.currentPage;
 
             if (this.maxPage <= maxLength) {
                 return this.range(1, this.maxPage);
@@ -63,9 +63,9 @@ export default {
             const left = Math.floor(maxLength / 2);
             const right = (this.maxPage - left) + 1 + even;
 
-            if (value >= left && value <= right) {
-                const start = (value - left) + 2;
-                const end = (value + left) - 2 - even;
+            if (currentPage > left && currentPage < right) {
+                const start = (currentPage - left) + 2;
+                const end = (currentPage + left) - 2 - even;
 
                 return [1, '...', ...this.range(start, end), '...', this.maxPage];
             }
@@ -74,6 +74,24 @@ export default {
                 '...',
                 ...this.range((this.maxPage - left) + 1 + even, this.maxPage)
             ];
+        },
+
+        shouldBeVisible() {
+            return this.total > Math.min(...this.steps);
+        },
+
+        possibleSteps() {
+            const total = this.total;
+            const stepsSorted = [...this.steps].sort((a, b) => a - b);
+
+            let lastStep;
+            const possibleSteps = stepsSorted.filter(x => {
+                if (lastStep > total) return false;
+                lastStep = x;
+                return true;
+            });
+
+            return possibleSteps;
         }
     },
 

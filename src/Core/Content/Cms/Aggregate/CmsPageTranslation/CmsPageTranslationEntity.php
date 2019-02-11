@@ -22,6 +22,11 @@ class CmsPageTranslationEntity extends TranslationEntity
      */
     protected $cmsPage;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCmsPageId(): string
     {
         return $this->cmsPageId;
@@ -50,5 +55,15 @@ class CmsPageTranslationEntity extends TranslationEntity
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

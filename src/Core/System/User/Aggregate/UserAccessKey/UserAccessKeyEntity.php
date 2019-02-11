@@ -45,6 +45,11 @@ class UserAccessKeyEntity extends Entity
      */
     protected $user;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getUserId(): string
     {
         return $this->userId;
@@ -113,5 +118,15 @@ class UserAccessKeyEntity extends Entity
     public function setUser(UserEntity $user): void
     {
         $this->user = $user;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

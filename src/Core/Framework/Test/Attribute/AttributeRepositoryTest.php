@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Attribute\AttributeDefinition;
 use Shopware\Core\Framework\Attribute\AttributeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -37,7 +38,7 @@ class AttributeRepositoryTest extends TestCase
         static::assertEquals($attribute['type'], $payloads[0]['type']);
     }
 
-    public function testSearchId(): void
+    public function testSearch(): void
     {
         $repo = $this->getContainer()->get('attribute.repository');
 
@@ -68,6 +69,21 @@ class AttributeRepositoryTest extends TestCase
         static::assertEquals($attributes[0]['name'], $attribute->getName());
         static::assertEquals($attributes[0]['type'], $attribute->getType());
         static::assertEquals($attributes[0]['config'], $attribute->getConfig());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('config.fieldType', 'date-picker'));
+        $result = $repo->search($criteria, Context::createDefaultContext());
+
+        static::assertCount(1, $result->getIds());
+
+        /** @var AttributeEntity $attribute */
+        $attribute = $result->first();
+        static::assertNotNull($attribute);
+
+        static::assertEquals($descriptionId, $attribute->getId());
+        static::assertEquals($attributes[1]['name'], $attribute->getName());
+        static::assertEquals($attributes[1]['type'], $attribute->getType());
+        static::assertEquals($attributes[1]['config'], $attribute->getConfig());
     }
 
     public function testDelete(): void

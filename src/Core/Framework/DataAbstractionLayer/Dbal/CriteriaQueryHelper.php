@@ -108,12 +108,13 @@ trait CriteriaQueryHelper
             }
 
             $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition::getEntityName(), $context);
+            $accessor->addParametersToQuery($query);
 
             if ($sorting->getNaturalSorting()) {
-                $query->addOrderBy('LENGTH(' . $accessor . ')');
+                $query->addOrderBy('LENGTH(' . $accessor->getSQL() . ')');
             }
 
-            $query->addOrderBy($accessor, $sorting->getDirection());
+            $query->addOrderBy($accessor->getSQL(), $sorting->getDirection());
         }
     }
 
@@ -135,13 +136,14 @@ trait CriteriaQueryHelper
             if ($sorting->getField() === '_score') {
                 continue;
             }
-
-            $fields[] = $queryHelper->getFieldAccessor(
+            $accessor = $queryHelper->getFieldAccessor(
                 $sorting->getField(),
                 $definition,
                 $definition::getEntityName(),
                 $context
             );
+            $accessor->addParametersToQuery($query);
+            $fields[] = $accessor->getSQL();
         }
 
         $fields = array_unique($fields);

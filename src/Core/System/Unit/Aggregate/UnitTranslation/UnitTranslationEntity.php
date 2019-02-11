@@ -27,6 +27,11 @@ class UnitTranslationEntity extends TranslationEntity
      */
     protected $unit;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getUnitId(): string
     {
         return $this->unitId;
@@ -65,5 +70,15 @@ class UnitTranslationEntity extends TranslationEntity
     public function setUnit(UnitEntity $unit): void
     {
         $this->unit = $unit;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

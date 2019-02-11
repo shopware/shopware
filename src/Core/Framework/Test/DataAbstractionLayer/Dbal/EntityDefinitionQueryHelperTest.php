@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -12,9 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolve
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class EntityDefinitionQueryHelperTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testJsonObjectAccessWithoutAccessorBuilder(): void
     {
         $this->expectException(FieldAccessorBuilderNotFoundException::class);
@@ -36,7 +40,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonFieldAccessorBuilder(),
+                new JsonFieldAccessorBuilder($this->getContainer()->get(Connection::class)),
             ])
         );
         $accessor = $helper->getFieldAccessor(
@@ -45,8 +49,15 @@ class EntityDefinitionQueryHelperTest extends TestCase
             JsonObjectTestDefinition::getEntityName(),
             Context::createDefaultContext()
         );
+        $parameters = $accessor->getParameters();
 
-        self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross"))', $accessor);
+        static::assertCount(1, $parameters);
+        static::assertEquals('$.gross', current($parameters));
+
+        self::assertEquals(
+            sprintf('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, :%s))', key($parameters)),
+            $accessor->getSQL()
+        );
     }
 
     public function testNestedJsonObjectAccessor(): void
@@ -54,7 +65,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonFieldAccessorBuilder(),
+                new JsonFieldAccessorBuilder($this->getContainer()->get(Connection::class)),
             ])
         );
         $accessor = $helper->getFieldAccessor(
@@ -64,7 +75,14 @@ class EntityDefinitionQueryHelperTest extends TestCase
             Context::createDefaultContext()
         );
 
-        self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross.value"))', $accessor);
+        $parameters = $accessor->getParameters();
+        static::assertCount(1, $parameters);
+        static::assertEquals('$.gross.value', current($parameters));
+
+        self::assertEquals(
+            sprintf('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, :%s))', key($parameters)),
+            $accessor->getSQL()
+        );
     }
 
     public function testGetFieldWithJsonAccessor(): void
@@ -72,7 +90,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonFieldAccessorBuilder(),
+                new JsonFieldAccessorBuilder($this->getContainer()->get(Connection::class)),
             ])
         );
         $field = $helper->getField(

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -37,6 +38,7 @@ class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
             new StringField('comment', 'comment'),
+            new AttributesField(),
         ]);
     }
 }

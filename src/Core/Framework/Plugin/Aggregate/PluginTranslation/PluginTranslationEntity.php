@@ -46,6 +46,11 @@ class PluginTranslationEntity extends TranslationEntity
     protected $plugin;
 
     /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
      * @return string
      */
     public function getPluginId(): string
@@ -116,5 +121,15 @@ class PluginTranslationEntity extends TranslationEntity
     public function setPlugin(PluginEntity $plugin): void
     {
         $this->plugin = $plugin;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

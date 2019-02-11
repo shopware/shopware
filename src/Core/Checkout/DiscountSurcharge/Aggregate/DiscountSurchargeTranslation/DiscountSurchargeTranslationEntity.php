@@ -24,6 +24,11 @@ class DiscountSurchargeTranslationEntity extends TranslationEntity
      */
     protected $discountSurcharge;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getDiscountSurchargeId(): string
     {
         return $this->discountSurchargeId;
@@ -52,5 +57,15 @@ class DiscountSurchargeTranslationEntity extends TranslationEntity
     public function setDiscountSurcharge(DiscountSurchargeEntity $discountSurcharge): void
     {
         $this->discountSurcharge = $discountSurcharge;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

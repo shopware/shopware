@@ -40,6 +40,11 @@ class SearchDocumentEntity extends Entity
      */
     protected $language;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
@@ -98,5 +103,15 @@ class SearchDocumentEntity extends Entity
     public function setEntity(string $entity): void
     {
         $this->entity = $entity;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

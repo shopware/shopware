@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -71,12 +72,16 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     continue;
                 }
 
+                if ($command instanceof JsonUpdateCommand) {
+                    $this->executeJsonUpdate($command);
+                    continue;
+                }
+
                 if ($command instanceof UpdateCommand) {
-                    $this->connection->update(
-                        EntityDefinitionQueryHelper::escape($table),
-                        $command->getPayload(),
-                        $command->getPrimaryKey()
-                    );
+                    if (!$command->isValid()) {
+                        continue;
+                    }
+                    $this->connection->update(EntityDefinitionQueryHelper::escape($table), $command->getPayload(), $command->getPrimaryKey());
                     continue;
                 }
 
@@ -93,6 +98,66 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // throws exception on violation and then aborts/rollbacks this transaction
             $this->commandQueueValidator->postValidate($commands, $context);
         });
+    }
+
+    private function executeJsonUpdate(JsonUpdateCommand $command): void
+    {
+        /*
+         * mysql json functions are tricky.
+         *
+         * TL;DR: cast objects and arrays to json
+         *
+         * This works:
+         *
+         * SELECT JSON_SET('{"a": "b"}', '$.a', 7)
+         * SELECT JSON_SET('{"a": "b"}', '$.a', "str")
+         *
+         * This does NOT work:
+         *
+         * SELECT JSON_SET('{"a": "b"}', '$.a', '{"foo": "bar"}')
+         *
+         * Instead, you have to do this, because mysql cannot differentiate between a string and a json string:
+         *
+         * SELECT JSON_SET('{"a": "b"}', '$.a', CAST('{"foo": "bar"}' AS json))
+         * SELECT JSON_SET('{"a": "b"}', '$.a', CAST('["foo", "bar"]' AS json))
+         *
+         * Yet this does NOT work:
+         *
+         * SELECT JSON_SET('{"a": "b"}', '$.a', CAST("str" AS json))
+         *
+         */
+
+        $values = [];
+        $sets = [];
+
+        $query = new QueryBuilder($this->connection);
+        $query->update('`' . $command->getDefinition()::getEntityName() . '`');
+
+        foreach ($command->getPayload() as $attribute => $value) {
+            // add path and value for each attribute value pair
+            $values[] = '$.' . $attribute;
+
+            if (is_array($value) || is_object($value)) {
+                $values[] = \json_encode($value, JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_UNICODE);
+                $sets[] = '?, CAST(? AS json)';
+            } else {
+                $values[] = $value;
+                $sets[] = '?, ?';
+            }
+        }
+
+        $storageName = $command->getStorageName();
+        $query->set(
+            $storageName,
+            sprintf('JSON_SET(%s, %s)', $storageName, implode(', ', $sets))
+        );
+
+        $identifier = $command->getPrimaryKey();
+        foreach ($identifier as $key => $value) {
+            $query->andWhere($key . ' = ?');
+        }
+        $query->setParameters(array_merge($values, array_values($identifier)));
+        $query->execute();
     }
 
     /**

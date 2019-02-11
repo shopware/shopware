@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
@@ -88,6 +89,20 @@ class WriteCommandExtractor
         }
 
         return $pkData;
+    }
+
+    public function extractJsonUpdate($data, EntityExistence $existence, WriteParameterBag $parameters): void
+    {
+        foreach ($data as $storageName => $attributes) {
+            $jsonUpdateCommand = new JsonUpdateCommand(
+                $existence->getDefinition(),
+                $storageName,
+                $existence->getPrimaryKey(),
+                $attributes,
+                $existence
+            );
+            $parameters->getCommandQueue()->add($jsonUpdateCommand->getDefinition(), $jsonUpdateCommand);
+        }
     }
 
     private function map(array $fields, array $rawData, EntityExistence $existence, WriteParameterBag $parameters): array

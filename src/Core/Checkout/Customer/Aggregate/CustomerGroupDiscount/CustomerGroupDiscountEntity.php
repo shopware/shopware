@@ -39,6 +39,11 @@ class CustomerGroupDiscountEntity extends Entity
      */
     protected $customerGroup;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getCustomerGroupId(): string
     {
         return $this->customerGroupId;
@@ -97,5 +102,15 @@ class CustomerGroupDiscountEntity extends Entity
     public function setCustomerGroup(CustomerGroupEntity $customerGroup): void
     {
         $this->customerGroup = $customerGroup;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

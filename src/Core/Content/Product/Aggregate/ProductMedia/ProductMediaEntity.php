@@ -56,6 +56,11 @@ class ProductMediaEntity extends Entity
      */
     protected $catalog;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getProductId(): string
     {
         return $this->productId;
@@ -144,5 +149,15 @@ class ProductMediaEntity extends Entity
     public function setCatalog(CatalogEntity $catalog): void
     {
         $this->catalog = $catalog;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -39,6 +40,7 @@ class SearchDocumentDefinition extends EntityDefinition
             (new StringField('entity', 'entity'))->addFlags(new Required()),
             (new StringField('keyword', 'keyword'))->addFlags(new Required()),
             (new FloatField('ranking', 'ranking'))->addFlags(new Required()),
+            new AttributesField(),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
     }

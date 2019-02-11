@@ -30,6 +30,11 @@ class MediaDefaultFolderEntity extends Entity
     protected $folder;
 
     /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
      * @var \DateTime
      */
     protected $createdAt;
@@ -97,5 +102,15 @@ class MediaDefaultFolderEntity extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

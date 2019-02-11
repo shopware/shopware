@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -46,8 +47,9 @@ class UserAccessKeyDefinition extends EntityDefinition
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
             new BoolField('write_access', 'writeAccess'),
-            new CreatedAtField(),
             new DateField('last_usage_at', 'lastUsageAt'),
+            new AttributesField(),
+            new CreatedAtField(),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
         ]);
     }

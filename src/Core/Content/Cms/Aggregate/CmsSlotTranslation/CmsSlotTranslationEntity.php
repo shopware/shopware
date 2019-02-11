@@ -22,6 +22,11 @@ class CmsSlotTranslationEntity extends TranslationEntity
      */
     protected $cmsSlot;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getConfig(): ?array
     {
         return $this->config;
@@ -50,5 +55,15 @@ class CmsSlotTranslationEntity extends TranslationEntity
     public function setCmsSlot(CmsSlotEntity $cmsSlot): void
     {
         $this->cmsSlot = $cmsSlot;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

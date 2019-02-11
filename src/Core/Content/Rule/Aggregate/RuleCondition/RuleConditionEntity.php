@@ -49,6 +49,11 @@ class RuleConditionEntity extends Entity
      */
     protected $position;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getType(): string
     {
         return $this->type;
@@ -127,5 +132,15 @@ class RuleConditionEntity extends Entity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

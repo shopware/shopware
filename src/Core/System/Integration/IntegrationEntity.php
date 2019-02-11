@@ -34,6 +34,11 @@ class IntegrationEntity extends Entity
     protected $lastUsageAt;
 
     /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -111,5 +116,15 @@ class IntegrationEntity extends Entity
     public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

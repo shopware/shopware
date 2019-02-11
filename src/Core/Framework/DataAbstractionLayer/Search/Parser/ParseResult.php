@@ -21,6 +21,14 @@ class ParseResult
         $this->types[$key] = $type;
     }
 
+    public function addParameters(array $parameters, array $types = []): void
+    {
+        foreach ($parameters as $key => $value) {
+            $this->parameters[$key] = $value;
+            $this->types[$key] = $types[$key] ?? null;
+        }
+    }
+
     public function getParameters(): array
     {
         return $this->parameters;

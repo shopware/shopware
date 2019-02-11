@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializer
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -240,13 +241,44 @@ class EntityWriter implements EntityWriterInterface
                 });
 
             $identifiers[$definition] = [];
+
+            $jsonUpdateCommands = [];
+            $writeResults = [];
+
             /** @var WriteCommandInterface[] $commands */
             foreach ($commands as $command) {
                 $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
-                $payload = $this->getCommandPayload($command);
+                $uniqueId = is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
 
-                $identifiers[$definition][] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
+                if ($command instanceof JsonUpdateCommand) {
+                    $jsonUpdateCommands[$uniqueId] = $command;
+                    continue;
+                }
+
+                $payload = $this->getCommandPayload($command);
+                $writeResults[$uniqueId] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
             }
+
+            /*
+             * Updates for entities with attributes are split into two commands: an UpdateCommand and a JsonUpdateCommand.
+             * We need to merge the payloads here.
+             */
+            foreach ($jsonUpdateCommands as $uniqueId => $command) {
+                $payload = [];
+                if (isset($writeResults[$uniqueId])) {
+                    $payload = $writeResults[$uniqueId]->getPayload();
+                }
+
+                $mergedPayload = array_merge($payload, [$command->getStorageName() => $command->getPayload()]);
+
+                $writeResults[$uniqueId] = new EntityWriteResult(
+                    $this->getCommandPrimaryKey($command, $primaryKeys),
+                    $mergedPayload,
+                    $command->getEntityExistence()
+                );
+            }
+
+            $identifiers[$definition] = array_values($writeResults);
         }
 
         return $identifiers;

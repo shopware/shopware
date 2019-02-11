@@ -27,6 +27,11 @@ class ConfigurationGroupTranslationEntity extends TranslationEntity
      */
     protected $configurationGroup;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getConfigurationGroupId(): string
     {
         return $this->configurationGroupId;
@@ -65,5 +70,15 @@ class ConfigurationGroupTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

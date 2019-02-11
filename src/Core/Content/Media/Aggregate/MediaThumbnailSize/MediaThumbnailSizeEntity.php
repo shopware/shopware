@@ -25,6 +25,11 @@ class MediaThumbnailSizeEntity extends Entity
      */
     protected $mediaFolderConfigurations;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getWidth(): int
     {
         return $this->width;
@@ -53,5 +58,15 @@ class MediaThumbnailSizeEntity extends Entity
     public function setMediaFolderConfigurations(MediaFolderConfigurationCollection $mediaFolderConfigurations): void
     {
         $this->mediaFolderConfigurations = $mediaFolderConfigurations;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

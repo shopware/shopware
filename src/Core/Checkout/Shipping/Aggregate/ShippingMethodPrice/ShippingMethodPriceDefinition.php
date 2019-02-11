@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -46,6 +47,7 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             (new FloatField('quantity_from', 'quantityFrom'))->addFlags(new Required()),
             (new FloatField('price', 'price'))->addFlags(new Required()),
             (new FloatField('factor', 'factor'))->addFlags(new Required()),
+            new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),

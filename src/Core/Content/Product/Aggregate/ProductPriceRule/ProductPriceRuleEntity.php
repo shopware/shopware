@@ -39,6 +39,11 @@ class ProductPriceRuleEntity extends PriceRuleEntity
      */
     protected $rule;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getProduct(): ?ProductEntity
     {
         return $this->product;
@@ -97,5 +102,15 @@ class ProductPriceRuleEntity extends PriceRuleEntity
     public function setProductId(string $productId): void
     {
         $this->productId = $productId;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

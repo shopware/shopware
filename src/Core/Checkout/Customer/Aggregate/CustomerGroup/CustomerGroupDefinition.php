@@ -49,6 +49,7 @@ class CustomerGroupDefinition extends EntityDefinition
             new FloatField('percentage_global_discount', 'percentageGlobalDiscount'),
             new FloatField('minimum_order_amount', 'minimumOrderAmount'),
             new FloatField('minimum_order_amount_surcharge', 'minimumOrderAmountSurcharge'),
+            new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->addFlags(new RestrictDelete()),

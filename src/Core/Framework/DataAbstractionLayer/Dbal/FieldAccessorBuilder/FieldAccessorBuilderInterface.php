@@ -7,5 +7,5 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 interface FieldAccessorBuilderInterface
 {
-    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string;
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?FieldAccessor;
 }

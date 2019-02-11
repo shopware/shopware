@@ -16,6 +16,7 @@ return [
             'name' => 'Manufacturer',
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
+            'attributes' => null,
         ],
         'links' => [
             'self' => '/api/user/f343a3c1-19cf-42a7-841a-a0ac5094908c',

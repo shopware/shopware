@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsBlock;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -50,6 +51,8 @@ class CmsBlockDefinition extends EntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
+
+            new AttributesField(),
         ]);
     }
 }

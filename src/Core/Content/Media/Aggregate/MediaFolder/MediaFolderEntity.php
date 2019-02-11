@@ -72,6 +72,11 @@ class MediaFolderEntity extends Entity
      */
     protected $defaultFolders;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getName(): string
     {
         return $this->name;
@@ -190,5 +195,15 @@ class MediaFolderEntity extends Entity
     public function setDefaultFolders(?MediaDefaultFolderCollection $defaultFolders): void
     {
         $this->defaultFolders = $defaultFolders;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

@@ -14,6 +14,7 @@ return [
             'failedLogins' => 0,
             'lockedUntil' => null,
             'name' => 'Manufacturer',
+            'attributes' => null,
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
         ],

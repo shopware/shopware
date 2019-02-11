@@ -97,6 +97,11 @@ class LanguageEntity extends Entity
     protected $salesChannelDefaultAssignments;
 
     /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
      * @var CatalogTranslationCollection|null
      */
     protected $catalogTranslations;
@@ -669,5 +674,15 @@ class LanguageEntity extends Entity
     public function setCmsSlotTranslations(Collection $cmsSlotTranslations): void
     {
         $this->cmsSlotTranslations = $cmsSlotTranslations;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

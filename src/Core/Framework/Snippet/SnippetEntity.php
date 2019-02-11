@@ -49,6 +49,11 @@ class SnippetEntity extends Entity
      */
     protected $set;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getSetId(): string
     {
         return $this->setId;
@@ -117,5 +122,15 @@ class SnippetEntity extends Entity
     public function setSet(SnippetSetEntity $set): void
     {
         $this->set = $set;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

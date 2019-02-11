@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -59,6 +60,7 @@ class ProductPriceRuleDefinition extends EntityDefinition
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'id'))->addFlags(new ReverseInherited('priceRules')),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),
+            new AttributesField(),
         ]);
     }
 }

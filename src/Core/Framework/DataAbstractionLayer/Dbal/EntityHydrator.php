@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -178,6 +179,7 @@ class EntityHydrator
 
         if ($translations !== null) {
             $entity->assign(['translations' => $translations]);
+            $this->mergeTranslatedAttributes($entity->getViewData(), $definition, $translations);
         }
 
         //write object cache key to prevent multiple hydration for the same entity
@@ -186,6 +188,40 @@ class EntityHydrator
         }
 
         return $entity;
+    }
+
+    private function mergeTranslatedAttributes(Entity $viewData, string $definition, EntityCollection $translations): void
+    {
+        /** @var string|EntityDefinition $definition */
+        $translationDefinition = $definition::getTranslationDefinitionClass();
+        $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
+
+        /*
+         * The translations are order like this:
+         * [0] => current language -> highest priority
+         * [1] => root language -> lower priority
+         * [2] => system language -> lowest priority
+         */
+        foreach ($translatedAttributeFields as $field) {
+            $property = $field->getPropertyName();
+            $attributeTranslations = [];
+            /** @var Entity $translation */
+            foreach ($translations as $translation) {
+                $attributeTranslation = $translation->get($property);
+                if ($attributeTranslation !== null) {
+                    $attributeTranslations[] = $attributeTranslation;
+                }
+            }
+            if (empty($attributeTranslations)) {
+                continue;
+            }
+            /**
+             * `array_merge`s ordering is reversed compared to the translations array.
+             * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
+             */
+            $merged = \array_merge(...\array_reverse($attributeTranslations, false));
+            $viewData->assign([$property => $merged]);
+        }
     }
 
     private function extractManyToManyIds(string $root, ManyToManyAssociationField $field, array $row): ?array

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -45,6 +46,7 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityTranslationDef
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
             new IntField('position', 'position'),
+            new AttributesField(),
         ]);
     }
 }

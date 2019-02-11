@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
@@ -34,6 +35,7 @@ class ListingSortingTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('label', 'label'))->addFlags(new Required()),
+            new AttributesField(),
         ]);
     }
 }

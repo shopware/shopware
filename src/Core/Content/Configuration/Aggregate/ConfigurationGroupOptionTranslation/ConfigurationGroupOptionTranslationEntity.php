@@ -27,6 +27,11 @@ class ConfigurationGroupOptionTranslationEntity extends TranslationEntity
      */
     protected $configurationGroupOption;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getConfigurationGroupOptionId(): string
     {
         return $this->configurationGroupOptionId;
@@ -65,5 +70,15 @@ class ConfigurationGroupOptionTranslationEntity extends TranslationEntity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

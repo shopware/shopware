@@ -66,6 +66,11 @@ class SeoUrlEntity extends Entity
      */
     protected $url;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
@@ -174,5 +179,15 @@ class SeoUrlEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

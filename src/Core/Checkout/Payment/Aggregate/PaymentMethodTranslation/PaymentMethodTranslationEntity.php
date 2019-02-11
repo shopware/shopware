@@ -29,6 +29,11 @@ class PaymentMethodTranslationEntity extends TranslationEntity
      */
     protected $paymentMethod;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getPaymentMethodId(): string
     {
         return $this->paymentMethodId;
@@ -67,5 +72,15 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     public function setPaymentMethod(PaymentMethodEntity $paymentMethod): void
     {
         $this->paymentMethod = $paymentMethod;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

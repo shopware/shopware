@@ -32,6 +32,11 @@ class ShippingMethodTranslationEntity extends TranslationEntity
      */
     protected $shippingMethod;
 
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
     public function getShippingMethodId(): string
     {
         return $this->shippingMethodId;
@@ -80,5 +85,15 @@ class ShippingMethodTranslationEntity extends TranslationEntity
     public function setShippingMethod(ShippingMethodEntity $shippingMethod): void
     {
         $this->shippingMethod = $shippingMethod;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

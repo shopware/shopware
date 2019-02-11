@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -24,6 +25,16 @@ class SalesChannelDomainDefinition extends EntityDefinition
         return 'sales_channel_domain';
     }
 
+    public static function getEntityClass(): string
+    {
+        return SalesChannelDomainEntity::class;
+    }
+
+    public static function getCollectionClass(): string
+    {
+        return SalesChannelDomainCollection::class;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -43,6 +54,8 @@ class SalesChannelDomainDefinition extends EntityDefinition
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
             new ManyToOneAssociationField('snippetSet', 'snippet_set_id', SnippetSetDefinition::class, false),
+
+            new AttributesField(),
         ]);
     }
 }

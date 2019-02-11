@@ -18,8 +18,8 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             nestedConditions: {},
-            conditionStore: {},
             treeConfig: {
+                conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions(), 'name'),
                 entityName: 'rule',
                 conditionIdentifier: 'conditions',
                 childName: 'children',
@@ -32,22 +32,17 @@ Component.register('sw-settings-rule-detail', {
                 placeholder: {
                     type: 'placeholder'
                 },
-                getComponent: (condition, callback) => {
+                getComponent(condition) {
                     condition = this.conditionStore.getById(condition.type);
                     if (!condition) {
                         return 'sw-condition-not-found';
                     }
 
-                    if (callback) {
-                        this.$nextTick(() => {
-                            callback(condition.component);
-                        });
-                    }
                     return condition.component;
                 },
-                isAndContainer: (condition) => condition.type === 'andContainer',
-                isOrContainer: (condition) => condition.type === 'orContainer',
-                isPlaceholder: (condition) => condition.type === 'placeholder'
+                isAndContainer(condition) { return condition.type === 'andContainer'; },
+                isOrContainer(condition) { return condition.type === 'orContainer'; },
+                isPlaceholder(condition) { return condition.type === 'placeholder'; }
             }
         };
     },
@@ -79,7 +74,6 @@ Component.register('sw-settings-rule-detail', {
                 };
                 conditions[key].name = key;
             });
-            this.conditionStore = new LocalStore(this.ruleConditionDataProviderService.getConditions(), 'name');
         },
 
         onSave() {

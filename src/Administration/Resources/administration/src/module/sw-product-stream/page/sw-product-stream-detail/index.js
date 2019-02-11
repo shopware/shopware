@@ -1,4 +1,4 @@
-import { Component, Mixin, State, Entity } from 'src/core/shopware';
+import { Component, Entity, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-product-stream-detail.html.twig';
@@ -10,7 +10,7 @@ Component.register('sw-product-stream-detail', {
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('product_stream')
+        Mixin.getByName('discard-detail-page-changes')('productStream')
     ],
 
     data() {
@@ -33,30 +33,28 @@ Component.register('sw-product-stream-detail', {
                 placeholder: {
                     type: 'equals'
                 },
-                getComponent: (condition, callback) => {
+                getComponent(condition) {
                     let component = 'sw-product-stream-filter';
 
-                    if (condition.type === 'multi') {
+                    if (condition.type.toLowerCase() === this.andContainer.type) {
                         component = 'sw-condition-and-container';
 
-                        if (condition.operator.toLowerCase() === 'or') {
+                        if (condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase()) {
                             component = 'sw-condition-or-container';
                         }
                     }
 
-                    if (callback) {
-                        this.$nextTick(() => callback(component));
-                    }
-
                     return component;
                 },
-                isAndContainer: (condition) => {
-                    return condition.type.toLowerCase() === 'multi' && condition.operator.toLowerCase() === 'and';
+                isAndContainer(condition) {
+                    return condition.type.toLowerCase() === this.andContainer.type
+                        && condition.operator.toLowerCase() === this.andContainer.operator.toLowerCase();
                 },
-                isOrContainer: (condition) => {
-                    return condition.type.toLowerCase() === 'multi' && condition.operator.toLowerCase() === 'or';
+                isOrContainer(condition) {
+                    return condition.type.toLowerCase() === this.orContainer.type
+                        && condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase();
                 },
-                isPlaceholder: (condition) => {
+                isPlaceholder(condition) {
                     return condition.field === 'product' && !(condition.value || Object.keys(condition.parameters).length);
                 }
             }
@@ -112,6 +110,7 @@ Component.register('sw-product-stream-detail', {
         },
 
         getDefinitionStore() {
+            // TODO: NEXT-1709 Move definitionStore to treeConfig.conditionStore
             const definition = Entity.getDefinition('product');
             Object.keys(definition.properties).forEach((key) => {
                 definition.properties[key].name = key;

@@ -5,7 +5,7 @@
     <sw-select v-for="definition, index in definitions"
                :key="index"
                :store="getDefinitionStore(definition)"
-               v-model="fields[index].name"
+               v-model="fieldPath[index]"
                itemValueKey="name"
                :id="createId()"
                class="field field--select field--condition"
@@ -15,7 +15,7 @@
     </sw-select>
 
     <sw-select :store="getTypeStore()"
-               v-model="type"
+               v-model="condition.type"
                :id="createId()"
                itemValueKey="type"
                displayName="name"
@@ -25,27 +25,12 @@
                @input="selectType">
     </sw-select>
 
-    <sw-select v-if="lastField.entity && condition.type == 'equals'"
-               :store="getStore(lastField.entity)"
-               v-model="condition.value"
-               :required="true"
-               :id="createId()"
-               class="field field--select field--main">
-    </sw-select>
-    <sw-select v-else-if="lastField.entity && condition.type === 'equalsAny'"
-               multi
-               :store="getStore(lastField.entity)"
-               :associationStore="getStore(lastField.entity)"
-               v-model="multiValue"
-               :id="createId()"
-               class="field field--select field--multi field--main"
-               @input="updateTaggedValue">
-    </sw-select>
-    <sw-tagged-field v-else-if="condition.type == 'equalsAny'"
-                     v-model="multiValue"
+    <sw-tagged-field v-if="condition.type == 'equalsAny'"
+                     v-model="multiValues"
                      class="field field--multi field--main"
                      @input="updateTaggedValue">
     </sw-tagged-field>
+    {# TODO Add type for range filter, wait for design #}
     <sw-field v-else
               type="text"
               class="field field--main"

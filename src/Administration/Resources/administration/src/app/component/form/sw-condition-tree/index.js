@@ -1,8 +1,5 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-condition-tree.html.twig';
-import './sw-condition-base';
-import './sw-condition-and-container';
-import './sw-condition-or-container';
 
 export default {
     name: 'sw-condition-tree',
@@ -62,7 +59,6 @@ export default {
             }, []);
         },
 
-        // todo: standardized container
         checkRootContainer(nestedConditions) {
             if (nestedConditions.length === 1
                 && this.config.isOrContainer(nestedConditions[0])) {
@@ -70,7 +66,7 @@ export default {
                     return nestedConditions[0];
                 }
 
-                nestedConditions[0].children = [
+                nestedConditions[0][this.config.childName] = [
                     this.createCondition(
                         this.config.andContainer,
                         nestedConditions[0].id
@@ -105,16 +101,17 @@ export default {
 
         createCondition(conditionData, parentId, children) {
             const conditionId = utils.createId();
-            conditionData.parentId = parentId;
+            const condition = Object.assign(this.entityAssociationStore.create(conditionId), conditionData);
+            condition.parentId = parentId;
 
             if (children) {
                 children.forEach((child) => {
                     child.parentId = conditionId;
                 });
-                conditionData[this.config.childName] = children;
+                condition[this.config.childName] = children;
             }
 
-            return Object.assign(this.entityAssociationStore.create(conditionId), conditionData);
+            return condition;
         }
     }
 };

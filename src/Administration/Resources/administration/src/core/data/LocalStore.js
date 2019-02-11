@@ -29,7 +29,6 @@ export default class LocalStore {
     }
 
     /**
-     *
      * @param {String} id
      * @returns {*}
      */
@@ -41,10 +40,18 @@ export default class LocalStore {
         return this.store[id];
     }
 
+    /**
+     * @param {String} id
+     * @returns {*}
+     */
     getByIdAsync(id) {
-        return this.getById(id);
+        return new Promise(resolve => { resolve(this.getById(id)); });
     }
 
+    /**
+     * @param {Object} params
+     * @returns {Promise<any>}
+     */
     getList(params) {
         return new Promise((resolve) => {
             let store = Object.values(this.store);
@@ -57,7 +64,7 @@ export default class LocalStore {
             if (params.criteria) {
                 const query = params.criteria.getQuery();
                 if (query.type === 'contains') {
-                    store = store.filter(value => value[query.field].match(query.value));
+                    store = store.filter(value => value[query.field].includes(query.value));
                 } else if (query.type === 'equals') {
                     store = store.filter(value => value[query.field] === query.value);
                 }
@@ -80,6 +87,10 @@ export default class LocalStore {
         });
     }
 
+    /**
+     * @param {String} id
+     * @returns {boolean}
+     */
     hasId(id) {
         return this.store[id] !== undefined;
     }
@@ -92,6 +103,10 @@ export default class LocalStore {
         return {};
     }
 
+    /**
+     * @param {Object} entity
+     * @returns {boolean}
+     */
     add(entity) {
         if (!hasOwnProperty(entity, this.propertyName)) {
             return false;
@@ -102,6 +117,10 @@ export default class LocalStore {
         return true;
     }
 
+    /**
+     * @param {Object} entity
+     * @returns {boolean}
+     */
     remove(entity) {
         if (!hasOwnProperty(entity, this.propertyName) || this.hasId(this.propertyName)) {
             return false;

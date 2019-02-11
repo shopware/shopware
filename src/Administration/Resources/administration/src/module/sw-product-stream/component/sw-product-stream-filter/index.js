@@ -1,4 +1,4 @@
-import { Component, Entity, Mixin, State } from 'src/core/shopware';
+import { Component, Entity, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-product-stream-filter.html.twig';
@@ -26,12 +26,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         definition() {
             return this.definitions[this.definitions.length - 1];
         },
-        lastField() {
-            return this.fields[this.fields.length - 1];
-        },
-        fieldPath() {
-            return this.fields.map(field => field.name).join('.');
-        },
         types() {
             const values = [
                 { type: 'range', name: this.$tc('sw-product-stream.filter.type.range') },
@@ -50,22 +44,30 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     },
 
     watch: {
-        fields() {
+        // TODO: will be changed by NEXT-1709
+        fields(newValue) {
             let filter = '.*';
-            const field = this.fields[this.fields.length - 1];
-            if (field.type === 'string') {
+            const field = newValue[newValue.length - 1];
+            switch (field.type) {
+            case 'string':
                 filter = '^(?!range).*';
 
                 if (field.format === 'date-time') {
                     filter = '^equals(?!Any)';
                 }
-            } else if (field.type === 'integer') {
+                break;
+            case 'number':
                 filter = '^(?!contains).*';
-            } else {
+                break;
+            default:
                 filter = '^equals.*';
             }
+
             this.operatorCriteria = CriteriaFactory.contains('type', filter);
-            this.condition.field = this.fields.map(fieldName => fieldName.name).join('.');
+            this.condition.field = newValue
+                .filter((fieldObject, index) => !(index === 0 && fieldObject.name === 'product'))
+                .map(fieldObject => fieldObject.name)
+                .join('.');
         }
     },
 
@@ -73,22 +75,13 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         return {
             fields: [],
             type: {},
-            multiValue: [],
-            operatorCriteria: {}
+            multiValues: [],
+            operatorCriteria: {},
+            fieldPath: []
         };
     },
 
     methods: {
-        createComponent() {
-            if (this.condition && this.condition.field) {
-                this.fields = this.condition.field.split('.');
-            }
-        },
-        mountComponent() {
-        },
-        getStore(entityName) {
-            return State.getStore(entityName);
-        },
         getDefinitionStore(definition) {
             Object.keys(definition.properties).forEach((key) => {
                 definition.properties[key].name = key;
@@ -100,16 +93,51 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return new LocalStore(this.types, 'type');
         },
         createdComponent() {
+            this.locateConditionTreeComponent();
             this.fields.push({ name: 'product', entity: 'product', type: 'object' });
+            this.mapValues();
+        },
+        mountComponent() {
+            this.buildFieldPath();
+        },
+
+        // TODO: will be changed by NEXT-1709
+        buildFieldPath() {
+            if (!this.condition || !this.condition.field) {
+                return;
+            }
+
+            this.fieldPath = this.condition.field.split('.');
+            let definition = Entity.getDefinition('product').properties;
+
+            if (this.fieldPath[0] === 'product') {
+                this.fieldPath = this.fieldPath.splice(0, 1);
+            }
+
+            for (let i = 0; i < this.fieldPath.length; i += 1) {
+                this.fields.push(definition[this.fieldPath[i]]);
+                if (definition.entity) {
+                    definition = Entity.getDefinition(definition.entity).properties[this.fieldPath[i]];
+                }
+            }
+        },
+        mapValues() {
+            if (!this.condition.value) {
+                return;
+            }
+
+            if (this.condition.type === 'equalsAny') {
+                this.multiValues = this.condition.value.split('|');
+            }
         },
         selectFilter(index, newValue) {
-            if (index + 1 < this.fields.length) {
-                for (let i = this.fields.length; i > index + 1; i -= 1) {
-                    this.fields.pop();
-                }
+            // TODO: will be changed by NEXT-1709
+            for (let i = this.fields.length; i > index + 1; i -= 1) {
+                this.fields.pop();
             }
 
             const newDefinition = this.definition.properties[newValue];
+
             this.fields.push(newDefinition);
         },
         selectType(value) {
@@ -118,9 +146,11 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             }
 
             this.condition.type = this.types[value].type;
+
+            this.mapValues();
         },
         updateTaggedValue(values) {
-            this.condition.value = values.map(value => value.id).join('|');
+            this.condition.value = values.map(value => value.id || value).join('|');
         }
     }
 });

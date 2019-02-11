@@ -44,7 +44,6 @@ export default {
                 .sort((child1, child2) => { return child1.position - child2.position; });
         },
         disabledDeleteButton() {
-            // todo: make it standardized
             if (this.level === 0
                 && this.condition
                 && this.condition[this.config.childName]

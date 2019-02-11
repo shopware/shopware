@@ -12,12 +12,14 @@ $sw-condition-not-found-color-error: $color-crimson;
         }
     }
 
-    .field--condition {
-        background-color: $sw-condition-not-found-color-error;
-
-        &:before,
-        &:after {
+    .field--select {
+        &.field--condition {
             background-color: $sw-condition-not-found-color-error;
+
+            &:before,
+            &:after {
+                background-color: $sw-condition-not-found-color-error;
+            }
         }
     }
 

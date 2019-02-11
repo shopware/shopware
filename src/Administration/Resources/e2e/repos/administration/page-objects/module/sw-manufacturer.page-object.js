@@ -33,6 +33,7 @@ class ManufacturerPageObject extends GeneralPageObject {
     deleteManufacturer(manufacturerName) {
         this.browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
+            .waitForElementNotPresent(this.elements.loader)
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(this.elements.loader)
             .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0`)

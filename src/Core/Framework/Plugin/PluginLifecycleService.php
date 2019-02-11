@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin;
 
 use DateTime;
 use Doctrine\DBAL\Connection;
+use function Flag\next1797;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -30,7 +32,6 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Util\AssetServiceInterface;
-use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -48,9 +49,9 @@ class PluginLifecycleService
     private $eventDispatcher;
 
     /**
-     * @var Kernel
+     * @var KernelPluginCollection
      */
-    private $kernel;
+    private $pluginCollection;
 
     /**
      * @var ContainerInterface
@@ -82,33 +83,47 @@ class PluginLifecycleService
      */
     private $assetInstaller;
 
+    /**
+     * @var string
+     */
+    private $projectDir;
+
+    /**
+     * @var CommandExecutor
+     */
+    private $executor;
+
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
-        Kernel $kernel,
+        KernelPluginCollection $pluginCollection,
         ContainerInterface $container,
         MigrationCollection $migrationCollection,
         MigrationCollectionLoader $migrationLoader,
         MigrationRuntime $migrationRunner,
         Connection $connection,
-        AssetServiceInterface $assetInstaller
+        AssetServiceInterface $assetInstaller,
+        string $projectDir,
+        CommandExecutor $executor
     ) {
         $this->pluginRepo = $pluginRepo;
         $this->eventDispatcher = $eventDispatcher;
-        $this->kernel = $kernel;
+        $this->pluginCollection = $pluginCollection;
         $this->container = $container;
         $this->migrationCollection = $migrationCollection;
         $this->migrationLoader = $migrationLoader;
         $this->migrationRunner = $migrationRunner;
         $this->connection = $connection;
         $this->assetInstaller = $assetInstaller;
+        $this->projectDir = $projectDir;
+        $this->executor = $executor;
     }
 
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
     {
         $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
-
         $pluginVersion = $plugin->getVersion();
+
         $installContext = new InstallContext(
             $pluginBaseClass,
             $shopwareContext,
@@ -118,6 +133,11 @@ class PluginLifecycleService
 
         if ($plugin->getInstalledAt()) {
             return $installContext;
+        }
+
+        // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
+        if (next1797() && strpos($pluginBaseClass->getPath(), $this->projectDir . '/vendor') === false) {
+            $this->executor->require($plugin->getComposerName());
         }
 
         $pluginData['id'] = $plugin->getId();
@@ -223,6 +243,11 @@ class PluginLifecycleService
             $plugin->getVersion(),
             $plugin->getUpgradeVersion() ?? $plugin->getVersion()
         );
+
+        // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
+        if (next1797()) {
+            $this->executor->require($plugin->getComposerName());
+        }
 
         $this->eventDispatcher->dispatch(
             PluginPreUpdateEvent::NAME,
@@ -358,7 +383,7 @@ class PluginLifecycleService
     private function getPluginBaseClass(string $pluginName): Plugin
     {
         /** @var Plugin|ContainerAwareTrait $baseClass */
-        $baseClass = $this->kernel::getPlugins()->get($pluginName);
+        $baseClass = $this->pluginCollection->get($pluginName);
         // set container because the plugin has not been initialized yet and therefore has no container set
         $baseClass->setContainer($this->container);
 

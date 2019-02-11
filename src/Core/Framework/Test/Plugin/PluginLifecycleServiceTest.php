@@ -12,15 +12,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\AssetService;
-use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PluginLifecycleServiceTest extends TestCase
@@ -45,9 +46,9 @@ class PluginLifecycleServiceTest extends TestCase
     private $pluginService;
 
     /**
-     * @var Kernel
+     * @var KernelPluginCollection
      */
-    private $kernel;
+    private $pluginCollection;
 
     /**
      * @var Connection
@@ -70,9 +71,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
             $this->pluginRepo,
-            $this->container->get('language.repository')
+            $this->container->get('language.repository'),
+            $this->container->getParameter('kernel.project_dir')
         );
-        $this->kernel = $this->container->get('kernel');
+        $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
         $this->connection = $this->container->get(Connection::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
         require_once __DIR__ . '/_fixture/SwagTest/Migration/Migration1536761533Test.php';
@@ -308,20 +310,22 @@ class PluginLifecycleServiceTest extends TestCase
         return new PluginLifecycleService(
             $this->pluginRepo,
             $this->container->get('event_dispatcher'),
-            $this->kernel,
+            $this->pluginCollection,
             $this->container->get('service_container'),
             $this->container->get(MigrationCollection::class),
             $this->container->get(MigrationCollectionLoader::class),
             $this->container->get(MigrationRuntime::class),
             $this->connection,
-            $this->container->get(AssetService::class)
+            $this->container->get(AssetService::class),
+            $this->container->getParameter('kernel.project_dir'),
+            $this->container->get(CommandExecutor::class)
         );
     }
 
     private function addTestPluginToKernel(): void
     {
         require_once __DIR__ . '/_fixture/SwagTest/SwagTest.php';
-        $this->kernel::getPlugins()->add(new \SwagTest\SwagTest(false));
+        $this->pluginCollection->add(new \SwagTest\SwagTest(false));
     }
 
     private function pluginTableExists(): bool

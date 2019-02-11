@@ -42,7 +42,8 @@ class PluginServiceTest extends TestCase
         $this->pluginRepo = $this->getContainer()->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
             $this->pluginRepo,
-            $this->getContainer()->get('language.repository')
+            $this->getContainer()->get('language.repository'),
+            $this->getContainer()->getParameter('kernel.project_dir')
         );
         $this->context = Context::createDefaultContext();
     }

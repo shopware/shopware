@@ -6,20 +6,22 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
-use Shopware\Core\Framework\Plugin\Helper\ComposerPackageProvider;
+use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\PluginService;
 
 trait PluginTestsHelper
 {
     protected function createPluginService(
         EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $languageRepo
+        EntityRepositoryInterface $languageRepo,
+        string $projectDir
     ): PluginService {
         return new PluginService(
             __DIR__ . '/_fixture',
+            $projectDir,
             $pluginRepo,
             $languageRepo,
-            new ComposerPackageProvider(),
+            new PackageProvider(),
             new ChangelogService(new ChangelogParser())
         );
     }

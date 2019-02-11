@@ -10,7 +10,10 @@ use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Snippet\SnippetFlattener;
 use Shopware\Core\Framework\Snippet\SnippetService;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\SnippetFileMock;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetList\SnippetFile_bar_bar;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetList\SnippetFile_foo_foo;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e1;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e2;
@@ -192,6 +195,113 @@ class SnippetServiceTest extends TestCase
 
         static::assertCount(3, $result1['de_AT']);
         static::assertCount(3, $result2['en_US']);
+    }
+
+    /**
+     * @dataProvider dataProviderForTestSortSnippets
+     */
+    public function testSortSnippets($snippets, $sortParams, $expectedResult)
+    {
+        $service = $this->getSnippetService();
+        $result = ReflectionHelper::getMethod(SnippetService::class, 'sortSnippets')
+            ->invokeArgs($service, [$sortParams, $snippets]);
+
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function dataProviderForTestSortSnippets()
+    {
+        $snippets = require __DIR__ . '/_fixtures/testSort/snippetsToSort.php';
+
+        return [
+            [[], [], []],
+            [[], ['sortBy' => 'foo'], []],
+            [$snippets, ['sortBy' => 'foo'], $snippets],
+            [$snippets, ['sortBy' => 'foo', 'sortDirection' => 'DESC'], $snippets],
+
+            [$snippets, ['sortBy' => 'translationKey'], $snippets],
+            [$snippets, ['sortBy' => 'translationKey', 'sortDirection' => 'ASC'], $snippets],
+            [$snippets, ['sortBy' => 'translationKey', 'sortDirection' => 'DESC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort1.php'],
+
+            [$snippets, ['sortBy' => '71a916e745114d72abafbfdc51cbd9d0'], $snippets],
+            [$snippets, ['sortBy' => '71a916e745114d72abafbfdc51cbd9d0', 'sortDirection' => 'ASC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort2.php'],
+            [$snippets, ['sortBy' => '71a916e745114d72abafbfdc51cbd9d0', 'sortDirection' => 'DESC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort3.php'],
+
+            [$snippets, ['sortBy' => 'b8d2230a7b324e448c9c8b22ed1b89d8'], $snippets],
+            [$snippets, ['sortBy' => 'b8d2230a7b324e448c9c8b22ed1b89d8', 'sortDirection' => 'ASC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort4.php'],
+            [$snippets, ['sortBy' => 'b8d2230a7b324e448c9c8b22ed1b89d8', 'sortDirection' => 'DESC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort5.php'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProviderForTestGetList
+     */
+    public function testGetList($params, $expectedResult)
+    {
+        $sql = file_get_contents(__DIR__ . '/_fixtures/testGetList/SetSql.sql');
+        $this->getContainer()->get(Connection::class)->exec($sql);
+
+        $collection = new SnippetFileCollection();
+        $collection->add(new SnippetFile_foo_foo());
+        $collection->add(new SnippetFile_bar_bar());
+
+        $context = new Context(new SourceContext());
+
+        $service = new SnippetService(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(SnippetFlattener::class),
+            $collection,
+            $this->getContainer()->get('snippet.repository'),
+            $this->getContainer()->get('snippet_set.repository'),
+            $this->getContainer()->get(SnippetFilterFactory::class)
+        );
+
+        $result = $service->getList($params['page'], $params['limit'], $context, $params['filter'], $params['sort']);
+
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function dataProviderForTestGetList(): array
+    {
+        $defaultParams = [
+            'page' => 1,
+            'limit' => 25,
+            'filter' => [],
+            'sort' => [],
+        ];
+
+        $limitTest = array_replace($defaultParams, ['limit' => 2]);
+        $limitPageTest = array_replace($defaultParams, ['limit' => 2, 'page' => 3]);
+        $filterAuthorTest = array_replace($defaultParams, ['filter' => ['author' => ['user/admin']]]);
+        $filterCustomTest = array_replace($defaultParams, ['filter' => ['custom' => true]]);
+        $filterEmptyTest = array_replace($defaultParams, ['filter' => ['empty' => true]]);
+        $filterNamespaceTest = array_replace($defaultParams, ['filter' => ['namespace' => ['cc', 'unit']]]);
+        $filterTerm1Test = array_replace($defaultParams, ['filter' => ['term' => '4']]);
+        $filterTerm2Test = array_replace($defaultParams, ['filter' => ['term' => 'dd bar']]);
+        $filterTerm3Test = array_replace($defaultParams, ['filter' => ['term' => 'onlyFor']]);
+        $filterTranslationKeyTest = array_replace($defaultParams, ['filter' => ['translationKey' => ['aa.ff']]]);
+        $filterTranslationKey2Test = array_replace($defaultParams, ['filter' => ['translationKey' => ['aa.ff', 'aa.aa']]]);
+        $sortTest = array_replace($defaultParams, ['sort' => ['sortBy' => 'translationKey', 'sortDirection' => 'ASC'], 'filter' => ['translationKey' => ['aa.aa', 'aa.bb', 'aa.ff', 'aa.gg']]]);
+        $sort2Test = array_replace($defaultParams, ['sort' => ['sortBy' => 'translationKey', 'sortDirection' => 'DESC'], 'filter' => ['translationKey' => ['aa.aa', 'aa.bb', 'aa.ff', 'aa.gg']]]);
+        $sort3Test = array_replace($defaultParams, ['sort' => ['sortBy' => '0d141d4373f3417e9655c9a30185481a', 'sortDirection' => 'DESC'], 'filter' => ['translationKey' => ['aa.aa', 'aa.bb', 'aa.ff', 'aa.gg']]]);
+
+        return [
+            [$defaultParams, require __DIR__ . '/_fixtures/testGetList/result1.php'],
+            [$limitTest, require __DIR__ . '/_fixtures/testGetList/result2.php'],
+            [$limitPageTest, require __DIR__ . '/_fixtures/testGetList/result3.php'],
+            [$filterAuthorTest, require __DIR__ . '/_fixtures/testGetList/result4.php'],
+            [$filterCustomTest, require __DIR__ . '/_fixtures/testGetList/result4.php'],
+            [$filterEmptyTest, require __DIR__ . '/_fixtures/testGetList/result5.php'],
+            [$filterNamespaceTest, require __DIR__ . '/_fixtures/testGetList/result6.php'],
+            [$filterTerm1Test, require __DIR__ . '/_fixtures/testGetList/result7.php'],
+            [$filterTerm2Test, require __DIR__ . '/_fixtures/testGetList/result8.php'],
+            [$filterTerm3Test, require __DIR__ . '/_fixtures/testGetList/result9.php'],
+            [$filterTranslationKeyTest, require __DIR__ . '/_fixtures/testGetList/result10.php'],
+            [$filterTranslationKey2Test, require __DIR__ . '/_fixtures/testGetList/result11.php'],
+            [$sortTest, require __DIR__ . '/_fixtures/testGetList/result12.php'],
+            [$sort2Test, require __DIR__ . '/_fixtures/testGetList/result13.php'],
+            [$sort3Test, require __DIR__ . '/_fixtures/testGetList/result14.php'],
+        ];
     }
 
     private function getSnippetService(array $snippetFiles = []): SnippetService

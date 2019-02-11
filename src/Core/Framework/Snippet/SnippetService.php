@@ -70,6 +70,7 @@ class SnippetService implements SnippetServiceInterface
     {
         --$page;
         $metaData = $this->getSetMetaData($context);
+
         $isoList = $this->createIsoList($metaData);
         $languageFiles = $this->getSnippetFilesByIso($isoList);
 
@@ -390,7 +391,7 @@ class SnippetService implements SnippetServiceInterface
 
     private function sortSnippets(array $sort, array $snippets): array
     {
-        if ($sort['sortBy'] === null) {
+        if (!isset($sort['sortBy'], $sort['sortDirection'])) {
             return $snippets;
         }
 
@@ -403,6 +404,10 @@ class SnippetService implements SnippetServiceInterface
                 }
             }
 
+            return $snippets;
+        }
+
+        if (!isset($snippets[$sort['sortBy']])) {
             return $snippets;
         }
 

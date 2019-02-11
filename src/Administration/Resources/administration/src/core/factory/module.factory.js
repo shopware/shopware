@@ -102,12 +102,12 @@ function registerModule(moduleId, module) {
         route.name = `${routePrefixName}.${routeKey}`;
 
         // Check if custom prefix path exists
-        const routePrefixPath = module.routePrefixPath ? module.routePrefixPath : splitModuleId.join('.');
+        const routePrefixPath = module.routePrefixPath ? module.routePrefixPath : splitModuleId.join('/');
 
         // Core routes don't need to be nested
         if (!route.coreRoute) {
             // Rewrite path
-            route.path = `${routePrefixPath}/${route.path}`;
+            route.path = `/${routePrefixPath}/${route.path}`;
         }
 
 

@@ -166,7 +166,7 @@ class SnippetService implements SnippetServiceInterface
     public function getAuthors(Context $context): array
     {
         $authors = [];
-        $files = $this->snippetFileCollection->getFilesArray();
+        $files = $this->snippetFileCollection->toArray();
 
         $criteria = new Criteria();
         $criteria->addAggregation(new ValueAggregation('author', 'distinct_author'));

@@ -28,6 +28,6 @@ class de_AT implements SnippetFileInterface
 
     public function isBase(): bool
     {
-        return $this::BASE_LANGUAGE_FILE;
+        return $this::BASE_SNIPPET_FILE;
     }
 }

@@ -28,6 +28,6 @@ class en_US_e1 implements SnippetFileInterface
 
     public function isBase(): bool
     {
-        return SnippetFileInterface::BASE_LANGUAGE_FILE;
+        return SnippetFileInterface::BASE_SNIPPET_FILE;
     }
 }

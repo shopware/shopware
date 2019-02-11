@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -25,7 +24,7 @@ class MediaThumbnailRepositoryTest extends TestCase
     private $mediaRepository;
 
     /**
-     * @var MediaThumbnailRepository
+     * @var EntityRepositoryInterface
      */
     private $thumbnailRepository;
 
@@ -60,7 +59,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $media = $this->createThumbnailWithMedia($mediaId);
         $thumbnailPath = $this->createThumbnailFile($media);
 
-        $this->thumbnailRepository->deleteCascadingFromMedia($media, $this->context);
+        $this->thumbnailRepository->delete($media->getThumbnails()->getIds(), $this->context);
 
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }

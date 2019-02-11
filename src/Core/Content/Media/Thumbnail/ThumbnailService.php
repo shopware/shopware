@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderCo
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepository;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -29,7 +29,7 @@ class ThumbnailService
     private $mediaRepository;
 
     /**
-     * @var MediaThumbnailRepository
+     * @var MediaThumbnailRepositoryDecorator
      */
     private $thumbnailRepository;
 
@@ -50,7 +50,7 @@ class ThumbnailService
 
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
-        MediaThumbnailRepository $thumbnailRepository,
+        MediaThumbnailRepositoryDecorator $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,
         EntityRepositoryInterface $mediaFolderRepository
@@ -80,7 +80,7 @@ class ThumbnailService
     public function updateThumbnails(MediaEntity $media, Context $context): int
     {
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
-            $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
+            $this->deleteAssociatedThumbnails($media, $context);
 
             return 0;
         }
@@ -109,7 +109,7 @@ class ThumbnailService
 
     public function deleteThumbnails(MediaEntity $media, Context $context): void
     {
-        $this->thumbnailRepository->deleteCascadingFromMedia($media, $context);
+        $this->deleteAssociatedThumbnails($media, $context);
     }
 
     private function createThumbnailsForSizes(
@@ -330,5 +330,11 @@ class ThumbnailService
         }
 
         return false;
+    }
+
+    private function deleteAssociatedThumbnails(MediaEntity $media, Context $context): void
+    {
+        $associatedThumbnails = $media->getThumbnails()->getIds();
+        $this->thumbnailRepository->delete($associatedThumbnails, $context);
     }
 }

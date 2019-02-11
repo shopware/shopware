@@ -4,13 +4,15 @@ class IntegrationPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            integrationName: 'input[name=sw-field--currentIntegration-label]',
-            integrationSaveAction: '.sw-integration-detail-modal__save-action',
-            apiAccessKeyField: 'input[name=sw-field--currentIntegration-accessKey]',
-            listColumnName: '.sw-integration-list__column-integration-name',
-            listHeadline: '.sw-integration-list__welcome-headline'
-        });
+        this.elements = {
+            ...this.elements, ...{
+                integrationName: 'input[name=sw-field--currentIntegration-label]',
+                integrationSaveAction: '.sw-integration-detail-modal__save-action',
+                apiAccessKeyField: 'input[name=sw-field--currentIntegration-accessKey]',
+                listColumnName: '.sw-integration-list__column-integration-name',
+                listHeadline: '.sw-integration-list__welcome-headline'
+            }
+        };
 
         this.accessKeyId = '';
         this.newAccessKeyId = '';

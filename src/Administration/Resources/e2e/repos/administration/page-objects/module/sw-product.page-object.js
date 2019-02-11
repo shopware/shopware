@@ -4,12 +4,14 @@ class ProductPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            columnProductName: 'sw-product-list__column-product-name > a',
-            mediaForm: '.sw-product-media-form',
-            productSaveAction: '.sw-product-detail__save-action',
-            productListName: '.sw-product-list__column-product-name'
-        });
+        this.elements = {
+            ...this.elements, ...{
+                columnProductName: 'sw-product-list__column-product-name > a',
+                mediaForm: '.sw-product-media-form',
+                productSaveAction: '.sw-product-detail__save-action',
+                productListName: '.sw-product-list__column-product-name'
+            }
+        };
     }
 
     createBasicProduct(productName) {

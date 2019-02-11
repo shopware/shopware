@@ -4,21 +4,23 @@ class MediaPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            previewItem: '.sw-media-preview__item',
-            folderPreviewItem: '.sw-media-base-item__preview-container',
-            baseItem: '.sw-media-base-item',
-            gridItem: '.sw-media-grid-item__item',
-            mediaItem: '.sw-media-media-item',
-            folderItem: '.sw-media-folder-item',
-            folderNameInput: 'input[name=media-item-name]',
-            folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
-            folderBreadcrumbBack: '.icon--folder-breadcrumbs-dropdown',
-            mediaNameLabel: '.sw-media-media-item .sw-media-base-item__name',
-            showMediaAction: '.sw-media-context-item__show-media-action',
-            showSettingsAction: '.sw-media-context-item__open-settings-action',
-            saveSettingsAction: '.sw-media-modal-folder-settings__confirm'
-        });
+        this.elements = {
+            ...this.elements, ...{
+                previewItem: '.sw-media-preview__item',
+                folderPreviewItem: '.sw-media-base-item__preview-container',
+                baseItem: '.sw-media-base-item',
+                gridItem: '.sw-media-grid-item__item',
+                mediaItem: '.sw-media-media-item',
+                folderItem: '.sw-media-folder-item',
+                folderNameInput: 'input[name=media-item-name]',
+                folderNameLabel: '.sw-media-folder-item .sw-media-base-item__name',
+                folderBreadcrumbBack: '.icon--folder-breadcrumbs-dropdown',
+                mediaNameLabel: '.sw-media-media-item .sw-media-base-item__name',
+                showMediaAction: '.sw-media-context-item__show-media-action',
+                showSettingsAction: '.sw-media-context-item__open-settings-action',
+                saveSettingsAction: '.sw-media-modal-folder-settings__confirm'
+            }
+        };
     }
 
     uploadImageViaURL(imgPath) {

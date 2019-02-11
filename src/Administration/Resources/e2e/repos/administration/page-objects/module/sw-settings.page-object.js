@@ -4,19 +4,21 @@ class CustomerPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            countrySaveAction: '.sw-settings-country-detail__save-action',
-            countryColumnName: '.sw-country-list__column-name',
+        this.elements = {
+            ...this.elements, ...{
+                countrySaveAction: '.sw-settings-country-detail__save-action',
+                countryColumnName: '.sw-country-list__column-name',
 
-            currencySaveAction: '.sw-settings-currency-detail__save-action',
-            currencyColumnName: '.sw-currency-list__column-name',
+                currencySaveAction: '.sw-settings-currency-detail__save-action',
+                currencyColumnName: '.sw-currency-list__column-name',
 
-            languageSaveAction: '.sw-settings-language-detail__save-action',
-            languageColumnName: '.sw-language-list__column-name',
+                languageSaveAction: '.sw-settings-language-detail__save-action',
+                languageColumnName: '.sw-language-list__column-name',
 
-            taxSaveAction: '.sw-settings-tax-detail__save-action',
-            taxColumnName: '.sw-tax-list__column-name'
-        });
+                taxSaveAction: '.sw-settings-tax-detail__save-action',
+                taxColumnName: '.sw-tax-list__column-name'
+            }
+        };
     }
 }
 

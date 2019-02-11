@@ -4,10 +4,12 @@ class RuleBuilderPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            columnName: '.sw-settings-rule-list__column-name',
-            ruleSaveAction: '.sw-settings-rule-detail__save-action'
-        });
+        this.elements = {
+            ...this.elements, ...{
+                columnName: '.sw-settings-rule-list__column-name',
+                ruleSaveAction: '.sw-settings-rule-detail__save-action'
+            }
+        };
     }
 
     createBasicRule(name) {

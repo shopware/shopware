@@ -4,12 +4,14 @@ class LoginPageObject extends GeneralPageObject {
     constructor(browser) {
         super(browser);
 
-        this.elements = Object.assign(this.elements, {
-            loginForm: '.sw-login__form',
-            usernameField: 'input[name=sw-field--authStore-username]',
-            passwordField: 'input[name=sw-field--authStore-password]',
-            submitButton: '.sw-login__login-action'
-        });
+        this.elements = {
+            ...this.elements, ...{
+                loginForm: '.sw-login__form',
+                usernameField: 'input[name=sw-field--authStore-username]',
+                passwordField: 'input[name=sw-field--authStore-password]',
+                submitButton: '.sw-login__login-action'
+            }
+        };
     }
 
     login(username, password) {

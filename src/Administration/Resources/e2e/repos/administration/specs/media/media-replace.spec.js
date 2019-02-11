@@ -14,8 +14,11 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
-            .assert.urlContains('#/sw/product/index')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementVisible('.smart-bar__header')
             .assert.containsText('.smart-bar__header h2', 'Products')
             .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button')
@@ -28,14 +31,16 @@ module.exports = {
             .waitForElementVisible(page.elements.previewItem);
     },
     'open media listing and navigate to folder if necessary': (browser) => {
+        const page = mediaPage(browser);
+        page.openMediaIndex();
+
         browser
-            .openMainMenuEntry('#/sw/media/index', 'Media')
             .assert.urlContains('#/sw/media/index');
 
         if (global.flags.isActive('next1207')) {
             browser
-                .waitForElementVisible('.sw-media-base-item__preview-container')
-                .moveToElement('.sw-media-base-item__preview-container', 5, 5).doubleClick()
+                .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+                .moveToElement(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`, 5, 5).doubleClick()
                 .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root');
         }
     },
@@ -62,7 +67,7 @@ module.exports = {
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-test-image.png`)
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
-            .waitForElementVisible(page.elements.previewItem)
+            .waitForElementVisible(`${page.elements.gridItem}--0 ${page.elements.previewItem}`)
             .waitForElementVisible('.sw-media-replace__replace-media-action')
             .click('.sw-media-replace__replace-media-action')
             .checkNotification('File replaced', `${page.elements.notification}--1`)
@@ -80,7 +85,7 @@ module.exports = {
             .assert.containsText('.sw-media-sidebar__headline', 'sw-test-image.png')
             .getLocationInView('.sw-media-sidebar__metadata-list');
 
-        browser.expect.element('input[name=sw-field--draft]').to.have.value.that.equals('sw-test-image');
+        browser.expect.element('.sw-media-quickinfo-metadata-name input[name=sw-field--draft]').to.have.value.that.equals('sw-test-image');
         browser.expect.element('.sw-media-quickinfo-metadata-file-type').to.have.text.that.equals('PNG');
         browser.expect.element('.sw-media-quickinfo-metadata-mimeType').to.have.text.that.equals('image/png');
     },
@@ -88,7 +93,11 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementVisible('.smart-bar__header')
             .assert.containsText('.smart-bar__header h2', 'Products')
             .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button')

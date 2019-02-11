@@ -15,7 +15,11 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementVisible('.smart-bar__actions a')
             .waitForElementVisible(page.elements.smartBarAmount)
             .assert.containsText(page.elements.smartBarAmount, '(1)')

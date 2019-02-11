@@ -17,7 +17,7 @@ module.exports = {
 
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton,`${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible(page.elements.smartBarHeader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
@@ -28,8 +28,8 @@ module.exports = {
         browser
             .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.icon--folder-breadcrumbs-back-to-root')
-            .waitForElementVisible('.sw-media-base-item__preview-container')
-            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton)
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible(`${page.elements.folderNameInput}`)
             .setValue(page.elements.folderNameInput, [browser.Keys.CONTROL, 'a'])
             .setValue(page.elements.folderNameInput, browser.Keys.DELETE)

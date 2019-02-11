@@ -15,8 +15,11 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .assert.containsText('.sw-admin-menu__navigation-list-item.sw-product span.collapsible-text', 'Products')
-            .click('a.sw-admin-menu__navigation-link[href="#/sw/product/index"]')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementVisible(page.elements.smartBarAmount)
             .assert.containsText(page.elements.smartBarAmount, '(1)')
             .waitForElementVisible('.sw-product-list__column-product-name')

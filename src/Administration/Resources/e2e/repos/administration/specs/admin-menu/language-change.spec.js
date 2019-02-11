@@ -2,8 +2,8 @@ module.exports = {
     '@tags': ['language-change','language','change', 'admin-menu'],
     'open admin menu': (browser) => {
         browser
-            .waitForElementVisible('.sw-admin-menu__navigation-link')
-            .click('.sw-admin-menu__navigation-link')
+            .waitForElementVisible('.sw-admin-menu__item--0 .sw-admin-menu__navigation-link')
+            .click('.sw-admin-menu__item--0 .sw-admin-menu__navigation-link')
             .waitForElementVisible('.sw-admin-menu__user-name')
             .assert.containsText('.sw-admin-menu__user-name', 'admin');
     },

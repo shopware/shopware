@@ -5,7 +5,13 @@ module.exports = {
     '@disabled': !global.flags.isActive('next717'),
     'open snippet module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/snippet/index', 'Snippets');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/snippets/index',
+                subMenuTitle: 'Snippets'
+            });
     },
     'create a new snippet set': (browser) => {
         const page = settingsPage(browser);

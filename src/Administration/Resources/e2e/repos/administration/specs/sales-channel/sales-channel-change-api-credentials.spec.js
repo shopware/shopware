@@ -17,8 +17,8 @@ module.exports = {
 
         browser
             .refresh()
-            .waitForElementVisible(`${page.elements.salesChannelMenuName} .collapsible-text`)
-            .assert.containsText(`${page.elements.salesChannelMenuName} .collapsible-text`, fixture.name);
+            .waitForElementVisible(`${page.elements.salesChannelMenuName}--0 .collapsible-text`)
+            .assert.containsText(`${page.elements.salesChannelMenuName}--0 .collapsible-text`, fixture.name);
     },
     'edit api credentials': (browser) => {
         const page = salesChannelPage(browser);

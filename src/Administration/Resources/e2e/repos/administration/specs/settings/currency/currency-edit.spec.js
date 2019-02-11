@@ -11,7 +11,13 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/currency/index', 'Currencies')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/currency/index',
+                subMenuTitle: 'Currencies'
+            })
             .waitForElementVisible('.sw-settings-currency-list-grid')
             .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
             .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.AdminFixtureService.basicFixture.name);

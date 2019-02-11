@@ -13,22 +13,29 @@ module.exports = {
     },
     'open product listing and select product': (browser) => {
         const page = productPage(browser);
+
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementVisible(page.elements.contextMenuButton)
             .clickContextMenuItem(page.elements.contextMenu, page.elements.contextMenuButton);
     },
     'upload media item': (browser) => {
         const page = productPage(browser);
         page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-test-image.png`, 'Ultimate Product');
+
         browser
             .click(page.elements.primaryButton)
             .checkNotification('Product "Ultimate Product" has been saved successfully.');
     },
     'verify upload in media module': (browser) => {
         const page = mediaPage(browser);
+        page.openMediaIndex();
+
         browser
-            .openMainMenuEntry('#/sw/media/index', 'Media')
             .waitForElementVisible(page.elements.folderItem)
             .moveToElement(page.elements.folderItem, 5, 5)
             .click(page.elements.folderItem)

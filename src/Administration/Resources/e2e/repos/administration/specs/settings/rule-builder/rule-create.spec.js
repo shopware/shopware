@@ -5,7 +5,13 @@ module.exports = {
     '@disabled': !global.flags.isActive('next516'),
     'navigate to rule index': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/rule/index', 'Rules');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/rule/index',
+                subMenuTitle: 'Rules'
+            });
     },
     'create new rule with basic condition': (browser) => {
         const page = ruleBuilderPage(browser);

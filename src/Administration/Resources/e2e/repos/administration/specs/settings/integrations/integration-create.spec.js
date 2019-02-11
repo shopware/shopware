@@ -4,7 +4,13 @@ module.exports = {
     '@tags': ['settings', 'integration-create','integration', 'create'],
     'open integration module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/integration/index',
+                subMenuTitle: 'Integrations'
+            });
     },
     'go to create integration page': (browser) => {
         const page = integrationPage(browser);
@@ -38,7 +44,7 @@ module.exports = {
 
         browser
             .waitForElementPresent(page.elements.listColumnName)
-            .assert.containsText(`${page.elements.listColumnName} .sw-grid__cell-content`, 'My very own integration');
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`, 'My very own integration');
     },
     after: (browser) => {
         browser.end();

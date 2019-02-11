@@ -4,7 +4,13 @@ module.exports = {
     '@tags': ['product', 'manufacturer-create', 'manufacturer', 'create', 'upload'],
     'navigate to manufacturer module and click on add manufacturer': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            })
             .waitForElementPresent('.sw-button__content')
             .click('.sw-button__content');
     },
@@ -17,9 +23,15 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            })
             .refresh()
-            .waitForElementPresent('.sw-button__content')
+            .waitForElementPresent(`${page.elements.gridRow}--0 .sw-manufacturer-list_column-manufacturer-name`)
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
@@ -41,7 +53,11 @@ module.exports = {
     },
     'check if the manufacturer can be used in product': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')

@@ -4,7 +4,13 @@ module.exports = {
     '@tags': ['settings', 'language-create', 'language', 'create'],
     'open language module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/language/index',
+                subMenuTitle: 'Languages'
+            });
     },
     'create new language': (browser) => {
         const page = settingsPage(browser);

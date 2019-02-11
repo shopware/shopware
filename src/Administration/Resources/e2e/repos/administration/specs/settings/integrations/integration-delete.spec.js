@@ -10,7 +10,13 @@ module.exports = {
     'open integration module and look for the integration to be deleted': (browser) => {
         const page = integrationPage(browser);
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/integration/index',
+                subMenuTitle: 'Integrations'
+            })
             .waitForElementVisible(page.elements.listHeadline)
             .assert.containsText(page.elements.listHeadline, 'Welcome to the integration management')
             .assert.urlContains('#/sw/integration/index');

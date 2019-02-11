@@ -53,7 +53,11 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Products')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1
+            })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-list__column-product-name')
             .assert.containsText('.sw-product-list__column-product-name', global.ProductFixtureService.productFixture.name)
@@ -86,7 +90,7 @@ module.exports = {
         page.openMediaIndex();
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .waitForElementVisible(page.elements.smartBarHeader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixtures.name);

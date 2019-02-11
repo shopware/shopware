@@ -42,6 +42,7 @@ module.exports = {
 
                 const endTime = new Date() - startTime;
                 global.logger.success(`Logged in successfully! (${endTime / 1000}s)`);
+                global.logger.lineBreak();
             });
         }).then(() => {
             if (!browser.checkIfElementExists('.sw-admin-menu__header-logo')) {

@@ -4,7 +4,13 @@ module.exports = {
     '@tags': ['settings', 'country-create', 'country', 'create'],
     'open country module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/country/index', 'Countries');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/country/index',
+                subMenuTitle: 'Countries'
+            });
     },
     'create new country': (browser) => {
         const page = settingsPage(browser);

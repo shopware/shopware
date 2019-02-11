@@ -9,13 +9,19 @@ module.exports = {
     },
     'navigate to manufacturer module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            });
     },
     'check if new manufacturer exists in overview': (browser) => {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementPresent(`${page.elements.gridRow}--0 .sw-button__content`)
+            .waitForElementPresent(`${page.elements.gridRow}--0`)
             .assert.urlContains('#/sw/manufacturer/index')
             .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
             .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
@@ -41,7 +47,13 @@ module.exports = {
     },
     'delete manufacturer': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/manufacturer/index', 'Manufacturer');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/manufacturer/index',
+                subMenuTitle: 'Manufacturer'
+            });
 
         const page = manufacturerPage(browser);
         page.deleteManufacturer(global.AdminFixtureService.basicFixture.name);

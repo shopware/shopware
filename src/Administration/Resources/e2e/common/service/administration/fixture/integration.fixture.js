@@ -12,7 +12,6 @@ export default class IntegrationFixtureService extends AdminFixtureService {
 
     setIntegrationFixtures(userData) {
         const startTime = new Date();
-        global.logger.lineBreak();
         global.logger.title('Set integration fixtures...');
 
         const finalRawData = this.mergeFixtureWithData(this.integrationFixture, userData);

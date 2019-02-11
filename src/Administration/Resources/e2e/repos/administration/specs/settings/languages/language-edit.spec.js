@@ -11,7 +11,13 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/language/index', 'Languages')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/language/index',
+                subMenuTitle: 'Languages'
+            })
             .waitForElementVisible('.sw-settings-language-list-grid')
             .waitForElementVisible(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`)
             .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, global.LanguageFixtureService.languageFixture.name);

@@ -4,7 +4,13 @@ module.exports = {
     '@tags': ['settings','tax-create', 'tax', 'create'],
     'open tax module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/settings/tax/index', 'Tax');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/settings/tax/index',
+                subMenuTitle: 'Tax'
+            });
     },
     'goto create tax page': (browser) => {
         const page = settingsPage(browser);

@@ -11,11 +11,17 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/settings/index', 'Settings', '#/sw/integration/index', 'Integrations')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/settings/index',
+                menuTitle: 'Settings',
+                index: 6,
+                subMenuItemPath: '#/sw/integration/index',
+                subMenuTitle: 'Integrations'
+            })
             .waitForElementVisible(page.elements.listHeadline)
             .assert.containsText(page.elements.listHeadline, 'Welcome to the integration management')
             .waitForElementPresent(page.elements.listColumnName)
-            .assert.containsText(`${page.elements.listColumnName} .sw-grid__cell-content`, global.IntegrationFixtureService.integrationFixture.name);
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`, global.IntegrationFixtureService.integrationFixture.name);
     },
     'edit integration': (browser) => {
         const page = integrationPage(browser);
@@ -54,7 +60,7 @@ module.exports = {
             .click(`${page.elements.modal}__close`)
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementPresent(page.elements.listColumnName)
-            .assert.containsText(`${page.elements.listColumnName} .sw-grid__cell-content`, 'Once again: Edits integration');
+            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`, 'Once again: Edits integration');
     },
     after: (browser) => {
         browser.end();

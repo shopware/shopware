@@ -13,7 +13,6 @@ export default class SalesChannelFixtureService extends AdminFixtureService {
 
     setSalesChannelFixture(userData) {
         const startTime = new Date();
-        global.logger.lineBreak();
         global.logger.title('Set sales channel fixtures...');
 
         const jsonData = this.salesChannelFixture;

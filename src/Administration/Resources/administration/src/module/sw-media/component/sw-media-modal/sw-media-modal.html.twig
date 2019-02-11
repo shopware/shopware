@@ -1,0 +1,68 @@
+<sw-modal class="sw-media-modal" variant="full" title="Medien asuwählen" @closeModal="onEmitModalClosed">
+    <div slot="default" class="sw-media-modal__content">
+        <sw-tabs variant="minimal" :defaultItem="defaultItem" class="sw-media-modal__tabs">
+            <template slot-scope="{ active }">
+                <sw-tabs-item :name="tabNameLibrary" variant="minimal" :active="active" :disabled="hasUploads">Medien Auswählen</sw-tabs-item>
+                <sw-tabs-item :name="tabNameUpload" variant="minimal" :active="active" @click="resetSelection">Medien Hochladen</sw-tabs-item>
+            </template>
+
+            <template slot="content" slot-scope="{ active }">
+                <div  class="sw-media-modal__tab-content">
+                    <template v-if="active === tabNameUpload" class="sw-media-modal__uploads-content">
+                        <sw-media-upload
+                                class="sw-media-modal__upload-container"
+                                variant="regular"
+                                :defaultFolder="entityContext"
+                                allowMultiple
+                                @sw-media-upload-new-uploads-added="onUploadsAdded"
+                                @sw-media-upload-media-upload-failure="onUploadFailed"
+                                @sw-media-upload-media-upload-success="onUploadFinished">
+                        </sw-media-upload>
+                        <sw-media-grid presentation="medium-preview">
+                            <sw-media-media-item
+                                v-for="upload in uploads"
+                                :key="`sw-media-modal-upload-${upload.id}`"
+                                :item="upload"
+                                :showContextMenuButton="false"
+                                :showSelectionIndicator="true"
+                                :selected="true"
+                                :editable="false">
+                            </sw-media-media-item>
+                        </sw-media-grid>
+                    </template>
+
+                    <template v-if="active === tabNameLibrary">
+                        <div class="sw-media-modal__breadcrumbs-and-search" :class="{'sw-media-modal__breadcrumbs-and-search--compact': compact}">
+                            <sw-media-breadcrumbs v-model="folderId" :small="compact"></sw-media-breadcrumbs>
+                            <sw-simple-search-field v-model="term"></sw-simple-search-field>
+                        </div>
+
+                        <sw-media-library
+                            :selection="selection"
+                            :folderId="folderId"
+                            :term="term"
+                            :compact="compact"
+                            @sw-media-selection-changed="selection = $event"
+                            @media-folder-changed="folderId = $event"
+                            ref="mediaLibrary">
+                        </sw-media-library>
+                    </template>
+                </div>
+            </template>
+        </sw-tabs>
+
+        <sw-media-sidebar
+            :items="selection"
+            :currentFolderId="null"
+            @sw-media-sidebar-items-delete="refreshList"
+            @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
+            @sw-media-sidebar-items-moved="refreshList"
+            @sw-media-item-selection-remove="onMediaUnselect">
+        </sw-media-sidebar>
+    </div>
+
+    <template slot="modal-footer">
+        <sw-button @click="onEmitModalClosed">Abbrechen</sw-button>
+        <sw-button variant="primary" @click="onEmitSelection">Auswahl übernehmen</sw-button>
+    </template>
+</sw-modal>

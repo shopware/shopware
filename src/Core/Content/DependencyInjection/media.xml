@@ -51,6 +51,14 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Metadata\MetadataUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector" />
+            <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" />
+            <argument type="service" id="shopware.cache" />
+        </service>
+
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="media_folder.repository"/>
@@ -100,8 +108,7 @@
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
-            <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataUpdater"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileNameProvider" class="Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider">
@@ -119,7 +126,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand">
-            <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataUpdater"/>
             <argument type="service" id="media.repository"/>
             <tag name="console.command"/>
         </service>

@@ -105,17 +105,11 @@ class DiscountSurchargeCollector implements CollectorInterface
 
             if ($discount->getType() === self::ABSOLUTE_MODIFIER) {
                 $lineItem->setPriceDefinition(
-                    new AbsolutePriceDefinition(
-                        $discount->getAmount(),
-                        $discount->getFilterRule()
-                    )
+                    new AbsolutePriceDefinition($discount->getAmount())
                 );
             } elseif ($discount->getType() === self::PERCENTAL_MODIFIER) {
                 $lineItem->setPriceDefinition(
-                    new PercentagePriceDefinition(
-                        $discount->getAmount(),
-                        $discount->getFilterRule()
-                    )
+                    new PercentagePriceDefinition($discount->getAmount())
                 );
             } else {
                 throw new UnsupportedModifierTypeException($discount->getType(), self::class);

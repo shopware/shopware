@@ -20,7 +20,7 @@ class MediaLoadedSubscriberTest extends TestCase
 
     public function testExtensionSubscribesToMediaLoaded(): void
     {
-        static::assertCount(2, MediaLoadedSubscriber::getSubscribedEvents()[MediaEvents::MEDIA_LOADED_EVENT]);
+        static::assertCount(3, MediaLoadedSubscriber::getSubscribedEvents()[MediaEvents::MEDIA_LOADED_EVENT]);
     }
 
     public function testItAddsUrl(): void

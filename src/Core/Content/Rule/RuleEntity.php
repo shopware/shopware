@@ -29,7 +29,7 @@ class RuleEntity extends Entity
     protected $priority;
 
     /**
-     * @var Rule|null
+     * @var string|Rule|null
      */
     protected $payload;
 
@@ -78,12 +78,12 @@ class RuleEntity extends Entity
         $this->name = $name;
     }
 
-    public function getPayload(): ?Rule
+    public function getPayload()
     {
         return $this->payload;
     }
 
-    public function setPayload(Rule $payload): void
+    public function setPayload($payload): void
     {
         $this->payload = $payload;
     }

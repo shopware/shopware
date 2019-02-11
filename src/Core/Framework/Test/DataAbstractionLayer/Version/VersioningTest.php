@@ -240,11 +240,6 @@ class VersioningTest extends TestCase
         static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
     }
 
-    public function testICanVersionObjectFields()
-    {
-        static::markTestIncomplete('Object fields are not supported currently');
-    }
-
     public function testICanVersionCalculatedPriceField()
     {
         $id = Uuid::uuid4()->getHex();

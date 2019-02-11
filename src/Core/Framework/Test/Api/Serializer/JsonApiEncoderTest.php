@@ -9,13 +9,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
 class JsonApiEncoderTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     /**
      * @var JsonApiEncoder
      */
@@ -23,7 +20,7 @@ class JsonApiEncoderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $this->encoder = new JsonApiEncoder();
     }
 
     public function emptyInputProvider(): array
@@ -92,7 +89,7 @@ class JsonApiEncoderTest extends TestCase
                 ],
                 'relationships' => [
                     'translations' => [
-                        'data' => null,
+                        'data' => [],
                         'links' => [
                             'related' => '/api/media/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/translations',
                         ],

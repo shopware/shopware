@@ -6,7 +6,6 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Rule\Rule;
 
 class DiscountSurchargeEntity extends Entity
 {
@@ -15,11 +14,6 @@ class DiscountSurchargeEntity extends Entity
      * @var string|null
      */
     protected $name;
-
-    /**
-     * @var Rule
-     */
-    protected $filterRule;
 
     /**
      * @var string
@@ -124,16 +118,6 @@ class DiscountSurchargeEntity extends Entity
     public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getFilterRule(): Rule
-    {
-        return $this->filterRule;
-    }
-
-    public function setFilterRule(Rule $filterRule): void
-    {
-        $this->filterRule = $filterRule;
     }
 
     public function getTranslations(): ?EntitySearchResult

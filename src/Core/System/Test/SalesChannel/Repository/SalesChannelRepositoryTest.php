@@ -31,11 +31,6 @@ class SalesChannelRepositoryTest extends TestCase
     /**
      * @var EntityRepositoryInterface
      */
-    private $catalogRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $currencyRepository;
 
     /**
@@ -61,7 +56,6 @@ class SalesChannelRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->catalogRepository = $this->getContainer()->get('catalog.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
@@ -110,7 +104,6 @@ class SalesChannelRepositoryTest extends TestCase
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'countryId' => Defaults::COUNTRY,
-            'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => Defaults::PAYMENT_METHOD_DEBIT]],
@@ -131,11 +124,6 @@ class SalesChannelRepositoryTest extends TestCase
         self::assertEquals($manufacturer, $salesChannel->getType()->getManufacturer());
         self::assertEquals($description, $salesChannel->getType()->getDescription());
         self::assertEquals($descriptionLong, $salesChannel->getType()->getDescriptionLong());
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('catalog.salesChannels.id', $salesChannelId));
-        $catalog = $this->catalogRepository->search($criteria, $context);
-        self::assertEquals(1, $catalog->count());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $salesChannelId));

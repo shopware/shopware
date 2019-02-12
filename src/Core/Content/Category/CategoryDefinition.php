@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category;
 
-use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -10,7 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryT
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -69,7 +67,6 @@ class CategoryDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            new CatalogField(),
 
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
@@ -108,7 +105,6 @@ class CategoryDefinition extends EntityDefinition
             new ChildrenAssociationField(self::class),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
-            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReadOnly()),
         ]);
     }

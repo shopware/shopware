@@ -1,27 +1,28 @@
 {% block sw_manufacturer_detail %}
-    <sw-page class="sw-manufacturer-detail">
+<sw-page class="sw-manufacturer-detail">
 
-        {% block sw_manufacturer_detail_header %}
-            <template slot="smart-bar-header">
-                <h2>{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
-            </template>
+    {% block sw_manufacturer_detail_header %}
+    <template slot="smart-bar-header">
+        <h2 >{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_manufacturer_detail_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_manufacturer_detail_actions_abort %}
+        <sw-button :disabled="manufacturer.isLoading" :routerLink="{ name: 'sw.manufacturer.index' }">
+            {{ $tc('sw-manufacturer.detail.buttonCancel') }}
+        </sw-button>
         {% endblock %}
 
-        {% block sw_manufacturer_detail_actions %}
-            <template slot="smart-bar-actions">
-                {% block sw_manufacturer_detail_actions_abort %}
-                    <sw-button :disabled="manufacturer.isLoading" :routerLink="{ name: 'sw.manufacturer.index' }">
-                        {{ $tc('sw-manufacturer.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_manufacturer_detail_actions_save %}
-                    <sw-button class="sw-manufacturer-detail__save-action" variant="primary" :disabled="manufacturer.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-manufacturer.detail.buttonSave') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
+        {% block sw_manufacturer_detail_actions_save %}
+        <sw-button class="sw-manufacturer-detail__save-action" variant="primary" :disabled="manufacturer.isLoading"
+                   @click.prevent="onSave">
+            {{ $tc('sw-manufacturer.detail.buttonSave') }}
+        </sw-button>
         {% endblock %}
+    </template>
+    {% endblock %}
 
         {% block sw_manufacturer_detail_language_switch %}
             <sw-language-switch slot="language-switch"
@@ -31,90 +32,85 @@
             </sw-language-switch>
         {% endblock %}
 
-        {% block sw_manufacturer_detail_content %}
-            <sw-card-view slot="content" sidebar>
-
-                {% block sw_manufacturer_detail_content_language_info %}
+    {% block sw_manufacturer_detail_content %}
+    <sw-card-view slot="content" sidebar>
+{% block sw_manufacturer_detail_content_language_info %}
                     <sw-language-info
                             :entityDescription="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))">
                     </sw-language-info>
+                {% endblock %}        {% block sw_manufacturer_detail_base_basic_info_card %}
+        <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturer.isLoading">
+            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
+                {% block sw_manufacturer_detail_base_info_field_name %}
+                <sw-field type="text"
+                          :label="$tc('sw-manufacturer.detail.labelName')"
+                          :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
+                          name="name"
+                          validation="required"
+                          v-model="manufacturer.name">
+                </sw-field>
                 {% endblock %}
 
-                {% block sw_manufacturer_detail_base_basic_info_card %}
-                    <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturer.isLoading">
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
-                            {% block sw_manufacturer_detail_base_info_field_name %}
-                                <sw-field type="text"
-                                          :label="$tc('sw-manufacturer.detail.labelName')"
-                                          :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
-                                          name="name"
-                                          validation="required"
-                                          v-model="manufacturer.name">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_manufacturer_detail_base_info_field_link %}
-                                <sw-field type="text"
-                                          :label="$tc('sw-manufacturer.detail.labelLink')"
-                                          :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
-                                          name="link"
-                                          v-model="manufacturer.link">
-                                </sw-field>
-                            {% endblock %}
-
-                            <template v-if="manufacturer.catalogId">
-                                {% block sw_manufacturer_detail_logo_upload %}
-                                    <sw-media-upload v-if="!manufacturer.mediaId"
-                                        class="sw-manufacturer-detail__logo-upload"
-                                        :allowMultiSelect="false"
-                                        variant="regular"
-                                        :defaultFolder="manufacturer.entityName"
-                                        @sw-media-upload-new-uploads-added="onUploadAdded"
-                                        @sw-media-upload-media-upload-success="setMediaItem"
-                                        @sw-media-upload-open-sidebar="openMediaSidebar">
-                                    </sw-media-upload>
-                                {% endblock %}
-
-                                <div v-else-if="mediaItem" class="sw-manufacturer-detail__image-pane" :class="logoFieldClasses">
-                                    {% block sw_manufacturer_detail_logo %}
-                                        <sw-media-preview class="sw-manufacturer-detail__logo"
-                                                          :source="mediaItem"
-                                                          :transparency="false">
-                                        </sw-media-preview>
-                                    {% endblock %}
-
-                                    {% block sw_manufacturer_detail_logo_unlink_button %}
-                                        <sw-button class="sw-manufacturer-detail__delete-logo"
-                                                   variant="danger"
-                                                   @click="onUnlinkLogo">
-                                            <sw-icon color="#fff" name="default-action-trash" medium></sw-icon>
-                                        </sw-button>
-                                    {% endblock %}
-                                </div>
-                            </template>
-                        </sw-container>
-
-                        {% block sw_manufacturer_detail_base_info_field_description %}
-                            <sw-text-editor
-                                      :label="$tc('sw-manufacturer.detail.labelDescription')"
-                                      :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderDescription'))"
-                                      name="description"
-                                      v-model="manufacturer.description">
-                            </sw-text-editor>
-                        {% endblock %}
-                    </sw-card>
+                {% block sw_manufacturer_detail_base_info_field_link %}
+                <sw-field type="text"
+                          :label="$tc('sw-manufacturer.detail.labelLink')"
+                          :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
+                          name="link"
+                          v-model="manufacturer.link">
+                </sw-field>
                 {% endblock %}
 
-                <template slot="card-view-sidebar">
-                    <sw-sidebar-media-item ref="mediaSidebarItem">
-                        <template slot="context-menu-items" slot-scope="media">
-                            <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
-                                {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}
-                            </sw-context-menu-item>
-                        </template>
-                    </sw-sidebar-media-item>
-                </template>
-            </sw-card-view>
+                {% block sw_manufacturer_detail_logo_upload %}
+                <sw-media-upload v-if="!manufacturer.mediaId"
+                                 class="sw-manufacturer-detail__logo-upload"
+                                 :allowMultiSelect="false"
+                                 variant="regular"
+                                 :defaultFolder="manufacturer.entityName"
+                                 @sw-media-upload-new-uploads-added="onUploadAdded"
+                                 @sw-media-upload-media-upload-success="setMediaItem"
+                                 @sw-media-upload-open-sidebar="openMediaSidebar">
+                </sw-media-upload>
+                {% endblock %}
+
+                <div v-else-if="mediaItem" class="sw-manufacturer-detail__image-pane" :class="logoFieldClasses">
+                    {% block sw_manufacturer_detail_logo %}
+                    <sw-media-preview class="sw-manufacturer-detail__logo"
+                                      :source="mediaItem"
+                                      :transparency="false">
+                    </sw-media-preview>
+                    {% endblock %}
+
+                    {% block sw_manufacturer_detail_logo_unlink_button %}
+                    <sw-button class="sw-manufacturer-detail__delete-logo"
+                               variant="danger"
+                               @click="onUnlinkLogo">
+                        <sw-icon color="#fff" name="default-action-trash" medium></sw-icon>
+                    </sw-button>
+                    {% endblock %}
+                </div>
+            </sw-container>
+
+            {% block sw_manufacturer_detail_base_info_field_description %}
+            <sw-text-editor
+                :label="$tc('sw-manufacturer.detail.labelDescription')"
+                :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                name="description"
+                v-model="manufacturer.description">
+            </sw-text-editor>
+            {% endblock %}
+        </sw-card>
         {% endblock %}
-    </sw-page>
+
+        <template slot="card-view-sidebar">
+            <sw-sidebar-media-item ref="mediaSidebarItem">
+                <template slot="context-menu-items" slot-scope="media">
+                    <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
+                        {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-sidebar-media-item>
+        </template>
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
 {% endblock %}

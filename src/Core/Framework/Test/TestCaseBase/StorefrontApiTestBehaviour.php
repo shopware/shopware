@@ -123,7 +123,6 @@ trait StorefrontApiTestBehaviour
             'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'countryId' => Defaults::COUNTRY,
-            'catalogs' => [['id' => Defaults::CATALOG]],
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
         ], $salesChannelOverride);

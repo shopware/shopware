@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Faker\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
@@ -40,7 +39,6 @@ class CategoryGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $payload[] = [
                 'id' => Uuid::uuid4()->getHex(),
-                'catalogId' => Defaults::CATALOG,
                 'name' => $this->randomDepartment($context->getFaker()),
                 'position' => $i,
             ];
@@ -50,7 +48,6 @@ class CategoryGenerator implements DemodataGeneratorInterface
             for ($x = 0; $x < $numberOfSubCategories; ++$x) {
                 $payload[] = [
                     'id' => Uuid::uuid4()->getHex(),
-                    'catalogId' => Defaults::CATALOG,
                     'name' => $this->randomDepartment($context->getFaker()),
                     'parentId' => $category['id'],
                     'position' => $x,

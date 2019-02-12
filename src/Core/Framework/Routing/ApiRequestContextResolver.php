@@ -44,7 +44,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $context = new Context(
             $sourceContext,
-            null,
             [],
             $params['currencyId'],
             $languageIdChain,

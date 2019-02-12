@@ -62,14 +62,6 @@ class SalesChannelPageObject extends GeneralPageObject {
                     searchTerm: 'Deutsch'
                 }
             )
-            .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-catalogues ',
-                {
-                    value: 'Default catalogue',
-                    isMulti: true,
-                    searchTerm: 'Default catalogue'
-                }
-            )
             .waitForElementVisible(this.elements.salesChannelSaveAction)
             .click(this.elements.salesChannelSaveAction)
             .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);

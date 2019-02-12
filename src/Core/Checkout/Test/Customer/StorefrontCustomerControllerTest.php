@@ -613,7 +613,6 @@ class StorefrontCustomerControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 17, 'name' => 'with id'],

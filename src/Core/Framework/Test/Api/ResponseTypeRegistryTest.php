@@ -5,10 +5,8 @@ namespace Shopware\Core\Framework\Test\Api;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use ReflectionProperty;
-use Shopware\Core\Content\Catalog\CatalogEntity;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
 use Shopware\Core\Framework\Context;
@@ -40,7 +38,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $sourceContext = new SourceContext(SourceContext::ORIGIN_API);
 
-        return new Context($sourceContext, [Defaults::CATALOG], []);
+        return new Context($sourceContext);
     }
 
     public function testAdminApi(): void
@@ -252,12 +250,6 @@ class ResponseTypeRegistryTest extends TestCase
         $category = new CategoryEntity();
         $category->setId($id);
         $category->setName($id);
-
-        $catalog = new CatalogEntity();
-        $catalog->setName('Testkatalog');
-        $catalog->setId($id);
-
-        $category->setCatalog($catalog);
 
         return $category;
     }

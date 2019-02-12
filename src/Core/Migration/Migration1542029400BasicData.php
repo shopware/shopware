@@ -30,7 +30,6 @@ class Migration1542029400BasicData extends MigrationStep
         $this->createLanguage($connection);
         $this->createLocale($connection);
 
-        $this->createCatalog($connection);
         $this->createCountry($connection);
         $this->createCurrency($connection);
         $this->createCustomerGroup($connection);
@@ -150,32 +149,6 @@ class Migration1542029400BasicData extends MigrationStep
         }
 
         $queue->execute();
-    }
-
-    private function createCatalog(Connection $connection): void
-    {
-        $catalogId = Uuid::fromHexToBytes(Defaults::CATALOG);
-        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
-
-        $connection->insert('catalog', [
-            'id' => $catalogId,
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-
-        $connection->insert('catalog_translation', [
-            'catalog_id' => $catalogId,
-            'language_id' => $languageEN,
-            'name' => 'Default catalogue',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-
-        $connection->insert('catalog_translation', [
-            'catalog_id' => $catalogId,
-            'language_id' => $languageDE,
-            'name' => 'Standardkatalog',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
     }
 
     private function createCountry(Connection $connection): void
@@ -423,11 +396,10 @@ class Migration1542029400BasicData extends MigrationStep
     {
         $id = Uuid::uuid4()->getBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $catalogId = Uuid::fromHexToBytes(Defaults::CATALOG);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $connection->insert('product_manufacturer', ['id' => $id, 'catalog_id' => $catalogId, 'version_id' => $versionId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('product_manufacturer_translation', ['product_manufacturer_id' => $id, 'product_manufacturer_version_id' => $versionId, 'catalog_id' => $catalogId, 'language_id' => $languageEN, 'name' => 'shopware AG', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('product_manufacturer', ['id' => $id, 'version_id' => $versionId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('product_manufacturer_translation', ['product_manufacturer_id' => $id, 'product_manufacturer_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'shopware AG', 'created_at' => date(Defaults::DATE_FORMAT)]);
     }
 
     private function createSalesChannel(Connection $connection): void
@@ -455,9 +427,6 @@ class Migration1542029400BasicData extends MigrationStep
         ]);
 
         $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Storefront API', 'created_at' => date(Defaults::DATE_FORMAT)]);
-
-        // catalog
-        $connection->insert('sales_channel_catalog', ['sales_channel_id' => $id, 'catalog_id' => Uuid::fromHexToBytes(Defaults::CATALOG), 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // country
         $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => Uuid::fromHexToBytes(Defaults::COUNTRY), 'created_at' => date(Defaults::DATE_FORMAT)]);

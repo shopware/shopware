@@ -89,9 +89,6 @@ class Migration1545119776AddTranslationParentId extends MigrationStep
     protected function getTranslationTables(): array
     {
         return [
-            'catalog_translation' => [
-                'catalog_id',
-            ],
             'category_translation' => [
                 'category_id',
                 'category_version_id',

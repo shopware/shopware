@@ -51,11 +51,6 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             $versionJoin = ' AND #root#.version_id = #alias#.' . $fkVersionId;
         }
 
-        $catalogJoinCondition = '';
-        if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
-            $catalogJoinCondition = ' AND #root#.catalog_id = #alias#.catalog_id';
-        }
-
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
         if ($field->is(Inherited::class)) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
@@ -90,7 +85,6 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
                 array_values($parameters),
                 '#source# = #alias#.#reference_column#' .
                 $versionJoin .
-                $catalogJoinCondition .
                 $ruleCondition
             )
         );

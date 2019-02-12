@@ -278,10 +278,6 @@ Component.register('sw-media-index', {
             this.debounceDisplayItems();
         },
 
-        getCatalogId() {
-            return this.$route.params.id;
-        },
-
         onMediaGridItemsDeleted(ids) {
             this.uploadedItems = this.uploadedItems.filter((uploadedItem) => {
                 return ids.includes(uploadedItem.item);

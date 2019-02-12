@@ -7,7 +7,7 @@ module.exports = {
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/settings/index',
                 menuTitle: 'Settings',
-                index: 6,
+                index: 5,
                 subMenuItemPath: '#/sw/integration/index',
                 subMenuTitle: 'Integrations'
             });

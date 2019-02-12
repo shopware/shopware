@@ -10,7 +10,6 @@ describe('core/data/EntityProxy.js', () => {
     it('should create an entity without initial data (empty entity should be created)', () => {
         const productEntity = new EntityProxy('product', serviceContainer.productService);
 
-        expect(productEntity).to.have.property('catalogId');
         expect(productEntity).to.have.property('createdAt');
         expect(productEntity).to.have.property('updatedAt');
         expect(productEntity).to.have.property('manufacturerId');
@@ -117,12 +116,8 @@ describe('core/data/EntityProxy.js', () => {
             taxRate: 99.98
         });
 
-        const catalogEntity = new EntityProxy('catalog', serviceContainer.catalogService);
-        catalogEntity.name = 'Test catalog';
-
         const manufacturerEntity = new EntityProxy('product_manufacturer', serviceContainer.productManufacturerService);
         manufacturerEntity.setLocalData({
-            catalogId: catalogEntity.id,
             name: 'Test manufacturer'
         });
 
@@ -133,41 +128,33 @@ describe('core/data/EntityProxy.js', () => {
         productEntity.manufacturer.id = manufacturerEntity.id;
 
         productEntity.name = 'Sample product';
-        productEntity.catalogId = catalogEntity.id;
         productEntity.price = {
             gross: 12,
             net: 11
         };
 
-        catalogEntity.save().then(() => {
-            productEntity.save().then((response) => {
-                expect(response.errors.length).to.be.equal(0);
-                expect(response.name).to.be.equal('Sample product');
+        productEntity.save().then((response) => {
+            expect(response.errors.length).to.be.equal(0);
+            expect(response.name).to.be.equal('Sample product');
 
-                expect(response.price).to.deep.include({
-                    gross: 12,
-                    net: 11
-                });
-
-                productEntity.delete(true)
-                    .then(() => {
-                        return manufacturerEntity.delete(true);
-                    })
-                    .then(() => {
-                        return taxEntity.delete(true);
-                    })
-                    .then(() => {
-                        return catalogEntity.delete(true);
-                    })
-                    .then(() => {
-                        done();
-                    })
-                    .catch((error) => {
-                        done(error);
-                    });
-            }).catch((error) => {
-                done(error);
+            expect(response.price).to.deep.include({
+                gross: 12,
+                net: 11
             });
+
+            productEntity.delete(true)
+                .then(() => {
+                    return manufacturerEntity.delete(true);
+                })
+                .then(() => {
+                    return taxEntity.delete(true);
+                })
+                .then(() => {
+                    done();
+                })
+                .catch((error) => {
+                    done(error);
+                });
         }).catch((error) => {
             done(error);
         });

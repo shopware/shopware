@@ -96,7 +96,6 @@ class EntityReaderTest extends TestCase
 
         $context = new Context(
             $context->getSourceContext(),
-            $context->getCatalogIds(),
             $context->getRules(),
             $context->getCurrencyId(),
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
@@ -155,7 +154,6 @@ class EntityReaderTest extends TestCase
 
         $context = new Context(
             $context->getSourceContext(),
-            $context->getCatalogIds(),
             $context->getRules(),
             $context->getCurrencyId(),
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]

@@ -30,8 +30,6 @@ final class Defaults
 
     public const LIVE_VERSION = '20080911ffff4fffafffffff19830531';
 
-    public const CATALOG = '20080911ffff4fffafffffff19830531';
-
     public const CURRENCY = '20080911ffff4fffafffffff19830531';
 
     public const COUNTRY = '20080911ffff4fffafffffff19830531';

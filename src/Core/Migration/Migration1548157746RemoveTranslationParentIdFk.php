@@ -43,9 +43,6 @@ class Migration1548157746RemoveTranslationParentIdFk extends MigrationStep
     protected function getTranslationTables(): array
     {
         return [
-            'catalog_translation' => [
-                'catalog_id',
-            ],
             'category_translation' => [
                 'category_id',
                 'category_version_id',

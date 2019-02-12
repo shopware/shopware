@@ -18,7 +18,6 @@ class Migration1536237812Category extends MigrationStep
             CREATE TABLE `category` (
               `id` binary(16) NOT NULL,
               `version_id` binary(16) NOT NULL,
-              `catalog_id` binary(16) NOT NULL,
               `auto_increment` bigint unsigned NOT NULL AUTO_INCREMENT,
               `parent_id` binary(16) NULL,
               `parent_version_id` binary(16) NULL,
@@ -45,7 +44,6 @@ class Migration1536237812Category extends MigrationStep
               KEY `auto_increment` (`auto_increment`),
               CONSTRAINT `json.sorting_ids` CHECK (JSON_VALID(`sorting_ids`)),
               CONSTRAINT `json.facet_ids` CHECK (JSON_VALID(`facet_ids`)),
-              CONSTRAINT `fk.category.catalog_id` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.category.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
               CONSTRAINT `fk.category.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`) REFERENCES `category` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

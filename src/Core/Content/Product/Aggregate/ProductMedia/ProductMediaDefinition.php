@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
-use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -48,7 +46,6 @@ class ProductMediaDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            new CatalogField(),
 
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
@@ -60,7 +57,6 @@ class ProductMediaDefinition extends EntityDefinition
             new UpdatedAtField(),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->addFlags(new ReverseInherited('media')),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
-            new ManyToOneAssociationField('catalog', 'catalog_id', CatalogDefinition::class, false, 'id'),
             new AttributesField(),
         ]);
     }

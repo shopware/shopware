@@ -5,10 +5,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
-use Shopware\Core\Content\Catalog\CatalogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -372,10 +370,6 @@ class DefinitionValidator
 
     private function validateTranslationAssociation(string $parentDefinition, string $translationDefinition): array
     {
-        if ($parentDefinition === CatalogDefinition::class) {
-            return []; // skip
-        }
-
         /** @var string|EntityTranslationDefinition $parentDefinition */
         /** @var string|EntityTranslationDefinition $translationDefinition */
         $translatedFieldsInParent = array_keys($parentDefinition::getFields()->filterInstance(TranslatedField::class)->getElements());
@@ -383,8 +377,7 @@ class DefinitionValidator
         $translatedFields = array_keys($translationDefinition::getFields()->filter(function (Field $f) {
             return !$f->is(PrimaryKey::class)
                 && !$f instanceof AssociationInterface
-                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt'])
-                && !$f instanceof CatalogField;
+                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt']);
         })->getElements());
 
         $violations = [];
@@ -468,15 +461,6 @@ class DefinitionValidator
             }
         )->first();
 
-        if (!$reverseSide && $definition !== CatalogDefinition::class) {
-            $associationViolations[$definition][] = sprintf(
-                'Association %s.%s has no reverse association in definition %s',
-                $definition::getEntityName(),
-                $association->getPropertyName(),
-                $association->getReferenceClass()
-            );
-        }
-
         $foreignKey = $reference::getFields()->getByStorageName($association->getReferenceField());
 
         if (!$foreignKey instanceof FkField) {
@@ -536,7 +520,7 @@ class DefinitionValidator
         }
 
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware()) {
+        if ($definition::isVersionAware() && $reference::isVersionAware()) {
             $versionField = $mapping::getFields()->filter(function (Field $field) use ($definition) {
                 return $field instanceof ReferenceVersionField && $field->getVersionReference() === $definition;
             })->first();
@@ -549,7 +533,7 @@ class DefinitionValidator
                 return $field instanceof ReferenceVersionField && $field->getVersionReference() === $reference;
             })->first();
 
-            if ($reference::isVersionAware() && !$referenceVersionField) {
+            if (!$referenceVersionField) {
                 $violations[$mapping][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $reference, $mapping);
             }
         }

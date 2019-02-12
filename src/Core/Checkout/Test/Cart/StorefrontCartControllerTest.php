@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
@@ -93,7 +92,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -128,7 +126,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -136,7 +133,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId2,
                 'name' => 'Test 2',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 20, 'net' => 9],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
@@ -165,7 +161,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -196,7 +191,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -227,7 +221,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -257,7 +250,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -265,7 +257,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId2,
                 'name' => 'Test 2',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 20, 'net' => 9],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
@@ -321,7 +312,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -329,7 +319,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId2,
                 'name' => 'Test 2',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 20, 'net' => 9],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
@@ -373,7 +362,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
@@ -446,7 +434,6 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'catalogId' => Defaults::CATALOG,
                 'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],

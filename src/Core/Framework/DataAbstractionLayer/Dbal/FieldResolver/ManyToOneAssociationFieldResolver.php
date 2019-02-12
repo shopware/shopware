@@ -61,11 +61,6 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         $table = $reference::getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 
-        $catalogJoinCondition = '';
-        if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
-            $catalogJoinCondition = ' AND #root#.`catalog_id` = #alias#.`catalog_id`';
-        }
-
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
@@ -113,8 +108,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                 str_replace(
                     array_keys($parameters),
                     array_values($parameters),
-                    '#source# = #alias#.#reference_column#' .
-                    $catalogJoinCondition
+                    '#source# = #alias#.#reference_column#'
                 )
             );
 
@@ -140,8 +134,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                 str_replace(
                     array_keys($parameters),
                     array_values($parameters),
-                    '#source# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`' .
-                    $catalogJoinCondition
+                    '#source# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`'
                 )
             );
 
@@ -163,8 +156,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#source# = #alias#.#reference_column#' .
-                $catalogJoinCondition
+                '#source# = #alias#.#reference_column#'
             )
         );
     }

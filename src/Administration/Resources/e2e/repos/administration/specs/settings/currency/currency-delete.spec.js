@@ -14,7 +14,7 @@ module.exports = {
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/settings/index',
                 menuTitle: 'Settings',
-                index: 6,
+                index: 5,
                 subMenuItemPath: '#/sw/settings/currency/index',
                 subMenuTitle: 'Currencies'
             })

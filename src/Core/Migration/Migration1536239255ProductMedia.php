@@ -17,7 +17,6 @@ class Migration1536239255ProductMedia extends MigrationStep
         $connection->executeQuery('
             CREATE TABLE `product_media` (
               `id` binary(16) NOT NULL,
-              `catalog_id` binary(16) NOT NULL,
               `version_id` binary(16) NOT NULL,
               `position` int(11) NOT NULL DEFAULT \'1\',
               `product_id` binary(16) NOT NULL,
@@ -27,7 +26,6 @@ class Migration1536239255ProductMedia extends MigrationStep
               `updated_at` datetime(3),
               PRIMARY KEY (`id`, `version_id`),
               CONSTRAINT `fk.product_media.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_media.catalog_id` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_media.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');

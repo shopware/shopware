@@ -30,6 +30,11 @@ class PluginEntity extends Entity
     /**
      * @var string|null
      */
+    protected $path;
+
+    /**
+     * @var string|null
+     */
     protected $author;
 
     /**
@@ -140,6 +145,16 @@ class PluginEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
     }
 
     public function getAuthor(): ?string

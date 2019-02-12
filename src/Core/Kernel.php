@@ -10,7 +10,6 @@ use RuntimeException;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
@@ -224,12 +223,13 @@ class Kernel extends HttpKernel
     protected function initializePlugins(): void
     {
         $stmt = self::getConnection()->executeQuery(
-            'SELECT `name` FROM `plugin` WHERE `active` = 1 AND `installed_at` IS NOT NULL'
+            'SELECT `name`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path` FROM `plugin`'
         );
-        $activePlugins = $stmt->fetchAll(FetchMode::COLUMN);
-        $pluginNamesWithPaths = PluginFinder::findPlugins($this->getPluginDir(), $this->getProjectDir());
+        $pluginsInDatabase = $stmt->fetchAll();
 
-        foreach ($pluginNamesWithPaths as $pluginName => $pluginPath) {
+        foreach ($pluginsInDatabase as $pluginData) {
+            $pluginName = $pluginData['name'];
+            $pluginPath = $this->getProjectDir() . $pluginData['path'];
             $pluginFile = $pluginPath . '/' . $pluginName . '.php';
             if (!is_file($pluginFile)) {
                 continue;
@@ -244,10 +244,8 @@ class Kernel extends HttpKernel
                 );
             }
 
-            $isActive = \in_array($pluginName, $activePlugins, true);
-
             /** @var \Shopware\Core\Framework\Plugin $plugin */
-            $plugin = new $className($isActive, $pluginPath);
+            $plugin = new $className((bool) $pluginData['active'], $pluginPath);
 
             if (!$plugin instanceof Plugin) {
                 throw new RuntimeException(
@@ -308,7 +306,7 @@ class Kernel extends HttpKernel
             SELECT `creation_timestamp`
             FROM `migration`
             WHERE `update_destructive` IS NULL
-        ')->fetchAll(\PDO::FETCH_COLUMN);
+        ')->fetchAll(FetchMode::COLUMN);
         $activeMigrations = $this->container->getParameter('migration.active');
 
         $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);

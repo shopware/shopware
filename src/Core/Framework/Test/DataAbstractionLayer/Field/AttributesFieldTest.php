@@ -39,7 +39,7 @@ class AttributesFieldTest extends TestCase
      */
     private $connection;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -23,7 +23,7 @@ class AccessKeyControllerTest extends TestCase
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
-        static::assertInternalType('array', $body);
+        static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertArrayHasKey('secretAccessKey', $body);
         static::assertNotEmpty($body['secretAccessKey']);
@@ -49,7 +49,7 @@ class AccessKeyControllerTest extends TestCase
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
-        static::assertInternalType('array', $body);
+        static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertArrayHasKey('secretAccessKey', $body);
         static::assertNotEmpty($body['secretAccessKey']);
@@ -75,7 +75,7 @@ class AccessKeyControllerTest extends TestCase
         $body = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
-        static::assertInternalType('array', $body);
+        static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertNotEmpty($body['accessKey']);
 

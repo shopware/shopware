@@ -9,10 +9,13 @@ use Shopware\Core\Framework\Snippet\Filter\NamespaceFilter;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterInterface;
 use Shopware\Core\Framework\Snippet\Filter\TermFilter;
 use Shopware\Core\Framework\Snippet\Filter\TranslationKeyFilter;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Symfony\Bundle\TwigBundle\Tests\TestCase;
 
 class FilterTest extends TestCase
 {
+    use AssertArraySubsetBehaviour;
+
     public function testGetFiltersName()
     {
         $authorFilter = new AuthorFilter();
@@ -74,7 +77,7 @@ class FilterTest extends TestCase
     {
         $snippets = require __DIR__ . '/../_fixtures/testFilterSnippets/snippetsToFilter.php';
 
-        $this->assertArraySubset($expectedResult, $filter->filter($snippets, $params, $additionalData));
+        $this->silentAssertArraySubset($expectedResult, $filter->filter($snippets, $params, $additionalData));
     }
 
     public function dataProviderForTestSnippetsFilter(): array

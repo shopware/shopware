@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.1/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.0/phpunit.xsd"
          bootstrap="src/Core/TestBootstrap.php"
+         cacheResult="false"
+         cacheTokens="false"
 >
 
     <php>
@@ -98,7 +100,7 @@
                 </array>
             </arguments>
         </listener>
-        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+        <!--<listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />-->
         <!--Enable to see the db sideeffects of the tests. -->
         <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestListener" />-->
         <!--Enable to see Test structure violations. (Not formatted) -->

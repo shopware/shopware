@@ -9,10 +9,13 @@ use Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE;
 use Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\TestSnippetExtensionFile_de_DE;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 class SnippetFileCollectionTest extends TestCase
 {
+    use AssertArraySubsetBehaviour;
+
     public function testGet(): void
     {
         $collection = $this->getCollection();
@@ -33,7 +36,7 @@ class SnippetFileCollectionTest extends TestCase
         $expectedResult = ['de_DE', 'en_GB'];
         $result = $collection->getIsoList();
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     public function testGetLanguageFilesByIso(): void
@@ -89,7 +92,7 @@ class SnippetFileCollectionTest extends TestCase
         $result = $method->invoke($collection);
         $expectedResult = ['de_DE' => [], 'en_GB' => []];
 
-        static::assertArraySubset($expectedResult, $result);
+        $this->silentAssertArraySubset($expectedResult, $result);
     }
 
     private function getCollection(): SnippetFileCollection

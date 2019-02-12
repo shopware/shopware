@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\ListFieldTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\WriteProtectedFieldTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\SearchCriteriaBuilderTest;
 use Shopware\Storefront\Test\OrderingProcessTest;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * Helper class to debug data problems in the test suite
@@ -21,14 +20,12 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class TestValidityListener implements TestListener
 {
     private $wrongTestClasses = [
-        'KernelTestCase' => [],
         'beginTransaction' => [],
         'traits' => [],
         'deletes' => [],
     ];
 
     private $whitelist = [
-        'KernelTestCase' => [],
         'beginTransaction' => [
             CreateAtAndUpdatedAtFieldTest::class,
             JsonFieldTest::class,
@@ -52,10 +49,6 @@ class TestValidityListener implements TestListener
         $contents = file_get_contents($refl->getFileName());
         $class = \get_class($test);
 
-        if ($test instanceof KernelTestCase && !\in_array($class, $this->whitelist['KernelTestCase'], true)) {
-            $this->wrongTestClasses['KernelTestCase'][$refl->getFileName()] = $class;
-        }
-
         if (strpos($contents, 'beginTransaction()') && !\in_array($class, $this->whitelist['beginTransaction'], true)) {
             $this->wrongTestClasses['beginTransaction'][$refl->getFileName()] = $class;
         }
@@ -75,7 +68,6 @@ class TestValidityListener implements TestListener
     public function endTestSuite(TestSuite $suite): void
     {
         $totalCount = \count($this->wrongTestClasses['beginTransaction'])
-            + \count($this->wrongTestClasses['KernelTestCase'])
             + \count($this->wrongTestClasses['traits'])
             + \count($this->wrongTestClasses['deletes']);
 

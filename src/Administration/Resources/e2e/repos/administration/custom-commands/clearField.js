@@ -6,16 +6,12 @@
  * @returns {exports}
  */
 exports.command = function clearField(selector, type = 'input') {
-    this.clearValue(selector);
-
-    if (this.getValue(selector) !== '') {
-        this.setValue(selector, ['', this.Keys.CONTROL, 'a']);
-        this.setValue(selector, ['', this.Keys.DELETE]);
-    }
+    this.clearValue(selector)
+        .setValue(selector, ['', this.Keys.CONTROL, 'a'])
+        .setValue(selector, ['', this.Keys.DELETE]);
 
     if (type === 'editor') {
-        this.waitForElementPresent('.ql-blank');
-
+        this.waitForElementPresent('.ql-editor.ql-blank');
         return this;
     }
 

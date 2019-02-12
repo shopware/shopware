@@ -71,51 +71,11 @@ The Google Chrome Version should also work in other webkit based browsers like C
 
 Let's create an example plugin called "SwagAdministrationExample".
 
-## Create the plugin bootstrap file
-
-All plugins are located inside the `{YOUR_SW_ROOT}/custom/plugins` directory.
-
-In order to make your plugin functional you need at least a plugin bootstrap file inside the root directory of your plugin.
-_Please beware that the file name has to be equal to the name of the plugin._
-
-```
-└── plugins
-    └── SwagAdministrationExample
-        └── SwagAdministrationExample.php
-```
-*plugin structure*
-
-The bare minimum of a plugin bootstrap looks like this:
-
-```
-// SwagAdministrationExample/SwagAdministrationExample.php
-
-<?php declare(strict_types=1);
-
-namespace SwagAdministrationExample;
-
-use Shopware\Core\Framework\Plugin;
-
-class SwagAdministrationExample extends Plugin {
-
-}
-```
-*minimum bootstrap file*
-
-This is already a valid shopware plugin.
-You can however add additional functionality like custom install or update methods.
-Only the bootstrap class is required to start making changes in the administration.
-
-[Learn about Plugins](../1-getting-started/20-getting-started.md) 
+[Read this article](../60-plugin-system/01-getting-started.md) to learn the basics of the plugin system. 
 
 ## Install the plugin
 
 Before you make further changes to the administration itself you should install the plugin first in order to see all upcoming changes.
-
-You can manage plugins with the `plugin` commands.
-
-Use the `plugin:install` command to install your plugin.
-The `--activate` argument also enables the new plugin so you can see the changes right away:
 
 ```
 bin/console plugin:install SwagAdministrationExample --activate

@@ -8,7 +8,7 @@ Below you'll find a list of each command and its usage.
 | Command           | Arguments | Options             | Usage                                                                  |
 |-------------------|-----------|---------------------|------------------------------------------------------------------------|
 | plugin:install    | plugins   | activate, reinstall | Installs, reinstalls and activates one or multiple plugins             |
-| plugin:uninstall  | plugins   | remove-userdata     | Uninstalls one or multiple plugins                                     |
+| plugin:uninstall  | plugins   | keep-user-data      | Uninstalls one or multiple plugins                                     |
 | plugin:activate   | plugins   | N/A                 | Activates one or multiple installed plugins                            |
 | plugin:deactivate | plugins   | N/A                 | Deactivates one or multiple installed plugins                          |
 | plugin:update     | plugins   | N/A                 | Updates one or multiple plugins                                        |

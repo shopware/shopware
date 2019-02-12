@@ -4,10 +4,11 @@ namespace Shopware\Core\Framework\Util;
 
 use InvalidArgumentException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Core\Kernel;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class AssetService implements AssetServiceInterface
 {
@@ -17,14 +18,23 @@ class AssetService implements AssetServiceInterface
     protected $filesystem;
 
     /**
-     * @var Kernel
+     * @var KernelInterface
      */
     private $kernel;
 
-    public function __construct(Filesystem $filesystem, Kernel $kernel)
-    {
+    /**
+     * @var KernelPluginCollection
+     */
+    private $pluginCollection;
+
+    public function __construct(
+        Filesystem $filesystem,
+        KernelInterface $kernel,
+        KernelPluginCollection $pluginCollection
+    ) {
         $this->filesystem = $filesystem;
         $this->kernel = $kernel;
+        $this->pluginCollection = $pluginCollection;
     }
 
     /**
@@ -83,7 +93,7 @@ class AssetService implements AssetServiceInterface
         try {
             $bundle = $this->kernel->getBundle($bundleName);
         } catch (InvalidArgumentException $e) {
-            $bundle = $this->kernel::getPlugins()->get($bundleName);
+            $bundle = $this->pluginCollection->get($bundleName);
         }
 
         if ($bundle === null) {

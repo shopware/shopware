@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Content\Media\Thumbnail;
 
-use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -29,7 +27,7 @@ class ThumbnailService
     private $mediaRepository;
 
     /**
-     * @var MediaThumbnailRepositoryDecorator
+     * @var EntityRepositoryInterface
      */
     private $thumbnailRepository;
 
@@ -50,7 +48,7 @@ class ThumbnailService
 
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
-        MediaThumbnailRepositoryDecorator $thumbnailRepository,
+        EntityRepositoryInterface $thumbnailRepository,
         FilesystemInterface $fileSystem,
         UrlGeneratorInterface $urlGenerator,
         EntityRepositoryInterface $mediaFolderRepository
@@ -63,7 +61,7 @@ class ThumbnailService
     }
 
     /**
-     * @throws FileNotFoundException
+     * @throws FileTypeNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
     public function updateThumbnailsAfterUpload(MediaEntity $media, Context $context): int
@@ -72,7 +70,15 @@ class ThumbnailService
             return 0;
         }
 
-        $config = $media->getMediaFolder()->getConfiguration();
+        $mediaFolder = $media->getMediaFolder();
+        if ($mediaFolder === null) {
+            return 0;
+        }
+
+        $config = $mediaFolder->getConfiguration();
+        if ($config === null) {
+            return 0;
+        }
 
         return $this->createThumbnailsForSizes($media, $config, $config->getMediaThumbnailSizes(), $context);
     }
@@ -85,7 +91,15 @@ class ThumbnailService
             return 0;
         }
 
-        $config = $media->getMediaFolder()->getConfiguration();
+        $mediaFolder = $media->getMediaFolder();
+        if ($mediaFolder === null) {
+            return 0;
+        }
+
+        $config = $mediaFolder->getConfiguration();
+        if ($config === null) {
+            return 0;
+        }
 
         $tobBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
         $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
@@ -112,6 +126,10 @@ class ThumbnailService
         $this->deleteAssociatedThumbnails($media, $context);
     }
 
+    /**
+     * @throws FileTypeNotSupportedException
+     * @throws ThumbnailCouldNotBeSavedException
+     */
     private function createThumbnailsForSizes(
         MediaEntity $media,
         MediaFolderConfigurationEntity $config,
@@ -174,7 +192,7 @@ class ThumbnailService
     }
 
     /**
-     * @throws FileNotFoundException
+     * @throws FileTypeNotSupportedException
      *
      * @return resource
      */

@@ -31,7 +31,7 @@ class NavigationSynchronizer implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            'entity.written' => ['refresh', 100],
+            EntityWrittenContainerEvent::NAME => ['refresh', 400],
         ];
     }
 

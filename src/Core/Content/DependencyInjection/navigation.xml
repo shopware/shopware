@@ -35,7 +35,7 @@
         <service id="Shopware\Core\Content\Navigation\DataAbstractionLayer\NavigationSynchronizer">
             <argument type="service" id="navigation.repository" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
-            <tag name="event_subscriber" />
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader" public="true">

@@ -10,6 +10,7 @@ $sw-grid-item-hover-color-link: $color-shopware-blue;
 $sw-grid-item-active-color-background: $color-cadet-blue;
 $sw-grid-item-active-color-text: $color-black;
 $sw-grid-row-inline-edit-border-radius: $border-radius-default;
+$sw-grid-row-border-radius: $border-radius-default;
 
 .sw-grid-row {
     display: grid;
@@ -24,6 +25,7 @@ $sw-grid-row-inline-edit-border-radius: $border-radius-default;
 
     &:last-child {
         border-bottom-color: transparent;
+        border-radius: $sw-grid-row-border-radius;
     }
 
     &:hover {

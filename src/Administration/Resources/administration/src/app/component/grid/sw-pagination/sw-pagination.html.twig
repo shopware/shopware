@@ -1,5 +1,5 @@
 {% block sw_pagination %}
-    <div class="sw-pagination" v-if="total > 0">
+    <div class="sw-pagination" v-if="shouldBeVisible">
         {% block sw_pagination_page_prev %}
             <button :disabled="currentPage === 1" @click="prevPage" class="sw-pagination__page-button">
                 <sw-icon name="small-arrow-medium-left" small />
@@ -38,7 +38,7 @@
         {% block sw_pagination_per_page_selection %}
             <div class="sw-pagination__per-page" v-if="steps.length > 1">
                 <sw-field type="select" name="perPage" :label="$tc('global.sw-pagination.labelItemsPerPage')" v-model.number="perPage" @change="onPageSizeChange">
-                    <option v-for="step in steps" :value="step">{{ step }}</option>
+                    <option v-for="step in possibleSteps" :value="step">{{ step }}</option>
                 </sw-field>
             </div>
         {% endblock %}

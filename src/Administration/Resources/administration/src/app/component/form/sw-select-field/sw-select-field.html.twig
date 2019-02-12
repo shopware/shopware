@@ -6,6 +6,7 @@
                     :disabled="disabled"
                     :class="{ 'is--placeholder': currentValue === null }"
                     @input="onInput"
+                    @change="onChange"
                     v-if="($slots.default && $slots.default.length > 0) || (options && options.length > 0)"
                     v-bind="$attrs"
                     :value="value">

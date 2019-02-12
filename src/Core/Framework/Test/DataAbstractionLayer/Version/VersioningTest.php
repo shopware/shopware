@@ -72,12 +72,12 @@ class VersioningTest extends TestCase
     private $categoryRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $orderRepository;
 
@@ -342,6 +342,10 @@ class VersioningTest extends TestCase
         static::assertEquals(500.20, $versionPrice->getUnitPrice());
         static::assertEquals(500.30, $versionPrice->getTotalPrice());
         static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
+
+        $this->connection->exec(CalculatedPriceFieldTestDefinition::dropTable());
+        // We have created a table so the transaction rollback don't work -> we have to do it manually
+        $this->connection->executeUpdate('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
     }
 
     public function testICanVersionCalculatedFields()
@@ -1780,6 +1784,13 @@ CREATE TABLE `calculated_price_field_test` (
   `calculated_price` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`, `version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ';
+    }
+
+    public static function dropTable()
+    {
+        return '
+            DROP TABLE IF EXISTS calculated_price_field_test;   
         ';
     }
 

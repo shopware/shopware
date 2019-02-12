@@ -12,13 +12,11 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\SourceContext;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class PluginServiceTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour,
+    use IntegrationTestBehaviour,
         PluginTestsHelper;
 
     /**

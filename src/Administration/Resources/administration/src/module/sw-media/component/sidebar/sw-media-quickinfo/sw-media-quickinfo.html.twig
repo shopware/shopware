@@ -18,7 +18,7 @@
                                 <li class="sw-media-sidebar__quickaction quickaction--replace"
                                     @click="openModalReplace">
 
-                                    <sw-icon small name="small-copy" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
+                                    <sw-icon small name="default-action-replace" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.replace') }}
                                 </li>
                             {% endblock %}
@@ -159,12 +159,6 @@
                                 class="sw-media-quickinfo-metadata-createdAt"
                                 :label-name="$tc('sw-media.sidebar.metadata.createdAt')">
                                 {{ createdAt }}
-                            </sw-media-quickinfo-metadata-item>
-
-                            <sw-media-quickinfo-metadata-item
-                                class="sw-media-quickinfo-metadata-url"
-                                :label-name="$tc('sw-media.sidebar.metadata.url')">
-                                {{ item.url }}
                             </sw-media-quickinfo-metadata-item>
                         {% endblock %}
 

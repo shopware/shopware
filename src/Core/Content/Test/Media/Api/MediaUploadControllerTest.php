@@ -89,7 +89,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertSame(
-            266,
+            499,
             $responseData['data']['attributes']['metaData']['type']['width'],
             print_r($responseData['data']['attributes'], true)
         );
@@ -162,7 +162,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertSame(
-            266,
+            499,
             $responseData['data']['attributes']['metaData']['type']['width'],
             print_r($responseData['data']['attributes'], true)
         );
@@ -240,7 +240,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertSame(
-            266,
+            499,
             $responseData['data']['attributes']['metaData']['type']['width'],
             print_r($responseData['data']['attributes'], true)
         );

@@ -15,8 +15,8 @@ $sw-media-preview-background:               $color-white;
     }
 
     .sw-media-preview__item {
-        max-width: calc(100% - 32px);
-        max-height: calc(100% - 32px);
+        max-width: calc(100% - 8px);
+        max-height: calc(100% - 8px);
         position: absolute;
         left: 50%;
         top: 50%;

@@ -31,6 +31,10 @@ export default {
     ],
 
     props: {
+        source: {
+            required: false
+        },
+
         variant: {
             type: String,
             required: true,
@@ -247,6 +251,10 @@ export default {
 
         onClickOpenMediaSidebar() {
             this.$emit('sw-media-upload-open-sidebar');
+        },
+
+        onRemoveMediaItem() {
+            this.$emit('sw-media-upload-remove-image');
         },
 
         /*

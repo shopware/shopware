@@ -51,6 +51,10 @@ exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
     const plugins = [];
     const path = exports.resolveFromRootPath(definitionFilePath);
 
+    if (!fs.existsSync(path)) {
+        return []
+    }
+
     if (!silent) {
         console.log('# Loading Shopware administration plugin definitions');
     }

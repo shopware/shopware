@@ -96,6 +96,18 @@ Component.register('sw-settings-rule-list', {
                     }
                 );
             });
+        },
+
+        onInlineEditSave(params) {
+            this.isLoading = true;
+            const rule = this.ruleStore.store[params.id];
+
+            rule.save().then(() => {
+                this.isLoading = false;
+            }).catch(() => {
+                this.getList();
+                this.isLoading = false;
+            });
         }
     }
 });

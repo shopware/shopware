@@ -1,0 +1,18 @@
+{
+    "test.snippetName": "aaaaa",
+    "test.anotherSnippetName": "bbbbb",
+    "frontend": {
+        "note": {
+            "item": {
+                "NoteInfoDate": "Added on:",
+                "NoteInfoId": "Order number: ",
+                "NoteInfoSupplier": "Manufacturer:",
+                "NoteLinkDelete": "Delete",
+                "NoteLinkZoom": "Enlarge",
+                "NoteUnitPriceBaseprice": "Basic price",
+                "NoteUnitPriceContent": "Content",
+                "ListingBoxLinkCompare": "Compare"
+            }
+        }
+    }
+}

@@ -7,15 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Attribute\AttributeTypes;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -23,9 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -48,6 +39,7 @@ class AttributesFieldTest extends TestCase
         $this->connection->exec('
             CREATE TABLE `attribute_test` (
               id BINARY(16) NOT NULL PRIMARY KEY,
+              parent_id BINARY(16) NULL,
               name varchar(255) DEFAULT NULL,
               attributes json DEFAULT NULL
         )');
@@ -235,95 +227,6 @@ class AttributesFieldTest extends TestCase
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertEquals($patch['name'], $actual->get('name'));
         static::assertEquals($patch['attributes'], $actual->get('attributes'));
-    }
-
-    public function testTranslatedAttributes(): void
-    {
-        $this->addAttributes([
-            'code' => AttributeTypes::STRING,
-            'de' => AttributeTypes::STRING,
-            'system' => AttributeTypes::STRING,
-            'root' => AttributeTypes::STRING,
-            'child' => AttributeTypes::STRING,
-        ]);
-
-        $rootLanguageId = Uuid::uuid4()->getHex();
-        $childLanguageId = Uuid::uuid4()->getHex();
-        $this->addLanguage($rootLanguageId, null);
-        $this->addLanguage($childLanguageId, $rootLanguageId);
-
-        $repo = $this->getTestRepository();
-        $context = Context::createDefaultContext();
-
-        $id = Uuid::uuid4()->getHex();
-
-        $entity = [
-            'id' => $id,
-            'name' => 'translated',
-            'translations' => [
-                'en_GB' => [
-                    'translatedAttributes' => [
-                        'code' => 'en_GB',
-                        'system' => 'system',
-                    ],
-                ],
-                'de_DE' => [
-                    'translatedAttributes' => [
-                        'code' => 'de_DE',
-                        'de' => 'de',
-                    ],
-                ],
-                $rootLanguageId => [
-                    'translatedAttributes' => [
-                        'code' => 'root',
-                        'root' => 'root',
-                    ],
-                ],
-                $childLanguageId => [
-                    'translatedAttributes' => [
-                        'code' => 'child',
-                        'child' => 'child',
-                    ],
-                ],
-            ],
-        ];
-        $result = $repo->create([$entity], $context);
-
-        $event = $result->getEventByDefinition(AttributesTestDefinition::class);
-        static::assertCount(1, $event->getIds());
-
-        $event = $result->getEventByDefinition(AttributesTestTranslationDefinition::class);
-        static::assertCount(4, $event->getIds());
-
-        $result = $repo->search(new Criteria([$id]), $context)->first();
-        $expected = ['code' => 'en_GB', 'system' => 'system'];
-        static::assertEquals($expected, $result->get('translatedAttributes'));
-        $expectedViewData = $expected;
-        static::assertEquals($expectedViewData, $result->getViewData()->get('translatedAttributes'));
-
-        $chain = [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, $chain);
-        $result = $repo->search(new Criteria([$id]), $context)->first();
-        $expected = ['code' => 'de_DE', 'de' => 'de'];
-        static::assertEquals($expected, $result->get('translatedAttributes'));
-        $expectedViewData = ['code' => 'de_DE', 'de' => 'de', 'system' => 'system'];
-        static::assertEquals($expectedViewData, $result->getViewData()->get('translatedAttributes'));
-
-        $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, $chain);
-        $result = $repo->search(new Criteria([$id]), $context)->first();
-        $expected = ['code' => 'root', 'root' => 'root'];
-        static::assertEquals($expected, $result->get('translatedAttributes'));
-        $expectedViewData = ['code' => 'root', 'root' => 'root', 'system' => 'system'];
-        static::assertEquals($expectedViewData, $result->getViewData()->get('translatedAttributes'));
-
-        $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, $chain);
-        $result = $repo->search(new Criteria([$id]), $context)->first();
-        $expected = ['code' => 'child', 'child' => 'child'];
-        static::assertEquals($expected, $result->get('translatedAttributes'));
-        $expectedViewData = ['code' => 'child', 'child' => 'child', 'root' => 'root', 'system' => 'system'];
-        static::assertEquals($expectedViewData, $result->getViewData()->get('translatedAttributes'));
     }
 
     public function testKeyWithDot(): void
@@ -761,12 +664,16 @@ class AttributesFieldTest extends TestCase
         $this->addAttributes(['datetime' => AttributeTypes::DATETIME, 'float' => AttributeTypes::FLOAT]);
 
         $ids = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
+        $nowId = Uuid::uuid4()->getHex();
+        $now = (new \DateTime())->format(Defaults::DATE_FORMAT);
 
         $entities = [
             ['id' => $ids[0], 'attributes' => ['datetime' => new \DateTime('1990-01-01')]],
             ['id' => $ids[1], 'attributes' => ['datetime' => new \DateTime('1990-01-01T00:00')]],
             ['id' => $ids[2], 'attributes' => ['datetime' => new \DateTime('1990-01-01T00:00:00')]],
             ['id' => $ids[3], 'attributes' => ['datetime' => new \DateTime('1990-01-01T00:00:00.000000')]],
+
+            ['id' => $nowId, 'attributes' => ['datetime' => $now]],
 
             ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['datetime' => null]],
             ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['datetime' => false]],
@@ -786,6 +693,12 @@ class AttributesFieldTest extends TestCase
         $criteriaFalse->addFilter(new EqualsFilter('attributes.datetime', '1990-01-01T00:00:00.000000'));
         $result = $repo->search($criteriaFalse, Context::createDefaultContext());
         $expected = $ids;
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+
+        $criteriaNow = new Criteria();
+        $criteriaNow->addFilter(new EqualsFilter('attributes.datetime', $now));
+        $result = $repo->search($criteriaNow, Context::createDefaultContext());
+        $expected = [$nowId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
     }
 
@@ -908,27 +821,83 @@ class AttributesFieldTest extends TestCase
         static::assertNull($first->get('attributes'));
     }
 
-    private function addLanguage($id, $rootLanguage): void
+    public function testInheritance(): void
     {
-        $translationCodeId = Uuid::uuid4()->getHex();
-        $languageRepository = $this->getContainer()->get('language.repository');
-        $languageRepository->create(
-            [
-                [
-                    'id' => $id,
-                    'parentId' => $rootLanguage,
-                    'name' => $id,
-                    'localeId' => Defaults::LOCALE_SYSTEM,
-                    'translationCode' => [
-                        'id' => $translationCodeId,
-                        'name' => 'x-' . $translationCodeId,
-                        'code' => 'x-' . $translationCodeId,
-                        'territory' => $translationCodeId,
-                    ],
-                ],
-            ],
-            Context::createDefaultContext()
-        );
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
+        $parentId = Uuid::uuid4()->getHex();
+        $childId = Uuid::uuid4()->getHex();
+
+        $repo = $this->getTestRepository();
+
+        $entities = [
+            ['id' => $parentId, 'name' => 'parent', 'attributes' => ['foo' => 'bar']],
+            ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
+        ];
+        $repo->create($entities, Context::createDefaultContext());
+
+        /** @var ArrayEntity $parent */
+        $parent = $repo->search(new Criteria([$parentId]), Context::createDefaultContext())->first();
+        static::assertNotNull($parent);
+
+        static::assertEquals('parent', $parent->get('name'));
+        static::assertEquals(['foo' => 'bar'], $parent->get('attributes'));
+        static::assertEquals('parent', $parent->getViewData()->get('name'));
+        static::assertEquals(['foo' => 'bar'], $parent->getViewData()->get('attributes'));
+
+        /** @var ArrayEntity $child */
+        $child = $repo->search(new Criteria([$childId]), Context::createDefaultContext())->first();
+        static::assertNotNull($child);
+
+        static::assertEquals('child', $child->get('name'));
+        static::assertNull($child->get('attributes'));
+        static::assertEquals('child', $child->getViewData()->get('name'));
+        static::assertEquals(['foo' => 'bar'], $child->getViewData()->get('attributes'));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('attributes.foo', 'bar'));
+
+        $results = $repo->search($criteria, Context::createDefaultContext());
+        $expected = [$parentId, $childId];
+        static::assertEquals(array_combine($expected, $expected), $results->getIds());
+    }
+
+    public function testInheritanceAttributesAreMerged(): void
+    {
+        $this->addAttributes([
+            'foo' => AttributeTypes::STRING,
+            'child' => AttributeTypes::STRING,
+        ]);
+
+        $parentId = Uuid::uuid4()->getHex();
+        $childId = Uuid::uuid4()->getHex();
+
+        $repo = $this->getTestRepository();
+
+        $entities = [
+            ['id' => $parentId, 'name' => 'parent', 'attributes' => ['foo' => 'bar']],
+            ['id' => $childId, 'name' => 'child', 'parentId' => $parentId, 'attributes' => ['child' => 'value']],
+        ];
+        $repo->create($entities, Context::createDefaultContext());
+
+        /** @var ArrayEntity $parent */
+        $parent = $repo->search(new Criteria([$parentId]), Context::createDefaultContext())->first();
+        static::assertNotNull($parent);
+
+        static::assertEquals('parent', $parent->get('name'));
+        static::assertEquals(['foo' => 'bar'], $parent->get('attributes'));
+        static::assertEquals('parent', $parent->getViewData()->get('name'));
+        static::assertEquals(['foo' => 'bar'], $parent->getViewData()->get('attributes'));
+
+        /** @var ArrayEntity $child */
+        $child = $repo->search(new Criteria([$childId]), Context::createDefaultContext())->first();
+        static::assertNotNull($child);
+
+        static::assertEquals('child', $child->get('name'));
+        static::assertEquals(['child' => 'value'], $child->get('attributes'));
+
+        static::assertEquals('child', $child->getViewData()->get('name'));
+        static::assertEquals(['foo' => 'bar', 'child' => 'value'], $child->getViewData()->get('attributes'));
     }
 
     private function addAttributes(array $attributeTypes): void
@@ -952,46 +921,5 @@ class AttributesFieldTest extends TestCase
             $this->getContainer()->get(EntityAggregatorInterface::class),
             $this->getContainer()->get(EventDispatcherInterface::class)
         );
-    }
-}
-
-class AttributesTestDefinition extends EntityDefinition
-{
-    public static function getEntityName(): string
-    {
-        return 'attribute_test';
-    }
-
-    protected static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
-            new StringField('name', 'name'),
-
-            new TranslatedField('translatedAttributes'),
-
-            new AttributesField(),
-            new TranslationsAssociationField(AttributesTestTranslationDefinition::class, 'attribute_test_id'),
-        ]);
-    }
-}
-
-class AttributesTestTranslationDefinition extends EntityTranslationDefinition
-{
-    public static function getEntityName(): string
-    {
-        return 'attribute_test_translation';
-    }
-
-    public static function getParentDefinitionClass(): string
-    {
-        return AttributesTestDefinition::class;
-    }
-
-    protected static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            new AttributesField('translated_attributes', 'translatedAttributes'),
-        ]);
     }
 }

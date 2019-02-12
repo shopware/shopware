@@ -86,7 +86,7 @@ class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 );
             case AttributeTypes::DATETIME:
                 return sprintf(
-                    'IF(JSON_TYPE(%s) != "NULL", CAST(JSON_UNQUOTE(%s) AS datetime), NULL)',
+                    'IF(JSON_TYPE(%s) != "NULL", CAST(JSON_UNQUOTE(%s) AS datetime(3)), NULL)',
                     $jsonValueExpr,
                     $jsonValueExpr
                 );

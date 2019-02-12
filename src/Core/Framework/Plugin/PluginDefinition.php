@@ -43,6 +43,7 @@ class PluginDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             new StringField('composer_name', 'composerName'),
             (new BoolField('active', 'active'))->addFlags(new Required()),
+            new StringField('path', 'path'),
             new StringField('author', 'author'),
             new StringField('copyright', 'copyright'),
             new StringField('license', 'license'),

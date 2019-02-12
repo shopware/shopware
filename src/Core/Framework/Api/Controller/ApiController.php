@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -296,7 +297,7 @@ class ApiController extends AbstractController
         $association = $child['field'];
 
         // DELETE api/product/{id}/manufacturer/{id}
-        if ($association instanceof ManyToOneAssociationField) {
+        if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
             $this->doDelete($request, $context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
@@ -425,7 +426,7 @@ class ApiController extends AbstractController
                     $parent['value']
                 )
             );
-        } elseif ($association instanceof ManyToOneAssociationField) {
+        } elseif ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
             /*
              * Example
              * Route:           /api/product/SW1/manufacturer
@@ -567,7 +568,7 @@ class ApiController extends AbstractController
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
-        if ($association instanceof ManyToOneAssociationField) {
+        if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
             $repository = $this->getRepository($definition, $request);
             $events = $this->executeWriteOperation($repository, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);

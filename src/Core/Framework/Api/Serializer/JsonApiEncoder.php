@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Internal;
 
@@ -164,7 +165,7 @@ class JsonApiEncoder
             }
 
             if ($field instanceof AssociationInterface) {
-                $isSingle = $field instanceof ManyToOneAssociationField;
+                $isSingle = $field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField;
 
                 $serialized->addRelationship(
                     $propertyName,

@@ -197,7 +197,7 @@ class EntityForeignKeyResolver
 
                 $query->addSelect(
                     'GROUP_CONCAT(DISTINCT HEX(' .
-                    EntityDefinitionQueryHelper::escape($alias) . '.id)' .
+                    EntityDefinitionQueryHelper::escape($alias) . '.' . EntityDefinitionQueryHelper::escape($cascade->getReferenceField()) . ')' .
                     ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
             }

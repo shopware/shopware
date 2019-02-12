@@ -9,17 +9,20 @@
                 <sw-media-quickinfo
                     v-if="isSingleFile && firstEntity.entityName === 'media'"
                     :item="firstEntity"
+                    :editable="editable"
                     v-on="$listeners">
                 </sw-media-quickinfo>
 
                 <sw-media-folder-info
                     v-else-if="isSingleFile && firstEntity.entityName === 'media_folder'"
                     :mediaFolder="firstEntity"
+                    :editable="editable"
                     v-on="$listeners">
                 </sw-media-folder-info>
 
                 <sw-media-quickinfo-multiple
                     v-else-if="isMultipleFile"
+                    :editable="editable"
                     :items="items"
                     v-on="$listeners">
                 </sw-media-quickinfo-multiple>
@@ -27,6 +30,7 @@
                 <sw-media-folder-info
                     v-else-if="currentFolder"
                     :mediaFolder="currentFolder"
+                    :editable="editable"
                     v-on="$listeners">
                 </sw-media-folder-info>
 

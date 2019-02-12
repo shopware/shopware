@@ -2,6 +2,7 @@
     <div class="sw-media-folder-info">
         {% block sw_media_quickinfo_folder_quickactions %}
             <sw-media-collapse
+                v-if="editable"
                 :title="$tc('sw-media.sidebar.sections.actions')"
                 :expandOnLoading="true">
 
@@ -46,11 +47,13 @@
                                 :truncated="false">
 
                                     <sw-confirm-field
+                                            v-if="editable"
                                             compact
                                             :value="mediaFolder.name"
                                             ref="inlineEditFieldName"
                                             @input="onChangeFolderName">
                                     </sw-confirm-field>
+                                    <template v-else>{{ mediaFolder.name }}</template>
                             </sw-media-quickinfo-metadata-item>
 
                             <sw-media-quickinfo-metadata-item

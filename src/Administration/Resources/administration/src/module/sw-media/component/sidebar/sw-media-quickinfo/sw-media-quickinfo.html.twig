@@ -8,6 +8,7 @@
 
         {% block sw_media_quickinfo_quickactions %}
             <sw-media-collapse
+                v-if="editable"
                 :title="$tc('sw-media.sidebar.sections.actions')"
                 :expandOnLoading="true">
 
@@ -102,11 +103,13 @@
                                 :truncated="false">
 
                                 <sw-confirm-field
+                                    v-if="editable"
                                     compact
                                     ref="inlineEditFieldName"
                                     :value="item.fileName"
                                     @input="onChangeFileName">
                                 </sw-confirm-field>
+                                <template v-else> {{ item.fileName }}</template>
                             </sw-media-quickinfo-metadata-item>
 
                             <sw-media-quickinfo-metadata-item
@@ -121,12 +124,14 @@
                                 :truncated="false">
 
                                 <sw-confirm-field
+                                    v-if="editable"
                                     compact
                                     ref="inlineEditFieldAlt"
                                     :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
                                     :value="item.alt"
                                     @input="onSubmitAltText">
                                 </sw-confirm-field>
+                                <template v-else>{{ item.alt }}</template>
                             </sw-media-quickinfo-metadata-item>
 
                             <sw-media-quickinfo-metadata-item
@@ -135,12 +140,14 @@
                                 :truncated="false">
 
                                 <sw-confirm-field
+                                    v-if="editable"
                                     compact
                                     :value="item.title"
                                     :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
                                     ref="inlineEditFieldTitle"
                                     @input="onSubmitTitle">
                                 </sw-confirm-field>
+                                <template v-else>{{ item.title }}</template>
                             </sw-media-quickinfo-metadata-item>
 
                             <sw-media-quickinfo-metadata-item
@@ -236,7 +243,7 @@
 
         {% block sw_media_quickinfo_usage %}
             <sw-media-collapse
-                v-if="item.hasFile"
+                v-if="editable && item.hasFile"
                 :expandOnLoading="true"
                 :title="$tc('sw-media.sidebar.sections.usage')">
 

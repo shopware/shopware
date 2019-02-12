@@ -22,6 +22,12 @@ Component.register('sw-media-quickinfo', {
             validator(value) {
                 return value.entityName === 'media';
             }
+        },
+
+        editable: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

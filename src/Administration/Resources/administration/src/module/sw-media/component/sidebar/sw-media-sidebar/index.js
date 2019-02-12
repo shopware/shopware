@@ -21,6 +21,12 @@ Component.register('sw-media-sidebar', {
             type: String,
             required: false,
             default: null
+        },
+
+        editable: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

@@ -2,6 +2,7 @@
     <div class="sw-media-quickinfo-multiple">
         {% block sw_media_quickinfo_multiple_quickactions %}
             <sw-media-collapse
+                v-if="editable"
                 :title="$tc('sw-media.sidebar.sections.actions')"
                 :expandOnLoading="true">
 

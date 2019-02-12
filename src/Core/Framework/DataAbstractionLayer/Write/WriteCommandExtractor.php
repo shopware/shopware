@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
@@ -195,6 +196,10 @@ class WriteCommandExtractor
 
         /** @var Field $field */
         foreach ($fields as $field) {
+            if ($field->is(Computed::class)) {
+                continue;
+            }
+
             $filtered[$field->getExtractPriority()][] = $field;
         }
 

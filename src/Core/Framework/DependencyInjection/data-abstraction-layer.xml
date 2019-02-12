@@ -1292,7 +1292,7 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ComputedFieldSerializer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlobFieldSerializer">
             <tag name="shopware.field_serializer"/>
         </service>
 

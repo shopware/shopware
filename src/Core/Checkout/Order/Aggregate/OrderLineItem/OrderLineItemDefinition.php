@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
@@ -76,8 +77,8 @@ class OrderLineItemDefinition extends EntityDefinition
             (new CalculatedPriceField('price', 'price'))->setFlags(new Required()),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->setFlags(new Required()),
 
-            (new FloatField('unit_price', 'unitPrice'))->addFlags(new WriteProtected()),
-            (new FloatField('total_price', 'totalPrice'))->addFlags(new WriteProtected()),
+            (new FloatField('unit_price', 'unitPrice'))->addFlags(new Computed()),
+            (new FloatField('total_price', 'totalPrice'))->addFlags(new Computed()),
             new StringField('description', 'description'),
             new StringField('type', 'type'),
             new AttributesField(),

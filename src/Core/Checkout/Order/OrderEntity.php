@@ -456,4 +456,29 @@ class OrderEntity extends Entity
     {
         $this->attributes = $attributes;
     }
+
+    public function setAmountTotal(float $amountTotal): void
+    {
+        $this->amountTotal = $amountTotal;
+    }
+
+    public function setAmountNet(float $amountNet): void
+    {
+        $this->amountNet = $amountNet;
+    }
+
+    public function setPositionPrice(float $positionPrice): void
+    {
+        $this->positionPrice = $positionPrice;
+    }
+
+    public function setTaxStatus(string $taxStatus): void
+    {
+        $this->taxStatus = $taxStatus;
+    }
+
+    public function setShippingTotal(float $shippingTotal): void
+    {
+        $this->shippingTotal = $shippingTotal;
+    }
 }

@@ -31,7 +31,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
@@ -351,7 +353,7 @@ class VersionManager
 
             if ($field->is(Extension::class)) {
                 $dataCursor = $data['extensions'];
-                $payloadCursor = $extensions;
+                $payloadCursor = &$extensions;
             }
 
             if (!array_key_exists($field->getPropertyName(), $dataCursor)) {

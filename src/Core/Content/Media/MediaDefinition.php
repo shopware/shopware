@@ -10,8 +10,8 @@ use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefin
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ComputedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -28,8 +28,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
@@ -66,8 +66,8 @@ class MediaDefinition extends EntityDefinition
             (new DateField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
             (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new ComputedField('meta_data', 'metaDataRaw'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new ComputedField('media_type', 'mediaTypeRaw'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new BlobField('meta_data', 'metaDataRaw'))->addFlags(new Internal(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new BlobField('media_type', 'mediaTypeRaw'))->addFlags(new Internal(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
             (new JsonField('meta_data', 'metaData'))->addFlags(new WriteProtected(), new Deferred()),
             (new JsonField('media_type', 'mediaType'))->addFlags(new WriteProtected(), new Deferred()),
             new CreatedAtField(),

@@ -8,6 +8,11 @@ use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
@@ -15,6 +20,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RulePayloadIndexerTest extends TestCase
 {
@@ -40,15 +46,21 @@ class RulePayloadIndexerTest extends TestCase
      */
     private $connection;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('rule.repository');
         $this->indexer = $this->getContainer()->get(RulePayloadIndexer::class);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
+        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
     }
 
-    public function testIndex()
+    public function testIndex(): void
     {
         $id = Uuid::uuid4()->getHex();
         $currencyId1 = Uuid::uuid4()->getHex();
@@ -78,7 +90,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
@@ -91,7 +103,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    public function testRefresh()
+    public function testRefresh(): void
     {
         $id = Uuid::uuid4()->getHex();
         $currencyId1 = Uuid::uuid4()->getHex();
@@ -130,7 +142,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    public function testRefreshWithMultipleRules()
+    public function testRefreshWithMultipleRules(): void
     {
         $id = Uuid::uuid4()->getHex();
         $rule2Id = Uuid::uuid4()->getHex();
@@ -181,7 +193,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create($data, $this->context);
 
-        $this->connection->update('rule', ['payload' => null], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
@@ -202,7 +214,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    public function testIndexWithMultipleRules()
+    public function testIndexWithMultipleRules(): void
     {
         $id = Uuid::uuid4()->getHex();
         $rule2Id = Uuid::uuid4()->getHex();
@@ -270,7 +282,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    public function testIndexWithMultipleRootConditions()
+    public function testIndexWithMultipleRootConditions(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -306,7 +318,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
@@ -318,7 +330,7 @@ class RulePayloadIndexerTest extends TestCase
         static::assertContainsOnlyInstancesOf(OrRule::class, $rule->getPayload()->getRules());
     }
 
-    public function testIndexWithRootRuleNotAndRule()
+    public function testIndexWithRootRuleNotAndRule(): void
     {
         $id = Uuid::uuid4()->getHex();
         $currencyId1 = Uuid::uuid4()->getHex();
@@ -343,7 +355,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->index(new \DateTime());
@@ -356,7 +368,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    public function testRefreshWithRootRuleNotAndRule()
+    public function testRefreshWithRootRuleNotAndRule(): void
     {
         $id = Uuid::uuid4()->getHex();
         $currencyId1 = Uuid::uuid4()->getHex();
@@ -388,5 +400,44 @@ class RulePayloadIndexerTest extends TestCase
             new AndRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])]),
             $rule->getPayload()
         );
+    }
+
+    /**
+     * @dataProvider dataProviderForTestPostEventNullsPayload
+     */
+    public function testPostEventNullsPayload(string $eventName): void
+    {
+        $payload = serialize(new AndRule());
+
+        for ($i = 0; $i < 21; ++$i) {
+            $this->connection->createQueryBuilder()
+                ->insert('rule')
+                ->values(['id' => ':id', 'name' => ':name', 'priority' => 1, 'payload' => ':payload', 'created_at' => 'NOW()'])
+                ->setParameter('id', Uuid::uuid4()->getBytes())
+                ->setParameter('payload', $payload)
+                ->setParameter('name', 'Rule' . $i)
+                ->execute();
+        }
+
+        $this->eventDispatcher->dispatch($eventName);
+
+        $rules = $this->connection->createQueryBuilder()->select(['id', 'payload', 'invalid'])->from('rule')->execute()->fetchAll();
+
+        foreach ($rules as $rule) {
+            static::assertEquals(0, $rule['invalid']);
+            static::assertNull($rule['payload']);
+            static::assertNotNull($rule['id']);
+        }
+    }
+
+    public function dataProviderForTestPostEventNullsPayload(): array
+    {
+        return [
+            [PluginPostInstallEvent::NAME],
+            [PluginPostActivateEvent::NAME],
+            [PluginPostUpdateEvent::NAME],
+            [PluginPostDeactivateEvent::NAME],
+            [PluginPostUninstallEvent::NAME],
+        ];
     }
 }

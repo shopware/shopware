@@ -3,7 +3,7 @@
 
 To create a new payment method you can simply use the repository for the payment method entity.
 Add your new payment method on the installation of your plugin.
-If your plugin gets deactivated oder uninstalled, you should also deactivate your payment method, as it would not work without your plugin.
+If your plugin gets deactivated or uninstalled, you should also deactivate your payment method, as it would not work without your plugin.
 
 ## Installation
 ```php
@@ -55,7 +55,7 @@ Prepare an array with the necessary data for the new payment method
 
 | array key             | default value | used for |
 |-----------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| id                    | required | unique identifier for your new payment method. You should generate an own UUID and safe it as constant in your plugin, so you could easily access your payment method |
+| id                    | required | unique identifier for your new payment method. You should generate an own UUID and save it as constant in your plugin, so you could easily access your payment method |
 | technicalName         | required | unique name for your payment method |
 | name                  | `NULL` | translatable name of your payment method, which will be displayed to the customer. Have a look here, to learn more about [translations](../20-data-abstraction-layer/9-translations.md) |
 | additionalDescription | `NULL` | translatable description of your payment method. Provide more information about your payment method to the customers. Have a look here, to learn more about [translations](../20-data-abstraction-layer/9-translations.md) |
@@ -67,8 +67,8 @@ Prepare an array with the necessary data for the new payment method
 
 Use the payment method entity repository to create your new payment method.
 If you use the `upsert()` method the payment method will be updated if it already exists.
-So you could this method also on updates of your plugin.
-But note, that this will only work, if you set the ID by yourself.
+So you could use this method also on updates of your plugin.
+But note, that this will only work if you set the ID by yourself.
 
 ## De-/Activation
 ```php

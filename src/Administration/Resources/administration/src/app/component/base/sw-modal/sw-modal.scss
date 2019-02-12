@@ -89,7 +89,7 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         justify-content: space-between;
         align-items: center;
         position: relative;
-        padding: 0 32px;
+        padding: 0 16px 0 32px;
         height: 64px;
     }
 
@@ -97,22 +97,22 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         margin: 0;
         font-weight: normal;
         font-size: $sw-modal-title-font-size;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .sw-modal__close {
-        position: absolute;
-        top: 12px;
-        right: 20px;
-        border-radius: 50%;
-        text-align: center;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
         background: 0 none;
-        border: 0 none;
         color: lighten($sw-modal-close-color-text, 10%);
         cursor: pointer;
         outline: none;
+        flex-shrink: 0;
+        border: 0 none;
+        border-radius: 50%;
+        margin-left: auto;
+        height: 40px;
+        width: 40px;
 
         &:hover {
             color: $sw-modal-close-color-text;

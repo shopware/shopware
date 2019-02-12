@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\MessageQueue\Handler;
 
 use League\OAuth2\Server\CryptKey;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
+use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
-class EncryptedMessageHandler implements MessageHandlerInterface
+class EncryptedMessageHandler extends AbstractMessageHandler
 {
     /**
      * @var CryptKey
@@ -30,11 +30,23 @@ class EncryptedMessageHandler implements MessageHandlerInterface
         $this->privateKey = $privateKey;
     }
 
-    public function __invoke(EncryptedMessage $message)
+    /**
+     * @param EncryptedMessage $message
+     */
+    public function handle($message): void
     {
         $originalMessage = $this->decryptMessage($message);
 
-        $this->bus->dispatch(new Envelope($originalMessage, new ReceivedStamp()));
+        $this->bus->dispatch(new Envelope(
+            $originalMessage,
+            new ReceivedStamp(),
+            new DecryptedStamp()
+        ));
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [EncryptedMessage::class];
     }
 
     private function decryptMessage(EncryptedMessage $message): object

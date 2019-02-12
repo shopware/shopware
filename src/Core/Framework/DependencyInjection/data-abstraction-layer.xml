@@ -354,7 +354,16 @@
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="message_queue_stats.repository" public="true">
-            <argument>Shopware\Core\System\MessageQueue\MessageQueueStatsDefinition</argument>
+            <argument>Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="dead_message.repository" public="true">
+            <argument>Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>

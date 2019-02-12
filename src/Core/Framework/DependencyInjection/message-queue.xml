@@ -5,19 +5,58 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator" decorates="messenger.bus.default">
+        <!--Entity Defintions-->
+        <service id="Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition">
+            <tag name="shopware.entity.definition" entity="dead_message"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition">
+            <tag name="shopware.entity.definition" entity="message_queue_stats"/>
+        </service>
+        <!--Message Bus-->
+        <service id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator" decorates="messenger.bus.shopware">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator.inner"/>
             <argument type="service" id="message_queue_stats.repository"/>
         </service>
 
         <service id="encrypted.messenger.bus.shopware" class="Shopware\Core\Framework\MessageQueue\EncryptedBus">
-            <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="shopware.public_key"/>
         </service>
 
+        <!--Message Handler-->
         <service id="Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler">
-            <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="shopware.private_key"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler">
+            <argument type="service" id="service_container"/>
+            <argument type="service" id="dead_message.repository"/>
+        </service>
+
+        <!--Middleware-->
+        <service id="Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware">
+            <argument type="service" id="dead_message.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater"/>
+        </service>
+
+        <!--Service-->
+        <service id="Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService">
+            <argument type="service" id="dead_message.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="encrypted.messenger.bus.shopware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
+        </service>
+
+        <!--EventSubscriber-->
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\DeadMessageLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

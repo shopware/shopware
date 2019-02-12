@@ -1,0 +1,186 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\MessageQueue\Middleware;
+
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
+use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater;
+use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
+use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
+use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
+use Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware;
+use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
+
+class RetryMiddlewareTest extends MiddlewareTestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $deadMessageRepository;
+
+    /**
+     * @var RetryMiddleware
+     */
+    private $retryMiddleware;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    public function setUp(): void
+    {
+        $this->deadMessageRepository = $this->getContainer()->get('dead_message.repository');
+        $this->retryMiddleware = $this->getContainer()->get(RetryMiddleware::class);
+        $this->context = Context::createDefaultContext();
+    }
+
+    public function testMiddlewareOnSuccess()
+    {
+        $message = new RetryMessage(Uuid::uuid4()->getHex());
+        $envelope = new Envelope($message);
+
+        $stack = $this->getStackMock();
+
+        $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(0, $deadMessages);
+    }
+
+    public function testMiddlewareOnFirstError()
+    {
+        $message = new RetryMessage(Uuid::uuid4()->getHex());
+        $envelope = new Envelope($message);
+
+        $e = new \Exception('exception');
+        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $deadMessages);
+        /** @var DeadMessageEntity $deadMessage */
+        $deadMessage = $deadMessages->first();
+        $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 1);
+    }
+
+    public function testMiddlewareWithEncryptedMessage()
+    {
+        $message = new RetryMessage(Uuid::uuid4()->getHex());
+        $envelope = new Envelope($message, new DecryptedStamp());
+
+        $e = new \Exception('exception');
+        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $deadMessages);
+        /** @var DeadMessageEntity $deadMessage */
+        $deadMessage = $deadMessages->first();
+        static::assertInstanceOf(DeadMessageEntity::class, $deadMessage);
+        static::assertTrue($deadMessage->isEncrypted());
+    }
+
+    public function testMiddlewareOnConsecutiveError()
+    {
+        $deadMessageId = Uuid::uuid4()->getHex();
+        $message = new RetryMessage($deadMessageId);
+        $envelope = new Envelope($message);
+
+        $e = new \Exception('exception');
+        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $this->insertDeadMessage($deadMessageId, $envelope, $e);
+
+        $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $deadMessages);
+        /** @var DeadMessageEntity $deadMessage */
+        $deadMessage = $deadMessages->first();
+        $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 2);
+        static::assertEquals($deadMessageId, $deadMessage->getId());
+        static::assertFalse($deadMessage->isEncrypted());
+    }
+
+    public function testMiddlewareOnDifferentError()
+    {
+        $deadMessageId = Uuid::uuid4()->getHex();
+        $message = new RetryMessage($deadMessageId);
+        $envelope = new Envelope($message);
+
+        $previousException = new \Exception('exception');
+
+        $newException = new \RuntimeException('runtime exception');
+        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $newException);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $this->insertDeadMessage($deadMessageId, $envelope, $previousException);
+
+        $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $deadMessages);
+        /** @var DeadMessageEntity $deadMessage */
+        $deadMessage = $deadMessages->first();
+        static::assertInstanceOf(DeadMessageEntity::class, $deadMessage);
+        $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $newException, $message, 1);
+        static::assertNotEquals($deadMessageId, $deadMessage->getId());
+        static::assertFalse($deadMessage->isEncrypted());
+    }
+
+    private function assertDeadMessageCombinesExceptionAndMessage(
+        DeadMessageEntity $deadMessage,
+        \Exception $e,
+        RetryMessage $message,
+        int $errorCount
+    ): void {
+        static::assertInstanceOf(DeadMessageEntity::class, $deadMessage);
+        static::assertEquals(get_class($e), $deadMessage->getException());
+        static::assertEquals(get_class($message), $deadMessage->getOriginalMessageClass());
+        static::assertEquals($message, $deadMessage->getOriginalMessage());
+        static::assertEquals($e->getMessage(), $deadMessage->getExceptionMessage());
+        static::assertEquals($e->getFile(), $deadMessage->getExceptionFile());
+        static::assertEquals($e->getLine(), $deadMessage->getExceptionLine());
+        static::assertTrue(new \DateTime() < $deadMessage->getNextExecutionTime());
+        static::assertFalse($deadMessage->isEncrypted());
+        static::assertEquals($errorCount, $deadMessage->getErrorCount());
+    }
+
+    private function insertDeadMessage(string $deadMessageId, Envelope $envelope, \Exception $e): void
+    {
+        $this->deadMessageRepository->create([
+            [
+                'id' => $deadMessageId,
+                'originalMessageClass' => get_class($envelope->getMessage()),
+                'handlerClass' => RetryMessageHandler::class,
+                'encrypted' => false,
+                'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
+                'exception' => get_class($e),
+                'exceptionMessage' => $e->getMessage(),
+                'exceptionFile' => $e->getFile(),
+                'exceptionLine' => $e->getLine(),
+            ],
+        ], $this->context);
+        $deadMessageUpdater = $this->getContainer()->get(DeadMessageUpdater::class);
+        $deadMessageUpdater->updateOriginalMessage($deadMessageId, $envelope->getMessage());
+    }
+}

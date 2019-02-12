@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\EncryptedBus;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;

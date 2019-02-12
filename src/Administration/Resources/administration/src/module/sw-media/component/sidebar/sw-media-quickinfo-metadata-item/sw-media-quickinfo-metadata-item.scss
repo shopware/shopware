@@ -11,4 +11,8 @@ $sw-metadata-item-caption-color: $color-gutenberg;
 .sw-media-quickinfo-metadata-item__description {
     @include truncate();
     font-size: $font-size-small;
+
+    @media screen and (max-width: 768px) {
+        margin-bottom: 16px;
+    }
 }

@@ -208,6 +208,7 @@
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument type="service" id="shopware.store.api_client" />
+            <argument key="$host" type="string">%shopware.store.host%</argument>
         </service>
 
         <!-- Twig -->

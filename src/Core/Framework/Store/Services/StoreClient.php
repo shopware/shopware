@@ -19,9 +19,15 @@ final class StoreClient
      */
     private $client;
 
-    public function __construct(Client $client)
+    /**
+     * @var ?string
+     */
+    private $host;
+
+    public function __construct(Client $client, ?string $host)
     {
         $this->client = $client;
+        $this->host = $host;
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password): AccessTokenStruct
@@ -126,12 +132,12 @@ final class StoreClient
             [
                 'query' => [
                     'shopwareVersion' => '5.5.1',
-                    'domain' => 'fk2.test.shopware.in',
+                    'domain' => $this->host,
                     'plugins' => [$pluginArray[0]['pluginName'] => $pluginArray[0]['version']],
                 ],
                 'body' => \json_encode([
                     'shopwareVersion' => '5.5.1',
-                    'domain' => 'fk2.test.shopware.in',
+                    'domain' => $this->host,
                     'plugins' => $pluginArray,
                 ]),
                 'headers' => [
@@ -156,7 +162,7 @@ final class StoreClient
         return [
             'shopwareVersion' => Framework::VERSION,
             'language' => 'de_DE',
-            'domain' => 'fk2.test.shopware.in',
+            'domain' => $this->host,
         ];
     }
 }

@@ -99,6 +99,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->scalarNode('api_url')->end()
+            ->scalarNode('host')->end()
             ->end()
         ;
 

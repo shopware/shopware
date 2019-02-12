@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\SnippetFileConverter;
 use Shopware\Core\Framework\Snippet\SnippetFlattener;
-use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testConvert\SnippetFile_de_DE;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testConvert\SnippetFile_en_GB;
+use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 

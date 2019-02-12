@@ -437,16 +437,6 @@ class CategoryEntity extends Entity
         $this->cmsDescription = $cmsDescription;
     }
 
-    public function getPathArray(): array
-    {
-        return array_filter(explode('|', (string) $this->path));
-    }
-
-    public function getPathNamesArray(): array
-    {
-        return array_filter(explode('|', (string) $this->pathNames));
-    }
-
     public function getParent(): ?CategoryEntity
     {
         return $this->parent;

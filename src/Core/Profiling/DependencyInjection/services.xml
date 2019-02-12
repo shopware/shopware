@@ -6,9 +6,34 @@
 
     <services>
         <service id="Shopware\Core\Profiling\Checkout\CheckoutContextServiceProfiler"
-                 decorates="Shopware\Core\Checkout\Context\CheckoutContextService">
+                 decorates="Shopware\Core\Checkout\Context\CheckoutContextService"
+                 decoration-priority="-1000">
 
             <argument id="Shopware\Core\Profiling\Checkout\CheckoutContextServiceProfiler.inner" type="service"/>
+            <argument type="service" id="debug.stopwatch" />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Entity\EntityReaderProfiler"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"
+                 decoration-priority="-1000">
+
+            <argument id="Shopware\Core\Profiling\Entity\EntityReaderProfiler.inner" type="service"/>
+            <argument type="service" id="debug.stopwatch" />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Entity\EntityAggregatorProfiler"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"
+                 decoration-priority="-1000">
+
+            <argument id="Shopware\Core\Profiling\Entity\EntityAggregatorProfiler.inner" type="service"/>
+            <argument type="service" id="debug.stopwatch" />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Entity\EntitySearcherProfiler"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
+                 decoration-priority="-1000">
+
+            <argument id="Shopware\Core\Profiling\Entity\EntitySearcherProfiler.inner" type="service"/>
             <argument type="service" id="debug.stopwatch" />
         </service>
 

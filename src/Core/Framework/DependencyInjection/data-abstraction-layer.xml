@@ -13,7 +13,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
                  decoration-priority="-1000">
@@ -36,12 +35,10 @@
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"
                  decoration-priority="-1000">
 
-            <argument id="shopware.cache" type="service"/>
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator.inner" type="service"/>
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" type="service"/>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
-
-
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry"/>

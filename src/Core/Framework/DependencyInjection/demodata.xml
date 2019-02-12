@@ -63,9 +63,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\NavigationGenerator">
-            <argument id="navigation.repository" type="service"/>
-            <argument id="category.repository" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="navigation.repository"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.demodata_generator" priority="-100"/>
         </service>
 

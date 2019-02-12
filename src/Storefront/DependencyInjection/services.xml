@@ -297,10 +297,6 @@
             <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\PageController\ListingPageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
-        </service>
-
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
         </service>
@@ -310,7 +306,7 @@
         </service>
 
         <service id="Shopware\Storefront\PageController\NavigationPageController" public="true">
-            <argument id="Shopware\Storefront\Page\Navigation\NavigationPageLoader" type="service"/>
+            <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
         </service>
     </services>
 </container>

@@ -1,0 +1,20 @@
+{
+    "name": "shopware-example/swag-snippet-example",
+    "description": "New snippets for my shop",
+    "version": "v1.0.0",
+    "type": "shopware-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG"
+        }
+    ],
+    "extra": {
+        "installer-name": "SwagSnippetExample",
+        "copyright": "(c) by shopware AG",
+        "label": {
+            "de_DE": "Beispiel-Textbausteine für Shopware",
+            "en_GB": "Example snippets for Shopware"
+        }
+    }
+}

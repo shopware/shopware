@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CatalogField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -371,10 +370,6 @@ class DefinitionValidator
 
     private function validateTranslationAssociation(string $parentDefinition, string $translationDefinition): array
     {
-        if ($parentDefinition === CatalogDefinition::class) {
-            return []; // skip
-        }
-
         /** @var string|EntityTranslationDefinition $parentDefinition */
         /** @var string|EntityTranslationDefinition $translationDefinition */
         $translatedFieldsInParent = array_keys($parentDefinition::getFields()->filterInstance(TranslatedField::class)->getElements());
@@ -382,8 +377,7 @@ class DefinitionValidator
         $translatedFields = array_keys($translationDefinition::getFields()->filter(function (Field $f) {
             return !$f->is(PrimaryKey::class)
                 && !$f instanceof AssociationInterface
-                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt'])
-                && !$f instanceof CatalogField;
+                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt']);
         })->getElements());
 
         $violations = [];

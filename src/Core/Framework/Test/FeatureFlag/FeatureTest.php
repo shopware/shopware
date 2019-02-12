@@ -7,7 +7,7 @@ use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101Call;
-use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix101;
+use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix102;
 use Shopware\Core\Framework\Twig\FeatureFlagExtension;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
@@ -38,6 +38,7 @@ class FeatureTest extends TestCase
     public function loadFixture()
     {
         require_once __DIR__ . '/_fixture/feature_nextfix101.php';
+        require_once __DIR__ . '/_fixture/feature_nextfix102.php';
     }
 
     public function testTheGenerator()
@@ -60,9 +61,9 @@ class FeatureTest extends TestCase
 
     public function testABoolGetsReturned()
     {
-        self::assertFalse(nextFix101());
-        putenv('FEATURE_NEXT_FIX_101=1');
-        self::assertTrue(nextFix101());
+        self::assertFalse(nextFix102());
+        putenv('FEATURE_NEXT_FIX_102=1');
+        self::assertTrue(nextFix102());
     }
 
     public function testTheCallableGetsExecutes()

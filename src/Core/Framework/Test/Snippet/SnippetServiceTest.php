@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Snippet\SnippetFlattener;
 use Shopware\Core\Framework\Snippet\SnippetService;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\SnippetFileMock;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testEmptyList\EmptySnippetFile;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetList\SnippetFile_bar_bar;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetList\SnippetFile_foo_foo;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT;
@@ -20,16 +21,14 @@ use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_A
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e1;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e2;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class SnippetServiceTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @param MessageCatalogueInterface $catalog
@@ -302,6 +301,25 @@ class SnippetServiceTest extends TestCase
             [$sort2Test, require __DIR__ . '/_fixtures/testGetList/result13.php'],
             [$sort3Test, require __DIR__ . '/_fixtures/testGetList/result14.php'],
         ];
+    }
+
+    public function testGetEmptyList(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new EmptySnippetFile());
+
+        $service = new SnippetService(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(SnippetFlattener::class),
+            $collection,
+            $this->getContainer()->get('snippet.repository'),
+            $this->getContainer()->get('snippet_set.repository'),
+            $this->getContainer()->get(SnippetFilterFactory::class)
+        );
+
+        $result = $service->getList(0, 25, new Context(new SourceContext()), [], []);
+
+        $this->assertSame(['total' => 0, 'data' => []], $result);
     }
 
     private function getSnippetService(array $snippetFiles = []): SnippetService

@@ -99,7 +99,6 @@ class DemodataCommand extends Command
         $request->add(CategoryDefinition::class, (int) $input->getOption('categories'));
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
         $request->add(ProductDefinition::class, (int) $input->getOption('products'), $this->getProductOptions($input));
-        $request->add(NavigationDefinition::class, 1);
 
         if (next739()) {
             $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
@@ -108,6 +107,7 @@ class DemodataCommand extends Command
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
         $request->add(CmsPageDefinition::class, 50);
+        $request->add(NavigationDefinition::class, 1);
 
         if (next754()) {
             $request->add(

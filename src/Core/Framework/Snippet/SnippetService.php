@@ -96,7 +96,7 @@ class SnippetService implements SnippetServiceInterface
         $total = 0;
         foreach ($snippets as $setId => &$set) {
             $total = $total > 0 ? $total : count($set['snippets']);
-            $set['snippets'] = array_chunk($set['snippets'], $limit, true)[$page];
+            $set['snippets'] = array_chunk($set['snippets'], $limit, true)[$page] ?? [];
         }
 
         return [

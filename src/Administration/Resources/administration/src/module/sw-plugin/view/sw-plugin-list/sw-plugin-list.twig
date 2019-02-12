@@ -9,17 +9,15 @@
     {% endblock %}
 
     {% block sw_plugin_list_content %}
-    <sw-card>
-        <sw-container slot="grid" type="row">
+    <sw-card :isLoading="isLoading">
             {% block sw_plugin_list_grid %}
-            <sw-grid v-if="total || term"
-                     :items="plugins"
+            <sw-grid :items="plugins"
                      :sortBy="sortBy"
                      :sortDirection="sortDirection"
                      :sidebar="true"
                      :selectable="false"
-                     :isFullpage="true"
                      @sort-column="onSortColumn"
+                     slot="grid"
                      table>
 
                 {% block sw_plugin_list_grid_slots %}
@@ -126,16 +124,12 @@
                 </template>
 
             </sw-grid>
-        </sw-container>
         {% endblock %}
 
         {% block sw_plugin_list_empty_state %}
-        <sw-empty-state v-if="!isLoading && !total"
-                        :title="$tc('sw-plugin.list.messageEmpty')"></sw-empty-state>
-        {% endblock %}
-
-        {% block sw_plugin_list_grid_loader %}
-        <sw-loader v-if="isLoading"></sw-loader>
+            <sw-empty-state v-if="!isLoading && !total"
+                            :title="$tc('sw-plugin.list.messageEmpty')">
+            </sw-empty-state>
         {% endblock %}
     </sw-card>
     {% endblock %}

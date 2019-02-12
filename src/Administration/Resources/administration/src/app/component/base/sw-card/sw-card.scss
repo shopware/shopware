@@ -10,7 +10,6 @@ $sw-card-tabs-item-color-background-active: $color-white;
 $sw-card-color-text:                        $color-gutenberg;
 
 .sw-card {
-    height: 100%;
     max-width: 800px;
     margin: 0 auto 40px auto;
     position: relative;
@@ -22,7 +21,6 @@ $sw-card-color-text:                        $color-gutenberg;
 
     &.sw-card--grid {
         .sw-card__content {
-            height: 100%;
             display: grid;
             padding: 0;
         }

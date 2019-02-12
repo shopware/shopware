@@ -24,24 +24,27 @@
     {% block sw_plugin_manager_content %}
     <sw-card-view slot="content">
         {% block sw_plugin_manager_content_tabs %}
-        <sw-tabs>
+        <sw-tabs variant="minimal">
             {% block sw_plugin_manager_content_tab_list %}
             <sw-tabs-item :route="{ name: 'sw.plugin.index.list' }"
-                          :title="$tc('sw-plugin.general.tabList')">
+                          :title="$tc('sw-plugin.general.tabList')"
+                          variant="minimal">
                 {{ $tc('sw-plugin.general.tabList') }}
             </sw-tabs-item>
             {% endblock %}
 
             {% block sw_plugin_manager_content_tab_licenses %}
             <sw-tabs-item :route="{ name: 'sw.plugin.index.licenses' }"
-                          :title="$tc('sw-plugin.general.tabLicenses')">
+                          :title="$tc('sw-plugin.general.tabLicenses')"
+                          variant="minimal">
                 {{ $tc('sw-plugin.general.tabLicenses') }}
             </sw-tabs-item>
             {% endblock %}
 
             {% block sw_plugin_manager_content_tab_updates %}
             <sw-tabs-item :route="{ name: 'sw.plugin.index.updates' }"
-                          :title="$tc('sw-plugin.general.tabUpdates')">
+                          :title="$tc('sw-plugin.general.tabUpdates')"
+                          variant="minimal">
                 {{ $tc('sw-plugin.general.tabUpdates') }}
             </sw-tabs-item>
             {% endblock %}

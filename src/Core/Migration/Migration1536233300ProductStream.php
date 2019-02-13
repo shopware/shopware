@@ -22,7 +22,7 @@ class Migration1536233300ProductStream extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `JSON.api_filter` CHECK (JSON_VALID(`api_filter`))
+              CONSTRAINT `json.api_filter` CHECK (JSON_VALID(`api_filter`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
@@ -36,7 +36,7 @@ class Migration1536233300ProductStream extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`product_stream_id`, `language_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.product_stream_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_stream_translation.product_stream_id` FOREIGN KEY (`product_stream_id`)

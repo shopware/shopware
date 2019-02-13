@@ -43,7 +43,7 @@ class Migration1536232960CustomerAddress extends MigrationStep
                  REFERENCES `country_state` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
                CONSTRAINT `fk.customer_address.customer_id` FOREIGN KEY (`customer_id`)
                  REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-               CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

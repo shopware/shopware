@@ -26,7 +26,7 @@ CREATE TABLE `state_machine_history` (
   `user_id` BINARY(16) NULL,
   `created_at` DATETIME(3) NOT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `JSON.entity_id` CHECK (JSON_VALID(`entity_id`)),
+  CONSTRAINT `json.entity_id` CHECK (JSON_VALID(`entity_id`)),
   CONSTRAINT `fk.state_machine_history.state_machine_id` FOREIGN KEY (`state_machine_id`)
     REFERENCES `state_machine` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `fk.state_machine_history.from_state_id` FOREIGN KEY (`from_state_id`)

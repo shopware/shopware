@@ -26,7 +26,7 @@ class Migration1536233360CmsBlock extends MigrationStep
               PRIMARY KEY (`id`),
               CONSTRAINT `fk.cms_block.cms_page_id` FOREIGN KEY (`cms_page_id`)
                 REFERENCES `cms_page` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 

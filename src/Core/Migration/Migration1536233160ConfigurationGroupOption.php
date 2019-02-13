@@ -40,7 +40,7 @@ class Migration1536233160ConfigurationGroupOption extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`configuration_group_option_id`, `language_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.configuration_group_option_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.configuration_group_option_translation.conf_group_option_id` FOREIGN KEY (`configuration_group_option_id`)

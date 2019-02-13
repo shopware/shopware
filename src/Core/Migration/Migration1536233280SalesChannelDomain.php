@@ -25,7 +25,7 @@ class Migration1536233280SalesChannelDomain extends MigrationStep
             `attributes` JSON NULL,
             `created_at` DATETIME(3) NOT NULL,
             `updated_at` DATETIME(3) NULL,
-            CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+            CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
             CONSTRAINT `fk.sales_channel_domain.sales_channel_id` FOREIGN KEY (sales_channel_id) 
               REFERENCES `sales_channel` (id) ON DELETE CASCADE ON UPDATE CASCADE,
             CONSTRAINT `fk.sales_channel_domain.language_id` FOREIGN KEY (sales_channel_id, language_id) 

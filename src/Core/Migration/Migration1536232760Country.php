@@ -46,7 +46,7 @@ class Migration1536232760Country extends MigrationStep
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.country_translation.country_id` FOREIGN KEY (`country_id`)
                 REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

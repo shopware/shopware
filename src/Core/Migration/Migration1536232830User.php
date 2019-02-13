@@ -30,7 +30,7 @@ class Migration1536232830User extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.user.locale_id` FOREIGN KEY (`locale_id`)
                 REFERENCES `locale` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

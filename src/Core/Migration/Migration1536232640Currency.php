@@ -38,7 +38,7 @@ class Migration1536232640Currency extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`currency_id`, `language_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.currency_translation.language_id`
                 FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.currency_translation.currency_id`

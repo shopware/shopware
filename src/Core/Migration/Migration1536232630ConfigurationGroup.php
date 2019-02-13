@@ -38,7 +38,7 @@ class Migration1536232630ConfigurationGroup extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`configuration_group_id`, `language_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.configuration_group_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.configuration_group_translation.configuration_group_id` FOREIGN KEY (`configuration_group_id`)

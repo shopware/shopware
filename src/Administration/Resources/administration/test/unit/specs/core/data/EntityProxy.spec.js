@@ -233,11 +233,6 @@ describe('core/data/EntityProxy.js', () => {
         expect(changes.price.linked).to.be.equal(false);
         expect(changes.price.gross).to.be.equal(90);
 
-        expect(changes.listingPrices).to.be.an('object');
-        expect(changes.listingPrices.price).to.be.equal(50);
-        expect(changes.listingPrices.purchase).to.be.equal(30);
-        expect(changes.listingPrices.linked).to.be.equal(true);
-
         expect(changes.testProp).to.be.an('undefined');
     });
 });

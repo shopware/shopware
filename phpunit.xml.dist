@@ -5,6 +5,7 @@
          bootstrap="src/Core/TestBootstrap.php"
          cacheResult="false"
          cacheTokens="false"
+         executionOrder="random"
 >
 
     <php>

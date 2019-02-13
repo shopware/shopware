@@ -44,9 +44,7 @@ class SnippetServiceTest extends TestCase
         $service = $this->getSnippetService();
         $result = $service->getStorefrontSnippets($catalog, Defaults::SNIPPET_BASE_SET_EN);
 
-        $this->silentAssertArraySubset($expectedResult, $result);
-        static::assertNotEmpty($result);
-        static::assertTrue(count($expectedResult) < count($result));
+        $this->assertEquals($expectedResult, $result);
     }
 
     public function dataProviderForTestGetStoreFrontSnippets(): array

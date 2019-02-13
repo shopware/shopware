@@ -26,13 +26,17 @@ class SnippetFileConverterTest extends TestCase
      */
     public function testConvert(SnippetSetEntity $struct, array $expectedResult): void
     {
-        $converter = $this->getConverter();
+        $fileCollection = new SnippetFileCollection();
+        $converter = new SnippetFileConverter(
+            $fileCollection,
+            $this->getContainer()->get(SnippetFlattener::class)
+        );
 
         $snippetFile = new SnippetFile_de_DE();
-        $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
+        $fileCollection->add($snippetFile);
 
         $snippetFile = new SnippetFile_en_GB();
-        $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
+        $fileCollection->add($snippetFile);
 
         $result = $converter->convert($struct);
 
@@ -68,7 +72,10 @@ class SnippetFileConverterTest extends TestCase
      */
     public function testGetFileContent(SnippetFileInterface $languageFile, $expectedResult): void
     {
-        $converter = $this->getConverter();
+        $converter = new SnippetFileConverter(
+        new SnippetFileCollection(),
+        $this->getContainer()->get(SnippetFlattener::class)
+    );
         $method = ReflectionHelper::getMethod(SnippetFileConverter::class, 'getFileContent');
 
         $result = $method->invoke($converter, $languageFile);
@@ -84,14 +91,6 @@ class SnippetFileConverterTest extends TestCase
             [new SnippetFileMock(__DIR__ . '/_fixtures/contentFile_3.json'), ['index' => []]],
             [new SnippetFileMock(__DIR__ . '/_fixtures/testLanguage.json'), ['frontend' => ['AccountLoginTitle' => 'Login']]],
         ];
-    }
-
-    private function getConverter(): SnippetFileConverter
-    {
-        return new SnippetFileConverter(
-            $this->getContainer()->get(SnippetFileCollection::class),
-            $this->getContainer()->get(SnippetFlattener::class)
-        );
     }
 }
 

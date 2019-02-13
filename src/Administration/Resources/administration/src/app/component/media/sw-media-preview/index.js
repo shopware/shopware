@@ -168,7 +168,7 @@ export default {
                 return this.trueSource.href;
             }
 
-            return this.getUrlFromMediaEntity();
+            return this.trueSource.url;
         },
 
         isUrl() {
@@ -184,6 +184,22 @@ export default {
 
         mediaNameFilter() {
             return Filter.getByName('mediaName');
+        },
+
+        sourceSet() {
+            if (this.trueSource instanceof File || this.trueSource instanceof URL) {
+                return '';
+            }
+
+            if (this.trueSource.thumbnails.length === 0) {
+                return '';
+            }
+
+            const sources = this.trueSource.thumbnails.map((thumbnail) => {
+                return `${thumbnail.url} ${thumbnail.width}w`;
+            });
+
+            return sources.join(', ');
         }
     },
 
@@ -234,33 +250,6 @@ export default {
             fileReader.readAsDataURL(this.trueSource).then((dataUrl) => {
                 this.dataUrl = dataUrl;
             });
-        },
-
-        getUrlFromMediaEntity() {
-            if (!this.useThumbnails || this.width === 0) {
-                return this.trueSource.url;
-            }
-
-            return this._getBestFitUrl();
-        },
-
-        _getBestFitUrl() {
-            if (this.trueSource.thumbnails.length === 0) {
-                return this.trueSource.url;
-            }
-
-            const copyOfThumbnails = this.trueSource.thumbnails.slice(0);
-            const bestFitThumbnail = copyOfThumbnails.sort((a, b) => {
-                return a.width - b.width;
-            }).find((thumbnail) => {
-                return thumbnail.width >= this.width;
-            });
-
-            if (bestFitThumbnail) {
-                return bestFitThumbnail.url;
-            }
-
-            return this.trueSource.url;
         },
 
         removeUrlPreview() {

@@ -1,13 +1,27 @@
 @import "~scss/variables";
+$sw-field-help-font-size: 14px;
+$sw-field-help-line-height: 22px;
+$sw-field-help-color: $color-gutenberg;
+$sw-field-icon-border-radius: $border-radius-default;
 
 .sw-integration-list {
+    .sw-card.sw-card--hero .sw-card__content {
+        text-align: left;
+        line-height: 25px;
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 0;
+    }
+
     p {
         margin-bottom: 22px;
     }
 
     .sw-integration-list__overview {
         .sw-card__content {
-            min-height: 215px;
+            .sw-empty-state {
+                padding: 30px;
+            }
         }
     }
 
@@ -16,20 +30,34 @@
     }
 
     .sw-integration-list__app-icon {
-        background-color: #9FE58A;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
+        margin-right: 16px;
+        background-color: #33404D;
+        border-radius: $sw-field-icon-border-radius;
+        width: 20px;
+        height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
 
         .sw-icon {
             color: $color-white;
-            width: 24px;
-            height: 24px;
+            width: 10px;
+            height: 10px;
+        }
+
+        + a {
+            font-weight: bold;
         }
     }
+
+    .sw-label {
+        margin-bottom: 0;
+    }
+
+    .sw-grid .sw-grid__content.sw-grid__content--pagination {
+        grid-template-rows: auto;
+    }
+
 }
 
 .sw-integration-list__detail {
@@ -40,6 +68,13 @@
     .sw-field.sw-field--checkbox {
         align-self: center;
         margin: 0;
+    }
+
+    .sw-field__help {
+        font-size: $sw-field-help-font-size;
+        color: lighten($sw-field-help-color, 20);
+        line-height: $sw-field-help-line-height;
+        padding-top: 7px;
     }
 }
 

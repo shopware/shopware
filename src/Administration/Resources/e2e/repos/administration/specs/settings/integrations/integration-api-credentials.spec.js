@@ -16,7 +16,7 @@ module.exports = {
                 mainMenuId: 'sw-settings',
                 subMenuId: 'sw-integration'
             })
-            .expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Integrations');
 
         browser
             .assert.urlContains('#/sw/integration/index')
@@ -27,7 +27,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
-            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration');
+            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Edit:');
 
         page.checkClipboard();
     },
@@ -36,7 +36,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
-            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration');
+            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Edit:');
 
         page.changeApiCredentials();
     },

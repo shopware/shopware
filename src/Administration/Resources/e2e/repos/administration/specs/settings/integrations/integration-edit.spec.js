@@ -16,7 +16,7 @@ module.exports = {
                 mainMenuId: 'sw-settings',
                 subMenuId: 'sw-integration'
             })
-            .expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Integrations');
 
         browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`).to.have.text.that.contains(global.IntegrationFixtureService.integrationFixture.name);
     },
@@ -25,7 +25,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw_integration_list__edit-action',page.elements.contextMenuButton)
-            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration');
+            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Edit:');
 
         browser
             .fillField(page.elements.integrationName, 'Once again: Edits integration', true)

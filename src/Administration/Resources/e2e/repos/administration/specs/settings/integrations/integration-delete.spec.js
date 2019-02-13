@@ -15,7 +15,7 @@ module.exports = {
                 mainMenuId: 'sw-settings',
                 subMenuId: 'sw-integration'
             })
-            .expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Integrations');
         browser.assert.urlContains('#/sw/integration/index');
     },
     'delete integration and verify deletion': (browser) => {

@@ -24,6 +24,9 @@ Component.register('sw-integration-list', {
     },
 
     computed: {
+        id() {
+            return this.$vnode.tag;
+        },
         integrationStore() {
             return State.getStore('integration');
         },

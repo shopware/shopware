@@ -46,6 +46,21 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        small: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        caps: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        light: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -56,7 +71,10 @@ export default {
                 'sw-label--dismiss-able': this.dismissAble,
                 'sw-label--pill': this.pill,
                 'sw-label--ghost': this.ghost,
-                'sw-label--circle': this.circle
+                'sw-label--circle': this.circle,
+                'sw-label--small': this.small,
+                'sw-label--caps': this.caps,
+                'sw-label--light': this.light
             };
         }
     }

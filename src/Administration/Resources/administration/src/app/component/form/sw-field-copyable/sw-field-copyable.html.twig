@@ -1,9 +1,24 @@
 {% block sw_field_input_copySuffix %}
-    <sw-button class="sw-field__copy-button"
+    <sw-button v-if="!tooltip"
+               class="sw-field__copy-button"
                :class="displayName + '__copy-button'"
                @click="copyToClipboard">
         {% block sw_field_button_copySuffix %}
             <sw-icon name="small-copy" size="16px"></sw-icon>
         {% endblock %}
     </sw-button>
+
+    <span v-else class="sw-field__copy-tooltip">
+        <sw-icon name="small-copy"
+                 v-tooltip="{
+                    message: tooltipText,
+                    width: 220,
+                    position: 'top',
+                    showDelay: 300,
+                    hideDelay: 0
+                  }"
+                 @click="copyToClipboard"
+                 @mouseleave="resetTooltipText"
+        ></sw-icon>
+    </span>
 {% endblock %}

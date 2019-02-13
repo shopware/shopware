@@ -218,6 +218,7 @@ $sw-field-color-error: $color-crimson;
             background: $color-light-gray;
             border-color: $color-steam-cloud;
             color: lighten($sw-field-color-text, 40%);
+            cursor: default !important;
         }
 
         &::placeholder {

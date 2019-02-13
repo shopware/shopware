@@ -1,0 +1,58 @@
+@import "~scss/variables";
+
+$sw-media-library-color-background: $color-white;
+
+.sw-media-library {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: $sw-media-library-color-background;
+
+    .sw-media-library__options-container {
+        padding: 0 24px 16px;
+        display: grid;
+        grid-auto-flow: column;
+        grid-gap: 16px;
+        justify-content: end;
+        justify-items: end;
+
+        @media (max-width: 1550px) {
+            grid-auto-flow: row;
+        }
+    }
+
+    .sw-media-library__parent-folder {
+        .sw-media-base-item__name-container {
+            font-weight: 600;
+        }
+
+        &:hover .sw-media-base-item__selected-indicator {
+            visibility: hidden;
+        }
+    }
+
+    .sw-media-library__scroll-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .sw-media-library__scroll-content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .sw-media-library_media-grid {
+        padding: 10px;
+    }
+
+    .sw-media-library__load-more-button {
+         margin: 16px auto;
+         grid-column: 1 / -1;
+    }
+}

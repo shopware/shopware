@@ -1,4 +1,4 @@
-import { Component, Filter } from 'src/core/shopware';
+import { Component, Filter, State } from 'src/core/shopware';
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
 
@@ -17,17 +17,24 @@ Component.register('sw-media-sidebar', {
             }
         },
 
-        currentFolder: {
-            type: Object,
+        currentFolderId: {
+            type: String,
             required: false,
-            default: null,
-            validator(value) {
-                return value.entityName === 'media_folder';
-            }
+            default: null
         }
     },
 
+    data() {
+        return {
+            currentFolder: null
+        };
+    },
+
     computed: {
+        mediaFolderStore() {
+            return State.getStore('media_folder');
+        },
+
         mediaNameFilter() {
             return Filter.getByName('mediaName');
         },
@@ -71,6 +78,27 @@ Component.register('sw-media-sidebar', {
 
         firstEntity() {
             return this.items[0];
+        }
+    },
+
+    watch: {
+        currentFolderId() {
+            this.fetchCurrentFolder();
+        }
+    },
+
+    created() {
+        this.fetchCurrentFolder();
+    },
+
+    methods: {
+        fetchCurrentFolder() {
+            if (!this.currentFolderId) {
+                this.currentFolder = null;
+                return;
+            }
+
+            this.currentFolder = this.mediaFolderStore.getById(this.currentFolderId);
         }
     }
 });

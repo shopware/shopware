@@ -53,10 +53,7 @@ Mixin.register('media-grid-listener', {
         },
 
         navigateToFolder({ item }) {
-            this.$router.push({
-                name: 'sw.media.index',
-                params: { folderId: item.id }
-            });
+            this.$emit('media-folder-changed', item.id);
         },
 
         showDetails(gridItem) {

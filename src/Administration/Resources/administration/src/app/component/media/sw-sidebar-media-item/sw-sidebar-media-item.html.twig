@@ -12,18 +12,7 @@
                 {% endblock %}
 
                 {% block sw_sidebar_media_item_folder_navigation%}
-                    <div v-if="mediaFolder" class="sw-sidebar-media-item__folder-navigation">
-                        {% block sw_sidebar_media_item_folder_navigation_back%}
-                            <div @click="onNavigateToFolder(mediaFolder.parentId)" class="sw-sidebar-media-item__navigation-back">
-                                <sw-icon name="small-arrow-medium-left" class="sw-sidebar-media-item__folder-navigation-back-arrow" small></sw-icon>
-                                <sw-icon name="folder-breadcrumbs-dropdown" size="32px" multicolor></sw-icon>
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_sidebar_media_item_folder_navigation_current_folder_name%}
-                            <h4 class="sw-sidebar-media-item__headline-current-folder">{{ mediaFolder.name }}</h4>
-                        {% endblock %}
-                    </div>
+                    <sw-media-breadcrumbs v-model="mediaFolderId" small></sw-media-breadcrumbs>
                 {% endblock %}
 
                 {% block sw_sidebar_media_item_media_item_list %}

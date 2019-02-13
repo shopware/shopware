@@ -1,0 +1,37 @@
+.sw-media-display-options {
+    display: grid;
+    grid-gap: 16px;
+    grid-auto-flow: column;
+    justify-content: end;
+    justify-items: end;
+
+    @media(max-width: 1360px) {
+        grid-auto-flow: row;
+    }
+
+    .sw-field {
+        display: inline-grid;
+        width: auto;
+        grid-template-columns: auto auto;
+        align-items: center;
+        margin-bottom: 0;
+
+        label {
+            margin: 8px 10px 8px 0;
+            text-align: right;
+        }
+
+        .sw-field__select {
+            select {
+                min-width: 200px;
+                padding: 2px 12px;
+                height: 33px;
+            }
+
+            .sw-icon {
+                top: 9px;
+                right: 9px;
+            }
+        }
+    }
+}

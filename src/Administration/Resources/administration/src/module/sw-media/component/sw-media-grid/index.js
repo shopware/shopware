@@ -14,9 +14,15 @@ Component.register('sw-media-grid', {
             type: String,
             default: 'medium-preview',
             validator(value) {
-                return ['small-preview', 'medium-preview', 'large-preview'].includes(value);
+                return ['small-preview', 'medium-preview', 'large-preview', 'list-preview'].includes(value);
             }
         }
+    },
+
+    data() {
+        return {
+            dragSelectorComponent: null
+        };
     },
 
     computed: {
@@ -25,9 +31,11 @@ Component.register('sw-media-grid', {
                 'grid-template-columns': `repeat(auto-fit, ${this.gridColumnWidth}px)`
             };
         },
+
         presentationClass() {
-            return `sw-media-grid__presentation-${this.presentation}`;
+            return `sw-media-grid__presentation--${this.presentation}`;
         },
+
         nonDeselectingComponents() {
             return [
                 'sw-media-sidebar',
@@ -50,6 +58,15 @@ Component.register('sw-media-grid', {
     methods: {
         componentCreated() {
             window.addEventListener('click', this.clearSelectionOnClickOutside, false);
+
+            let parent = this.$parent;
+            while (parent) {
+                if (parent.$options.$isDragSelectorComponent) {
+                    this.dragSelectorComponent = parent;
+                    break;
+                }
+                parent = parent.$parent;
+            }
         },
 
         beforeComponentDestroyed() {
@@ -77,7 +94,10 @@ Component.register('sw-media-grid', {
         },
 
         isDragEvent(event) {
-            return this.$parent.$parent.isDragEvent(event);
+            if (!this.dragSelectorComponent) {
+                return false;
+            }
+            return this.dragSelectorComponent.isDragEvent(event);
         },
 
         isEmittedFromChildren(target) {

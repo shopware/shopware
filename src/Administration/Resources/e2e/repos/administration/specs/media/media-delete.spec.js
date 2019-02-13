@@ -17,6 +17,7 @@ module.exports = {
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`.sw-modal__footer .sw-button--primary`)
+            .waitForElementNotPresent('.sw-media-url-form')
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementNotPresent('.sw-media-base-item__loader')
             .waitForElementVisible(`${page.elements.alert}--success`)

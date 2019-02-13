@@ -847,11 +847,8 @@
     "general": {
       "mainMenuItemGeneral": "Media",
       "descriptionTextModule": "Manage media here",
-      "placeholderSearchBar": "Search media",
+      "placeholderSearchBar": "Search current folder",
       "notificationUrlCopied": "URL was copied to clipboard."
-    },
-    "smart-bar": {
-      "smartBarHeader": "Media"
     },
     "sidebar": {
       "labelHeadlineMultiple": "{count} files selected",
@@ -902,22 +899,27 @@
     },
     "index": {
       "buttonCreateFolder": "Add new folder",
-      "messageEmpty": "No media uploaded yet",
+      "rootFolderName": "Media"
+    },
+    "mediaLibrary": {
+      "labelButtonLoadMore": "Load more",
+      "descriptionEmptyState": "No media uploaded yet"
+    },
+    "sorting": {
       "labelSort": "Sort by:",
-      "labelPresentation": "Presentation:",
-      "labelPresentationSmall": "Small preview",
-      "labelPresentationMedium": "Regular preview",
-      "labelPresentationLarge": "Large preview",
       "labelSortByNameAsc": "Name, ascending",
       "labelSortByNameDsc": "Name, descending",
       "labelSortBySizeAsc": "Size, ascending",
       "labelSortBySizeDsc": "Size, descending",
       "labelSortByCreatedAsc": "Creation date, ascending",
-      "labelSortByCreatedDsc": "Creation date, descending",
-      "labelSortByDataTypeAsc": "Data type, ascending",
-      "labelSortByDataTypeDsc": "Data type, descending",
-      "labelLoadMore": "Load {count} more files",
-      "rootFolderName": "Media"
+      "labelSortByCreatedDsc": "Creation date, descending"
+    },
+    "presentation": {
+      "labelPresentation": "Presentation:",
+      "labelPresentationSmall": "Small preview",
+      "labelPresentationMedium": "Regular preview",
+      "labelPresentationLarge": "Large preview",
+      "labelPresentationList": "List"
     }
   },
   "sw-settings": {

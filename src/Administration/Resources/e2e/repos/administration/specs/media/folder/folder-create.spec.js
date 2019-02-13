@@ -25,8 +25,8 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-index__parent-folder')
-            .click('.sw-media-index__parent-folder')
+            .waitForElementVisible('.sw-media-library__parent-folder')
+            .click('.sw-media-library__parent-folder')
             .expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
         browser
             .click('.sw-media-folder-item')

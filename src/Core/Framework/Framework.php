@@ -49,6 +49,7 @@ class Framework extends Bundle
         $loader->load('message-queue.xml');
         $loader->load('plugin.xml');
         $loader->load('rule.xml');
+        $loader->load('scheduled-task.xml');
         $loader->load('services.xml');
         $loader->load('util.xml');
 

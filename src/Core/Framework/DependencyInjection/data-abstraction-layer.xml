@@ -371,6 +371,15 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="scheduled_task.repository" public="true">
+            <argument>Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="plugin.repository" public="true">
             <argument>Shopware\Core\Framework\Plugin\PluginDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>

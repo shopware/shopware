@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -48,6 +49,23 @@ class AvgAggregationTest extends TestCase
         static::assertNotNull($rateAgg);
         static::assertEquals(42.142857, $rateAgg->getAverage());
         static::assertEquals(['avg' => 42.142857], $rateAgg->getResult());
+    }
+
+    public function testAvgAggregationThrowsExceptionOnNonNumericField(): void
+    {
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
+            AvgAggregation::class,
+            StringField::class)
+        );
+
+        $context = Context::createDefaultContext();
+        $this->setupFixtures($context);
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new AvgAggregation('name', 'name_agg'));
+
+        $this->taxRepository->aggregate($criteria, $context);
     }
 
     private function setupFixtures(Context $context): void

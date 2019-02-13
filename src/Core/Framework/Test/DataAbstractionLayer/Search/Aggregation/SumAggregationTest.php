@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -48,6 +49,22 @@ class SumAggregationTest extends TestCase
         static::assertNotNull($rateAgg);
         static::assertEquals(295, $rateAgg->getSum());
         static::assertEquals(['sum' => 295], $rateAgg->getResult());
+    }
+
+    public function testSumAggregationThrowsExceptionOnNonNumericField(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
+                SumAggregation::class,
+                StringField::class)
+        );
+
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new SumAggregation('name', 'rate_agg'));
+
+        $this->taxRepository->aggregate($criteria, $context);
     }
 
     private function setupFixtures(Context $context): void

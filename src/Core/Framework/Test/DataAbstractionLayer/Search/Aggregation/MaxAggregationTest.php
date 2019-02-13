@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -48,6 +49,39 @@ class MaxAggregationTest extends TestCase
         static::assertNotNull($rateAgg);
         static::assertEquals(90, $rateAgg->getMax());
         static::assertEquals(['max' => 90], $rateAgg->getResult());
+    }
+
+    public function testMaxAggregationWorksOnDateFields(): void
+    {
+        $context = Context::createDefaultContext();
+        $this->setupFixtures($context);
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new MaxAggregation('createdAt', 'created_agg'));
+
+        $result = $this->taxRepository->aggregate($criteria, $context);
+
+        /** @var MaxAggregationResult $createdAgg */
+        $createdAgg = $result->getAggregations()->get('created_agg');
+        static::assertNotNull($createdAgg);
+        static::assertInstanceOf(\DateTime::class, $createdAgg->getMax());
+    }
+
+    public function testMaxAggregationThrowsExceptionOnNonNumericField(): void
+    {
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
+                MaxAggregation::class,
+                StringField::class)
+        );
+
+        $context = Context::createDefaultContext();
+        $this->setupFixtures($context);
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new MaxAggregation('name', 'created_agg'));
+
+        $this->taxRepository->aggregate($criteria, $context);
     }
 
     private function setupFixtures(Context $context): void

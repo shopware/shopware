@@ -17,7 +17,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
             .waitForElementVisible(page.elements.contextMenuButton)
@@ -43,10 +43,11 @@ module.exports = {
             .moveToElement(page.elements.mediaItem, 5, 5)
             .click(page.elements.mediaItem)
             .waitForElementNotPresent('sw-media-sidebar.no-headline')
-            .assert.containsText('.sw-media-sidebar__headline', 'sw-test-image.png')
+            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('sw-test-image.png');
+
+        browser
             .getLocationInView('.sw-media-quickinfo-usage')
-            .waitForElementVisible('.sw-media-quickinfo-usage__item')
-            .assert.containsText('.sw-media-quickinfo-usage__item', 'Ultimate Product');
+            .expect.element('.sw-media-quickinfo-usage__item').to.have.text.that.equals('Ultimate Product');
     },
     after: (browser) => {
         browser.end();

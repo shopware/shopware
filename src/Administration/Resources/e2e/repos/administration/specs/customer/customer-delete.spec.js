@@ -18,23 +18,21 @@ module.exports = {
                 menuTitle: 'Customers',
                 index: 3
             })
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
     },
     'delete customer and verify deletion': (browser) => {
         const page = customerPage(browser);
 
+        browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni');
         browser
-            .waitForElementPresent(page.elements.columnName)
-            .assert.containsText(page.elements.columnName, 'Pep Eroni')
             .clickContextMenuItem(`${page.elements.contextMenu}-item--danger`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .waitForElementVisible(page.elements.modal)
-            .assert.containsText(`.sw-modal .sw-customer-list__confirm-delete-text`, 'Are you sure you want to delete the customer "Pep Eroni"?')
+            .expect.element(`.sw-modal .sw-customer-list__confirm-delete-text`).to.have.text.that.equals('Are you sure you want to delete the customer "Pep Eroni"?');
+
+        browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .waitForElementNotPresent(page.elements.columnName)
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementPresent(page.elements.emptyState)
-            .assert.containsText(page.elements.smartBarAmount, '(0)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(0)');
     },
     after: (browser) => {
         browser.end();

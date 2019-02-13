@@ -32,10 +32,7 @@ module.exports = {
     'verify edited tax': (browser) => {
         const page = settingsPage(browser);
 
-        browser
-            .waitForElementVisible('.sw-settings-tax-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.taxColumnName}`, 'Is this still a tax or already robbery');
+        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.taxColumnName}`).to.have.text.that.contains('Is this still a tax or already robbery');
     },
     after: (browser) => {
         browser.end();

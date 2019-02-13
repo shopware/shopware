@@ -5,17 +5,23 @@ module.exports = {
     '@disabled': !global.flags.isActive('next739'),
     'navigate to product stream and click on add product stream': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/product/stream/index', 'Product streams')
-            .waitForElementPresent('.sw-button__content')
-            .click('.sw-button__content');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/stream/index',
+                subMenuTitle: 'Product streams'
+            });
     },
     'create new product stream with basic condition': (browser) => {
         const page = productStreamPage(browser);
 
         browser
+            .waitForElementPresent('.sw-button__content')
+            .click('.sw-button__content')
             .waitForElementVisible('.sw-product-stream-detail .sw-card__content')
-            .assert.urlContains('#/sw/product/stream/create')
-            .assert.containsText(page.elements.smartBarHeader, 'New product stream');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('New product stream');
+        browser.assert.urlContains('#/sw/product/stream/create');
 
         page.createBasicProductStream('Product stream 1st', 'My first product stream');
     },
@@ -23,13 +29,18 @@ module.exports = {
         const page = productStreamPage(browser);
 
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/product/stream/index', 'Product streams')
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/stream/index',
+                subMenuTitle: 'Product streams'
+            })
             .refresh()
-            .waitForElementPresent('.sw-button__content')
-            .assert.urlContains('#/sw/product/stream/index')
-            .assert.containsText(page.elements.smartBarHeader, 'Product stream')
-            .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0 `, 'Product stream 1st');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream');
+        browser.assert.urlContains('#/sw/product/stream/index');
+
+        browser.expect.element(`${page.elements.gridRow}--0 `).to.have.text.that.contains('Product stream 1st');
     },
     'verify product stream details': (browser) => {
         const page = productStreamPage(browser);
@@ -40,8 +51,7 @@ module.exports = {
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-product-stream-detail__empty-title)`)
-            .assert.containsText(page.elements.smartBarHeader, 'Product stream 1st');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream 1st');
     },
     after: (browser) => {
         browser.end();

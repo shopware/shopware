@@ -30,8 +30,9 @@ module.exports = {
             .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
             .click('li.quickaction--delete')
-            .waitForElementVisible('div.sw-modal.sw-modal--small.sw-media-modal-delete')
-            .assert.containsText(`${page.elements.modal}__body`, 'Are you sure you want to delete "sw-login-background.png" ?')
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals('Are you sure you want to delete "sw-login-background.png" ?');
+
+        browser
             .waitForElementVisible(`${page.elements.modal}__footer .sw-media-modal-delete__confirm`)
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent(`${page.elements.modal}l__footer`)

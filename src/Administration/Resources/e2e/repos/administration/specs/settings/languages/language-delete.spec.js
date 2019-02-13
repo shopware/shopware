@@ -18,19 +18,16 @@ module.exports = {
                 subMenuItemPath: '#/sw/settings/language/index',
                 subMenuTitle: 'Languages'
             })
-            .waitForElementVisible(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`, global.LanguageFixtureService.languageFixture.name);
+            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.languageFixture.name);
     },
     'delete language': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--2`)
-            .waitForElementVisible(page.elements.modal)
-            .assert.containsText(
-                '.sw-modal .sw-modal__body',
-                'Are you sure you want to delete the language "Philippine English"?'
-            )
+            .expect.element('.sw-modal .sw-modal__body').to.have.text.that.contains('Are you sure you want to delete the language "Philippine English"?');
+
+        browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification('Language "Philippine English" has been deleted successfully.');
     },

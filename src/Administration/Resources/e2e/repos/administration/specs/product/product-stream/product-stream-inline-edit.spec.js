@@ -10,15 +10,18 @@ module.exports = {
     },
     'navigate to product stream module': (browser) => {
         browser
-            .openMainMenuEntry('#/sw/product/index', 'Product', '#/sw/product/stream/index', 'Product streams')
-            .waitForElementVisible('.sw-button__content');
+            .openMainMenuEntry({
+                mainMenuPath: '#/sw/product/index',
+                menuTitle: 'Product',
+                index: 1,
+                subMenuItemPath: '#/sw/stream/index',
+                subMenuTitle: 'Product streams'
+            });
     },
     'inline edit product stream name and description and verify edits': (browser) => {
         const page = productStreamPage(browser);
 
-        browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .expect.element(`${page.elements.gridRow}--0 .sw-product-stream-list__column-name`).to.have.text.that.equals('1st product stream');
+        browser.expect.element(`${page.elements.gridRow}--0 .sw-product-stream-list__column-name`).to.have.text.that.equals('1st product stream');
 
         browser
             .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
@@ -28,14 +31,7 @@ module.exports = {
             .click(page.elements.gridRowInlineEdit)
             .waitForElementNotPresent('.is--inline-editing ')
             .refresh()
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left', 'Stream it')
-            .moveToElement(`${page.elements.gridRow}--0 .sw-grid-column:nth-child(3)`, 5, 5).doubleClick()
-            .waitForElementVisible(page.elements.gridRowInlineEdit)
-            .fillField('input[name=sw-field--item-description]', 'Edit the first stream', true)
-            .click(page.elements.gridRowInlineEdit)
-            .waitForElementNotPresent('.is--inline-editing ')
-            .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left:nth-child(2)', 'Stream it');
+            .expect.element('.sw-grid-column.sw-grid__cell.sw-grid-column--left').to.have.text.that.contains('Stream it');
     },
     after: (browser) => {
         browser.end();

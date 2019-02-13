@@ -21,7 +21,7 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Nordfriesisch', true)
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
@@ -31,10 +31,7 @@ module.exports = {
     'verify edited language': (browser) => {
         const page = settingsPage(browser);
 
-        browser
-            .waitForElementVisible('.sw-settings-language-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`, 'Nordfriesisch');
+        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`).to.have.text.that.contains('Nordfriesisch');
     },
     after: (browser) => {
         browser.end();

@@ -21,16 +21,16 @@ module.exports = {
     'verify snippet set to be edited': (browser) => {
         const page = settingsPage(browser);
 
-        browser
-            .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('A Set Name Snippet');
+        browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('A Set Name Snippet');
     },
     'delete snippet': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton)
-            .waitForElementVisible(page.elements.modal)
-            .assert.containsText(`${page.elements.modal} ${page.elements.modal}__body`, `Are you sure you want to delete the snippet set "${global.AdminFixtureService.basicFixture.name}"?`)
+            .expect.element(`${page.elements.modal} ${page.elements.modal}__body`).to.have.text.that.contains(`Are you sure you want to delete the snippet set "${global.AdminFixtureService.basicFixture.name}"?`);
+
+        browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification('Snippet set has been deleteced successfully.')
             .waitForElementNotPresent(page.elements.loader);
@@ -38,8 +38,7 @@ module.exports = {
     'verify deletion': (browser) => {
         const page = settingsPage(browser);
 
-        browser
-            .expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.not.equals('A Set Name Snippet');
+        browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.not.equals('A Set Name Snippet');
     },
     after: (browser) => {
         browser.end();

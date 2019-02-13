@@ -15,8 +15,7 @@ module.exports = {
                 index: 1,
                 subMenuItemPath: '#/sw/manufacturer/index',
                 subMenuTitle: 'Manufacturer'
-            })
-            .waitForElementVisible('.sw-button__content');
+            });
     },
     'inline edit manufacturer name and website and verify edits': (browser) => {
         const page = manufacturerPage(browser);
@@ -27,11 +26,9 @@ module.exports = {
             .doubleClick()
             .waitForElementPresent('.is--inline-editing ')
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'I am Groot', true)
-            .waitForElementVisible(page.elements.gridRowInlineEdit)
-            .click(page.elements.gridRowInlineEdit)
-            .waitForElementNotPresent('.is--inline-editing')
-            .waitForElementVisible('.sw-page__smart-bar-amount')
-            .assert.containsText('.sw-grid-column.sw-grid__cell.sw-grid-column--left', 'I am Groot');
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(` ${page.elements.gridRowInlineEdit}`)
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('I am Groot');
     },
     after: (browser) => {
         browser.end();

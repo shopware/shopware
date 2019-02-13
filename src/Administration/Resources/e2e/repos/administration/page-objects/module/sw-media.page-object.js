@@ -66,13 +66,12 @@ class MediaPageObject extends GeneralPageObject {
         this.browser
             .waitForElementVisible('.sw-media-index__create-folder-action')
             .click('.sw-media-index__create-folder-action')
-            .waitForElementNotPresent('.sw-empty-state__title')
             .waitForElementVisible(`${this.elements.gridItem}--0 .icon--folder-thumbnail`)
             .fillField(this.elements.folderNameInput, name)
             .setValue(this.elements.folderNameInput, this.browser.Keys.ENTER)
-            .waitForElementNotPresent('.sw-media-base-item__loader')
-            .waitForElementVisible(`${this.elements.gridItem}--${position}`)
-            .expect.element(`${this.elements.gridItem}--${position}`).to.have.text.that.contains(name);
+            .waitForElementNotPresent('.sw-media-base-item__loader');
+
+        this.browser.expect.element(`${this.elements.gridItem}--${position} .sw-media-base-item__name`).to.have.text.that.equals(name);
     }
 
     setThumbnailSize(width, height) {
@@ -89,12 +88,10 @@ class MediaPageObject extends GeneralPageObject {
                 .waitForElementVisible('.sw-media-folder-settings__add-thumbnail-size-action')
                 .waitForElementNotPresent('.sw-media-folder-settings__add-thumbnail-size-action.is--disabled')
                 .click('.sw-media-folder-settings__add-thumbnail-size-action')
-                .waitForElementVisible('.sw-media-modal-folder-settings__thumbnail-size-entry')
                 .expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals(`${width}x${height}`);
         } else {
             this.browser
                 .click('.sw-media-folder-settings__add-thumbnail-size-action')
-                .waitForElementVisible('.sw-media-modal-folder-settings__thumbnail-size-entry')
                 .expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals(`${width}x${width}`);
         }
     }

@@ -18,12 +18,10 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
-            .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)');
+            .expect.element(page.elements.productListName).to.have.text.that.contains(fixture.name);
     },
     'find product to be translated': (browser) => {
         const page = productPage(browser);
@@ -47,12 +45,12 @@ module.exports = {
         browser
             .click('.sw-select-option:last-child')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
-            .waitForElementVisible(page.elements.modal)
-            .assert.containsText(`${page.elements.modal}__body`, 'There are unsaved changes in the current language. Do you want to save them now?')
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('There are unsaved changes in the current language. Do you want to save them now?');
+
+        browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
             .checkNotification(`Product "${fixture.name}" has been saved successfully.`)
-            .waitForElementVisible('.sw-language-info')
             .expect.element('.sw-language-info').to.have.text.that.equals(`Translation of "${fixture.name}" in the root language "Deutsch". Fallback is the system default language "English".`);
 
     },
@@ -70,8 +68,6 @@ module.exports = {
 
         browser
             .click('.smart-bar__actions .sw-button__content')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)')
             .expect.element(`${page.elements.gridRow}--0 .sw-product-list__column-product-name`).to.have.text.that.equals('Echt gutes Produkt');
     },
     'change back to english and verify again': (browser) => {

@@ -10,12 +10,13 @@ module.exports = {
             .clickUserActionMenu('admin')
             .waitForElementVisible('.sw-admin-menu__profile-item')
             .click('.sw-admin-menu__profile-item')
-            .assert.containsText(page.elements.smartBarHeader, 'Your profile')
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
+
+        browser
             .fillField('input[name=sw-field--user-name]', 'Super Richie', true)
             .click(page.elements.primaryButton)
             .checkNotification('Profile information has been saved successfully.')
-            .waitForElementVisible('.sw-admin-menu__user-name')
-            .assert.containsText('.sw-admin-menu__user-name', 'Super Richie');
+            .expect.element('.sw-admin-menu__user-name').to.have.text.that.equals('Super Richie');
     },
     'log out': (browser) => {
         const page = loginPage(browser);
@@ -30,13 +31,10 @@ module.exports = {
         page.verifyLogin('Super Richie');
     },
     'verify other changed data': (browser) => {
-        const page = loginPage(browser);
-
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
             .clickUserActionMenu('Super Richie')
             .click('.sw-admin-menu__profile-item')
-            .assert.containsText(page.elements.smartBarHeader, 'Your profile')
             .expect.element('input[name=sw-field--user-name]').to.have.value.that.equals('Super Richie');
     },
     after: (browser) => {

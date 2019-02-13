@@ -33,29 +33,22 @@ module.exports = {
             .refresh()
             .waitForElementPresent(`${page.elements.gridRow}--0 .sw-manufacturer-list_column-manufacturer-name`)
             .assert.urlContains('#/sw/manufacturer/index')
-            .assert.containsText(page.elements.smartBarHeader, 'Manufacturer')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, 'MAN-U-FACTURE');
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('MAN-U-FACTURE');
     },
     'verify manufacturer details': (browser) => {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .waitForElementVisible(page.elements.contextMenu)
-            .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
+            .refresh()
+            .clickContextMenuItem('.sw-manufacturer-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-manufacturer-detail__empty-title)`)
-            .assert.containsText(page.elements.smartBarHeader, 'MAN-U-FACTURE');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('MAN-U-FACTURE');
     },
     'check if the manufacturer can be used in product': (browser) => {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')

@@ -21,9 +21,7 @@ module.exports = {
     'find rule to be deleted': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser
-            .waitForElementVisible(page.elements.columnName)
-            .assert.containsText(page.elements.columnName, global.AdminFixtureService.basicFixture.name);
+        browser.expect.element(page.elements.columnName).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete rule': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -35,10 +33,8 @@ module.exports = {
             .assert.containsText('.sw-settings-rule-list__confirm-delete-text', `Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`)
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
-            .waitForElementNotPresent(page.elements.columnName)
             .waitForElementVisible(page.elements.emptyState)
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(0)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)');
     },
     after: (browser) => {
         browser.end();

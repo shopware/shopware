@@ -18,21 +18,18 @@ module.exports = {
                 subMenuItemPath: '#/sw/integration/index',
                 subMenuTitle: 'Integrations'
             })
-            .waitForElementVisible(page.elements.listHeadline)
-            .assert.containsText(page.elements.listHeadline, 'Welcome to the integration management')
-            .waitForElementPresent(page.elements.listColumnName)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`, global.IntegrationFixtureService.integrationFixture.name);
+            .expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management');
+
+        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`).to.have.text.that.contains(global.IntegrationFixtureService.integrationFixture.name);
     },
     'edit integration': (browser) => {
         const page = integrationPage(browser);
 
         browser
-            .click(page.elements.contextMenuButton)
-            .waitForElementVisible(`body > ${page.elements.contextMenu}`)
-            .waitForElementVisible('.sw_integration_list__edit-action')
-            .click('.sw_integration_list__edit-action')
-            .waitForElementVisible(page.elements.modalTitle)
-            .assert.containsText('.sw-modal__title', 'Integration')
+            .clickContextMenuItem('.sw_integration_list__edit-action',page.elements.contextMenuButton)
+            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration');
+
+        browser
             .fillField(page.elements.integrationName, 'Once again: Edits integration', true)
             .click(page.elements.integrationSaveAction)
             .checkNotification('Integration has been saved successfully')
@@ -43,24 +40,17 @@ module.exports = {
 
         browser
             .refresh()
-            .waitForElementPresent(page.elements.listColumnName)
-            .click(page.elements.contextMenuButton)
-            .waitForElementVisible(`body > ${page.elements.contextMenu}`)
-            .waitForElementVisible('.sw_integration_list__edit-action')
-            .click('.sw_integration_list__edit-action')
-            .waitForElementVisible(page.elements.modalTitle)
-            .waitForElementVisible(page.elements.integrationName)
-            .expect.element(page.elements.integrationName).value.to.equal('Once again: Edits integration');
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw_integration_list__edit-action',page.elements.contextMenuButton)
+            .waitForElementVisible(page.elements.modalTitle);
     },
     'close modal without saving': (browser) => {
         const page = integrationPage(browser);
 
         browser
-            .waitForElementPresent(page.elements.listColumnName)
             .click(`${page.elements.modal}__close`)
             .waitForElementNotPresent(page.elements.modal)
-            .waitForElementPresent(page.elements.listColumnName)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`, 'Once again: Edits integration');
+            .expect.element(`${page.elements.listColumnName} .sw-grid__cell-content`).to.have.text.that.contains('Once again: Edits integration');
     },
     after: (browser) => {
         browser.end();

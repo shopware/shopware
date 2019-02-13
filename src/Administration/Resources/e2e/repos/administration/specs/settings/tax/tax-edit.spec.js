@@ -15,8 +15,7 @@ module.exports = {
                 index: 5,
                 subMenuItemPath: '#/sw/settings/tax/index',
                 subMenuTitle: 'Tax'
-            })
-            .waitForElementVisible('.sw-settings-tax-list-grid');
+            });
     },
     'edit tax': (browser) => {
         const page = settingsPage(browser);
@@ -24,8 +23,9 @@ module.exports = {
         browser
             .waitForElementPresent(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
             .getLocationInView(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
-            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, global.AdminFixtureService.basicFixture.name)
+            .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);
+
+        browser
             .clickContextMenuItem('.sw-tax-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate', true)
@@ -39,9 +39,7 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .waitForElementVisible('.sw-settings-tax-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, 'Even higher tax rate');
+            .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.equals('Even higher tax rate');
     },
     after: (browser) => {
         browser.end();

@@ -69,30 +69,26 @@ class SalesChannelPageObject extends GeneralPageObject {
 
     openSalesChannel(salesChannelName, position = 0) {
         this.browser
-            .waitForElementVisible(`${this.elements.salesChannelMenuName}--${position} .collapsible-text`)
-            .assert.containsText(`${this.elements.salesChannelMenuName}--${position} .collapsible-text`, salesChannelName)
-            .waitForElementVisible(`${this.elements.salesChannelMenuName}--${position}`)
+            .expect.element(`${this.elements.salesChannelMenuName}--${position}`).to.have.text.that.equals(salesChannelName);
+
+        this.browser
             .click(`${this.elements.salesChannelMenuName}--${position}`)
-            .waitForElementVisible(this.elements.smartBarHeader)
-            .assert.containsText(`${this.elements.smartBarHeader} h2`, salesChannelName);
+            .expect.element(this.elements.smartBarHeader).to.have.text.that.equals(salesChannelName);
     }
 
-    deleteSingleSalesChannel(salesChannelName) {
+    deleteSingleSalesChannel(salesChannelName, position = 0) {
         this.browser
             .waitForElementPresent(this.elements.dangerButton)
             .getLocationInView(this.elements.dangerButton)
             .waitForElementVisible(this.elements.dangerButton)
             .click(this.elements.dangerButton)
             .waitForElementVisible(this.elements.modal)
-            .assert.containsText(
-            `${this.elements.modal}__body`,
-            `Are you sure you want to delete this sales channel? ${salesChannelName}`
-        )
+            .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete this sales channel? ${salesChannelName}`);
+
+        this.browser
             .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal)
-            .getValue(this.elements.salesChannelMenuTitle, function checkValueNotPresent(result) {
-                this.assert.notEqual(result, salesChannelName);
-            });
+            .expect.element(`${this.elements.salesChannelMenuName}--${position}`).to.have.text.that.not.equals(salesChannelName);
     }
 
     checkClipboard() {
@@ -104,13 +100,13 @@ class SalesChannelPageObject extends GeneralPageObject {
             me.browser
                 .waitForElementPresent(me.elements.apiAccessKeyField)
                 .getLocationInView(me.elements.apiAccessKeyField)
-                .waitForElementVisible('.sw-field__copy-button')
-                .click('.sw-field__copy-button')
+                .waitForElementVisible('.sw-field__copy-button:nth-of-type(1)')
+                .click('.sw-field__copy-button:nth-of-type(1)')
                 .checkNotification('Text has been copied to clipboard.')
                 .getLocationInView(me.elements.salesChannelNameInput)
                 .clearValue(me.elements.salesChannelNameInput)
                 .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])
-                .expect.element(me.elements.salesChannelNameInput).value.to.equal(me.accessKeyId);
+                .expect.element(me.elements.salesChannelNameInput).value.that.equals(me.accessKeyId);
         });
     }
 
@@ -125,10 +121,10 @@ class SalesChannelPageObject extends GeneralPageObject {
                 .getLocationInView(me.elements.apiAccessKeyField)
                 .waitForElementPresent('.sw-sales-channel-detail-base__button-generate-keys')
                 .click('.sw-sales-channel-detail-base__button-generate-keys')
-                .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
-                    this.assert.notEqual(secondResult, me.accessKeyId);
-                })
-                .fillField(me.elements.salesChannelNameInput, salesChannelName, 'input', true)
+                .expect.element(me.elements.apiAccessKeyField).value.that.equals(me.newAccessKeyId);
+
+            me.browser
+                .fillField(me.elements.salesChannelNameInput, salesChannelName, true, 'input')
                 .waitForElementVisible('.sw-sales-channel-detail__save-action')
                 .click('.sw-sales-channel-detail__save-action')
                 .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
@@ -143,10 +139,7 @@ class SalesChannelPageObject extends GeneralPageObject {
 
             me.browser
                 .waitForElementPresent(me.elements.apiAccessKeyField)
-                .getValue(me.elements.apiAccessKeyField, function checkValueNotPresent(secondResult) {
-                    this.assert.notEqual(secondResult, me.accessKeyId);
-                })
-                .expect.element(me.elements.apiAccessKeyField).value.to.equal(me.newAccessKeyId);
+                .expect.element(me.elements.apiAccessKeyField).value.that.equals(me.newAccessKeyId);
         });
     }
 }

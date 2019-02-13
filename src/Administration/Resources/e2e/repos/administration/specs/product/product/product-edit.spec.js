@@ -16,12 +16,10 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
-            .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
     },
     'edit product': (browser) => {
         const page = productPage(browser);
@@ -35,11 +33,8 @@ module.exports = {
             .fillField('input[name=sw-field--product-name]', 'Geändertes, immernoch supergeiles Produkt', true)
             .fillField('.ql-editor', 'Cant you see this is a great product?', true, 'editor')
             .click(page.elements.productSaveAction)
-            .checkNotification('Product "Geändertes, immernoch supergeiles Produkt" has been saved successfully.')
-            .click('.smart-bar__actions .sw-button__content')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)');
-},
+            .checkNotification('Product "Geändertes, immernoch supergeiles Produkt" has been saved successfully.');
+    },
     after: (browser) => {
         browser.end();
     }

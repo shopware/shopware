@@ -10,9 +10,7 @@ const defaultNotificationIndex = '.sw-notifications__notification--0';
  * @returns {exports}
  */
 exports.command = function checkNotification(message, notification = defaultNotificationIndex, toBeClosed = true, type = '.sw-alert') {
-    this
-        .waitForElementVisible(notification)
-        .assert.containsText(`${notification} ${type}__message`, message);
+    this.expect.element(`${notification} ${type}__message`).to.have.text.that.contains(message);
 
     if (toBeClosed) {
         this

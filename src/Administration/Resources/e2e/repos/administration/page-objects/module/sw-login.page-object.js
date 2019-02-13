@@ -39,8 +39,7 @@ class LoginPageObject extends GeneralPageObject {
         this.browser
             .waitForElementVisible('.sw-admin-menu__logout-action')
             .click('.sw-admin-menu__logout-action')
-            .waitForElementVisible(`${this.elements.loginForm}-headline`)
-            .assert.containsText(`${this.elements.loginForm}-headline`, 'Log in to your Shopware store');
+            .expect.element(`${this.elements.loginForm}-headline`).text.that.equals('Log in to your Shopware store');
     }
 
     verifyLogin(name) {

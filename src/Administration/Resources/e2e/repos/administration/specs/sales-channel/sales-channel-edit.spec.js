@@ -17,8 +17,7 @@ module.exports = {
 
         browser
             .refresh()
-            .waitForElementVisible(`${page.elements.salesChannelMenuName}--0`)
-            .assert.containsText(`${page.elements.salesChannelMenuName}--0`, userFixture.name);
+            .expect.element(`${page.elements.salesChannelMenuName}--0`).to.have.text.that.contains(userFixture.name);
     },
     'edit name of sales channel': (browser) => {
         const page = salesChannelPage(browser);
@@ -26,8 +25,9 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.salesChannelMenuName}--0`)
             .click(`${page.elements.salesChannelMenuName}--0`)
-            .waitForElementVisible(page.elements.smartBarHeader)
-            .assert.containsText(`${page.elements.smartBarHeader} h2`, userFixture.name)
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(userFixture.name);
+
+        browser
             .fillField(page.elements.salesChannelNameInput, '2nd Epic Sales Channel at all', true)
             .waitForElementVisible(page.elements.salesChannelSaveAction)
             .click(page.elements.salesChannelSaveAction);
@@ -41,7 +41,6 @@ module.exports = {
         page.openSalesChannel('2nd Epic Sales Channel at all');
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(page.elements.salesChannelNameInput)
             .expect.element(page.elements.salesChannelNameInput).to.have.value.that.equals('2nd Epic Sales Channel at all');
     },
     after: (browser) => {

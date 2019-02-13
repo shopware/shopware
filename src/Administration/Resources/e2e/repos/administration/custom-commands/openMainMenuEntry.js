@@ -34,16 +34,17 @@ exports.command = function openMainMenuEntry(
 
         const subMenuItem = `${flyoutMenuCssSelector} ${menuLinkCssSelector}[href="${subMenuItemPath}"]`;
 
-        this.waitForElementVisible(subMenuItem)
-            .assert.containsText(subMenuItem, subMenuTitle)
-            .click(subMenuItem)
+        this.expect.element(subMenuItem).to.have.text.that.equals(subMenuTitle);
+
+        this.click(subMenuItem)
             .assert.urlContains(subMenuItemPath);
 
         return this;
     }
 
-    this.assert.containsText(mainMenuItem, menuTitle)
-        .click(mainMenuItem)
+    this.expect.element(mainMenuItem).to.have.text.that.equals(menuTitle);
+
+    this.click(mainMenuItem)
         .assert.urlContains(mainMenuPath);
 
     return this;

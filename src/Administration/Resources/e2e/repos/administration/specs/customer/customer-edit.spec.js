@@ -18,12 +18,11 @@ module.exports = {
                 menuTitle: 'Customers',
                 index: 3
             })
-            .waitForElementVisible('.smart-bar__actions a')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)')
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
+
+        browser
             .clickContextMenuItem('.sw-customer-list__view-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .waitForElementVisible(page.elements.customerMetaData)
-            .assert.containsText(`${page.elements.customerMetaData}-user-name`, 'Mr Pep Eroni');
+            .expect.element(`${page.elements.customerMetaData}-user-name`).to.have.text.that.equals('Mr Pep Eroni');
     },
     'change customer email': (browser) => {
         const page = customerPage(browser);
@@ -33,13 +32,12 @@ module.exports = {
             .click('.sw-button--small .sw-button__content .icon--small-pencil')
             .waitForElementPresent(page.elements.customerForm)
             .fillField('input[name=sw-field--customer-email]', 'test-again-and-again@example.com', true)
-            .waitForElementPresent('.smart-bar__actions button.sw-button--primary')
+            .waitForElementPresent(page.elements.customerSaveAction)
             .click(page.elements.customerSaveAction)
             .waitForElementNotPresent(`.sw-card__content .sw-customer-base-form ${page.elements.loader}`)
             .waitForElementNotPresent(`.sw-card__content .sw-customer-address-form ${page.elements.loader}`)
             .checkNotification('Customer "Mr Pep Eroni" has been saved successfully.')
-            .waitForElementVisible(page.elements.customerMetaData)
-            .assert.containsText(`${page.elements.customerMetaData}-item`, 'test-again-and-again@example.com');
+            .expect.element(`${page.elements.customerMetaData}-item`).to.have.text.that.contains('test-again-and-again@example.com');
     },
     after: (browser) => {
         browser.end();

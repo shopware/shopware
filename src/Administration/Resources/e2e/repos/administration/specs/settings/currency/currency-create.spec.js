@@ -19,7 +19,6 @@ module.exports = {
             .click('a[href="#/sw/settings/currency/create"]')
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/currency/create')
-            .assert.containsText(page.elements.cardTitle, 'Settings')
             .fillField('input[name=sw-field--currency-name]', 'Yen')
             .fillField('input[name=sw-field--currency-shortName]', 'JPY')
             .fillField('input[name=sw-field--currency-symbol]', '¥')
@@ -34,10 +33,8 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .waitForElementVisible('.sw-settings-currency-list-grid')
             .waitForElementNotPresent('.sw-alert__message')
-            .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, 'Yen');
+            .expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Yen');
     },
     after: (browser) => {
         browser.end();

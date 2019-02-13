@@ -15,6 +15,8 @@ module.exports = {
         });
     },
     'open currency module': (browser) => {
+        const page = settingsPage(browser);
+
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/settings/index',
@@ -28,7 +30,7 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Galactic Credits', true)
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-shortName]`, 'GCr', true)
@@ -41,10 +43,7 @@ module.exports = {
     'verify edited currency': (browser) => {
         const page = settingsPage(browser);
 
-        browser
-            .waitForElementVisible('.sw-settings-currency-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`, 'Galactic Credits');
+        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Galactic Credits');
     },
     after: (browser) => {
         browser.end();

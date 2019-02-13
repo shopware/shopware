@@ -4,8 +4,7 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 module.exports = {
     '@tags': ['media', 'media-usage', 'media-usage-in-manufacturer'],
     before: (browser, done) => {
-        global.ProductFixtureService.setProductFixture({
-        }).then(() => {
+        global.ProductFixtureService.setProductFixture({}).then(() => {
             done();
         });
     },
@@ -15,7 +14,7 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1,
                 subMenuItemPath: '#/sw/manufacturer/index',
                 subMenuTitle: 'Manufacturer'
@@ -43,10 +42,11 @@ module.exports = {
             .moveToElement(page.elements.mediaItem, 5, 5)
             .click(page.elements.mediaItem)
             .waitForElementNotPresent('sw-media-sidebar.no-headline')
-            .assert.containsText('.sw-media-sidebar__headline', 'sw-test-image.png')
+            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('sw-test-image.png');
+
+        browser
             .getLocationInView('.sw-media-quickinfo-usage')
-            .waitForElementVisible('.sw-media-quickinfo-usage__item')
-            .assert.containsText('.sw-media-quickinfo-usage__item', 'shopware AG');
+            .expect.element('.sw-media-quickinfo-usage__item').to.have.text.that.equals('shopware AG');
     },
     after: (browser) => {
         browser.end();

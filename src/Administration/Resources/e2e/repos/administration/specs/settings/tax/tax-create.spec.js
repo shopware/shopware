@@ -19,7 +19,6 @@ module.exports = {
             .click('a[href="#/sw/settings/tax/create"]')
             .waitForElementVisible('.sw-settings-tax-detail .sw-page__content')
             .assert.urlContains('#/sw/settings/tax/create')
-            .assert.containsText('.sw-card__title', 'Settings')
             .fillField('input[name=sw-field--tax-name]', 'High tax')
             .fillField('input[name=sw-field--tax-taxRate]', '99')
             .click(page.elements.taxSaveAction)
@@ -31,9 +30,7 @@ module.exports = {
 
         browser
             .click('a.smart-bar__back-btn')
-            .waitForElementVisible('.sw-settings-tax-list-grid')
-            .waitForElementVisible(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`)
-            .assert.containsText(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`, 'High tax');
+            .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.equals('High tax');
     },
     after: (browser) => {
         browser.end();

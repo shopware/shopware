@@ -13,27 +13,21 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1,
                 subMenuItemPath: '#/sw/manufacturer/index',
                 subMenuTitle: 'Manufacturer'
             })
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);
     },
     'open manufacturer details and change the given data': (browser) => {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .waitForElementVisible(page.elements.contextMenu)
-            .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
+            .refresh()
+            .clickContextMenuItem('.sw-manufacturer-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.smartBarHeader} h2:not(.sw-manufacturer-detail__empty-title)`)
-            .assert.containsText(page.elements.smartBarHeader, 'MAN-U-FACTURE');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('MAN-U-FACTURE');
     },
     after: (browser) => {
         browser.end();

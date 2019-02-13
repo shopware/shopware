@@ -14,11 +14,10 @@ module.exports = {
         browser
             .openMainMenuEntry({
                 mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
+                menuTitle: 'Products',
                 index: 1
             })
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(0)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(0)');
     },
     'go to create page, fill and save the new product': (browser) => {
         const page = productPage(browser);
@@ -27,7 +26,7 @@ module.exports = {
             .click('a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
-            .assert.containsText(page.elements.cardTitle, 'Information');
+            .expect.element(page.elements.cardTitle).to.have.text.that.equals('Information');
 
         page.createBasicProduct('Marci Darci');
 
@@ -47,14 +46,11 @@ module.exports = {
     },
     'upload product image ': (browser) => {
         const page = productPage(browser);
+        const mediaPageObject = mediaPage(browser);
+
         page.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, 'Marci Darci');
 
-        browser
-            .waitForElementVisible('.sw-media-preview__item')
-            .getAttribute('.sw-media-preview__item', 'src', function (result) {
-                this.assert.ok(result.value);
-                this.assert.notEqual(result.value, `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
-            });
+        browser.expect.element(mediaPageObject.elements.previewItem).to.have.attribute('src').contains('sw-login-background.png');
     },
     'go back to listing, search and verify creation': (browser) => {
         const page = productPage(browser);
@@ -64,8 +60,7 @@ module.exports = {
             .refresh()
             .waitForElementVisible('.sw-product-list__content')
             .fillGlobalSearchField('Marci Darci')
-            .waitForElementVisible(page.elements.smartBarAmount)
-            .assert.containsText(page.elements.smartBarAmount, '(1)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
     },
     'check if the data of the product is assigned correctly': (browser) => {
         const page = productPage(browser);
@@ -73,16 +68,17 @@ module.exports = {
 
         browser
             .refresh()
-            .waitForElementVisible(page.elements.productListName)
-            .assert.containsText(page.elements.productListName, 'Marci Darci')
+            .expect.element(page.elements.productListName).to.have.text.that.contains('Marci Darci');
+
+        browser
             .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .waitForElementVisible('.sw-product-detail-base')
             .waitForElementVisible(mediaPageObject.elements.previewItem)
-            .waitForElementPresent('.sw-product-category-form .sw-select__selection-item')
-            .assert.containsText('.ql-editor', 'My very first description')
+            .expect.element('.ql-editor').to.have.text.that.equals('My very first description');
+
+        browser
             .getLocationInView('.sw-select__selection-item')
-            .assert.containsText('.sw-select__selection-item', global.AdminFixtureService.basicFixture.name)
-            .click(page.elements.smartBarBack);
+            .expect.element('.sw-select__selection-item').to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);
+        browser.click(page.elements.smartBarBack);
     },
     after: (browser) => {
         browser.end();

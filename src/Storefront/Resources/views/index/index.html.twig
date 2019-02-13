@@ -58,7 +58,7 @@
     {# Set variable to "true" to enable HMR (hot module reloading) mode #}
     {% set isHMRMode = true %}
     {% if isHMRMode %}
-        <script type="text/javascript" src="http://localhost:9999/js/main.bundle.js"></script>
+        <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
     {% else %}
         <script type="text/javascript" src="{{ asset('js/main.bundle.js') }}"></script>
     {% endif %}

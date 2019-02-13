@@ -443,7 +443,8 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get('shopware.filesystem.public'),
             $this->getContainer()->get(UrlGeneratorInterface::class),
             $this->getContainer()->get(ThumbnailService::class),
-            $this->getContainer()->get(MetadataUpdater::class)
+            $this->getContainer()->get(MetadataUpdater::class),
+            $this->getContainer()->get('messenger.bus.shopware')
         );
 
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);

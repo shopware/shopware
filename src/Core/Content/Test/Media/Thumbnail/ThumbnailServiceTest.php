@@ -68,7 +68,7 @@ class ThumbnailServiceTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r'));
 
-        $this->thumbnailService->updateThumbnailsAfterUpload(
+        $this->thumbnailService->updateThumbnails(
             $media,
             $this->context
         );
@@ -111,7 +111,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPngWithFolder();
 
         $this->expectException(FileNotFoundException::class);
-        $this->thumbnailService->updateThumbnailsAfterUpload(
+        $this->thumbnailService->updateThumbnails(
             $media,
             $this->context
         );
@@ -126,7 +126,7 @@ class ThumbnailServiceTest extends TestCase
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
         $this->expectException(FileTypeNotSupportedException::class);
-        $this->thumbnailService->updateThumbnailsAfterUpload(
+        $this->thumbnailService->updateThumbnails(
             $media,
             $this->context
         );
@@ -140,7 +140,7 @@ class ThumbnailServiceTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
 
-        $this->thumbnailService->updateThumbnailsAfterUpload(
+        $this->thumbnailService->updateThumbnails(
             $media,
             $this->context
         );
@@ -224,7 +224,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPng();
         $media->setMediaType(new DocumentType());
 
-        static::assertEquals(0, $this->thumbnailService->updateThumbnailsAfterUpload(
+        static::assertEquals(0, $this->thumbnailService->updateThumbnails(
             $media,
             $this->context
         ));
@@ -236,7 +236,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPng();
         $media->getMediaType()->addFlag(ImageType::VECTOR_GRAPHIC);
 
-        static::assertEquals(0, $this->thumbnailService->updateThumbnailsAfterUpload(
+        static::assertEquals(0, $this->thumbnailService->updateThumbnails(
             $media,
             $this->context
         ));
@@ -248,14 +248,56 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPng();
         $media->getMediaType()->addFlag(ImageType::ANIMATED);
 
-        static::assertEquals(0, $this->thumbnailService->updateThumbnailsAfterUpload(
+        static::assertEquals(0, $this->thumbnailService->updateThumbnails(
             $media,
             $this->context
         ));
     }
 
-    public function updateThumbnails(): void
+    // TODO remove when NEXT-1721 is done
+    public function testUpdateThumbnailsWorkaround(): void
     {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPngWithFolder();
+
+        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
+        $this->thumbnailRepository->create([
+            [
+                'media' => ['id' => $media->getId()],
+                'width' => 987,
+                'height' => 987,
+            ],
+            [
+                'media' => ['id' => $media->getId()],
+                'width' => 150,
+                'height' => 150,
+            ],
+        ], $this->context);
+        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+
+        $this->getPublicFilesystem()->putStream(
+            $this->urlGenerator->getRelativeMediaUrl($media),
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
+        );
+
+        $this->thumbnailService->updateThumbnails($media, $this->context);
+
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        static::assertEquals(2, $media->getThumbnails()->count());
+
+        $filteredThumbnails = $media->getThumbnails()->filter(function ($thumbnail) {
+            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300) ||
+                ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
+        });
+
+        static::assertEquals(2, $filteredThumbnails->count());
+    }
+
+    public function testUpdateThumbnails(): void
+    {
+        $this->markTestIncomplete('Fails until NEXT-1721 is fixed'); // TODO Unmark when NEXT-1721 is done
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 

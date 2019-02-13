@@ -1,0 +1,54 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Migration;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Migration\MigrationStep;
+
+class Migration1536232630ConfigurationGroup extends MigrationStep
+{
+    public function getCreationTimestamp(): int
+    {
+        return 1536232630;
+    }
+
+    public function update(Connection $connection): void
+    {
+        $connection->executeQuery("
+            CREATE TABLE `configuration_group` (
+              `id` BINARY(16) NOT NULL,
+              `sorting_type` VARCHAR(50) NOT NULL DEFAULT 'alphanumeric',
+              `display_type` VARCHAR(50) NOT NULL DEFAULT 'text',
+              `position` INT(11) NOT NULL DEFAULT 0,
+              `filterable` TINYINT(1) NOT NULL DEFAULT 0,
+              `comparable` TINYINT(1) NOT NULL DEFAULT 0,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ");
+
+        $connection->executeQuery('
+            CREATE TABLE `configuration_group_translation` (
+              `configuration_group_id` BINARY(16) NOT NULL,
+              `language_id` BINARY(16) NOT NULL,
+              `name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
+              `description` LONGTEXT NULL,
+              `attributes` JSON NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
+              PRIMARY KEY (`configuration_group_id`, `language_id`),
+              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `fk.configuration_group_translation.language_id` FOREIGN KEY (`language_id`)
+                REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.configuration_group_translation.configuration_group_id` FOREIGN KEY (`configuration_group_id`)
+                REFERENCES `configuration_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ');
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
+        // implement update destructive
+    }
+}

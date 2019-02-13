@@ -1,9 +1,9 @@
 {% block sw_page %}
-    <div class="sw-page">
+    <div class="sw-page" :class="pageClasses">
         {% block sw_page_head_area %}
-            <div class="sw-page__head-area" :style="headerStyles">
+            <div class="sw-page__head-area" :style="headerStyles" v-if="showHeadArea">
                 {% block sw_page_search_bar %}
-                    <div class="sw-page__search-bar">
+                    <div class="sw-page__search-bar" v-if="showSearchBar">
                         <slot name="search-bar">
                             {% block sw_page_slot_search_bar %}
                                 <sw-search-bar></sw-search-bar>
@@ -15,7 +15,7 @@
                 {% block sw_page_smart_bar %}
                     <template v-if="showSmartBar">
                         {% block sw_page_smart_bar_divider %}
-                            <div class="sw-page__smart-bar-divider"></div>
+                            <div class="sw-page__smart-bar-divider" v-if="showSmartBar && showSearchBar"></div>
                         {% endblock %}
 
                         {% block sw_page_smart_bar_back_btn %}

@@ -54,6 +54,7 @@ class IntegrationPageObject extends GeneralPageObject {
                 })
                 .waitForElementVisible('.sw-integration-detail-modal__save-action')
                 .click('.sw-integration-detail-modal__save-action')
+                .waitForElementNotPresent(me.elements.loader)
                 .checkNotification('Integration has been saved successfully.');
         });
     }

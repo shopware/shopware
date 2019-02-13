@@ -11,7 +11,7 @@ Some tags are links and will provide you with further information.
 
 | Tag                                                                        | Required Arguments     | Usage                                                                                                   |
 |----------------------------------------------------------------------------|------------------------|--------------------------------------------------------------|
-| [shopware.extension](./#shopware.extension)                                | *none*                 | This tag lets you create a shopware event subscriber         |
+| [shopware.extension](#shopware.extension)                                | *none*                 | This tag lets you create a shopware event subscriber         |
 | [shopware.entity.definition](../20-data-abstraction-layer/1-definition.md) | *entity*               | This tag is used to make your entities system-wide available |
 | shopware.feature                                                           | *flag*                 | This tag is used internally as a feature flag for VCS        |
 

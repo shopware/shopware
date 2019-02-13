@@ -1,7 +1,7 @@
 [titleEn]: <>(Providing files for the Administration)
 [wikiUrl]: <>(../plugin-system/provide-admin-files?category=shopware-platform-en/plugin-system)
 
-Once you created an [extension for the administration](./35-extending-administration.md),
+Once you created an [extension for the administration](../10-administration/01-administration-start-development.md#create-your-first-plugin),
 whether it is a new module or by extending an existing module,
 your plugin has to provide these files to Shopware.
 Execute this command to build your files, so they could be used by Shopware.

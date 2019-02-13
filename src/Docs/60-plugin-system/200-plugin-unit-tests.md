@@ -87,7 +87,6 @@ This filtering is interesting for code coverage creation mostly.
 
 Test listeners are used to interact with tests in a special way. A test listener needs to implement the `PHPUnit\Framework\TestListenerInterface`.
 The `SymfonyTestsListener` adds the `Symfony\Bridge\PhpUnit\Legacy\SymfonyTestsListenerTrait` to your test.
-The [SpeedTrapListener](https://github.com/johnkary/phpunit-speedtrap) points out slow tests for you.
 
 ## Shopware Test Listeners
 

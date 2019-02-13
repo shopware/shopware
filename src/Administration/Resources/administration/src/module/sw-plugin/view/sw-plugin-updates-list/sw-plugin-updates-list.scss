@@ -1,21 +1,14 @@
+@import "~scss/variables";
+
 .sw-plugin-updates-list {
-    height: 100%;
 
-    .top-actions {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+    .sw-plugin-updates-list__highest-version {
+        margin-top: 4px;
+        text-align: right;
     }
 
-    .update-context {
-        .highest-version {
-            margin-top: 4px;
-            text-align: right;
-        }
-    }
 
-    .version {
-        color: #9aa7be;
+    .sw-plugin-updates-list__version {
+        color: $color-gray;
     }
 }

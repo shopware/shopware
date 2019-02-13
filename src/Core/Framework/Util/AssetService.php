@@ -71,6 +71,14 @@ class AssetService implements AssetServiceInterface
         $this->filesystem->remove($targetDirectory);
     }
 
+    public function hasPluginIcon(string $pluginName): bool
+    {
+        $bundle = $this->getBundle($pluginName);
+        $pluginIcon = $bundle->getPath() . '/Resources/public/plugin.png';
+
+        return is_file($pluginIcon);
+    }
+
     protected function getTargetDirectory(BundleInterface $bundle): string
     {
         $assetDir = preg_replace('/bundle$/', '', strtolower($bundle->getName()));

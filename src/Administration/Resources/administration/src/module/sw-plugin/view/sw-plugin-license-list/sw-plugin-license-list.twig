@@ -2,7 +2,7 @@
     <div class="sw-plugin-licenses-list">
 
         {% block sw_plugin_licenses_list_file_upload %}
-            <div class="top-actions">
+            <div class="sw-plugin-manager__top-actions">
                 <h1>{{ $tc('sw-plugin.license-list.textMyPurchases') }}</h1>
             </div>
         {% endblock %}
@@ -10,12 +10,12 @@
         {% block sw_plugin_license_list_content %}
             <sw-card :isLoading="isLoading">
                 {% block sw_plugin_license_list_grid %}
-                    <sw-grid :items="licenses"
+                    <sw-grid v-show="isLoading || total"
+                             slot="grid"
+                             :items="licenses"
                              :sortBy="sortBy"
                              :sortDirection="sortDirection"
-                             :sidebar="true"
                              :selectable="false"
-                             slot="grid"
                              @sort-column="onSortColumn"
                              table>
 
@@ -102,7 +102,7 @@
                 {% endblock %}
 
                 {% block sw_plugin_license_list_empty_state %}
-                    <sw-empty-state v-else-if="!isLoading && !total"
+                    <sw-empty-state v-if="!isLoading && !total"
                                     :title="$tc('sw-plugin.license-list.messageEmpty')">
                     </sw-empty-state>
                 {% endblock %}

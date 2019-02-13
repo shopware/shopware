@@ -1,12 +1,29 @@
-.sw-plugin-list {
-    height: 100%;
+@import "~scss/variables";
 
-    .top-actions {
-        max-width: 800px;
-        margin: 0 auto 40px auto;
+.sw-plugin-list {
+
+    .sw-plugin-list__plugin-info-container {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+        align-items: center;
+
+        img {
+            margin-right: 10px;
+            height: 32px;
+            width: 32px;
+        }
+
+        .sw-plugin-list__plugin-info {
+            display: flex;
+            flex-direction: column;
+
+            .sw-plugin-list__author-name {
+                color: $color-gray;
+                font-size: 14px;
+            }
+        }
+    }
+
+    .sw-grid-row {
         align-items: center;
     }
 

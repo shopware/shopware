@@ -25,6 +25,7 @@ class PluginController extends AbstractController
      * @var PluginLifecycleService
      */
     private $pluginLifecycleService;
+
     /**
      * @var PluginInstallerService
      */
@@ -79,7 +80,7 @@ class PluginController extends AbstractController
     {
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
-        if (null !== $plugin->getInstalledAt()) {
+        if ($plugin->getInstalledAt() !== null) {
             throw new \RuntimeException('can not delete installed plugins');
         }
 
@@ -147,6 +148,6 @@ class PluginController extends AbstractController
 
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
 
-        return new JsonResponse($plugin);
+        return new JsonResponse($pluginName);
     }
 }

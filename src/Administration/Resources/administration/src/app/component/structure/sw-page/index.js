@@ -44,6 +44,10 @@ export default {
         showSmartBar: {
             type: Boolean,
             default: true
+        },
+        showSearchBar: {
+            type: Boolean,
+            default: true
         }
     },
 
@@ -69,6 +73,16 @@ export default {
 
         hasSideContentSlot() {
             return !!this.$slots['side-content'];
+        },
+
+        showHeadArea() {
+            return this.showSearchBar || this.showSmartBar;
+        },
+
+        pageClasses() {
+            return {
+                'has--head-area': this.showHeadArea
+            };
         },
 
         pageContainerClasses() {

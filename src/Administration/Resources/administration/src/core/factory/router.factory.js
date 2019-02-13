@@ -70,24 +70,32 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         router.beforeEach((to, from, next) => {
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new RefreshTokenHelper();
+            const newTabBlacklist = ['/', '/login'];
 
             if (to.meta && to.meta.forceRoute === true) {
                 return next();
             }
 
-            // The login route will be called and the user is not logged in, let him see the login
+            // Make it possible to open routes in a new browser tab.
+            if (to.meta && to.meta.newTab === true && !newTabBlacklist.includes(from.path)) {
+                const route = router.resolve(to.path);
+                window.open(route.href, '_blank');
+                return next(false);
+            }
+
+            // The login route will be called and the user is not logged in, let him see the login.
             if ((to.name === 'login' || to.path === '/login') && !loggedIn) {
                 return next();
             }
 
-            // The login route will be called and the user is  logged in, redirect to the dashboard
+            // The login route will be called and the user is logged in, redirect to the dashboard.
             if ((to.name === 'login' || to.path === '/login') && loggedIn) {
                 return next({ name: 'core' });
             }
 
-            // User tries to access a protected route, therefore redirect him to the login
+            // User tries to access a protected route, therefore redirect him to the login.
             if (!loggedIn) {
-                // Save the last route in case the user gets logged out in the mean time
+                // Save the last route in case the user gets logged out in the mean time.
                 sessionStorage.setItem('sw-admin-previous-route', JSON.stringify({
                     fullPath: to.fullPath,
                     name: to.name
@@ -95,7 +103,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
                 if (!tokenHandler.isRefreshing) {
                     return tokenHandler.fireRefreshTokenRequest().then(() => {
-                        return getModuleInformation(to, next);
+                        return resolveRoute(to, from, next);
                     }).catch(() => {
                         return next({
                             name: 'sw.login.index'
@@ -104,21 +112,42 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 }
             }
 
-            return getModuleInformation(to, next);
+            return resolveRoute(to, from, next);
         });
 
         return router;
     }
 
     /**
-     * Fetches module information based on the route the user wants to enter. After the module information got fetched
-     * the router navigation guard hook will be resolved.
+     * Resolves the route and provides module additional information.
      *
-     * @param {Object} to
+     * @param {Route} to
+     * @param {Route} from
      * @param {Function} next
-     * @returns {Function}
+     * @return {*}
      */
-    function getModuleInformation(to, next) {
+    function resolveRoute(to, from, next) {
+        const moduleInfo = getModuleInfo(to);
+        if (moduleInfo !== null) {
+            to.meta.$module = moduleInfo.manifest;
+        }
+
+        const navigationInfo = getNavigationInfo(to, moduleInfo);
+        if (navigationInfo !== null) {
+            to.meta.$current = navigationInfo;
+        }
+
+        return next();
+    }
+
+    /**
+     * Fetches module information based on the route the user wants to enter.
+     * After the module information got fetched the router navigation guard hook will be resolved.
+     *
+     * @param {Route} to
+     * @returns {Route} to
+     */
+    function getModuleInfo(to) {
         // Provide information about the module
         const moduleRegistry = moduleFactory.getModuleRegistry();
 
@@ -131,25 +160,31 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             }
         });
 
-        if (!foundModule) {
-            return next();
+        return foundModule;
+    }
+
+    /**
+     * Add the current navigation definition to the meta data.
+     *
+     * @param {Route} to
+     * @param {Object} module
+     * @return {Object|null}
+     */
+    function getNavigationInfo(to, module) {
+        if (!module || !module.navigation) {
+            return null;
         }
 
-        // Add the current navigation definition to the meta data
-        const navigation = foundModule.navigation;
-        if (navigation) {
-            let currentNavigationEntry = {};
-            navigation.forEach((item) => {
-                if (item.path === to.name) {
-                    currentNavigationEntry = item;
-                }
-            });
+        const navigation = module.navigation;
+        let currentNavigationEntry = null;
 
-            to.meta.$current = currentNavigationEntry;
-        }
+        navigation.forEach((item) => {
+            if (item.path === to.name) {
+                currentNavigationEntry = item;
+            }
+        });
 
-        to.meta.$module = foundModule.manifest;
-        return next();
+        return currentNavigationEntry;
     }
 
     /**

@@ -14,7 +14,11 @@ $sw-page-smart-bar-headline-font-weight: 600;
     height: 100%;
     position: relative;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 1fr;
+
+    &.has--head-area {
+        grid-template-rows: auto 1fr;
+    }
 
     .sw-page__head-area {
         position: relative;

@@ -2166,11 +2166,9 @@ interface fillSwSelectComponentOptions {
 }
 
 interface openMainMenuEntryOptions {
-    mainMenuPath: string,
-    menuTitle: string,
-    index?: number
-    subMenuItemPath?: string,
-    subMenuTitle?: string
+    targetPath: string,
+    mainMenuId: string,
+    subMenuId?: string
 }
 
 export interface NightwatchCustomCommands {
@@ -2252,20 +2250,18 @@ export interface NightwatchCustomCommands {
      * Usage:
      * ```
      * .openMainMenuEntry({
-     *          mainMenuPath: '#/sw/settings/index',
-     *          menuTitle: 'Settings',
+     *          targetPath: '#/sw/settings/index',
+     *          targetTitle: 'Settings',
      *          index: 6,
-     *          subMenuItemPath: '#/sw/settings/country/index',
-     *          subMenuTitle: 'Countries'
+     *          : '#/sw/settings/country/index',
+     *          subtargetTitle: 'Countries'
      * });
      * ```
      *
      * @param {Object} obj
-     * @param {String} obj.mainMenuPath
-     * @param {String} obj.menuTitle
-     * @param {Number} obj.index
-     * @param {String} obj.subMenuItemPath
-     * @param {String} obj.subMenuTitle
+     * @param {String} obj.targetPath
+     * @param {String} obj.mainMenuId
+     * @param {String} [obj.subMenuId=null]
      */
     openMainMenuEntry(obj: openMainMenuEntryOptions): this,
 

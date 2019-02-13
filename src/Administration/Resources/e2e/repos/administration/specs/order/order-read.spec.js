@@ -14,9 +14,8 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/order/index',
-                menuTitle: 'Orders',
-                index: 2
+                targetPath: '#/sw/order/index',
+                mainMenuId: 'sw-order'
             })
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
         browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(`${global.OrderFixtureService.customerStorefrontFixture.firstName} ${global.OrderFixtureService.customerStorefrontFixture.lastName}`);

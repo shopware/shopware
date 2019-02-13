@@ -11,12 +11,10 @@ module.exports = {
     'navigate to product stream module': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/stream/index',
-                subMenuTitle: 'Product streams'
-            });
+                targetPath: '#/sw/product-stream/index',
+                mainMenuId: 'sw-product'
+            })
+            .waitForElementVisible('.sw-button__content');
     },
     'inline edit product stream name and description and verify edits': (browser) => {
         const page = productStreamPage(browser);

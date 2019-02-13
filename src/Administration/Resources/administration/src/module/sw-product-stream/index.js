@@ -41,6 +41,7 @@ Module.register('sw-product-stream', {
     navigation: [{
         path: 'sw.product.stream.index',
         label: 'sw-product-stream.general.mainMenuItemGeneral',
+        id: 'sw-product-stream',
         parent: 'sw-product',
         color: '#57D9A3'
     }]

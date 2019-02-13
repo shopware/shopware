@@ -12,11 +12,8 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Products',
-                index: 1,
-                subMenuItemPath: '#/sw/manufacturer/index',
-                subMenuTitle: 'Manufacturer'
+                targetPath: '#/sw/product/index',
+                mainMenuId: 'sw-product'
             })
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);
     },

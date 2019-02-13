@@ -10,12 +10,10 @@ module.exports = {
     'navigate to manufacturer module': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/manufacturer/index',
-                subMenuTitle: 'Manufacturer'
-            });
+                targetPath: '#/sw/product/index',
+                mainMenuId: 'sw-product'
+            })
+            .waitForElementVisible('.sw-button__content');
     },
     'inline edit manufacturer name and website and verify edits': (browser) => {
         const page = manufacturerPage(browser);

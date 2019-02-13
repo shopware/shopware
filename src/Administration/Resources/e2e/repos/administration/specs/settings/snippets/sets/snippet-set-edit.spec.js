@@ -11,11 +11,9 @@ module.exports = {
     'open snippet module': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/snippets/index',
-                subMenuTitle: 'Snippets'
+                targetPath: '#/sw/settings/snippet/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-snippets'
             });
     },
     'verify snippet set to be edited': (browser) => {

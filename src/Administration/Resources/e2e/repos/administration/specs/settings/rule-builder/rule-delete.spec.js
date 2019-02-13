@@ -11,11 +11,9 @@ module.exports = {
     'navigate to rule index': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/rule/index',
-                subMenuTitle: 'Rules'
+                targetPath: '#/sw/settings/rule/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-country'
             });
     },
     'find rule to be deleted': (browser) => {

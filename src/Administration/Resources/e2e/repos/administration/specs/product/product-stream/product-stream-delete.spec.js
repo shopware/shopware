@@ -11,11 +11,8 @@ module.exports = {
     'navigate to product stream module': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/stream/index',
-                subMenuTitle: 'Product streams'
+                targetPath: '#/sw/product-stream/index',
+                mainMenuId: 'sw-product'
             });
     },
     'check if new product stream exists in overview': (browser) => {
@@ -45,13 +42,12 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/stream/index',
-                subMenuTitle: 'Product streams'
+                targetPath: '#/sw/product-stream/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-product-stream'
             })
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
+            .waitForElementVisible(page.elements.smartBarAmount)
+            .assert.containsText(page.elements.smartBarAmount, '(1)');
 
         page.deleteProductStream(global.AdminFixtureService.basicFixture.name);
 

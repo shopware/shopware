@@ -1,51 +1,30 @@
-const menuLinkCssSelector = '.sw-admin-menu__navigation-link';
-let menuCssSelector = '.sw-admin-menu__item--';
-const flyoutMenuCssSelector = '.sw-admin-menu__flyout';
+let mainMenuCssSelector = '.sw-admin-menu__item--';
+const flyoutMenuCssSelector = '.sw-admin-menu__flyout-item--';
+
 
 /**
  * Finds and opens a main menu entry in the Shopware Administration menu. It is possible to provide a sub menu item name
  * to open sub menu entries.
  *
  * @param {Object} obj
- * @param {String} obj.mainMenuPath
- * @param {String} obj.menuTitle
- * @param {String} obj.subMenuItemPath
- * @param {String} obj.subMenuTitle
- * @param {Int} obj.index
- * @param {String} menuTitle
+ * @param {String} obj.targetPath
+ * @param {String} obj.mainMenuId
+ * @param {String} obj.subMenuId
 
  * @returns {exports}
  */
 exports.command = function openMainMenuEntry(
-    {mainMenuPath, menuTitle, index = null, subMenuItemPath = null, subMenuTitle = null}
+    {targetPath, mainMenuId, subMenuId = null}
 ) {
-    let mainMenuItem = `${menuLinkCssSelector}[href="${mainMenuPath}"]`;
-
-    if (index !== null) {
-        mainMenuItem = `${menuCssSelector}${index} > ${menuLinkCssSelector}[href="${mainMenuPath}"]`;
-    }
-
-    this.waitForElementVisible(mainMenuItem);
+    let finalMenuItem = `${mainMenuCssSelector}${mainMenuId}`;
+    this.waitForElementVisible(finalMenuItem);
 
     // We're dealing with a sub menu entry, so we have to find and click it
-    if (subMenuItemPath) {
-        this.moveToElement(mainMenuItem, 5, 5);
-        this.waitForElementVisible(flyoutMenuCssSelector);
-
-        const subMenuItem = `${flyoutMenuCssSelector} ${menuLinkCssSelector}[href="${subMenuItemPath}"]`;
-
-        this.expect.element(subMenuItem).to.have.text.that.equals(subMenuTitle);
-
-        this.click(subMenuItem)
-            .assert.urlContains(subMenuItemPath);
-
-        return this;
+    if (subMenuId) {
+        this.moveToElement(`${mainMenuCssSelector}${mainMenuId}`, 5, 5);
+        finalMenuItem = `${flyoutMenuCssSelector}${subMenuId}`;
     }
-
-    this.expect.element(mainMenuItem).to.have.text.that.equals(menuTitle);
-
-    this.click(mainMenuItem)
-        .assert.urlContains(mainMenuPath);
+    this.click(finalMenuItem).assert.urlContains(targetPath);
 
     return this;
 };

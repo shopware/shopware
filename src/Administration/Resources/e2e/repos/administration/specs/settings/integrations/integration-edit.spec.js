@@ -12,11 +12,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/integration/index',
-                subMenuTitle: 'Integrations'
+                targetPath: '#/sw/integration/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-integration'
             })
             .expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management');
 

@@ -12,11 +12,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/country/index',
-                subMenuTitle: 'Countries'
+                targetPath: '#/sw/settings/country/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-country'
             })
             .waitForElementNotPresent(`${page.elements.alert}__message`)
             .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);

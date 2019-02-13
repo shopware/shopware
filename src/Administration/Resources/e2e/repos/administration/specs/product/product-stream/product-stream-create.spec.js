@@ -6,12 +6,11 @@ module.exports = {
     'navigate to product stream and click on add product stream': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/stream/index',
-                subMenuTitle: 'Product streams'
-            });
+                targetPath: '#/sw/product-stream/index',
+                mainMenuId: 'sw-product'
+            })
+            .waitForElementPresent('.sw-button__content')
+            .click('.sw-button__content');
     },
     'create new product stream with basic condition': (browser) => {
         const page = productStreamPage(browser);

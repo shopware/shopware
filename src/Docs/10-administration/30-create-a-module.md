@@ -79,8 +79,12 @@ __module syntax:__
   - for future purpose.
 - `color`:
   - We're having a colour-coded routing system in place, so that modules for a certain section getting a defined colour. Either a 3 or 6 character long colour hex code is valid.
-- `icon`
+- `icon`:
   - Name of an icon from the shopware svg icon file, without the `icon--` prefix.
+- `routePrefixName`:
+  - Custom prefix name for the router. Default value: `developer.modulename`.
+- `routePrefixPath`:
+  - Custom prefix path for the router. Default value: `developer/modulename`.
   
 Make sure to import the module in `main.js`:
 ```js

@@ -54,9 +54,9 @@ class DeleteNotUsedMediaService
         $iterator = new RepositoryIterator($this->defaultFolderRepo, $context);
         while ($defaultFolders = $iterator->fetch()) {
             foreach ($defaultFolders as $defaultFolder) {
-                foreach ($defaultFolder->getAssociations() as $association) {
+                foreach ($defaultFolder->getAssociationFields() as $associationField) {
                     $criteria->addFilter(
-                        new EqualsFilter("media.${association}.id", null)
+                        new EqualsFilter("media.${associationField}.id", null)
                     );
                 }
             }

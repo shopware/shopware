@@ -281,6 +281,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $definition['required'] = $required;
         }
 
+        if ($jsonField->is(ReadOnly::class)) {
+            $definition['readOnly'] = true;
+        }
+
         return $definition;
     }
 

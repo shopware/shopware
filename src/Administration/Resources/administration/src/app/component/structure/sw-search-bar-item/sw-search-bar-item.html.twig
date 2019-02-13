@@ -45,6 +45,28 @@
             </router-link>
         {% endblock %}
 
+        {% block sw_search_bar_item_category %}
+            <router-link v-else-if="item.type === 'category'"
+                         class="sw-search-bar-item__link"
+                         :to="{ name: 'sw.category.detail', params: { id: item.entity.id } }">
+                {% block sw_search_bar_item_category_icon %}
+                    <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
+                {% endblock %}
+
+                {% block sw_search_bar_item_category_label %}
+                    <span class="sw-search-bar-item__label">
+                        {{ item.entity.name }}
+                    </span>
+                {% endblock %}
+
+                {% block sw_search_bar_item_category_type %}
+                    <span class="sw-search-bar-item__type">
+                        {{ $tc('global.sw-search-bar-item.typeLabelCategory') }}
+                    </span>
+                {% endblock %}
+            </router-link>
+        {% endblock %}
+
         {% block sw_search_bar_item_order %}
             <router-link v-else-if="item.type === 'order'"
                          class="sw-search-bar-item__link"

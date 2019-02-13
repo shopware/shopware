@@ -445,7 +445,25 @@
   },
   "sw-tree": {
     "general": {
-      "placeholderSearch": "Suche"
+      "placeholderSearch": "Suche",
+      "treeHeadSelected": "{count} selektiert",
+      "treeHeadline": "Baumstruktur",
+      "buttonCreate": "Element erstellen",
+      "actions": {
+        "createSub": "Neues Unterlement",
+        "createBefore": "Neues Element davor",
+        "createAfter": "Neues Element danach",
+        "edit": "Bearbeiten",
+        "actionsDisabledInLanguage": "Elemente können nur in der Standardsprache erstellt werden",
+        "delete": "Löschen"
+      }
+    },
+    "modal": {
+      "modalTitleDelete": "Element löschen",
+      "textDeleteConfirm": "Möchtest Du das Element \"{name}\" wirklich löschen?",
+      "textDeleteMultipleConfirm": "Möchtest Du die \"{count}\" gewählten Elemente wirklich löschen?",
+      "buttonDelete": "Löschen",
+      "buttonCancel": "Abbrechen"
     }
   },
   "sw-error": {

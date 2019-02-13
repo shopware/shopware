@@ -30,6 +30,10 @@ export default {
             type: String,
             required: false,
             default: ''
+        },
+        entityService: {
+            type: Object,
+            required: false
         }
     },
 
@@ -141,7 +145,9 @@ export default {
         },
 
         onSearchTermChange() {
-            if (this.useTypeSearch) {
+            if (this.entityService) {
+                this.doListSearchWithContainer();
+            } else if (this.useTypeSearch) {
                 this.doListSearch();
             } else {
                 this.doGlobalSearch();
@@ -165,6 +171,19 @@ export default {
             this.$emit('search', searchTerm);
         }, 400),
 
+        doListSearchWithContainer: utils.debounce(function debouncedSearch() {
+            const searchTerm = this.searchTerm.trim();
+            this.$emit('search', searchTerm);
+            if (searchTerm && searchTerm.length > 0) {
+                this.loadSingleEntityResults(searchTerm);
+                window.addEventListener('click', this.clearSearchTerm, {
+                    once: true
+                });
+            } else {
+                this.showResultsContainer = false;
+            }
+        }, 400),
+
         doGlobalSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
             this.isLoading = true;
@@ -183,6 +202,22 @@ export default {
             this.results = [];
             this.searchService.search({ term: searchTerm }).then((response) => {
                 this.results = response.data;
+                this.isLoading = false;
+            });
+            this.showResultsContainer = true;
+        },
+
+        loadSingleEntityResults(searchTerm) {
+            this.isLoading = true;
+            const params = {
+                limit: 50,
+                term: searchTerm
+            };
+            this.results = [];
+            this.entityService.getList(params).then((response) => {
+                response.items.forEach((item) => {
+                    this.results.push({ entity: item, type: item.type });
+                });
                 this.isLoading = false;
             });
             this.showResultsContainer = true;

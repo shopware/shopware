@@ -6,6 +6,10 @@
     width: 100%;
     overflow: hidden;
 
+    &.sw-desktop--no-nav {
+        grid-template-columns: 1fr;
+    }
+
     @media screen and (max-width: 500px) {
         display: block;
 

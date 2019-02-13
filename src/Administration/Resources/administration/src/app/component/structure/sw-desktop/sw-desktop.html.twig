@@ -1,8 +1,8 @@
 {% block sw_desktop %}
-    <div class="sw-desktop">
+    <div class="sw-desktop" :class="desktopClasses">
 
         {% block sw_desktop_sidebar %}
-            <sw-admin-menu></sw-admin-menu>
+            <sw-admin-menu v-if="!noNavigation"></sw-admin-menu>
         {% endblock %}
 
         {% block sw_desktop_content %}

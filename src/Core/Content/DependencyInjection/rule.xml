@@ -20,6 +20,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
 
+            <tag name="kernel.event_subscriber"/>
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
@@ -33,6 +34,8 @@
         </service>
 
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

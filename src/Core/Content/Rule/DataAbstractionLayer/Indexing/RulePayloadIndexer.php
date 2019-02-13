@@ -11,15 +11,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
@@ -87,7 +87,11 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            '/** TODO **/' => 'refreshPlugin',
+            PluginPostInstallEvent::NAME => 'refreshPlugin',
+            PluginPostActivateEvent::NAME => 'refreshPlugin',
+            PluginPostUpdateEvent::NAME => 'refreshPlugin',
+            PluginPostDeactivateEvent::NAME => 'refreshPlugin',
+            PluginPostUninstallEvent::NAME => 'refreshPlugin',
         ];
     }
 
@@ -122,33 +126,18 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $this->update($ids);
     }
 
-    public function refreshPlugin(Context $context): void
+    public function refreshPlugin(): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_OR, [
-                    new NotFilter(
-                        NotFilter::CONNECTION_AND,
-                        [new EqualsAnyFilter('rule.conditions.type', $this->ruleConditionRegistry->getNames())]
-                    ),
-                    new EqualsFilter('rule.invalid', true),
-                ]
-            )
-        );
+        // Delete the payload and invalid flag of all rules
+        $this->connection->update('rule', ['payload' => null, 'invalid' => 0], [1 => 1]);
 
-        $this->update($this->ruleRepository->searchIds($criteria, $context)->getIds());
+        $this->clearCache();
     }
 
-    private function createIterator(Context $context): RepositoryIterator
-    {
-        return new RepositoryIterator($this->ruleRepository, $context);
-    }
-
-    private function update(array $ids): void
+    public function update(array $ids): array
     {
         if (empty($ids)) {
-            return;
+            return [];
         }
 
         $bytes = array_values(array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids));
@@ -162,6 +151,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $rules = FetchModeHelper::group($conditions);
 
         $tags = [];
+        $updated = [];
         foreach ($rules as $id => $rule) {
             $invalid = false;
             $serialized = null;
@@ -186,10 +176,28 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
                     ->setParameter('serialize', $serialized)
                     ->setParameter('invalid', (int) $invalid)
                     ->execute();
+
+                $updated[Uuid::fromBytesToHex($id)] = ['payload' => $serialized, 'invalid' => $invalid];
             }
         }
 
         $this->cache->invalidateTags($tags);
+
+        return $updated;
+    }
+
+    private function createIterator(Context $context): RepositoryIterator
+    {
+        return new RepositoryIterator($this->ruleRepository, $context);
+    }
+
+    private function clearCache(): void
+    {
+        if (!$this->cache->hasItem('rules_key')) {
+            return;
+        }
+
+        $this->cache->deleteItem('rules_key');
     }
 
     private function buildNested(array $rules, ?string $parentId): array

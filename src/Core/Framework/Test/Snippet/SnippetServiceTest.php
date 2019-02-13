@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_A
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e1;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e2;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_de;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_en;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -33,18 +35,26 @@ class SnippetServiceTest extends TestCase
         AssertArraySubsetBehaviour;
 
     /**
-     * @param MessageCatalogueInterface $catalog
-     * @param Context                   $context
-     * @param array                     $expectedResult
-     *
      * @dataProvider dataProviderForTestGetStoreFrontSnippets
      */
     public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
     {
-        $service = $this->getSnippetService();
+        $collection = new SnippetFileCollection();
+        $collection->add(new SnippetFile_de());
+        $collection->add(new SnippetFile_en());
+
+        $service = new SnippetService(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(SnippetFlattener::class),
+            $collection,
+            $this->getContainer()->get('snippet.repository'),
+            $this->getContainer()->get('snippet_set.repository'),
+            $this->getContainer()->get(SnippetFilterFactory::class)
+        );
+
         $result = $service->getStorefrontSnippets($catalog, Defaults::SNIPPET_BASE_SET_EN);
 
-        $this->assertEquals($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function dataProviderForTestGetStoreFrontSnippets(): array
@@ -205,7 +215,7 @@ class SnippetServiceTest extends TestCase
         $result = ReflectionHelper::getMethod(SnippetService::class, 'sortSnippets')
             ->invokeArgs($service, [$sortParams, $snippets]);
 
-        $this->assertSame($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function dataProviderForTestSortSnippets()
@@ -257,7 +267,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $service->getList($params['page'], $params['limit'], $context, $params['filter'], $params['sort']);
 
-        $this->assertSame($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function dataProviderForTestGetList(): array
@@ -319,7 +329,7 @@ class SnippetServiceTest extends TestCase
 
         $result = $service->getList(0, 25, new Context(new SourceContext()), [], []);
 
-        $this->assertSame(['total' => 0, 'data' => []], $result);
+        static::assertSame(['total' => 0, 'data' => []], $result);
     }
 
     private function getSnippetService(array $snippetFiles = []): SnippetService

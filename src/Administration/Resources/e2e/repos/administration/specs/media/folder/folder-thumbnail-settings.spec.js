@@ -81,7 +81,7 @@ module.exports = {
 
         browser
             .assert.containsText('.sw-media-modal-folder-settings__thumbnail-size-entry label', '1920x1080')
-            .expect.element('input[name=thumbnail-size-active]').to.be.selected.before(browser.globals.waitForConditionTimeout);
+            .expect.element('input[name=thumbnail-size-active]').to.be.selected;
     },
     'deactivate inheritance': (browser) => {
         const page = mediaPage(browser);
@@ -122,7 +122,7 @@ module.exports = {
         browser.expect.element('input[name=sw-field--configuration-thumbnailQuality]').to.have.value.that.equals('90');
 
         browser.expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals('1920x1080');
-        browser.expect.element('input[name=thumbnail-size-active]').to.be.selected.before(browser.globals.waitForConditionTimeout);
+        browser.expect.element('input[name=thumbnail-size-active]').to.be.selected;
     },
     after: (browser) => {
         browser.end();

@@ -31,7 +31,7 @@ module.exports = {
     'verify edited language': (browser) => {
         const page = settingsPage(browser);
 
-        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`).to.have.text.that.contains('Nordfriesisch').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.languageColumnName}`).to.have.text.that.contains('Nordfriesisch');
     },
     after: (browser) => {
         browser.end();

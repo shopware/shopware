@@ -60,7 +60,7 @@ module.exports = {
             .refresh()
             .waitForElementVisible('.sw-product-list__content')
             .fillGlobalSearchField('Marci Darci')
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
     },
     'check if the data of the product is assigned correctly': (browser) => {
         const page = productPage(browser);
@@ -68,7 +68,7 @@ module.exports = {
 
         browser
             .refresh()
-            .expect.element(page.elements.productListName).to.have.text.that.contains('Marci Darci').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.productListName).to.have.text.that.contains('Marci Darci');
 
         browser
             .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)

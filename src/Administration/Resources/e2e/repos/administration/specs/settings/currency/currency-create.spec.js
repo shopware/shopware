@@ -34,7 +34,7 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .waitForElementNotPresent('.sw-alert__message')
-            .expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Yen').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Yen');
     },
     after: (browser) => {
         browser.end();

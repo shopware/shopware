@@ -42,20 +42,22 @@ class IntegrationPageObject extends GeneralPageObject {
     changeApiCredentials() {
         const me = this;
 
+        this.browser
+            .waitForElementPresent('.sw-button--danger')
+            .click('.sw-button--danger');
+
         this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
-            me.accessKeyId = result.value;
-
-            me.browser
-                .waitForElementPresent('.sw-button--danger')
-                .click('.sw-button--danger')
-                .expect.element(me.elements.apiAccessKeyField).value.that.not.equals(me.accessKeyId);
-
-            me.browser
-                .waitForElementVisible('.sw-integration-detail-modal__save-action')
-                .click('.sw-integration-detail-modal__save-action')
-                .waitForElementNotPresent(me.elements.loader)
-                .checkNotification('Integration has been saved successfully.');
+            me.newAccessKeyId = result.value;
         });
+        this.newAccessKeyId = me.newAccessKeyId;
+
+        this.browser
+            .waitForElementNotPresent(me.elements.loader)
+            .expect.element(this.elements.integrationSaveAction).to.be.enabled;
+
+        this.browser
+            .click(this.elements.integrationSaveAction)
+            .checkNotification('Integration has been saved successfully.');
     }
 
     verifyChangedApiCredentials() {

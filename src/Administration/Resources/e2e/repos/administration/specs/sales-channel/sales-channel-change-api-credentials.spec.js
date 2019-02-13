@@ -17,7 +17,7 @@ module.exports = {
 
         browser
             .refresh()
-            .expect.element(`${page.elements.salesChannelMenuName}--0 .collapsible-text`).to.have.text.that.contains(fixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.salesChannelMenuName}--0 .collapsible-text`).to.have.text.that.contains(fixture.name);
     },
     'edit api credentials': (browser) => {
         const page = salesChannelPage(browser);

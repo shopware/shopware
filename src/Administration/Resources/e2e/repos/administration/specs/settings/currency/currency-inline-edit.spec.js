@@ -43,7 +43,7 @@ module.exports = {
     'verify edited currency': (browser) => {
         const page = settingsPage(browser);
 
-        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Galactic Credits').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Galactic Credits');
     },
     after: (browser) => {
         browser.end();

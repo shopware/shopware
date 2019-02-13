@@ -19,7 +19,7 @@ module.exports = {
         browser
             .click('a[href="#/sw/customer/create"]')
             .assert.urlContains('#/sw/customer/create')
-            .expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.equals('Account').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.equals('Account');
 
         browser
             .fillField('input[name=sw-field--customer-salutation]', 'Mr')
@@ -73,8 +73,8 @@ module.exports = {
             .waitForElementVisible('.sw-customer-list__content')
             .fillGlobalSearchField('Pep Eroni')
             .refresh()
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)').before(browser.globals.waitForConditionTimeout);
-        browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
+        browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni');
     },
     after: (browser) => {
         browser.end();

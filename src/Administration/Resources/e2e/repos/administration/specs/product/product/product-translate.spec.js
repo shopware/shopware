@@ -21,7 +21,7 @@ module.exports = {
                 menuTitle: 'Products',
                 index: 1
             })
-            .expect.element(page.elements.productListName).to.have.text.that.contains(fixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.productListName).to.have.text.that.contains(fixture.name);
     },
     'find product to be translated': (browser) => {
         const page = productPage(browser);
@@ -45,13 +45,13 @@ module.exports = {
         browser
             .click('.sw-select-option:last-child')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
-            .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('There are unsaved changes in the current language. Do you want to save them now?').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('There are unsaved changes in the current language. Do you want to save them now?');
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
             .checkNotification(`Product "${fixture.name}" has been saved successfully.`)
-            .expect.element('.sw-language-info').to.have.text.that.equals(`Translation of "${fixture.name}" in the root language "Deutsch". Fallback is the system default language "English".`).before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-language-info').to.have.text.that.equals(`Translation of "${fixture.name}" in the root language "Deutsch". Fallback is the system default language "English".`);
 
     },
     'translate some information to german': (browser) => {

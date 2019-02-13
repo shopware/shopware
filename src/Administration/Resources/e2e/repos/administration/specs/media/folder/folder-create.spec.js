@@ -17,7 +17,7 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
-            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'navigate back and go in with a click': (browser) => {
         const page = mediaPage(browser);
@@ -25,10 +25,10 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-media-index__parent-folder')
             .click('.sw-media-index__parent-folder')
-            .expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
         browser
             .click('.sw-media-folder-item')
-            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'upload image to folder': (browser) => {
         const page = mediaPage(browser);
@@ -55,7 +55,7 @@ module.exports = {
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .waitForElementVisible('.sw-sidebar-navigation-item')
             .click('.sw-sidebar-navigation-item')
-            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     after: (browser) => {
         browser.end();

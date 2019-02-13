@@ -21,7 +21,7 @@ module.exports = {
     'find rule to be deleted': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.expect.element(page.elements.columnName).to.have.text.that.contains(global.FixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(page.elements.columnName).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete rule': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -34,7 +34,7 @@ module.exports = {
             .click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementVisible(page.elements.emptyState)
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)');
     },
     after: (browser) => {
         browser.end();

@@ -19,7 +19,7 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'navigate back and edit folder name via context menu': (browser) => {
         const page = mediaPage(browser);
@@ -39,7 +39,7 @@ module.exports = {
     'verify changed folder name': (browser) => {
         const page = mediaPage(browser);
 
-        browser.expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith gets a new name').before(browser.globals.waitForConditionTimeout).before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith gets a new name');
     },
     'edit folder name via settings modal': (browser) => {
         const page = mediaPage(browser);
@@ -54,7 +54,7 @@ module.exports = {
     'verify changed folder name again': (browser) => {
         const page = mediaPage(browser);
 
-        browser.expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith Finch').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(page.elements.folderNameLabel).to.have.text.that.equals('Edith Finch');
     },
     'edit folder name via sidebar': (browser) => {
         const page = mediaPage(browser);
@@ -62,7 +62,7 @@ module.exports = {
         browser
             .waitForElementVisible(page.elements.baseItem)
             .click(page.elements.baseItem)
-            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Edith Finch').before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Edith Finch');
 
         browser
             .fillField('input[name=sw-field--draft]', 'What remains of Ediths Name', true)
@@ -75,7 +75,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-media-index__parent-folder')
             .click('.sw-media-index__parent-folder')
-            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('What remains of Ediths Name').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('What remains of Ediths Name');
     },
     after: (browser) => {
         browser.end();

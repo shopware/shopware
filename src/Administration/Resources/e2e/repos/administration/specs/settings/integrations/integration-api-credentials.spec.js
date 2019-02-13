@@ -22,14 +22,14 @@ module.exports = {
 
         browser
             .assert.urlContains('#/sw/integration/index')
-            .expect.element(`${page.elements.listColumnName} .sw-grid__cell-content`).to.have.text.that.contains(global.IntegrationFixtureService.integrationFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.listColumnName} .sw-grid__cell-content`).to.have.text.that.contains(global.IntegrationFixtureService.integrationFixture.name);
     },
     'check the clipboard': (browser) => {
         const page = integrationPage(browser);
 
         browser
             .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
-            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration');
 
         page.checkClipboard();
     },
@@ -38,7 +38,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
-            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.modalTitle).to.have.text.that.contains('Integration');
 
         page.changeApiCredentials();
     },

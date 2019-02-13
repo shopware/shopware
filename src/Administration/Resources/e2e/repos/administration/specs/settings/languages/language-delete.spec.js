@@ -25,7 +25,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--2`)
-            .expect.element('.sw-modal .sw-modal__body').to.have.text.that.contains('Are you sure you want to delete the language "Philippine English"?').before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-modal .sw-modal__body').to.have.text.that.contains('Are you sure you want to delete the language "Philippine English"?');
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

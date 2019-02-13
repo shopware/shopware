@@ -24,7 +24,7 @@ module.exports = {
             .click(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .waitForElementVisible('.quickaction--settings')
             .click('.quickaction--settings')
-            .expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('Products for the good').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('Products for the good');
     },
     'set as default for products': (browser) => {
         const page = mediaPage(browser);
@@ -41,7 +41,7 @@ module.exports = {
                     searchTerm: 'Product Media'
                 }
             )
-            .expect.element('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection').to.have.text.that.equals('Product Media').before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-media-folder-settings-modal__default-folder-select .sw-select__single-selection').to.have.text.that.equals('Product Media');
 
         browser
             .waitForElementNotPresent('.sw-select__results')
@@ -60,7 +60,7 @@ module.exports = {
                 index: 1
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
-            .expect.element('.sw-product-list__column-product-name').to.have.text.that.equals(global.ProductFixtureService.productFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-product-list__column-product-name').to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
 
         browser
             .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton)

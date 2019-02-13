@@ -33,7 +33,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementNotPresent(page.elements.loader);
 
-        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch')
         browser
             .click('.sw-select-option:last-child')
             .waitForElementNotPresent('.sw-field__select-load-placeholder');

@@ -85,7 +85,7 @@
                                         {% block sw_integration_list_detail_modal_inner_footer %}
                                             <template slot="modal-footer">
                                                 {% block sw_integration_list_detail_modal_inner_footer_cancel %}
-                                                    <sw-button size="small" @click="onCloseDetailModal">
+                                                    <sw-button size="small" @click="onCloseDetailModal" :disabled="isModalLoading">
                                                         {{ $tc('sw-integration.detail.buttonCancel') }}
                                                     </sw-button>
                                                 {% endblock %}
@@ -94,7 +94,8 @@
                                                     <sw-button size="small"
                                                                class="sw-integration-detail-modal__save-action"
                                                                variant="primary"
-                                                               @click="onSaveIntegration">
+                                                               @click="onSaveIntegration"
+                                                               :disabled="isModalLoading">
                                                         {{ $tc('sw-integration.detail.buttonApply') }}
                                                     </sw-button>
                                                 {% endblock %}

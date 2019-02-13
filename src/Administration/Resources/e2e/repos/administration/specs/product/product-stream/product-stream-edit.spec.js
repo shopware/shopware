@@ -19,7 +19,7 @@ module.exports = {
                 subMenuItemPath: '#/sw/stream/index',
                 subMenuTitle: 'Product streams'
             })
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.FixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'open product stream details and change the given data': (browser) => {
         const page = productStreamPage(browser);
@@ -30,7 +30,7 @@ module.exports = {
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('1st product stream').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('1st product stream');
 
         browser
             .fillField('input[name=sw-field--productStream-name]', 'Edited product stream', true)
@@ -51,7 +51,7 @@ module.exports = {
                 subMenuTitle: 'Product streams'
             })
             .refresh()
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Edited product stream').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Edited product stream');
         browser.assert.urlContains('#/sw/product/stream/index')
     },
     after: (browser) => {

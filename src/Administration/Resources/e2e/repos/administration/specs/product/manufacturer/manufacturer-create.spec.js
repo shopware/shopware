@@ -33,7 +33,7 @@ module.exports = {
             .refresh()
             .waitForElementPresent(`${page.elements.gridRow}--0 .sw-manufacturer-list_column-manufacturer-name`)
             .assert.urlContains('#/sw/manufacturer/index')
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('MAN-U-FACTURE').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('MAN-U-FACTURE');
     },
     'verify manufacturer details': (browser) => {
         const page = manufacturerPage(browser);
@@ -42,7 +42,7 @@ module.exports = {
             .refresh()
             .clickContextMenuItem('.sw-manufacturer-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('MAN-U-FACTURE').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('MAN-U-FACTURE');
     },
     'check if the manufacturer can be used in product': (browser) => {
         browser

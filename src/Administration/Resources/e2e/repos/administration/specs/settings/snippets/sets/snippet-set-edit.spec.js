@@ -28,7 +28,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton)
-            .expect.element(`${page.elements.modal} ${page.elements.modal}__body`).to.have.text.that.contains(`Are you sure you want to delete the snippet set "${global.FixtureService.basicFixture.name}"?`).before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.modal} ${page.elements.modal}__body`).to.have.text.that.contains(`Are you sure you want to delete the snippet set "${global.AdminFixtureService.basicFixture.name}"?`);
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)

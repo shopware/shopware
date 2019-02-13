@@ -21,14 +21,14 @@ module.exports = {
     'find rule to be edited': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.expect.element(page.elements.columnName).to.have.text.that.contains(global.FixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(page.elements.columnName).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'edit rule and add conditions': (browser) => {
         const page = ruleBuilderPage(browser);
 
         browser
             .clickContextMenuItem('.sw-rule-list__rule-edit-action', '.sw-context-button__button')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.FixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
         page.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
 
@@ -44,7 +44,7 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.columnName).to.have.text.that.contains('Ediths rule').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.columnName).to.have.text.that.contains('Ediths rule');
     },
     after: (browser) => {
         browser.end();

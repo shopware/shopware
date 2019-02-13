@@ -46,7 +46,7 @@ module.exports = {
 
         browser
             .getLocationInView('.sw-media-quickinfo-usage')
-            .expect.element('.sw-media-quickinfo-usage__item').to.have.text.that.equals('shopware AG').before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-media-quickinfo-usage__item').to.have.text.that.equals('shopware AG');
     },
     after: (browser) => {
         browser.end();

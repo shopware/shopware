@@ -10,13 +10,13 @@ module.exports = {
             .clickUserActionMenu('admin')
             .waitForElementVisible('.sw-admin-menu__profile-item')
             .click('.sw-admin-menu__profile-item')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
 
         browser
             .fillField('input[name=sw-field--user-name]', 'Super Richie', true)
             .click(page.elements.primaryButton)
             .checkNotification('Profile information has been saved successfully.')
-            .expect.element('.sw-admin-menu__user-name').to.have.text.that.equals('Super Richie').before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-admin-menu__user-name').to.have.text.that.equals('Super Richie');
     },
     'log out': (browser) => {
         const page = loginPage(browser);
@@ -35,7 +35,7 @@ module.exports = {
             .waitForElementVisible('.sw-dashboard-index__content')
             .clickUserActionMenu('Super Richie')
             .click('.sw-admin-menu__profile-item')
-            .expect.element('input[name=sw-field--user-name]').to.have.value.that.equals('Super Richie').before(browser.globals.waitForConditionTimeout);
+            .expect.element('input[name=sw-field--user-name]').to.have.value.that.equals('Super Richie');
     },
     after: (browser) => {
         browser.end();

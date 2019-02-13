@@ -37,10 +37,10 @@ module.exports = {
                 subMenuTitle: 'Product streams'
             })
             .refresh()
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream');
         browser.assert.urlContains('#/sw/product/stream/index');
 
-        browser.expect.element(`${page.elements.gridRow}--0 `).to.have.text.that.contains('Product stream 1st').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(`${page.elements.gridRow}--0 `).to.have.text.that.contains('Product stream 1st');
     },
     'verify product stream details': (browser) => {
         const page = productStreamPage(browser);
@@ -51,7 +51,7 @@ module.exports = {
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream 1st').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream 1st');
     },
     after: (browser) => {
         browser.end();

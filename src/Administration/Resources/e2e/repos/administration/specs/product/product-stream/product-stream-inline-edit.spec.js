@@ -21,7 +21,7 @@ module.exports = {
     'inline edit product stream name and description and verify edits': (browser) => {
         const page = productStreamPage(browser);
 
-        browser.expect.element(`${page.elements.gridRow}--0 .sw-product-stream-list__column-name`).to.have.text.that.equals('1st product stream').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(`${page.elements.gridRow}--0 .sw-product-stream-list__column-name`).to.have.text.that.equals('1st product stream');
 
         browser
             .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
@@ -31,7 +31,7 @@ module.exports = {
             .click(page.elements.gridRowInlineEdit)
             .waitForElementNotPresent('.is--inline-editing ')
             .refresh()
-            .expect.element('.sw-grid-column.sw-grid__cell.sw-grid-column--left').to.have.text.that.contains('Stream it').before(browser.globals.waitForConditionTimeout);
+            .expect.element('.sw-grid-column.sw-grid__cell.sw-grid-column--left').to.have.text.that.contains('Stream it');
     },
     after: (browser) => {
         browser.end();

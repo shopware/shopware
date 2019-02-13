@@ -72,7 +72,6 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementNotPresent('.sw-media-base-item__loader');
 
         this.browser.expect.element(`${this.elements.gridItem}--${position} .sw-media-base-item__name`).to.have.text.that.equals(name);
-
     }
 
     setThumbnailSize(width, height) {

@@ -15,7 +15,7 @@ module.exports = {
     'go to create integration page': (browser) => {
         const page = integrationPage(browser);
 
-        browser.expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management').before(browser.globals.waitForConditionTimeout);
+        browser.expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management');
     },
     'create and save integration': (browser) => {
         const page = integrationPage(browser);
@@ -30,7 +30,7 @@ module.exports = {
             .tickCheckbox('input[name=sw-field--currentIntegration-writeAccess]', true)
             .waitForElementVisible(page.elements.integrationSaveAction)
             .click(page.elements.integrationSaveAction)
-            .checkNotification('Integration has been saved successfully')
+            .checkNotification('Integration has been saved successfully.')
             .assert.urlContains('#/sw/integration/index');
     },
     'verify newly created integration': (browser) => {

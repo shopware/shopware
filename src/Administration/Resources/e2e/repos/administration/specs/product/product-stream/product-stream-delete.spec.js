@@ -24,8 +24,8 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-button__content')
             .assert.urlContains('#/sw/product/stream/index')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product streams').before(browser.globals.waitForConditionTimeout);
-        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product streams');
+        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'verify product stream details': (browser) => {
         const page = productStreamPage(browser);
@@ -38,7 +38,7 @@ module.exports = {
             .waitForElementVisible(page.elements.contextMenu)
             .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name).before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete product stream': (browser) => {
         const page = productStreamPage(browser);
@@ -51,13 +51,13 @@ module.exports = {
                 subMenuItemPath: '#/sw/stream/index',
                 subMenuTitle: 'Product streams'
             })
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
 
         page.deleteProductStream(global.AdminFixtureService.basicFixture.name);
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
     },
     after: (browser) => {
         browser.end();

@@ -41,7 +41,7 @@ module.exports = {
         page.openSalesChannel('2nd Epic Sales Channel at all');
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.salesChannelNameInput).to.have.value.that.equals('2nd Epic Sales Channel at all').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.salesChannelNameInput).to.have.value.that.equals('2nd Epic Sales Channel at all');
     },
     after: (browser) => {
         browser.end();

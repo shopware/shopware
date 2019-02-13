@@ -22,7 +22,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-customer-list__view-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .expect.element(`${page.elements.customerMetaData}-user-name`).to.have.text.that.equals('Mr Pep Eroni').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.customerMetaData}-user-name`).to.have.text.that.equals('Mr Pep Eroni');
     },
     'change customer email': (browser) => {
         const page = customerPage(browser);
@@ -37,7 +37,7 @@ module.exports = {
             .waitForElementNotPresent(`.sw-card__content .sw-customer-base-form ${page.elements.loader}`)
             .waitForElementNotPresent(`.sw-card__content .sw-customer-address-form ${page.elements.loader}`)
             .checkNotification('Customer "Mr Pep Eroni" has been saved successfully.')
-            .expect.element(`${page.elements.customerMetaData}-item`).to.have.text.that.contains('test-again-and-again@example.com').before(browser.globals.waitForConditionTimeout);
+            .expect.element(`${page.elements.customerMetaData}-item`).to.have.text.that.contains('test-again-and-again@example.com');
     },
     after: (browser) => {
         browser.end();

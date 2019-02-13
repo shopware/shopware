@@ -20,7 +20,7 @@ module.exports = {
             .click('a[href="#/sw/settings/rule/create"]')
             .waitForElementVisible('.sw-settings-rule-detail .sw-card__content')
             .assert.urlContains('#/sw/settings/rule/create')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('New rule').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('New rule');
 
         page.createBasicRule('Rule 1st');
     },
@@ -30,12 +30,12 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.columnName).to.have.text.that.contains('Rule 1st').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.columnName).to.have.text.that.contains('Rule 1st');
 
         browser
             .fillGlobalSearchField('Rule them all')
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)').before(browser.globals.waitForConditionTimeout);
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
     },
     after: (browser) => {
         browser.end();

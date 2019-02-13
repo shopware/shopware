@@ -14,7 +14,7 @@ custom
 ```
 *File Structure*
 
-Read more about the `composer.json` file [here](./05-plugin-information.md).
+Read more about the `composer.json` file [here](./050-plugin-information.md).
 
 ## Base Class
 Your plugin base class is used, to configure your plugin and manage plugin lifecycle events such as `update` and `install`.
@@ -40,13 +40,13 @@ Below you find a list of methods you can overwrite in your plugin base class.
 |Method                                               | Arguments                                                      | Usage                                                                                               |
 |-----------------------------------------------------|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
 | [isActive()](#isActive())                           | N/A                                                            | Identifies if your plugin is active                                                                 |
-| [install()](#install())                             | [InstallContext](./08-plugin-contexts.md#installContext)       | Called while your plugin gets installed                                                             |
-| [postInstall()](#postInstall())                     | [InstallContext](./08-plugin-contexts.md#installContext)       | Called after your plugin gets installed                                                             |
-| [update()](#update())                               | [UpdateContext](./08-plugin-contexts.md#updateContext)         | Called while your plugin gets updated                                                               |
-| [postUpdate()](#postUpdate())                       | [UpdateContext](./08-plugin-contexts.md#updateContext)         | Called after your plugin gets updated                                                               |
-| [activate()](#activate())                           | [ActivateContext](./08-plugin-contexts.md#activateContext)     | Called while your plugin gets activated                                                             |
-| [deactivate()](#deactivate())                       | [DeactivateContext](./08-plugin-contexts.md#deactivateContext) | Called while your plugin gets deactivated                                                           |
-| [uninstall()](#uninstall())                         | [UninstallContext](./08-plugin-contexts.md#uninstallContext)   | Called while your plugin gets uninstalled                                                           |
+| [install()](#install())                             | [InstallContext](./040-plugin-contexts.md#installContext)       | Called while your plugin gets installed                                                             |
+| [postInstall()](#postInstall())                     | [InstallContext](./040-plugin-contexts.md#installContext)       | Called after your plugin gets installed                                                             |
+| [update()](#update())                               | [UpdateContext](./040-plugin-contexts.md#updateContext)         | Called while your plugin gets updated                                                               |
+| [postUpdate()](#postUpdate())                       | [UpdateContext](./040-plugin-contexts.md#updateContext)         | Called after your plugin gets updated                                                               |
+| [activate()](#activate())                           | [ActivateContext](./040-plugin-contexts.md#activateContext)     | Called while your plugin gets activated                                                             |
+| [deactivate()](#deactivate())                       | [DeactivateContext](./040-plugin-contexts.md#deactivateContext) | Called while your plugin gets deactivated                                                           |
+| [uninstall()](#uninstall())                         | [UninstallContext](./040-plugin-contexts.md#uninstallContext)   | Called while your plugin gets uninstalled                                                           |
 | [boot()](#boot())                                   | N/A                                                            | Called while the Shopware kernel is booted                                                          |
 | [build()](#build())                                 | ContainerBuilder                                               | Called while Symfony builds the Dependency-Injection-Container                                      |
 | [configureRoutes()](#configureRoutes())             | RouteCollectionBuilder, string $environment                    | Called on each kernel boot to register your controller routes                                       |
@@ -277,7 +277,7 @@ class SwagExample extends Plugin
 ## configureRoutes()
 You can use this method, to configure routing for your plugin.
 Per default, you can configure your routes in `YourPlugin/Resources/routes.yaml`.
-Click [here](./10-custom-api-routes.md#route-configuration) if you want to learn more.
+Click [here](./110-custom-api-routes.md#route-configuration) if you want to learn more.
 
 ```php
 <?php declare(strict_types=1);

@@ -135,7 +135,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         foreach ($command->getPayload() as $attribute => $value) {
             // add path and value for each attribute value pair
-            $values[] = '$.' . $attribute;
+            $values[] = '$."' . $attribute . '"';
 
             if (is_array($value) || is_object($value)) {
                 $values[] = \json_encode($value, JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_UNICODE);
@@ -149,7 +149,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $storageName = $command->getStorageName();
         $query->set(
             $storageName,
-            sprintf('JSON_SET(%s, %s)', $storageName, implode(', ', $sets))
+            sprintf('JSON_SET(IFNULL(%s, "{}"), %s)', $storageName, implode(', ', $sets))
         );
 
         $identifier = $command->getPrimaryKey();

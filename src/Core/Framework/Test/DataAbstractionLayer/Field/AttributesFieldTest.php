@@ -791,6 +791,111 @@ class AttributesFieldTest extends TestCase
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
     }
 
+    public function testSetAttributesOnNullColumn(): void
+    {
+        $id = Uuid::uuid4()->getHex();
+        $entity = ['id' => $id, 'attributes' => null];
+        $repo = $this->getTestRepository();
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $update = [
+            'id' => $id,
+            'attributes' => [
+                'foo' => 'bar',
+            ],
+        ];
+        $result = $repo->update([$update], Context::createDefaultContext());
+        $event = $result->getEventByDefinition(AttributesTestDefinition::class);
+        static::assertCount(1, $event->getPayloads());
+        static::assertEquals($update, $event->getPayloads()[0]);
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertNotNull($first);
+        static::assertEquals($update['attributes'], $first->get('attributes'));
+    }
+
+    public function testSetAttributesOnEmptyArray(): void
+    {
+        $id = Uuid::uuid4()->getHex();
+        $entity = ['id' => $id, 'attributes' => []];
+        $repo = $this->getTestRepository();
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $update = [
+            'id' => $id,
+            'attributes' => [
+                'foo' => 'bar',
+            ],
+        ];
+        $result = $repo->update([$update], Context::createDefaultContext());
+        $event = $result->getEventByDefinition(AttributesTestDefinition::class);
+        static::assertCount(1, $event->getPayloads());
+        static::assertEquals($update, $event->getPayloads()[0]);
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertNotNull($first);
+        static::assertEquals($update['attributes'], $first->get('attributes'));
+    }
+
+    public function testUpdateAttributeWithDot(): void
+    {
+        $id = Uuid::uuid4()->getHex();
+        $entity = ['id' => $id, 'attributes' => []];
+        $repo = $this->getTestRepository();
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $update = [
+            'id' => $id,
+            'attributes' => [
+                'a.b' => 'a dot b',
+            ],
+        ];
+        $result = $repo->update([$update], Context::createDefaultContext());
+        $event = $result->getEventByDefinition(AttributesTestDefinition::class);
+        static::assertCount(1, $event->getPayloads());
+        static::assertEquals($update, $event->getPayloads()[0]);
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertNotNull($first);
+        static::assertEquals($update['attributes'], $first->get('attributes'));
+    }
+
+    public function testSetAttributesToNull(): void
+    {
+        $id = Uuid::uuid4()->getHex();
+        $entity = ['id' => $id, 'attributes' => ['foo' => 'bar']];
+        $repo = $this->getTestRepository();
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $update = ['id' => $id, 'attributes' => null];
+        $result = $repo->update([$update], Context::createDefaultContext());
+        $event = $result->getEventByDefinition(AttributesTestDefinition::class);
+        static::assertCount(1, $event->getPayloads());
+        static::assertEquals($update, $event->getPayloads()[0]);
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertNotNull($first);
+        static::assertNull($first->get('attributes'));
+    }
+
+    public function testSetAttributesToEmptyArrayIsNull(): void
+    {
+        $id = Uuid::uuid4()->getHex();
+        $entity = ['id' => $id, 'attributes' => ['foo' => 'bar']];
+        $repo = $this->getTestRepository();
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $update = ['id' => $id, 'attributes' => []];
+        $result = $repo->update([$update], Context::createDefaultContext());
+        $event = $result->getEventByDefinition(AttributesTestDefinition::class);
+        static::assertCount(1, $event->getPayloads());
+        static::assertEquals(['id' => $id, 'attributes' => null], $event->getPayloads()[0]);
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        static::assertNotNull($first);
+        static::assertNull($first->get('attributes'));
+    }
+
     private function addLanguage($id, $rootLanguage): void
     {
         $translationCodeId = Uuid::uuid4()->getHex();

@@ -38,7 +38,7 @@ class MediaDefaultFolderDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new ListField('associations', 'associations', StringField::class))->addFlags(new Required()),
+            (new ListField('association_fields', 'associationFields', StringField::class))->addFlags(new Required()),
             (new StringField('entity', 'entity'))->addFlags(new Required()),
 
             new FkField('media_folder_id', 'folderId', MediaFolderDefinition::class),

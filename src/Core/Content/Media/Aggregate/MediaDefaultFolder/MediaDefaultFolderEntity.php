@@ -13,7 +13,7 @@ class MediaDefaultFolderEntity extends Entity
     /**
      * @var string[]
      */
-    protected $associations;
+    protected $associationFields;
 
     /**
      * @var string
@@ -44,14 +44,14 @@ class MediaDefaultFolderEntity extends Entity
      */
     protected $updatedAt;
 
-    public function getAssociations(): array
+    public function getAssociationFields(): array
     {
-        return $this->associations;
+        return $this->associationFields;
     }
 
-    public function setAssociations(array $associations): void
+    public function setAssociationFields(array $associationFields): void
     {
-        $this->associations = $associations;
+        $this->associationFields = $associationFields;
     }
 
     public function getEntity(): string

@@ -116,7 +116,7 @@ Component.register('sw-product-stream-detail', {
                 definition.properties[key].name = key;
             });
 
-            return new LocalStore(definition.properties, 'name');
+            return new LocalStore(Object.values(definition.properties), 'name');
         },
 
         onSave() {

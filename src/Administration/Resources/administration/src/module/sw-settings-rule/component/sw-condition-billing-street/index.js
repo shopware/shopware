@@ -1,5 +1,4 @@
 import { Component } from 'src/core/shopware';
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-billing-street.html.twig';
 
 /**
@@ -15,17 +14,6 @@ Component.extend('sw-condition-billing-street', 'sw-condition-base', {
     inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            const operators = {};
-            Object.values(this.ruleConditionDataProviderService.operatorSets.string).forEach(operator => {
-                operators[operator.identifier] = operator;
-                operators[operator.identifier].meta = {
-                    viewData: { label: this.$tc(operator.label), identifier: this.$tc(operator.label) }
-                };
-            });
-
-            return new LocalStore(operators, 'identifier');
-        },
         fieldNames() {
             return ['operator', 'streetName'];
         },

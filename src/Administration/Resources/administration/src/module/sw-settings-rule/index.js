@@ -6,6 +6,7 @@ import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 import './page/sw-settings-rule-create';
 import './component/sw-condition-not-found';
+import './component/sw-condition-operator-select';
 
 Module.register('sw-settings-rule', {
     flag: NEXT516,

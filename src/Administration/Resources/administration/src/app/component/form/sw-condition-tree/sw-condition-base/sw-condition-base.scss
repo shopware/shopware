@@ -1,4 +1,5 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 $sw-condition-base-color-primary: #6E8A97;
 $sw-condition-base-color-primary-text: $color-white;
@@ -18,7 +19,7 @@ $sw-condition-base-color-error: $color-crimson;
         width: 100%;
     }
 
-    .field {
+    .sw-condition-base__base-field {
         background-color: $sw-condition-base-color-background;
         position: relative;
         line-height: 40px;
@@ -34,6 +35,7 @@ $sw-condition-base-color-error: $color-crimson;
     }
 
     .field--select {
+        @extend .sw-condition-base__base-field;
         width: 144px;
         border-top: 1px solid $sw-condition-base-color-border;
         border-bottom: 1px solid $sw-condition-base-color-border;
@@ -47,9 +49,7 @@ $sw-condition-base-color-error: $color-crimson;
             padding-top: 4px;
 
             .sw-select__single-selection {
-                overflow: hidden;
-                white-space:nowrap;
-                text-overflow:ellipsis;
+                @include truncate();
             }
 
             .sw-select__indicators {
@@ -71,65 +71,63 @@ $sw-condition-base-color-error: $color-crimson;
                 }
             }
         }
+    }
 
-        &.field--condition {
-            background: $sw-condition-base-color-primary;
+    .field--condition {
+        @extend .field--select;
+        background: $sw-condition-base-color-primary;
+        color: $sw-condition-base-color-primary-text;
+        width: 168px;
+        height: 40px;
+        border-top-color: $sw-condition-base-color-primary;
+        border-bottom-color: $sw-condition-base-color-primary;
+        padding-left: 0;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+
+        &.is--expanded {
+            border-bottom-left-radius: 0;
+        }
+
+        .sw-select__indicator .sw-icon {
             color: $sw-condition-base-color-primary-text;
-            width: 168px;
-            height: 40px;
-            border-top-color: $sw-condition-base-color-primary;
-            border-bottom-color: $sw-condition-base-color-primary;
-            padding-left: 0;
+        }
 
-            &.is--first {
-                border-top-left-radius: 3px;
-                border-bottom-left-radius: 3px;
-            }
+        .sw-select__inner {
+            .sw-select__results {
+                border-color: $sw-condition-base-color-primary;
+                color: $sw-condition-base-color-secondary-text;
 
-            &.is--expanded {
-                border-bottom-left-radius: 0;
-            }
-
-            .sw-select__indicator .sw-icon {
-                color: $sw-condition-base-color-primary-text;
-            }
-
-            .sw-select__inner {
-                .sw-select__results {
-                    border-color: $sw-condition-base-color-primary;
-                    color: $sw-condition-base-color-secondary-text;
-
-                    .sw-icon {
-                        color: unset;
-                    }
+                .sw-icon {
+                    color: unset;
                 }
             }
+        }
 
-            &:before {
-                content: '';
-                position: absolute;
-                right: -5px;
-                top: 0;
-                width: 10px;
-                height: 23px;
-                background: $sw-condition-base-color-primary;
-                z-index: $sw-condition-base-z-index-arrow;
-                transform: rotate(-20deg);
-                border-bottom-right-radius: 3px;
-            }
+        &:before {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 0;
+            width: 10px;
+            height: 23px;
+            background: $sw-condition-base-color-primary;
+            z-index: $sw-condition-base-z-index-arrow;
+            transform: rotate(-20deg);
+            border-bottom-right-radius: 3px;
+        }
 
-            &:after {
-                content: '';
-                position: absolute;
-                right: -5px;
-                bottom: 0;
-                width: 10px;
-                height: 23px;
-                background: $sw-condition-base-color-primary;
-                z-index: $sw-condition-base-z-index-arrow;
-                border-top-right-radius: 3px;
-                transform: rotate(20deg);
-            }
+        &:after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            bottom: 0;
+            width: 10px;
+            height: 23px;
+            background: $sw-condition-base-color-primary;
+            z-index: $sw-condition-base-z-index-arrow;
+            border-top-right-radius: 3px;
+            transform: rotate(20deg);
         }
     }
 
@@ -160,6 +158,7 @@ $sw-condition-base-color-error: $color-crimson;
     }
 
     .field--date {
+        @extend .sw-condition-base__base-field;
         .sw-datepicker {
             width: 100%;
         }
@@ -170,6 +169,7 @@ $sw-condition-base-color-error: $color-crimson;
     }
 
     .field--main {
+        @extend .sw-condition-base__base-field;
         flex-grow: 1;
         flex-shrink: 1;
 
@@ -179,6 +179,7 @@ $sw-condition-base-color-error: $color-crimson;
     }
 
     .field--multi {
+        @extend .sw-condition-base__base-field;
         height: auto;
         padding: 0;
 
@@ -228,6 +229,7 @@ $sw-condition-base-color-error: $color-crimson;
     }
 
     .field--actions {
+        @extend .sw-condition-base__base-field;
         width: 40px;
         border: 1px solid $sw-condition-base-color-border;
         border-top-right-radius: 3px;
@@ -300,16 +302,6 @@ $sw-condition-base-color-error: $color-crimson;
 
     .sw-context-button .sw-context-button__button {
         border: none;
-    }
-
-    .sw-condition-base__field {
-        border: 0;
-        background: none;
-        color: $sw-condition-base-color-primary-text;
-        font-size: $sw-condition-base-font-size;
-        padding: 0;
-        margin: 0;
-        width: 100%;
     }
 
     &.has--error .sw-condition-base__container {

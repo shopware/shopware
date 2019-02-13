@@ -1,4 +1,5 @@
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import utils from 'src/core/service/util.service';
 
 /**
  * @module core/data/LocalStore
@@ -12,19 +13,20 @@ export default class LocalStore {
     /**
      * @constructor
      * @memberOf module:core/data/LocalStore
-     * @param {object} values
+     * @param {array} values
      * @param {string} propertyName
      */
     constructor(values, propertyName = 'id') {
         this.store = {};
-        Object.keys(values).forEach((key) => {
-            this.store[key] = values[key];
-            if (this.store[key].meta) {
+        values.forEach(value => {
+            this.store[value[propertyName]] = value;
+            if (value.meta) {
                 return;
             }
 
-            this.store[key].meta = { viewData: values[key] };
+            value.meta = { viewData: value };
         });
+
         this.propertyName = propertyName;
     }
 
@@ -34,7 +36,7 @@ export default class LocalStore {
      */
     getById(id) {
         if (!this.hasId(id)) {
-            return {};
+            return this.create(id);
         }
 
         return this.store[id];
@@ -54,20 +56,19 @@ export default class LocalStore {
      */
     getList(params) {
         return new Promise((resolve) => {
+            console.log('store', this.store, params);
             let store = Object.values(this.store);
             if (params.term) {
                 const searchTerm = params.term.toLowerCase();
-                store = store.filter((value) => value[this.propertyName].toLowerCase().includes(searchTerm)
-                    || value.meta.viewData[this.propertyName].toLowerCase().includes(searchTerm));
+                store = store.filter((value) => {
+                    return value[this.propertyName].toLowerCase().includes(searchTerm)
+                    || value.meta.viewData[this.propertyName].toLowerCase().includes(searchTerm);
+                });
             }
 
             if (params.criteria) {
                 const query = params.criteria.getQuery();
-                if (query.type === 'contains') {
-                    store = store.filter(value => value[query.field].includes(query.value));
-                } else if (query.type === 'equals') {
-                    store = store.filter(value => value[query.field] === query.value);
-                }
+                store = this.filterResults(store, query);
             }
 
             if (params.sortBy) {
@@ -87,6 +88,28 @@ export default class LocalStore {
         });
     }
 
+    filterResults(store, query) {
+        if (query.type === 'contains') {
+            store = store.filter(value => value[query.field].includes(query.value));
+        } else if (query.type === 'equals') {
+            store = store.filter(value => value[query.field] === query.value);
+        } else if (query.type === 'multi') {
+            if (query.operator === 'AND') {
+                query.queries.forEach(subQuery => {
+                    store = this.filterResults(store, subQuery);
+                });
+            } else {
+                let result = [];
+                query.queries.forEach(subQuery => {
+                    result = [...new Set([...result, ...this.filterResults(store, subQuery)])];
+                });
+                store = result;
+            }
+        }
+
+        return store;
+    }
+
     /**
      * @param {String} id
      * @returns {boolean}
@@ -95,8 +118,10 @@ export default class LocalStore {
         return this.store[id] !== undefined;
     }
 
-    static create() {
-        return {};
+    create(id = utils.createId()) {
+        return {
+            [this.propertyName]: id
+        };
     }
 
     static duplicate() {
@@ -122,7 +147,7 @@ export default class LocalStore {
      * @returns {boolean}
      */
     remove(entity) {
-        if (!hasOwnProperty(entity, this.propertyName) || this.hasId(this.propertyName)) {
+        if (!hasOwnProperty(entity, this.propertyName) || this.hasId(entity[this.propertyName])) {
             return false;
         }
 

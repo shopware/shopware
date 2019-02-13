@@ -19,7 +19,14 @@ Component.register('sw-settings-rule-detail', {
             rule: {},
             nestedConditions: {},
             treeConfig: {
-                conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions(), 'name'),
+                conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
+                    condition.meta = {
+                        viewData: {
+                            label: this.$tc(condition.label),
+                            type: this.$tc(condition.label)
+                        }
+                    };
+                }), 'type'),
                 entityName: 'rule',
                 conditionIdentifier: 'conditions',
                 childName: 'children',
@@ -64,16 +71,6 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule = this.ruleStore.getById(this.$route.params.id);
-            const conditions = this.ruleConditionDataProviderService.getConditions();
-            Object.keys(conditions).forEach(key => {
-                conditions[key].meta = {
-                    viewData: {
-                        label: this.$tc(conditions[key].label),
-                        name: this.$tc(conditions[key].label)
-                    }
-                };
-                conditions[key].name = key;
-            });
         },
 
         onSave() {

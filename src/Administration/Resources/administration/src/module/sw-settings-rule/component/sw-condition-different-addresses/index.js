@@ -15,8 +15,8 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
 
     computed: {
         selectValues() {
-            const values = {
-                true: {
+            const values = [
+                {
                     label: this.$tc('global.sw-condition.condition.yes'),
                     value: 'true',
                     meta: {
@@ -26,7 +26,7 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
                         }
                     }
                 },
-                false: {
+                {
                     label: this.$tc('global.sw-condition.condition.no'),
                     value: 'false',
                     meta: {
@@ -36,7 +36,7 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
                         }
                     }
                 }
-            };
+            ];
 
             return new LocalStore(values, 'value');
         },

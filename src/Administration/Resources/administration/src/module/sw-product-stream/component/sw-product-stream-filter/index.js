@@ -12,6 +12,16 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         Mixin.getByName('condition')
     ],
 
+    data() {
+        return {
+            fields: [],
+            type: {},
+            multiValues: [],
+            operatorCriteria: {},
+            fieldPath: []
+        };
+    },
+
     computed: {
         definitions() {
             const definitions = [];
@@ -27,58 +37,48 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return this.definitions[this.definitions.length - 1];
         },
         types() {
-            const values = [
-                { type: 'range', name: this.$tc('sw-product-stream.filter.type.range') },
-                { type: 'equals', name: this.$tc('sw-product-stream.filter.type.equals') },
-                { type: 'contains', name: this.$tc('sw-product-stream.filter.type.contains') },
-                { type: 'equalsAny', name: this.$tc('sw-product-stream.filter.type.equalsAny') }
-            ];
-
-            const types = {};
-            values.forEach(value => {
-                types[value.type] = value;
-            });
-
-            return types;
+            return {
+                range: { type: 'range', name: this.$tc('sw-product-stream.filter.type.range') },
+                equals: { type: 'equals', name: this.$tc('sw-product-stream.filter.type.equals') },
+                contains: { type: 'contains', name: this.$tc('sw-product-stream.filter.type.contains') },
+                equalsAny: { type: 'equalsAny', name: this.$tc('sw-product-stream.filter.type.equalsAny') }
+            };
         }
     },
 
     watch: {
         // TODO: will be changed by NEXT-1709
         fields(newValue) {
-            let filter = '.*';
             const field = newValue[newValue.length - 1];
             switch (field.type) {
             case 'string':
-                filter = '^(?!range).*';
-
                 if (field.format === 'date-time') {
-                    filter = '^equals(?!Any)';
+                    this.operatorCriteria = CriteriaFactory.equals('type', 'equals');
+                    break;
                 }
+
+                this.operatorCriteria = CriteriaFactory.multi('OR',
+                    CriteriaFactory.equals('type', 'contains'),
+                    CriteriaFactory.equals('type', 'equals'),
+                    CriteriaFactory.equals('type', 'equalsAny'));
                 break;
             case 'number':
-                filter = '^(?!contains).*';
+                this.operatorCriteria = CriteriaFactory.multi('OR',
+                    CriteriaFactory.equals('type', 'equals'),
+                    CriteriaFactory.equals('type', 'equalsAny'),
+                    CriteriaFactory.equals('type', 'range'));
                 break;
             default:
-                filter = '^equals.*';
+                this.operatorCriteria = CriteriaFactory.multi('OR',
+                    CriteriaFactory.equals('type', 'equals'),
+                    CriteriaFactory.equals('type', 'equalsAny'));
             }
 
-            this.operatorCriteria = CriteriaFactory.contains('type', filter);
             this.condition.field = newValue
                 .filter((fieldObject, index) => !(index === 0 && fieldObject.name === 'product'))
                 .map(fieldObject => fieldObject.name)
                 .join('.');
         }
-    },
-
-    data() {
-        return {
-            fields: [],
-            type: {},
-            multiValues: [],
-            operatorCriteria: {},
-            fieldPath: []
-        };
     },
 
     methods: {
@@ -87,10 +87,10 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 definition.properties[key].name = key;
             });
 
-            return new LocalStore(definition.properties, 'name');
+            return new LocalStore(Object.values(definition.properties), 'name');
         },
         getTypeStore() {
-            return new LocalStore(this.types, 'type');
+            return new LocalStore(Object.values(this.types), 'type');
         },
         createdComponent() {
             this.locateConditionTreeComponent();

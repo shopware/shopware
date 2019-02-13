@@ -8,8 +8,7 @@
                v-model="fieldPath[index]"
                itemValueKey="name"
                :id="createId()"
-               class="field field--select field--condition"
-               :class="{ 'is--first' : !index }"
+               class="field--condition"
                :required="true"
                @input="selectFilter(index, $event)">
     </sw-select>
@@ -21,19 +20,19 @@
                displayName="name"
                :criteria="operatorCriteria"
                :required="true"
-               class="field field--select has--arrow"
+               class="field--select has--arrow"
                @input="selectType">
     </sw-select>
 
     <sw-tagged-field v-if="condition.type == 'equalsAny'"
                      v-model="multiValues"
-                     class="field field--multi field--main"
+                     class="field--multi field--main"
                      @input="updateTaggedValue">
     </sw-tagged-field>
     {# TODO Add type for range filter, wait for design #}
     <sw-field v-else
               type="text"
-              class="field field--main"
+              class="field--main"
               v-model="condition.value">
     </sw-field>
 {% endblock %}

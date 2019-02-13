@@ -1007,7 +1007,7 @@
       "columnValue": "Wert",
       "contextMenuDelete": "Löschen | Zurücksetzen",
       "contextMenuEdit": "Bearbeiten",
-      "columnHeaderGridColumTitleSet": "Textbaustein-Set",
+      "columnHeaderGridColumnTitleSet": "Textbaustein-Set",
       "columnHeaderResetTo": "Original",
       "emptyStateHeadLine": "Keine Textbausteine gefunden.",
       "messageDeleteSuccess": "Der Textbaustein \"{key}\" wurde erfolgreich zurückgesetzt.",
@@ -1404,18 +1404,18 @@
   },
   "sw-product-stream": {
     "general": {
-      "mainMenuItemGeneral": "Product Streams",
-      "placeholderSearchBar": "Durchsuche alle Product Streams",
-      "descriptionTextModule": "Verwaltung von Product Streams."
+      "mainMenuItemGeneral": "Product-Streams",
+      "placeholderSearchBar": "Durchsuche alle Product-Streams",
+      "descriptionTextModule": "Verwaltung von Product-Streams."
     },
     "list": {
-      "textProductStreamOverview": "Product Streams",
+      "textProductStreamOverview": "Product-Streams",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnDateUpdated": "Änderungsdatum",
       "columnStatus": "Status",
       "titleSidebarItemRefresh": "Refresh",
-      "buttonAddProductStream": "Product Stream anlegen",
+      "buttonAddProductStream": "Product-Stream anlegen",
       "status": {
         "valid": "Valide",
         "invalid": "Invalide"
@@ -1423,14 +1423,14 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
-      "messageEmpty": "Noch keine Product Streams",
-      "modalTitleDelete": "Product Stream löschen",
-      "textDeleteConfirm": "Möchtest Du den Product Stream \"{name}\" wirklich löschen?",
+      "messageEmpty": "Noch keine Product-Streams",
+      "modalTitleDelete": "Product-Stream löschen",
+      "textDeleteConfirm": "Möchtest Du den Product-Stream \"{name}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
     "filter": {
-      "valid": "Nur valide Product Streams anzeigen",
+      "valid": "Nur valide Product-Streams anzeigen",
       "type": {
         "equals": "Gleich",
         "equalsAny": "Einer von",
@@ -1443,14 +1443,14 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "labelName": "Name",
-      "placeholderName": "Gib ein Product Stream Namen ein...",
+      "placeholderName": "Gib ein Product-Stream Namen ein...",
       "labelDescription": "Beschreibung",
-      "placeholderDescription": "Gib eine Product Stream Beschreibung ein...",
-      "textHeadline": "Neuer Product Stream",
+      "placeholderDescription": "Gib eine Product-Stream Beschreibung ein...",
+      "textHeadline": "Neuer Product-Stream",
       "titleFilter": "Filter",
       "titleResult": "Produkte",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Der Product Stream \"{name}\" wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Der Product-Stream \"{name}\" wurde erfolgreich gespeichert."
     }
   },
   "sw-config-form-renderer": {

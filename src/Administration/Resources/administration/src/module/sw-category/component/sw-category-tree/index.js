@@ -19,7 +19,7 @@ Component.register('sw-category-tree', {
 
     data() {
         return {
-            activeCategoryId: null,
+            activeCategoryId: this.$route.params.id || null,
             currentEditCategory: null,
             item: null,
             checkedCategories: {},
@@ -27,8 +27,15 @@ Component.register('sw-category-tree', {
             currentEditMode: null,
             parentItem: null,
             _eventFromEdit: null,
-            addCategoryPosition: null
+            addCategoryPosition: null,
+            openedTreeById: false
         };
+    },
+
+    created() {
+        if (this.activeCategoryId) {
+            this.openTreeById();
+        }
     },
 
     computed: {
@@ -186,20 +193,24 @@ Component.register('sw-category-tree', {
             return newCategory;
         },
 
+        getItemById(itemId) {
+            return this.categoryStore.getByIdAsync(itemId);
+        },
+
         getParentItem(parentId) {
-            const parentCategory = this.categoryStore.getById(parentId);
+            this.getItemById(parentId).then((parentCategory) => {
+                if (!parentCategory) {
+                    return null;
+                }
 
-            if (!parentCategory) {
-                return null;
-            }
-
-            return {
-                data: parentCategory,
-                id: parentCategory.id,
-                parentId: null,
-                position: parentCategory.position,
-                childCount: parentCategory.childCount
-            };
+                return {
+                    data: parentCategory,
+                    id: parentCategory.id,
+                    parentId: null,
+                    position: parentCategory.position,
+                    childCount: parentCategory.childCount
+                };
+            });
         },
 
         onEditCategory(item) {
@@ -272,6 +283,36 @@ Component.register('sw-category-tree', {
 
         getChildrenFromParent(parentId) {
             return this.$parent.$parent.getCategories(parentId);
+        },
+
+        openTreeById() {
+            this.getParentIdsByItemId();
+        },
+
+        getParentIdsByItemId(id = this.activeCategoryId) {
+            this.getItemById(id).then((category) => {
+                if (!category.path) {
+                    return;
+                }
+                const parentPath = category.path;
+                let parentIds = parentPath.split('|').reverse();
+                parentIds = parentIds.filter((parent) => {
+                    return parent !== '';
+                });
+                this.getParentItems(parentIds);
+            });
+        },
+
+        getParentItems(ids) {
+            const promises = [];
+
+            ids.forEach((id) => {
+                promises.push(this.getChildrenFromParent(id));
+            });
+
+            Promise.all(promises).then(() => {
+                this.openedTreeById = true;
+            });
         }
     }
 });

@@ -54,6 +54,12 @@ export default {
         createFirstItem: {
             type: Function,
             required: true
+        },
+
+        openedTreeById: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -62,13 +68,19 @@ export default {
             treeItems: [],
             draggedItem: null,
             currentTreeSearch: null,
-            isLoading: false
+            isLoading: false,
+            activeElementId: this.$route.params.id || null
         };
     },
 
     watch: {
         items() {
             this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
+        },
+        openedTreeById(val) {
+            if (val && this.activeElementId) {
+                this.openTreeById();
+            }
         }
     },
 
@@ -108,7 +120,6 @@ export default {
 
         getTreeItems(parentId) {
             const treeItems = [];
-
             this.items.forEach((item) => {
                 if (item.isDeleted) {
                     return;
@@ -127,7 +138,9 @@ export default {
                     id: item.id,
                     parentId: parentId,
                     childCount: item[this.childCountProperty],
-                    children: this.getTreeItems(item.id)
+                    children: this.getTreeItems(item.id),
+                    initialOpened: false,
+                    active: false
                 });
             });
 
@@ -213,6 +226,24 @@ export default {
             }
 
             this.droppedItem = droppedComponent;
+        },
+
+        openTreeById(id = this.activeElementId) {
+            const item = this.findById(this.treeItems, id);
+            if (this.activeElementId === item.id) {
+                item.active = true;
+            } else {
+                item.initialOpened = true;
+            }
+            const activeElementParentId = item.parentId;
+
+            if (item.parentId !== null) {
+                this.openTreeById(activeElementParentId);
+            }
+            if (this.$parent.$refs[`treeItem.${id}`].length > 0) {
+                this.$parent.$refs[`treeItem.${id}`][0].openTreeItem(true);
+                this.$parent.$refs[`treeItem.${id}`][0].getTreeItemChildren(item);
+            }
         },
 
         findTreeByParentId(tree, parentId) {

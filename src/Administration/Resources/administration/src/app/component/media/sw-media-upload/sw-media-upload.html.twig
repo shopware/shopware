@@ -89,7 +89,7 @@
                                         {{ source.fileName }}.{{ source.fileExtension }}
                                     </div>
                                     <sw-icon class="sw-media-upload__remove-icon"
-                                        name="small-default-x-line-medium"
+                                        name="small-default-x-line-small"
                                         @click="onRemoveMediaItem"
                                         small>
                                     </sw-icon>
@@ -109,6 +109,7 @@
                                         <template v-if="!showUrlInput">
                                             {% block sw_media_upload_regular_upload_button %}
                                                 <sw-button class="sw-media-upload__button upload"
+                                                            variant="ghost"
                                                             size="small"
                                                             @click="onClickUpload">
                                                     {{ $tc('global.sw-media-upload.buttonFileUpload') }}

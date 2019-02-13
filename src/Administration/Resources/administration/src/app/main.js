@@ -35,7 +35,7 @@ Application
     })
     .addServiceProvider('loginService', () => {
         const initContainer = Application.getContainer('init');
-        return LoginService(initContainer.httpClient);
+        return LoginService(initContainer.httpClient, initContainer.contextService);
     })
     .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;

@@ -102,6 +102,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+            <argument type="service" id="parameter_bag"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregati
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
@@ -127,7 +128,12 @@ class TaskScheduler
     private function buildCriteriaForMinRunInterval(): Criteria
     {
         $criteria = new Criteria();
-        $criteria->addAggregation(new MinAggregation('runInterval', 'runInterval'));
+        $criteria->addFilter(
+            new NotFilter(NotFilter::CONNECTION_AND, [
+                new EqualsFilter('status', ScheduledTaskDefinition::STATUS_INACTIVE),
+            ])
+        )
+        ->addAggregation(new MinAggregation('runInterval', 'runInterval'));
 
         return $criteria;
     }

@@ -13,6 +13,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition">
             <tag name="shopware.entity.definition" entity="message_queue_stats"/>
         </service>
+
         <!--Message Bus-->
         <service id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator" decorates="messenger.bus.shopware">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator.inner"/>
@@ -66,7 +67,18 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesHandler">
             <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\RequeueDeadMessagesService"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <!--Controller-->
+        <service id="Shopware\Core\Framework\Api\Controller\ConsumeMessagesController" public="true">
+            <argument type="service" id="messenger.receiver_locator"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
     </services>
 </container>

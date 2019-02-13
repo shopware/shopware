@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,9 +17,15 @@ class InfoController extends AbstractController
      */
     private $definitionService;
 
-    public function __construct(DefinitionService $definitionService)
+    /**
+     * @var ParameterBagInterface
+     */
+    private $params;
+
+    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params)
     {
         $this->definitionService = $definitionService;
+        $this->params = $params;
     }
 
     /**
@@ -51,5 +58,18 @@ class InfoController extends AbstractController
     public function infoHtml(): Response
     {
         return $this->render('@Shopware/swagger.html.twig');
+    }
+
+    /**
+     * @Route("/api/v{version}/_info/config", name="api.info.config", methods={"GET"})
+     */
+    public function config(): JsonResponse
+    {
+        return $this->json([
+            'adminWorker' => [
+                'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
+                'pollInterval' => $this->params->get('shopware.admin_worker.poll_interval'),
+            ],
+        ]);
     }
 }

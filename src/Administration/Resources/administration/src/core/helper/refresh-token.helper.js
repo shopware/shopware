@@ -44,23 +44,10 @@ export default class RefreshTokenHelper {
     fireRefreshTokenRequest() {
         const providerContainer = Application.getContainer('service');
         const loginService = providerContainer.loginService;
-        const refreshToken = loginService.getRefreshToken();
-
-        if (!refreshToken || !refreshToken.length) {
-            return Promise.reject(new Error('No refresh token found.'));
-        }
-
         this.isRefreshing = true;
-        return loginService.refreshTokenUsingRefreshToken(refreshToken).then((response) => {
-            const refresh = loginService.getBearerAuthentication('refresh');
+        return loginService.refreshToken().then((newToken) => {
             this.isRefreshing = false;
-
-            loginService.setBearerAuthentication({
-                access: response.data.access_token,
-                expiry: response.data.expires_in,
-                refresh
-            });
-            return response.data.access_token;
+            this.onRefreshToken(newToken);
         });
     }
 

@@ -23,7 +23,8 @@ Component.register('sw-plugin-list', {
         return {
             limit: 25,
             plugins: [],
-            isLoading: false
+            isLoading: false,
+            sortType: 'upgradedAt:asc'
         };
     },
 
@@ -122,6 +123,24 @@ Component.register('sw-plugin-list', {
                 this.total = response.total;
                 this.isLoading = false;
             });
+        },
+
+        getListingParams() {
+            const sortType = this.sortType.split(':');
+
+            return {
+                limit: this.limit,
+                page: this.page,
+                sortBy: sortType[0],
+                sortDirection: sortType[1],
+                term: this.term
+            };
+        },
+
+        sortPluginList(event) {
+            this.sortType = event;
+            this.page = 1;
+            this.getList();
         }
     }
 });

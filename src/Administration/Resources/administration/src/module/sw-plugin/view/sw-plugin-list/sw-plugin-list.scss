@@ -9,4 +9,39 @@
         justify-content: space-between;
         align-items: center;
     }
+
+    .sw-plugin-list__action {
+        display: flex;
+        align-items: center;
+
+        .sw-field {
+            display: inline-grid;
+            width: auto;
+            grid-template-columns: auto auto;
+            align-items: center;
+            margin-bottom: 0;
+
+            label {
+                margin: 8px 10px 8px 0;
+                text-align: right;
+            }
+
+            .sw-field__select {
+                select {
+                    min-width: 200px;
+                    padding: 2px 12px;
+                    height: 33px;
+                }
+
+                .sw-icon {
+                    top: 9px;
+                    right: 9px;
+                }
+            }
+        }
+    }
+
+    .sw-plugin-list__sort_field {
+        margin-right: 14px;
+    }
 }

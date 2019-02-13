@@ -5,7 +5,7 @@
     <div class="top-actions">
         <h1>{{ $tc('sw-plugin.updates-list.updateHeader') }}</h1>
         <sw-button variant="ghost">
-            {{ $tc('sw-plugin.updates-list.update-all-button') }}
+            {{ $tc('sw-plugin.updates-list.updateAllButton') }}
         </sw-button>
     </div>
     {% endblock %}
@@ -53,7 +53,7 @@
                             {% block sw_plugin_updates_list_grid_columns_update_button %}
                                 <div class="update-context">
                                     <sw-button class="update-button" variant="primary">
-                                        {{ $tc('sw-plugin.updates-list.update-button') }}
+                                        {{ $tc('sw-plugin.updates-list.updateButton') }}
                                     </sw-button>
                                     <p class="highest-version version">{{ $tc('sw-plugin.general.version') }} {{ item.highestVersion }}</p>
                                 </div>

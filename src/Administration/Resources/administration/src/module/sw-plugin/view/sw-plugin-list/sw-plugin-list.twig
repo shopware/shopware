@@ -4,7 +4,35 @@
     {% block sw_plugin_list_top_actions %}
         <div class="top-actions">
             <h1>{{ $tc('sw-plugin.list.pluginHeader') }}</h1>
-            <sw-plugin-file-upload @sw-plugin-file-upload-success="successfulUpload"></sw-plugin-file-upload>
+            <div class="sw-plugin-list__action">
+                {% block sw_plugin_list_sort %}
+                <sw-field class="sw-plugin-list__sort_field"
+                          type="select"
+                          name="sortType"
+                          :label="$tc('sw-plugin.list.sortLabel')"
+                          v-model="sortType"
+                          @change="sortPluginList">
+                    {% block sw_plugin_list_sort_options_upgraded_at_asc %}
+                    <option value="upgradedAt:asc">
+                        {{ $tc('sw-plugin.list.sortUpgradedAtAsc') }}
+                    </option>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_sort_options_pluginName_asc %}
+                    <option value="name:asc">
+                        {{ $tc('sw-plugin.list.sortPluginNameAsc') }}
+                    </option>
+                    {% endblock %}
+
+                    {% block sw_plugin_list_sort_options_pluginName_dsc %}
+                    <option value="name:dsc">
+                        {{ $tc('sw-plugin.list.sortPluginNameDsc') }}
+                    </option>
+                    {% endblock %}
+                </sw-field>
+                {% endblock %}
+                <sw-plugin-file-upload @sw-plugin-file-upload-success="successfulUpload"></sw-plugin-file-upload>
+            </div>
         </div>
     {% endblock %}
 

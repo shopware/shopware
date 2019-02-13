@@ -24,7 +24,7 @@ class Migration1536232690Tax extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               KEY `idx.tax` (`tax_rate`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

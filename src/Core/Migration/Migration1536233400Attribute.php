@@ -24,7 +24,7 @@ class Migration1536233400Attribute extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               CONSTRAINT `uniq.attribute.name` UNIQUE  (`name`),
-              CONSTRAINT `JSON.config` CHECK(JSON_VALID(`config`)),
+              CONSTRAINT `json.config` CHECK(JSON_VALID(`config`)),
               CONSTRAINT `fk.attribute.set_id` FOREIGN KEY (set_id)
                 REFERENCES `attribute_set` (id) ON UPDATE CASCADE ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

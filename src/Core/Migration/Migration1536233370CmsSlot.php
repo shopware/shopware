@@ -41,8 +41,8 @@ SQL;
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`cms_slot_id`, `cms_slot_version_id`, `language_id`),
-              CONSTRAINT `JSON.config` CHECK(JSON_VALID(`config`)),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.config` CHECK(JSON_VALID(`config`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.cms_slot_translation.cms_slot_id` FOREIGN KEY (`cms_slot_id`, `cms_slot_version_id`)
                 REFERENCES `cms_slot` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.cms_slot_translation.language_id` FOREIGN KEY (`language_id`)

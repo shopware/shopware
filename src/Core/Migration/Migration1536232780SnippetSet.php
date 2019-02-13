@@ -25,7 +25,7 @@ class Migration1536232780SnippetSet extends MigrationStep
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+                CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             '
         );

@@ -31,7 +31,7 @@ class Migration1536232890SalesChannel extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
               UNIQUE `uniq.access_key` (`access_key`),
-              CONSTRAINT `JSON.configuration` CHECK (JSON_VALID(`configuration`)),
+              CONSTRAINT `json.configuration` CHECK (JSON_VALID(`configuration`)),
               CONSTRAINT `fk.sales_channel.country_id` FOREIGN KEY (`country_id`)
                 REFERENCES `country` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
               CONSTRAINT `fk.sales_channel.currency_id` FOREIGN KEY (`currency_id`)
@@ -58,7 +58,7 @@ SQL;
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`sales_channel_id`, `language_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.sales_channel_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.sales_channel_translation.sales_channel_id` FOREIGN KEY (`sales_channel_id`)

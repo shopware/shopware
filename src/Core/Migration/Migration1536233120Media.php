@@ -29,7 +29,7 @@ class Migration1536233120Media extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
                PRIMARY KEY (`id`),
-               CONSTRAINT `JSON.meta_data` CHECK (JSON_VALID(`meta_data`)),
+               CONSTRAINT `json.meta_data` CHECK (JSON_VALID(`meta_data`)),
                CONSTRAINT `fk.media.user_id` FOREIGN KEY (`user_id`)
                  REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
                CONSTRAINT `fk.media.media_folder_id` FOREIGN KEY (`media_folder_id`)
@@ -47,7 +47,7 @@ class Migration1536233120Media extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`media_id`, `language_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.media_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.media_translation.media_id` FOREIGN KEY (`media_id`)

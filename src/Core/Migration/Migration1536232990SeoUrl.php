@@ -30,7 +30,7 @@ class Migration1536232990SeoUrl extends MigrationStep
               PRIMARY KEY (`id`),
               INDEX `idx.seo_routing` (`sales_channel_id`, `seo_path_info`),
               INDEX `idx.entity_canonical_url` (`sales_channel_id`, `foreign_key`, `name`, `is_canonical`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.seo_url.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
                 REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

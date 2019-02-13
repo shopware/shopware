@@ -51,7 +51,7 @@ SQL;
               PRIMARY KEY (`language_id`,`state_machine_id`),
               KEY `idx.language` (`language_id`),
               KEY `idx.state_machine` (`state_machine_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
@@ -86,7 +86,7 @@ SQL;
               PRIMARY KEY (`language_id`,`state_machine_state_id`),
               KEY `idx.language` (`language_id`),
               KEY `idx.state_machine` (`state_machine_state_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
@@ -110,7 +110,7 @@ SQL;
               KEY `idx.from_state_id` (`from_state_id`),
               KEY `idx.to_state_id` (`to_state_id`),
               UNIQUE `uniq.action_name_state_machine` (`action_name`,`state_machine_id`,`from_state_id`,`to_state_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
         $connection->executeUpdate($sql);

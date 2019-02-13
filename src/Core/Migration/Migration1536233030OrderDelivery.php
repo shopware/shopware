@@ -33,8 +33,8 @@ class Migration1536233030OrderDelivery extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
               INDEX `idx.state_index` (`state_id`),
-              CONSTRAINT `JSON.shipping_costs` CHECK (JSON_VALID(`shipping_costs`)),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.shipping_costs` CHECK (JSON_VALID(`shipping_costs`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.order_delivery.order_id` FOREIGN KEY (`order_id`, `order_version_id`)
                 REFERENCES `order` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.order_delivery.shipping_order_address_id` FOREIGN KEY (`shipping_order_address_id`, `shipping_order_address_version_id`)

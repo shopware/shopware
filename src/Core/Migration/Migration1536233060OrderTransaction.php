@@ -29,9 +29,9 @@ class Migration1536233060OrderTransaction extends MigrationStep
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`, `version_id`),
               INDEX `idx.state_index` (`state_id`),
-              CONSTRAINT `JSON.amount` CHECK (JSON_VALID(`amount`)),
-              CONSTRAINT `JSON.details` CHECK (JSON_VALID (`details`)),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.amount` CHECK (JSON_VALID(`amount`)),
+              CONSTRAINT `json.details` CHECK (JSON_VALID (`details`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.order_transaction.order_id` FOREIGN KEY (`order_id`, `order_version_id`) 
                 REFERENCES `order` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.order_transaction.state_id` FOREIGN KEY (`state_id`)

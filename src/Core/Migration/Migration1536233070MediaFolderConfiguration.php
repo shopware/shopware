@@ -27,7 +27,7 @@ class Migration1536233070MediaFolderConfiguration extends MigrationStep
               CONSTRAINT `check.thumbnail_quality` CHECK (thumbnail_quality > 0 AND thumbnail_quality < 100),
               CONSTRAINT `check.width` CHECK (width >= 1),
               CONSTRAINT `check.height` CHECK (height >= 1),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`))
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`))
             );
         ');
     }

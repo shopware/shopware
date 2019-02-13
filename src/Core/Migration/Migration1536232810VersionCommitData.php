@@ -27,8 +27,8 @@ class Migration1536232810VersionCommitData extends MigrationStep
               `integration_id` BINARY(16) NULL,
               `created_at` DATETIME(3) NOT NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `JSON.entity_id` CHECK (JSON_VALID(`entity_id`)),
-              CONSTRAINT `JSON.payload` CHECK (JSON_VALID(`payload`)),
+              CONSTRAINT `json.entity_id` CHECK (JSON_VALID(`entity_id`)),
+              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`)),
               CONSTRAINT `fk.version_commit_data.version_commit_id` FOREIGN KEY  (`version_commit_id`)
                 REFERENCES `version_commit` (`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -29,7 +29,7 @@ class Migration1536232980Cart extends MigrationStep
               `sales_channel_id` BINARY(16) NOT NULL,
               `created_at` DATETIME(3) NOT NULL,
               PRIMARY KEY (`token`),
-              CONSTRAINT `JSON.cart` CHECK (JSON_VALID(`cart`)),
+              CONSTRAINT `json.cart` CHECK (JSON_VALID(`cart`)),
               CONSTRAINT `fk.cart.country_id` FOREIGN KEY (`country_id`)
                 REFERENCES `country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.cart.currency_id` FOREIGN KEY (`currency_id`)

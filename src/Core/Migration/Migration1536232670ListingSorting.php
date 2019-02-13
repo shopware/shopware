@@ -27,7 +27,7 @@ class Migration1536232670ListingSorting extends MigrationStep
               PRIMARY KEY (`id`),
               UNIQUE KEY `uniq.unique_key` (`unique_key`),
               KEY `idx.display_in_categories__position` (`display_in_categories`,`position`),
-              CONSTRAINT `JSON.payload` CHECK (JSON_VALID(`payload`))
+              CONSTRAINT `json.payload` CHECK (JSON_VALID(`payload`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
@@ -40,7 +40,7 @@ class Migration1536232670ListingSorting extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`listing_sorting_id`, `language_id`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.listing_sorting_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.listing_sorting_translation.listing_sorting_id` FOREIGN KEY (`listing_sorting_id`)

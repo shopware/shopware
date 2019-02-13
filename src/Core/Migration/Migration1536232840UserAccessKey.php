@@ -27,7 +27,7 @@ class Migration1536232840UserAccessKey extends MigrationStep
               PRIMARY KEY (`id`),
               INDEX `idx.user_id_user_tenant_id` (`user_id`),
               INDEX `idx.access_key` (`access_key`),
-              CONSTRAINT `JSON.attributes` CHECK (JSON_VALID(`attributes`)),
+              CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.user_access_key.user_id` FOREIGN KEY (`user_id`)
                 REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

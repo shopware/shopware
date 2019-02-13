@@ -6,8 +6,9 @@ const merge = require('webpack-merge');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const process = require('process');
-
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+const projectRoot = process.env.PROJECT_ROOT || '';
 
 /**
  * Resolves a given directory from the root path of the project
@@ -16,7 +17,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
  * @returns {String}
  */
 exports.resolveFromRootPath = function(directory) {
-    return path.join(process.env.PROJECT_ROOT, directory);
+    return path.join(projectRoot, directory);
 };
 
 /**
@@ -49,6 +50,10 @@ const includePaths = [
 exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
     const plugins = [];
     const path = exports.resolveFromRootPath(definitionFilePath);
+
+    if (!fs.existsSync(path)) {
+        return []
+    }
 
     if (!silent) {
         console.log('# Loading Shopware administration plugin definitions');

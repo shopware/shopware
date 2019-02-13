@@ -32,7 +32,9 @@ export default {
 
     props: {
         source: {
-            required: false
+            required: false,
+            type: Object,
+            default: null
         },
 
         variant: {

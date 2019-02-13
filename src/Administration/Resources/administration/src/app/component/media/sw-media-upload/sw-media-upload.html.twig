@@ -55,11 +55,11 @@
                     <div class="sw-media-upload__dropzone" ref="dropzone" :class="isDragActiveClass">
 
                         <template v-if="showPreview">
-                            <template v-if="source">
+                            <template v-if="source || preview">
                                 {% block sw_media_upload_regular_preview_file %}
                                     <sw-media-preview
                                         class="sw-media-upload__preview"
-                                        :source="source">
+                                        :source="source || preview">
                                     </sw-media-preview>
                                 {% endblock %}
                             </template>

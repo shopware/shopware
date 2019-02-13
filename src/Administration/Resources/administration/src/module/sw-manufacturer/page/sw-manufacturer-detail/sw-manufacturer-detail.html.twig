@@ -80,23 +80,6 @@
                         @sw-media-upload-remove-image="onUnlinkLogo">
                     </sw-media-upload>
                 {% endblock %}
-
-                <div v-else-if="mediaItem" class="sw-manufacturer-detail__image-pane" :class="logoFieldClasses">
-                    {% block sw_manufacturer_detail_logo %}
-                    <sw-media-preview class="sw-manufacturer-detail__logo"
-                                      :source="mediaItem"
-                                      :transparency="false">
-                    </sw-media-preview>
-                    {% endblock %}
-
-                    {% block sw_manufacturer_detail_logo_unlink_button %}
-                    <sw-button class="sw-manufacturer-detail__delete-logo"
-                               variant="danger"
-                               @click="onUnlinkLogo">
-                        <sw-icon color="#fff" name="default-action-trash" medium></sw-icon>
-                    </sw-button>
-                    {% endblock %}
-                </div>
             </sw-container>
 
             {% block sw_manufacturer_detail_base_info_field_description %}

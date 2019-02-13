@@ -25,6 +25,7 @@ export default {
 
     methods: {
         getMediaEntityForUpload() {
+            console.log(this.itemToReplace);
             return Promise.resolve(this.itemToReplace);
         },
 

@@ -482,8 +482,8 @@ class AttributesFieldTest extends TestCase
         $first = $result->first();
         $last = $result->last();
 
-        static::assertEquals($laterDate, $first->get('attributes')['datetime']);
-        static::assertEquals($earlierDate, $last->get('attributes')['datetime']);
+        static::assertEquals($laterDate->format(Defaults::DATE_FORMAT), $first->get('attributes')['datetime']);
+        static::assertEquals($earlierDate->format(Defaults::DATE_FORMAT), $last->get('attributes')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('attributes.datetime', FieldSorting::ASCENDING));
@@ -492,8 +492,8 @@ class AttributesFieldTest extends TestCase
 
         $first = $result->first();
         $last = $result->last();
-        static::assertEquals($earlierDate, $first->get('attributes')['datetime']);
-        static::assertEquals($laterDate, $last->get('attributes')['datetime']);
+        static::assertEquals($earlierDate->format(Defaults::DATE_FORMAT), $first->get('attributes')['datetime']);
+        static::assertEquals($laterDate->format(Defaults::DATE_FORMAT), $last->get('attributes')['datetime']);
     }
 
     public function testSortingDateTime(): void
@@ -527,20 +527,20 @@ class AttributesFieldTest extends TestCase
         $result = array_values($repo->search($criteria, Context::createDefaultContext())->getElements());
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[3], $result[0]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[2], $result[1]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[1], $result[2]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[0], $result[3]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[3]->format(Defaults::DATE_FORMAT), $result[0]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[2]->format(Defaults::DATE_FORMAT), $result[1]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[1]->format(Defaults::DATE_FORMAT), $result[2]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[0]->format(Defaults::DATE_FORMAT), $result[3]->get('attributes')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('attributes.datetime', FieldSorting::ASCENDING));
         $result = array_values($repo->search($criteria, Context::createDefaultContext())->getElements());
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[0], $result[0]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[1], $result[1]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[2], $result[2]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[3], $result[3]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[0]->format(Defaults::DATE_FORMAT), $result[0]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[1]->format(Defaults::DATE_FORMAT), $result[1]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[2]->format(Defaults::DATE_FORMAT), $result[2]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[3]->format(Defaults::DATE_FORMAT), $result[3]->get('attributes')['datetime']);
     }
 
     public function testSortingString(): void

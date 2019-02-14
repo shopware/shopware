@@ -174,13 +174,10 @@ class AttributeGenerator implements DemodataGeneratorInterface
                 return $faker->randomFloat();
 
             case AttributeTypes::INT:
-                return random_int(0, 2000000) - 1000000;
+                return random_int(-1000000, 1000000);
 
             case AttributeTypes::DATETIME:
-                $d = $faker->dateTime;
-                dump($d);
-
-                return $d;
+                return $faker->dateTime;
 
             case AttributeTypes::STRING:
             default:

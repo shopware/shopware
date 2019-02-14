@@ -47,7 +47,6 @@ class DemodataService
 
         $demodataContext = new DemodataContext($context, $faker, $this->projectDir, $console);
 
-
         /** @var EntityDefinition|string $definition */
         foreach ($request->all() as $definition => $numberOfItems) {
             if ($numberOfItems === 0) {

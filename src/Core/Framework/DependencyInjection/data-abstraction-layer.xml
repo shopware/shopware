@@ -258,6 +258,13 @@
             <tag name="shopware.entity.field_accessor_builder" priority="-200"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\AttributesFieldAccessorBuilder">
+            <argument type="service" id="Shopware\Core\Framework\Attribute\AttributeService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Version\VersionDefinition">
             <tag name="shopware.entity.definition" entity="version"/>
         </service>
@@ -1387,7 +1394,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
-            <argument type="service" id="attribute.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Attribute\AttributeService"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
 
             <tag name="shopware.field_serializer"/>

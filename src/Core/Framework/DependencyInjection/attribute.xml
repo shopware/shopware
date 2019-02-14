@@ -46,18 +46,17 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\AttributesFieldAccessorBuilder">
-            <argument type="service" id="attribute.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="shopware.entity.field_accessor_builder" priority="-100"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Attribute\Api\AttributeSetActionController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\Attribute\AttributeService">
+            <argument type="service" id="attribute.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

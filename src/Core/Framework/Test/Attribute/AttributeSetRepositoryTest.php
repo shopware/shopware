@@ -23,7 +23,8 @@ class AttributeSetRepositoryTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $attributeSet = [
             'id' => $id,
-            'config' => ['name' => 'test set'],
+            'name' => 'test set',
+            'config' => ['description' => 'test set'],
             'attributes' => [
                 [
                     'id' => Uuid::uuid4()->getHex(),
@@ -66,7 +67,8 @@ class AttributeSetRepositoryTest extends TestCase
         $attributeSets = [
             [
                 'id' => $id1,
-                'config' => ['name' => 'test set 1'],
+                'name' => 'test set 1',
+                'config' => ['description' => 'test 1'],
                 'attributes' => [
                     [
                         'id' => Uuid::uuid4()->getHex(),
@@ -85,7 +87,8 @@ class AttributeSetRepositoryTest extends TestCase
             ],
             [
                 'id' => $id2,
-                'config' => ['name' => 'test set 2'],
+                'name' => 'test set 2',
+                'config' => ['description' => 'test 2'],
                 'attributes' => [
                     [
                         'id' => Uuid::uuid4()->getHex(),
@@ -134,7 +137,8 @@ class AttributeSetRepositoryTest extends TestCase
 
         $attributeSet = [
             'id' => $id,
-            'config' => ['name' => 'test set'],
+            'name' => 'test set',
+            'config' => ['description' => 'test'],
             'attributes' => [
                 [
                     'id' => $attrId1,
@@ -182,7 +186,8 @@ class AttributeSetRepositoryTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $attributeSet = [
             'id' => $id,
-            'config' => ['name' => 'test set', 'foo' => 'bar'],
+            'name' => 'test set',
+            'config' => ['description' => 'test', 'foo' => 'bar'],
             'attributes' => [
                 [
                     'id' => Uuid::uuid4()->getHex(),
@@ -208,7 +213,8 @@ class AttributeSetRepositoryTest extends TestCase
 
         $update = [
             'id' => $id,
-            'config' => ['name' => 'test set update', 'translatable' => true],
+            'name' => 'test set update',
+            'config' => ['description' => 'update', 'translatable' => true],
         ];
         $result = $repo->update([$update], Context::createDefaultContext());
         $event = $result->getEventByDefinition(AttributeSetDefinition::class);

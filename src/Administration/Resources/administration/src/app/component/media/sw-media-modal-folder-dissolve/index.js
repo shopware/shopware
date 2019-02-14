@@ -63,14 +63,18 @@ export default {
             this.$emit(
                 'sw-media-modal-folder-dissolve-items-dissolved',
                 Promise.all(dissolvePromises).then((ids) => {
-                    this.createNotificationSuccess({
-                        message: notificationMessageSuccess
-                    });
+                    if (dissolvePromises.length > 1) {
+                        this.createNotificationSuccess({
+                            message: notificationMessageSuccess
+                        });
+                    }
                     return ids;
                 }).catch(() => {
-                    this.createNotificationError({
-                        message: notificationMessageError
-                    });
+                    if (dissolvePromises.length > 1) {
+                        this.createNotificationError({
+                            message: notificationMessageError
+                        });
+                    }
                 })
             );
         },

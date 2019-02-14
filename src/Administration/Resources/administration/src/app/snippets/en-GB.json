@@ -105,7 +105,7 @@
       "titleModal": "Move \"{mediaName}\" | Move {count} items",
       "buttonMove": "Move",
       "buttonAbort": "Cancel",
-      "notificationSuccessSingle": "File \"{mediaName}\" successfully moved.",
+      "notificationSuccessSingle": "Folder \"{mediaName}\" successfully moved.",
       "notificationErrorSingle": "Error moving \"{mediaName}\".",
       "notificationSuccessOverall": "Media item successfully moved.",
       "notificationErrorOverall": "Error moving item."

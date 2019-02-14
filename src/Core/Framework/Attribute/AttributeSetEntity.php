@@ -10,6 +10,11 @@ class AttributeSetEntity extends Entity
     use EntityIdTrait;
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var array|null
      */
     protected $config;
@@ -33,6 +38,16 @@ class AttributeSetEntity extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
 
     public function getConfig(): ?array
     {

@@ -97,7 +97,13 @@ class NavigationPageLoader implements PageLoaderInterface
             if (!isset($config[$slot->getId()])) {
                 continue;
             }
-            $slot->setConfig($config[$slot->getId()]);
+
+            $merged = array_replace_recursive(
+                $slot->getConfig(),
+                $config[$slot->getId()]
+            );
+
+            $slot->setConfig($merged);
         }
     }
 

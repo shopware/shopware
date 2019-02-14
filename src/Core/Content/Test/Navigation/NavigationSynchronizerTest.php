@@ -24,7 +24,7 @@ class NavigationSynchronizerTest extends TestCase
      */
     private $categoryRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->navigationRepository = $this->getContainer()->get('navigation.repository');

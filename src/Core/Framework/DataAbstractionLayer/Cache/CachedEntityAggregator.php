@@ -82,12 +82,19 @@ class CachedEntityAggregator implements EntityAggregatorInterface
     {
         /** @var AggregationResult $aggregationResult */
         foreach ($result->getAggregations() as $aggregationResult) {
-            $key = $this->cacheKeyGenerator->getAggregationCacheKey($aggregationResult->getAggregation(), $definition, $criteria, $context);
+            $key = $this->cacheKeyGenerator->getAggregationCacheKey(
+                $aggregationResult->getAggregation(),
+                $definition,
+                $criteria,
+                $context
+            );
+
+            $tags = $this->cacheKeyGenerator->getAggregationTags($definition, $criteria, $aggregationResult->getAggregation());
 
             /** @var CacheItem $item */
             $item = $this->cache->getItem($key);
             $item->set($aggregationResult);
-            $item->tag($key);
+            $item->tag($tags);
             $item->expiresAfter(3600);
 
             //deferred saves are persisted with the cache->commit()

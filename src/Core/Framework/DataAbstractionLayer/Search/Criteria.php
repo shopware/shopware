@@ -280,16 +280,32 @@ class Criteria extends Struct
         return $this;
     }
 
+    public function getAggregationQueryFields(): array
+    {
+        return $this->collectFields([
+            $this->filters,
+            $this->queries,
+        ]);
+    }
+
     public function getSearchQueryFields(): array
     {
-        $fields = [];
-
-        $parts = [
+        return $this->collectFields([
             $this->filters,
             $this->postFilters,
             $this->sorting,
             $this->queries,
-        ];
+        ]);
+    }
+
+    public function setIds(array $ids): void
+    {
+        $this->ids = $ids;
+    }
+
+    private function collectFields(array $parts): array
+    {
+        $fields = [];
 
         foreach ($parts as $part) {
             /** @var CriteriaPartInterface $item */
@@ -301,10 +317,5 @@ class Criteria extends Struct
         }
 
         return $fields;
-    }
-
-    public function setIds(array $ids): void
-    {
-        $this->ids = $ids;
     }
 }

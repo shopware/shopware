@@ -8,7 +8,7 @@ module.exports = {
             .openMainMenuEntry({
                 targetPath: '#/sw/settings/rule/index',
                 mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-country'
+                subMenuId: 'sw-settings-rule'
             });
     },
     'create new rule with basic condition': (browser) => {

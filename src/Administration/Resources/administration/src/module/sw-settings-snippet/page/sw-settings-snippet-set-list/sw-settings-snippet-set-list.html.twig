@@ -47,7 +47,8 @@
                                             {% endblock %}
 
                                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
-                                                <sw-button size="small"
+                                                <sw-button class="sw-settings-snippet-set-list__edit-set-action"
+                                                           size="small"
                                                            variant="primary"
                                                            :disabled="!snippetsEditiable"
                                                            @click="onEditSnippetSets">

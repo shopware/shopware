@@ -13,9 +13,7 @@ exports.command = function checkNotification(message, notification = defaultNoti
     this.expect.element(`${notification} ${type}__message`).to.have.text.that.contains(message);
 
     if (toBeClosed) {
-        this
-            .waitForElementVisible(`${notification} ${type}__close`)
-            .click(`${notification} ${type}__close`)
+        this.click(`${notification} ${type}__close`)
             .waitForElementNotPresent(notification);
     }
     return this;

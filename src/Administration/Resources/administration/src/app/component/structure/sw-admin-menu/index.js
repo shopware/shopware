@@ -91,8 +91,6 @@ export default {
             component: this
         });
 
-        console.log(this.menuService.getMainMenu());
-
         this.addScrollbarOffset();
     },
 

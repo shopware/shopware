@@ -31,7 +31,7 @@
         {% block sw_product_stream_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_product_stream_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.product.stream.create' }" variant="primary">
+                    <sw-button class="sw-product-stream-list__create-action" :routerLink="{ name: 'sw.product.stream.create' }" variant="primary">
                         {{ $tc('sw-product-stream.list.buttonAddProductStream') }}
                     </sw-button>
                 {% endblock %}

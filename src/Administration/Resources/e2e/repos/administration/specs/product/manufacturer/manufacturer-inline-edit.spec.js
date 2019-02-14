@@ -10,8 +10,9 @@ module.exports = {
     'navigate to manufacturer module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/product/index',
-                mainMenuId: 'sw-product'
+                targetPath: '#/sw/manufacturer/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-manufacturer'
             })
             .waitForElementVisible('.sw-button__content');
     },

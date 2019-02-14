@@ -71,7 +71,7 @@
                                                             sortable
                                                             editable>
                                                 {% block sw_settings_snippet_list_column_key_link %}
-                                                    <router-link :to="{
+                                                    <router-link class="sw-settings-snippet-list__column-name" :to="{
                                                             name: 'sw.settings.snippet.detail',
                                                             params: { key: item[metaId].translationKey },
                                                             query: { ids: queryIds, limit, page, isCustomState }
@@ -115,7 +115,7 @@
                                             <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
                                                     {% block sw_settings_snippet_list_grid_column_actions_edit %}
-                                                        <sw-context-menu-item :routerLink="{
+                                                        <sw-context-menu-item class="sw-settings-snippet-list__edit-action" :routerLink="{
                                                             name: 'sw.settings.snippet.detail',
                                                             params: { key: item[metaId].translationKey },
                                                             query: { ids: queryIds, limit, page, isCustomState }

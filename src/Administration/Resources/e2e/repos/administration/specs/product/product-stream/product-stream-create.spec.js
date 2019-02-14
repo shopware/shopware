@@ -9,8 +9,7 @@ module.exports = {
                 targetPath: '#/sw/product-stream/index',
                 mainMenuId: 'sw-product'
             })
-            .waitForElementPresent('.sw-button__content')
-            .click('.sw-button__content');
+            .click('.sw-product-stream-list__create-action');
     },
     'create new product stream with basic condition': (browser) => {
         const page = productStreamPage(browser);

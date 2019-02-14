@@ -17,9 +17,9 @@ module.exports = {
     'open currency module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/integration/index',
+                targetPath: '#/sw/settings/currency/index',
                 mainMenuId: 'sw-settings',
-                subMenuId: 'sw-integration'
+                subMenuId: 'sw-settings-currency'
             });
     },
     'inline edit currency': (browser) => {

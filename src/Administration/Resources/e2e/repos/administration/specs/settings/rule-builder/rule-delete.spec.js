@@ -13,7 +13,7 @@ module.exports = {
             .openMainMenuEntry({
                 targetPath: '#/sw/settings/rule/index',
                 mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-country'
+                subMenuId: 'sw-settings-rule'
             });
     },
     'find rule to be deleted': (browser) => {

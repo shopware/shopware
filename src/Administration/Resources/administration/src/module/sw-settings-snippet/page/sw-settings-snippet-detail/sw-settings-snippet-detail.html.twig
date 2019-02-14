@@ -29,7 +29,7 @@
                 {% endblock %}
 
                 {% block sw_settings_snippet_detail_actions_save %}
-                    <sw-button :disabled="isLoading || !this.translationKey || !this.isSavable"
+                    <sw-button class="sw-snippet-detail__save-action" :disabled="isLoading || !this.translationKey || !this.isSavable"
                                @click.prevent="onSave"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.detail.buttonSave') }}
@@ -46,20 +46,16 @@
                             <sw-card :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
                                      :isLoading="isLoading">
                                 <div class="snippet-general-card">
-                                    {% block sw_settings_snippet_set_detail_card_information_container %}
-                                        <sw-container>
-                                            {% block sw_settings_snippet_set_detail_card_information_key %}
-                                                <sw-field type="text"
-                                                          :label="$tc('sw-settings-snippet.detail.labelName')"
-                                                          :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
-                                                          v-model="translationKey"
-                                                          @focus="onFocus"
-                                                          @blur="onBlurTranslationKeyChange"
-                                                          :disabled="!(isCreate || isCustomState)"
-                                                          :errorMessage="invalidKeyErrorMessage">
-                                                </sw-field>
-                                            {% endblock %}
-                                        </sw-container>
+                                    {% block sw_settings_snippet_set_detail_card_information_key %}
+                                        <sw-field type="text"
+                                                  :label="$tc('sw-settings-snippet.detail.labelName')"
+                                                  :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
+                                                  v-model="translationKey"
+                                                  @focus="onFocus"
+                                                  @blur="onBlurTranslationKeyChange"
+                                                  :disabled="!(isCreate || isCustomState)"
+                                                  :errorMessage="invalidKeyErrorMessage">
+                                        </sw-field>
                                     {% endblock %}
                                 </div>
                             </sw-card>
@@ -69,19 +65,16 @@
                             <sw-card :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
                                      :isLoading="isLoading">
                                 <div class="snippet-overview-card">
-                                    {% block sw_settings_snippet_set_detail_card_snippets_container %}
-                                        <sw-container>
-                                            {% block sw_settings_snippet_set_detail_card_snippets_fields %}
-                                                <sw-field type="text"
-                                                          v-for="snippet in snippets"
-                                                          v-model="snippet.value"
-                                                          :disabled="isCreate"
-                                                          :key="snippet.setId"
-                                                          :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[snippet.setId].name })"
-                                                          :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">
-                                                </sw-field>
-                                            {% endblock %}
-                                        </sw-container>
+                                    {% block sw_settings_snippet_set_detail_card_snippets_fields %}
+                                        <sw-field type="text"
+                                                  v-for="(snippet, index) in snippets"
+                                                  v-model="snippet.value"
+                                                  :class="`sw-settings-snippet-detail__translation-field--${index}`"
+                                                  :disabled="isCreate"
+                                                  :key="snippet.setId"
+                                                  :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[snippet.setId].name })"
+                                                  :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">
+                                        </sw-field>
                                     {% endblock %}
                                 </div>
                             </sw-card>

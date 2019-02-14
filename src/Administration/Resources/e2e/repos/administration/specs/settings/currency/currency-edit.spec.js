@@ -12,9 +12,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/integration/index',
+                targetPath: '#/sw/settings/currency/index',
                 mainMenuId: 'sw-settings',
-                subMenuId: 'sw-integration'
+                subMenuId: 'sw-settings-currency'
             })
             .waitForElementVisible('.sw-settings-currency-list-grid')
             .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)

@@ -13,7 +13,7 @@ module.exports = {
             .openMainMenuEntry({
                 targetPath: '#/sw/settings/snippet/index',
                 mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-snippets'
+                subMenuId: 'sw-settings-snippet'
             });
     },
     'verify snippet set to be edited': (browser) => {

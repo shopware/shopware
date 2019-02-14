@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+.sw-plugin-last-updates-grid {
+
+    .sw-plugin-last-updates-grid__info-container {
+        align-items: center;
+
+        img {
+            margin-right: 10px;
+            height: 32px;
+            width: 32px;
+        }
+
+        .sw-plugin-last-updates-grid__plugin-info {
+            display: flex;
+            flex-direction: column;
+
+            .sw-plugin-last-updates-grid__upgraded-date {
+                color: #9aa7be;
+                font-size: 14px;
+            }
+        }
+
+    }
+
+    .sw-plugin-last-updates-grid__version {
+        font-size: 14px;
+        color: $color-gray;
+    }
+}

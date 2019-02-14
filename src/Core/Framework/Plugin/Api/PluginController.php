@@ -150,4 +150,19 @@ class PluginController extends AbstractController
 
         return new JsonResponse($pluginName);
     }
+
+    /**
+     * @Route("/api/v{version}/_action/plugin/lastUpdates", name="api.action.plugin.lastUpdates", methods={"GET"})
+     */
+    public function getLastUpdates(Request $request, Context $context): Response
+    {
+        $lastUpdates = $this->pluginService->getLastPluginUpdates($context);
+
+        $response = [
+            'total' => count($lastUpdates),
+            'items' => $lastUpdates,
+        ];
+
+        return new JsonResponse($response);
+    }
 }

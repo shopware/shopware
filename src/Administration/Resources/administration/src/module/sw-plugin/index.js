@@ -3,9 +3,11 @@ import { NEXT1223 } from 'src/flag/feature_next1223';
 import './page/sw-plugin-manager';
 import './view/sw-plugin-list';
 import './view/sw-plugin-license-list';
-import './view/sw-plugin-updates-list';
+import './view/sw-plugin-updates';
 import './component/sw-plugin-file-upload';
 import './component/sw-plugin-store-login';
+import './component/sw-plugin-updates-grid';
+import './component/sw-plugin-last-updates-grid';
 
 Module.register('sw-plugin', {
     flag: NEXT1223,
@@ -37,7 +39,7 @@ Module.register('sw-plugin', {
                     path: 'licenses'
                 },
                 updates: {
-                    component: 'sw-plugin-updates-list',
+                    component: 'sw-plugin-updates',
                     path: 'updates'
                 }
             }

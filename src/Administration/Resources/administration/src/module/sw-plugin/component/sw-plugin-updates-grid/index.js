@@ -1,8 +1,8 @@
 import { Component, Mixin } from 'src/core/shopware';
-import template from './sw-plugin-updates-list.twig';
-import './sw-plugin-updates-list.scss';
+import template from './sw-plugin-updates-grid.twig';
+import './sw-plugin-updates-grid.scss';
 
-Component.register('sw-plugin-updates-list', {
+Component.register('sw-plugin-updates-grid', {
     template,
 
     inject: ['storeService'],
@@ -18,12 +18,6 @@ Component.register('sw-plugin-updates-list', {
             updates: [],
             isLoading: false
         };
-    },
-
-    computed: {
-        showPagination() {
-            return (this.total >= 25);
-        }
     },
 
     watch: {
@@ -45,7 +39,7 @@ Component.register('sw-plugin-updates-list', {
             }).catch(() => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-plugin.updates-list.updateError')
+                    message: this.$tc('sw-plugin.updates.updateError')
                 });
             });
         }

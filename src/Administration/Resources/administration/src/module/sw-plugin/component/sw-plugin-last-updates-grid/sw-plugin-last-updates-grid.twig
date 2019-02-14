@@ -1,0 +1,75 @@
+{% block sw_plugin_last_updates_grid %}
+<div class="sw-plugin-last-updates-grid">
+    {% block sw_plugin_last_updates_grid_top_action %}
+    <div class="sw-plugin-manager__top-actions">
+        <h1> {{ $tc('sw-plugin.updates.lastUpdatesHeader') }}</h1>
+    </div>
+    {% endblock %}
+
+    {% block sw_plugin_last_updates_card %}
+    <sw-card :isLoading="isLoading" class="sw-card--grid">
+        {% block sw_plugin_last_updates_card_grid %}
+        <sw-grid v-show="isLoading || total"
+                 :items="lastUpdates"
+                 :selectable="false"
+                 slot="grid"
+                 table>
+
+            {% block sw_plugin_last_updates_card_grid_slots %}
+            <template slot="columns" slot-scope="{ item }">
+
+                {% block sw_plugin_last_updates_card_grid_columns_id %}
+                <sw-grid-column flex="minmax(100px, 1fr)"
+                                :label="$tc('sw-plugin.list.columnPlugin')"
+                                dataIndex="name"
+                                truncate
+                                sortable>
+                    {% block sw_plugin_last_updates_card_grid_columns_id_label %}
+                    <div class="sw-plugin-last-updates-grid__info-container">
+                        <div class="sw-plugin-last-updates-grid__plugin-info">
+                            <p>{{ item.name }}</p>
+                            <p class="sw-plugin-last-updates-grid__upgraded-date">{{ item.upgradedAt | date }}</p>
+                        </div>
+                    </div>
+                    {% endblock %}
+                </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_plugin_last_updates_card_grid_columns_name %}
+                    <sw-grid-column flex="minmax(100px, 1fr)"
+                                    :label="$tc('sw-plugin.list.columnChangelog')"
+                                    dataIndex="changelog"
+                                    truncate
+                                    sortable>
+                        {% block sw_plugin_last_updates_card_grid_columns_name_label %}
+                            <div v-for="changelog in getLatestChangelog(item)">
+                                {{ changelog }}
+                            </div>
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_plugin_last_updates_card_grid_columns_action %}
+                    <sw-grid-column flex="minmax(100px, 0.5fr)"
+                                    align="center">
+                        {% block sw_plugin_last_updates_card_grid_columns_update_button %}
+                            <p class="sw-plugin-last-updates-grid__version">{{ $tc('sw-plugin.general.version') }} {{ item.version }}</p>
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+            </template>
+            {% endblock %}
+
+        </sw-grid>
+        {% endblock %}
+
+        {% block sw_plugin_last_updates_card_empty_state %}
+            <sw-empty-state v-if="!isLoading && !total"
+                            :title="$tc('sw-plugin.updates.messageEmpty')"></sw-empty-state>
+        {% endblock %}
+
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

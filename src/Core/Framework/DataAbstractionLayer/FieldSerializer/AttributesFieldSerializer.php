@@ -42,21 +42,28 @@ class AttributesFieldSerializer extends JsonFieldSerializer
             throw new InvalidSerializerFieldException(AttributesField::class, $field);
         }
 
-        $attributes = $data->getValue();
-        foreach ($attributes as $attribute => $value) {
-            $attributes[$attribute] = $this->encodeAttribute($attribute, $value, $parameters->getContext()->getContext());
-        }
-
-        // entity does not exist: simply encode
-        if (!$existence->exists()) {
-            yield from parent::encode($field, $existence, new KeyValuePair($data->getKey(), $attributes, $data->isRaw()), $parameters);
+        // encode null and [] as null / delete attributes
+        if (empty($data->getValue())) {
+            yield $data->getKey() => null;
 
             return;
         }
-        $this->writeExtractor->extractJsonUpdate([$field->getStorageName() => $attributes], $existence, $parameters);
 
-        return;
-        yield __CLASS__ => __METHOD__;
+        $encoded = [];
+        foreach ($data->getValue() as $attribute => $value) {
+            $attribute = (string) $attribute;
+            $encoded[$attribute] = $this->encodeAttribute($attribute, $value, $parameters->getContext()->getContext());
+        }
+
+        if ($existence->exists()) {
+            $this->writeExtractor->extractJsonUpdate([$field->getStorageName() => $encoded], $existence, $parameters);
+
+            return;
+        }
+
+        // entity does not exist: simply encode
+        $kvPair = new KeyValuePair($data->getKey(), $encoded, $data->isRaw());
+        yield from parent::encode($field, $existence, $kvPair, $parameters);
     }
 
     public function decode(Field $field, $attributes)

@@ -243,7 +243,8 @@
           "error-message": "Condition type {type} was not found. The condition includes the field: {fields} | The condition type {type} was not found. The conditions include the fields: {fields}"
         },
         "subCondition": "subcondition",
-        "deleteConditions": "Delete all",
+        "deleteConditions": "Delete container",
+        "deleteAllConditions": "Delete all",
         "createBefore": "Create before",
         "createAfter": "Create after",
         "delete": "Delete"

@@ -18,7 +18,7 @@ class Migration1536233100MediaDefaultFolder extends MigrationStep
             CREATE TABLE `media_default_folder` (
               `id` BINARY(16) NOT NULL,
               `media_folder_id` BINARY(16),
-              `associations` JSON NOT NULL,
+              `association_fields` JSON NOT NULL,
               `entity` VARCHAR(255) NOT NULL,
               `attributes` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
@@ -27,7 +27,7 @@ class Migration1536233100MediaDefaultFolder extends MigrationStep
               UNIQUE KEY `uniq.entity` (`entity`),
               UNIQUE KEY `uniq.media_folder_id` (`media_folder_id`),
               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
-              CONSTRAINT `json.associations` CHECK (JSON_VALID(`associations`)),
+              CONSTRAINT `json.association_fields` CHECK (JSON_VALID(`association_fields`)),
               CONSTRAINT `fk.media_default_folder.media_folder_id` FOREIGN KEY (`media_folder_id`) 
                 REFERENCES `media_folder` (`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

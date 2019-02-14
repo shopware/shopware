@@ -473,8 +473,8 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $queue = new MultiInsertQueryQueue($connection);
 
-        $queue->addInsert('media_default_folder', ['id' => Uuid::uuid4()->getBytes(), 'associations' => '["productMedia"]', 'entity' => 'product', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('media_default_folder', ['id' => Uuid::uuid4()->getBytes(), 'associations' => '["productManufacturers"]', 'entity' => 'product_manufacturer', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::uuid4()->getBytes(), 'association_fields' => '["productMedia"]', 'entity' => 'product', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::uuid4()->getBytes(), 'association_fields' => '["productManufacturers"]', 'entity' => 'product_manufacturer', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         $queue->execute();
     }

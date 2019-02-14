@@ -79,7 +79,7 @@ class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 ));
             default:
                 return new FieldAccessor(sprintf(
-                    'IF(JSON_TYPE(%s) != "NULL", JSON_UNQUOTE(%s) COLLATE utf8mb4_unicode_ci, NULL)',
+                    'IF(JSON_TYPE(%s) != "NULL", CONVERT(JSON_UNQUOTE(%s) USING "utf8mb4") COLLATE utf8mb4_unicode_ci, NULL)',
                     $jsonValueExpr,
                     $jsonValueExpr
                 ));

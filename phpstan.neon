@@ -9,6 +9,7 @@ parameters:
         - %rootDir%/../../src/Core/Framework/Demodata/Generator/CategoryGenerator.php
         - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductGenerator.php
         - %rootDir%/../../src/Core/Framework/Demodata/Generator/ProductStreamGenerator.php
+        - %rootDir%/../../src/Core/Framework/Demodata/Generator/AttributeGenerator.php
         - %rootDir%/../../src/Core/Framework/Faker/Commerce.php
         - %rootDir%/../../src/Core/TestBootstrap.php
         - %rootDir%/../../src/Core/System/Test/SystemConfig/TestKernel.php

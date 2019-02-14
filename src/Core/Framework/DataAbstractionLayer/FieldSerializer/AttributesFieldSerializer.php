@@ -143,19 +143,12 @@ class AttributesFieldSerializer extends JsonFieldSerializer
         switch ($attribute->getType()) {
             case AttributeTypes::BOOL:
                 return (bool) $value;
-            case AttributeTypes::DATETIME:
-                if (!is_string($value)) {
-                    return null;
-                }
-                try {
-                    return new \DateTime($value);
-                } catch (\Exception $e) {
-                    return null;
-                }
             case AttributeTypes::INT:
                 return (int) $value;
             case AttributeTypes::FLOAT:
                 return (float) $value;
+            case AttributeTypes::DATETIME:
+            case AttributeTypes::STRING:
             default:
                 return $value;
         }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Command;
 
 use function Flag\next739;
+use function Flag\next754;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
@@ -14,6 +15,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\Attribute\AttributeSetDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
@@ -61,6 +63,17 @@ class DemodataCommand extends Command
         $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 0);
         $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables services for products', 1);
         $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
+
+        if (next754()) {
+            $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'Attribute set count', 4);
+
+            $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
+            $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
+            $this->addOption('category-attributes', null, InputOption::VALUE_REQUIRED, 'Category attribute count');
+            $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
+            $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
+            $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -77,6 +90,7 @@ class DemodataCommand extends Command
         $context = Context::createDefaultContext();
 
         $request = new DemodataRequest();
+
         $request->add(RuleDefinition::class, 5);
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
         $request->add(ConfigurationGroupDefinition::class, (int) $input->getOption('properties'));
@@ -92,6 +106,14 @@ class DemodataCommand extends Command
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
         $request->add(CmsPageDefinition::class, 1);
+
+        if (next754()) {
+            $request->add(
+                AttributeSetDefinition::class,
+                (int) $input->getOption('attribute-sets'),
+                $this->getAttributeOptions($input)
+            );
+        }
 
         $demoContext = $this->demodataService->generate($request, $context, $io);
 
@@ -118,5 +140,19 @@ class DemodataCommand extends Command
         }
 
         return $productOptions;
+    }
+
+    protected function getAttributeOptions(InputInterface $input): array
+    {
+        return [
+            'relations' => [
+                'product' => (int) ($input->getOption('product-attributes') ?? $input->getOption('product-attributes') * 0.1),
+                'product_manufacturer' => (int) ($input->getOption('manufacturer-attributes') ?? $input->getOption('manufacturer-attributes') * 0.1),
+                'category' => (int) ($input->getOption('category-attributes') ?? $input->getOption('category-attributes') * 0.1),
+                'order' => (int) ($input->getOption('order-attributes') ?? $input->getOption('order-attributes') * 0.1),
+                'customer' => (int) ($input->getOption('customer-attributes') ?? $input->getOption('customer-attributes') * 0.1),
+                'media' => (int) ($input->getOption('media-attributes') ?? $input->getOption('media-attributes') * 0.1),
+            ],
+        ];
     }
 }

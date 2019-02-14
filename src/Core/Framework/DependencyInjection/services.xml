@@ -146,11 +146,6 @@
         <!-- Snippets -->
         <service id="Shopware\Core\Framework\Snippet\SnippetFlattener" public="true"/>
 
-        <service id="Shopware\Core\Framework\Snippet\SnippetFileConverter" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetFlattener"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Snippet\SnippetService" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetFlattener"/>

@@ -119,7 +119,6 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
-            <argument type="service" id="navigation.repository" />
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" />

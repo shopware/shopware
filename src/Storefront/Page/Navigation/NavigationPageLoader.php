@@ -9,8 +9,6 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
 use Shopware\Core\Content\Navigation\NavigationEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -38,13 +36,7 @@ class NavigationPageLoader implements PageLoaderInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $navigationRepository;
-
     public function __construct(
-        EntityRepositoryInterface $navigationRepository,
         PageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         StorefrontCmsPageRepository $storefrontCmsPageRepository,
@@ -54,7 +46,6 @@ class NavigationPageLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageRepository = $storefrontCmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
-        $this->navigationRepository = $navigationRepository;
     }
 
     public function load(InternalRequest $request, CheckoutContext $context): NavigationPage
@@ -62,8 +53,9 @@ class NavigationPageLoader implements PageLoaderInterface
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
+        /** @var NavigationEntity $navigation */
         // step 1, load navigation
-        $navigation = $this->loadNavigation($request, $context);
+        $navigation = $page->getHeader()->getNavigation()->getActive();
 
         // step 2, load cms structure
         $cmsPage = $this->getCmsPage($navigation->getCmsPageId(), $context);
@@ -134,17 +126,5 @@ class NavigationPageLoader implements PageLoaderInterface
         $page = $pages->first();
 
         return $page;
-    }
-
-    private function loadNavigation(InternalRequest $request, CheckoutContext $context): NavigationEntity
-    {
-        $navigationId = $request->requireRouting('navigationId');
-
-        $criteria = new Criteria([$navigationId]);
-
-        /* @var NavigationEntity $navigation */
-        return $this->navigationRepository
-            ->search($criteria, $context->getContext())
-            ->first();
     }
 }

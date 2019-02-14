@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Navigation;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\Context;
@@ -29,6 +30,8 @@ class NavigationSynchronizerTest extends TestCase
         parent::setUp();
         $this->navigationRepository = $this->getContainer()->get('navigation.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
+
+        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM navigation');
     }
 
     public function testAddCategory()

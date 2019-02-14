@@ -120,7 +120,7 @@ class CachedEntityReader implements EntityReaderInterface
         $cloned->setIds($fallback);
 
         //load missed cache items from storage
-        $persistent = $this->decorated->read($definition, clone $criteria, $context);
+        $persistent = $this->decorated->read($definition, $cloned, $context);
 
         //cache all loaded items and add to collection
         foreach ($persistent as $item) {

@@ -36,8 +36,8 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Util\AssetService"/>
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
@@ -97,6 +97,12 @@
         <!-- Helper -->
         <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider" public="true">
             <argument type="service" id="plugin.repository"/>
+        </service>
+
+        <!-- Requirement -->
+        <service id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator">
+            <argument type="service" id="plugin.repository"/>
+            <argument>%kernel.project_dir%</argument>
         </service>
     </services>
 </container>

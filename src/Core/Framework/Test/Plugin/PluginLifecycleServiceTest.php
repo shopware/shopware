@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\AssetService;
@@ -317,8 +318,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(MigrationRuntime::class),
             $this->connection,
             $this->container->get(AssetService::class),
-            $this->container->getParameter('kernel.project_dir'),
-            $this->container->get(CommandExecutor::class)
+            $this->container->get(CommandExecutor::class),
+            $this->container->get(RequirementsValidator::class)
         );
     }
 

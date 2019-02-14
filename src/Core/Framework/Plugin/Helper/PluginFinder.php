@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Helper;
 
-use Composer\Factory;
-use Composer\IO\NullIO;
+use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Symfony\Component\Finder\Finder;
 
 class PluginFinder
@@ -20,12 +19,7 @@ class PluginFinder
             $pluginNamesWithPaths[$filesystemPlugin->getFilename()] = $filesystemPlugin->getPathname();
         }
 
-        $composer = (new Factory())->createComposer(
-            new NullIO(),
-            $projectDir . '/composer.json',
-            false,
-            $projectDir
-        );
+        $composer = Factory::createComposer($projectDir);
 
         $composerPackages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
         foreach ($composerPackages as $composerPackage) {

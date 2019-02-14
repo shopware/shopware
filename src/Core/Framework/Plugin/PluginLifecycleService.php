@@ -29,8 +29,11 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
+use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Util\AssetServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -84,14 +87,14 @@ class PluginLifecycleService
     private $assetInstaller;
 
     /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
      * @var CommandExecutor
      */
     private $executor;
+
+    /**
+     * @var RequirementsValidator
+     */
+    private $requirementValidator;
 
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
@@ -103,8 +106,8 @@ class PluginLifecycleService
         MigrationRuntime $migrationRunner,
         Connection $connection,
         AssetServiceInterface $assetInstaller,
-        string $projectDir,
-        CommandExecutor $executor
+        CommandExecutor $executor,
+        RequirementsValidator $requirementValidator
     ) {
         $this->pluginRepo = $pluginRepo;
         $this->eventDispatcher = $eventDispatcher;
@@ -115,10 +118,14 @@ class PluginLifecycleService
         $this->migrationRunner = $migrationRunner;
         $this->connection = $connection;
         $this->assetInstaller = $assetInstaller;
-        $this->projectDir = $projectDir;
         $this->executor = $executor;
+        $this->requirementValidator = $requirementValidator;
     }
 
+    /**
+     * @throws PluginComposerJsonInvalidException
+     * @throws RequirementStackException
+     */
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
     {
         $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
@@ -136,8 +143,10 @@ class PluginLifecycleService
         }
 
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (next1797() && strpos($pluginBaseClass->getPath(), $this->projectDir . '/vendor') === false) {
+        if (next1797()) {
             $this->executor->require($plugin->getComposerName());
+        } else {
+            $this->requirementValidator->validateRequirements($pluginBaseClass, $shopwareContext, 'install');
         }
 
         $pluginData['id'] = $plugin->getId();
@@ -232,6 +241,10 @@ class PluginLifecycleService
         return $uninstallContext;
     }
 
+    /**
+     * @throws PluginComposerJsonInvalidException
+     * @throws RequirementStackException
+     */
     public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
     {
         $pluginBaseClass = $this->getPluginBaseClass($plugin->getName());
@@ -247,6 +260,8 @@ class PluginLifecycleService
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
         if (next1797()) {
             $this->executor->require($plugin->getComposerName());
+        } else {
+            $this->requirementValidator->validateRequirements($pluginBaseClass, $shopwareContext, 'update');
         }
 
         $this->eventDispatcher->dispatch(
@@ -392,11 +407,12 @@ class PluginLifecycleService
 
     private function runMigrations(Plugin $pluginBaseClass): void
     {
-        $migrationPath = $pluginBaseClass->getPath() . str_replace(
-            $pluginBaseClass->getNamespace(),
-            '',
-            str_replace('\\', '/', $pluginBaseClass->getMigrationNamespace())
-        );
+        $migrationPath = $pluginBaseClass->getPath() .
+            str_replace(
+                $pluginBaseClass->getNamespace(),
+                '',
+                str_replace('\\', '/', $pluginBaseClass->getMigrationNamespace())
+            );
 
         if (!is_dir($migrationPath)) {
             return;

@@ -139,7 +139,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             if (is_array($value) || is_object($value)) {
                 $values[] = \json_encode($value, JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_UNICODE);
-                $sets[] = '?, CAST(? AS json)';
+                // does the same thing as CAST(?, json) but works on mariadb
+                $sets[] = '?, JSON_MERGE("{}", ?)';
             } else {
                 $values[] = $value;
                 $sets[] = '?, ?';

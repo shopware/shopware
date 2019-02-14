@@ -351,8 +351,14 @@ EOF;
         $criteria->addFilter(new EqualsFilter($keyWithQuotes, 'bar'));
 
         // invalid json path
-        static::expectException(DBALException::class);
-        $repo->search(JsonDefinition::class, $criteria, $context);
+        //static::expectException(DBALException::class);
+        try {
+            $result = $repo->search(JsonDefinition::class, $criteria, $context);
+            static::assertEmpty($result->getIds());
+        } catch (DBALException $exception) {
+            // mysql throws an exception on invalid path
+            static::assertTrue(true);
+        }
     }
 
     protected function createWriteContext(): WriteContext

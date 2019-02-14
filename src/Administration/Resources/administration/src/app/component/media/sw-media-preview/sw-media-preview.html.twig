@@ -3,7 +3,12 @@
         {% block sw_media_preview_file_type_check %}
             <template v-if="mimeTypeGroup === 'image'">
                 {% block sw_media_preview_file_type_image %}
-                    <img :src="previewUrl" :alt="alt" class="sw-media-preview__item" :class="transparencyClass">
+                    <img :src="previewUrl"
+                         :alt="alt"
+                         :srcset="sourceSet"
+                         :sizes="`${width}px`"
+                         class="sw-media-preview__item"
+                         :class="transparencyClass">
                 {% endblock %}
             </template>
 

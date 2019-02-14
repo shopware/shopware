@@ -28,6 +28,6 @@ class TestSnippetExtensionFile_de_DE implements SnippetFileInterface
 
     public function isBase(): bool
     {
-        return SnippetFileInterface::PLUGIN_SNIPPET_EXTENSION_FILE;
+        return false;
     }
 }

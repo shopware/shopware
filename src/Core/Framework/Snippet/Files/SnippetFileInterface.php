@@ -4,10 +4,6 @@ namespace Shopware\Core\Framework\Snippet\Files;
 
 interface SnippetFileInterface
 {
-    public const BASE_SNIPPET_FILE = true;
-
-    public const PLUGIN_SNIPPET_EXTENSION_FILE = false;
-
     /**
      * Returns the displayed name.
      *

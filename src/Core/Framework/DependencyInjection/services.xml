@@ -144,11 +144,8 @@
         </service>
 
         <!-- Snippets -->
-        <service id="Shopware\Core\Framework\Snippet\SnippetFlattener" public="true"/>
-
-        <service id="Shopware\Core\Framework\Snippet\SnippetService" public="true">
+        <service id="Shopware\Core\Framework\Snippet\SnippetService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetFlattener"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
             <argument type="service" id="snippet.repository"/>
             <argument type="service" id="snippet_set.repository"/>

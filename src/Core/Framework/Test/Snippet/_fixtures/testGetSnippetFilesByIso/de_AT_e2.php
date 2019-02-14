@@ -28,6 +28,6 @@ class de_AT_e2 implements SnippetFileInterface
 
     public function isBase(): bool
     {
-        return SnippetFileInterface::BASE_SNIPPET_FILE;
+        return true;
     }
 }

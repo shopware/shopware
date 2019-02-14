@@ -1,9 +1,6 @@
 @import "~scss/variables";
 
-$sw-simple-search-field-input-color:                $color-light-gray;
-$sw-simple-search-field-input-background-focused:   $color-white;
-$sw-simple-search-field-input-border-color-focused: $color-shopware-blue;
-$sw-simple-search-field-search-icon-color:          $color-gutenberg;
+$sw-simple-search-field-search-icon-color: $color-gutenberg;
 
 .sw-simple-search-field {
     position: relative;

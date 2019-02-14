@@ -1,0 +1,79 @@
+{% block sw_customer_detail_order_card %}
+    <sw-card class="sw-customer-detail-order">
+        {% block sw_customer_detail_order_card_toolbar %}
+            <div class="sw-customer-detail-order-toolbar">
+                <sw-card-filter
+                        :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
+                        @sw-card-filter-term-change="onChange">
+                </sw-card-filter>
+            </div>
+        {% endblock %}
+
+        {% block sw_customer_detail_order_card_grid %}
+            <template slot="grid">
+                <sw-grid :items="orders"
+                         :selectable="false"
+                         :sortBy="sortBy"
+                         :sortDirection="sortDirection"
+                         @sort-column="onSortColumn">
+                    {% block sw_customer_detail_order_card_grid_columns %}
+                        <template slot="columns" slot-scope="{ item }">
+                            {% block sw_customer_detail_order_card_grid_columns_number %}
+                                <sw-grid-column flex="minmax(200px, 1fr)"
+                                                truncate
+                                                :label="$tc('sw-customer.detailOrder.columnNumber')"
+                                                dataIndex="id"
+                                                sortable
+                                                align="center">
+
+                                    <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                        {{ item.id }}
+                                    </router-link>
+                                </sw-grid-column>
+                            {% endblock %}
+                            {% block sw_customer_detail_order_card_grid_columns_amount %}
+                                <sw-grid-column flex="minmax(120px, 1fr)"
+                                                :label="$tc('sw-customer.detailOrder.columnAmount')"
+                                                dataIndex="amountTotal"
+                                                sortable
+                                                align="right">
+                                    {{ item.amountTotal }} {{ item.currency.symbol }}
+                                </sw-grid-column>
+                            {% endblock %}
+                            {% block sw_customer_detail_order_card_grid_columns_state %}
+                                <sw-grid-column flex="minmax(120px, 1fr)"
+                                                :label="$tc('sw-customer.detailOrder.columnOrderState')"
+                                                dataIndex="stateMachineState.name"
+                                                sortable
+                                                align="left">
+                                    {{ item.stateMachineState.name }}
+                                </sw-grid-column>
+                            {% endblock %}
+                            {% block sw_customer_detail_order_card_grid_columns_date %}
+                                <sw-grid-column flex="minmax(120px, 1fr)"
+                                                :label="$tc('sw-customer.detailOrder.columnOrderDate')"
+                                                dataIndex="createdAt"
+                                                sortable
+                                                align="center">
+                                    {{ item.createdAt|date }}
+                                </sw-grid-column>
+                            {% endblock %}
+                            {% block sw_customer_detail_order_card_grid_columns_action %}
+                                <sw-grid-column flex="minmax(100px, 100px)" align="center">
+                                    {% block sw_customer_detail_order_card_grid_columns_action_button %}
+                                        <sw-context-button>
+                                            <sw-context-menu-item class="sw-order-list-order-view-action"
+                                                                  :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                                {{ $tc('sw-customer.detailOrder.columnContextOpenOrder') }}
+                                            </sw-context-menu-item>
+                                        </sw-context-button>
+                                    {% endblock %}
+                                </sw-grid-column>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-grid>
+            </template>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

@@ -22,6 +22,11 @@ $sw-grid-table-row-color-background:      $color-white;
     grid-template-rows: 100%;
     border: 1px solid $sw-grid-item-color-border;
 
+    .sw-card & {
+        border: none;
+        border-top: 1px solid $sw-grid-item-color-border;
+    }
+
     &.sw-grid--sidebar {
         grid-template-columns: 1fr auto;
     }

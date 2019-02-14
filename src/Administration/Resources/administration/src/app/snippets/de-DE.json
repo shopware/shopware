@@ -394,6 +394,7 @@
     "detailBase": {
       "labelAccountCard": "Konto",
       "labelAddressesCard": "Adressen",
+      "labelOrderCard": "Bestellungen",
       "titleDefaultShippingAddress": "Standard-Lieferadresse",
       "titleDefaultBillingAddress": "Standard-Rechnungsadresse",
       "buttonAddAddress": "Adresse anlegen",
@@ -424,6 +425,14 @@
       "columnActions": "Aktionen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen"
+    },
+    "detailOrder": {
+      "searchbarPlaceholder": "Suche nach Bestellungen",
+      "columnNumber": "Bestellnummer",
+      "columnAmount": "Betrag",
+      "columnOrderState": "Bestellstatus",
+      "columnOrderDate": "Bestelldatum",
+      "columnContextOpenOrder": "Bestellung öffnen"
     },
     "addressForm": {
       "labelCompany": "Firma",

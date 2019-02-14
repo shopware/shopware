@@ -217,8 +217,8 @@
         "shippingStreetRule": "Lieferstraße",
         "shippingZipCodeRule": "Liefer-PLZ",
         "cartAmountRule": "Warenkorbwert",
-        "goodsCountRule": "Anzahl Warenkorb Produkte",
-        "goodsPriceRule": "Gesamtpreis Warenkorb Produkte",
+        "goodsCountRule": "Anzahl Warenkorb-Produkte",
+        "goodsPriceRule": "Gesamtpreis Warenkorb-Produkte",
         "lineItemOfTypeRule": {
           "label": "Position des Typs",
           "product": "Produkte"
@@ -228,8 +228,8 @@
         "lineItemUnitPriceRule": "Positionen Preis",
         "lineItemTotalPriceRule": "Positionen Gesamtpreis",
         "lineItemWithQuantityRule": "Positionen mit Anzahl",
-        "andRule": "Und Container",
-        "orRule": "Oder Container",
+        "andRule": "Und-Container",
+        "orRule": "Oder-Container",
         "yes": "Ja",
         "no": "Nein",
         "and": "Und",
@@ -237,10 +237,10 @@
         "field": {
           "valuePlaceholder": "Wert..."
         },
-        "placeholder-warning": "Bitte wähle eine Bedingung aus",
+        "placeholder-warning": "Bitte wähle eine Bedingung aus.",
         "not-found": {
           "label": "Die Bedingung konnte nicht gefunden werden",
-          "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields}| Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
+          "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
         },
         "subCondition": "Unterbedingung",
         "deleteConditions": "Container entfernen",
@@ -584,7 +584,7 @@
       "cardTitleAssignment": "Zuordnung",
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Einstellungen",
-      "linkAdvancedPrices": "Erweitere Preisansicht öffnen",
+      "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen"
     },
@@ -606,7 +606,7 @@
     },
     "list": {
       "textProductOverview": "Produkte",
-      "textTotalProducts": "Keine Produkte | ein Produkt | {count} Produkte",
+      "textTotalProducts": "Keine Produkte | Ein Produkt | {count} Produkte",
       "buttonAddProduct": "Produkt anlegen",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
@@ -651,7 +651,7 @@
     },
     "list": {
       "textManufacturerOverview": "Hersteller",
-      "textTotalManufacturer": "Keine Hersteller | ein Hersteller | {count} Hersteller",
+      "textTotalManufacturer": "Keine Hersteller | Ein Hersteller | {count} Hersteller",
       "buttonAddManufacturer": "Hersteller anlegen",
       "columnName": "Hersteller",
       "columnLink": "Webseite",
@@ -696,7 +696,7 @@
       "columnBillingAddress": "Rechnungsadresse",
       "columnAmount": "Betrag",
       "columnState": "Bestellstatus",
-      "columnOrderNumber": "Best. Nr.",
+      "columnOrderNumber": "Bestellnummer",
       "orderDate": "Bestelldatum",
       "buttonAddOrder": "Bestellung anlegen",
       "textOrders": "Bestellungen",
@@ -730,7 +730,7 @@
       "contextMenuShowProduct": "Produkt anzeigen",
       "summaryLabelAmount": "Summe",
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
-      "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt",
+      "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",
       "summaryLabelTaxes": "zzgl. {taxRate}% MwSt.",
       "labelOrderStatus": "Bestellstatus",
@@ -815,7 +815,7 @@
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Der Verkaufskanal {name} wurde erfolgreich gespeichert.",
       "buttonSave": "Speichern",
-      "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
+      "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
       "labelAccessKeyField": "API-Zugangs-ID",
       "titleAPIError": "Fehler",
@@ -857,7 +857,7 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Medien",
-      "descriptionTextModule": "Verwaltung von Mediendateien",
+      "descriptionTextModule": "Verwaltung von Mediendateien.",
       "placeholderSearchBar": "Durchsuche den aktuellen Ordner",
       "notificationUrlCopied": "URL in Zwischenablage kopiert."
     },
@@ -918,12 +918,12 @@
     },
     "sorting": {
       "labelSort": "Sortiere nach:",
-      "labelSortByNameAsc": "Name aufsteigend",
-      "labelSortByNameDsc": "Name absteigend",
-      "labelSortBySizeAsc": "Größe aufsteigend",
-      "labelSortBySizeDsc": "Größe absteigend",
-      "labelSortByCreatedAsc": "Erstelldatum aufsteigend",
-      "labelSortByCreatedDsc": "Erstelldatum absteigend"
+      "labelSortByNameAsc": "Name, aufsteigend",
+      "labelSortByNameDsc": "Name, absteigend",
+      "labelSortBySizeAsc": "Größe, aufsteigend",
+      "labelSortBySizeDsc": "Größe, absteigend",
+      "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",
+      "labelSortByCreatedDsc": "Erstelldatum, absteigend"
     },
     "presentation": {
       "labelPresentation": "Darstellung:",
@@ -981,7 +981,7 @@
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Textbausteine",
-      "description": "Das Shopware Textbaustein-Modul",
+      "description": "Verwaltung von Textbausteinen.",
       "copyName": "Kopie",
       "errorBackRoutingTitle": "Fehler",
       "errorBackRoutingMessage": "Die aufgerufene Seite konnte nicht verarbeitet werden. Du wurdest zurückgeleitet.",
@@ -1019,7 +1019,7 @@
       "contextMenuEdit": "Bearbeiten",
       "columnHeaderGridColumnTitleSet": "Textbaustein-Set",
       "columnHeaderResetTo": "Original",
-      "emptyStateHeadLine": "Keine Textbausteine gefunden.",
+      "emptyStateHeadLine": "Noch keine Textbausteine.",
       "messageDeleteSuccess": "Der Textbaustein \"{key}\" wurde erfolgreich zurückgesetzt.",
       "messageSaveError": "Der Textbaustein \"{key}\" konnte nicht gespeichert werden. | Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
       "messageSaveSuccess":  "Der Textbaustein \"{key}\" wurde erfolgreich gespeichert. | Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
@@ -1038,7 +1038,7 @@
     },
     "setList": {
       "title": "Textbaustein-Sets verwalten & bearbeiten",
-      "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle ein Set aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst Du hier Textbaustein-Sets importieren, neue anlegen und bestehende als CSV-Datei exportieren.",
+      "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle ein Set aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst Du hier Textbaustein-Sets importieren, neue anlegen und bestehende Sets als CSV-Datei exportieren.",
       "cardTitle" : "Testbaustein-Sets",
       "buttonAddSet": "Textbaustein-Set hinzufügen",
       "buttonCancel": "Abbrechen",
@@ -1048,7 +1048,8 @@
       "buttonExport": "Export",
       "buttonImport": "Import",
       "cloneErrorMessage": "Die Kopie konnte nicht erstellt werden.",
-      "cloneNoteTitle": "Kopie erstellen",
+      "cloneNoteErrorTitle": "Fehler",
+      "cloneNoteSuccessTitle": "Erfolg",
       "cloneSuccessMessage": "Die Kopie wurde erfolgreich erstellt.",
       "columnBaseFile": "Basisdatei",
       "columnChangedAt": "Änderungsdatum",
@@ -1057,15 +1058,17 @@
       "contextMenuDelete": "Löschen",
       "contextMenuEdit": "Bearbeiten",
       "deleteNoteErrorMessage": "Das Textbaustein-Set konnte nicht gelöscht werden.",
-      "deleteNoteTitle": "Textbaustein-Set löschen",
+      "deleteNoteErrorTitle": "Fehler",
+      "deleteNoteSuccessTitle": "Erfolg",
       "deleteNoteSuccessMessage": "Das Textbaustein-Set wurde erfolgreich gelöscht.",
       "inlineEditErrorMessage": "Das Textbaustein-Set konnte nicht gespeichert werden | Das Textbaustein-Set für \"{name}\" konnte nicht gespeichert werden.",
-      "inlineEditNote": "Textbaustein-Set anlegen",
+      "inlineEditErrorTitle": "Fehler",
+      "inlineEditSuccessTitle": "Erfolg",
       "inlineEditSuccessMessage": "Das Textbaustein-Set \"{name}\" wurde erfolgreich angelegt.",
       "modalTitleClone": "Textbaustein-Set kopieren",
       "modalTitleDelete": "Textbaustein-Sets",
-      "notEditableNoteTitle": "Textbausteine bearbeiten",
-      "notEditableNoteMessage": "Die Textbausteine konnten nicht bearbeitet werden.",
+      "notEditableNoteErrorTitle": "Fehler",
+      "notEditableNoteErrorMessage": "Die Textbausteine konnten nicht bearbeitet werden.",
       "placeholderName": "Set benennen",
       "splitButtonDuplicateContent": "Duplizieren von",
       "textCloneConfirm": "Möchtest Du von dem Textbaustein-Set \"{name}\" eine Kopie erstellen?",
@@ -1341,7 +1344,7 @@
     "general": {
       "placeholderSearchBar": "Durchsuche alle Eigenschaften",
       "mainMenuItemGeneral": "Eigenschaften",
-      "descriptionTextModule": "Verwaltung von Eigenschaften"
+      "descriptionTextModule": "Verwaltung von Eigenschaften."
     },
     "list": {
       "textConfigurations": "Eigenschaften",
@@ -1388,7 +1391,7 @@
       "contextMenuOptionResetDelete": "Wiederherstellen",
       "textOptionHeadline": "Neue Option",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Eigenschaft erfolgreich gespeichert",
+      "messageSaveSuccess": "Eigenschaft erfolgreich gespeichert.",
       "messageOptionsEmpty": "Noch keine Optionen"
     }
   },
@@ -1472,9 +1475,9 @@
   "sw-navigation": {
     "general": {
       "titleSaveSuccess": "Navigationbuilder",
-      "messageSaveSuccess": "Der Navigationspunkt \"{name}\" wurde erfolgreich gespeichert",
+      "messageSaveSuccess": "Der Navigationspunkt \"{name}\" wurde erfolgreich gespeichert.",
       "mainMenuItemIndex": "Navigation",
-      "descriptionTextModule": "Verwaltung von Navigationen",
+      "descriptionTextModule": "Verwaltung von Navigationen.",
       "headlineInformationCard": "Navigation Einstellungen",
       "navigationNameLabel": "Label",
       "headlineNavigations": "Navigationbuilder",

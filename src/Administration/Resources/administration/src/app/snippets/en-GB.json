@@ -333,7 +333,7 @@
       "mainMenuItemGeneral": "Customers",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add customer",
-      "descriptionTextModule": "Manage customers here",
+      "descriptionTextModule": "Manage customers here.",
       "placeholderSearchBar": "Search customers"
     },
     "list": {
@@ -518,7 +518,7 @@
       "mainMenuItemGeneral": "Products",
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add product",
-      "descriptionTextModule": "Manage products here",
+      "descriptionTextModule": "Manage products here.",
       "placeholderSearchBar": "Search products"
     },
     "basicForm": {
@@ -688,7 +688,7 @@
     "general": {
       "mainMenuItemGeneral": "Orders",
       "mainMenuItemList": "Overview",
-      "descriptionTextModule": "Manage received orders here",
+      "descriptionTextModule": "Manage received orders here.",
       "placeholderSearchBar": "Search orders"
     },
     "list": {
@@ -696,7 +696,7 @@
       "columnBillingAddress": "Billing address",
       "columnAmount": "Amount",
       "columnState": "Order status",
-      "columnOrderNumber": "Order No.",
+      "columnOrderNumber": "Order number",
       "orderDate": "Order date",
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",
@@ -857,7 +857,7 @@
   "sw-media": {
     "general": {
       "mainMenuItemGeneral": "Media",
-      "descriptionTextModule": "Manage media here",
+      "descriptionTextModule": "Manage media here.",
       "placeholderSearchBar": "Search current folder",
       "notificationUrlCopied": "URL was copied to clipboard."
     },
@@ -981,7 +981,7 @@
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Snippets",
-      "description": "The Shopware snippet module",
+      "description": "Manage snippets here.",
       "copyName": "copy",
       "errorBackRoutingTitle": "Invalid page request",
       "errorBackRoutingMessage": "The requested page could not be loaded. You have been redirected.",
@@ -1019,7 +1019,7 @@
       "contextMenuEdit": "Edit",
       "columnHeaderGridColumnTitleSet": "Snippet set",
       "columnHeaderResetTo": "Original",
-      "emptyStateHeadLine": "No result for snippets.",
+      "emptyStateHeadLine": "No snippets yet.",
       "messageDeleteSuccess": "Snippet \"{key}\" has been reset successfully.",
       "messageSaveError": "Snippet \"{key}\" could not be saved. | Snippets for \"{key}\" could not be saved.",
       "messageSaveSuccess":  "Snippet \"{key}\" has been saved successfully. | Snippets for \"{key}\" have been saved successfully.",
@@ -1048,7 +1048,8 @@
       "buttonExport": "Export",
       "buttonImport": "Import",
       "cloneErrorMessage": "Error while copying a snippet set.",
-      "cloneNoteTitle": "Create copy",
+      "cloneNoteErrorTitle": "Error",
+      "cloneNoteSuccessTitle": "Success",
       "cloneSuccessMessage": "Snippet set has been copied successfully.",
       "columnBaseFile": "Base file",
       "columnChangedAt": "Change date",
@@ -1057,15 +1058,17 @@
       "contextMenuDelete": "Delete",
       "contextMenuEdit": "Edit",
       "deleteNoteErrorMessage": "Could not delete snippet set.",
-      "deleteNoteTitle": "Delete snippet set",
+      "deleteNoteErrorTitle": "Error",
+      "deleteNoteSuccessTitle": "Success",
       "deleteNoteSuccessMessage": "Snippet set has been deleted successfully.",
       "inlineEditErrorMessage": "Snippet set could not be saved | Snippet set \"{name}\" could not be saved.",
-      "inlineEditNote": "Create snippet set",
+      "inlineEditErrorTitle": "Error",
+      "inlineEditSuccessTitle": "Success",
       "inlineEditSuccessMessage": "Snippet set \"{name}\" has been saved successfully.",
       "modalTitleClone": "Copy snippet set",
       "modalTitleDelete": "Snippet Sets",
-      "notEditableNoteTitle": "Edit snippets",
-      "notEditableNoteMessage": "An error occurred while editing snippet sets.",
+      "notEditableNoteErrorTitle": "Error",
+      "notEditableNoteErrorMessage": "An error occurred while editing snippet sets.",
       "placeholderName": "Name snippet set",
       "splitButtonDuplicateContent": "Duplicate from",
       "textCloneConfirm": "Are you sure you want to copy the snippet set \"{name}\"?",
@@ -1341,7 +1344,7 @@
     "general": {
       "placeholderSearchBar": "Search properties",
       "mainMenuItemGeneral": "Properties",
-      "descriptionTextModule": "Manage properties here"
+      "descriptionTextModule": "Manage properties here."
     },
     "list": {
       "textConfigurations": "Properties",
@@ -1416,7 +1419,7 @@
     "general": {
       "mainMenuItemGeneral": "Product streams",
       "placeholderSearchBar": "Search product streams",
-      "descriptionTextModule": "Manage product streams here"
+      "descriptionTextModule": "Manage product streams here."
     },
     "list": {
       "textProductStreamOverview": "Product streams",
@@ -1474,7 +1477,7 @@
       "titleSaveSuccess": "Navigation builder",
       "messageSaveSuccess": "The navigation point \"{name}\"  was saved.",
       "mainMenuItemIndex": "Navigation",
-      "descriptionTextModule": "Manage navigations here",
+      "descriptionTextModule": "Manage navigations here.",
       "headlineInformationCard": "Navigation settings",
       "navigationNameLabel": "Label",
       "headlineNavigations": "Navigation builder",

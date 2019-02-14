@@ -179,50 +179,50 @@ Component.register('sw-settings-snippet-set-list', {
 
         createDeleteSuccessNote() {
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-snippet.setList.deleteNoteTitle'),
+                title: this.$tc('sw-settings-snippet.setList.deleteNoteSuccessTitle'),
                 message: this.$tc('sw-settings-snippet.setList.deleteNoteSuccessMessage')
             });
         },
 
         createDeleteErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.deleteNoteTitle'),
+                title: this.$tc('sw-settings-snippet.setList.deleteNoteErrorTitle'),
                 message: this.$tc('sw-settings-snippet.setList.deleteNoteErrorMessage')
             });
         },
 
         createInlineSuccessNote(name) {
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-snippet.setList.inlineEditNote'),
+                title: this.$tc('sw-settings-snippet.setList.inlineEditSuccessTitle'),
                 message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', 0, { name })
             });
         },
 
         createInlineErrorNote(name) {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.inlineEditNote'),
+                title: this.$tc('sw-settings-snippet.setList.inlineEditErrorTitle'),
                 message: this.$tc('sw-settings-snippet.setList.inlineEditErrorMessage', name !== null, { name })
             });
         },
 
         createCloneSuccessNote() {
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-snippet.setList.cloneNoteTitle'),
+                title: this.$tc('sw-settings-snippet.setList.cloneNoteSuccessTitle'),
                 message: this.$tc('sw-settings-snippet.setList.cloneSuccessMessage')
             });
         },
 
         createCloneErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.cloneNoteTitle'),
+                title: this.$tc('sw-settings-snippet.setList.cloneNoteErrorTitle'),
                 message: this.$tc('sw-settings-snippet.setList.cloneErrorMessage')
             });
         },
 
         createNotEditableErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.notEditableNoteTitle'),
-                message: this.$tc('sw-settings-snippet.setList.notEditableNoteMessage')
+                title: this.$tc('sw-settings-snippet.setList.notEditableNoteErrorTitle'),
+                message: this.$tc('sw-settings-snippet.setList.notEditableNoteErrorMessage')
             });
         }
     }

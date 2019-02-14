@@ -39,7 +39,7 @@ class EntityCacheKeyGenerator
             $keys[] = md5(json_encode($criteria->getAssociations()));
         }
 
-        return implode('-', $keys);
+        return md5(implode('-', $keys));
     }
 
     /**
@@ -56,7 +56,7 @@ class EntityCacheKeyGenerator
         /** @var string|EntityDefinition $definition */
         $keys = [$definition::getEntityName(), $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
 
-        return implode('-', $keys);
+        return md5(implode('-', $keys));
     }
 
     /**
@@ -73,7 +73,7 @@ class EntityCacheKeyGenerator
         /** @var string|EntityDefinition $definition */
         $keys = [$definition::getEntityName(), $this->getCriteriaHash($criteria), $this->getContextHash($context)];
 
-        return implode('-', $keys);
+        return md5(implode('-', $keys));
     }
 
     /**
@@ -96,7 +96,7 @@ class EntityCacheKeyGenerator
             $this->getContextHash($context),
         ];
 
-        return implode('-', $keys);
+        return md5(implode('-', $keys));
     }
 
     /**

@@ -1,0 +1,118 @@
+<sw-page class="sw-cms-detail" :showSearchBar="false" :showSmartBar="false">
+    <div class="sw-cms-detail__content" slot="content">
+        <sw-cms-toolbar>
+            <router-link :to="{ name: 'sw.cms.index' }" slot="back-btn">
+                <sw-icon name="default-arrow-head-left"></sw-icon>
+            </router-link>
+
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+
+            <h2 slot="title">{{ page.name }}</h2>
+
+            <div class="sw-cms-detail--actions" slot="actions">
+                <sw-select-field v-model="currentSalesChannelKey" @change="onSalesChannelChange">
+                    <option v-for="salesChannel in salesChannels" :value="salesChannel.id">{{ salesChannel.name }}</option>
+                </sw-select-field>
+
+                <sw-button variant="primary" :disabled="isLoading" @click="onSave">Save</sw-button>
+            </div>
+        </sw-cms-toolbar>
+
+        <div class="sw-cms-detail__stage-container">
+            <div class="sw-cms-detail__stage">
+                <div class="sw-cms-stage">
+                    <sw-cms-stage-add-block :key="0"
+                                            v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: 0 } }"
+                                            @onStageAddBlock="onAddBlockSection">
+                    </sw-cms-stage-add-block>
+                    <template v-for="(block, index) in page.blocks">
+                        <sw-cms-block class="sw-cms-stage-block"
+                                      :key="block.id"
+                                      :block="block"
+                                      :active="currentBlock !== null && currentBlock.id === block.id"
+                                      @onBlockOverlayClick="onBlockSelection(block)">
+                            <component :is="`sw-cms-block-${block.type}`">
+                                <sw-cms-slot v-for="el in block.slots"
+                                             :slot="el.slot"
+                                             :key="el.id"
+                                             :element="el"
+                                             :active="currentBlock !== null && currentBlock.id === block.id">
+                                </sw-cms-slot>
+                            </component>
+                        </sw-cms-block>
+
+                        <sw-cms-stage-add-block :key="index + 1"
+                                                v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: index + 1 } }"
+                                                @onStageAddBlock="onAddBlockSection">
+                        </sw-cms-stage-add-block>
+                    </template>
+                </div>
+            </div>
+
+            <sw-sidebar class="sw-cms-detail__sidebar">
+                <sw-sidebar-item icon="default-action-settings" title="Settings" ref="pageConfigSidebar">
+                    <sw-sidebar-collapse :expandOnLoading="true">
+                        <span slot="header">Basic information</span>
+                        <div class="sw-cms-detail__settings" slot="content">
+                            <sw-field type="text" label="Name" v-model="page.name"></sw-field>
+                            <sw-field type="select" label="Type" v-model="page.type">
+                                <option slot="options" value="landing_page">Einkaufswelt</option>
+                                <option slot="options" value="category_page">Kategorie-Seite</option>
+                                <option slot="options" value="product_detail_page">Produkt-Seite</option>
+                                <option slot="options" value="blog_article">Blog-Artikel</option>
+                            </sw-field>
+                        </div>
+                    </sw-sidebar-collapse>
+                </sw-sidebar-item>
+
+                <sw-sidebar-item icon="default-basic-plus-circle" title="Blocks" ref="blockSelectionSidebar">
+                    <div class="sw-cms-detail__block-overview">
+                        <div class="sw-cms-detail__block-preview"
+                             v-for="block in cmsBlocks"
+                             v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }">
+                            <component :is="block.previewComponent"></component>
+                        </div>
+                    </div>
+                </sw-sidebar-item>
+
+                <sw-sidebar-item icon="default-basic-stack-block"
+                                 title="Block settings"
+                                 ref="blockConfigSidebar"
+                                 :disabled="currentBlock === null"
+                                 @sw-sidebar-item-close-content="onCloseBlockConfig">
+                    <sw-sidebar-collapse :expandOnLoading="true">
+                        <template v-if="currentBlock !== null">
+                            <span slot="header">Block: {{ currentBlock.config.name ? currentBlock.config.name : cmsBlocks[currentBlock.type].label }}</span>
+                            <sw-cms-block-config slot="content" v-model="currentBlock"></sw-cms-block-config>
+                        </template>
+                    </sw-sidebar-collapse>
+                </sw-sidebar-item>
+
+                <sw-sidebar-item icon="default-os-layers" title="Navigator" ref="blockNavigator">
+                    <div class="sw-cms-detail__navigator">
+                        <div class="sw-cms-detail__navigator-element"
+                             v-for="(block, index) in page.blocks"
+                             :key="block.id"
+                             v-draggable="{ dragGroup: 'cms-navigator', data: { block }, validDragCls: null, onDragEnter: onBlockDragSort }"
+                             v-droppable="{ dragGroup: 'cms-navigator', data: { block } }">
+
+                            <div class="navigator-element__label">
+                                {{ block.config.name ? block.config.name : block.type }}
+                            </div>
+
+                            <div class="navigator-element__action-delete" @click="onBlockDelete(block.id)">
+                                <sw-icon name="default-basic-x-circle" size="16"></sw-icon>
+                            </div>
+                        </div>
+                    </div>
+                </sw-sidebar-item>
+            </sw-sidebar>
+
+            <sw-loader v-if="isLoading"></sw-loader>
+        </div>
+    </div>
+</sw-page>

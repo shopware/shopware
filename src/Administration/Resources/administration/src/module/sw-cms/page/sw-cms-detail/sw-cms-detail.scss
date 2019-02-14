@@ -1,0 +1,106 @@
+@import "~scss/variables";
+
+.sw-cms-detail {
+    .sw-cms-detail__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        display: grid;
+        grid-template-rows: auto 1fr;
+    }
+
+    .sw-cms-detail--actions {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-column-gap: 20px;
+        align-content: center;
+        align-items: center;
+
+        .sw-field {
+            margin: 0;
+
+            .sw-field__select select,
+            .sw-field__select .sw-field__select-load-placeholder {
+                height: 40px;
+                line-height: 22px;
+            }
+        }
+    }
+
+    .sw-cms-detail__sidebar {
+        .sw-sidebar-collapse__title {
+            font-size: 18px;
+        }
+    }
+
+    .sw-cms-detail__stage-container {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        position: relative;
+        overflow: hidden;
+
+        .sw-cms-detail__stage {
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            padding: 50px 30px;
+            background: $color-light-gray;
+        }
+
+        .sw-cms-stage {
+            background: $color-white;
+            box-shadow: 0 0 5px 0 $color-steam-cloud;
+            position: relative;
+        }
+    }
+
+    .sw-cms-detail__settings,
+    .sw-cms-detail__block-overview,
+    .sw-cms-detail__navigator {
+        padding: 10px 25px;
+    }
+}
+
+.sw-cms-detail__block-preview {
+    margin: 0 0 20px 0;
+    padding: 15px;
+    background: $color-white;
+    border: 1px solid $color-steam-cloud;
+    box-shadow: 0 0 5px 0 $color-steam-cloud;
+    cursor: grab;
+    user-select: none;
+    user-focus: none;
+
+    &.is--dragging {
+        box-shadow: none;
+        border: 1px dashed $color-steam-cloud;
+        background-color: $color-iron;
+    }
+}
+
+.sw-cms-detail__navigator-element,
+.sw-cms-detail__navigator-element.is--drag-element {
+    display: grid;
+    grid-template-columns: 1fr 20px;
+    align-items: center;
+    align-content: center;
+    padding: 8px 14px;
+    margin: 0 0 12px 0;
+    border-left: 4px solid $color-shopware-blue;
+    background: $color-light-gray;
+    cursor: move;
+
+    .navigator-element__action-delete {
+        line-height: 12px;
+        cursor: pointer;
+
+        &:hover {
+            color: $color-crimson;
+        }
+    }
+}

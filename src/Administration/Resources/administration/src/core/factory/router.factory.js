@@ -80,7 +80,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             }
 
             // Make it possible to open routes in a new browser tab.
-            if (to.meta && to.meta.newTab === true && !newTabBlacklist.includes(from.path)) {
+            if (to.meta && to.meta.newTab === true && !newTabBlacklist.includes(from.path) && to.path !== from.path) {
                 const route = router.resolve(to.path);
                 window.open(route.href, '_blank');
                 return next(false);

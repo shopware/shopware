@@ -1,0 +1,7 @@
+<div class="sw-cms-block" :class="blockClasses" :style="blockStyles">
+    <div class="sw-cms-block__content">
+        <slot></slot>
+    </div>
+
+    <div class="sw-cms-block__config-overlay" :class="overlayClasses" @click="onBlockOverlayClick"></div>
+</div>

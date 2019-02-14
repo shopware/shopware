@@ -1,0 +1,47 @@
+@import "~scss/variables";
+
+.sw-cms-list {
+    .sw-cms-list__content {
+        padding: 80px 30px 30px 30px;
+        margin: 0 auto;
+        max-width: 1460px;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        grid-column-gap: 30px;
+    }
+
+    .sw-cms-list__sidebar {
+        h3 {
+            font-size: 32px;
+            font-weight: normal;
+        }
+    }
+
+    .sw-cms-list__actions {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-column-gap: 30px;
+        align-items: center;
+        align-content: center;
+        margin-bottom: 30px;
+
+        .sw-field {
+            margin: 0;
+        }
+
+        .actions__sorting {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            grid-column-gap: 10px;
+            align-items: center;
+            align-content: center;
+            justify-items: right;
+        }
+    }
+
+    .sw-cms-list__list {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 30px;
+    }
+}

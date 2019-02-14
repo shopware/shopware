@@ -1,8 +1,0 @@
-<div>
-    <component v-for="cmsSlot in slots"
-               :key="cmsSlot.id"
-               :is="resolveSlotType(cmsSlot)"
-               :cmsSlot="cmsSlot"
-               :config="slotConfig(cmsSlot)"
-    ></component>
-</div>

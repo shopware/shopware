@@ -46,6 +46,7 @@ class CmsBlockDefinition extends EntityDefinition
             (new StringField('type', 'type'))->addFlags(new Required()),
 
             new JsonField('config', 'config', [
+                new StringField('name', 'name'),
                 new StringField('sizingMode', 'sizingMode'),
                 new StringField('marginTop', 'marginTop'),
                 new StringField('marginBottom', 'marginBottom'),

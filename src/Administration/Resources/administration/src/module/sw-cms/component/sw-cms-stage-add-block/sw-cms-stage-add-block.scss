@@ -1,0 +1,57 @@
+@import "~scss/variables";
+
+.sw-cms-stage-add-block {
+    width: 100%;
+    padding: 19px 0;
+    text-align: center;
+    position: absolute;
+    z-index: 200;
+    transform: translateY(-50%);
+    cursor: pointer;
+
+    &:hover {
+        .add-block__handle,
+        .add-block__button {
+            display: grid;
+        }
+    }
+
+    &.is--droppable {
+        cursor: pointer;
+    }
+
+    &.is--valid-drop {
+        background: rgba($color-shopware-blue, 0.2);
+        border: 1px solid $color-shopware-blue;
+
+        .add-block__handle,
+        .add-block__button {
+            display: none;
+        }
+    }
+
+    .add-block__handle {
+        display: none;
+        height: 2px;
+        width: 100%;
+        background-color: $color-shopware-blue;
+        position: relative;
+    }
+
+    .add-block__button {
+        display: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        position: absolute;
+        justify-items: center;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: $color-shopware-blue;
+        color: $color-white;
+    }
+}

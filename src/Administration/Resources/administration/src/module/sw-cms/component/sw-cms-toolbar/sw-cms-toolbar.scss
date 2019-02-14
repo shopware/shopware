@@ -1,0 +1,33 @@
+@import "~scss/variables";
+
+.sw-cms-toolbar {
+    min-height: 70px;
+    border-bottom: 2px solid #d1d9e0;
+    display: grid;
+    grid-template-columns: 80px 180px 1fr 1fr 1fr;
+    align-items: center;
+    align-content: center;
+
+    .sw-cms-toolbar__back-btn {
+        padding: 10px 20px;
+
+        .sw-icon {
+            color: $color-steam-cloud;
+        }
+    }
+
+    .sw-cms-toolbar__title h2 {
+        color: $color-kashmir;
+        font-size: 18px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+    }
+
+    .sw-cms-toolbar__actions {
+        padding: 0 20px;
+        text-align: right;
+    }
+}

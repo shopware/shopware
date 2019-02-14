@@ -1,0 +1,38 @@
+<div class="sw-cms-slot">
+    <component :is="elementConfig.component"
+               v-model="element">
+    </component>
+
+    <div class="sw-cms-slot__overlay" v-if="active">
+        <div class="sw-cms-slot__actions">
+            <sw-button variant="ghost" square small class="sw-cms-slot__settings-action" @click="onSettingsButtonClick">
+                <sw-icon name="default-action-settings" small></sw-icon>
+            </sw-button>
+
+            <sw-button variant="ghost" square small class="sw-cms-slot__element-action" @click="onElementButtonClick">
+                <sw-icon name="default-arrow-turn-left" small></sw-icon>
+            </sw-button>
+        </div>
+    </div>
+
+    <sw-modal title="Element settings" v-if="showElementSettings" @closeModal="onCloseSettingsModal">
+        <component :is="elementConfig.configComponent" v-model="element"></component>
+        <template slot="modal-footer">
+            <sw-button variant="primary" @click="onCloseSettingsModal">Ok</sw-button>
+        </template>
+    </sw-modal>
+
+    <sw-modal title="Change element" v-if="showElementSelection" @closeModal="onCloseElementModal">
+        <div class="sw-cms-slot__element-selection">
+            <div class="element-selection__element" v-for="element in cmsElements" @click="onSelectElement(element.name)">
+                <component :is="element.previewComponent" class="sw-cms-slot__element-preview"></component>
+                <div class="element-selection__overlay">
+                    <sw-icon name="default-arrow-turn-left" size="28"></sw-icon>
+                </div>
+            </div>
+        </div>
+        <template slot="modal-footer">
+            <sw-button @click="onCloseElementModal">Cancel</sw-button>
+        </template>
+    </sw-modal>
+</div>

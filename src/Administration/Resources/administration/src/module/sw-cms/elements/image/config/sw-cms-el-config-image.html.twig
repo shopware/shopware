@@ -1,0 +1,10 @@
+<div class="sw-cms-el-config-image">
+    <sw-media-upload variant="regular"
+                     :source="element.data.media"
+                     :allowMultiSelect="false"
+                     caption="Upload an image"
+                     @sw-media-upload-new-uploads-added="onChangeMedia"
+                     @sw-media-upload-media-upload-success="onImageUpload"
+                     @sw-media-upload-remove-image="onImageRemove">
+    </sw-media-upload>
+</div>

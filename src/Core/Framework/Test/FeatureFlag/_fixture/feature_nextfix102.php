@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
+    use Closure;
+    use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
     FeatureConfig::registerFlag('nextFix102', 'FEATURE_NEXT_FIX_102');
@@ -10,7 +12,7 @@ namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
         return FeatureConfig::isActive('nextFix102');
     }
 
-    function ifNextFix102(\Closure $closure): void
+    function ifNextFix102(Closure $closure): void
     {
         nextFix102() && $closure();
     }
@@ -21,10 +23,10 @@ namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
             $this->{$methodName}(...$arguments);
         };
 
-        ifnextFix102(\Closure::bind($closure, $object, $object));
+        ifNextFix102(Closure::bind($closure, $object, $object));
     }
 
-    function skipTestNextFix102(\PHPUnit\Framework\TestCase $test): void
+    function skipTestNextFix102(TestCase $test): void
     {
         if (nextFix102()) {
             return;

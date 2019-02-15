@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use DateTime;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
@@ -35,18 +36,17 @@ class IsNewCustomerRule extends Rule
             return new Match(false, ['Never logged in']);
         }
 
-        switch ($this->isNew) {
-            case true:
-                return new Match(
-                    $customer->getFirstLogin()->format('Y-m-d') === (new \DateTime())->format('Y-m-d'),
-                    ['Customer is not new']
-                );
-            case false:
-                return new Match(
-                    $customer->getFirstLogin()->format('Y-m-d') !== (new \DateTime())->format('Y-m-d'),
-                    ['Customer is new']
-                );
+        if ($this->isNew) {
+            return new Match(
+                $customer->getFirstLogin()->format('Y-m-d') === (new DateTime())->format('Y-m-d'),
+                ['Customer is not new']
+            );
         }
+
+        return new Match(
+            $customer->getFirstLogin()->format('Y-m-d') !== (new DateTime())->format('Y-m-d'),
+            ['Customer is new']
+        );
     }
 
     public function getConstraints(): array

@@ -46,11 +46,11 @@ class EntityForeignKeyResolver
      * Example:
      *  [
      *      [
-     *          'pk' => '43c6baad-7561-40d8-aabb-bca533a8284f'
+     *          'pk' => '43c6baad756140d8aabbbca533a8284f'
      *          restrictions => [
      *              'Shopware\Core\Content\Product\ProductDefinition' => [
-     *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07',
-     *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07'
+     *                  '1ffd7ea958c643558256927aae8efb07',
+     *                  '1ffd7ea958c643558256927aae8efb07'
      *              ]
      *          ]
      *      ]
@@ -73,11 +73,11 @@ class EntityForeignKeyResolver
      * Example:
      *  [
      *      [
-     *          'pk' => '43c6baad-7561-40d8-aabb-bca533a8284f'
+     *          'pk' => '43c6baad756140d8aabbbca533a8284f'
      *          restrictions => [
      *              'Shopware\Core\Content\Product\ProductDefinition' => [
-     *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07',
-     *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07'
+     *                  '1ffd7ea958c643558256927aae8efb07',
+     *                  '1ffd7ea958c643558256927aae8efb07'
      *              ]
      *          ]
      *      ]

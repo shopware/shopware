@@ -57,7 +57,7 @@ class Generator extends TestCase
         }
 
         $currency = $currency ?: (new CurrencyEntity())->assign([
-            'id' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
+            'id' => '4c8eba11bd3546d786afbed481a6e665',
             'factor' => 1,
         ]);
 
@@ -77,7 +77,7 @@ class Generator extends TestCase
 
         if (!$taxes) {
             $tax = new TaxEntity();
-            $tax->setId('49260353-68e3-4d9f-a695-e017d7a231b9');
+            $tax->setId('4926035368e34d9fa695e017d7a231b9');
             $tax->setName('test');
             $tax->setTaxRate(19.0);
 
@@ -86,13 +86,13 @@ class Generator extends TestCase
 
         if (!$country) {
             $country = new CountryEntity();
-            $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
+            $country->setId('5cff02b1029741a4891c430bcd9e3603');
             $country->setTaxFree(false);
             $country->setName('Germany');
         }
         if (!$state) {
             $state = new CountryStateEntity();
-            $state->setId('bd5e2dcf-547e-4df6-bb1f-f58a554bc69e');
+            $state->setId('bd5e2dcf547e4df6bb1ff58a554bc69e');
             $state->setCountryId($country->getId());
         }
 
@@ -103,7 +103,7 @@ class Generator extends TestCase
         }
 
         if (!$paymentMethod) {
-            $paymentMethod = (new PaymentMethodEntity())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
+            $paymentMethod = (new PaymentMethodEntity())->assign(['id' => '19d144ffe15f4772860d59fca7f207c1']);
         }
 
         $shippingMethod = new ShippingMethodEntity();

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CurrencyRuleTest extends TestCase
 {
@@ -58,7 +59,7 @@ class CurrencyRuleTest extends TestCase
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -85,7 +86,7 @@ class CurrencyRuleTest extends TestCase
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame('c1051bb4-d103-4f74-8988-acbcafc7fdc3', $exception->getViolations()->get(0)->getCode());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
         }

@@ -5,7 +5,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\System\User\UserEntity;
 
 $mediaCollection = new MediaCollection();
-$userId = 'f343a3c1-19cf-42a7-841a-a0ac5094908c';
+$userId = 'f343a3c119cf42a7841aa0ac5094908c';
 
 $user = new UserEntity();
 $user->setId($userId);
@@ -19,7 +19,7 @@ $user->setLastLogin(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:1
 $user->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
 
 $media = new MediaEntity();
-$media->setId('3e352be2-d858-46dd-9752-9c0f6b544870');
+$media->setId('3e352be2d85846dd97529c0f6b544870');
 $media->setUser(clone $user);
 $media->setUserId($userId);
 $media->setMimeType('image/jpg');

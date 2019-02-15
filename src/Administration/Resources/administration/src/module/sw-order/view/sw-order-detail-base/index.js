@@ -11,7 +11,7 @@ import EntityProxy from './../../../../core/data/EntityProxy';
 
 Component.register('sw-order-detail-base', {
     template,
-    inject: ['orderService', 'versionCommitService', 'userService'],
+    inject: ['orderService', 'versionCommitService', 'userService', 'stateStyleDataProviderService'],
     props: {
         order: {
             type: Object,
@@ -39,7 +39,9 @@ Component.register('sw-order-detail-base', {
             nextRoute: null,
             countries: null,
             liveVersionId: '20080911ffff4fffafffffff19830531',
-            currentOrder: null
+            currentOrder: null,
+            transactionOptions: [],
+            orderOptions: []
         };
     },
     computed: {
@@ -85,6 +87,30 @@ Component.register('sw-order-detail-base', {
                 return this.orderDate;
             }
             return '';
+        },
+        transactionOptionPlaceholder() {
+            if (this.isLoading) return null;
+
+            return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
+            ${this.currentOrder.transactions[0].stateMachineState.meta.viewData.name}`;
+        },
+        transactionOptionsBackground() {
+            if (this.isLoading) return null;
+
+            return this.stateStyleDataProviderService.getStyle('order_transaction.state',
+                this.currentOrder.transactions[0].stateMachineState.technicalName).selectBackgroundStyle;
+        },
+        orderOptionPlaceholder() {
+            if (this.isLoading) return null;
+
+            return `${this.$tc('sw-order.stateCard.headlineOrderState')}: \
+            ${this.currentOrder.stateMachineState.meta.viewData.name}`;
+        },
+        orderOptionsBackground() {
+            if (this.isLoading) return null;
+
+            return this.stateStyleDataProviderService.getStyle('order.state',
+                this.currentOrder.stateMachineState.technicalName).selectBackgroundStyle;
         }
     },
     created() {
@@ -225,6 +251,19 @@ Component.register('sw-order-detail-base', {
                 this.$emit('sw-order-detail-base-error', error);
             });
         },
+        onStateTransitionOptionsChanged(stateMachineName, options) {
+            if (stateMachineName === 'order.states') {
+                this.orderOptions = options;
+            } else if (stateMachineName === 'order_transaction.states') {
+                this.transactionOptions = options;
+            }
+        },
+        onQuickOrderStatusChange(actionName) {
+            this.$refs['state-card'].onOrderStateSelected(actionName);
+        },
+        onQuickTransactionStatusChange(actionName) {
+            this.$refs['state-card'].onTransactionStateSelected(actionName);
+        },
         onAddressModalClose() {
             this.addressBeingEdited = null;
         },
@@ -306,7 +345,9 @@ Component.register('sw-order-detail-base', {
         getLastVersion() {
             const criteria = CriteriaFactory.multi('AND',
                 CriteriaFactory.equals('version_commit.data.entityName', 'order'),
-                CriteriaFactory.contains('version_commit.data.entityId.id', this.order.id));
+                CriteriaFactory.contains('version_commit.data.entityId.id', this.order.id),
+                CriteriaFactory.not('and',
+                    CriteriaFactory.contains('version_commit.data.entityId.versionId', this.liveVersionId)));
 
             return this.versionCommitService.getList({
                 limit: 1,

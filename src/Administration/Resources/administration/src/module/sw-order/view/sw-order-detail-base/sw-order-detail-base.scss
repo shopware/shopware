@@ -100,12 +100,7 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
     }
 
     .sw-order-detail-base__status-action-container{
-        padding: 32px 0 12px 0;
-    }
-    .sw-order-detail-base__order-status-select{
-        .sw-select__inner {
-            border-radius: 15px;
-        }
+        padding: 24px 0 0 0;
     }
 
     .sw-order-detail-base__select-inline {
@@ -120,19 +115,6 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
         }
         .sw-select__single-selection{
             padding: 0 8px;
-        }
-    }
-
-    .sw-order-detail-base__order-status-select-payment {
-        .sw-select__inner ,.sw-select-option.is--active {
-            background-color: $sw-order-detail-base-select-status-payment;
-            color: $sw-order-detail-base-select-status-payment-link;
-        }
-    }
-    .sw-order-detail-base__order-status-select-delivery {
-        .sw-select__inner ,.sw-select-option.is--active {
-            background-color: $sw-order-detail-base-select-status-delivery;
-            color: $sw-order-detail-base-select-status-delivery-link;
         }
     }
 

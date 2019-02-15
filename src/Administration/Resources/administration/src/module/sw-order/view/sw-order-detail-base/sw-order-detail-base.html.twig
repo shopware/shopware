@@ -51,6 +51,34 @@
                           v-if="hasAssociations">
 
                 <template slot="data-additional">
+
+                    {% block  sw_order_detail_base_overview_status_change %}
+                        <sw-container v-if="next1567 && !isEditing"
+                                      columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
+                                      gap="0 15px"
+                                      class="sw-order-detail-base__status-action-container">
+
+                            {% block sw_order_detail_base_status_change_transaction %}
+                                <sw-order-state-select :transitionOptions="transactionOptions"
+                                    roundedStyle
+                                    @state-selected="onQuickTransactionStatusChange"
+                                    :placeholder="transactionOptionPlaceholder"
+                                    :backgroundStyle="transactionOptionsBackground">
+                                </sw-order-state-select>
+                            {% endblock %}
+
+                            {% block sw_order_detail_base_status_change_order %}
+                                <sw-order-state-select :transitionOptions="orderOptions"
+                                    roundedStyle
+                                    @state-selected="onQuickOrderStatusChange"
+                                    :placeholder="orderOptionPlaceholder"
+                                    :backgroundStyle="orderOptionsBackground">
+                                </sw-order-state-select>
+                            {% endblock %}
+
+                        </sw-container>
+                    {% endblock %}
+
                     {% block sw_order_detail_base_order_overview_columns %}
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
 
@@ -325,11 +353,16 @@
             </sw-card>
         {% endblock %}
 
-        <sw-order-state-history-card v-if="next1567 && hasAssociations"
-                             :title="$tc('sw-order.stateCard.cardTitle')"
-                             :isLoading="isLoading"
-                             :order="currentOrder">
-        </sw-order-state-history-card>
+        {% block sw_order_detail_base_status_card %}
+            <sw-order-state-history-card v-if="next1567 && hasAssociations &&!isEditing"
+                :title="$tc('sw-order.stateCard.cardTitle')"
+                :isLoading="isLoading"
+                :order="currentOrder"
+                @order-state-changed="loadLiveVersion"
+                @state-transition-options-changed="onStateTransitionOptionsChanged"
+                ref="state-card">
+            </sw-order-state-history-card>
+        {% endblock %}
 
         {% block sw_order_detail_delivery_metadata %}
             <sw-order-delivery-metadata v-if="hasDeliveries"

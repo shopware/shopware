@@ -154,11 +154,14 @@ class StateMachineRegistry
 
         $availableTransitions = $this->getAvailableTransitions($stateMachineName, $fromStateName, $context);
         $transitionsJson = [];
+        /** @var StateMachineTransitionEntity $transition */
         foreach ($availableTransitions as $transition) {
             $transitionsJson[] = [
                 'name' => $transition->getToStateMachineState()->getName(),
                 'technicalName' => $transition->getToStateMachineState()->getTechnicalName(),
                 'actionName' => $transition->getActionName(),
+                'fromStateName' => $transition->getFromStateMachineState()->getTechnicalName(),
+                'toStateName' => $transition->getToStateMachineState()->getTechnicalName(),
                 'url' => $baseUrl . '/' . $transition->getActionName(),
             ];
         }

@@ -19,7 +19,7 @@
                 {% block sw_field_input_select_field_options %}
                     <slot v-if="!options"></slot>
 
-                    <option v-else v-for="option in options" :value="option.id">
+                    <option v-else v-for="option in options" :value="option.id" :disabled="option.disabled">
                         {{ getOptionName(option.name) }}
                     </option>
                 {% endblock %}

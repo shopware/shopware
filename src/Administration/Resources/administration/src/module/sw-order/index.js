@@ -11,6 +11,7 @@ import './component/sw-order-address-modal';
 import './component/sw-order-leave-page-modal';
 import './component/sw-order-state-history-card';
 import './component/sw-order-state-history-card-entry';
+import './component/sw-order-state-select';
 
 Module.register('sw-order', {
     type: 'core',

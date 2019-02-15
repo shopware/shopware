@@ -789,7 +789,12 @@
       "cardTitle": "States",
       "headlineOrderState": "Orderstate",
       "headlineTransactionState": "Paymentstate",
-      "labelSystemUser":"System"
+      "labelSystemUser":"System",
+      "labelSelectStatePlaceholder":"Choose status...",
+      "labelSelectStateButton":"Update status",
+      "headlineErrorStateChange":"Error",
+      "labelErrorStateChange":"An error occured while updating the state. Additional information:",
+      "labelErrorNoAction":"No valid state selected."
     }
   },
   "sw-sales-channel": {

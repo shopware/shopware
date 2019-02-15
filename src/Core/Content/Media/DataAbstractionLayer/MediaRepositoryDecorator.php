@@ -18,6 +18,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class MediaRepositoryDecorator implements EntityRepositoryInterface
 {
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $innerRepo;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @var UrlGeneratorInterface
      */
     private $urlGenerator;
@@ -28,26 +38,16 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
     private $filesystem;
 
     /**
-     * @var MediaThumbnailRepositoryDecorator
-     */
-    private $thumbnailRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var EntityRepositoryInterface
      */
-    private $innerRepo;
+    private $thumbnailRepository;
 
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
         FilesystemInterface $filesystem,
-        MediaThumbnailRepositoryDecorator $thumbnailRepository
+        EntityRepositoryInterface $thumbnailRepository
     ) {
         $this->innerRepo = $innerRepo;
         $this->eventDispatcher = $eventDispatcher;

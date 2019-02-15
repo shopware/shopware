@@ -6,12 +6,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Helper\ConfigReader;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigEntity;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConfigurationService
 {
@@ -21,7 +21,7 @@ class ConfigurationService
     private $configurationRepository;
 
     /**
-     * @var Kernel
+     * @var KernelInterface
      */
     private $kernel;
 
@@ -30,8 +30,11 @@ class ConfigurationService
      */
     private $configReader;
 
-    public function __construct(EntityRepositoryInterface $configurationRepository, Kernel $kernel, ConfigReader $configReader)
-    {
+    public function __construct(
+        EntityRepositoryInterface $configurationRepository,
+        KernelInterface $kernel,
+        ConfigReader $configReader
+    ) {
         $this->configurationRepository = $configurationRepository;
         $this->kernel = $kernel;
         $this->configReader = $configReader;
@@ -50,11 +53,18 @@ class ConfigurationService
 
         $config = $this->configReader->getConfigFromBundle($bundle);
 
-        return  $this->patchValuesIntoConfig($config, $namespace, $salesChannelId, $context);
+        return $this->patchValuesIntoConfig($config, $namespace, $salesChannelId, $context);
     }
 
-    private function patchValuesIntoConfig(array $config, string $namespace, ?string $salesChannelId, Context $context): array
-    {
+    /**
+     * @param array[][] $config
+     */
+    private function patchValuesIntoConfig(
+        array $config,
+        string $namespace,
+        ?string $salesChannelId,
+        Context $context
+    ): array {
         $systemConfigCollection = $this->getSystemConfigCollection($namespace, $salesChannelId, $context);
 
         $configValues = [];
@@ -80,8 +90,11 @@ class ConfigurationService
         return $config;
     }
 
-    private function getSystemConfigCollection(string $namespace, ?string $salesChannelId, Context $context): SystemConfigCollection
-    {
+    private function getSystemConfigCollection(
+        string $namespace,
+        ?string $salesChannelId,
+        Context $context
+    ): SystemConfigCollection {
         $criteria = new Criteria([]);
 
         $criteria->addFilter(

@@ -8,18 +8,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StorefrontProxyController extends AbstractController
 {
     /**
-     * @var Kernel
+     * @var KernelInterface
      */
     private $kernel;
 
@@ -34,7 +35,7 @@ class StorefrontProxyController extends AbstractController
     private $requestContextResolver;
 
     public function __construct(
-        Kernel $kernel,
+        KernelInterface $kernel,
         EntityRepositoryInterface $salesChannelRepository,
         SalesChannelRequestContextResolver $requestContextResolver
     ) {
@@ -48,7 +49,7 @@ class StorefrontProxyController extends AbstractController
      *
      * @throws InvalidSalesChannelIdException
      */
-    public function proxy(string $_path, string $salesChannelId, Request $request, Context $context)
+    public function proxy(string $_path, string $salesChannelId, Request $request, Context $context): Response
     {
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);

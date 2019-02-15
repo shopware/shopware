@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
-use Shopware\Core\Framework\Snippet\SnippetFlattener;
 use Shopware\Core\Framework\Snippet\SnippetService;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\SnippetFileMock;
@@ -45,7 +44,6 @@ class SnippetServiceTest extends TestCase
 
         $service = new SnippetService(
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(SnippetFlattener::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
@@ -258,7 +256,6 @@ class SnippetServiceTest extends TestCase
 
         $service = new SnippetService(
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(SnippetFlattener::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
@@ -320,7 +317,6 @@ class SnippetServiceTest extends TestCase
 
         $service = new SnippetService(
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(SnippetFlattener::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
@@ -341,7 +337,6 @@ class SnippetServiceTest extends TestCase
 
         return new SnippetService(
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(SnippetFlattener::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),

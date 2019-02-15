@@ -28,6 +28,6 @@ class EmptySnippetFile implements SnippetFileInterface
 
     public function isBase(): bool
     {
-        return SnippetFileInterface::BASE_SNIPPET_FILE;
+        return true;
     }
 }

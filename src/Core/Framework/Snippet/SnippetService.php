@@ -29,11 +29,6 @@ class SnippetService implements SnippetServiceInterface
     private $snippetFileCollection;
 
     /**
-     * @var SnippetFlattenerInterface
-     */
-    private $snippetFlattener;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $snippetRepository;
@@ -42,6 +37,7 @@ class SnippetService implements SnippetServiceInterface
      * @var EntityRepositoryInterface
      */
     private $snippetSetRepository;
+
     /**
      * @var SnippetFilterFactoryInterface
      */
@@ -49,7 +45,6 @@ class SnippetService implements SnippetServiceInterface
 
     public function __construct(
         Connection $connection,
-        SnippetFlattenerInterface $snippetFlattener,
         SnippetFileCollection $snippetFileCollection,
         EntityRepositoryInterface $snippetRepository,
         EntityRepositoryInterface $snippetSetRepository,
@@ -57,7 +52,6 @@ class SnippetService implements SnippetServiceInterface
     ) {
         $this->connection = $connection;
         $this->snippetFileCollection = $snippetFileCollection;
-        $this->snippetFlattener = $snippetFlattener;
         $this->snippetRepository = $snippetRepository;
         $this->snippetSetRepository = $snippetSetRepository;
         $this->snippetFilterFactory = $snippetFilterFactory;
@@ -113,7 +107,7 @@ class SnippetService implements SnippetServiceInterface
 
         /** @var SnippetFileInterface $snippetFile */
         foreach ($languageFiles as $key => $snippetFile) {
-            $flattenSnippetFileSnippets = $this->snippetFlattener->flatten(
+            $flattenSnippetFileSnippets = $this->flatten(
                 json_decode(file_get_contents($snippetFile->getPath()), true) ?: []
             );
 
@@ -233,7 +227,7 @@ class SnippetService implements SnippetServiceInterface
         $result = [];
         /** @var SnippetFileInterface $snippetFile */
         foreach ($languageFiles as $key => $snippetFile) {
-            $flattenSnippetFileSnippets = $this->snippetFlattener->flatten(
+            $flattenSnippetFileSnippets = $this->flatten(
                 json_decode(file_get_contents($snippetFile->getPath()), true) ?: [],
                 '',
                 ['author' => $snippetFile->getAuthor(), 'id' => null, 'setId' => $setId]
@@ -424,6 +418,32 @@ class SnippetService implements SnippetServiceInterface
         foreach ($snippets as $setId => $set) {
             foreach ($mainSet['snippets'] as $currentKey => $value) {
                 $result[$setId]['snippets'][$currentKey] = $set['snippets'][$currentKey];
+            }
+        }
+
+        return $result;
+    }
+
+    private function flatten(array $array, string $prefix = '', ?array $additionalParameters = null): array
+    {
+        $result = [];
+        foreach ($array as $index => $value) {
+            $newIndex = $prefix . (empty($prefix) ? '' : '.') . $index;
+
+            if (\is_array($value)) {
+                $result = array_merge($result, $this->flatten($value, $newIndex, $additionalParameters));
+            } else {
+                if (!empty($additionalParameters)) {
+                    $result[$newIndex] = array_merge([
+                        'value' => $value,
+                        'origin' => $value,
+                        'resetTo' => $value,
+                        'translationKey' => $newIndex,
+                    ], $additionalParameters);
+                    continue;
+                }
+
+                $result[$newIndex] = $value;
             }
         }
 

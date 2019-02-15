@@ -29,6 +29,6 @@ class SnippetFile_en_GB implements SnippetFileInterface
 
     public function isBase(): bool
     {
-        return SnippetFileInterface::BASE_SNIPPET_FILE;
+        return true;
     }
 }

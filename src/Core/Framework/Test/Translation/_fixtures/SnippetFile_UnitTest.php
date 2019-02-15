@@ -28,6 +28,6 @@ class SnippetFile_UnitTest implements SnippetFileInterface
 
     public function isBase(): bool
     {
-        return SnippetFileInterface::PLUGIN_SNIPPET_EXTENSION_FILE;
+        return false;
     }
 }

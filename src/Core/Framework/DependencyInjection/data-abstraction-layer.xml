@@ -481,5 +481,43 @@
 
             <tag name="shopware.field_serializer"/>
         </service>
+
+        <!-- Value Generator -->
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\SqlValueGeneratorConnector">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.value_generator_connector"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\ValueGeneratorRedisConnector">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.value_generator_connector"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\ValueGeneratorConnectorRegistry">
+            <argument type="tagged" tag="shopware.value_generator_connector"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\ValueGeneratorHandler">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\ValueGeneratorConnectorRegistry" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\ValueGeneratorRegistry" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface" />
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\ValueGeneratorRegistry">
+            <argument type="tagged" tag="shopware.value_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\NumberRangeValueGenerator">
+            <tag name="shopware.value_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\DateNumberRangeValueGenerator">
+            <tag name="shopware.value_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\NumberRangeValueFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueGenerator\ValueGeneratorHandler" />
+            <tag name="shopware.field_serializer"/>
+        </service>
     </services>
 </container>

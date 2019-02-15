@@ -65,8 +65,7 @@
                         {% block sw_tree_item_children_items %}
                             <sw-tree-item v-for="child in item.children" :key="child.id" :item="child"
                                           :draggedItem="draggedItem"
-                                          v-on:itemChecked="emitCheckedItem"
-                                          :parentChecked="checked">
+                                          @itemChecked="emitCheckedItem">
                                 {% block sw_tree_item_children_items_slots %}
                                     <template slot="content" slot-scope="{ item, openTreeItem }">
                                         {% block sw_tree_item_children_items_slot_content %}

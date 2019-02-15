@@ -25,11 +25,6 @@ export default {
             type: Object,
             required: false,
             default: null
-        },
-
-        parentChecked: {
-            type: Boolean,
-            default: false
         }
     },
 
@@ -75,27 +70,13 @@ export default {
                 onDragStart: this.dragStart,
                 onDragEnter: this.onMouseEnter,
                 onDrop: this.dragEnd,
-                preventEvent: false
+                preventEvent: true
             };
-        }
-    },
-
-    created() {
-        if (this.parentChecked) {
-            this.checked = true;
         }
     },
 
     updated() {
         this.updatedComponent();
-    },
-
-    watch: {
-        parentChecked: {
-            handler(value) {
-                this.checked = value;
-            }
-        }
     },
 
     methods: {
@@ -165,15 +146,15 @@ export default {
         },
 
         // Bubbles this method to the root tree from any item depth
-        emitCheckedItem(event, item) {
-            this.$emit('itemChecked', event, item);
+        emitCheckedItem(item) {
+            this.$emit('itemChecked', item);
         },
 
         // Checks the item
         toggleItemCheck(event, item) {
             this.checked = event;
             this.item.checked = event;
-            this.$emit('itemChecked', event, item);
+            this.$emit('itemChecked', item);
         }
     }
 };

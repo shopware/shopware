@@ -466,6 +466,7 @@
       "messageSaveSuccess": "Category \"{name}\" has been saved successfully.",
       "useAsLogo": "Use as logo",
       "treeHeadline": "Category structure",
+      "treeHeadSelected": "{count} selected",
       "actions": {
         "createSub": "New subcategory",
         "createBefore": "New category before",

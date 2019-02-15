@@ -6,6 +6,9 @@
                 <sw-field type="text" name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems"></sw-field>
             </div>
         {% endblock %}
+         {% block sw_tree_actions %}
+            <slot name="actions"></slot>
+        {% endblock %}
 
         {% block sw_tree_content %}
             <sw-tree-input-field v-if="hasNoItems" @createNewItem="createFirstItem" class="sw-tree__content"></sw-tree-input-field>

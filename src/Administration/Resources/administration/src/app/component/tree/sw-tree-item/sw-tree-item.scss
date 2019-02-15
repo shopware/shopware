@@ -195,32 +195,10 @@ $sw-tree-item-color-text: $color-gutenberg;
         }
     }
 
-    &.is--dragging {
-        user-select: none;
-        pointer-events: none;
-        background: transparent;
-        border: 1px dashed $sw-tree-item-color-border;
-
-        .sw-tree-item__leaf,
-        .sw-tree-item__toggle,
-        .sw-tree-item__icon,
-        .sw-tree-item__content,
-        .sw-tree-item__actions,
-        .sw-tree-item__child-count,
-        .sw-tree-item__selection {
-            display: none;
-        }
-
-        .sw-tree-item__children {
-            .sw-tree-item__element {
-                border-bottom: 1px dashed $sw-tree-item-color-border;
-                border-left: 1px dashed $sw-tree-item-color-border;
-                border-top: 0 none;
-
-                &:before {
-                    display: none;
-                }
-            }
+    .sw-tree-item__content {
+        .tree-link {
+            color: inherit;
+            text-decoration: inherit;
         }
     }
 

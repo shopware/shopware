@@ -1,16 +1,24 @@
 {% block sw_category_tree %}
     <sw-tree class="sw-category-tree"
-        v-if="categories.length"
         :items="categories"
         :sortable="true"
         :searchable="false"
-        @sw-tree-on-drag-end="onUpdatePositions">
+        :createFirstItem="addFirstCategory"
+        @sw-tree-on-drag-end="onUpdatePositions"
+        @getTreeItems="getChildren">
 
         {% block sw_category_tree_actions %}
             <template slot="actions">
-                <span class="sw-category-tree-actions__headline">
-                    {{ $tc('sw-category.general.treeHeadline') }}
-                </span>
+                <div v-if="checkedCategoriesCount > 0" class="sw-category-tree-actions__headline">
+                    <span>
+                        {{ $tc('sw-category.general.treeHeadSelected', 0, { count: checkedCategoriesCount }) }}:
+                    </span>
+                    <span class="sw-category-tree__batch-delete" @click="deleteSelectedCategories">{{ $tc('sw-category.general.actions.delete') }}</span>
+                </div>
+
+                <div v-else class="sw-category-tree-actions__headline">
+                    <span>{{ $tc('sw-category.general.treeHeadline') }}</span>
+                </div>
             </template>
         {% endblock %}
 
@@ -21,40 +29,66 @@
                     :key="item.id"
                     :item="item"
                     :sortable="true"
-                    :draggedItem="draggedItem">
+                    :draggedItem="draggedItem"
+                    @itemChecked="checkItem">
 
                     {% block sw_category_tree_items_content %}
                         <template slot="content" slot-scope="{ item }">
-                            <router-link class="tree-link" :to="{ name: 'sw.category.detail', params: { id: item.id }}">
-                                <span class="sw-tree-item__label">{{ placeholder(item.data, 'name') }}</span>
-                                <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
-                            </router-link>
+                            {% block sw_category_tree_items_item_content_edit %}
+                                <template v-if="currentEditCategory === item.data.id">
+                                    <sw-confirm-field class="sw-category-detail__edit-category-field"
+                                                      v-model="item.data.name"
+                                                      :preventEmptySubmit="true"
+                                                      @input="onEditCategoryFinish"
+                                                      @blur="abortCreateCategory(item)"
+                                                      @cancelSubmit="abortCategoryEdit(item)"
+                                                      :placeholder="$tc('sw-category.general.buttonCreateCategory')">
+                                    </sw-confirm-field>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_category_tree_items_item_content_default %}
+                                <template v-else>
+                                    <router-link class="tree-link" :to="{ name: 'sw.category.detail', params: { id: item.id }}">
+                                        <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                        <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
+                                    </router-link>
+                                </template>
+                            {% endblock %}
                         </template>
                     {% endblock %}
 
                     {% block sw_category_tree_items_actions %}
-                        <template slot="actions" slot-scope="{ item }">
+                        <template slot="actions" slot-scope="{ item, openTreeItem }">
                             <sw-context-button>
+                                {% block sw_category_tree_items_actions_categorybefore %}
+                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
+                                                          @click="addCategory(item, 'before');">
+                                        {{ $tc('sw-category.general.actions.createBefore') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                                {% block sw_category_tree_items_actions_categoryafter %}
+                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
+                                                          @click="addCategory(item, 'after');">
+                                        {{ $tc('sw-category.general.actions.createAfter') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
                                 {% block sw_category_tree_items_actions_subcategory %}
-                                    <sw-context-menu-item icon="small-documentation-map-closed" @click="onAddSubcategory(item)">
-                                        {{ $tc('sw-category.general.actions.create') }}
+                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
+                                                          @click="addSubcategory(item); openTreeItem(true)">
+                                        {{ $tc('sw-category.general.actions.createSub') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_category_tree_items_actions_group %}
                                     <div class="sw-context-menu__group">
-                                        {% block sw_category_tree_items_actions_edit %}
-                                            <sw-context-menu-item icon="small-pencil" :routerLink="{ name: 'sw.category.detail', params: { id: item.id }}">
-                                                {{ $tc('sw-category.general.actions.edit') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
                                         {% block sw_category_tree_items_actions_duplicate %}
-                                            <sw-context-menu-item icon="small-copy" @click="onDuplicateCategory(item)">
+                                            <sw-context-menu-item @click="onDuplicateCategory(item)">
                                                 {{ $tc('sw-category.general.actions.duplicate') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
                                         {% block sw_category_tree_items_actions_delete %}
-                                            <sw-context-menu-item icon="small-default-x-line-medium" variant="danger" @click="onDeleteCategory(item)">
+                                            <sw-context-menu-item variant="danger" @click="onDeleteCategory(item)">
                                                 {{ $tc('sw-category.general.actions.delete') }}
                                             </sw-context-menu-item>
                                         {% endblock %}

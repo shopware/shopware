@@ -5,11 +5,9 @@ module.exports = {
     'open integration module': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/integration/index',
-                subMenuTitle: 'Integrations'
+                targetPath: '#/sw/integration/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-integration'
             });
     },
     'go to create integration page': (browser) => {

@@ -5,11 +5,9 @@ module.exports = {
     'navigate to manufacturer module and click on add manufacturer': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/manufacturer/index',
-                subMenuTitle: 'Manufacturer'
+                targetPath: '#/sw/manufacturer/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-manufacturer'
             })
             .waitForElementPresent('.sw-button__content')
             .click('.sw-button__content');
@@ -24,11 +22,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/manufacturer/index',
-                subMenuTitle: 'Manufacturer'
+                targetPath: '#/sw/manufacturer/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-manufacturer'
             })
             .refresh()
             .waitForElementPresent(`${page.elements.gridRow}--0 .sw-manufacturer-list_column-manufacturer-name`)
@@ -47,9 +43,8 @@ module.exports = {
     'check if the manufacturer can be used in product': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Products',
-                index: 1
+                targetPath: '#/sw/product/index',
+                mainMenuId: 'sw-product'
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')

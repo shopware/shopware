@@ -15,9 +15,8 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Products',
-                index: 1
+                targetPath: '#/sw/product/index',
+                mainMenuId: 'sw-product'
             })
             .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
     },

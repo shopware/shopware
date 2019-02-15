@@ -13,11 +13,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Products',
-                index: 1,
-                subMenuItemPath: '#/sw/manufacturer/index',
-                subMenuTitle: 'Manufacturer'
+                targetPath: '#/sw/manufacturer/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-manufacturer'
             })
             .waitForElementVisible(page.elements.contextMenuButton)
             .clickContextMenuItem(page.elements.contextMenu, page.elements.contextMenuButton);

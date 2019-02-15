@@ -13,13 +13,11 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/stream/index',
-                subMenuTitle: 'Product streams'
+                targetPath: '#/sw/product-stream/index',
+                mainMenuId: 'sw-product'
             })
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
+            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
     },
     'open product stream details and change the given data': (browser) => {
         const page = productStreamPage(browser);
@@ -44,11 +42,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/stream/index',
-                subMenuTitle: 'Product streams'
+                targetPath: '#/sw/product-stream/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-product-stream'
             })
             .refresh()
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Edited product stream');

@@ -15,9 +15,8 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Products',
-                index: 1
+                targetPath: '#/sw/product/index',
+                mainMenuId: 'sw-product'
             })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Products');
 
@@ -91,9 +90,8 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Products',
-                index: 1
+                targetPath: '#/sw/product/index',
+                mainMenuId: 'sw-product'
             })
             .waitForElementVisible(page.elements.smartBarHeader)
             .assert.containsText(page.elements.smartBarHeader, 'Products')

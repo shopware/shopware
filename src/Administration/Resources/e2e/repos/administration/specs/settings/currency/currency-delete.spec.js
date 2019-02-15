@@ -12,11 +12,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/currency/index',
-                subMenuTitle: 'Currencies'
+                targetPath: '#/sw/settings/currency/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-currency'
             })
             .expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },

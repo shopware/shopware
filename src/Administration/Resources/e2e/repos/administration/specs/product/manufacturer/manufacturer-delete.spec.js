@@ -10,11 +10,9 @@ module.exports = {
     'navigate to manufacturer module': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Product',
-                index: 1,
-                subMenuItemPath: '#/sw/manufacturer/index',
-                subMenuTitle: 'Manufacturer'
+                targetPath: '#/sw/manufacturer/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-manufacturer'
             });
     },
     'check if new manufacturer exists in overview': (browser) => {
@@ -45,11 +43,9 @@ module.exports = {
     'delete manufacturer': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/product/index',
-                menuTitle: 'Products',
-                index: 1,
-                subMenuItemPath: '#/sw/manufacturer/index',
-                subMenuTitle: 'Manufacturer'
+                targetPath: '#/sw/manufacturer/index',
+                mainMenuId: 'sw-product',
+                subMenuId: 'sw-manufacturer'
             });
 
         const page = manufacturerPage(browser);

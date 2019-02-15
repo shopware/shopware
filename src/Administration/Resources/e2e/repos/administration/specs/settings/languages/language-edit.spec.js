@@ -12,11 +12,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/language/index',
-                subMenuTitle: 'Languages'
+                targetPath: '#/sw/settings/language/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-language'
             })
             .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.languageFixture.name);
 

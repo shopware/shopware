@@ -46,9 +46,8 @@ class MediaPageObject extends GeneralPageObject {
     openMediaIndex() {
         this.browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/media/index',
-                menuTitle: 'Media',
-                index: 4
+                targetPath: '#/sw/media/index',
+                mainMenuId: 'sw-media'
             })
             .assert.containsText(`${this.elements.adminMenu}__navigation-list-item.sw-media span.collapsible-text`, 'Media')
             .click('a.sw-admin-menu__navigation-link[href="#/sw/media/index"]');

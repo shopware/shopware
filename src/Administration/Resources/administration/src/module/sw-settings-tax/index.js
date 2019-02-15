@@ -39,6 +39,7 @@ Module.register('sw-settings-tax', {
 
     navigation: [{
         label: 'sw-settings-tax.general.mainMenuItemGeneral',
+        id: 'sw-settings-tax',
         color: '#9AA8B5',
         icon: 'default-action-settings',
         path: 'sw.settings.tax.index',

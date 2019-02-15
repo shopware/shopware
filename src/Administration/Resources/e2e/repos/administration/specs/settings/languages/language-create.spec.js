@@ -5,11 +5,9 @@ module.exports = {
     'open language module': (browser) => {
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/language/index',
-                subMenuTitle: 'Languages'
+                targetPath: '#/sw/settings/language/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-language'
             });
     },
     'create new language': (browser) => {

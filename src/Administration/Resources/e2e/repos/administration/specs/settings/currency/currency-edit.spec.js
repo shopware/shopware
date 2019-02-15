@@ -12,14 +12,13 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/currency/index',
-                subMenuTitle: 'Currencies'
-            });
-
-        browser.expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+                targetPath: '#/sw/settings/currency/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-currency'
+            })
+            .waitForElementVisible('.sw-settings-currency-list-grid')
+            .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
+            .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.AdminFixtureService.basicFixture.name);
     },
     'edit currency': (browser) => {
         const page = settingsPage(browser);

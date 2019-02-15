@@ -15,15 +15,11 @@ module.exports = {
         });
     },
     'open currency module': (browser) => {
-        const page = settingsPage(browser);
-
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/currency/index',
-                subMenuTitle: 'Currencies'
+                targetPath: '#/sw/settings/currency/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-currency'
             });
     },
     'inline edit currency': (browser) => {

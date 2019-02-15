@@ -12,11 +12,9 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                mainMenuPath: '#/sw/settings/index',
-                menuTitle: 'Settings',
-                index: 5,
-                subMenuItemPath: '#/sw/settings/tax/index',
-                subMenuTitle: 'Tax'
+                targetPath: '#/sw/settings/tax/index',
+                mainMenuId: 'sw-settings',
+                subMenuId: 'sw-settings-tax'
             })
             .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },

@@ -90,7 +90,7 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
 
     .sw-sales-channel-modal__grid-item-name {
         font-size: 18px;
-        margin-bottom: 8px;
+        margin-bottom: 0;
         color: $sw-sales-channel-modal-color-text;
         font-weight: normal;
     }
@@ -98,6 +98,10 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
     .sw-sales-channel-modal__grid-item-description {
         color: lighten($sw-sales-channel-modal-color-text, 25%);
         font-size: $sw-sales-channel-modal-font-size-small;
+    }
+
+    .sw-sales-channel-modal__grid-icon-column .sw-grid__cell-content {
+        padding-right: 0;
     }
 
     .sw-sales-channel-modal__grid-icon {

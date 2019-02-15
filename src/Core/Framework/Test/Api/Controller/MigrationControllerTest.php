@@ -56,7 +56,7 @@ class MigrationControllerTest extends TestCase
 
         $client->request('POST', $url, ['identifier' => self::MIGRATION_IDENTIFIER]);
 
-        self::assertSame(json_encode(['message' => 'migrations added to the database']), $client->getResponse()->getContent());
+        static::assertSame(json_encode(['message' => 'migrations added to the database']), $client->getResponse()->getContent());
     }
 
     public function test_migrate_action_call(): void
@@ -69,7 +69,7 @@ class MigrationControllerTest extends TestCase
             ['until' => PHP_INT_MAX]
         );
 
-        self::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
+        static::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
     }
 
     public function test_migrate_destructive_action_call(): void
@@ -82,23 +82,23 @@ class MigrationControllerTest extends TestCase
             ['until' => PHP_INT_MAX]
         );
 
-        self::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
+        static::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
     }
 
     public function test_controller_add_Migrations(): void
     {
-        self::assertSame(0, $this->getMigrationCount());
+        static::assertSame(0, $this->getMigrationCount());
 
         $controller = $this->getController();
 
         $controller->syncMigrations($this->getBaseRequest());
 
-        self::assertSame(2, $this->getMigrationCount());
+        static::assertSame(2, $this->getMigrationCount());
     }
 
     public function test_controller_migrate_migration_exception(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true));
+        static::assertSame(0, $this->getMigrationCount(true));
 
         $controller = $this->getController(true);
 
@@ -112,12 +112,12 @@ class MigrationControllerTest extends TestCase
             //nth
         }
 
-        self::assertSame(3, $this->getMigrationCount(true));
+        static::assertSame(3, $this->getMigrationCount(true));
     }
 
     public function test_controller_migrate_migration_destructive(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true, true));
+        static::assertSame(0, $this->getMigrationCount(true, true));
 
         $controller = $this->getController(true);
 
@@ -137,12 +137,12 @@ class MigrationControllerTest extends TestCase
             //nth
         }
 
-        self::assertSame(2, $this->getMigrationCount(true, true));
+        static::assertSame(2, $this->getMigrationCount(true, true));
     }
 
     public function test_controller_migrate(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true));
+        static::assertSame(0, $this->getMigrationCount(true));
 
         $controller = $this->getController();
 
@@ -152,7 +152,7 @@ class MigrationControllerTest extends TestCase
 
         $controller->migrate($request);
 
-        self::assertSame(2, $this->getMigrationCount(true));
+        static::assertSame(2, $this->getMigrationCount(true));
     }
 
     private function getConnection(): Connection

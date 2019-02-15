@@ -94,23 +94,23 @@ class EnrichmentTest extends TestCase
 
         $enriched = $this->enrichment->enrich($cart, $this->context);
 
-        self::assertCount(1, $enriched->getLineItems());
-        self::assertTrue($enriched->getLineItems()->has('A'));
+        static::assertCount(1, $enriched->getLineItems());
+        static::assertTrue($enriched->getLineItems()->has('A'));
 
         $product = $enriched->getLineItems()->get('A');
-        self::assertSame('Missing label', $product->getLabel());
-        self::assertSame('Missing description', $product->getDescription());
+        static::assertSame('Missing label', $product->getLabel());
+        static::assertSame('Missing description', $product->getDescription());
 
         /** @var QuantityPriceDefinition $price */
         $price = $product->getPriceDefinition();
-        self::assertInstanceOf(QuantityPriceDefinition::class, $price);
+        static::assertInstanceOf(QuantityPriceDefinition::class, $price);
 
-        self::assertSame(15.0, $price->getPrice());
-        self::assertCount(1, $price->getTaxRules());
-        self::assertTrue($price->getTaxRules()->has(15));
+        static::assertSame(15.0, $price->getPrice());
+        static::assertCount(1, $price->getTaxRules());
+        static::assertTrue($price->getTaxRules()->has(15));
 
-        self::assertInstanceOf(MediaEntity::class, $product->getCover());
-        self::assertSame('test', $product->getCover()->getFileName());
+        static::assertInstanceOf(MediaEntity::class, $product->getCover());
+        static::assertSame('test', $product->getCover()->getFileName());
     }
 
     public function testProductCollectorDoNotOverrideData(): void
@@ -161,21 +161,21 @@ class EnrichmentTest extends TestCase
 
         $enriched = $this->enrichment->enrich($cart, $this->context);
 
-        self::assertCount(1, $enriched->getLineItems());
-        self::assertTrue($enriched->getLineItems()->has('A'));
+        static::assertCount(1, $enriched->getLineItems());
+        static::assertTrue($enriched->getLineItems()->has('A'));
 
         $product = $enriched->getLineItems()->get('A');
-        self::assertSame('Missing label', $product->getLabel());
-        self::assertSame('Do not override', $product->getDescription());
+        static::assertSame('Missing label', $product->getLabel());
+        static::assertSame('Do not override', $product->getDescription());
 
         /** @var QuantityPriceDefinition $price */
         $price = $product->getPriceDefinition();
-        self::assertInstanceOf(QuantityPriceDefinition::class, $price);
+        static::assertInstanceOf(QuantityPriceDefinition::class, $price);
 
-        self::assertSame(1.0, $price->getPrice());
-        self::assertCount(0, $price->getTaxRules());
+        static::assertSame(1.0, $price->getPrice());
+        static::assertCount(0, $price->getTaxRules());
 
-        self::assertInstanceOf(MediaEntity::class, $product->getCover());
-        self::assertSame('Do not override', $product->getCover()->getFileName());
+        static::assertInstanceOf(MediaEntity::class, $product->getCover());
+        static::assertSame('Do not override', $product->getCover()->getFileName());
     }
 }

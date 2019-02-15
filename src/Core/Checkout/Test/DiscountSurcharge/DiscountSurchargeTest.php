@@ -106,19 +106,19 @@ class DiscountSurchargeTest extends TestCase
         self::$enrichment->enrich($cart, self::$context);
 
         $key = 'discount-surcharge-' . $id;
-        self::assertTrue($cart->has($key));
+        static::assertTrue($cart->has($key));
 
         $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
 
-        self::assertTrue($calculated->has($key));
+        static::assertTrue($calculated->has($key));
 
         $discount = $calculated->get($key);
 
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(2.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
+        static::assertInstanceOf(LineItem::class, $discount);
+        static::assertEquals(2.0, $discount->getPrice()->getTotalPrice());
+        static::assertEquals(1, $discount->getQuantity());
 
-        self::assertEquals(
+        static::assertEquals(
             [new CalculatedTax(0.32, 19, 2)],
             array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
         );
@@ -147,19 +147,19 @@ class DiscountSurchargeTest extends TestCase
         self::$enrichment->enrich($cart, self::$context);
 
         $key = 'discount-surcharge-' . $id;
-        self::assertTrue($cart->has($key));
+        static::assertTrue($cart->has($key));
 
         $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
 
-        self::assertTrue($calculated->has($key));
+        static::assertTrue($calculated->has($key));
 
         $discount = $calculated->get($key);
 
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(-2.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
+        static::assertInstanceOf(LineItem::class, $discount);
+        static::assertEquals(-2.0, $discount->getPrice()->getTotalPrice());
+        static::assertEquals(1, $discount->getQuantity());
 
-        self::assertEquals(
+        static::assertEquals(
             [new CalculatedTax(-0.32, 19, -2)],
             array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
         );
@@ -188,19 +188,19 @@ class DiscountSurchargeTest extends TestCase
         self::$enrichment->enrich($cart, self::$context);
 
         $key = 'discount-surcharge-' . $id;
-        self::assertTrue($cart->has($key));
+        static::assertTrue($cart->has($key));
 
         $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
 
-        self::assertTrue($calculated->has($key));
+        static::assertTrue($calculated->has($key));
 
         $discount = $calculated->get($key);
 
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(5.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
+        static::assertInstanceOf(LineItem::class, $discount);
+        static::assertEquals(5.0, $discount->getPrice()->getTotalPrice());
+        static::assertEquals(1, $discount->getQuantity());
 
-        self::assertEquals(
+        static::assertEquals(
             [new CalculatedTax(0.8, 19, 5)],
             array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
         );
@@ -229,19 +229,19 @@ class DiscountSurchargeTest extends TestCase
         self::$enrichment->enrich($cart, self::$context);
 
         $key = 'discount-surcharge-' . $id;
-        self::assertTrue($cart->has($key));
+        static::assertTrue($cart->has($key));
 
         $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
 
-        self::assertTrue($calculated->has($key));
+        static::assertTrue($calculated->has($key));
 
         $discount = $calculated->get($key);
 
-        self::assertInstanceOf(LineItem::class, $discount);
-        self::assertEquals(-5.0, $discount->getPrice()->getTotalPrice());
-        self::assertEquals(1, $discount->getQuantity());
+        static::assertInstanceOf(LineItem::class, $discount);
+        static::assertEquals(-5.0, $discount->getPrice()->getTotalPrice());
+        static::assertEquals(1, $discount->getQuantity());
 
-        self::assertEquals(
+        static::assertEquals(
             [new CalculatedTax(-0.8, 19, -5)],
             array_values($discount->getPrice()->getCalculatedTaxes()->getElements())
         );

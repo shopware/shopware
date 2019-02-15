@@ -68,9 +68,9 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects($this->once())
+        $this->messageBus->expects(static::once())
             ->method('dispatch')
-            ->with($this->callback(function (RequeueDeadMessagesTask $task) use ($taskId) {
+            ->with(static::callback(function (RequeueDeadMessagesTask $task) use ($taskId) {
                 static::assertEquals($taskId, $task->getTaskId());
 
                 return true;
@@ -100,7 +100,7 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects($this->never())
+        $this->messageBus->expects(static::never())
             ->method('dispatch');
 
         $this->scheduler->queueScheduledTasks();
@@ -131,7 +131,7 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects($this->never())
+        $this->messageBus->expects(static::never())
             ->method('dispatch');
 
         $this->scheduler->queueScheduledTasks();
@@ -172,7 +172,7 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects($this->never())
+        $this->messageBus->expects(static::never())
             ->method('dispatch');
 
         $this->scheduler->queueScheduledTasks();
@@ -207,7 +207,7 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects($this->never())
+        $this->messageBus->expects(static::never())
             ->method('dispatch');
 
         $result = $this->scheduler->getNextExecutionTime();
@@ -231,7 +231,7 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects($this->never())
+        $this->messageBus->expects(static::never())
             ->method('dispatch');
 
         static::assertNull($this->scheduler->getNextExecutionTime());
@@ -265,7 +265,7 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects($this->never())
+        $this->messageBus->expects(static::never())
             ->method('dispatch');
 
         static::assertEquals(5, $this->scheduler->getMinRunInterval());
@@ -275,7 +275,7 @@ class TaskSchedulerTest extends TestCase
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
-        $this->messageBus->expects($this->never())
+        $this->messageBus->expects(static::never())
             ->method('dispatch');
 
         static::assertNull($this->scheduler->getMinRunInterval());

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Test\Product\Repository;
 
+use DateTime;
 use Doctrine\DBAL\Connection;
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
@@ -76,6 +79,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
+        /** @var array $record */
         $record = $this->connection->fetchAssoc('SELECT * FROM product_category WHERE product_id = :id', ['id' => $id->getBytes()]);
         static::assertNotEmpty($record);
         static::assertEquals($record['product_id'], $id->getBytes());
@@ -489,19 +493,26 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenPrice['gross'], $green->getViewData()->getPrice()->getGross());
         static::assertEquals($parentName, $green->getViewData()->getName());
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         static::assertEquals($parentPrice, json_decode($row['price'], true));
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         static::assertEquals($parentName, $row['name']);
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
         static::assertNull($row['price']);
+
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
         static::assertEquals($redName, $row['name']);
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
         static::assertEquals($greenPrice, json_decode($row['price'], true));
+
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
         static::assertEmpty($row);
     }
@@ -575,7 +586,7 @@ class ProductRepositoryTest extends TestCase
         $e = null;
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
         static::assertInstanceOf(WriteStackException::class, $e);
 
@@ -656,7 +667,7 @@ class ProductRepositoryTest extends TestCase
         $e = null;
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
         static::assertInstanceOf(WriteStackException::class, $e);
 
@@ -678,6 +689,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert($data, Context::createDefaultContext());
 
+        /** @var array $raw */
         $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
             'id' => Uuid::fromStringToBytes($child),
         ]);
@@ -748,14 +760,17 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($parentTax, $red->getViewData()->getTaxId());
         static::assertEquals($greenTax, $green->getTaxId());
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         static::assertEquals(['gross' => 10, 'net' => 9, 'linked' => true], json_decode($row['price'], true));
         static::assertEquals($parentTax, Uuid::fromBytesToHex($row['tax_id']));
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
         static::assertNull($row['price']);
         static::assertNull($row['tax_id']);
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
         static::assertNull($row['price']);
         static::assertEquals($greenTax, Uuid::fromBytesToHex($row['tax_id']));
@@ -773,10 +788,7 @@ class ProductRepositoryTest extends TestCase
             ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
         ];
 
-        $written = $this->repository->create($data, Context::createDefaultContext());
-
-        /** @var TaxWrittenEvent $taxes */
-        $taxes = $written->getEventByDefinition(TaxDefinition::class);
+        $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByDefinition(TaxDefinition::class);
         static::assertInstanceOf(EntityWrittenEvent::class, $taxes);
         static::assertCount(1, array_unique($taxes->getIds()));
     }
@@ -857,12 +869,15 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $red->getViewData()->getMedia());
         static::assertTrue($red->getViewData()->getMedia()->has($parentMedia));
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         static::assertEquals($parentMedia, Uuid::fromBytesToHex($row['media_id']));
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
         static::assertEmpty($row['media_id']);
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
         static::assertEquals($greenMedia, Uuid::fromBytesToHex($row['media_id']));
     }
@@ -925,14 +940,17 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals([$parentCategory], array_values($red->getViewData()->getCategories()->getIds()));
         static::assertEquals([$greenCategory], array_values($green->getCategories()->getIds()));
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true));
         static::assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true));
         static::assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
 
+        /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
         static::assertContains($greenCategory, json_decode($row['category_tree'], true));
         static::assertEquals($greenId, Uuid::fromBytesToHex($row['categories']));
@@ -1182,8 +1200,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_manufacturer.products.price', $greenPrice['gross']));
 
-        $repository = $this->getContainer()->get('product_manufacturer.repository');
-        $result = $repository->searchIds($criteria, Context::createDefaultContext());
+        $result = $this->getContainer()->get('product_manufacturer.repository')->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
         static::assertContains($manufacturerId, $result->getIds());
@@ -1436,7 +1453,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
-            'name' => 'Test product service: ' . (new \DateTime())->format(\DateTime::ATOM),
+            'name' => 'Test product service: ' . (new DateTime())->format(DateTime::ATOM),
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],
@@ -1676,7 +1693,7 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($price->getQuantityEnd());
     }
 
-    public function testPaginatedAssociationWithBlacklist()
+    public function testPaginatedAssociationWithBlacklist(): void
     {
         $manufacturerId = Uuid::uuid4()->getHex();
         $ruleId = Uuid::uuid4()->getHex();
@@ -1706,12 +1723,12 @@ class ProductRepositoryTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContext();
+        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
         //test if all products can be read if context contains no rules
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
 
-        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(4, $manufacturer->getProducts());
 
@@ -1722,9 +1739,9 @@ class ProductRepositoryTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContext();
+        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
@@ -1736,15 +1753,15 @@ class ProductRepositoryTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContext([$ruleId, $ruleId2]);
+        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
     }
 
-    public function testWriteProductCategoriesWithoutId()
+    public function testWriteProductCategoriesWithoutId(): void
     {
         $id = Uuid::uuid4()->getHex();
 

@@ -191,7 +191,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media);
 
-        self::assertSame(2, $media->getThumbnails()->count());
+        static::assertSame(2, $media->getThumbnails()->count());
 
         $this->getPublicFilesystem()->put($mediaUrl, 'test content');
 
@@ -211,10 +211,10 @@ class ThumbnailServiceTest extends TestCase
         // refresh entity
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
-        self::assertSame(0, $media->getThumbnails()->count());
-        self::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
+        static::assertSame(0, $media->getThumbnails()->count());
+        static::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
         foreach ($thumbnailUrls as $thumbnailUrl) {
-            self::assertFalse($this->getPublicFilesystem()->has($thumbnailUrl));
+            static::assertFalse($this->getPublicFilesystem()->has($thumbnailUrl));
         }
     }
 

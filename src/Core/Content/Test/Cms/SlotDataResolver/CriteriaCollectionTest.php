@@ -18,10 +18,10 @@ class CriteriaCollectionTest extends TestCase
         $collection->add('key1', ProductDefinition::class, new Criteria());
 
         // test array return
-        $this->assertCount(1, $collection->all());
+        static::assertCount(1, $collection->all());
 
         // test iterator
-        $this->assertCount(1, $collection);
+        static::assertCount(1, $collection);
     }
 
     public function testAddMultipleCriteriaOfDifferentDefinition(): void
@@ -32,10 +32,10 @@ class CriteriaCollectionTest extends TestCase
         $collection->add('key3', CategoryDefinition::class, new Criteria());
 
         // test array return
-        $this->assertCount(3, $collection->all());
+        static::assertCount(3, $collection->all());
 
         // test iterator
-        $this->assertCount(3, $collection);
+        static::assertCount(3, $collection);
     }
 
     public function testAddMultipleCriteriaOfSameDefinition(): void
@@ -46,13 +46,13 @@ class CriteriaCollectionTest extends TestCase
         $collection->add('key3', ProductDefinition::class, new Criteria());
 
         // test array return
-        $this->assertCount(1, $collection->all());
+        static::assertCount(1, $collection->all());
 
         // test iterator
-        $this->assertCount(1, $collection);
+        static::assertCount(1, $collection);
 
         // test indexed by definition
-        $this->assertCount(3, $collection->all()[ProductDefinition::class]);
+        static::assertCount(3, $collection->all()[ProductDefinition::class]);
     }
 
     public function testAddDuplicates(): void

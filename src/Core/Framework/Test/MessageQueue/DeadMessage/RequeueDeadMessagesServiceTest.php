@@ -105,18 +105,18 @@ class RequeueDeadMessagesServiceTest extends TestCase
         $deadMessageUpdater->updateOriginalMessage($plainId, $msg);
         $deadMessageUpdater->updateOriginalMessage($futureId, $msg);
 
-        $this->bus->expects($this->once())
+        $this->bus->expects(static::once())
             ->method('dispatch')
-            ->with($this->callback(function (RetryMessage $message) use ($plainId) {
+            ->with(static::callback(function (RetryMessage $message) use ($plainId) {
                 static::assertEquals($plainId, $message->getDeadMessageId());
 
                 return true;
             }))
             ->willReturn(new Envelope(new RetryMessage($plainId)));
 
-        $this->encryptedBus->expects($this->once())
+        $this->encryptedBus->expects(static::once())
             ->method('dispatch')
-            ->with($this->callback(function (RetryMessage $message) use ($encryptedId) {
+            ->with(static::callback(function (RetryMessage $message) use ($encryptedId) {
                 static::assertEquals($encryptedId, $message->getDeadMessageId());
 
                 return true;
@@ -178,9 +178,9 @@ class RequeueDeadMessagesServiceTest extends TestCase
         $deadMessageUpdater->updateOriginalMessage($id1, $msg);
         $deadMessageUpdater->updateOriginalMessage($id2, $msg);
 
-        $this->bus->expects($this->once())
+        $this->bus->expects(static::once())
             ->method('dispatch')
-            ->with($this->callback(function (RetryMessage $message) use ($testMessageId) {
+            ->with(static::callback(function (RetryMessage $message) use ($testMessageId) {
                 static::assertEquals($testMessageId, $message->getDeadMessageId());
 
                 return true;

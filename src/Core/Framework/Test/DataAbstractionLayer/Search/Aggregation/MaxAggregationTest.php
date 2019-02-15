@@ -69,8 +69,8 @@ class MaxAggregationTest extends TestCase
 
     public function testMaxAggregationThrowsExceptionOnNonNumericField(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
                 MaxAggregation::class,
                 StringField::class)
         );

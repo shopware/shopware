@@ -32,8 +32,8 @@ class IntFieldTest extends TestCase
                 $this->getWriteParameterBagMock()
             )->current();
         } catch (InvalidFieldException $e) {
-            self::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
-            self::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
+            static::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
+            static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
             throw $e;
         }
     }
@@ -53,8 +53,8 @@ class IntFieldTest extends TestCase
                 $this->getWriteParameterBagMock()
             )->current();
         } catch (InvalidFieldException $e) {
-            self::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
-            self::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
+            static::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
+            static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
             throw $e;
         }
     }
@@ -67,7 +67,7 @@ class IntFieldTest extends TestCase
 
         $field = $this->getIntField();
 
-        self::assertSame(
+        static::assertSame(
             0,
             $serializer->encode(
                 $field,
@@ -84,7 +84,7 @@ class IntFieldTest extends TestCase
 
         $data = new KeyValuePair('count', 15, false);
 
-        self::assertSame(
+        static::assertSame(
             15,
             $serializer->encode(
                 $this->getIntField(),
@@ -101,7 +101,7 @@ class IntFieldTest extends TestCase
 
         $data = new KeyValuePair('count', null, false);
 
-        self::assertNull(
+        static::assertNull(
             $serializer->encode(
                 $this->getIntField(false),
                 $this->getEntityExisting(),

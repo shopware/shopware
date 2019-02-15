@@ -69,15 +69,15 @@ class OrderingProcessTest extends TestCase
         $this->changePaymentMethod(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE);
 
         $orderId = $this->payOrder();
-        self::assertTrue(Uuid::isValid($orderId));
+        static::assertTrue(Uuid::isValid($orderId));
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), Context::createDefaultContext())
             ->get($orderId);
 
-        self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
-        self::assertEquals(25, $order->getAmountTotal());
-        self::assertEquals($customerId, $order->getOrderCustomer()->getId());
+        static::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
+        static::assertEquals(25, $order->getAmountTotal());
+        static::assertEquals($customerId, $order->getOrderCustomer()->getId());
     }
 
     private function createProduct(
@@ -100,10 +100,10 @@ class OrderingProcessTest extends TestCase
         $response = $this->getClient()->getResponse();
 
         /* @var Response $response */
-        self::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
-        self::assertNotEmpty($response->headers->get('Location'));
-        self::assertStringEndsWith('api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertStringEndsWith('api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
 
         return $id;
     }
@@ -122,7 +122,7 @@ class OrderingProcessTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        self::assertEquals(true, $content['success']);
+        static::assertEquals(true, $content['success']);
     }
 
     private function changeProductQuantity(string $id, int $quantity): void
@@ -136,7 +136,7 @@ class OrderingProcessTest extends TestCase
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        self::assertEquals(true, $content['success']);
+        static::assertEquals(true, $content['success']);
     }
 
     private function removeProductFromCart(string $id): void
@@ -149,7 +149,7 @@ class OrderingProcessTest extends TestCase
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        self::assertEquals(true, $content['success']);
+        static::assertEquals(true, $content['success']);
     }
 
     private function createCustomer($email, $password): string

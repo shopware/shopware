@@ -27,6 +27,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -114,7 +115,7 @@ class VersioningTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testChangelogOnlyWrittenForVersionawareEntities()
+    public function testChangelogOnlyWrittenForVersionAwareEntities(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -150,7 +151,7 @@ class VersioningTest extends TestCase
         static::assertCount(1, $changelog);
     }
 
-    public function testICanVersionPriceFields()
+    public function testICanVersionPriceFields(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -197,7 +198,7 @@ class VersioningTest extends TestCase
         static::assertEquals(1000, $product->getPrice()->getNet());
     }
 
-    public function testICanVersionDateFields()
+    public function testICanVersionDateFields(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -240,7 +241,7 @@ class VersioningTest extends TestCase
         static::assertEquals('2018-10-05', $product->getReleaseDate()->format('Y-m-d'));
     }
 
-    public function testICanVersionCalculatedPriceField()
+    public function testICanVersionCalculatedPriceField(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -294,6 +295,7 @@ class VersioningTest extends TestCase
         $updated = ['id' => $id, 'price' => $newPrice];
         $repository->update([$updated], $versionContext);
 
+        /** @var Entity $entity */
         $entity = $repository
                     ->search(new Criteria([$id]), $context)
                     ->first();
@@ -301,25 +303,26 @@ class VersioningTest extends TestCase
         //check that the live entity contains the original price
         static::assertInstanceOf(ArrayEntity::class, $entity);
 
+        /** @var CalculatedPrice $livePrice */
         $livePrice = $entity->get('price');
         static::assertInstanceOf(CalculatedPrice::class, $livePrice);
 
-        /** @var CalculatedPrice $livePrice */
         static::assertEquals(100.20, $livePrice->getUnitPrice());
         static::assertEquals(100.30, $livePrice->getTotalPrice());
         static::assertEquals(0.38, $livePrice->getCalculatedTaxes()->getAmount());
 
         //check that the version entity is updated with the new price
+        /** @var Entity $entity */
         $entity = $repository
             ->search(new Criteria([$id]), $versionContext)
             ->first();
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
 
+        /** @var CalculatedPrice $versionPrice */
         $versionPrice = $entity->get('price');
         static::assertInstanceOf(CalculatedPrice::class, $versionPrice);
 
-        /** @var CalculatedPrice $versionPrice */
         static::assertEquals(500.20, $versionPrice->getUnitPrice());
         static::assertEquals(500.30, $versionPrice->getTotalPrice());
         static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
@@ -329,16 +332,17 @@ class VersioningTest extends TestCase
         $repository->merge($versionId, $context);
 
         //check that the version entity is updated with the new price
+        /** @var Entity $entity */
         $entity = $repository
             ->search(new Criteria([$id]), $context)
             ->first();
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
 
+        /** @var CalculatedPrice $versionPrice */
         $versionPrice = $entity->get('price');
         static::assertInstanceOf(CalculatedPrice::class, $versionPrice);
 
-        /** @var CalculatedPrice $versionPrice */
         static::assertEquals(500.20, $versionPrice->getUnitPrice());
         static::assertEquals(500.30, $versionPrice->getTotalPrice());
         static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
@@ -348,7 +352,7 @@ class VersioningTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
     }
 
-    public function testICanVersionCalculatedFields()
+    public function testICanVersionCalculatedFields(): void
     {
         static::markTestSkipped('Fixed with next-1434');
 
@@ -390,8 +394,8 @@ class VersioningTest extends TestCase
 
         $this->categoryRepository->update([$updated], $versionContext);
 
-        /** @var CategoryEntity $category */
         //check that the path updated
+        /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search(new Criteria([$id3]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $id1 . '|', $category->getPath());
@@ -409,7 +413,7 @@ class VersioningTest extends TestCase
         static::assertEquals('|' . $id1 . '|', $category->getPath());
     }
 
-    public function testICanVersionTranslatedFields()
+    public function testICanVersionTranslatedFields(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -436,7 +440,7 @@ class VersioningTest extends TestCase
         static::assertEquals('updated', $changelog[1]['payload']['name']);
     }
 
-    public function testChangelogWrittenForCreate()
+    public function testChangelogWrittenForCreate(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -459,7 +463,7 @@ class VersioningTest extends TestCase
         static::assertEquals('product', $changelog[0]['entity_name']);
     }
 
-    public function testChangelogWrittenForUpdate()
+    public function testChangelogWrittenForUpdate(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -493,7 +497,7 @@ class VersioningTest extends TestCase
         static::assertEquals('upsert', $changelog[1]['action']);
     }
 
-    public function testChangelogWrittenWithMultipleEntities()
+    public function testChangelogWrittenWithMultipleEntities(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -525,7 +529,7 @@ class VersioningTest extends TestCase
         static::assertEquals('insert', $changelog[0]['action']);
     }
 
-    public function testChangelogAppliedAfterMerge()
+    public function testChangelogAppliedAfterMerge(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -605,7 +609,7 @@ class VersioningTest extends TestCase
         static::assertEquals('updated', $changelog[1]['payload']['ean']);
     }
 
-    public function testICanVersionOneToManyAssociations()
+    public function testICanVersionOneToManyAssociations(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $ruleId = Uuid::uuid4()->getHex();
@@ -673,7 +677,7 @@ class VersioningTest extends TestCase
         }
     }
 
-    public function testICanVersionManyToManyAssociations()
+    public function testICanVersionManyToManyAssociations(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $categoryId1 = Uuid::uuid4()->getHex();
@@ -733,7 +737,7 @@ class VersioningTest extends TestCase
         }
     }
 
-    public function testICanReadASpecifyVersion()
+    public function testICanReadASpecifyVersion(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -767,7 +771,7 @@ class VersioningTest extends TestCase
         static::assertSame('updated', $product->getEan());
     }
 
-    public function testICanReadOneToManyInASpecifyVersion()
+    public function testICanReadOneToManyInASpecifyVersion(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $ruleId = Uuid::uuid4()->getHex();
@@ -826,8 +830,8 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        /* @var ProductEntity $product */
         $this->productRepository->update([$updated], $versionContext);
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
 
         //check if the prices are updated in the version scope
@@ -863,8 +867,8 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getPriceRules());
 
-        /** @var ProductEntity $product */
         //version scope should have no prices
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(0, $product->getPriceRules());
@@ -906,23 +910,23 @@ class VersioningTest extends TestCase
         //add new price matrix to product
         $this->productRepository->update([$updated], $versionContext);
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getPriceRules());
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(3, $product->getPriceRules());
 
         $this->productRepository->merge($versionId, $context);
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(3, $product->getPriceRules());
 
@@ -943,10 +947,10 @@ class VersioningTest extends TestCase
 
         $priceRepository->create([$data], $versionContext);
 
+        /** @var ProductPriceRuleEntity $price4 */
         $price4 = $priceRepository->search(new Criteria([$newPriceId4]), $versionContext)->first();
         static::assertInstanceOf(ProductPriceRuleEntity::class, $price4);
 
-        /** @var ProductPriceRuleEntity $price4 */
         static::assertSame(5.0, $price4->getPrice()->getGross());
         static::assertSame($newPriceId4, $price4->getId());
 
@@ -958,7 +962,7 @@ class VersioningTest extends TestCase
         static::assertContains($newPriceId4, $prices->getIds());
     }
 
-    public function testICanReadManyToManyInASpecifyVersion()
+    public function testICanReadManyToManyInASpecifyVersion(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $categoryId1 = Uuid::uuid4()->getHex();
@@ -986,11 +990,11 @@ class VersioningTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('product.categories');
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository
             ->search($criteria, $context)
             ->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getCategories());
 
@@ -1006,26 +1010,26 @@ class VersioningTest extends TestCase
             static::assertSame(Defaults::LIVE_VERSION, $categoryVersion);
         }
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository
             ->search($criteria, $versionContext)
             ->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getCategories());
 
         $this->productRepository->merge($versionId, $context);
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository
             ->search($criteria, $context)
             ->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getCategories());
     }
 
-    public function testICanSearchInASpecifyVersion()
+    public function testICanSearchInASpecifyVersion(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -1069,7 +1073,7 @@ class VersioningTest extends TestCase
         static::assertCount(1, $products);
     }
 
-    public function testICanSearchOneToManyInASpecifyVersion()
+    public function testICanSearchOneToManyInASpecifyVersion(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $ruleId = Uuid::uuid4()->getHex();
@@ -1161,17 +1165,17 @@ class VersioningTest extends TestCase
         static::assertCount(1, $result->getIds());
         static::assertContains($productId, $result->getIds());
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository
             ->search(new Criteria([$productId]), $context)
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertCount(1, $product->getPriceRules());
     }
 
-    public function testICanSearchManyToManyInASpecifyVersion()
+    public function testICanSearchManyToManyInASpecifyVersion(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $categoryId1 = Uuid::uuid4()->getHex();
@@ -1218,9 +1222,9 @@ class VersioningTest extends TestCase
         $Criteria = new Criteria([$productId]);
         $Criteria->addAssociation('product.categories');
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search($Criteria, $versionContext)->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(3, $product->getCategories(), print_r($product->getId(), true));
 
@@ -1231,7 +1235,7 @@ class VersioningTest extends TestCase
         static::assertContains($productId, $result->getIds());
     }
 
-    public function testSearchConsidersLiveVersionAsFallback()
+    public function testSearchConsidersLiveVersionAsFallback(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -1279,7 +1283,7 @@ class VersioningTest extends TestCase
         static::assertCount(2, $products);
     }
 
-    public function testICanAggregateInASpecifyVersion()
+    public function testICanAggregateInASpecifyVersion(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -1309,28 +1313,28 @@ class VersioningTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.ean', 'EAN'));
         $criteria->addAggregation(new SumAggregation('product.price.gross', 'sum_price'));
 
-        /** @var SumAggregationResult $sum */
         $aggregations = $this->productRepository->aggregate($criteria, $context);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        /** @var SumAggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
         static::assertEquals(100, $sum->getSum());
 
-        /** @var SumAggregationResult $sum */
         $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        /** @var SumAggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
         static::assertEquals(1000, $sum->getSum());
 
         $this->productRepository->merge($versionId, $context);
 
-        /** @var SumAggregationResult $sum */
         $aggregations = $this->productRepository->aggregate($criteria, $context);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        /** @var SumAggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
         static::assertEquals(1000, $sum->getSum());
     }
 
-    public function testICanAggregateOneToManyInASpecifyVersion()
+    public function testICanAggregateOneToManyInASpecifyVersion(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $ruleId = Uuid::uuid4()->getHex();
@@ -1395,11 +1399,10 @@ class VersioningTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.id', $productId));
         $criteria->addAggregation(new SumAggregation('product.priceRules.price.gross', 'sum_prices'));
 
-        /** @var ProductEntity $product */
         $result = $this->productRepository->aggregate($criteria, $context);
+        /** @var SumAggregationResult $aggregation */
         $aggregation = $result->getAggregations()->get('sum_prices');
 
-        /** @var SumAggregationResult $aggregation */
         static::assertInstanceOf(SumAggregationResult::class, $aggregation);
         static::assertSame(25.0, $aggregation->getSum());
 
@@ -1418,7 +1421,7 @@ class VersioningTest extends TestCase
         static::assertSame(199.0, $aggregation->getSum());
     }
 
-    public function testICanAggregateManyToManyInASpecifyVersion()
+    public function testICanAggregateManyToManyInASpecifyVersion(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $categoryId1 = Uuid::uuid4()->getHex();
@@ -1455,8 +1458,8 @@ class VersioningTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.id', $productId));
         $criteria->addAggregation(new CountAggregation('product.categories.id', 'category_count'));
 
-        /** @var CountAggregationResult $aggregation */
         $result = $this->productRepository->aggregate($criteria, $context);
+        /** @var CountAggregationResult $aggregation */
         $aggregation = $result->getAggregations()->get('category_count');
 
         static::assertInstanceOf(CountAggregationResult::class, $aggregation);
@@ -1477,7 +1480,7 @@ class VersioningTest extends TestCase
         static::assertSame(3, $aggregation->getCount());
     }
 
-    public function testAggregateConsidersLiveVersionAsFallback()
+    public function testAggregateConsidersLiveVersionAsFallback(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -1518,15 +1521,15 @@ class VersioningTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.ean', 'EAN'));
         $criteria->addAggregation(new SumAggregation('product.price.gross', 'sum_price'));
 
-        /** @var SumAggregationResult $sum */
         $aggregations = $this->productRepository->aggregate($criteria, $context);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        /** @var SumAggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
         static::assertEquals(200, $sum->getSum());
 
-        /** @var SumAggregationResult $sum */
         $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
+        /** @var SumAggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
         static::assertEquals(1000, $sum->getSum());
 
@@ -1537,7 +1540,7 @@ class VersioningTest extends TestCase
         static::assertEquals(1000, $sum->getSum());
     }
 
-    public function testICanAddEntitiesToSpecifyVersion()
+    public function testICanAddEntitiesToSpecifyVersion(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -1633,16 +1636,14 @@ class VersioningTest extends TestCase
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
 
-        $productRepository = $this->getContainer()->get('product.repository');
-
-        $affected = $productRepository->create([$product], Context::createDefaultContext());
+        $affected = $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
         $writtenProductTranslations = $affected->getEventByDefinition(ProductTranslationDefinition::class)->getPayloads();
 
         static::assertCount(1, $writtenProductTranslations);
         static::assertEquals('😄', $writtenProductTranslations[0]['name']);
     }
 
-    public function testCreateOrderVersion()
+    public function testCreateOrderVersion(): void
     {
         $token = Uuid::uuid4()->getHex();
         $cart = new Cart('test', $token);
@@ -1661,14 +1662,12 @@ class VersioningTest extends TestCase
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $customerId,
-            ]);
+            ]
+        );
 
         $cart = $this->processor->process($cart, $context, new CartBehaviorContext());
 
-        $result = $this->orderPersister->persist($cart, $context);
-
-        $orders = $result->getEventByDefinition(OrderDefinition::class);
-        $orders = $orders->getIds();
+        $orders = $this->orderPersister->persist($cart, $context)->getEventByDefinition(OrderDefinition::class)->getIds();
         $id = array_shift($orders);
 
         $versionId = $this->orderRepository->createVersion($id, $this->context);
@@ -1774,7 +1773,7 @@ class VersioningTest extends TestCase
 
 class CalculatedPriceFieldTestDefinition extends EntityDefinition
 {
-    public static function getCreateTable()
+    public static function getCreateTable(): string
     {
         return '
 DROP TABLE IF EXISTS calculated_price_field_test;  
@@ -1787,7 +1786,7 @@ CREATE TABLE `calculated_price_field_test` (
         ';
     }
 
-    public static function dropTable()
+    public static function dropTable(): string
     {
         return '
             DROP TABLE IF EXISTS calculated_price_field_test;   

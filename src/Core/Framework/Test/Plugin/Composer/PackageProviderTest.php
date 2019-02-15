@@ -15,7 +15,7 @@ class PackageProviderTest extends TestCase
         $pluginPath = __DIR__ . '/_fixture/valid';
         $package = $packageProvider->getPluginInformation($pluginPath, new NullIO());
 
-        self::assertSame('test/test', $package->getName());
+        static::assertSame('test/test', $package->getName());
     }
 
     public function testGetPluginInformationInvalidJson(): void

@@ -60,10 +60,9 @@ class EntityReaderTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
-        parent::setUp();
     }
 
-    public function testTransledFieldsContainsNoInheritance()
+    public function testTranslatedFieldsContainsNoInheritance(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -101,9 +100,9 @@ class EntityReaderTest extends TestCase
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
 
-        /** @var ProductEntity $product */
         static::assertNull($product->getName());
         static::assertEquals('test', $product->getDescription());
 
@@ -121,7 +120,7 @@ class EntityReaderTest extends TestCase
         static::assertNull($translation->getDescription());
     }
 
-    public function testInheritedTranslationsInViewData()
+    public function testInheritedTranslationsInViewData(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -159,15 +158,15 @@ class EntityReaderTest extends TestCase
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
         );
 
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product->getViewData());
         static::assertEquals('EN', $product->getViewData()->getName());
         static::assertEquals('test', $product->getViewData()->getDescription());
     }
 
-    public function testParentInheritanceInViewData()
+    public function testParentInheritanceInViewData(): void
     {
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -252,7 +251,7 @@ class EntityReaderTest extends TestCase
         static::assertEquals(100, $green->getViewData()->getPrice()->getGross());
     }
 
-    public function testInheritanceWithOneToMany()
+    public function testInheritanceWithOneToMany(): void
     {
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
@@ -333,7 +332,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductPriceRuleCollection::class, $green->getPriceRules());
     }
 
-    public function testInheritanceWithPaginatedOneToMany()
+    public function testInheritanceWithPaginatedOneToMany(): void
     {
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
@@ -417,7 +416,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductPriceRuleCollection::class, $green->getPriceRules());
     }
 
-    public function testInheritanceWithManyToMany()
+    public function testInheritanceWithManyToMany(): void
     {
         $category1 = Uuid::uuid4()->getHex();
         $category2 = Uuid::uuid4()->getHex();
@@ -471,15 +470,15 @@ class EntityReaderTest extends TestCase
 
         $products = $this->productRepository->search($criteria, $context);
 
+        /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
+        /** @var ProductEntity $red */
         $red = $products->get($redId);
+        /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        /** @var ProductEntity $parent */
         static::assertInstanceOf(ProductEntity::class, $parent);
-        /** @var ProductEntity $red */
         static::assertInstanceOf(ProductEntity::class, $red);
-        /** @var ProductEntity $green */
         static::assertInstanceOf(ProductEntity::class, $green);
 
         //validate parent contains own categories
@@ -515,7 +514,7 @@ class EntityReaderTest extends TestCase
         static::assertTrue($green->getViewData()->getCategories()->has($category2));
     }
 
-    public function testInheritanceWithPaginatedManyToMany()
+    public function testInheritanceWithPaginatedManyToMany(): void
     {
         $category1 = Uuid::uuid4()->getHex();
         $category2 = Uuid::uuid4()->getHex();
@@ -569,15 +568,15 @@ class EntityReaderTest extends TestCase
 
         $products = $this->productRepository->search($criteria, $context);
 
+        /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
+        /** @var ProductEntity $red */
         $red = $products->get($redId);
+        /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        /** @var ProductEntity $parent */
         static::assertInstanceOf(ProductEntity::class, $parent);
-        /** @var ProductEntity $red */
         static::assertInstanceOf(ProductEntity::class, $red);
-        /** @var ProductEntity $green */
         static::assertInstanceOf(ProductEntity::class, $green);
 
         //validate parent contains own categories
@@ -656,8 +655,8 @@ class EntityReaderTest extends TestCase
             ],
         ], $context);
 
-        /** @var CustomerEntity $customer */
         $criteria = new Criteria([$id]);
+        /** @var CustomerEntity $customer */
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertNull($customer->getAddresses());
     }
@@ -708,9 +707,9 @@ class EntityReaderTest extends TestCase
         $addresses = $this->connection->fetchColumn('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertEquals(5, $addresses);
 
-        /** @var CustomerEntity $customer */
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('customer.addresses');
+        /** @var CustomerEntity $customer */
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertInstanceOf(CustomerAddressCollection::class, $customer->getAddresses());
         static::assertCount(5, $customer->getAddresses());
@@ -789,8 +788,6 @@ class EntityReaderTest extends TestCase
         $mapping = $this->connection->fetchAll('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(8, $mapping);
 
-        /** @var CustomerEntity $customer1 */
-        /** @var CustomerEntity $customer2 */
         $criteria = new Criteria([$id1, $id2]);
         $addressCriteria = new Criteria();
         $addressCriteria->addFilter(new EqualsFilter('customer_address.zipcode', 'B'));
@@ -798,7 +795,9 @@ class EntityReaderTest extends TestCase
 
         $customers = $repository->search($criteria, $context);
 
+        /** @var CustomerEntity $customer1 */
         $customer1 = $customers->get($id1);
+        /** @var CustomerEntity $customer2 */
         $customer2 = $customers->get($id2);
 
         static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
@@ -883,8 +882,6 @@ class EntityReaderTest extends TestCase
         $mapping = $this->connection->fetchAll('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(6, $mapping);
 
-        /** @var CustomerEntity $customer1 */
-        /** @var CustomerEntity $customer2 */
         $criteria = new Criteria([$id1, $id2]);
         $addressCriteria = new Criteria();
         $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::ASCENDING));
@@ -892,7 +889,9 @@ class EntityReaderTest extends TestCase
 
         $customers = $repository->search($criteria, $context);
 
+        /** @var CustomerEntity $customer1 */
         $customer1 = $customers->get($id1);
+        /** @var CustomerEntity $customer2 */
         $customer2 = $customers->get($id2);
 
         static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
@@ -909,8 +908,6 @@ class EntityReaderTest extends TestCase
             array_values($customer2->getAddresses()->getIds())
         );
 
-        /** @var CustomerEntity $customer1 */
-        /** @var CustomerEntity $customer2 */
         $criteria = new Criteria([$id1, $id2]);
         $addressCriteria = new Criteria();
         $addressCriteria->addSorting(new FieldSorting('customer_address.zipcode', FieldSorting::DESCENDING));
@@ -918,7 +915,9 @@ class EntityReaderTest extends TestCase
 
         $customers = $repository->search($criteria, $context);
 
+        /** @var CustomerEntity $customer1 */
         $customer1 = $customers->get($id1);
+        /** @var CustomerEntity $customer2 */
         $customer2 = $customers->get($id2);
 
         static::assertEquals(
@@ -975,9 +974,9 @@ class EntityReaderTest extends TestCase
             ],
         ], $context);
 
-        /** @var CustomerEntity $customer */
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('customer.addresses', new PaginationCriteria(1));
+        /** @var CustomerEntity $customer */
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(1, $customer->getAddresses());
@@ -1040,15 +1039,15 @@ class EntityReaderTest extends TestCase
         //test many to many not loaded automatically
         $categories = $repository->search(new Criteria([$id1, $id2]), $context);
 
+        /** @var CategoryEntity $category1 */
         $category1 = $categories->get($id1);
+        /** @var CategoryEntity $category2 */
         $category2 = $categories->get($id2);
 
         static::assertInstanceOf(CategoryEntity::class, $category1);
-        /* @var CategoryEntity $category1 */
         static::assertNull($category1->getProducts());
 
         static::assertInstanceOf(CategoryEntity::class, $category2);
-        /* @var CategoryEntity $category2 */
         static::assertNull($category2->getProducts());
     }
 
@@ -1154,11 +1153,12 @@ class EntityReaderTest extends TestCase
         $criteria->addAssociation('category.products');
         $categories = $repository->search($criteria, $context);
 
+        /** @var CategoryEntity $category1 */
         $category1 = $categories->get($id1);
+        /** @var CategoryEntity $category2 */
         $category2 = $categories->get($id2);
 
         static::assertInstanceOf(CategoryEntity::class, $category1);
-        /* @var CategoryEntity $category1 */
         static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
         static::assertCount(2, $category1->getProducts());
 
@@ -1166,7 +1166,6 @@ class EntityReaderTest extends TestCase
         static::assertContains($id3, $category1->getProducts()->getIds());
 
         static::assertInstanceOf(CategoryEntity::class, $category2);
-        /* @var CategoryEntity $category2 */
         static::assertInstanceOf(ProductCollection::class, $category2->getProducts());
         static::assertCount(2, $category2->getProducts());
 
@@ -1231,8 +1230,8 @@ class EntityReaderTest extends TestCase
         $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
-        /** @var CategoryEntity $category2 */
         $category1 = $categories->get($id1);
+        /** @var CategoryEntity $category2 */
         $category2 = $categories->get($id2);
 
         static::assertInstanceOf(CategoryEntity::class, $category1);
@@ -1301,8 +1300,8 @@ class EntityReaderTest extends TestCase
         $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
-        /** @var CategoryEntity $category2 */
         $category1 = $categories->get($id1);
+        /** @var CategoryEntity $category2 */
         $category2 = $categories->get($id2);
 
         static::assertInstanceOf(CategoryEntity::class, $category1);
@@ -1332,8 +1331,8 @@ class EntityReaderTest extends TestCase
         $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
-        /** @var CategoryEntity $category2 */
         $category1 = $categories->get($id1);
+        /** @var CategoryEntity $category2 */
         $category2 = $categories->get($id2);
 
         static::assertEquals(
@@ -1405,8 +1404,8 @@ class EntityReaderTest extends TestCase
         static::assertCount(2, $products);
 
         /** @var ProductEntity $product1 */
-        /** @var ProductEntity $product2 */
         $product1 = $products->get($id1);
+        /** @var ProductEntity $product2 */
         $product2 = $products->get($id2);
 
         static::assertInstanceOf(CategoryCollection::class, $product1->getCategories());

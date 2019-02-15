@@ -32,7 +32,7 @@ class PdfParserLoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/Shopware_5_3_Broschuere.pdf');
 
-        self::assertCount(6, $result);
+        static::assertCount(6, $result);
     }
 
     public function testLargePdf(): void
@@ -51,7 +51,7 @@ class PdfParserLoaderTest extends TestCase
         $fixturePdf = __DIR__ . '/../../fixtures/Shopware_5_3_Broschuere.pdf';
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
-        self::assertNotFalse($tempFile, 'Failed to create a temp file');
+        static::assertNotFalse($tempFile, 'Failed to create a temp file');
 
         copy($fixturePdf, $tempFile);
 
@@ -61,7 +61,7 @@ class PdfParserLoaderTest extends TestCase
         ftruncate($fileHandle, $fileSize);
         fclose($fileHandle);
 
-        self::assertEquals($fileSize, filesize($tempFile), 'Failed to inflate test pdf');
+        static::assertEquals($fileSize, filesize($tempFile), 'Failed to inflate test pdf');
 
         return $tempFile;
     }

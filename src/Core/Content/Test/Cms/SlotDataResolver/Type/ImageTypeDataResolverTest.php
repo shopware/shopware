@@ -30,7 +30,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testType(): void
     {
-        $this->assertEquals('image', $this->imageResolver->getType());
+        static::assertEquals('image', $this->imageResolver->getType());
     }
 
     public function testCollectWithEmptyConfig(): void
@@ -45,7 +45,7 @@ class ImageTypeDataResolverTest extends TestCase
 
         $criteriaCollection = $this->imageResolver->collect($slot, $request, $context);
 
-        $this->assertNull($criteriaCollection);
+        static::assertNull($criteriaCollection);
     }
 
     public function testCollectWithMediaId(): void
@@ -60,13 +60,13 @@ class ImageTypeDataResolverTest extends TestCase
 
         $criteriaCollection = $this->imageResolver->collect($slot, $request, $context);
 
-        $this->assertCount(1, $criteriaCollection);
+        static::assertCount(1, $criteriaCollection);
 
         $expectedCriteria = new Criteria(['media123']);
 
         $mediaCriteria = $criteriaCollection->all()[MediaDefinition::class]['media'];
 
-        $this->assertEquals($expectedCriteria, $mediaCriteria);
+        static::assertEquals($expectedCriteria, $mediaCriteria);
     }
 
     public function testEnrichWithEmptyConfig(): void
@@ -83,10 +83,10 @@ class ImageTypeDataResolverTest extends TestCase
         /** @var ImageStruct $slot */
         $slot = $this->imageResolver->enrich($rawSlot, $request, $context, $result);
 
-        $this->assertInstanceOf(ImageStruct::class, $slot);
-        $this->assertEmpty($slot->getUrl());
-        $this->assertEmpty($slot->getMedia());
-        $this->assertEmpty($slot->getMediaId());
+        static::assertInstanceOf(ImageStruct::class, $slot);
+        static::assertEmpty($slot->getUrl());
+        static::assertEmpty($slot->getMedia());
+        static::assertEmpty($slot->getMediaId());
     }
 
     public function testEnrichWithUrlOnly(): void
@@ -103,10 +103,10 @@ class ImageTypeDataResolverTest extends TestCase
         /** @var ImageStruct $slot */
         $slot = $this->imageResolver->enrich($rawSlot, $request, $context, $result);
 
-        $this->assertInstanceOf(ImageStruct::class, $slot);
-        $this->assertEquals('http://shopware.com/image.jpg', $slot->getUrl());
-        $this->assertEmpty($slot->getMedia());
-        $this->assertEmpty($slot->getMediaId());
+        static::assertInstanceOf(ImageStruct::class, $slot);
+        static::assertEquals('http://shopware.com/image.jpg', $slot->getUrl());
+        static::assertEmpty($slot->getMedia());
+        static::assertEmpty($slot->getMediaId());
     }
 
     public function testEnrichWithMediaOnly(): void
@@ -136,11 +136,11 @@ class ImageTypeDataResolverTest extends TestCase
         /** @var ImageStruct $slot */
         $slot = $this->imageResolver->enrich($rawSlot, $request, $context, $result);
 
-        $this->assertInstanceOf(ImageStruct::class, $slot);
-        $this->assertEmpty($slot->getUrl());
-        $this->assertInstanceOf(MediaEntity::class, $slot->getMedia());
-        $this->assertEquals('media123', $slot->getMediaId());
-        $this->assertEquals($media, $slot->getMedia());
+        static::assertInstanceOf(ImageStruct::class, $slot);
+        static::assertEmpty($slot->getUrl());
+        static::assertInstanceOf(MediaEntity::class, $slot->getMedia());
+        static::assertEquals('media123', $slot->getMediaId());
+        static::assertEquals($media, $slot->getMedia());
     }
 
     public function testEnrichWithMediaAndUrl(): void
@@ -170,11 +170,11 @@ class ImageTypeDataResolverTest extends TestCase
         /** @var ImageStruct $slot */
         $slot = $this->imageResolver->enrich($rawSlot, $request, $context, $result);
 
-        $this->assertInstanceOf(ImageStruct::class, $slot);
-        $this->assertEquals('http://shopware.com/image.jpg', $slot->getUrl());
-        $this->assertInstanceOf(MediaEntity::class, $slot->getMedia());
-        $this->assertEquals('media123', $slot->getMediaId());
-        $this->assertEquals($media, $slot->getMedia());
+        static::assertInstanceOf(ImageStruct::class, $slot);
+        static::assertEquals('http://shopware.com/image.jpg', $slot->getUrl());
+        static::assertInstanceOf(MediaEntity::class, $slot->getMedia());
+        static::assertEquals('media123', $slot->getMediaId());
+        static::assertEquals($media, $slot->getMedia());
     }
 
     public function testEnrichWithMissingMediaId(): void
@@ -204,9 +204,9 @@ class ImageTypeDataResolverTest extends TestCase
         /** @var ImageStruct $slot */
         $slot = $this->imageResolver->enrich($rawSlot, $request, $context, $result);
 
-        $this->assertInstanceOf(ImageStruct::class, $slot);
-        $this->assertEmpty($slot->getUrl());
-        $this->assertEquals('media123', $slot->getMediaId());
-        $this->assertEmpty($slot->getMedia());
+        static::assertInstanceOf(ImageStruct::class, $slot);
+        static::assertEmpty($slot->getUrl());
+        static::assertEquals('media123', $slot->getMediaId());
+        static::assertEmpty($slot->getMedia());
     }
 }

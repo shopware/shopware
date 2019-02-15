@@ -33,7 +33,7 @@ class ClassNamespaceTest extends TestCase
 
         $errorMessage = 'Expected the following files to have a correct namespace:' . PHP_EOL . PHP_EOL . print_r($errors, true);
 
-        self::assertCount(0, $errors, $errorMessage);
+        static::assertCount(0, $errors, $errorMessage);
     }
 
     /**

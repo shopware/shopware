@@ -135,7 +135,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         /** @var StateMachineHistoryCollection $history */
         $history = $this->stateMachineHistoryRepository->search(new Criteria(), $context);
 
-        static::assertEquals(1, \count($history->getElements()), 'Expected history to be written');
+        static::assertCount(1, $history->getElements(), 'Expected history to be written');
         /** @var StateMachineHistoryEntity $historyEntry */
         $historyEntry = array_values($history->getElements())[0];
 

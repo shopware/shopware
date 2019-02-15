@@ -329,8 +329,8 @@ class MediaUploadControllerTest extends TestCase
         static::assertEquals(204, $response->getStatusCode());
 
         $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
-        self::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
-        self::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
+        static::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
+        static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
     }
 
     public function testProvideName()

@@ -17,8 +17,8 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/shopware.jpg');
 
-        self::assertCount(16, $result, print_r($result, true));
-        self::assertArrayNotHasKey('error', $result);
+        static::assertCount(16, $result, print_r($result, true));
+        static::assertArrayNotHasKey('error', $result);
     }
 
     public function testGif(): void
@@ -27,8 +27,8 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/logo.gif');
 
-        self::assertCount(12, $result, print_r($result, true));
-        self::assertArrayNotHasKey('error', $result);
+        static::assertCount(12, $result, print_r($result, true));
+        static::assertArrayNotHasKey('error', $result);
     }
 
     public function testPng(): void
@@ -37,8 +37,8 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/shopware-logo.png');
 
-        self::assertCount(12, $result, print_r($result, true));
-        self::assertArrayNotHasKey('error', $result);
+        static::assertCount(12, $result, print_r($result, true));
+        static::assertArrayNotHasKey('error', $result);
     }
 
     public function testSvg(): void
@@ -47,8 +47,8 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/logo-version-professionalplus.svg');
 
-        self::assertCount(12, $result, print_r($result, true));
-        self::assertArrayNotHasKey('error', $result);
+        static::assertCount(12, $result, print_r($result, true));
+        static::assertArrayNotHasKey('error', $result);
     }
 
     public function testPdf(): void
@@ -66,8 +66,8 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/small.mp4');
 
-        self::assertCount(19, $result, print_r($result, true));
-        self::assertArrayNotHasKey('error', $result);
+        static::assertCount(19, $result, print_r($result, true));
+        static::assertArrayNotHasKey('error', $result);
     }
 
     public function testWebm(): void
@@ -76,8 +76,8 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/small.webm');
 
-        self::assertCount(19, $result, print_r($result, true));
-        self::assertArrayNotHasKey('error', $result);
+        static::assertCount(19, $result, print_r($result, true));
+        static::assertArrayNotHasKey('error', $result);
     }
 
     public function testAvi(): void
@@ -86,8 +86,8 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/small.avi');
 
-        self::assertCount(19, $result, print_r($result, true));
-        self::assertArrayNotHasKey('error', $result);
+        static::assertCount(19, $result, print_r($result, true));
+        static::assertArrayNotHasKey('error', $result);
     }
 
     public function testDoc(): void
@@ -105,7 +105,7 @@ class GetId3LoaderTest extends TestCase
             ->getMetadataLoader()
             ->extractMetadata(__DIR__ . '/../../fixtures/reader.docx');
 
-        self::assertSame('zip.msoffice', $result['fileformat']);
+        static::assertSame('zip.msoffice', $result['fileformat']);
     }
 
     private function getMetadataLoader(): GetId3Loader

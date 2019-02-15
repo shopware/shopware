@@ -31,18 +31,17 @@ class DifferentAddressesRule extends Rule
             return new Match(false, ['Not logged in customer']);
         }
 
-        switch ($this->isDifferent) {
-            case true:
-                return new Match(
-                    $customer->getActiveBillingAddress()->getId() !== $customer->getActiveShippingAddress()->getId(),
-                    ['Addresses are equal']
-                );
-            case false:
-                return new Match(
-                    $customer->getActiveBillingAddress()->getId() === $customer->getActiveShippingAddress()->getId(),
-                    ['Addresses are not equal']
-                );
+        if ($this->isDifferent) {
+            return new Match(
+                $customer->getActiveBillingAddress()->getId() !== $customer->getActiveShippingAddress()->getId(),
+                ['Addresses are equal']
+            );
         }
+
+        return new Match(
+            $customer->getActiveBillingAddress()->getId() === $customer->getActiveShippingAddress()->getId(),
+            ['Addresses are not equal']
+        );
     }
 
     public function getConstraints(): array

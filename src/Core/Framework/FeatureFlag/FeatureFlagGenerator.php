@@ -8,6 +8,9 @@ class FeatureFlagGenerator
 <?php declare(strict_types=1);
 
 namespace %s {
+
+    use Closure;
+    use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
     FeatureConfig::registerFlag('%s', '%s');
@@ -17,7 +20,7 @@ namespace %s {
         return FeatureConfig::isActive('%s');
     }
 
-    function if%s(\Closure $closure): void
+    function if%s(Closure $closure): void
     {
         %s() && $closure();
     }
@@ -28,16 +31,16 @@ namespace %s {
             $this->{$methodName}(...$arguments);
         };
 
-        if%s(\Closure::bind($closure, $object, $object));
+        if%s(Closure::bind($closure, $object, $object));
     }
 
-    function skipTest%s(\PHPUnit\Framework\TestCase $test): void
+    function skipTest%s(TestCase $test): void
     {
         if (%s()) {
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test "%s"');
+        $test::markTestSkipped('Skipping feature test "%s"');
     }
 }
 
@@ -89,7 +92,7 @@ EOD;
             $upperCamelCase,
             $lowerCamelCaseName,
             $upperCamelCase,
-            $lowerCamelCaseName,
+            $upperCamelCase,
             $upperCamelCase,
             $lowerCamelCaseName,
             $featureName

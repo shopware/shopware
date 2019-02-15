@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
 namespace Flag {
+    use Closure;
+    use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
     FeatureConfig::registerFlag('next739', 'FEATURE_NEXT_739');
@@ -10,7 +12,7 @@ namespace Flag {
         return FeatureConfig::isActive('next739');
     }
 
-    function ifNext739(\Closure $closure): void
+    function ifNext739(Closure $closure): void
     {
         next739() && $closure();
     }
@@ -21,10 +23,10 @@ namespace Flag {
             $this->{$methodName}(...$arguments);
         };
 
-        ifnext739(\Closure::bind($closure, $object, $object));
+        ifNext739(Closure::bind($closure, $object, $object));
     }
 
-    function skipTestNext739(\PHPUnit\Framework\TestCase $test): void
+    function skipTestNext739(TestCase $test): void
     {
         if (next739()) {
             return;

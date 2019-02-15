@@ -63,9 +63,8 @@
                 {% block sw_settings_rule_detail_conditions_card %}
                     <sw-card class="sw-settings-rule-detail__condition_container" :large="true" :title="$tc('sw-settings-rule.detail.ruleCard')">
                         <sw-condition-tree :entity="rule"
-                                           :conditionStore="conditionStore"
-                                           entityName="rule"
-                                           conditionIdentifier="conditions"
+                                           :conditionStore="treeConfig.conditionStore"
+                                           :config="treeConfig"
                                            ref="conditionTree">
                         </sw-condition-tree>
                     </sw-card>

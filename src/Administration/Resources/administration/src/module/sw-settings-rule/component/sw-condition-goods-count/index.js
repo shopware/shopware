@@ -11,17 +11,15 @@ import template from './sw-condition-goods-count.html.twig';
  */
 Component.extend('sw-condition-goods-count', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.number;
-        },
         fieldNames() {
             return ['operator', 'count'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

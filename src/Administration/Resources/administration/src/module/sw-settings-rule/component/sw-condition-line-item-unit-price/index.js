@@ -11,17 +11,15 @@ import template from './sw-condition-line-item-unit-price.html.twig';
  */
 Component.extend('sw-condition-line-item-unit-price', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.number;
-        },
         fieldNames() {
             return ['operator', 'amount'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

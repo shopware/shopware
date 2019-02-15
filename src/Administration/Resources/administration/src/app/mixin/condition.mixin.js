@@ -18,12 +18,8 @@ Mixin.register('condition', {
             type: Object,
             required: true
         },
-        conditionIdentifier: {
-            type: String,
-            required: true
-        },
-        entityName: {
-            type: String,
+        config: {
+            type: Object,
             required: true
         },
         level: {

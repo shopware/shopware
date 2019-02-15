@@ -1,5 +1,6 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
@@ -17,7 +18,39 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             nestedConditions: {},
-            conditionStore: {}
+            treeConfig: {
+                conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
+                    condition.meta = {
+                        viewData: {
+                            label: this.$tc(condition.label),
+                            type: this.$tc(condition.label)
+                        }
+                    };
+                }), 'type'),
+                entityName: 'rule',
+                conditionIdentifier: 'conditions',
+                childName: 'children',
+                andContainer: {
+                    type: 'andContainer'
+                },
+                orContainer: {
+                    type: 'orContainer'
+                },
+                placeholder: {
+                    type: 'placeholder'
+                },
+                getComponent(condition) {
+                    condition = this.conditionStore.getById(condition.type);
+                    if (!condition) {
+                        return 'sw-condition-not-found';
+                    }
+
+                    return condition.component;
+                },
+                isAndContainer(condition) { return condition.type === 'andContainer'; },
+                isOrContainer(condition) { return condition.type === 'orContainer'; },
+                isPlaceholder(condition) { return condition.type === 'placeholder'; }
+            }
         };
     },
 
@@ -38,7 +71,6 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule = this.ruleStore.getById(this.$route.params.id);
-            this.conditionStore = this.ruleConditionDataProviderService;
         },
 
         onSave() {

@@ -11,17 +11,15 @@ import template from './sw-condition-customer-group.html.twig';
  */
 Component.extend('sw-condition-customer-group', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.multiStore;
-        },
         fieldNames() {
             return ['operator', 'customerGroupIds'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

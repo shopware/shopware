@@ -11,17 +11,15 @@ import template from './sw-condition-line-item.html.twig';
  */
 Component.extend('sw-condition-line-item', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.multiStore;
-        },
         fieldNames() {
             return ['operator', 'identifiers'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

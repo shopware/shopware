@@ -11,11 +11,9 @@ import template from './sw-condition-line-item-of-type.html.twig';
  */
 Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.string;
-        },
         lineItemTypes() {
             return {
                 // TODO: Add line item types
@@ -29,7 +27,7 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

@@ -354,6 +354,10 @@ export default {
             // since the input is not visible at first we need to wait a tick until the
             // result list with the input is visible
             this.$nextTick(() => {
+                if (!this.$refs.swSelectInput) {
+                    return;
+                }
+
                 this.$refs.swSelectInput.focus();
             });
         },

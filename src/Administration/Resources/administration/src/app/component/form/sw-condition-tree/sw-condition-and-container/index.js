@@ -2,10 +2,6 @@ import { Mixin } from 'src/core/shopware';
 import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.scss';
 
-const PLACEHOLDER_NAME = 'placeholder';
-const OR_CONTAINER_NAME = 'orContainer';
-const AND_CONTAINER_NAME = 'andContainer';
-
 /**
  * @public
  * @description TODO: Add description
@@ -33,7 +29,7 @@ export default {
             return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
         },
         nextPosition() {
-            const children = this.condition.children;
+            const children = this.condition[this.config.childName];
             if (!children || !children.length) {
                 return 1;
             }
@@ -41,20 +37,20 @@ export default {
             return children[children.length - 1].position + 1;
         },
         sortedChildren() {
-            if (!this.condition.children) {
+            if (!this.condition[this.config.childName]) {
                 return [];
             }
-            return this.condition.children.sort((child1, child2) => { return child1.position - child2.position; });
+            return this.condition[this.config.childName]
+                .sort((child1, child2) => { return child1.position - child2.position; });
         },
         disabledDeleteButton() {
-            // todo: make it standardized
             if (this.level === 0
                 && this.condition
-                && this.condition.children
-                && this.condition.children.length === 1
-                && this.condition.children[0].type === AND_CONTAINER_NAME
-                && this.condition.children[0].children.length === 1
-                && this.condition.children[0].children[0].type === PLACEHOLDER_NAME) {
+                && this.condition[this.config.childName]
+                && this.condition[this.config.childName].length === 1
+                && this.config.isAndContainer(this.condition[this.config.childName][0])
+                && this.condition[this.config.childName][0][this.config.childName].length === 1
+                && this.config.isPlaceholder(this.condition[this.config.childName][0][this.config.childName][0])) {
                 return true;
             }
 
@@ -78,42 +74,38 @@ export default {
 
     methods: {
         createFirstPlaceholderIfNecessary() {
-            if (!this.condition.children) {
-                this.condition.children = [];
+            if (!this.condition[this.config.childName]) {
+                this.condition[this.config.childName] = [];
+                return;
             }
 
-            if (!this.condition.children.length) {
-                this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
+            if (!this.condition[this.config.childName].length) {
+                this.createCondition(this.config.placeholder, this.nextPosition);
             }
         },
-        getComponent(type) {
-            const condition = this.conditionStore.getByType(type);
-            if (!condition) {
-                return 'sw-condition-not-found';
-            }
-
-            return condition.component;
+        getComponent(condition) {
+            return this.config.getComponent(condition);
         },
         onAddAndClick() {
-            this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
+            this.createCondition(this.config.placeholder, this.nextPosition);
         },
         onAddChildClick() {
-            this.createCondition(OR_CONTAINER_NAME, this.nextPosition);
+            this.createCondition(this.config.orContainer, this.nextPosition);
         },
-        createCondition(type, position) {
+        createCondition(conditionData, position) {
             const condition = Object.assign(
                 this.entityAssociationStore.create(),
+                conditionData,
                 {
-                    type: type,
                     parentId: this.condition.id,
                     position: position
                 }
             );
-            this.condition.children.push(condition);
+            this.condition[this.config.childName].push(condition);
         },
         createPlaceholderBefore(element) {
             const originalPosition = element.position;
-            this.condition.children.forEach(child => {
+            this.condition[this.config.childName].forEach(child => {
                 if (child.position < originalPosition) {
                     return;
                 }
@@ -121,11 +113,11 @@ export default {
                 child.position += 1;
             });
 
-            this.createCondition(PLACEHOLDER_NAME, originalPosition);
+            this.createCondition(this.config.placeholder, originalPosition);
         },
         createPlaceholderAfter(element) {
             const originalPosition = element.position;
-            this.condition.children.forEach(child => {
+            this.condition[this.config.childName].forEach(child => {
                 if (child.position <= originalPosition) {
                     return;
                 }
@@ -133,33 +125,33 @@ export default {
                 child.position += 1;
             });
 
-            this.createCondition(PLACEHOLDER_NAME, originalPosition + 1);
+            this.createCondition(this.config.placeholder, originalPosition + 1);
         },
         onDeleteAll() {
             if (this.level === 0) {
-                this.condition.children.forEach((child) => {
+                this.condition[this.config.childName].forEach((child) => {
                     child.delete();
-                    this.deleteChildren(child.children);
+                    this.deleteChildren(child[this.config.childName]);
                 });
             } else {
-                this.deleteChildren(this.condition.children);
+                this.deleteChildren(this.condition[this.config.childName]);
             }
 
-            this.condition.children = [];
+            this.condition[this.config.childName] = [];
 
             this.$emit('delete-condition', this.condition);
         },
         deleteChildren(children) {
             children.forEach((child) => {
-                if (child.children.length > 0) {
-                    this.deleteChildren(child.children);
+                if (child[this.config.childName].length > 0) {
+                    this.deleteChildren(child[this.config.childName]);
                 }
                 child.remove();
             });
         },
         onDeleteCondition(condition) {
             const originalPosition = condition.position;
-            this.condition.children.forEach(child => {
+            this.condition[this.config.childName].forEach(child => {
                 if (child.position < originalPosition) {
                     return;
                 }
@@ -167,20 +159,20 @@ export default {
                 child.position -= 1;
             });
 
-            if (this.condition.children.length === 1) {
+            if (this.condition[this.config.childName].length === 1) {
                 this.onDeleteAll();
                 return;
             }
 
             condition.delete();
-            this.condition.children.splice(this.condition.children.indexOf(condition), 1);
+            this.condition[this.config.childName].splice(this.condition[this.config.childName].indexOf(condition), 1);
 
-            if (this.condition.children.length <= 0) {
+            if (this.condition[this.config.childName].length <= 0) {
                 this.$nextTick(() => {
                     if (this.level === 0) {
                         this.onAddChildClick();
                     } else {
-                        this.createCondition(PLACEHOLDER_NAME, this.nextPosition);
+                        this.createCondition(this.config.placeholder, this.nextPosition);
                     }
                 });
             }

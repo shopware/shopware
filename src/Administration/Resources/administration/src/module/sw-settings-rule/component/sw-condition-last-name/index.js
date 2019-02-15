@@ -11,17 +11,15 @@ import template from './sw-condition-last-name.html.twig';
  */
 Component.extend('sw-condition-last-name', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.string;
-        },
         fieldNames() {
             return ['operator', 'lastName'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

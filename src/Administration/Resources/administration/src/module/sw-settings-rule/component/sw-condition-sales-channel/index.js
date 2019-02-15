@@ -11,17 +11,15 @@ import template from './sw-condition-sales-channel.html.twig';
  */
 Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.multiStore;
-        },
         fieldNames() {
             return ['operator', 'salesChannelIds'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

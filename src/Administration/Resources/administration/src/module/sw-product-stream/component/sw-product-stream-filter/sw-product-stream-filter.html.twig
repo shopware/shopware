@@ -1,0 +1,38 @@
+{% block sw_condition_field_condition %}
+{% endblock %}
+
+{% block sw_condition_fields %}
+    <sw-select v-for="definition, index in definitions"
+               :key="index"
+               :store="getDefinitionStore(definition)"
+               v-model="fieldPath[index]"
+               itemValueKey="name"
+               :id="createId()"
+               class="field--condition"
+               :required="true"
+               @input="selectFilter(index, $event)">
+    </sw-select>
+
+    <sw-select :store="getTypeStore()"
+               v-model="condition.type"
+               :id="createId()"
+               itemValueKey="type"
+               displayName="name"
+               :criteria="operatorCriteria"
+               :required="true"
+               class="field--select has--arrow"
+               @input="selectType">
+    </sw-select>
+
+    <sw-tagged-field v-if="condition.type == 'equalsAny'"
+                     v-model="multiValues"
+                     class="field--multi field--main"
+                     @input="updateTaggedValue">
+    </sw-tagged-field>
+    {# TODO Add type for range filter, wait for design #}
+    <sw-field v-else
+              type="text"
+              class="field--main"
+              v-model="condition.value">
+    </sw-field>
+{% endblock %}

@@ -11,11 +11,9 @@ import template from './sw-condition-billing-country.html.twig';
  */
 Component.extend('sw-condition-billing-country', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.multiStore;
-        },
         fieldNames() {
             return ['operator', 'countryIds'];
         },
@@ -24,7 +22,7 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

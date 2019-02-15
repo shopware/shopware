@@ -2,8 +2,6 @@ import template from './sw-condition-or-container.html.twig';
 import AndContainer from '../sw-condition-and-container';
 import './sw-condition-or-container.scss';
 
-const AND_CONTAINER_NAME = 'andContainer';
-
 /**
  * @public
  * @description TODO: Add description
@@ -19,7 +17,7 @@ export default {
 
     methods: {
         onAddChildClick() {
-            this.createCondition(AND_CONTAINER_NAME, this.nextPosition);
+            this.createCondition(this.config.andContainer, this.nextPosition);
         },
         onAddAndClick() {
             if (this.level === 0) {

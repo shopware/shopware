@@ -1,18 +1,13 @@
 {% block sw_condition_fields %}
     {% block sw_condition_fields_operator %}
-        <sw-field type="select"
-                  name="operator"
-                  v-model="condition.value.operator"
-                  class="field field--select has--arrow">
-            <option v-for="operator in operators" :value="operator.identifier">
-                {{ $tc(operator.label) }}
-            </option>
-        </sw-field>
+        <sw-condition-operator-select operatorSetName="number"
+                                      v-model="condition.value.operator">
+        </sw-condition-operator-select>
     {% endblock %}
     {% block sw_condition_fields_value %}
         <sw-field type="number"
                   name="amount"
-                  step="0.01"
+                  :step=0.01
                   class="field field--main"
                   v-model="condition.value.amount">
         </sw-field>

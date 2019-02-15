@@ -11,17 +11,15 @@ import template from './sw-condition-shipping-country.html.twig';
  */
 Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.multiStore;
-        },
         fieldNames() {
             return ['operator', 'countryIds'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.isOneOf.identifier
+                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
             };
         }
     },

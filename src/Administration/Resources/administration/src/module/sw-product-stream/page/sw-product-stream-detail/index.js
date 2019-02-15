@@ -1,6 +1,8 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Entity, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-product-stream-detail.html.twig';
+import './sw-product-stream-detail.scss';
 
 Component.register('sw-product-stream-detail', {
     template,
@@ -8,12 +10,54 @@ Component.register('sw-product-stream-detail', {
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('product-stream')
+        Mixin.getByName('discard-detail-page-changes')('productStream')
     ],
 
     data() {
         return {
-            productStream: {}
+            productStream: {},
+            nestedFilters: {},
+            filterAssociations: {},
+            treeConfig: {
+                entityName: 'product-stream',
+                conditionIdentifier: 'filters',
+                childName: 'queries',
+                andContainer: {
+                    type: 'multi',
+                    operator: 'AND'
+                },
+                orContainer: {
+                    type: 'multi',
+                    operator: 'OR'
+                },
+                placeholder: {
+                    type: 'equals'
+                },
+                getComponent(condition) {
+                    let component = 'sw-product-stream-filter';
+
+                    if (condition.type.toLowerCase() === this.andContainer.type) {
+                        component = 'sw-condition-and-container';
+
+                        if (condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase()) {
+                            component = 'sw-condition-or-container';
+                        }
+                    }
+
+                    return component;
+                },
+                isAndContainer(condition) {
+                    return condition.type.toLowerCase() === this.andContainer.type
+                        && condition.operator.toLowerCase() === this.andContainer.operator.toLowerCase();
+                },
+                isOrContainer(condition) {
+                    return condition.type.toLowerCase() === this.orContainer.type
+                        && condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase();
+                },
+                isPlaceholder(condition) {
+                    return condition.field === 'product' && !(condition.value || Object.keys(condition.parameters).length);
+                }
+            }
         };
     },
 
@@ -23,9 +67,6 @@ Component.register('sw-product-stream-detail', {
         },
         productStreamFilterStore() {
             return State.getStore('product_stream_filter');
-        },
-        filterAssociationStore() {
-            return this.productStream.getAssociation('filters');
         }
     },
 
@@ -52,16 +93,8 @@ Component.register('sw-product-stream-detail', {
         },
 
         loadEntityData() {
-            this.productStream = this.productStreamStore.getByIdAsync(this.productStreamId).then((productStream) => {
-                this.productStream = productStream;
-
-                this.filterAssociationStore.getList({
-                    page: 1,
-                    limit: 500,
-                    sortBy: 'position',
-                    sortDirection: 'ASC'
-                });
-            });
+            this.productStream = this.productStreamStore.getById(this.productStreamId);
+            this.filterAssociations = this.productStream.getAssociation('filters');
         },
 
         abortOnLanguageChange() {
@@ -74,6 +107,16 @@ Component.register('sw-product-stream-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        getDefinitionStore() {
+            // TODO: NEXT-1709 Move definitionStore to treeConfig.conditionStore
+            const definition = Entity.getDefinition('product');
+            Object.keys(definition.properties).forEach((key) => {
+                definition.properties[key].name = key;
+            });
+
+            return new LocalStore(Object.values(definition.properties), 'name');
         },
 
         onSave() {

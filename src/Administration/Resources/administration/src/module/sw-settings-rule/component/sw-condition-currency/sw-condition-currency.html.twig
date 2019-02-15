@@ -1,13 +1,8 @@
 {% block sw_condition_fields %}
     {% block sw_condition_fields_operator %}
-        <sw-field type="select"
-                  name="operator"
-                  v-model="condition.value.operator"
-                  class="field field--select has--arrow">
-            <option v-for="operator in operators" :value="operator.identifier">
-                {{ $tc(operator.label) }}
-            </option>
-        </sw-field>
+        <sw-condition-operator-select operatorSetName="multiStore"
+                                      v-model="condition.value.operator">
+        </sw-condition-operator-select>
     {% endblock %}
     {% block sw_condition_fields_value %}
         <sw-condition-value :id="condition.id"

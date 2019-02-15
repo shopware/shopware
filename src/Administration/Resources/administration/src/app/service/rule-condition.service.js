@@ -11,6 +11,7 @@
 export default function createConditionService() {
     const $store = {
         placeholder: {
+            type: 'placeholder',
             component: 'sw-condition-base',
             label: 'global.sw-condition.condition.base'
         }
@@ -87,6 +88,7 @@ export default function createConditionService() {
         getConditions,
         operatorSets,
         operators,
+        getOperatorSet,
         getPlaceholder
     };
 
@@ -95,11 +97,28 @@ export default function createConditionService() {
     }
 
     function addCondition(type, condition) {
+        condition.type = type;
         $store[type] = condition;
     }
 
-    function getConditions() {
-        return $store;
+    function getOperatorSet(operatorSetName, translateCallback) {
+        const operatorSet = this.operatorSets[operatorSetName];
+
+        if (translateCallback) {
+            operatorSet.forEach(operator => translateCallback(operator));
+        }
+
+        return operatorSet;
+    }
+
+    function getConditions(translateCallback) {
+        const values = Object.values($store);
+
+        if (translateCallback) {
+            values.forEach(value => translateCallback(value));
+        }
+
+        return values;
     }
 
     function getPlaceholder() {

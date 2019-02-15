@@ -285,6 +285,7 @@
       "product": "Product | Products",
       "product_manufacturer": "Manufacturer | Manufacturers",
       "product_media": "Product media",
+      "product_stream": "Product stream | Product streams",
       "product_variation": "Variation | Variations",
       "rule": "Rule | Rules",
       "rule_condition": "Condition | Conditions",
@@ -721,6 +722,8 @@
       "columnPriceNet": "Net. Price",
       "columnPriceGross": "Gross Price",
       "columnTotalPriceNet": "Net. Total",
+      "columnPrice": "Price",
+      "columnTotalPrice": "Total",
       "columnTotalPriceGross": "Gross Total",
       "columnTax": "Tax",
       "contextMenuShowProduct": "Show product",
@@ -995,7 +998,6 @@
       "messageKeyExists": "Please choose a name | Snippets already exists for \"{key}\". Please choose a new name.",
       "messageSaveError": "Snippets for \"{key}\" could not be saved.",
       "messageSaveSuccess": "Snippet for \"{key}\" has been saved successfully.",
-      "placeholderValue": "Define content",
       "textHeadline": "New snippet",
       "titleSaveError": "Error",
       "titleSaveSuccess": "Success"
@@ -1006,16 +1008,13 @@
       "buttonDelete": "Delete",
       "buttonEmpty": "Back to standard snippets",
       "columnKey": "Name",
-      "columnValue": "Current value",
-      "contextMenuDelete": "Reset",
       "columnValue": "Value",
       "contextMenuDelete": "Delete | Reset",
       "contextMenuEdit": "Edit",
-      "columnHeaderGridColumTitleSet": "Snippet set",
+      "columnHeaderGridColumnTitleSet": "Snippet set",
       "columnHeaderResetTo": "Original",
       "emptyStateHeadLine": "No result for snippets.",
       "messageDeleteSuccess": "Snippet \"{key}\" has been reset successfully.",
-      "messageEmpty": "No custom snippets yet",
       "messageSaveError": "Snippet \"{key}\" could not be saved. | Snippets for \"{key}\" could not be saved.",
       "messageSaveSuccess":  "Snippet \"{key}\" has been saved successfully. | Snippets for \"{key}\" have been saved successfully.",
       "modalTitleDelete": "Snippets",
@@ -1025,8 +1024,6 @@
       "textSnippetList": "Snippets of \"{setName}\" | Snippets",
       "titleDeleteSuccess": "Success",
       "titleSaveError": "Error",
-      "columnHeaderGridColumTitleSet": "Snippet set",
-      "columnHeaderResetTo": "Original value",
       "resetErrorMessage": "Snippet \"{key}\" could not be reset.",
       "resetSuccessMessage": "Snippet \"{key}\" has been reset to \"{value}\" successfully.",
       "titleSaveSuccess": "Success",
@@ -1437,7 +1434,13 @@
       "buttonDelete": "Delete"
     },
     "filter": {
-      "valid": "Show only valid product streams"
+      "valid": "Show only valid product streams",
+      "type": {
+        "equals": "equals",
+        "equalsAny": "equals any",
+        "contains": "contains",
+        "range": "range"
+      }
     },
     "detail": {
       "titleCard": "Settings",

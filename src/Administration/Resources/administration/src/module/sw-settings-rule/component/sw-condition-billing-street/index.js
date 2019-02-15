@@ -11,17 +11,15 @@ import template from './sw-condition-billing-street.html.twig';
  */
 Component.extend('sw-condition-billing-street', 'sw-condition-base', {
     template,
+    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        operators() {
-            return this.conditionStore.operatorSets.string;
-        },
         fieldNames() {
             return ['operator', 'streetName'];
         },
         defaultValues() {
             return {
-                operator: this.conditionStore.operators.equals.identifier
+                operator: this.ruleConditionDataProviderService.operators.equals.identifier
             };
         }
     }

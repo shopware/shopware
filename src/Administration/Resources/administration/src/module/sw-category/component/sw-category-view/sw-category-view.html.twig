@@ -43,17 +43,14 @@
 
                 {% block sw_category_view_information_media %}
                     <sw-media-upload
+                        variant="regular"
                         :source="mediaItem"
                         :uploadTag="category.id"
-                        :variant="'regular'"
-                        :autoUpload="false"
                         :allowMultiSelect="false"
-                        :caption="$tc('sw-product.mediaForm.uploadCaption')"
-                        :scrollTarget="$parent.$el"
-                        @new-uploads-added="onUploadAdded"
-                        @media-upload-success="setMediaItem"
-                        @sw-media-upload-remove-image="removeMediaItem"
-                        @sw-media-upload-open-sidebar="openMediaSidebar">
+                        @sw-media-upload-new-uploads-added="onUploadAdded"
+                        @sw-media-upload-media-upload-success="setMediaItem"
+                        @sw-media-upload-open-sidebar="openMediaSidebar"
+                        @sw-media-upload-remove-image="removeMediaItem">
                     </sw-media-upload>
                 {% endblock %}
             </sw-card>

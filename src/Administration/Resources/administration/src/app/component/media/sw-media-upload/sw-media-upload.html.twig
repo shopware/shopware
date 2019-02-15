@@ -54,39 +54,38 @@
                 {% block sw_media_upload_regular_drop_zone %}
                     <div class="sw-media-upload__dropzone" ref="dropzone" :class="isDragActiveClass">
 
-                        <template v-if="showPreview">
-                            <template v-if="source || preview">
+                        {% block sw_media_upload_preview %}
+                            <template v-if="showPreview">
                                 {% block sw_media_upload_regular_preview_file %}
                                     <sw-media-preview
+                                        v-if="source || preview"
                                         class="sw-media-upload__preview"
                                         :source="source || preview">
                                     </sw-media-preview>
                                 {% endblock %}
-                            </template>
-                            <template v-else>
                                 {% block sw_media_upload_regular_preview_fallback %}
-                                    <div class="sw-media-upload__preview is--fallback">
+                                    <div v-else class="sw-media-upload__preview is--fallback">
                                         <sw-icon class="sw-media-upload__fallback-icon" name="default-object-image"></sw-icon>
                                     </div>
                                 {% endblock %}
                             </template>
-                        </template>
 
-                        <template v-else class="sw-media-upload__content">
-                            {% block sw_media_upload_regular_caption %}
-                                <div class="sw-media-upload__upload-caption">
-                                    <sw-icon name="default-action-cloud-upload" medium></sw-icon>
-                                    {{ $tc('global.sw-media-upload.caption') }}
-                                </div>
-                            {% endblock %}
-                        </template>
+                            <template v-else>
+                                {% block sw_media_upload_regular_caption %}
+                                    <div class="sw-media-upload__upload-caption">
+                                        <sw-icon name="default-action-cloud-upload" medium></sw-icon>
+                                        {{ $tc('global.sw-media-upload.caption') }}
+                                    </div>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
 
                         {% block sw_media_upload_actions %}
                             <div class="sw-media-upload__actions" :class="{ 'has--source': source }">
 
                                 <div class="sw-media-upload__file-info" v-if="source">
                                     <div class="sw-media-upload__file-headline">
-                                        {{ source.fileName }}.{{ source.fileExtension }}
+                                        {{ source | mediaName }}
                                     </div>
                                     <sw-icon class="sw-media-upload__remove-icon"
                                         name="small-default-x-line-small"

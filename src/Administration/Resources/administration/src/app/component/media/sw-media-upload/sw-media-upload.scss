@@ -10,7 +10,6 @@ $sw-media-upload-caption-font-size:            $font-size-large;
 $sw-media-upload-caption-icon-color:           $color-steam-cloud;
 
 .sw-media-upload {
-
     .sw-media-upload__file-input {
         display: none;
     }
@@ -146,11 +145,6 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         &.has--preview {
             grid-column-gap: 55px;
         }
-    }
-
-    .sw-media-upload__preview-placeholder {
-        grid-row-start: 1;
-        grid-row-end: span 2;
     }
 
     .sw-media-upload__preview {

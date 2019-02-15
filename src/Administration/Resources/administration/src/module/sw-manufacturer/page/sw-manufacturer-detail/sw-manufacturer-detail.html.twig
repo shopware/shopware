@@ -3,7 +3,7 @@
 
         {% block sw_manufacturer_detail_header %}
             <template slot="smart-bar-header">
-                <h2 >{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
+                <h2>{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
 
@@ -45,7 +45,7 @@
 
             {% block sw_manufacturer_detail_base_basic_info_card %}
                 <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturer.isLoading">
-                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px" class="sw-manufacturer-detail__container">
                         <div class="sw-manufacturer-detail__base-info-wrapper">
 
                             {% block sw_manufacturer_detail_base_info_field_name %}

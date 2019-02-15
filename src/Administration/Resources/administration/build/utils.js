@@ -369,7 +369,9 @@ exports.loadFeatureFlags = function(envFile) {
                 .join('')
                 .replace(/^./, (part) => {return part.toLowerCase(); });
 
-            obj[clearedKey] = (envResult.parsed[key] === '1');
+            if (envResult.parsed[key] === '1') {
+                obj[clearedKey] = true;
+            }
             return obj;
         }, {});
 

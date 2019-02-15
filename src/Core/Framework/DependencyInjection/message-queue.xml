@@ -58,5 +58,15 @@
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\DeadMessageLoadedSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!--ScheduledTask-->
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\RequeueDeadMessagesService"/>
+        </service>
     </services>
 </container>

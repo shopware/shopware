@@ -145,6 +145,19 @@ class EntityAggregator implements EntityAggregatorInterface
         );
         $accessor->addParametersToQuery($query);
 
+        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition::getEntityName());
+        if (!$aggregation->isFieldSupported($field)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Aggregation of type %s on field "%s.%s" of type %s not supported',
+                    \get_class($aggregation),
+                    $definition::getEntityName(),
+                    $aggregation->getField(),
+                    \get_class($field)
+                )
+            );
+        }
+
         if ($aggregation instanceof EntityAggregation) {
             $query->select([$accessor->getSQL()]);
             $query->groupBy($accessor->getSQL());
@@ -237,7 +250,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 
-            return new MaxAggregationResult($aggregation, (float) $data['max']);
+            return new MaxAggregationResult($aggregation, $data['max']);
         }
 
         if ($aggregation instanceof CountAggregation) {
@@ -253,7 +266,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $data = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
 
-            return new MinAggregationResult($aggregation, (float) $data['min']);
+            return new MinAggregationResult($aggregation, $data['min']);
         }
 
         if ($aggregation instanceof SumAggregation) {

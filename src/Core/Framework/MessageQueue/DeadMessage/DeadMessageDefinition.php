@@ -7,14 +7,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ComputedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 
 class DeadMessageDefinition extends EntityDefinition
 {
@@ -60,8 +63,12 @@ class DeadMessageDefinition extends EntityDefinition
             (new LongTextField('exception_file', 'exceptionFile'))->setFlags(new Required()),
             (new IntField('exception_line', 'exceptionLine'))->setFlags(new Required()),
 
+            new FkField('scheduled_task_id', 'scheduledTaskId', ScheduledTaskDefinition::class),
+
             new CreatedAtField(),
             new UpdatedAtField(),
+
+            new ManyToOneAssociationField('scheduledTask', 'scheduled_task_id', ScheduledTaskDefinition::class, false),
         ]);
     }
 }

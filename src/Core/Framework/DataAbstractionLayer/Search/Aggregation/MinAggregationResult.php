@@ -5,18 +5,29 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 class MinAggregationResult extends AggregationResult
 {
     /**
-     * @var float
+     * @var float|int|\DateTime|null
      */
     protected $min;
 
-    public function __construct(Aggregation $aggregation, float $min)
+    public function __construct(Aggregation $aggregation, $min)
     {
         parent::__construct($aggregation);
 
-        $this->min = $min;
+        if (is_float($min)) {
+            $this->min = (float) $min;
+        } elseif (is_numeric($min)) {
+            $this->min = (int) $min;
+        } elseif (is_string($min)) {
+            $this->min = new \DateTime($min);
+        } else {
+            $this->min = $min;
+        }
     }
 
-    public function getMin(): float
+    /**
+     * @return \DateTime|float|int|null
+     */
+    public function getMin()
     {
         return $this->min;
     }

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+
 trait AggregationTrait
 {
     /**
@@ -27,5 +29,10 @@ trait AggregationTrait
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function isFieldSupported(Field $field): bool
+    {
+        return true;
     }
 }

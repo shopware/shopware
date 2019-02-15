@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
 
 class DeadMessageEntity extends Entity
 {
@@ -72,6 +73,16 @@ class DeadMessageEntity extends Entity
      * @var \DateTime
      */
     protected $updatedAt;
+
+    /**
+     * @var string|null
+     */
+    protected $scheduledTaskId;
+
+    /**
+     * @var ScheduledTaskEntity|null
+     */
+    protected $scheduledTask;
 
     public static function calculateNextExecutionTime(int $errorCount): \DateTime
     {
@@ -206,5 +217,25 @@ class DeadMessageEntity extends Entity
     public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getScheduledTaskId(): ?string
+    {
+        return $this->scheduledTaskId;
+    }
+
+    public function setScheduledTaskId(?string $scheduledTaskId): void
+    {
+        $this->scheduledTaskId = $scheduledTaskId;
+    }
+
+    public function getScheduledTask(): ?ScheduledTaskEntity
+    {
+        return $this->scheduledTask;
+    }
+
+    public function setScheduledTask(?ScheduledTaskEntity $scheduledTask): void
+    {
+        $this->scheduledTask = $scheduledTask;
     }
 }

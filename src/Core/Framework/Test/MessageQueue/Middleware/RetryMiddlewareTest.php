@@ -12,6 +12,8 @@ use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTaskInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Messenger\Envelope;
@@ -74,6 +76,40 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         /** @var DeadMessageEntity $deadMessage */
         $deadMessage = $deadMessages->first();
         $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 1);
+    }
+
+    public function testMiddlewareSavesScheduledTask()
+    {
+        $taskId = Uuid::uuid4()->getHex();
+        $message = $this->createMock(ScheduledTaskInterface::class);
+        $message->method('getTaskId')
+            ->willReturn($taskId);
+        $envelope = new Envelope($message);
+
+        $scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
+        $scheduledTaskRepo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => get_class($message),
+                'runInterval' => 300,
+                'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+            ],
+        ], $this->context);
+
+        $e = new \Exception('exception');
+        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $deadMessages);
+        /** @var DeadMessageEntity $deadMessage */
+        $deadMessage = $deadMessages->first();
+        $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 1);
+        $this->assertEquals($taskId, $deadMessage->getScheduledTaskId());
     }
 
     public function testMiddlewareWithEncryptedMessage()
@@ -150,7 +186,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
     private function assertDeadMessageCombinesExceptionAndMessage(
         DeadMessageEntity $deadMessage,
         \Exception $e,
-        RetryMessage $message,
+        object $message,
         int $errorCount
     ): void {
         static::assertInstanceOf(DeadMessageEntity::class, $deadMessage);

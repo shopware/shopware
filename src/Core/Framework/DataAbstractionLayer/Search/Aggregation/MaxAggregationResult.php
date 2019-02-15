@@ -5,18 +5,29 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 class MaxAggregationResult extends AggregationResult
 {
     /**
-     * @var float
+     * @var float|int|\DateTime|null
      */
     protected $max;
 
-    public function __construct(Aggregation $aggregation, float $max)
+    public function __construct(Aggregation $aggregation, $max)
     {
         parent::__construct($aggregation);
 
-        $this->max = $max;
+        if (is_float($max)) {
+            $this->max = (float) $max;
+        } elseif (is_numeric($max)) {
+            $this->max = (int) $max;
+        } elseif (is_string($max)) {
+            $this->max = new \DateTime($max);
+        } else {
+            $this->max = $max;
+        }
     }
 
-    public function getMax(): float
+    /**
+     * @return float|int|\DateTime|null
+     */
+    public function getMax()
     {
         return $this->max;
     }

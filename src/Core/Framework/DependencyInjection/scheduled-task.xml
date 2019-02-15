@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition">
+            <tag name="shopware.entity.definition" entity="scheduled_task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry">
+            <argument type="tagged" tag="shopware.scheduled.task" />
+            <argument type="service" id="scheduled_task.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\RegisterScheduledTasksCommand">
+            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Command\ScheduledTaskRunner">
+            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler"/>
+            <tag name="console.command"/>
+        </service>
+    </services>
+</container>

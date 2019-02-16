@@ -23,13 +23,11 @@ module.exports = {
         const page = salesChannelPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.salesChannelMenuName}--0`)
             .click(`${page.elements.salesChannelMenuName}--0`)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(userFixture.name);
 
         browser
             .fillField(page.elements.salesChannelNameInput, '2nd Epic Sales Channel at all', true)
-            .waitForElementVisible(page.elements.salesChannelSaveAction)
             .click(page.elements.salesChannelSaveAction);
     },
     'check if the data of the sales channel is assigned correctly': (browser) => {

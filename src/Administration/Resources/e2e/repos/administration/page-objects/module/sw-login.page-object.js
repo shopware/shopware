@@ -20,7 +20,6 @@ class LoginPageObject extends GeneralPageObject {
             .assert.urlContains('#/login')
             .fillField(this.elements.usernameField, username, true)
             .fillField(this.elements.passwordField, password)
-            .waitForElementVisible(this.elements.submitButton)
             .click(this.elements.submitButton)
             .waitForElementNotPresent(this.elements.loader);
     }
@@ -37,7 +36,6 @@ class LoginPageObject extends GeneralPageObject {
 
     logout() {
         this.browser
-            .waitForElementVisible('.sw-admin-menu__logout-action')
             .click('.sw-admin-menu__logout-action')
             .expect.element(`${this.elements.loginForm}-headline`).text.that.equals('Log in to your Shopware store');
     }

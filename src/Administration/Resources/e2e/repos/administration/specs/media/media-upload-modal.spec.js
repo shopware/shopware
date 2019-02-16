@@ -15,7 +15,6 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
-            .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
     },
@@ -36,7 +35,6 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
-            .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
     },
@@ -57,7 +55,6 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
-            .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
     },

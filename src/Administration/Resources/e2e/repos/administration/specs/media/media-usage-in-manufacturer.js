@@ -17,7 +17,6 @@ module.exports = {
                 mainMenuId: 'sw-product',
                 subMenuId: 'sw-manufacturer'
             })
-            .waitForElementVisible(page.elements.contextMenuButton)
             .clickContextMenuItem(page.elements.contextMenu, page.elements.contextMenuButton);
     },
     'upload media item': (browser) => {
@@ -33,10 +32,8 @@ module.exports = {
         page.openMediaIndex();
 
         browser
-            .waitForElementVisible(page.elements.folderItem)
             .moveToElement(page.elements.folderItem, 5, 5)
             .click(page.elements.folderItem)
-            .waitForElementVisible(page.elements.mediaItem)
             .moveToElement(page.elements.mediaItem, 5, 5)
             .click(page.elements.mediaItem)
             .waitForElementNotPresent('sw-media-sidebar.no-headline')

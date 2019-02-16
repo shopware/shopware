@@ -15,12 +15,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible('.sw-settings-snippet-set-list__action-add')
             .click('.sw-settings-snippet-set-list__action-add')
             .waitForElementVisible(`${page.elements.gridRow}--0.is--inline-editing`)
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Snip Snap')
             .fillSelectField(`${page.elements.gridRow}--0 select[name=sw-field--item-baseFile]`, 'messages.en_GB')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .checkNotification('Snippet set "Snip Snap" has been saved successfully.');
     },

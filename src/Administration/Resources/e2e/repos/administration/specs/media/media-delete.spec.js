@@ -10,9 +10,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-upload__button-context-menu')
             .click('.sw-media-upload__button-context-menu')
-            .waitForElementVisible('.sw-media-upload__button-url-upload')
             .click('.sw-media-upload__button-url-upload')
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
@@ -33,7 +31,6 @@ module.exports = {
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals('Are you sure you want to delete "sw-login-background.png" ?');
 
         browser
-            .waitForElementVisible(`${page.elements.modal}__footer .sw-media-modal-delete__confirm`)
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent(`${page.elements.modal}l__footer`)
             .waitForElementNotPresent(page.elements.loader)

@@ -23,7 +23,6 @@ class ManufacturerPageObject extends GeneralPageObject {
     addManufacturerLogo(imagePath) {
         this.browser
             .click('.sw-media-upload__switch-mode')
-            .waitForElementVisible('.sw-media-url-form__url-input')
             .fillField('input[name=sw-field--url]', imagePath)
             .click('.sw-media-url-form__submit-button')
             .checkNotification('File has been saved successfully.');

@@ -26,21 +26,17 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .waitForElementVisible(page.elements.contextMenu)
-            .click('.sw-context-menu-item__text')
+            .clickContextMenuItem('.sw-context-menu-item__text', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixture.name);
     },
     'change language to german': (browser) => {
         const page = productPage(browser);
         browser
-            .waitForElementVisible('.sw-language-switch')
             .click('.sw-language-switch')
             .waitForElementNotPresent('.sw-field__select-load-placeholder');
 
-        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch').before(5000);
+        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch');
         browser
             .click('.sw-select-option:last-child')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
@@ -73,10 +69,9 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .waitForElementVisible('.sw-language-switch')
             .click('.sw-language-switch')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
-            .expect.element('.sw-select-option:first-child').to.have.text.that.equals('English').before(5000);
+            .expect.element('.sw-select-option:first-child').to.have.text.that.equals('English');
 
         browser
             .click('.sw-select-option:first-child')

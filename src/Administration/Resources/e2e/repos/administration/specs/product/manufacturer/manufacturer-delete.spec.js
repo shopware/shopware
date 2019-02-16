@@ -27,7 +27,6 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)

@@ -26,7 +26,6 @@ module.exports = {
             .clickContextMenuItem('.sw-language-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--2`)
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English', true)
-            .waitForElementPresent(page.elements.languageSaveAction)
             .click(page.elements.languageSaveAction)
             .checkNotification('Language "Very Philippine English" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');

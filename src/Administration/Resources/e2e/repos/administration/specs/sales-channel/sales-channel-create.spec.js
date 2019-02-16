@@ -17,7 +17,6 @@ module.exports = {
             .expect.element(`${page.elements.gridRow}--0 .sw-sales-channel-modal__grid-item-name`).to.have.text.that.contains('Storefront');
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 .sw-sales-channel-modal__show-detail-action`)
             .click(`${page.elements.gridRow}--0 .sw-sales-channel-modal__show-detail-action`)
             .expect.element('.sw-sales-channel-modal__title').to.have.text.that.contains('Details of Storefront');
     },
@@ -25,7 +24,6 @@ module.exports = {
         const page = salesChannelPage(browser);
 
         browser
-            .waitForElementVisible('.sw-sales-channel-modal__add-sales-channel-action')
             .click('.sw-sales-channel-modal__add-sales-channel-action')
             .expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.contains('General Settings');
         browser.assert.urlContains('#/sw/sales/channel/create');
@@ -53,9 +51,7 @@ module.exports = {
                 targetPath: '#/sw/customer/index',
                 mainMenuId: 'sw-customer'
             })
-            .waitForElementPresent('.smart-bar__actions a[href="#/sw/customer/create"]')
             .click('.smart-bar__actions a[href="#/sw/customer/create"]')
-            .waitForElementVisible(customerPageObject.elements.customerForm)
             .fillSelectField('select[name=sw-field--customer-salesChannelId]', '1st Epic Sales Channel');
     },
     after: (browser) => {

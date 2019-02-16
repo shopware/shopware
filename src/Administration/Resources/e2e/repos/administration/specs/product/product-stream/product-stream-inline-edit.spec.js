@@ -13,8 +13,7 @@ module.exports = {
             .openMainMenuEntry({
                 targetPath: '#/sw/product-stream/index',
                 mainMenuId: 'sw-product'
-            })
-            .waitForElementVisible('.sw-button__content');
+            });
     },
     'inline edit product stream name and description and verify edits': (browser) => {
         const page = productStreamPage(browser);
@@ -22,6 +21,7 @@ module.exports = {
         browser.expect.element(`${page.elements.gridRow}--0 .sw-product-stream-list__column-name`).to.have.text.that.equals('1st product stream');
 
         browser
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .waitForElementVisible('.is--inline-editing')
             .fillField('input[name=sw-field--item-name]', 'Stream it', true)

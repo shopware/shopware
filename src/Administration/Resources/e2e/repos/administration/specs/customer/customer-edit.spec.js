@@ -27,11 +27,9 @@ module.exports = {
         const page = customerPage(browser);
 
         browser
-            .waitForElementPresent('.sw-button--small .sw-button__content .icon--small-pencil')
             .click('.sw-button--small .sw-button__content .icon--small-pencil')
             .waitForElementPresent(page.elements.customerForm)
             .fillField('input[name=sw-field--customer-email]', 'test-again-and-again@example.com', true)
-            .waitForElementPresent(page.elements.customerSaveAction)
             .click(page.elements.customerSaveAction)
             .waitForElementNotPresent(`.sw-card__content .sw-customer-base-form ${page.elements.loader}`)
             .waitForElementNotPresent(`.sw-card__content .sw-customer-address-form ${page.elements.loader}`)

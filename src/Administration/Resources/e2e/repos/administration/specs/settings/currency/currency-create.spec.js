@@ -21,7 +21,6 @@ module.exports = {
             .fillField('input[name=sw-field--currency-shortName]', 'JPY')
             .fillField('input[name=sw-field--currency-symbol]', '¥')
             .fillField('input[name=sw-field--currency-factor]', '1.0076')
-            .waitForElementPresent(page.elements.currencySaveAction)
             .click(page.elements.currencySaveAction)
             .checkNotification('Currency "Yen" has been saved successfully.')
             .assert.urlContains('#/sw/settings/currency/detail');

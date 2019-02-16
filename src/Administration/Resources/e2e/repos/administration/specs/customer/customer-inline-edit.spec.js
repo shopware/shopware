@@ -26,7 +26,6 @@ module.exports = {
             .waitForElementPresent('.is--inline-editing ')
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-firstName]`, 'Meghan', true)
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-lastName]`, 'Markle', true)
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .waitForElementNotPresent('.is--inline-editing')
             .refresh()

@@ -38,7 +38,6 @@ module.exports = {
 
         browser
             .refresh()
-            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .clickContextMenuItem('.sw_integration_list__edit-action',page.elements.contextMenuButton)
             .waitForElementVisible(page.elements.modalTitle);
     },

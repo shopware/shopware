@@ -62,7 +62,6 @@ class SalesChannelPageObject extends GeneralPageObject {
                     searchTerm: 'Deutsch'
                 }
             )
-            .waitForElementVisible(this.elements.salesChannelSaveAction)
             .click(this.elements.salesChannelSaveAction)
             .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
     }
@@ -78,11 +77,8 @@ class SalesChannelPageObject extends GeneralPageObject {
 
     deleteSingleSalesChannel(salesChannelName, position = 0) {
         this.browser
-            .waitForElementPresent(this.elements.dangerButton)
             .getLocationInView(this.elements.dangerButton)
-            .waitForElementVisible(this.elements.dangerButton)
             .click(this.elements.dangerButton)
-            .waitForElementVisible(this.elements.modal)
             .expect.element(`${this.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete this sales channel? ${salesChannelName}`);
 
         this.browser
@@ -117,15 +113,12 @@ class SalesChannelPageObject extends GeneralPageObject {
             me.newAccessKeyId = result.value;
 
             me.browser
-                .waitForElementPresent(me.elements.apiAccessKeyField)
                 .getLocationInView(me.elements.apiAccessKeyField)
-                .waitForElementPresent('.sw-sales-channel-detail-base__button-generate-keys')
                 .click('.sw-sales-channel-detail-base__button-generate-keys')
                 .expect.element(me.elements.apiAccessKeyField).value.that.equals(me.newAccessKeyId);
 
             me.browser
                 .fillField(me.elements.salesChannelNameInput, salesChannelName, true, 'input')
-                .waitForElementVisible('.sw-sales-channel-detail__save-action')
                 .click('.sw-sales-channel-detail__save-action')
                 .checkNotification(`Sales channel "${salesChannelName}" has been saved successfully.`);
         });

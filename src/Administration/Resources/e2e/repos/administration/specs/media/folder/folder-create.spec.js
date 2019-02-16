@@ -15,7 +15,6 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridItem}--0`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
@@ -23,7 +22,6 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-library__parent-folder')
             .click('.sw-media-library__parent-folder')
             .expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
         browser
@@ -38,7 +36,6 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.previewItem);
     },
@@ -50,9 +47,7 @@ module.exports = {
                 targetPath: '#/sw/product/index',
                 mainMenuId: 'sw-product'
             })
-            .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
-            .waitForElementVisible('.sw-sidebar-navigation-item')
             .click('.sw-sidebar-navigation-item')
             .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },

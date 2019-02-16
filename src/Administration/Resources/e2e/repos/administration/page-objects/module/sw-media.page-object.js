@@ -38,7 +38,6 @@ class MediaPageObject extends GeneralPageObject {
         this.browser
             .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton)
             .waitForElementVisible(`div.${this.elements.modal}.${this.elements.modal}--small.sw-media-modal-delete`)
-            .waitForElementVisible(`${this.elements.modal}__footer .sw-media-modal-delete__confirm`)
             .click('.sw-media-modal-delete__confirm')
             .waitForElementNotPresent(`${this.elements.modal}__footer`);
     }
@@ -63,7 +62,6 @@ class MediaPageObject extends GeneralPageObject {
 
     createFolder(name, position = 0) {
         this.browser
-            .waitForElementVisible('.sw-media-index__create-folder-action')
             .click('.sw-media-index__create-folder-action')
             .waitForElementVisible(`${this.elements.gridItem}--0 .icon--folder-thumbnail`)
             .fillField(this.elements.folderNameInput, name)
@@ -84,7 +82,6 @@ class MediaPageObject extends GeneralPageObject {
                 .click('.sw-media-add-thumbnail-form__lock')
                 .waitForElementNotPresent('.sw-media-add-thumbnail-form__input-height.is--disabled')
                 .fillField('input[name=sw-field--height]', height, true)
-                .waitForElementVisible('.sw-media-folder-settings__add-thumbnail-size-action')
                 .waitForElementNotPresent('.sw-media-folder-settings__add-thumbnail-size-action.is--disabled')
                 .click('.sw-media-folder-settings__add-thumbnail-size-action')
                 .expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals(`${width}x${height}`);

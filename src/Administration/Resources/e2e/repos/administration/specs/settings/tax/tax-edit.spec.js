@@ -28,7 +28,6 @@ module.exports = {
             .clickContextMenuItem('.sw-tax-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--5`)
             .waitForElementVisible('.sw-settings-tax-detail .sw-card__content')
             .fillField('input[name=sw-field--tax-name]', 'Even higher tax rate', true)
-            .waitForElementPresent(page.elements.taxSaveAction)
             .click(page.elements.taxSaveAction)
             .checkNotification('Tax "Even higher tax rate" has been saved successfully.')
             .assert.urlContains('#/sw/settings/tax/detail');

@@ -20,7 +20,7 @@ module.exports = {
         const page = manufacturerPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 > .sw-manufacturer-list_column-manufacturer-description`)
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .moveToElement(`${page.elements.gridRow}--0 > .sw-manufacturer-list_column-manufacturer-description`, 5, 5)
             .doubleClick()
             .waitForElementPresent('.is--inline-editing ')

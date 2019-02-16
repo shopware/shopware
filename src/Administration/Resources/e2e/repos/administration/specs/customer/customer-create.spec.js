@@ -52,7 +52,6 @@ module.exports = {
         const page = customerPage(browser);
 
         browser
-            .waitForElementPresent(page.elements.customerSaveAction)
             .click(page.elements.customerSaveAction)
             .checkNotification('Customer "Mr Pep Eroni" has been saved successfully.')
             .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader')

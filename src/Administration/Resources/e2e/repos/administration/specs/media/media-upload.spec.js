@@ -22,7 +22,6 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.previewItem}`)
             .click(`${page.elements.previewItem}`)
             .waitForElementVisible('.sw-media-quickinfo');
     },

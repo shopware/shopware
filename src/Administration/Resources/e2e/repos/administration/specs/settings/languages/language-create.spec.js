@@ -34,7 +34,6 @@ module.exports = {
                     searchTerm: 'English'
                 }
             )
-            .waitForElementPresent(page.elements.languageSaveAction)
             .click(page.elements.languageSaveAction)
             .checkNotification('Language "Philippine English" has been saved successfully.')
             .assert.urlContains('#/sw/settings/language/detail');

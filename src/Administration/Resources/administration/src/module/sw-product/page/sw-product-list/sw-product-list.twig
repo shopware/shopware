@@ -147,7 +147,7 @@
                                             <sw-grid-column flex="minmax(100px, 100px)" align="center">
                                                 <sw-context-button>
                                                     {% block sw_product_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item class="sw_product_list__edit-action" :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                        <sw-context-menu-item class="sw-product-list__edit-action" :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
                                                             {{ $tc('sw-product.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}

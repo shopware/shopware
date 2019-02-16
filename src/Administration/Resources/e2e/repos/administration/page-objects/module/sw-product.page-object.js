@@ -50,6 +50,24 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementNotPresent(this.elements.modal)
             .waitForElementNotPresent(this.elements.columnProductName);
     }
+
+    changeTranslation(productName, language, position) {
+        this.browser
+            .waitForElementVisible('.sw-language-switch')
+            .click('.sw-language-switch')
+            .waitForElementNotPresent('.sw-field__select-load-placeholder');
+
+        this.browser.expect.element(`.sw-select-option:nth-of-type(${position})`).to.have.text.that.equals(language);
+        this.browser
+            .click(`.sw-select-option:nth-of-type(${position})`)
+            .waitForElementNotPresent('.sw-field__select-load-placeholder')
+            .expect.element(`${this.elements.modal}__body`).to.have.text.that.contains('There are unsaved changes in the current language. Do you want to save them now?');
+
+        this.browser
+            .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
+            .waitForElementNotPresent(this.elements.modal)
+            .checkNotification(`Product "${productName}" has been saved successfully.`);
+    }
 }
 
 module.exports = (browser) => {

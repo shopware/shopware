@@ -240,6 +240,8 @@ export default {
             this.store.getList({
                 page: 1,
                 limit: this.previewResultsLimit,
+                sortBy: 'name',
+                sortDirection: 'ASC',
                 criteria: this.criteria
             }).then((response) => {
                 // Abort if a search is done atm

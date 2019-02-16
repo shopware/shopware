@@ -29,6 +29,19 @@ module.exports = {
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification('Language "Philippine English" has been deleted successfully.');
     },
+    'check if default language cannot be deleted': (browser) => {
+        const page = settingsPage(browser);
+
+        browser
+            .waitForElementVisible(`${page.elements.gridRow}--1 .icon--small-default-checkmark-line-medium`)
+            .click(`${page.elements.gridRow}--1 ${page.elements.contextMenuButton}`)
+            .waitForElementNotPresent('.sw-context-menu-item--danger')
+            .expect.element('.sw-context-menu-item').to.have.text.that.not.contains('Delete');
+
+        browser
+            .click('.sw-context-menu-item')
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('English');
+    },
     after: (browser) => {
         browser.end();
     }

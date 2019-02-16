@@ -59,7 +59,7 @@ module.exports = {
             .expect.element('.sw-product-list__column-product-name').to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
 
         browser
-            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton)
+            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
     },
     'upload product image and verify location in sidebar': (browser) => {

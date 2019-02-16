@@ -2,7 +2,7 @@ const productPage = require('administration/page-objects/module/sw-product.page-
 
 const fixture = {
     name: "Really good product",
-    descriptionLong: "This describes a product. It is your product. You will take care of your product. You will set a price, keep records of storage quantities and take care of whatever needs your product might develop. You love your product. Your are the product. Now go find someone dumb enough to buy your precious product.",
+    descriptionLong: "This describes a product. It is your product. You will take care of your product. You will set a price, keep records of storage quantities and take care of whatever needs your product might develop. You love your product. Your are the product. Now go find someone dumb enough to buy your precious product."
 };
 
 module.exports = {
@@ -26,7 +26,7 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item__text', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixture.name);
     },
@@ -36,9 +36,9 @@ module.exports = {
             .click('.sw-language-switch')
             .waitForElementNotPresent('.sw-field__select-load-placeholder');
 
-        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch');
+        browser.expect.element('.sw-select-option:nth-of-type(1)').to.have.text.that.equals('Deutsch');
         browser
-            .click('.sw-select-option:last-child')
+            .click('.sw-select-option:nth-of-type(1)')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('There are unsaved changes in the current language. Do you want to save them now?');
 
@@ -71,10 +71,10 @@ module.exports = {
         browser
             .click('.sw-language-switch')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
-            .expect.element('.sw-select-option:first-child').to.have.text.that.equals('English');
+            .expect.element('.sw-select-option:nth-of-type(2)').to.have.text.that.equals('English');
 
         browser
-            .click('.sw-select-option:first-child')
+            .click('.sw-select-option:nth-of-type(2)')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(`${page.elements.gridRow}--0  .sw-product-list__column-product-name`).to.have.text.that.equals(fixture.name).before(5000);

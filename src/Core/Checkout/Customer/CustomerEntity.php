@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class CustomerEntity extends Entity
@@ -30,6 +31,11 @@ class CustomerEntity extends Entity
      * @var string
      */
     protected $salesChannelId;
+
+    /**
+     * @var string
+     */
+    protected $languageId;
 
     /**
      * @var string|null
@@ -65,6 +71,11 @@ class CustomerEntity extends Entity
      * @var string
      */
     protected $lastName;
+
+    /**
+     * @var string|null
+     */
+    protected $company;
 
     /**
      * @var string
@@ -182,6 +193,11 @@ class CustomerEntity extends Entity
     protected $salesChannel;
 
     /**
+     * @var LanguageEntity|null
+     */
+    protected $language;
+
+    /**
      * @var PaymentMethodEntity|null
      */
     protected $lastPaymentMethod;
@@ -266,6 +282,16 @@ class CustomerEntity extends Entity
         $this->salesChannelId = $salesChannelId;
     }
 
+    public function getLanguageId(): string
+    {
+        return $this->languageId;
+    }
+
+    public function setLanguageId(string $languageId): void
+    {
+        $this->languageId = $languageId;
+    }
+
     public function getLastPaymentMethodId(): ?string
     {
         return $this->lastPaymentMethodId;
@@ -334,6 +360,16 @@ class CustomerEntity extends Entity
     public function setLastName(string $lastName): void
     {
         $this->lastName = $lastName;
+    }
+
+    public function getCompany(): ?string
+    {
+        return $this->company;
+    }
+
+    public function setCompany(string $company): void
+    {
+        $this->company = $company;
     }
 
     public function getPassword(): string
@@ -564,6 +600,16 @@ class CustomerEntity extends Entity
     public function setSalesChannel(SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
+    }
+
+    public function getLanguage(): ?LanguageEntity
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageEntity $language): void
+    {
+        $this->language = $language;
     }
 
     public function getLastPaymentMethod(): ?PaymentMethodEntity

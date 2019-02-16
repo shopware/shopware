@@ -18,7 +18,9 @@ Component.register('sw-customer-detail-addresses', {
         customer: {
             type: Object,
             required: true,
-            default: {}
+            default() {
+                return {};
+            }
         },
         countries: {
             type: Array,
@@ -60,6 +62,10 @@ Component.register('sw-customer-detail-addresses', {
                 this.addresses = response.items;
             }).finally(() => {
                 this.isLoading = false;
+
+                if (this.$route.query.detailId) {
+                    this.onEditAddress(this.$route.query.detailId);
+                }
             });
         },
 

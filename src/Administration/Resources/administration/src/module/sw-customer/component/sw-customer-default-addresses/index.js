@@ -10,6 +10,12 @@ Component.register('sw-customer-default-addresses', {
             type: Object,
             required: true,
             default: {}
+        },
+
+        customerEditMode: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     }
 });

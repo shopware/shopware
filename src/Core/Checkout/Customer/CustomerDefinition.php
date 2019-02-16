@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class CustomerDefinition extends EntityDefinition
@@ -58,6 +59,8 @@ class CustomerDefinition extends EntityDefinition
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
 
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
+
             new FkField('last_payment_method_id', 'lastPaymentMethodId', PaymentMethodDefinition::class),
 
             (new FkField('default_billing_address_id', 'defaultBillingAddressId', CustomerAddressDefinition::class))->addFlags(new Required()),
@@ -69,6 +72,7 @@ class CustomerDefinition extends EntityDefinition
             new StringField('salutation', 'salutation'),
             (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('company', 'company'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 
             new PasswordField('password', 'password'),
             (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
@@ -94,6 +98,7 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('group', 'customer_group_id', CustomerGroupDefinition::class, true),
             new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, true),
             (new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),

@@ -31,11 +31,11 @@ const allEvents = [
  * @example-type static
  * @component-example
  * <sw-datepicker
- * dateType="date"
- * :datepickerConfig="myDatepickerConfig"
- * v-model="myDate"
- * label="SW-Field Date"
- * @on-change="myOnChangeEventHandlingMethod">
+ *      dateType="date"
+ *      :datepickerConfig="myDatepickerConfig"
+ *      v-model="myDate"
+ *      label="SW-Field Date"
+ *      @on-change="myOnChangeEventHandlingMethod">
  * </sw-datepicker>
  */
 export default {

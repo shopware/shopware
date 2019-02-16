@@ -629,4 +629,27 @@ $sw-field-color-error: $color-crimson;
         border-radius: 0 $sw-field-border-radius $sw-field-border-radius 0;
         border-left: 0 none;
     }
+
+    &.sw-field--small {
+        margin-bottom: 6px;
+
+        input,
+        textarea,
+        select,
+        .sw-field__addition {
+          padding: 5px 16px;
+          line-height: 20px;
+          height: 32px;
+        }
+
+        .sw-field__addition {
+            padding: 4px 16px;
+        }
+
+        .sw-field__value {
+            display: block;
+            line-height: 20px;
+            padding: 6px 0;
+        }
+    }
 }

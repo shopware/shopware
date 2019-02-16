@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Language;
 
 use DateTime;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
@@ -90,6 +91,11 @@ class LanguageEntity extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $customers;
 
     /**
      * @var SalesChannelCollection|null
@@ -509,6 +515,16 @@ class LanguageEntity extends Entity
     public function getSalesChannelDefaultAssignments(): ?SalesChannelCollection
     {
         return $this->salesChannelDefaultAssignments;
+    }
+
+    public function getCustomers(): ?CustomerCollection
+    {
+        return $this->customers;
+    }
+
+    public function setCustomers(?CustomerCollection $customers): void
+    {
+        $this->customers = $customers;
     }
 
     public function setSalesChannelDefaultAssignments(SalesChannelCollection $salesChannelDefaultAssignments): void

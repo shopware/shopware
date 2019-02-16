@@ -9,6 +9,7 @@ module.exports = {
             done();
         });
     },
+    '@disabled': true,
     'open customer listing and look for customer to be edited': (browser) => {
         const page = customerPage(browser);
 

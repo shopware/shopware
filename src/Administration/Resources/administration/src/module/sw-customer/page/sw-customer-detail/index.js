@@ -23,7 +23,8 @@ Component.register('sw-customer-detail', {
             salesChannels: [],
             countries: [],
             addresses: [],
-            paymentMethods: []
+            paymentMethods: [],
+            languages: []
         };
     },
 
@@ -68,6 +69,10 @@ Component.register('sw-customer-detail', {
 
         isCreateCustomer() {
             return this.$route.name.includes('sw.customer.create');
+        },
+
+        createMode() {
+            return this.$route.name.includes('create');
         }
     },
 
@@ -93,6 +98,12 @@ Component.register('sw-customer-detail', {
                 });
 
                 this.salesChannelStore.getList({ page: 1, limit: 100 }).then((response) => {
+                    response.items.forEach((salesChannel) => {
+                        if (salesChannel.id === this.customer.salesChannelId) {
+                            salesChannel.getAssociation('languages').getList({ page: 1, limit: 100 });
+                            this.languages = salesChannel.languages;
+                        }
+                    });
                     this.salesChannels = response.items;
                 });
 
@@ -117,18 +128,34 @@ Component.register('sw-customer-detail', {
         onSave() {
             const customerName = this.customerName;
             const titleSaveSuccess = this.$tc('sw-customer.detail.titleSaveSuccess');
+            const titleSaveError = this.$tc('sw-customer.detail.titleSaveError');
             const messageSaveSuccess = this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: customerName });
+            const messageSaveError = this.$tc('sw-customer.detail.messageSaveError');
+
+            if (!this.customer.birthday) {
+                this.customer.birthday = null;
+            }
 
             return this.customer.save().then(() => {
-                this.customerEditMode = false;
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
+            }).catch(() => {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+            }).finally(() => {
+                this.customerEditMode = false;
             });
         },
 
-        onDisableCustomerEditMode() {
+        onAbortButtonClick() {
+            this.discardChanges();
+            if (this.createMode === true) {
+                this.$router.push({ name: 'sw.customer.index' });
+            }
             this.customerEditMode = false;
         },
 

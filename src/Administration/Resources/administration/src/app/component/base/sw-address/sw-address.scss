@@ -2,6 +2,7 @@
 
 $sw-address-color-text:     $color-gutenberg;
 $sw-address-color-headline: $color-kashmir;
+$sw-address-color-link: $color-shopware-blue;
 
 .sw-address {
     margin-bottom: 20px;
@@ -15,5 +16,11 @@ $sw-address-color-headline: $color-kashmir;
         color: $sw-address-color-headline;
         font-weight: normal;
         font-size: 18px;
+
+        .sw-address-headline-link {
+            font-size: 14px;
+            color: $sw-address-color-link;
+            text-decoration: none;
+        }
     }
 }

@@ -1,0 +1,78 @@
+{% block base_doctype %}
+<!DOCTYPE html>
+{% endblock %}
+
+{% block base_html %}
+<html lang="{{ "meta.xmlLang"|trans }}"
+      itemscope="itemscope"
+      itemtype="http://schema.org/WebPage">
+{% endblock %}
+ 
+{% block base_head %}
+    {% sw_include '@Storefront/base/meta.html.twig' %}
+{% endblock %}
+
+{% block base_body %}
+    <body class="is--ctl-{{ controllerName }} is--act-{{ controllerAction}}">
+    {% block base_body_inner %}
+        {% block base_noscript %}
+            <noscript class="noscript-main">
+                {#TODO: NEXT-1899 - use alert utility for no script message#}
+            </noscript>
+        {% endblock %}
+
+        {% block base_header %}
+            <header class="header-main">
+                {% block base_header_inner %}
+                    <div class="container">
+                        {% sw_include '@Storefront/base/header/header.html.twig' %}
+                    </div>
+                {% endblock %}
+            </header>
+        {% endblock %}
+
+        {% block base_navigation %}
+            <div class="nav-main">
+                {% block base_navigation_inner %}
+                    <div class="container">
+                        {% sw_include '@Storefront/base/main-navigation.html.twig' %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block base_main %}
+            <main class="content-main">
+                {% block base_main_inner %}
+                    <div class="container">
+                        {% block base_breadcrumb %}
+                            {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
+                        {% endblock %}
+
+                        {% block base_content %}{% endblock %}
+                    </div>
+                {% endblock %}
+            </main>
+        {% endblock %}
+
+        {% block base_footer %}
+            <footer class="footer-main">
+                {% block base_footer_inner %}
+                    <div class="container">
+                        {% sw_include '@Storefront/base/footer/footer.html.twig' %}
+                    </div>
+                {% endblock %}
+            </footer>
+        {% endblock %}
+    {% endblock %}
+
+    {% block base_cookie_permission %}
+        {% sw_include '@Storefront/base/cookie-permission.html.twig' %}
+    {% endblock %}
+
+    {% block base_body_script %}
+        {% sw_include '@Storefront/base/script.html.twig' %}
+    {% endblock %}
+    </body>
+{% endblock %}
+</html>

@@ -28,12 +28,12 @@ module.exports = {
             .clickContextMenuItem('.sw-rule-list__rule-edit-action', page.elements.contextMenuButton)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
-        page.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
+        page.createBasicSelectCondition('currency', 'Is one of', `.sw-condition-container__or-child--0`, 'Euro');
 
         browser
             .fillField('input[name=sw-field--rule-name]', 'Ediths rule', true)
             .click('.sw-settings-rule-detail__save-action')
-            .checkNotification('The rule "Ediths rule" was saved.');
+            .checkNotification('The rule "Ediths rule" has been saved successfully.');
     },
     'verify changed rule': (browser) => {
         const page = ruleBuilderPage(browser);

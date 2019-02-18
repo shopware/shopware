@@ -1,5 +1,4 @@
 const contextMenuCssSelector = '.sw-context-menu';
-const activeContextButtonCssSelector = '.is--active';
 
 /**
  * Opens and clicks a context menu item, even if it's in a specific scope
@@ -15,8 +14,7 @@ exports.command = function clickContextMenuItem(menuButtonSelector, menuOpenSele
             .waitForElementVisible(scope)
             .moveToElement(`${scope} ${menuOpenSelector}`, 2, 2)
             .waitForElementVisible(`${scope} ${menuOpenSelector}`)
-            .click(`${scope} ${menuOpenSelector}`)
-            .waitForElementVisible(`${menuOpenSelector}${activeContextButtonCssSelector}`);
+            .click(`${scope} ${menuOpenSelector}`);
     } else {
         this
             .moveToElement(menuOpenSelector, 2, 2)

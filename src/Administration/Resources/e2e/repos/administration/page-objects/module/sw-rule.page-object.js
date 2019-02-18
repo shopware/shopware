@@ -7,7 +7,14 @@ class RuleBuilderPageObject extends GeneralPageObject {
         this.elements = {
             ...this.elements, ...{
                 columnName: '.sw-settings-rule-list__column-name',
-                ruleSaveAction: '.sw-settings-rule-detail__save-action'
+                ruleSaveAction: '.sw-settings-rule-detail__save-action',
+                ruleDeleteAction: '.sw-condition-or-container__actions--delete',
+                conditionOrContainer: '.sw-condition-container__or-child',
+                conditionAndContainer: '.sw-condition-container__and-child',
+                subConditionContainer: '.container-condition-level__is--even',
+                ruleFieldCondition: '.field--condition',
+                orSpacer: '.condition-content__spacer--or',
+                andSpacer: '.condition-content__spacer--and'
             }
         };
     }
@@ -21,22 +28,27 @@ class RuleBuilderPageObject extends GeneralPageObject {
         this.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
 
         this.browser
-            .click('.sw-settings-rule-detail__save-action')
+            .click(this.elements.ruleSaveAction)
             .checkNotification(`The rule "${name}" has been saved successfully.`);
     }
 
-    createBasicSelectCondition(type, operator, valueSelector, value) {
+    createBasicSelectCondition(type, operator, ruleSelector, value) {
         this.browser
-            .fillSelectField('select[name=type]', type)
-            .fillSelectField('select[name=operator]', operator)
-            .fillSwSelectComponent(
-                valueSelector,
-                {
-                    value: value,
-                    isMulti: true,
-                    searchTerm: value
-                }
-            );
+            .fillSwSelectComponent(`${ruleSelector} ${this.elements.ruleFieldCondition}`, {
+                value: type,
+                isMulti: false,
+                searchTerm: type
+            })
+            .fillSwSelectComponent(`${ruleSelector} .field--select`, {
+                value: operator,
+                isMulti: false,
+                searchTerm: operator
+            })
+            .fillSwSelectComponent(`${ruleSelector} .field--main`, {
+                value: value,
+                isMulti: true,
+                searchTerm: value
+            });
     }
 }
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Content\Category\Navigation;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -12,7 +12,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 class HeaderPagelet extends Struct
 {
     /**
-     * @var Navigation
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree
      */
     private $navigation;
 
@@ -37,7 +37,7 @@ class HeaderPagelet extends Struct
     private $activeCurrency;
 
     public function __construct(
-        Navigation $navigation,
+        Tree $navigation,
         LanguageCollection $languages,
         CurrencyCollection $currencies,
         LanguageEntity $activeLanguage,
@@ -50,7 +50,7 @@ class HeaderPagelet extends Struct
         $this->activeCurrency = $activeCurrency;
     }
 
-    public function getNavigation(): Navigation
+    public function getNavigation(): Tree
     {
         return $this->navigation;
     }

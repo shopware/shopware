@@ -4,14 +4,15 @@ namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AccountPaymentMethodPageLoader
+class AccountPaymentMethodPageLoader implements PageLoaderInterface
 {
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -21,13 +22,13 @@ class AccountPaymentMethodPageLoader
     private $eventDispatcher;
 
     /**
-     * @var AccountPaymentMethodPageletLoader
+     * @var AccountPaymentMethodPageletLoader|PageLoaderInterface
      */
     private $accountPaymentMethodPageletLoader;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
-        AccountPaymentMethodPageletLoader $accountPaymentMethodPageletLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
+        PageLoaderInterface $accountPaymentMethodPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;

@@ -6,13 +6,14 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AccountAddressPageLoader
+class AccountAddressPageLoader implements PageLoaderInterface
 {
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -27,7 +28,7 @@ class AccountAddressPageLoader
     private $accountService;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
         AccountService $accountService,
         EventDispatcherInterface $eventDispatcher
     ) {

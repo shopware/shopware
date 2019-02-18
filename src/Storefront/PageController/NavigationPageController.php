@@ -5,24 +5,25 @@ namespace Shopware\Storefront\PageController;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
-use Shopware\Storefront\Page\Listing\ListingPageLoader;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ListingPageController extends StorefrontController
+class NavigationPageController extends StorefrontController
 {
     /**
-     * @var ListingPageLoader
+     * @var NavigationPageLoader|PageLoaderInterface
      */
-    private $listingPageLoader;
+    private $navigationPageLoader;
 
-    public function __construct(ListingPageLoader $listingPageLoader)
+    public function __construct(PageLoaderInterface $navigationPageLoader)
     {
-        $this->listingPageLoader = $listingPageLoader;
+        $this->navigationPageLoader = $navigationPageLoader;
     }
 
     /**
-     * @Route("/listing/{categoryId}", name="frontend.listing.page", options={"seo"=true}, methods={"GET"})
+     * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
      *
      * @param CheckoutContext $context
      * @param InternalRequest $request
@@ -31,7 +32,7 @@ class ListingPageController extends StorefrontController
      */
     public function index(CheckoutContext $context, InternalRequest $request): Response
     {
-        $page = $this->listingPageLoader->load($request, $context);
+        $page = $this->navigationPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
     }

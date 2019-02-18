@@ -32,7 +32,9 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            EntityWrittenContainerEvent::NAME => 'entitiesWritten',
+            EntityWrittenContainerEvent::NAME => [
+                ['entitiesWritten', 1000],
+            ],
         ];
     }
 
@@ -47,10 +49,10 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
 
         /** @var EntityWrittenEvent $writtenEvent */
         foreach ($events as $writtenEvent) {
+            $definition = $writtenEvent->getDefinition();
+
             foreach ($writtenEvent->getWriteResults() as $result) {
                 $id = $result->getPrimaryKey();
-
-                $definition = $writtenEvent->getDefinition();
 
                 if (\is_array($id)) {
                     $id = implode('-', $id);
@@ -73,11 +75,6 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
             }
         }
 
-        $this->invalidateTags($keys);
-    }
-
-    private function invalidateTags(array $keys): void
-    {
         $keys = array_keys(array_flip($keys));
         $this->cache->invalidateTags($keys);
     }

@@ -4,19 +4,20 @@ namespace Shopware\Storefront\Page\Account\AddressList;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Account\AddressList\AccountAddressListPageletLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AccountAddressListPageLoader
+class AccountAddressListPageLoader implements PageLoaderInterface
 {
     /**
-     * @var AccountAddressListPageletLoader
+     * @var AccountAddressListPageletLoader|PageLoaderInterface
      */
     private $accountAddressPageletLoader;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -26,8 +27,8 @@ class AccountAddressListPageLoader
     private $eventDispatcher;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
-        AccountAddressListPageletLoader $accountAddressPageletLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
+        PageLoaderInterface $accountAddressPageletLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;

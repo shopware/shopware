@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class CheckoutConfirmPageLoader implements PageLoaderInterface
 {
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $genericLoader;
 
@@ -27,7 +27,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
     private $cartService;
 
     public function __construct(
-        PageWithHeaderLoader $genericLoader,
+        PageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService
     ) {

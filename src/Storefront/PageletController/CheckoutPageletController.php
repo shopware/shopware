@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader;
 use Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoader;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,16 +15,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class CheckoutPageletController extends StorefrontController
 {
     /**
-     * @var CheckoutInfoPageletLoader
+     * @var CheckoutInfoPageletLoader|PageLoaderInterface
      */
     private $infoLoader;
 
     /**
-     * @var CheckoutAjaxCartPageletLoader
+     * @var CheckoutAjaxCartPageletLoader|PageLoaderInterface
      */
     private $ajaxCartLoader;
 
-    public function __construct(CheckoutInfoPageletLoader $infoLoader, CheckoutAjaxCartPageletLoader $ajaxCartLoader)
+    public function __construct(PageLoaderInterface $infoLoader, PageLoaderInterface $ajaxCartLoader)
     {
         $this->infoLoader = $infoLoader;
         $this->ajaxCartLoader = $ajaxCartLoader;

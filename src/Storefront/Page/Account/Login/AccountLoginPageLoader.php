@@ -5,10 +5,11 @@ namespace Shopware\Storefront\Page\Account\Login;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AccountLoginPageLoader
+class AccountLoginPageLoader implements PageLoaderInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -16,7 +17,7 @@ class AccountLoginPageLoader
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
@@ -26,7 +27,7 @@ class AccountLoginPageLoader
     private $accountService;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
         AccountService $accountService,
         EventDispatcherInterface $eventDispatcher
     ) {

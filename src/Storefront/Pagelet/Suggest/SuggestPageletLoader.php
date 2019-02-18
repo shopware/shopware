@@ -17,11 +17,11 @@ class SuggestPageletLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var ListingPageletLoader
+     * @var ListingPageletLoader|PageLoaderInterface
      */
     private $listingPageletLoader;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, ListingPageletLoader $listingPageletLoader)
+    public function __construct(EventDispatcherInterface $eventDispatcher, PageLoaderInterface $listingPageletLoader)
     {
         $this->eventDispatcher = $eventDispatcher;
         $this->listingPageletLoader = $listingPageletLoader;

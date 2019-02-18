@@ -3,20 +3,23 @@
 namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
+use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class NavigationPageLoader
+class NavigationPageLoader implements PageLoaderInterface
 {
     /**
      * @var StorefrontCmsPageRepository
      */
-    private $storefrontCmsPageRepository;
+    private $cmsPageRepository;
 
     /**
      * @var SlotDataResolver
@@ -24,7 +27,7 @@ class NavigationPageLoader
     private $slotDataResolver;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $genericLoader;
 
@@ -34,26 +37,28 @@ class NavigationPageLoader
     private $eventDispatcher;
 
     public function __construct(
-        PageWithHeaderLoader $genericLoader,
+        PageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         StorefrontCmsPageRepository $storefrontCmsPageRepository,
         SlotDataResolver $slotDataResolver
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->storefrontCmsPageRepository = $storefrontCmsPageRepository;
+        $this->cmsPageRepository = $storefrontCmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
     }
 
-    public function load($navigation, string $pageId, InternalRequest $request, CheckoutContext $context): NavigationPage
+    public function load(InternalRequest $request, CheckoutContext $context): NavigationPage
     {
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
+        /** @var NavigationEntity $navigation */
         // step 1, load navigation
+        $navigation = $page->getHeader()->getNavigation()->getActive();
 
         // step 2, load cms structure
-        $cmsPage = $this->getCmsPage($pageId, $context);
+        $cmsPage = $this->getCmsPage($navigation->getCmsPageId(), $context);
 
         // step 3, overwrite slot config
         $this->overwriteSlotConfig($cmsPage, $navigation);
@@ -71,8 +76,27 @@ class NavigationPageLoader
         return $page;
     }
 
-    private function overwriteSlotConfig(CmsPageEntity $page, $navigation): void
+    private function overwriteSlotConfig(CmsPageEntity $page, NavigationEntity $navigation): void
     {
+        $config = $navigation->getSlotConfig();
+
+        if (!$config || !$page->getBlocks()) {
+            return;
+        }
+
+        /** @var CmsSlotEntity $slot */
+        foreach ($page->getBlocks()->getSlots() as $slot) {
+            if (!isset($config[$slot->getId()])) {
+                continue;
+            }
+
+            $merged = array_replace_recursive(
+                $slot->getConfig(),
+                $config[$slot->getId()]
+            );
+
+            $slot->setConfig($merged);
+        }
     }
 
     private function loadSlotData(CmsPageEntity $page, InternalRequest $request, CheckoutContext $context): void
@@ -92,7 +116,7 @@ class NavigationPageLoader
 
     private function getCmsPage(string $pageId, CheckoutContext $context): CmsPageEntity
     {
-        $pages = $this->storefrontCmsPageRepository->read([$pageId], $context);
+        $pages = $this->cmsPageRepository->read([$pageId], $context);
 
         if ($pages->count() === 0) {
             throw new PageNotFoundException($pageId);

@@ -138,7 +138,7 @@
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
             <argument type="service" id="language.repository"/>
             <argument type="service" id="currency.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Storefront\NavigationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -296,16 +296,16 @@
             <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\PageController\ListingPageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
-        </service>
-
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\SearchPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
+        </service>
+
+        <service id="Shopware\Storefront\PageController\NavigationPageController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
         </service>
     </services>
 </container>

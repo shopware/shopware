@@ -11,6 +11,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -105,7 +106,8 @@ class DemodataCommand extends Command
 
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
-        $request->add(CmsPageDefinition::class, 1);
+        $request->add(CmsPageDefinition::class, 50);
+        $request->add(NavigationDefinition::class, 1);
 
         if (next754()) {
             $request->add(

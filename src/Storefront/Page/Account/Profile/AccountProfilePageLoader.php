@@ -4,10 +4,11 @@ namespace Shopware\Storefront\Page\Account\Profile;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AccountProfilePageLoader
+class AccountProfilePageLoader implements PageLoaderInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -15,12 +16,12 @@ class AccountProfilePageLoader
     private $eventDispatcher;
 
     /**
-     * @var PageWithHeaderLoader
+     * @var PageWithHeaderLoader|PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
     public function __construct(
-        PageWithHeaderLoader $pageWithHeaderLoader,
+        PageLoaderInterface $pageWithHeaderLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->eventDispatcher = $eventDispatcher;

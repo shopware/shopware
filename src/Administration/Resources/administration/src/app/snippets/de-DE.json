@@ -1467,5 +1467,22 @@
     "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt...",
     "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
     "configLoadErrorTitle": "Fehler beim Laden der Konfiguration!"
+  },
+  "sw-navigation": {
+    "general": {
+      "titleSaveSuccess": "Navigationbuilder",
+      "messageSaveSuccess": "Der Navigationspunkt \"{name}\" wurde erfolgreich gespeichert",
+      "mainMenuItemIndex": "Navigation",
+      "descriptionTextModule": "Verwaltung von Navigationen",
+      "headlineInformationCard": "Navigation Einstellungen",
+      "navigationNameLabel": "Label",
+      "headlineNavigations": "Navigationbuilder",
+      "buttonSafeNavigation": "Speichern",
+      "actions": {
+        "delete": "Löschen",
+        "create": "Neuer Unterpunkt"
+      },
+      "newItemName": "Neuer Navigationspunkt"
+    }
   }
 }

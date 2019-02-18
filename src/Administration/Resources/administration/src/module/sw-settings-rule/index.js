@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT516 } from 'src/flag/feature_next516';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-rule-list';
@@ -9,7 +8,6 @@ import './component/sw-condition-not-found';
 import './component/sw-condition-operator-select';
 
 Module.register('sw-settings-rule', {
-    flag: NEXT516,
     type: 'core',
     name: 'Rules',
     description: 'Rules section in the settings module',

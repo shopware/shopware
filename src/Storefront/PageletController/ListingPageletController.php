@@ -5,6 +5,7 @@ namespace Shopware\Storefront\PageletController;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,11 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class ListingPageletController extends StorefrontController
 {
     /**
-     * @var ListingPageletLoader
+     * @var ListingPageletLoader|PageLoaderInterface
      */
     private $listingPageletLoader;
 
-    public function __construct(ListingPageletLoader $listingPageletLoader)
+    public function __construct(PageLoaderInterface $listingPageletLoader)
     {
         $this->listingPageletLoader = $listingPageletLoader;
     }

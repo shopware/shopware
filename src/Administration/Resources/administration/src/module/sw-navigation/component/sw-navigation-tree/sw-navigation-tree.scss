@@ -1,0 +1,35 @@
+@import "~scss/variables";
+
+.sw-navigation-tree.sw-tree {
+    background: $color-white;
+    height: 100%;
+    border: none;
+
+    .sw-tree__actions {
+        padding: 0 30px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border-bottom: 1px solid $color-steam-cloud;
+        height: 64px;
+        width: 100%;
+
+        .sw-navigation-tree-actions__headline {
+            color: $color-kashmir;
+            font-size: 18px;
+        }
+    }
+
+    .sw-tree__content {
+        padding: 24px 16px;
+        max-height: unset;
+        min-height: unset;
+        height: calc(100% - 64px);
+    }
+
+    .tree-link {
+        cursor: pointer;
+        color: inherit;
+        text-decoration: inherit;
+    }
+}

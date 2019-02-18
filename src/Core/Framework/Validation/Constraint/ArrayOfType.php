@@ -6,8 +6,8 @@ use Symfony\Component\Validator\Constraint;
 
 class ArrayOfType extends Constraint
 {
-    const INVALID_MESSAGE = 'This value "{{ value }}" should be of type {{ type }}.';
-    const INVALID_TYPE_MESSAGE = 'This value should be of type array.';
+    public const INVALID_MESSAGE = 'This value "{{ value }}" should be of type {{ type }}.';
+    public const INVALID_TYPE_MESSAGE = 'This value should be of type array.';
 
     /**
      * @var string

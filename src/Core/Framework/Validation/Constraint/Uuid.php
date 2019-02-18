@@ -6,6 +6,6 @@ use Symfony\Component\Validator\Constraint;
 
 class Uuid extends Constraint
 {
-    const INVALID_MESSAGE = 'The string "{{ string }}" is not a valid uuid.';
-    const INVALID_TYPE_MESSAGE = 'This value should be of type string.';
+    public const INVALID_MESSAGE = 'The string "{{ string }}" is not a valid uuid.';
+    public const INVALID_TYPE_MESSAGE = 'This value should be of type string.';
 }

@@ -232,6 +232,11 @@ export default {
                     return this.folder.save();
                 })
                 .then(() => {
+                    this.mediaFolderConfigurationThumbnailSizeStore.forEach((association) => {
+                        if (association.isDeleted) {
+                            this.mediaFolderConfigurationThumbnailSizeStore.remove(association);
+                        }
+                    });
                     this.createNotificationSuccess({
                         message: notificationMessageSuccess
                     });

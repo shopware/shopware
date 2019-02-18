@@ -10,7 +10,6 @@ $sw-media-upload-caption-font-size:            $font-size-large;
 $sw-media-upload-caption-icon-color:           $color-steam-cloud;
 
 .sw-media-upload {
-
     .sw-media-upload__file-input {
         display: none;
     }
@@ -20,6 +19,7 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         flex-direction: row;
         justify-content: space-between;
         line-height: 16px;
+        min-height: 16px;
         font-size: 14px;
         margin-bottom: 8px;
         color: $color-kashmir;
@@ -34,22 +34,18 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
     }
 
     .sw-media-upload__dropzone {
-        min-height: 148px;
         padding: 24px;
-        display: grid;
-        grid-column-gap: 24px;
-        grid-template-columns: 96px 1fr;
-        grid-template-rows: 1fr;
+        min-height: 148px;
+        display: flex;
+        flex-direction: row;
         align-items: center;
-        justify-items: end;
         border: 2px dashed $sw-media-upload-border-color;
         border-radius: $sw-media-upload-border-radius;
         background-color: $sw-media-upload-upload-background-color;
         position: relative;
 
         &.is--multi {
-            grid-template-columns: unset;
-            grid-template-rows: unset;
+            flex-direction: column;
             justify-items: center;
             padding: 36px 24px;
 
@@ -93,7 +89,33 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         flex-direction: column;
         align-items: flex-end;
         justify-content: center;
+        overflow: hidden;
         width: 100%;
+
+        &.has--source {
+            .sw-media-upload__file-info {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                font-size: 14px;
+            }
+        }
+
+        .sw-media-upload__file-info {
+            width: 100%;
+        }
+
+        .sw-media-upload__file-headline {
+            word-break: break-word;
+            padding-right: 16px;
+        }
+
+        .sw-media-upload__remove-icon {
+            flex-shrink: 0;
+            margin-left: auto;
+            cursor: pointer;
+        }
     }
 
     .sw-media-upload__url-form {
@@ -125,16 +147,13 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         }
     }
 
-    .sw-media-upload__preview-placeholder {
-        grid-row-start: 1;
-        grid-row-end: span 2;
-    }
-
     .sw-media-upload__preview {
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
+        flex-shrink: 0;
+        margin-right: 16px;
         width: 96px;
         height: 96px;
         border: 2px solid $sw-media-upload-border-color;
@@ -152,5 +171,14 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
     .sw-media-upload__button {
         min-width: 144px;
         margin: 8px 0;
+    }
+
+    .sw-media-preview {
+        border: none;
+
+        .sw-media-preview__item {
+            max-height: 100%;
+            max-width: 100%;
+        }
     }
 }

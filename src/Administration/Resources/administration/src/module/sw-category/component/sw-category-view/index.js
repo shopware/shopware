@@ -34,6 +34,10 @@ Component.register('sw-category-view', {
             this.$emit('sw-category-view-on-set-media', mediaItem);
         },
 
+        removeMediaItem(mediaItem) {
+            this.$emit('sw-category-view-on-remove-media', mediaItem);
+        },
+
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         }

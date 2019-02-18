@@ -42,35 +42,17 @@
                 {% endblock %}
 
                 {% block sw_category_view_information_media %}
-                    {% block sw_category_view_information_media_upload %}
-                        <template v-if="!mediaItem">
-                            <sw-media-upload
-                                :uploadTag="category.id"
-                                :variant="'regular'"
-                                :autoUpload="false"
-                                :allowMultiSelect="false"
-                                :caption="$tc('sw-product.mediaForm.uploadCaption')"
-                                :scrollTarget="$parent.$el"
-                                @new-uploads-added="onUploadAdded"
-                                @media-upload-success="setMediaItem"
-                                @sw-media-upload-open-sidebar="openMediaSidebar">
-                            </sw-media-upload>
-                        </template>
-                    {% endblock %}
-
-                    {% block sw_category_view_information_display %}
-                        <template v-else>
-                            <sw-media-media-item
-                                :key="mediaItem.id"
-                                :item="mediaItem"
-                                :selected="false"
-                                :showSelectionIndicator="false"
-                                :isList="false">
-                            </sw-media-media-item>
-                        </template>
-                    {% endblock %}
+                    <sw-media-upload
+                        variant="regular"
+                        :source="mediaItem"
+                        :uploadTag="category.id"
+                        :allowMultiSelect="false"
+                        @sw-media-upload-new-uploads-added="onUploadAdded"
+                        @sw-media-upload-media-upload-success="setMediaItem"
+                        @sw-media-upload-open-sidebar="openMediaSidebar"
+                        @sw-media-upload-remove-image="removeMediaItem">
+                    </sw-media-upload>
                 {% endblock %}
-
             </sw-card>
         {% endblock %}
 

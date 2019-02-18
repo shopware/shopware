@@ -58,11 +58,8 @@ export default {
 
         replaceMediaItem() {
             const notificationSuccess = this.$tc('global.sw-media-modal-replace.notificationSuccess');
-            const notificationError = this.$tc(
-                'global.sw-media-modal-replace.notificationFailure',
-                1,
-                { mediaName: this.itemToReplace.fileName }
-            );
+            const notificationError = this.$tc('global.sw-media-modal-replace.notificationFailure', 1,
+                { mediaName: this.itemToReplace.fileName });
 
             this.itemToReplace.isLoading = true;
             this.uploadStore.runUploads(this.uploadTag).then(() => {

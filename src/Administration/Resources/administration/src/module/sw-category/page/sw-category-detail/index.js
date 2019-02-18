@@ -134,7 +134,7 @@ Component.register('sw-category-detail', {
             return this.categoryStore.getByIdAsync(categoryId);
         },
 
-        onUploadAdded({ uploadTag }) {
+        onUploadAdded(uploadTag) {
             this.isLoading = true;
             this.mediaStore.sync().then(() => {
                 return this.uploadStore.runUploads(uploadTag);

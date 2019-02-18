@@ -732,6 +732,15 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="media_folder_configuration_media_thumbnail_size.repository" public="true">
+            <argument>Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product.repository" public="true">
             <argument>Shopware\Core\Content\Product\ProductDefinition</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>

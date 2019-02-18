@@ -24,9 +24,9 @@
                     {% block sw_media_modal_folder_settings_tab_content_settings %}
                         <sw-container v-if="active === 'settings'" columns="1fr 1fr" gap="32px">
                             {% block sw_media_modal_folder_settings_name_field %}
-                                <sw-field type="string"
-                                          :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
-                                          v-model="folder.name">
+                                <sw-field type="text"
+                                    :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
+                                    v-model="folder.name">
                                 </sw-field>
                             {% endblock %}
 
@@ -63,40 +63,43 @@
                             {% block sw_media_modal_folder_settings_tab_content_thumbnails_left_container %}
                                 <div class="sw-media-modal-folder-settings__thumbnails-left-container">
                                     {% block sw_media_modal_folder_settings_inherit_settings_field %}
-                                        <sw-field
-                                                type="boolean"
-                                                :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
-                                                v-model="folder.useParentConfiguration"
-                                                :disabled="folder.parentId === null"
-                                                @change="onChangeInheritance">
+                                        <sw-field type="boolean"
+                                            :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
+                                            v-model="folder.useParentConfiguration"
+                                            :disabled="folder.parentId === null"
+                                            @change="onChangeInheritance">
                                         </sw-field>
                                     {% endblock %}
 
                                     {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
                                         <sw-field type="boolean"
-                                                  :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
-                                                  v-model="configuration.createThumbnails"
-                                                  :disabled="folder.useParentConfiguration">
+                                            :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
+                                            v-model="configuration.createThumbnails"
+                                            :disabled="folder.useParentConfiguration">
                                         </sw-field>
                                     {% endblock %}
 
                                     {% block sw_media_modal_folder_settings_keep_proportions_field %}
-                                        <sw-field type="boolean"
-                                                  :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
-                                                  v-model="configuration.keepAspectRatio"
-                                                  :disabled="notEditable">
+                                        <sw-field
+                                            type="boolean"
+                                            :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
+                                            v-model="configuration.keepAspectRatio"
+                                            :disabled="notEditable">
                                         </sw-field>
                                     {% endblock %}
 
                                     {% block sw_media_modal_folder_settings_thumbnails_quality_field %}
                                         <sw-field
-                                                type="number"
-                                                :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
-                                                v-model="configuration.thumbnailQuality"
-                                                :validation="configuration.thumbnailQuality >= 0 &&  configuration.thumbnailQuality <= 100"
-                                                :min="0"
-                                                :max="100"
-                                                :disabled="notEditable">
+                                            type="number"
+                                            numberType="int"
+                                            :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
+                                            v-model="configuration.thumbnailQuality"
+                                            :validation="configuration.thumbnailQuality >= 0 &&  configuration.thumbnailQuality <= 100"
+                                            :min="0"
+                                            :max="100"
+                                            :step="1"
+                                            :disabled="notEditable"
+                                            autocomplete="off">
                                         </sw-field>
                                     {% endblock %}
                                 </div>

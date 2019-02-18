@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class MediaFolderConfigurationThumbnailSizeTest extends TestCase
+class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
 {
     use IntegrationTestBehaviour;
 

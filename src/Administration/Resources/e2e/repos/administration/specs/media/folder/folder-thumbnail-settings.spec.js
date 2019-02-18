@@ -97,8 +97,7 @@ module.exports = {
         browser
             .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.router-link-active')
-            .expect.element(page.elements.folderNameLabel).to.have.value.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
-
+            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'verify deactivated inheritance': (browser) => {
         const page = mediaPage(browser);

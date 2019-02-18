@@ -160,10 +160,17 @@ export default {
                 return;
             }
 
-            this.configuration.mediaThumbnailSizes.forEach((savedSize) => {
-                if (savedSize.id === size.id) {
-                    savedSize.delete();
-                }
+            const thumbnailSizeIndex = this.configuration.mediaThumbnailSizes.findIndex((storedSize) => {
+                return storedSize.id === size.id;
+            });
+
+            if (thumbnailSizeIndex === -1) {
+                return;
+            }
+
+            const removedThumbnailSizes = this.configuration.mediaThumbnailSizes.splice(thumbnailSizeIndex, 1);
+            removedThumbnailSizes.forEach((thumbnailSize) => {
+                thumbnailSize.delete();
             });
         },
 

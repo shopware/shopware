@@ -25,6 +25,7 @@
                                @change="onChange"
                                @input="onInput"
                                v-on="additionalEventListeners"
+                               v-bind="$attrs"
                                :value="currentValue" />
                     {% endblock %}
 

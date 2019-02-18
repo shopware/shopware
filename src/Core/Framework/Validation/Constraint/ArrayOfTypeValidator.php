@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class ArrayOfTypeValidator extends ConstraintValidator
 {
-    public function validate($values, Constraint $constraint)
+    public function validate($values, Constraint $constraint): void
     {
         if (!$constraint instanceof ArrayOfType) {
             throw new UnexpectedTypeException($constraint, Uuid::class);
@@ -30,15 +30,19 @@ class ArrayOfTypeValidator extends ConstraintValidator
 
         foreach ($values as $value) {
             $type = strtolower($constraint->type);
-            $type = $type == 'boolean' ? 'bool' : $constraint->type;
+            $type = $type === 'boolean' ? 'bool' : $constraint->type;
             $isFunction = 'is_' . $type;
             $ctypeFunction = 'ctype_' . $type;
 
             if (\function_exists($isFunction) && $isFunction($value)) {
                 continue;
-            } elseif (\function_exists($ctypeFunction) && $ctypeFunction($value)) {
+            }
+
+            if (\function_exists($ctypeFunction) && $ctypeFunction($value)) {
                 continue;
-            } elseif ($value instanceof $constraint->type) {
+            }
+
+            if ($value instanceof $constraint->type) {
                 continue;
             }
 

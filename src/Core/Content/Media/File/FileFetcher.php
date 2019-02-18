@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcher
 {
-    const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
+    private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
 
     public function fetchRequestData(Request $request, string $fileName): MediaFile
     {
@@ -98,7 +98,7 @@ class FileFetcher
      */
     private function openSourceFromUrl(string $url)
     {
-        $inputStream = @fopen($url, 'r');
+        $inputStream = @fopen($url, 'rb');
 
         if ($inputStream === false) {
             throw new UploadException("Could open source stream from {$url}");
@@ -114,7 +114,7 @@ class FileFetcher
      */
     private function openDestinationStream(string $filename)
     {
-        $inputStream = @fopen($filename, 'w');
+        $inputStream = @fopen($filename, 'wb');
 
         if ($inputStream === false) {
             throw new UploadException("Could not open Stream to write upload data: ${filename}");
@@ -143,7 +143,7 @@ class FileFetcher
     {
         $fragments = explode(':', $url);
         if (count($fragments) > 1) {
-            return in_array($fragments[0], self::ALLOWED_PROTOCOLS);
+            return in_array($fragments[0], self::ALLOWED_PROTOCOLS, true);
         }
 
         return false;

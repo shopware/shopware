@@ -199,7 +199,7 @@ class TreeIndexer implements IndexerInterface
                 $level = $entity['parent']['parentCount'] + 1;
             }
 
-            $query->set($field->getStorageName(), strval($level));
+            $query->set($field->getStorageName(), (string) $level);
         }
 
         $query->andWhere('id = :id');

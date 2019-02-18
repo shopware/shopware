@@ -262,6 +262,11 @@ export default {
         onInputDefaultFolder(defaultFolderId) {
             this.folder.defaultFolders.splice(0);
             this.mediaDefaultFolderAssociationStore.removeAll();
+
+            if (!defaultFolderId) {
+                return;
+            }
+
             this.mediaDefaultFolderStore.getByIdAsync(defaultFolderId).then((response) => {
                 response.folderId = this.folder.id;
                 this.mediaDefaultFolderAssociationStore.add(response);

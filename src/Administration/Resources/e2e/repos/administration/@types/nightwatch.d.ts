@@ -2189,6 +2189,20 @@ export interface NightwatchCustomCommands {
     fillField(selector: string, value: string, clearField?: boolean, type?: string): this,
 
     /**
+     * Finds a form field in the Administration using the provided css selector. It tries to find the element on the page,
+     * clears the value (if configured) and sets the provided value in the field.
+     *
+     * Usage:
+     * ```
+     * browser.fillDateField('.field--from-date input', '2019-03-28 12:12')
+     * ```
+     *
+     * @param {String} selector
+     * @param {String} value
+     */
+    fillDateField(selector: string, value: string): this,
+
+    /**
      * Finds a form field in the Administration using the provided label. The method uses a CSS selector to find the element on the page,
      * clears the value (if configured) and sets the provided value in the field.
      *

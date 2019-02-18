@@ -25,30 +25,94 @@ class RuleBuilderPageObject extends GeneralPageObject {
             .fillField('input[name=sw-field--rule-priority]', '1')
             .fillField('textarea[name=sw-field--rule-description]', 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.');
 
-        this.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
+        this.createBasicSelectCondition({
+            type: 'currency',
+            operator: 'Is none of',
+            ruleSelector: `${this.elements.conditionOrContainer}--0`,
+            value: 'Euro',
+            isMulti: true
+        });
 
         this.browser
             .click(this.elements.ruleSaveAction)
             .checkNotification(`The rule "${name}" has been saved successfully.`);
     }
 
-    createBasicSelectCondition(type, operator, ruleSelector, value) {
+    createBasicSelectCondition(ruleData) {
         this.browser
-            .fillSwSelectComponent(`${ruleSelector} ${this.elements.ruleFieldCondition}`, {
-                value: type,
+            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+                value: ruleData.type,
                 isMulti: false,
-                searchTerm: type
+                searchTerm: ruleData.type
             })
-            .fillSwSelectComponent(`${ruleSelector} .field--select`, {
-                value: operator,
-                isMulti: false,
-                searchTerm: operator
-            })
-            .fillSwSelectComponent(`${ruleSelector} .field--main`, {
-                value: value,
-                isMulti: true,
-                searchTerm: value
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
+                value: ruleData.value,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.value
             });
+
+        if (ruleData.operator) {
+            this.browser
+                .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select`, {
+                    value: ruleData.operator,
+                    isMulti: false,
+                    searchTerm: ruleData.operator
+                });
+        }
+    }
+
+    createBasicInputCondition(ruleData) {
+        this.browser
+            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+                value: ruleData.type,
+                isMulti: false,
+                searchTerm: ruleData.type
+            })
+            .fillField(`input[name=${ruleData.inputName}]`, ruleData.value);
+
+        if (ruleData.operator) {
+            this.browser
+                .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select`, {
+                    value: ruleData.operator,
+                    isMulti: false,
+                    searchTerm: ruleData.operator
+                });
+        }
+    }
+
+    createCombinedInputSelectCondition(ruleData) {
+        this.browser
+            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+                value: ruleData.type,
+                isMulti: false,
+                searchTerm: ruleData.type
+            })
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select-product`, {
+                value: ruleData.firstValue,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.firstValue
+            })
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select-operator`, {
+                value: ruleData.operator,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.operator
+            })
+            .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.secondValue);
+    }
+
+    createDateRangeCondition(ruleData) {
+        this.browser
+            .fillSwSelectComponent(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`, {
+                value: ruleData.type,
+                isMulti: false,
+                searchTerm: ruleData.type
+            });
+
+        ruleData.useTime ? this.browser.tickCheckbox('input[name=useTime]', true) : null;
+
+        this.browser
+            .fillDateField('.field--from-date input', ruleData.fromDate)
+            .fillDateField('.field--to-date input', ruleData.toDate);
     }
 }
 

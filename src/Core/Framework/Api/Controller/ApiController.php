@@ -680,10 +680,8 @@ class ApiController extends AbstractController
             if (empty($part)) {
                 continue;
             }
-            $value = null;
-            if (isset($exploded[$index + 1])) {
-                $value = $exploded[$index + 1];
-            }
+
+            $value = $exploded[$index + 1] ?? null;
 
             if (empty($parts)) {
                 $part = $this->urlToSnakeCase($part);

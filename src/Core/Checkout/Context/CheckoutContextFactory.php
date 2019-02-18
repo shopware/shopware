@@ -356,12 +356,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
     private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
     {
-        $current = $defaultLanguageId;
-
-        //language provided?
-        if (isset($sessionOptions[CheckoutContextService::LANGUAGE_ID])) {
-            $current = $sessionOptions[CheckoutContextService::LANGUAGE_ID];
-        }
+        $current = $sessionOptions[CheckoutContextService::LANGUAGE_ID] ?? $defaultLanguageId;
 
         //check provided language is part of the available languages
         if (!\in_array($current, $availableLanguageIds, true)) {

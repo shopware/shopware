@@ -85,6 +85,7 @@ class TemplateDataExtension extends Twig_Extension implements Twig_Extension_Glo
                     'offcanvasCart' => true,
                 ],
                 'breakpoint' => [
+                    'xs' => '0',
                     'sm' => '576',
                     'md' => '768',
                     'lg' => '992',

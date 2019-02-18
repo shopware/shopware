@@ -17,8 +17,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 trait FieldValidatorTrait
 {
-    protected function validate(ValidatorInterface $validator, array $constraints, string $fieldName, $value, string $path): void
-    {
+    protected function validate(
+        ValidatorInterface $validator,
+        array $constraints,
+        string $fieldName,
+        $value,
+        string $path
+    ): void {
         $violationList = new ConstraintViolationList();
 
         foreach ($constraints as $constraint) {
@@ -48,8 +53,12 @@ trait FieldValidatorTrait
         }
     }
 
-    protected function requiresValidation(Field $field, EntityExistence $existence, $value, WriteParameterBag $parameters): bool
-    {
+    protected function requiresValidation(
+        Field $field,
+        EntityExistence $existence,
+        $value,
+        WriteParameterBag $parameters
+    ): bool {
         if ($value !== null) {
             return true;
         }
@@ -58,10 +67,10 @@ trait FieldValidatorTrait
             return false;
         }
 
-        if (\is_subclass_of($existence->getDefinition(), EntityTranslationDefinition::class)) {
-            if ($parameters->getCurrentWriteLanguageId() !== Defaults::LANGUAGE_SYSTEM) {
-                return false;
-            }
+        if (\is_subclass_of($existence->getDefinition(), EntityTranslationDefinition::class)
+            && $parameters->getCurrentWriteLanguageId() !== Defaults::LANGUAGE_SYSTEM
+        ) {
+            return false;
         }
 
         return $field->is(Required::class);

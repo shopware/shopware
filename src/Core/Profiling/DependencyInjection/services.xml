@@ -37,5 +37,16 @@
             <argument type="service" id="debug.stopwatch" />
         </service>
 
+        <service id="Shopware\Core\Profiling\Doctrine\ConnectionProfiler">
+            <tag name="data_collector"
+                 template="Profiling:Collector:db.html.twig"
+                 id="app.connection_collector"
+                 priority="200"
+            />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Twig\DoctrineExtension" public="false">
+            <tag name="twig.extension" />
+        </service>
     </services>
 </container>

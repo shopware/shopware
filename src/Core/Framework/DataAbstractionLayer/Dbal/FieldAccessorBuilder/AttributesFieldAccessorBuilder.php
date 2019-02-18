@@ -31,7 +31,7 @@ class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $this->connection = $connection;
     }
 
-    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?FieldAccessor
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
         /** @var StorageAware $field */
         if (!$field instanceof AttributesField) {
@@ -58,31 +58,31 @@ class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
             case AttributeTypes::INT:
             case AttributeTypes::FLOAT:
                 // cast to float/number by adding 0.0
-                return new FieldAccessor(sprintf(
+                return sprintf(
                     'IF(JSON_TYPE(%s) != "NULL" && JSON_UNQUOTE(%s) != "false", JSON_UNQUOTE(%s) + 0.0, NULL)',
                     $jsonValueExpr,
                     $jsonValueExpr,
                     $jsonValueExpr
-                ));
+                );
             case AttributeTypes::BOOL:
-                return new FieldAccessor(sprintf(
+                return sprintf(
                     'IF(JSON_TYPE(%s) != "NULL", IF(JSON_UNQUOTE(%s) != "true" && JSON_UNQUOTE(%s) = 0, 0, 1), NULL)',
                     $jsonValueExpr,
                     $jsonValueExpr,
                     $jsonValueExpr
-                ));
+                );
             case AttributeTypes::DATETIME:
-                return new FieldAccessor(sprintf(
+                return sprintf(
                     'IF(JSON_TYPE(%s) != "NULL", CAST(JSON_UNQUOTE(%s) AS datetime), NULL)',
                     $jsonValueExpr,
                     $jsonValueExpr
-                ));
+                );
             default:
-                return new FieldAccessor(sprintf(
+                return sprintf(
                     'IF(JSON_TYPE(%s) != "NULL", CONVERT(JSON_UNQUOTE(%s) USING "utf8mb4") COLLATE utf8mb4_unicode_ci, NULL)',
                     $jsonValueExpr,
                     $jsonValueExpr
-                ));
+                );
         }
     }
 

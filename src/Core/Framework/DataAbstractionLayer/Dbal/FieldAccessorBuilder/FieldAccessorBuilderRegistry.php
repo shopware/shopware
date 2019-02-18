@@ -18,7 +18,7 @@ class FieldAccessorBuilderRegistry
         $this->builders = $builders;
     }
 
-    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): FieldAccessor
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): string
     {
         foreach ($this->builders as $builder) {
             if ($parsed = $builder->buildAccessor($root, $field, $context, $accessor)) {

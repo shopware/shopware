@@ -41,7 +41,7 @@ class SqlQueryParser
 
             foreach ($parsed->getWheres() as $where) {
                 if ($query->getScoreField()) {
-                    $accessor = $this->queryHelper->getFieldAccessor(
+                    $field = $this->queryHelper->getFieldAccessor(
                         $query->getScoreField(),
                         $definition,
                         $root,
@@ -49,7 +49,7 @@ class SqlQueryParser
                     );
 
                     $result->addWhere(
-                        sprintf('IF(%s , %s * %s, 0)', $where, $query->getScore(), $accessor->getSQL())
+                        sprintf('IF(%s , %s * %s, 0)', $where, $query->getScore(), $field)
                     );
                     continue;
                 }
@@ -98,26 +98,25 @@ class SqlQueryParser
 
         $key = $this->getKey();
 
-        $accessor = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
-        $result->addParameters($accessor->getParameters(), $accessor->getParameterTypes());
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $where = [];
 
         if ($query->hasParameter(RangeFilter::GT)) {
-            $where[] = $accessor->getSQL() . ' > :' . $key;
+            $where[] = $field . ' > :' . $key;
             $result->addParameter($key, $query->getParameter(RangeFilter::GT));
         } elseif ($query->hasParameter(RangeFilter::GTE)) {
-            $where[] = $accessor->getSQL() . ' >= :' . $key;
+            $where[] = $field . ' >= :' . $key;
             $result->addParameter($key, $query->getParameter(RangeFilter::GTE));
         }
 
         $key = $this->getKey();
 
         if ($query->hasParameter(RangeFilter::LT)) {
-            $where[] = $accessor->getSQL() . ' < :' . $key;
+            $where[] = $field . ' < :' . $key;
             $result->addParameter($key, $query->getParameter(RangeFilter::LT));
         } elseif ($query->hasParameter(RangeFilter::LTE)) {
-            $where[] = $accessor->getSQL() . ' <= :' . $key;
+            $where[] = $field . ' <= :' . $key;
             $result->addParameter($key, $query->getParameter(RangeFilter::LTE));
         }
 
@@ -131,11 +130,10 @@ class SqlQueryParser
     {
         $key = $this->getKey();
 
-        $accessor = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $result = new ParseResult();
-        $result->addParameters($accessor->getParameters(), $accessor->getParameterTypes());
-        $result->addWhere($accessor->getSQL() . ' LIKE :' . $key);
+        $result->addWhere($field . ' LIKE :' . $key);
         $result->addParameter($key, '%' . $query->getValue() . '%');
 
         return $result;
@@ -148,10 +146,9 @@ class SqlQueryParser
         $field = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
-        $result->addParameters($select->getParameters(), $select->getParameterTypes());
 
         if ($field instanceof ListField) {
-            $result->addWhere('JSON_CONTAINS(' . $select->getSQL() . ', JSON_ARRAY(:' . $key . '))');
+            $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
 
             if (\is_array($query->getValue())) {
                 $result->addParameter($key, $query->getValue(), Connection::PARAM_STR_ARRAY);
@@ -163,7 +160,7 @@ class SqlQueryParser
             return $result;
         }
 
-        $result->addWhere($select->getSQL() . ' IN (:' . $key . ')');
+        $result->addWhere($select . ' IN (:' . $key . ')');
 
         $value = array_values($query->getValue());
         if ($field instanceof IdField || $field instanceof FkField) {
@@ -183,21 +180,20 @@ class SqlQueryParser
         $field = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
-        $result->addParameters($select->getParameters(), $select->getParameterTypes());
 
         if ($field instanceof ListField) {
-            $result->addWhere('JSON_CONTAINS(' . $select->getSQL() . ', JSON_ARRAY(:' . $key . '))');
+            $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 
             return $result;
         }
 
         if ($query->getValue() === null) {
-            $result->addWhere($select->getSQL() . ' IS NULL');
+            $result->addWhere($select . ' IS NULL');
 
             return $result;
         }
-        $result->addWhere($select->getSQL() . ' = :' . $key);
+        $result->addWhere($select . ' = :' . $key);
 
         $value = $query->getValue();
         if ($field instanceof IdField || $field instanceof FkField) {

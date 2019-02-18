@@ -40,11 +40,6 @@ class CategoryEntity extends Entity
     /**
      * @var int
      */
-    protected $position;
-
-    /**
-     * @var int
-     */
     protected $level;
 
     /**
@@ -178,6 +173,11 @@ class CategoryEntity extends Entity
     protected $nestedProducts;
 
     /**
+     * @var string|null
+     */
+    protected $afterCategoryId;
+
+    /**
      * @var array|null
      */
     protected $attributes;
@@ -225,16 +225,6 @@ class CategoryEntity extends Entity
     public function setPath(?string $path): void
     {
         $this->path = $path;
-    }
-
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(int $position): void
-    {
-        $this->position = $position;
     }
 
     public function getLevel(): int
@@ -515,6 +505,16 @@ class CategoryEntity extends Entity
     public function setDisplayNestedProducts(bool $displayNestedProducts): void
     {
         $this->displayNestedProducts = $displayNestedProducts;
+    }
+
+    public function getAfterCategoryId(): ?string
+    {
+        return $this->afterCategoryId;
+    }
+
+    public function setAfterCategoryId(string $afterCategoryId): void
+    {
+        $this->afterCategoryId = $afterCategoryId;
     }
 
     public function getAttributes(): ?array

@@ -229,10 +229,10 @@ class CategoryRepositoryTest extends TestCase
         $recordC = Uuid::uuid4()->getHex();
 
         $categories = [
-            ['id' => $parent, 'name' => 'First Level Category', 'position' => 0],
-            ['id' => $recordA, 'name' => 'Second Level Category', 'position' => 0, 'parentId' => $parent],
-            ['id' => $recordC, 'name' => 'Third Level Category', 'position' => 0, 'parentId' => $recordA],
-            ['id' => $recordB, 'name' => 'Second Level Category 2', 'position' => 1, 'parentId' => $parent],
+            ['id' => $parent, 'name' => 'First Level Category'],
+            ['id' => $recordA, 'name' => 'Second Level Category', 'parentId' => $parent],
+            ['id' => $recordC, 'name' => 'Third Level Category', 'parentId' => $recordA],
+            ['id' => $recordB, 'name' => 'Second Level Category 2', 'parentId' => $parent, 'afterCategoryId' => $recordA],
         ];
 
         $this->repository->create($categories, Context::createDefaultContext());

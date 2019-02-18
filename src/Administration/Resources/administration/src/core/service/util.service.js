@@ -18,6 +18,7 @@ import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils from './utils/types.utils';
 import fileReaderUtils from './utils/file-reader.utils';
+import sortUtils from './utils/sort.utils';
 
 export const object = {
     deepCopyObject: deepCopyObject,
@@ -66,6 +67,10 @@ export const fileReader = {
     readAsText: fileReaderUtils.readFileAsText
 };
 
+export const sort = {
+    afterSort: sortUtils.afterSort
+};
+
 export default {
     createId,
     throttle,
@@ -76,7 +81,8 @@ export default {
     dom,
     string,
     types,
-    fileReader
+    fileReader,
+    sort
 };
 
 /**

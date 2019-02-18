@@ -1,4 +1,5 @@
 import utils from 'src/core/service/util.service';
+import sort from 'src/core/service/utils/sort.utils';
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
 
@@ -32,10 +33,10 @@ export default {
             default: 'parentId'
         },
 
-        positionProperty: {
+        afterIdProperty: {
             type: String,
             required: false,
-            default: 'position'
+            default: 'afterId'
         },
 
         childCountProperty: {
@@ -58,17 +59,20 @@ export default {
 
     data() {
         return {
+            treeItems: [],
             draggedItem: null,
             currentTreeSearch: null,
             isLoading: false
         };
     },
 
-    computed: {
-        treeItems() {
-            return this.getTreeItems(this.isSearched ? false : this.rootParentId);
-        },
+    watch: {
+        items() {
+            this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
+        }
+    },
 
+    computed: {
         isSortable() {
             if (this.currentTreeSearch !== null) {
                 return false;
@@ -110,29 +114,35 @@ export default {
                     return;
                 }
 
-                if (parentId === false && typeof this.items.find(i => i.id === item.parentId) !== 'undefined') {
+                if (parentId === null && typeof this.items.find(i => i.id === item.parentId) !== 'undefined') {
                     return;
                 }
 
-                if (parentId !== false && item[this.parentProperty] !== parentId) {
+                if (parentId !== null && item[this.parentProperty] !== parentId) {
                     return;
                 }
+
                 treeItems.push({
                     data: item,
                     id: item.id,
                     parentId: parentId,
-                    position: item[this.positionProperty],
                     childCount: item[this.childCountProperty],
                     children: this.getTreeItems(item.id)
                 });
             });
-            treeItems.sort((a, b) => {
-                if (a[this.positionProperty] < b[this.positionProperty]) return -1;
-                if (a[this.positionProperty] > b[this.positionProperty]) return 1;
-                return 0;
+
+            return sort.afterSort(treeItems, this.afterIdProperty);
+        },
+
+        updateSorting(items) {
+            let lastId = null;
+
+            items.forEach((item) => {
+                item.data[this.afterIdProperty] = lastId;
+                lastId = item.id;
             });
 
-            return treeItems;
+            return items;
         },
 
         startDrag(draggedComponent) {
@@ -142,107 +152,103 @@ export default {
         },
 
         endDrag() {
-            if (this.droppedItem && this.draggedItem.parentId !== this.droppedItem.parentId) {
-                if (this.draggedItem.parentId !== null) {
-                    const draggedParent = this.findById(this.treeItems, this.draggedItem.parentId);
-                    draggedParent.data.childCount -= 1;
-                }
-                if (this.droppedItem.parentId !== null) {
-                    const droppedParent = this.findById(this.treeItems, this.droppedItem.parentId);
-                    droppedParent.data.childCount += 1;
-                }
+            if (!this.droppedItem) {
+                return;
             }
 
+            // item moved into other tree, update count
+            if (this.draggedItem.data.parentId !== this.droppedItem.data.parentId) {
+                if (this.draggedItem.parentId !== null) {
+                    const draggedParent = this.findById(this.treeItems, this.draggedItem.parentId);
+                    draggedParent.childCount -= 1;
+                    draggedParent.data.childCount -= 1;
+                }
+
+                if (this.droppedItem.parentId !== null) {
+                    const droppedParent = this.findById(this.treeItems, this.droppedItem.parentId);
+                    droppedParent.childCount += 1;
+                    droppedParent.data.childCount += 1;
+                }
+
+                this.draggedItem.data.parentId = this.droppedItem.data.parentId;
+            }
+
+            const tree = this.findTreeByParentId(this.treeItems, this.draggedItem.parentId);
+            this.updateSorting(tree);
+
+            // reset event items
             this.draggedItem = null;
             this.droppedItem = null;
+
             this.$emit('sw-tree-on-drag-end');
         },
 
         moveDrag(draggedComponent, droppedComponent) {
-            if (!draggedComponent ||
-                !droppedComponent ||
-                draggedComponent.id === droppedComponent.id) {
+            if (!draggedComponent || !droppedComponent) {
                 return;
             }
-            const dragItem = draggedComponent.data;
-            const dropItem = droppedComponent.data;
 
-            if (dragItem[this.parentProperty] !== dropItem[this.parentProperty]) {
-                const leftParentId = dragItem[this.parentProperty];
-
-                dragItem[this.parentProperty] = dropItem[this.parentProperty];
-
-                this.updateChildPositions(leftParentId, dragItem[this.positionProperty]);
-                dragItem[this.positionProperty] = this.items.length;
+            if (draggedComponent.id === droppedComponent.id) {
+                return;
             }
 
-            if (dragItem[this.positionProperty] < dropItem[this.positionProperty]) {
-                if (!droppedComponent.opened) {
-                    this.moveItemsUp(dragItem, dropItem);
-                }
-            } else if (dragItem[this.positionProperty] >= dropItem[this.positionProperty]) {
-                this.moveItemsDown(dragItem, dropItem);
+            const sourceTree = this.findTreeByParentId(this.treeItems, draggedComponent.parentId);
+            const targetTree = this.findTreeByParentId(this.treeItems, droppedComponent.parentId);
+
+            const dragItemIdx = sourceTree.findIndex(i => i.id === draggedComponent.id);
+            const dropItemIdx = targetTree.findIndex(i => i.id === droppedComponent.id);
+
+            if (dragItemIdx < 0 || dropItemIdx < 0) {
+                return;
             }
+
+            if (draggedComponent.parentId !== droppedComponent.parentId) {
+                sourceTree.splice(dragItemIdx, 1);
+                targetTree.splice(dropItemIdx, 1, draggedComponent);
+                targetTree.splice(dropItemIdx + 1, 0, droppedComponent);
+                draggedComponent.parentId = droppedComponent.parentId;
+            } else {
+                targetTree.splice(dropItemIdx, 1, draggedComponent);
+                sourceTree.splice(dragItemIdx, 1, droppedComponent);
+            }
+
             this.droppedItem = droppedComponent;
         },
 
-        updateChildPositions(parentId, startPosition) {
-            this.items.filter(item => item[this.parentProperty] === parentId).forEach((item) => {
-                if (item[this.positionProperty] > startPosition) {
-                    item[this.positionProperty] -= 1;
-                }
-            });
-        },
+        findTreeByParentId(tree, parentId) {
+            const queue = [{ id: null, children: tree }];
 
-        moveItemsUp(dragItem, dropItem) {
-            const dragStartPosition = dragItem[this.positionProperty];
-            dragItem[this.positionProperty] = dropItem[this.positionProperty];
+            while (queue.length > 0) {
+                const next = queue.shift();
 
-            this.items.forEach((item) => {
-                if (item.id === dragItem.id ||
-                    item[this.positionProperty] > dragItem[this.positionProperty] ||
-                    item[this.positionProperty] < dragStartPosition ||
-                    item[this.parentProperty] !== dropItem[this.parentProperty]) {
-                    return;
+                if (next.id === parentId) {
+                    return next.children;
                 }
 
-                item[this.positionProperty] -= 1;
-            });
-        },
-
-        moveItemsDown(dragItem, dropItem) {
-            const dragStartPosition = dragItem[this.positionProperty];
-            dragItem[this.positionProperty] = dropItem[this.positionProperty];
-
-            this.items.forEach((item) => {
-                if (item.id === dragItem.id ||
-                    item[this.positionProperty] < dragItem[this.positionProperty] ||
-                    item[this.positionProperty] > dragStartPosition ||
-                    item[this.parentProperty] !== dropItem[this.parentProperty]) {
-                    return;
+                if (next.children.length) {
+                    queue.push(...next.children);
                 }
-
-                item[this.positionProperty] += 1;
-            });
-        },
-
-        findById(object, id) {
-            if (object.id === id) {
-                return object;
             }
-            let result;
-            Object.keys(object).filter((key) => {
-                return key === 'children' || !Number.isNaN(Number.parseInt(key, 0));
-            }).some((key) => {
-                if (object.hasOwnProperty(key) && typeof object[key] === 'object') {
-                    result = this.findById(object[key], id);
-                    if (result) {
-                        return result;
-                    }
+
+            return null;
+        },
+
+        findById(tree, id) {
+            const queue = [{ id: null, children: tree }];
+
+            while (queue.length > 0) {
+                const next = queue.shift();
+
+                if (next.id === id) {
+                    return next;
                 }
-                return null;
-            });
-            return result;
+
+                if (next.children.length) {
+                    queue.push(...next.children);
+                }
+            }
+
+            return null;
         }
     }
 };

@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
-class GenerateThumbnailsHandler implements MessageSubscriberInterface
+class GenerateThumbnailsHandler extends AbstractMessageHandler
 {
     /**
      * @var ThumbnailService
@@ -27,20 +27,28 @@ class GenerateThumbnailsHandler implements MessageSubscriberInterface
         $this->mediaRepository = $mediaRepository;
     }
 
-    public function __invoke(GenerateThumbnailsMessage $msg)
+    /**
+     * @param GenerateThumbnailsMessage|UpdateThumbnailsMessage $msg
+     */
+    public function handle(object $msg): void
     {
         $context = $msg->readContext();
 
         $entities = $this->getMediaEntities($msg, $context);
 
-        foreach ($entities as $media) {
-            $this->thumbnailService->updateThumbnails($media, $context);
+        if ($msg instanceof UpdateThumbnailsMessage) {
+            $this->updateThumbnailsForEntities($entities, $context);
+        } else {
+            $this->generateThumbnailsForEntities($entities, $context);
         }
     }
 
     public static function getHandledMessages(): iterable
     {
-        return [GenerateThumbnailsMessage::class];
+        return [
+                GenerateThumbnailsMessage::class,
+                UpdateThumbnailsMessage::class,
+            ];
     }
 
     private function getMediaEntities(GenerateThumbnailsMessage $msg, Context $context): MediaCollection
@@ -51,5 +59,19 @@ class GenerateThumbnailsHandler implements MessageSubscriberInterface
         $entities = $this->mediaRepository->search($criteria, $context)->getEntities();
 
         return $entities;
+    }
+
+    private function updateThumbnailsForEntities(MediaCollection $entities, Context $context): void
+    {
+        foreach ($entities as $media) {
+            $this->thumbnailService->generateThumbnails($media, $context);
+        }
+    }
+
+    private function generateThumbnailsForEntities(MediaCollection $entities, Context $context): void
+    {
+        foreach ($entities as $media) {
+            $this->thumbnailService->generateThumbnails($media, $context);
+        }
     }
 }

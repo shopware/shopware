@@ -64,9 +64,11 @@ class ThumbnailService
      * @throws FileTypeNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
-    public function updateThumbnailsAfterUpload(MediaEntity $media, Context $context): int
+    public function generateThumbnails(MediaEntity $media, Context $context): int
     {
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
+            $this->deleteAssociatedThumbnails($media, $context);
+
             return 0;
         }
 
@@ -80,9 +82,17 @@ class ThumbnailService
             return 0;
         }
 
+        /** @var MediaThumbnailCollection $toBeDeletedThumbnails */
+        $toBeDeletedThumbnails = $media->getThumbnails();
+        $this->thumbnailRepository->delete($toBeDeletedThumbnails->getIds(), $context);
+
         return $this->createThumbnailsForSizes($media, $config, $config->getMediaThumbnailSizes(), $context);
     }
 
+    /**
+     * @throws FileTypeNotSupportedException
+     * @throws ThumbnailCouldNotBeSavedException
+     */
     public function updateThumbnails(MediaEntity $media, Context $context): int
     {
         if (!$this->mediaCanHaveThumbnails($media, $context)) {

@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Test\Media\Thumbnail;
 use League\Flysystem\FileNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
@@ -255,7 +257,7 @@ class ThumbnailServiceTest extends TestCase
     }
 
     // TODO remove when NEXT-1721 is done
-    public function testUpdateThumbnailsWorkaround(): void
+    public function testGenerateThumbnailsWorkaround(): void
     {
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
@@ -281,22 +283,29 @@ class ThumbnailServiceTest extends TestCase
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
-        $this->thumbnailService->updateThumbnails($media, $this->context);
-
+        $this->thumbnailService->generateThumbnails($media, $this->context);
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
-
+        /** @var MediaThumbnailCollection $filteredThumbnails */
         $filteredThumbnails = $media->getThumbnails()->filter(function ($thumbnail) {
             return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300) ||
                 ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
 
         static::assertEquals(2, $filteredThumbnails->count());
+        /** @var MediaThumbnailEntity $thumbnail */
+        foreach ($filteredThumbnails as $thumbnail) {
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
+            static::assertTrue(
+                $this->getPublicFilesystem()->has($path),
+                'Thumbnail: ' . $path . ' does not exist');
+        }
     }
 
-    public function testUpdateThumbnails(): void
+    public function testGenerateThumbnails(): void
     {
-        $this->markTestIncomplete('Fails until NEXT-1721 is fixed'); // TODO Unmark when NEXT-1721 is done
+        static::markTestIncomplete('Fails until NEXT-1721 is fixed'); // TODO Unmark when NEXT-1721 is done
 
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
@@ -322,7 +331,7 @@ class ThumbnailServiceTest extends TestCase
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
-        $this->thumbnailService->updateThumbnails($media, $this->context);
+        $this->thumbnailService->generateThumbnails($media, $this->context);
 
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
@@ -333,5 +342,12 @@ class ThumbnailServiceTest extends TestCase
         });
 
         static::assertEquals(2, $filteredThumbnails->count());
+        /** @var MediaThumbnailEntity $thumbnail */
+        foreach ($filteredThumbnails as $thumbnail) {
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
+            static::assertTrue(
+                $this->getPublicFilesystem()->has($path),
+                'Thumbnail: ' . $path . ' does not exist');
+        }
     }
 }

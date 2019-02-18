@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
+use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -226,7 +226,7 @@ class GenerateThumbnailsCommand extends Command
         $batchCount = 0;
         $this->io->comment('Generating batch jobs...');
         while (($result = $mediaIterator->fetch()) !== null) {
-            $msg = new GenerateThumbnailsMessage();
+            $msg = new UpdateThumbnailsMessage();
             $msg->setMediaIds($result->getEntities()->getIds());
             $msg->withContext($context);
 

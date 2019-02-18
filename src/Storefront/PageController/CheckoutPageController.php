@@ -77,7 +77,7 @@ class CheckoutPageController extends StorefrontController
     {
         $page = $this->cartPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -91,7 +91,7 @@ class CheckoutPageController extends StorefrontController
 
         $page = $this->configPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/checkout/configuration/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -110,7 +110,7 @@ class CheckoutPageController extends StorefrontController
 
         $page = $this->confirmPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -127,6 +127,6 @@ class CheckoutPageController extends StorefrontController
 
         $page = $this->finishPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/index/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
     }
 }

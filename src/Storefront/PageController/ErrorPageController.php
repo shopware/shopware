@@ -28,7 +28,7 @@ class ErrorPageController extends StorefrontController
             return $this->renderStorefront($errorTemplate->getTemplateName(), $errorTemplate->getArguments());
         } catch (Exception $e) { //final Fallback
             return $this->renderStorefront(
-                '@Storefront/index/error.html.twig',
+                '@Storefront/page/error/index.html.twig',
                 ['exception' => $exception, 'followingException' => $e]
             );
         }

@@ -116,6 +116,9 @@ DROP TABLE IF EXISTS `root_sub`;
         static::assertInstanceOf(EntityWrittenEvent::class, $subEvent);
         static::assertCount(1, $subEvent->getWriteResults());
         static::assertSame([$id], $subEvent->getIds());
+
+        $this->getContainer()->get(DefinitionRegistry::class)->remove(RootDefinition::class);
+        $this->getContainer()->get(DefinitionRegistry::class)->remove(SubDefinition::class);
     }
 
     public function testRead()

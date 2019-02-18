@@ -23,7 +23,6 @@ module.exports = {
 
         browser
             .click('a[href="#/sw/product/create"]')
-            .waitForElementVisible('.sw-product-detail-base')
             .assert.urlContains('#/sw/product/create')
             .expect.element(page.elements.cardTitle).to.have.text.that.equals('Information');
 
@@ -57,13 +56,11 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .refresh()
-            .waitForElementVisible('.sw-product-list__content')
             .fillGlobalSearchField('Marci Darci')
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
     },
     'check if the data of the product is assigned correctly': (browser) => {
         const page = productPage(browser);
-        const mediaPageObject = mediaPage(browser);
 
         browser
             .refresh()
@@ -71,7 +68,6 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .waitForElementVisible(mediaPageObject.elements.previewItem)
             .expect.element('.ql-editor').to.have.text.that.equals('My very first description');
 
         browser

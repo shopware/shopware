@@ -22,10 +22,7 @@ module.exports = {
     'edit api credentials': (browser) => {
         const page = salesChannelPage(browser);
 
-        browser
-            .waitForElementVisible(`${page.elements.salesChannelMenuName}--0`)
-            .click(`${page.elements.salesChannelMenuName}--0`)
-            .waitForElementVisible(page.elements.smartBarHeader);
+        browser.click(`${page.elements.salesChannelMenuName}--0`);
 
         page.checkClipboard();
         page.changeApiCredentials(fixture.name);

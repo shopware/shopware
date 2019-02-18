@@ -21,7 +21,7 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Products');
 
         browser
-            .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button')
+            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
 
         productPageObject.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, global.ProductFixtureService.productFixture.name);
@@ -38,7 +38,6 @@ module.exports = {
 
         if (global.flags.isActive('next1207')) {
             browser
-                .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
                 .moveToElement(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`, 5, 5).doubleClick()
                 .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root');
         }
@@ -51,7 +50,6 @@ module.exports = {
         browser.expect.element('.sw-media-replace__replace-media-action').to.not.be.enabled;
 
         browser
-            .waitForElementVisible('.sw-media-upload__switch-mode')
             .click('.sw-media-upload__switch-mode')
             .expect.element('.sw-media-replace__replace-media-action').to.not.be.enabled;
     },
@@ -59,12 +57,10 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.sw-media-url-form__url-input')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-test-image.png`)
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible(`${page.elements.gridItem}--0 ${page.elements.previewItem}`)
-            .waitForElementVisible('.sw-media-replace__replace-media-action')
             .click('.sw-media-replace__replace-media-action')
             .checkNotification('File successfully replaced.', `${page.elements.notification}--1`)
             .checkNotification('File has been saved successfully.');
@@ -74,7 +70,6 @@ module.exports = {
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-test-image.png');
 
         browser
-            .waitForElementVisible(`${page.elements.gridItem}--0`)
             .click(`${page.elements.gridItem}--0`)
             .waitForElementVisible('.sw-media-quickinfo__media-preview')
             .waitForElementVisible('.sw-media-sidebar__headline')
@@ -95,7 +90,7 @@ module.exports = {
             })
             .waitForElementVisible(page.elements.smartBarHeader)
             .assert.containsText(page.elements.smartBarHeader, 'Products')
-            .clickContextMenuItem('.sw_product_list__edit-action', '.sw-context-button__button')
+            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton)
             .expect.element(page.elements.previewItem).to.have.attribute('alt').equals('sw-test-image');
     },
     after: (browser) => {

@@ -30,15 +30,12 @@ class ProductPageObject extends GeneralPageObject {
             .waitForElementPresent(this.elements.mediaForm)
             .getLocationInView(this.elements.mediaForm)
             .waitForElementVisible(this.elements.mediaForm)
-            .waitForElementVisible('.sw-media-upload__switch-mode')
             .click('.sw-media-upload__switch-mode')
-            .waitForElementVisible('.sw-media-url-form__url-input')
             .fillField('input[name=sw-field--url]', imagePath)
             .click('.sw-media-url-form__submit-button')
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible('.sw-media-preview__item')
             .checkNotification('File has been saved successfully.')
-            .waitForElementVisible(this.elements.productSaveAction)
             .click(this.elements.productSaveAction)
             .checkNotification(`Product "${productName}" has been saved successfully.`);
     }

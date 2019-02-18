@@ -21,7 +21,6 @@ class RuleBuilderPageObject extends GeneralPageObject {
         this.createBasicSelectCondition('currency', 'Is one of', 'div[name=currencyIds]', 'Euro');
 
         this.browser
-            .waitForElementVisible('.sw-settings-rule-detail__save-action')
             .click('.sw-settings-rule-detail__save-action')
             .checkNotification(`The rule "${name}" has been saved successfully.`);
     }

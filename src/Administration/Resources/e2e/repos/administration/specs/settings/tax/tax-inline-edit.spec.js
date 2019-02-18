@@ -19,11 +19,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Is this still a tax or already robbery', true)
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-taxRate]`, '80', true)
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .waitForElementNotPresent('.is--inline-editing');
     },

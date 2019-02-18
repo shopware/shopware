@@ -20,9 +20,7 @@ module.exports = {
         page.openMediaIndex();
 
         browser
-            .waitForElementVisible(`${page.elements.gridItem}--0`)
             .click(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .waitForElementVisible('.quickaction--settings')
             .click('.quickaction--settings')
             .expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('Products for the good');
     },
@@ -45,7 +43,6 @@ module.exports = {
 
         browser
             .waitForElementNotPresent('.sw-select__results')
-            .waitForElementVisible(page.elements.saveSettingsAction)
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully')
             .waitForElementVisible(`.icon--default-symbol-products`);
@@ -71,18 +68,13 @@ module.exports = {
 
         productPageObject.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, global.ProductFixtureService.productFixture.name);
 
-        browser
-            .waitForElementVisible('.sw-product-image__image')
-            .expect.element(mediaPageObject.elements.previewItem).to.have.attribute('src').contains('sw-login-background.png');
+        browser.expect.element(mediaPageObject.elements.previewItem).to.have.attribute('src').contains('sw-login-background.png');
 
         browser
-            .waitForElementVisible('.sw-sidebar-navigation-item')
             .click('.sw-sidebar-navigation-item')
             .expect.element(mediaPageObject.elements.folderNameLabel).to.have.text.that.equals(fixtures.name);
 
-        browser
-            .click('.sw-media-folder-item')
-            .expect.element(mediaPageObject.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
+        browser.expect.element(mediaPageObject.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
     },
     'verify if the product image is located in its corresponding media folder': (browser) => {
         const page = mediaPage(browser);
@@ -90,7 +82,6 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
-            .waitForElementVisible('.icon--folder-thumbnail-back')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixtures.name);
 
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');

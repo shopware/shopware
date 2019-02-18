@@ -24,10 +24,7 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .waitForElementVisible(page.elements.contextMenu)
-            .click('.sw-context-menu-item__text')
+            .clickContextMenuItem('.sw-context-menu-item__text', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .fillField('input[name=sw-field--product-name]', 'Geändertes, immernoch supergeiles Produkt', true)
             .fillField('.ql-editor', 'Cant you see this is a great product?', true, 'editor')

@@ -16,8 +16,7 @@ module.exports = {
                 targetPath: '#/sw/product-stream/index',
                 mainMenuId: 'sw-product'
             })
-            .waitForElementVisible(`${page.elements.gridRow}--0  ${page.elements.contextMenuButton}`)
-            .assert.containsText(`${page.elements.gridRow}--0`, global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'open product stream details and change the given data': (browser) => {
         const page = productStreamPage(browser);
@@ -25,7 +24,6 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('1st product stream');
@@ -33,7 +31,6 @@ module.exports = {
         browser
             .fillField('input[name=sw-field--productStream-name]', 'Edited product stream', true)
             .fillField('textarea[name=sw-field--productStream-description]', 'The product stream was edited by an e2e test', true)
-            .waitForElementVisible(page.elements.streamSaveAction)
             .click(page.elements.streamSaveAction)
             .checkNotification('The product stream "Edited product stream" was saved.');
     },
@@ -48,7 +45,7 @@ module.exports = {
             })
             .refresh()
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Edited product stream');
-        browser.assert.urlContains('#/sw/product/stream/index')
+        browser.assert.urlContains('#/sw/product/stream/index');
     },
     after: (browser) => {
         browser.end();

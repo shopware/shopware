@@ -17,14 +17,12 @@ class RuleBuilderPageObject extends GeneralPageObject {
         this.browser
             .fillField('input[name=sw-field--productStream-name]', name)
             .fillField('textarea[name=sw-field--productStream-description]', description)
-            .waitForElementVisible(this.elements.streamSaveAction)
             .click(this.elements.streamSaveAction)
             .checkNotification(`The product stream "${name}" has been saved successfully.`);
     }
 
     deleteProductStream(productStreamName) {
         this.browser
-            .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .waitForElementNotPresent(this.elements.loader)
             .clickContextMenuItem('.sw-context-menu-item--danger', this.elements.contextMenuButton, `${this.elements.gridRow}--0` )

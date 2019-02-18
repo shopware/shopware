@@ -16,8 +16,7 @@ module.exports = {
                 subMenuId: 'sw-integration'
             })
             .expect.element(page.elements.listHeadline).to.have.text.that.contains('Welcome to the integration management');
-
-        browser.assert.urlContains('#/sw/integration/index')
+        browser.assert.urlContains('#/sw/integration/index');
     },
     'delete integration and verify deletion': (browser) => {
         const page = integrationPage(browser);

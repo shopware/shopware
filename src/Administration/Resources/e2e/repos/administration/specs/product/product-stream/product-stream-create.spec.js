@@ -14,11 +14,7 @@ module.exports = {
     'create new product stream with basic condition': (browser) => {
         const page = productStreamPage(browser);
 
-        browser
-            .waitForElementPresent('.sw-button__content')
-            .click('.sw-button__content')
-            .waitForElementVisible('.sw-product-stream-detail .sw-card__content')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('New product stream');
+        browser.expect.element(page.elements.smartBarHeader).to.have.text.that.equals('New product stream');
         browser.assert.urlContains('#/sw/product/stream/create');
 
         page.createBasicProductStream('Product stream 1st', 'My first product stream');
@@ -46,7 +42,6 @@ module.exports = {
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream 1st');

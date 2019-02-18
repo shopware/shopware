@@ -19,7 +19,6 @@ module.exports = {
         const page = productStreamPage(browser);
 
         browser
-            .waitForElementPresent('.sw-button__content')
             .assert.urlContains('#/sw/product/stream/index')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product streams');
         browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
@@ -28,12 +27,9 @@ module.exports = {
         const page = productStreamPage(browser);
 
         browser
-            .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
+
             .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .click(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
-            .waitForElementVisible(page.elements.contextMenu)
-            .click(`${page.elements.contextMenu} .sw-context-menu-item__text`)
+            .clickContextMenuItem(`${page.elements.contextMenu} .sw-context-menu-item__text`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },

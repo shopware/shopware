@@ -18,7 +18,6 @@ module.exports = {
     },
     'verify logout': (browser) => {
         browser
-            .waitForElementVisible('.sw-login__container')
             .waitForElementVisible('.sw-login__submit')
             .url(`${browser.launch_url}#/sw/dashboard/index`)
             .waitForElementVisible('.sw-login');

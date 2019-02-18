@@ -25,11 +25,16 @@ module.exports = {
         const page = ruleBuilderPage(browser);
 
         browser
-            .waitForElementVisible(page.elements.columnName)
-            .assert.containsText(page.elements.columnName, global.AdminFixtureService.basicFixture.name)
-            .clickContextMenuItem('.sw-context-menu-item--danger', '.sw-context-button__button').waitForElementVisible('.sw-modal')
-            .assert.containsText('.sw-settings-rule-list__confirm-delete-text', `Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`)
-            .click('.sw-modal__footer button.sw-button--primary')
+            .expect.element(page.elements.columnName).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+
+
+        browser
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton)
+            .waitForElementVisible('.sw-modal')
+            .expect.element('.sw-settings-rule-list__confirm-delete-text').to.have.text.that.contains(`Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`);
+
+
+        browser.click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
             .waitForElementVisible(page.elements.emptyState)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)');

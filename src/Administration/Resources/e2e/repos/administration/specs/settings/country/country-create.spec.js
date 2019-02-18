@@ -21,7 +21,7 @@ module.exports = {
             .assert.urlContains('#/sw/settings/country/create')
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland')
             .waitForElementPresent('input[name=sw-field--country-active]')
-            .tickCheckbox('input[name=sw-field--country-active]', 'on')
+            .tickCheckbox('input[name=sw-field--country-active]', true)
             .click(page.elements.countrySaveAction)
             .checkNotification('Country "1.Niemandsland" has been saved successfully.')
             .assert.urlContains('#/sw/settings/country/detail');

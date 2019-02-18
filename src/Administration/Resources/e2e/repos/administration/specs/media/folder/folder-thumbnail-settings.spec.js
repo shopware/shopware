@@ -17,7 +17,6 @@ module.exports = {
         page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
-            .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
             .click('.sw-media-folder-settings__thumbnails-tab')
             .waitForElementVisible('.sw-media-modal-folder-settings__thumbnails-list-container');
     },
@@ -31,7 +30,6 @@ module.exports = {
         page.setThumbnailSize('800');
 
         browser
-            .waitForElementVisible(page.elements.saveSettingsAction)
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },
@@ -40,13 +38,10 @@ module.exports = {
         page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
-            .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
             .click('.sw-media-folder-settings__thumbnails-tab')
             .waitForElementVisible('.sw-media-modal-folder-settings__thumbnails-list-container')
-            .waitForElementVisible('.sw-media-modal-folder-settings__switch-mode')
             .click('.sw-media-modal-folder-settings__switch-mode')
             .waitForElementVisible('.sw-media-modal-folder-settings__thumbnail-size-entry')
-            .waitForElementVisible('.sw-media-modal-folder-settings__delete-thumbnail')
             .click('.sw-media-modal-folder-settings__delete-thumbnail')
             .waitForElementNotPresent('.sw-media-modal-folder-settings__thumbnail-size-entry');
 
@@ -54,7 +49,6 @@ module.exports = {
 
         browser
             .tickCheckbox('input[name=thumbnail-size-active]', true)
-            .waitForElementVisible(page.elements.saveSettingsAction)
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },
@@ -73,7 +67,6 @@ module.exports = {
         page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
-            .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
             .click('.sw-media-folder-settings__thumbnails-tab')
             .expect.element('input[name=sw-field--configuration-keepAspectRatio]').to.not.be.selected;
 
@@ -90,14 +83,11 @@ module.exports = {
             .tickCheckbox('input[name=sw-field--folder-useParentConfiguration]', false)
             .tickCheckbox('input[name=sw-field--configuration-keepAspectRatio]', true)
             .fillField('input[name=sw-field--configuration-thumbnailQuality]', '75', true)
-            .waitForElementVisible('.sw-media-modal-folder-settings__switch-mode')
             .click('.sw-media-modal-folder-settings__switch-mode')
-            .waitForElementVisible('.sw-media-modal-folder-settings__delete-thumbnail')
             .click('.sw-media-modal-folder-settings__delete-thumbnail')
             .waitForElementNotPresent('.sw-media-modal-folder-settings__thumbnail-size-entry');
 
         browser
-            .waitForElementVisible(page.elements.saveSettingsAction)
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },
@@ -115,7 +105,6 @@ module.exports = {
         page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
-            .waitForElementVisible('.sw-media-folder-settings__thumbnails-tab')
             .click('.sw-media-folder-settings__thumbnails-tab')
             .expect.element('input[name=sw-field--configuration-keepAspectRatio]').to.not.be.selected;
 

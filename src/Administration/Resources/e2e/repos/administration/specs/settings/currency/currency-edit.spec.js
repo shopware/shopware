@@ -24,11 +24,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-currency-list__edit-action', '.sw-context-button__button', `${page.elements.gridRow}--3`)
+            .clickContextMenuItem('.sw-currency-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--3`)
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .clearValue('input[name=sw-field--currency-name]')
             .fillField('input[name=sw-field--currency-name]', 'Yen but true', true)
-            .waitForElementPresent(page.elements.currencySaveAction)
             .click(page.elements.currencySaveAction)
             .checkNotification('Currency "Yen but true" has been saved successfully.')
             .assert.urlContains('#/sw/settings/currency/detail');

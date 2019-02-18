@@ -18,7 +18,6 @@ module.exports = {
         browser
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
-            .waitForElementVisible('.icon--folder-thumbnail-back')
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'upload image to folder and verify placement in folder': (browser) => {
@@ -33,7 +32,6 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
             .click('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.previewItem);
     },
@@ -45,7 +43,6 @@ module.exports = {
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to dissolve "${global.MediaFixtureService.mediaFolderFixture.name}" ?`);
 
         browser
-            .waitForElementVisible('.sw-media-modal-folder-dissolve__confirm')
             .click('.sw-media-modal-folder-dissolve__confirm')
             .checkNotification('Folders have been dissolved successfully', `${page.elements.notification}--1`)
             .checkNotification(`Folder "${global.MediaFixtureService.mediaFolderFixture.name}" has been dissolved successfully`);

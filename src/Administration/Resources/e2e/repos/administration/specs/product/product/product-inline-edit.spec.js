@@ -27,10 +27,9 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
             .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Cyberdyne Systems T800', true)
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .waitForElementNotPresent('.is--inline-editing')
             .refresh()

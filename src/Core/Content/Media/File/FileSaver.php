@@ -259,7 +259,7 @@ class FileSaver
 
     private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media): void
     {
-        $stream = fopen($mediaFile->getFileName(), 'r');
+        $stream = fopen($mediaFile->getFileName(), 'rb');
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
         try {
             $this->filesystem->putStream($path, $stream);

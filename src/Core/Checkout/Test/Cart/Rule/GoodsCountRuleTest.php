@@ -44,7 +44,7 @@ class GoodsCountRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingParameters()
+    public function testValidateWithMissingParameters(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -68,7 +68,7 @@ class GoodsCountRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithoutOptionalOperator()
+    public function testValidateWithoutOptionalOperator(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -91,7 +91,7 @@ class GoodsCountRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testValidateWithMissingCount()
+    public function testValidateWithMissingCount(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -118,7 +118,7 @@ class GoodsCountRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringCount()
+    public function testValidateWithStringCount(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -146,7 +146,7 @@ class GoodsCountRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithFloatCount()
+    public function testValidateWithFloatCount(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -174,7 +174,7 @@ class GoodsCountRuleTest extends TestCase
         }
     }
 
-    public function testAvailableOperators()
+    public function testAvailableOperators(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -234,7 +234,7 @@ class GoodsCountRuleTest extends TestCase
         );
     }
 
-    public function testValidateWithInvalidOperator()
+    public function testValidateWithInvalidOperator(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -262,7 +262,7 @@ class GoodsCountRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

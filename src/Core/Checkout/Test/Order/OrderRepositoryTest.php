@@ -69,7 +69,7 @@ class OrderRepositoryTest extends TestCase
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
-    public function testCreateOrder()
+    public function testCreateOrder(): void
     {
         $orderId = Uuid::uuid4()->getHex();
         $defaultContext = Context::createDefaultContext();
@@ -89,7 +89,7 @@ class OrderRepositoryTest extends TestCase
         static::assertEquals('test@example.com', $order->first()->getOrderCustomer()->getEmail());
     }
 
-    public function testDeleteOrder()
+    public function testDeleteOrder(): void
     {
         $token = Uuid::uuid4()->getHex();
         $cart = new Cart('test', $token);
@@ -168,7 +168,7 @@ class OrderRepositoryTest extends TestCase
         return $customerId;
     }
 
-    private function getOrderData($orderId, $context)
+    private function getOrderData($orderId, $context): array
     {
         $addressId = Uuid::uuid4()->getHex();
         $orderLineItemId = Uuid::uuid4()->getHex();

@@ -42,7 +42,7 @@ class OrRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithInvalidRulesType()
+    public function testValidateWithInvalidRulesType(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -68,7 +68,7 @@ class OrRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -88,7 +88,7 @@ class OrRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testIfRuleWithChildRulesIsConsistent()
+    public function testIfRuleWithChildRulesIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

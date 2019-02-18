@@ -39,7 +39,7 @@ class CachedEntityAggregatorTest extends TestCase
         $this->cache = $this->getContainer()->get('shopware.cache');
     }
 
-    public function testCacheHit()
+    public function testCacheHit(): void
     {
         $dbalReader = $this->createMock(EntityAggregator::class);
 
@@ -101,7 +101,7 @@ class CachedEntityAggregatorTest extends TestCase
         static::assertEquals($databaseEntities, $cachedEntities);
     }
 
-    public function testMissingCacheHit()
+    public function testMissingCacheHit(): void
     {
         $dbalReader = $this->createMock(EntityAggregator::class);
 

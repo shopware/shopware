@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -39,7 +40,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): \Generator {
+    ): Generator {
         if (!$field instanceof TranslationsAssociationField) {
             throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
         }
@@ -86,13 +87,17 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         return $this->map($field, $data, $parameters, $existence);
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
     }
 
-    protected function map(TranslationsAssociationField $field, KeyValuePair $data, WriteParameterBag $parameters, EntityExistence $existence): \Generator
-    {
+    protected function map(
+        TranslationsAssociationField $field,
+        KeyValuePair $data,
+        WriteParameterBag $parameters,
+        EntityExistence $existence
+    ): Generator {
         $key = $data->getKey();
         $value = $data->getValue();
 
@@ -146,7 +151,9 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $languageIds = array_keys($translations);
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
-        if ($field->getReferenceClass()::hasRequiredField() && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+        if ($field->getReferenceClass()::hasRequiredField()
+            && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)
+        ) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;
             throw new MissingSystemTranslationException($path);
         }

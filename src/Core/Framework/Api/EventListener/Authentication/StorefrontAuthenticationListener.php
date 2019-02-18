@@ -39,7 +39,7 @@ class StorefrontAuthenticationListener implements EventSubscriberInterface
         $this->connection = $connection;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => ['validateRequest', 32],

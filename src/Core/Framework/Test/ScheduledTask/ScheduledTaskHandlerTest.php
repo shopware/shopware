@@ -35,7 +35,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
     }
 
-    public function testHandle()
+    public function testHandle(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -67,7 +67,7 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertNotEquals($originalNextExecution->format(DATE_ATOM), $task->getNextExecutionTime()->format(DATE_ATOM));
     }
 
-    public function testHandleOnException()
+    public function testHandleOnException(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -106,7 +106,7 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
 
-    public function testHandleIgnoresIfTaskIsNotFound()
+    public function testHandleIgnoresIfTaskIsNotFound(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -125,7 +125,7 @@ class ScheduledTaskHandlerTest extends TestCase
      *
      * @param string $status
      */
-    public function testHandleIgnoresWhenTaskIsNotQueued(string $status)
+    public function testHandleIgnoresWhenTaskIsNotQueued(string $status): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -154,7 +154,7 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertEquals($status, $task->getStatus());
     }
 
-    public function notQueuedStatus()
+    public function notQueuedStatus(): array
     {
         return [
             [ScheduledTaskDefinition::STATUS_FAILED],

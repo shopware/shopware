@@ -13,7 +13,7 @@ class AudioTypeDetectorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testDetectGif()
+    public function testDetectGif(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'),
@@ -23,7 +23,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectWebp()
+    public function testDetectWebp(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/shopware.webp'),
@@ -33,7 +33,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectSvg()
+    public function testDetectSvg(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/logo-version-professionalplus.svg'),
@@ -43,7 +43,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectJpg()
+    public function testDetectJpg(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'),
@@ -53,7 +53,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectPng()
+    public function testDetectPng(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'),
@@ -63,7 +63,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectDoc()
+    public function testDetectDoc(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/reader.doc'),
@@ -73,7 +73,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectDocx()
+    public function testDetectDocx(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/reader.docx'),
@@ -83,7 +83,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectPdf()
+    public function testDetectPdf(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'),
@@ -93,7 +93,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectAvi()
+    public function testDetectAvi(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.avi'),
@@ -103,7 +103,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectMov()
+    public function testDetectMov(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.mov'),
@@ -113,7 +113,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectMp4()
+    public function testDetectMp4(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.mp4'),
@@ -123,7 +123,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectWebm()
+    public function testDetectWebm(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.webm'),
@@ -133,7 +133,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectIso()
+    public function testDetectIso(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/test.iso'),
@@ -143,7 +143,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
-    public function testDetectMp3()
+    public function testDetectMp3(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/file_example.mp3'),
@@ -153,7 +153,7 @@ class AudioTypeDetectorTest extends TestCase
         static::assertInstanceOf(AudioType::class, $type);
     }
 
-    public function testDetectMp3DoesNotOverwrite()
+    public function testDetectMp3DoesNotOverwrite(): void
     {
         $type = $this->getAudioTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/file_example.mp3'),

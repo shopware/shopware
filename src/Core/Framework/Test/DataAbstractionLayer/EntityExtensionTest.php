@@ -73,7 +73,7 @@ class EntityExtensionTest extends TestCase
         ProductDefinition::getFields()->remove('myCategories');
     }
 
-    public function testICanWriteOneToManyAssociationsExtensions()
+    public function testICanWriteOneToManyAssociationsExtensions(): void
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', true))
             ->addFlags(new Extension());
@@ -110,7 +110,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $count);
     }
 
-    public function testICanReadOneToManyAssociationsExtensionsInBasic()
+    public function testICanReadOneToManyAssociationsExtensionsInBasic(): void
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', true))
             ->addFlags(new Extension());
@@ -133,7 +133,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myPrices'));
     }
 
-    public function testICanReadOneToManyAssociationsExtensionsNotInBasic()
+    public function testICanReadOneToManyAssociationsExtensionsNotInBasic(): void
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
             ->addFlags(new Extension());
@@ -178,7 +178,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myPrices'));
     }
 
-    public function testICanSearchOneToManyAssociationsExtensions()
+    public function testICanSearchOneToManyAssociationsExtensions(): void
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
             ->addFlags(new Extension());
@@ -214,7 +214,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myPrices'));
     }
 
-    public function testICanReadPaginatedOneToManyAssociationsExtensions()
+    public function testICanReadPaginatedOneToManyAssociationsExtensions(): void
     {
         $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
             ->addFlags(new Extension());
@@ -247,7 +247,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(1, $product->getExtension('myPrices'));
     }
 
-    public function testICanWriteManyToManyAssociationsExtensions()
+    public function testICanWriteManyToManyAssociationsExtensions(): void
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
@@ -286,7 +286,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $count);
     }
 
-    public function testICanReadManyToManyAssociationsExtensionsInBasic()
+    public function testICanReadManyToManyAssociationsExtensionsInBasic(): void
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
@@ -311,7 +311,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myCategories'));
     }
 
-    public function testICanReadManyToManyAssociationsExtensionsNotInBasic()
+    public function testICanReadManyToManyAssociationsExtensionsNotInBasic(): void
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
@@ -358,7 +358,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myCategories'));
     }
 
-    public function testICanSearchManyToManyAssociationsExtensions()
+    public function testICanSearchManyToManyAssociationsExtensions(): void
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
@@ -396,7 +396,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myCategories'));
     }
 
-    public function testICanReadPaginatedManyToManyAssociationsExtensions()
+    public function testICanReadPaginatedManyToManyAssociationsExtensions(): void
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,

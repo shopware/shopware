@@ -266,7 +266,7 @@ class MediaUploadControllerTest extends TestCase
         );
     }
 
-    public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent()
+    public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -298,7 +298,7 @@ class MediaUploadControllerTest extends TestCase
         static::assertEquals('EMPTY_MEDIA_FILE_EXCEPTION', $responseData['errors'][0]['code']);
     }
 
-    public function testRenameMediaFileHappyPath()
+    public function testRenameMediaFileHappyPath(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -333,7 +333,7 @@ class MediaUploadControllerTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
     }
 
-    public function testProvideName()
+    public function testProvideName(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -359,7 +359,7 @@ class MediaUploadControllerTest extends TestCase
         static::assertEquals($media->getFileName() . '_(1)', $result['fileName']);
     }
 
-    public function testProvideNameProvidesOwnName()
+    public function testProvideNameProvidesOwnName(): void
     {
         $context = Context::createDefaultContext();
         $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);

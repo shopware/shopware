@@ -30,7 +30,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         $this->indexer = $indexer;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ProgressStartedEvent::NAME => 'startProgress',
@@ -68,7 +68,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('dbal:refresh:index')

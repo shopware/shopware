@@ -122,7 +122,7 @@ class RecalculationService
      * @throws OrderRecalculationException
      * @throws ProductNotFoundException
      */
-    public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context)
+    public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context): void
     {
         $this->validateProduct($productId, $context);
         $lineItem = (new LineItem($productId, ProductCollector::LINE_ITEM_TYPE, $quantity))
@@ -144,7 +144,7 @@ class RecalculationService
      * @throws OrderRecalculationException
      * @throws MissingOrderRelationException
      */
-    public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context)
+    public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context): void
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
@@ -174,7 +174,7 @@ class RecalculationService
      * @throws OrderRecalculationException
      * @throws InconsistentCriteriaIdsException
      */
-    public function replaceOrderAddressWithCustomerAddress(string $orderAddressId, string $customerAddressId, Context $context)
+    public function replaceOrderAddressWithCustomerAddress(string $orderAddressId, string $customerAddressId, Context $context): void
     {
         $this->validateOrderAddress($orderAddressId, $context);
 
@@ -219,7 +219,7 @@ class RecalculationService
     /**
      * @throws OrderRecalculationException
      */
-    private function checkVersion(Entity $entity)
+    private function checkVersion(Entity $entity): void
     {
         if ($entity->getVersionId() === Defaults::LIVE_VERSION) {
             throw new OrderRecalculationException(
@@ -234,7 +234,7 @@ class RecalculationService
      * @throws OrderRecalculationException
      * @throws InconsistentCriteriaIdsException
      */
-    private function validateOrderAddress(string $orderAddressId, Context $context)
+    private function validateOrderAddress(string $orderAddressId, Context $context): void
     {
         $address = $this->orderAddressRepository->search(new Criteria([$orderAddressId]), $context)->get($orderAddressId);
         if (!$address) {

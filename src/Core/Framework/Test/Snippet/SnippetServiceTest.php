@@ -84,7 +84,7 @@ class SnippetServiceTest extends TestCase
         static::assertSame(Defaults::LOCALE_EN_GB_ISO, $result);
     }
 
-    public function testFillBlankSnippets()
+    public function testFillBlankSnippets(): void
     {
         $service = $this->getSnippetService();
         $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'fillBlankSnippets');
@@ -109,7 +109,7 @@ class SnippetServiceTest extends TestCase
         static::assertSame($expectedResult, $result);
     }
 
-    public function testFetchSnippetsFromDatabase()
+    public function testFetchSnippetsFromDatabase(): void
     {
         $sql = file_get_contents(__DIR__ . '/_fixtures/snippets-for-searching.sql');
         $this->getContainer()->get(Connection::class)->executeQuery($sql);
@@ -139,7 +139,7 @@ class SnippetServiceTest extends TestCase
     /**
      * @dataProvider DataProviderForTestMergeSnippetsComparison
      */
-    public function testMergeSnippetsComparison(array $sets, $expectedResult)
+    public function testMergeSnippetsComparison(array $sets, $expectedResult): void
     {
         $service = $this->getSnippetService();
         $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'mergeSnippetsComparison');
@@ -149,7 +149,7 @@ class SnippetServiceTest extends TestCase
         $this->silentAssertArraySubset($expectedResult, $result);
     }
 
-    public function DataProviderForTestMergeSnippetsComparison()
+    public function DataProviderForTestMergeSnippetsComparison(): array
     {
         $parameter = require __DIR__ . '/_fixtures/SnippetComparison.php';
 
@@ -160,7 +160,7 @@ class SnippetServiceTest extends TestCase
         ];
     }
 
-    public function testGetSnippetsFromFiles()
+    public function testGetSnippetsFromFiles(): void
     {
         $service = $this->getSnippetService();
         $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getSnippetsFromFiles');
@@ -183,7 +183,7 @@ class SnippetServiceTest extends TestCase
         $this->silentAssertArraySubset($expectedResult, $result);
     }
 
-    public function testGetSnippetFilesByIso()
+    public function testGetSnippetFilesByIso(): void
     {
         $snippetFiles = [
             new de_AT(),
@@ -207,7 +207,7 @@ class SnippetServiceTest extends TestCase
     /**
      * @dataProvider dataProviderForTestSortSnippets
      */
-    public function testSortSnippets($snippets, $sortParams, $expectedResult)
+    public function testSortSnippets($snippets, $sortParams, $expectedResult): void
     {
         $service = $this->getSnippetService();
         $result = ReflectionHelper::getMethod(SnippetService::class, 'sortSnippets')
@@ -216,7 +216,7 @@ class SnippetServiceTest extends TestCase
         static::assertSame($expectedResult, $result);
     }
 
-    public function dataProviderForTestSortSnippets()
+    public function dataProviderForTestSortSnippets(): array
     {
         $snippets = require __DIR__ . '/_fixtures/testSort/snippetsToSort.php';
 
@@ -243,7 +243,7 @@ class SnippetServiceTest extends TestCase
     /**
      * @dataProvider dataProviderForTestGetList
      */
-    public function testGetList($params, $expectedResult)
+    public function testGetList($params, $expectedResult): void
     {
         $sql = file_get_contents(__DIR__ . '/_fixtures/testGetList/SetSql.sql');
         $this->getContainer()->get(Connection::class)->exec($sql);

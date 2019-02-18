@@ -31,7 +31,7 @@ class ApiClient implements ClientEntityInterface
         return $this->writeAccess;
     }
 
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }

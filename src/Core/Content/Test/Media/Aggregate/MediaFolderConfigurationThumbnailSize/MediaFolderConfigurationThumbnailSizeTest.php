@@ -12,7 +12,7 @@ class MediaFolderConfigurationThumbnailSizeTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testCreateConfiguration()
+    public function testCreateConfiguration(): void
     {
         $context = Context::createDefaultContext();
         $repository = $this->getContainer()->get('media_folder_configuration.repository');
@@ -42,7 +42,7 @@ class MediaFolderConfigurationThumbnailSizeTest extends TestCase
         static::assertNotNull($configuration->getMediaThumbnailSizes()->get($sizeId));
     }
 
-    public function testCreateThumbnailSize()
+    public function testCreateThumbnailSize(): void
     {
         $context = Context::createDefaultContext();
         $repository = $this->getContainer()->get('media_thumbnail_size.repository');

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -23,7 +24,7 @@ class IdFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): \Generator {
+    ): Generator {
         if (!$field instanceof IdField) {
             throw new InvalidSerializerFieldException(IdField::class, $field);
         }
@@ -38,7 +39,7 @@ class IdFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromStringToBytes($value);
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): ?string
     {
         if ($value === null) {
             return null;

@@ -64,7 +64,7 @@ class MonitoringBusDecorator implements MessageBusInterface
         return $message instanceof Envelope ? get_class($message->getMessage()) : get_class($message);
     }
 
-    private function incrementMessageQueueSize(string $name)
+    private function incrementMessageQueueSize(string $name): void
     {
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
@@ -92,7 +92,7 @@ class MonitoringBusDecorator implements MessageBusInterface
         ], $context);
     }
 
-    private function decrementMessageQueueSize(string $name)
+    private function decrementMessageQueueSize(string $name): void
     {
         $context = Context::createDefaultContext();
         $criteria = new Criteria();

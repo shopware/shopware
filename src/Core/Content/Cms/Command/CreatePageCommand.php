@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Command;
 
+use Faker\Factory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -50,8 +51,12 @@ class CreatePageCommand extends Command
      */
     private $mediaRepository;
 
-    public function __construct(EntityRepositoryInterface $cmsPageRepository, EntityRepositoryInterface $productRepository, EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $mediaRepository)
-    {
+    public function __construct(
+        EntityRepositoryInterface $cmsPageRepository,
+        EntityRepositoryInterface $productRepository,
+        EntityRepositoryInterface $categoryRepository,
+        EntityRepositoryInterface $mediaRepository
+    ) {
         parent::__construct();
         $this->cmsPageRepository = $cmsPageRepository;
         $this->productRepository = $productRepository;
@@ -59,7 +64,7 @@ class CreatePageCommand extends Command
         $this->mediaRepository = $mediaRepository;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption('reset', null, InputOption::VALUE_NONE, 'Reset all pages');
     }
@@ -70,7 +75,7 @@ class CreatePageCommand extends Command
             $this->resetPages();
         }
 
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $page = [
             'id' => Uuid::uuid4()->getHex(),

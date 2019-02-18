@@ -30,7 +30,7 @@ class TaskRegistry
         $this->scheduledTaskRepository = $scheduledTaskRepository;
     }
 
-    public function registerTasks()
+    public function registerTasks(): void
     {
         /** @var ScheduledTaskCollection $alreadyRegisteredTasks */
         $alreadyRegisteredTasks = $this->scheduledTaskRepository

@@ -237,7 +237,7 @@ class StateMachineRegistry
         string $transitionName,
         StateMachineStateEntity $fromPlace,
         StateMachineStateEntity $toPlace,
-        Context $context)
+        Context $context): void
     {
         $this->stateMachineHistoryRepository->create([
             [

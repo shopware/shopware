@@ -31,7 +31,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
         $this->generator = new EntityCacheKeyGenerator();
     }
 
-    public function testGenerateAssociationCacheTags()
+    public function testGenerateAssociationCacheTags(): void
     {
         $context = Context::createDefaultContext();
 
@@ -103,7 +103,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertContains('category-' . $id2, $tags);
     }
 
-    public function testGenerateSearchCacheTags()
+    public function testGenerateSearchCacheTags(): void
     {
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.name'));

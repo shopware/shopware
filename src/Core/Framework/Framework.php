@@ -59,7 +59,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
     }
 
-    public function boot()
+    public function boot(): void
     {
         parent::boot();
 

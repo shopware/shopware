@@ -42,7 +42,7 @@ class MigrationWithBackwardTrigger extends MigrationStep
         $this->removeTrigger($connection, self::TRIGGER_NAME);
     }
 
-    private function getTrigger()
+    private function getTrigger(): array
     {
         return [
             'name' => self::TRIGGER_NAME,

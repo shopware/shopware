@@ -17,7 +17,7 @@ class SnippetFilterFactoryTest extends TestCase
     /**
      * @dataProvider dataProviderForTestGetFilter
      */
-    public function testGetFilter($filterName, $expectedResult, $expectException)
+    public function testGetFilter($filterName, $expectedResult, $expectException): void
     {
         $factory = $this->getFactory();
 

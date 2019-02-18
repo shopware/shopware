@@ -88,7 +88,7 @@ DROP TABLE IF EXISTS `root_sub`;
         ');
     }
 
-    public function testWrite()
+    public function testWrite(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -121,7 +121,7 @@ DROP TABLE IF EXISTS `root_sub`;
         $this->getContainer()->get(DefinitionRegistry::class)->remove(SubDefinition::class);
     }
 
-    public function testRead()
+    public function testRead(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -149,7 +149,7 @@ DROP TABLE IF EXISTS `root_sub`;
         static::assertSame('sub 1', $sub->get('name'));
     }
 
-    public function testSearch()
+    public function testSearch(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -185,7 +185,7 @@ DROP TABLE IF EXISTS `root_sub`;
         static::assertTrue($result->has($id2));
     }
 
-    public function testAggregate()
+    public function testAggregate(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -227,7 +227,7 @@ DROP TABLE IF EXISTS `root_sub`;
         static::assertEquals(11, $sum->getSum());
     }
 
-    public function testCreateVersioning()
+    public function testCreateVersioning(): void
     {
         $id = Uuid::uuid4()->getHex();
 

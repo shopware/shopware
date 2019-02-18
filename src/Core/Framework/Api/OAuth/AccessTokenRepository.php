@@ -4,23 +4,15 @@ namespace Shopware\Core\Framework\Api\OAuth;
 
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
     /**
-     * Create a new access token
-     *
-     * @param ClientEntityInterface  $clientEntity
-     * @param ScopeEntityInterface[] $scopes
-     * @param mixed                  $userIdentifier
-     *
-     * @return AccessTokenEntityInterface
+     * {@inheritdoc}
      */
-    public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
+    public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null): AccessTokenEntityInterface
     {
         $token = new AccessToken($clientEntity, $scopes, $userIdentifier);
 
@@ -32,33 +24,23 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     }
 
     /**
-     * Persists a new access token to permanent storage.
-     *
-     * @param AccessTokenEntityInterface $accessTokenEntity
-     *
-     * @throws UniqueTokenIdentifierConstraintViolationException
+     * {@inheritdoc}
      */
-    public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity)
+    public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
     }
 
     /**
-     * Revoke an access token.
-     *
-     * @param string $tokenId
+     * {@inheritdoc}
      */
-    public function revokeAccessToken($tokenId)
+    public function revokeAccessToken($tokenId): void
     {
     }
 
     /**
-     * Check if the access token has been revoked.
-     *
-     * @param string $tokenId
-     *
-     * @return bool Return true if this token has been revoked
+     * {@inheritdoc}
      */
-    public function isAccessTokenRevoked($tokenId)
+    public function isAccessTokenRevoked($tokenId): bool
     {
         return false;
     }

@@ -11,7 +11,7 @@ class MigrationNameAndTimestampTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testMigrationNameAndTimestamp()
+    public function testMigrationNameAndTimestamp(): void
     {
         /** @var MigrationCollection $migrationCollection */
         $migrations = $this->getContainer()->get(MigrationCollection::class)->getMigrationCollection();

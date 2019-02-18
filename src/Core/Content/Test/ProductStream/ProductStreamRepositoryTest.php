@@ -31,7 +31,7 @@ class ProductStreamRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testCreateEntity()
+    public function testCreateEntity(): void
     {
         $id = Uuid::uuid4()->getHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream']], $this->context);
@@ -44,7 +44,7 @@ class ProductStreamRepositoryTest extends TestCase
         static::assertSame($id, $entity->getId());
     }
 
-    public function testUpdateEntity()
+    public function testUpdateEntity(): void
     {
         $id = Uuid::uuid4()->getHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream']], $this->context);
@@ -58,7 +58,7 @@ class ProductStreamRepositoryTest extends TestCase
         static::assertSame($id, $entity->getId());
     }
 
-    public function testCreateEntityWithFilters()
+    public function testCreateEntityWithFilters(): void
     {
         $id = Uuid::uuid4()->getHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream', 'filters' => [['type' => 'contains', 'field' => 'name', 'value' => 'awesome']]]], $this->context);
@@ -71,7 +71,7 @@ class ProductStreamRepositoryTest extends TestCase
         static::assertSame($id, $entity->getId());
     }
 
-    public function testCreateEntityWithMultiFilters()
+    public function testCreateEntityWithMultiFilters(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -115,7 +115,7 @@ class ProductStreamRepositoryTest extends TestCase
         static::assertEquals($data['filters'], $entity->getApiFilter());
     }
 
-    public function testFetchFilters()
+    public function testFetchFilters(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -162,7 +162,7 @@ class ProductStreamRepositoryTest extends TestCase
         static::assertCount(2, $entity->getFilters()->filterByProperty('type', 'multi')->filterByProperty('operator', 'OR'));
     }
 
-    public function testFetchWithQueriesFilter()
+    public function testFetchWithQueriesFilter(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [

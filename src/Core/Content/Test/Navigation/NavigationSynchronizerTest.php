@@ -34,7 +34,7 @@ class NavigationSynchronizerTest extends TestCase
         $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM navigation');
     }
 
-    public function testAddCategory()
+    public function testAddCategory(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -136,7 +136,7 @@ class NavigationSynchronizerTest extends TestCase
         }
     }
 
-    public function testDeleteCategory()
+    public function testDeleteCategory(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
@@ -199,7 +199,7 @@ class NavigationSynchronizerTest extends TestCase
         static::assertCount(0, $navigations);
     }
 
-    public function testMoveCategory()
+    public function testMoveCategory(): void
     {
         $id1 = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();

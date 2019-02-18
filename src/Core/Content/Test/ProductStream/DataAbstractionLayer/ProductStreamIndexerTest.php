@@ -74,7 +74,7 @@ class ProductStreamIndexerTest extends TestCase
         );
     }
 
-    public function testValidRefresh()
+    public function testValidRefresh(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepo->create(
@@ -116,7 +116,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertFalse($entity->isInvalid());
     }
 
-    public function testWithChildren()
+    public function testWithChildren(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepo->create(
@@ -168,7 +168,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertFalse($entity->isInvalid());
     }
 
-    public function testInvalidType()
+    public function testInvalidType(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepo->create(
@@ -208,7 +208,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertTrue($entity->isInvalid());
     }
 
-    public function testEmptyField()
+    public function testEmptyField(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepo->create(
@@ -248,7 +248,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertTrue($entity->isInvalid());
     }
 
-    public function testEmptyValue()
+    public function testEmptyValue(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepo->create(
@@ -288,7 +288,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertTrue($entity->isInvalid());
     }
 
-    public function testWithParameters()
+    public function testWithParameters(): void
     {
         $productId = Uuid::uuid4()->getHex();
         $this->productRepo->create(

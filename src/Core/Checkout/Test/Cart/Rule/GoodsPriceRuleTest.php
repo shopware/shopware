@@ -43,7 +43,7 @@ class GoodsPriceRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingParameters()
+    public function testValidateWithMissingParameters(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -67,7 +67,7 @@ class GoodsPriceRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithoutOptionalOperator()
+    public function testValidateWithoutOptionalOperator(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -90,7 +90,7 @@ class GoodsPriceRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testValidateWithMissingAmount()
+    public function testValidateWithMissingAmount(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -117,7 +117,7 @@ class GoodsPriceRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringAmount()
+    public function testValidateWithStringAmount(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -141,7 +141,7 @@ class GoodsPriceRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testValidateWithIntAmount()
+    public function testValidateWithIntAmount(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -165,7 +165,7 @@ class GoodsPriceRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testAvailableOperators()
+    public function testAvailableOperators(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -225,7 +225,7 @@ class GoodsPriceRuleTest extends TestCase
         );
     }
 
-    public function testValidateWithInvalidOperator()
+    public function testValidateWithInvalidOperator(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -253,7 +253,7 @@ class GoodsPriceRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

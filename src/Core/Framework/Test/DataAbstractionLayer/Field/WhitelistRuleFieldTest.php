@@ -39,7 +39,7 @@ class WhitelistRuleFieldTest extends TestCase
         parent::setUp();
     }
 
-    public function testReadEntityWithWhitelist()
+    public function testReadEntityWithWhitelist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -119,7 +119,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertTrue($products->has($product3));
     }
 
-    public function testInheritedWhitelist()
+    public function testInheritedWhitelist(): void
     {
         $parentId1 = Uuid::uuid4()->getHex();
         $productId1 = Uuid::uuid4()->getHex();
@@ -218,7 +218,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertTrue($products->has($productId3));
     }
 
-    public function testSearchWhitelistedRule()
+    public function testSearchWhitelistedRule(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -341,7 +341,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertContains($product6, $result->getIds());
     }
 
-    public function testSearchWithOneToManyWhitelist()
+    public function testSearchWithOneToManyWhitelist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -423,7 +423,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertContains($manufacturerId2, $result->getIds());
     }
 
-    public function testSearchWithManyToManyWhitelist()
+    public function testSearchWithManyToManyWhitelist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -518,7 +518,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertContains($categoryId2, $result->getIds());
     }
 
-    public function testAggregationWhitelist()
+    public function testAggregationWhitelist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -585,7 +585,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertContains($product3, $result->getValues());
     }
 
-    public function testAggregationWithOneToManyWhitelist()
+    public function testAggregationWithOneToManyWhitelist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -650,7 +650,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertContains($product3, $result->getValues());
     }
 
-    public function testAggregationWithManyToManyWhitelist()
+    public function testAggregationWithManyToManyWhitelist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -725,7 +725,7 @@ class WhitelistRuleFieldTest extends TestCase
         static::assertContains($product3, $result->getValues());
     }
 
-    private function createContextWithRules(array $ruleIds = [])
+    private function createContextWithRules(array $ruleIds = []): Context
     {
         $source = new SourceContext('cli');
         $source->setSalesChannelId(Defaults::SALES_CHANNEL);

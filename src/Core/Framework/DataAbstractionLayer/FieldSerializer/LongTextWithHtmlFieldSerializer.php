@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
@@ -42,7 +43,7 @@ class LongTextWithHtmlFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): \Generator {
+    ): Generator {
         if (!$field instanceof LongTextWithHtmlField) {
             throw new InvalidSerializerFieldException(LongTextWithHtmlField::class, $field);
         }
@@ -59,7 +60,7 @@ class LongTextWithHtmlFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): ?string
     {
         return $value === null ? null : (string) $value;
     }

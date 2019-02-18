@@ -10,7 +10,7 @@ use Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber;
 
 class PluginLifecycleSubscriberTest extends TestCase
 {
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents(): void
     {
         $events = PluginLifecycleSubscriber::getSubscribedEvents();
 
@@ -21,7 +21,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         static::assertEquals('registerScheduledTasked', $events[PluginPostDeactivateEvent::NAME]);
     }
 
-    public function testRegisterScheduledTasks()
+    public function testRegisterScheduledTasks(): void
     {
         $registry = $this->createMock(TaskRegistry::class);
         $registry->expects(static::once())

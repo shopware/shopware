@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -18,8 +19,12 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
         return TranslatedField::class;
     }
 
-    public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
-    {
+    public function encode(
+        Field $field,
+        EntityExistence $existence,
+        KeyValuePair $data,
+        WriteParameterBag $parameters
+    ): Generator {
         if (!$field instanceof TranslatedField) {
             throw new InvalidSerializerFieldException(TranslatedField::class, $field);
         }
@@ -49,7 +54,7 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
         ];
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): ?string
     {
         return $value === null ? null : (string) $value;
     }

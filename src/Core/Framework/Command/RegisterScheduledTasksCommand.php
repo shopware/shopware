@@ -21,7 +21,7 @@ class RegisterScheduledTasksCommand extends Command
         $this->taskRegistry = $taskRegistry;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('scheduled-task:register')
             ->setDescription('Registers all available scheduled tasks.');

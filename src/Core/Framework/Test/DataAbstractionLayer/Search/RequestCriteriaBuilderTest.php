@@ -25,7 +25,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
     }
 
-    public function testAssociationsAddedToCriteria()
+    public function testAssociationsAddedToCriteria(): void
     {
         $body = [
             'limit' => 10,

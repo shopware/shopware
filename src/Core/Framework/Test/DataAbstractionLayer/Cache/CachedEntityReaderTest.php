@@ -33,7 +33,7 @@ class CachedEntityReaderTest extends TestCase
         $this->cache = $this->getContainer()->get('shopware.cache');
     }
 
-    public function testCacheHit()
+    public function testCacheHit(): void
     {
         $dbalReader = $this->createMock(EntityReader::class);
 
@@ -90,7 +90,7 @@ class CachedEntityReaderTest extends TestCase
     /**
      * Read two ids without filter, then read same ids with one of them filtered.
      */
-    public function testCacheHitWithFilters()
+    public function testCacheHitWithFilters(): void
     {
         $dbalReader = $this->createMock(EntityReader::class);
 

@@ -67,7 +67,7 @@ trait EntityFixturesBase
             ->get($fixtureData[$fixtureName]['id']);
     }
 
-    private static function ensureATransactionIsActive()
+    private static function ensureATransactionIsActive(): void
     {
         /** @var Connection $connection */
         $connection = KernelLifecycleManager::getKernel()

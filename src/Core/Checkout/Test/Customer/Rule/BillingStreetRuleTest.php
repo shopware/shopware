@@ -42,7 +42,7 @@ class BillingStreetRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidationWithMissingStreetName()
+    public function testValidationWithMissingStreetName(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -66,7 +66,7 @@ class BillingStreetRuleTest extends TestCase
         }
     }
 
-    public function testValidationWithEmptyStreetName()
+    public function testValidationWithEmptyStreetName(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -93,7 +93,7 @@ class BillingStreetRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidStreetNameType()
+    public function testValidateWithInvalidStreetNameType(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -120,7 +120,7 @@ class BillingStreetRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

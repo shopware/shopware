@@ -34,7 +34,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testDeleteMediaEntityWithoutThumbnails()
+    public function testDeleteMediaEntityWithoutThumbnails(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
 
@@ -65,7 +65,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
     }
 
-    public function testDeleteMediaEntityWithThumbnails()
+    public function testDeleteMediaEntityWithThumbnails(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
         $this->context->getWriteProtection()->allow(
@@ -109,7 +109,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
 
-    public function testDeleteMediaDeletesOnlyFilesForGivenMediaId()
+    public function testDeleteMediaDeletesOnlyFilesForGivenMediaId(): void
     {
         $firstId = Uuid::uuid4()->getHex();
         $secondId = Uuid::uuid4()->getHex();
@@ -160,7 +160,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($secondPath));
     }
 
-    public function testDeleteForUnusedIds()
+    public function testDeleteForUnusedIds(): void
     {
         $firstId = Uuid::uuid4()->getHex();
 
@@ -169,7 +169,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertNull($event->getEventByDefinition(MediaDefinition::class));
     }
 
-    public function testDeleteForMediaWithoutFile()
+    public function testDeleteForMediaWithoutFile(): void
     {
         $firstId = Uuid::uuid4()->getHex();
 
@@ -190,7 +190,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);
     }
 
-    public function testDeleteWithAlreadyDeletedFile()
+    public function testDeleteWithAlreadyDeletedFile(): void
     {
         $firstId = Uuid::uuid4()->getHex();
 

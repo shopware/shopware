@@ -26,7 +26,7 @@ class WorkflowDumpCommand extends Command
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDefinition([

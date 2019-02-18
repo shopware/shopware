@@ -67,7 +67,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         yield __FUNCTION__ => null;
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
     }

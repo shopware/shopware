@@ -33,7 +33,7 @@ class FileNameProviderTest extends TestCase
         $this->setFixtureContext($this->context);
     }
 
-    public function testItReturnsOriginalName()
+    public function testItReturnsOriginalName(): void
     {
         $media = $this->getEmptyMedia();
         $original = 'test';
@@ -43,7 +43,7 @@ class FileNameProviderTest extends TestCase
         static::assertEquals($original, $new);
     }
 
-    public function testItGeneratesNewName()
+    public function testItGeneratesNewName(): void
     {
         $existing = $this->getJpg();
 
@@ -59,7 +59,7 @@ class FileNameProviderTest extends TestCase
         static::assertEquals($existing->getFileName() . '_(1)', $new);
     }
 
-    public function testItReturnsOriginalNameOnNewExtension()
+    public function testItReturnsOriginalNameOnNewExtension(): void
     {
         $existing = $this->getJpg();
 
@@ -75,7 +75,7 @@ class FileNameProviderTest extends TestCase
         static::assertEquals($existing->getFileName(), $new);
     }
 
-    public function testItGeneratesNewNameWithoutMediaEntity()
+    public function testItGeneratesNewNameWithoutMediaEntity(): void
     {
         $existing = $this->getJpg();
 

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Exception\MethodNotOverriddenException;
 
 abstract class AbstractFilter
 {
-    public function getName()
+    public function getName(): string
     {
         throw new MethodNotOverriddenException(__METHOD__, __CLASS__);
     }

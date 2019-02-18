@@ -19,7 +19,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 class InvalidateCacheSubscriberTest extends TestCase
 {
-    public function testInvalidate()
+    public function testInvalidate(): void
     {
         $id = Uuid::uuid4()->getHex();
 

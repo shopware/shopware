@@ -59,7 +59,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         ');
     }
 
-    public function testDeleteOneToManyIfParentHasVersionId()
+    public function testDeleteOneToManyIfParentHasVersionId(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -102,7 +102,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         static::assertCount(0, $children);
     }
 
-    public function testDeleteOneToManyIfChildHasVersionId()
+    public function testDeleteOneToManyIfChildHasVersionId(): void
     {
         $id = Uuid::uuid4()->getHex();
 

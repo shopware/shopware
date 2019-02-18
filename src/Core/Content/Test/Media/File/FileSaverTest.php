@@ -320,7 +320,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver->renameMedia(Uuid::uuid4()->getHex(), 'new file destination', $context);
     }
 
-    public function testRenameMediaThrowsExceptionIfMediaHasNoFileAttached()
+    public function testRenameMediaThrowsExceptionIfMediaHasNoFileAttached(): void
     {
         $this->expectException(MissingFileException::class);
 

@@ -36,7 +36,7 @@ class NaturalSortingTest extends TestCase
     /**
      * @dataProvider sortingFixtures
      */
-    public function testSorting(array $naturalOrder, array $rawOrder)
+    public function testSorting(array $naturalOrder, array $rawOrder): void
     {
         $groupId = Uuid::uuid4()->getHex();
         //created group with provided options
@@ -83,7 +83,7 @@ class NaturalSortingTest extends TestCase
         static::assertEquals($naturalOrder, array_values($actual));
     }
 
-    public function sortingFixtures()
+    public function sortingFixtures(): array
     {
         return [
             [

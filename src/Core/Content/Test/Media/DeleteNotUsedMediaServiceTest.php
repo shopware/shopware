@@ -39,7 +39,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         );
     }
 
-    public function testCountNotUsedMedia()
+    public function testCountNotUsedMedia(): void
     {
         $this->setFixtureContext($this->context);
 
@@ -51,7 +51,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         static::assertEquals(2, $this->deleteMediaService->countNotUsedMedia($this->context));
     }
 
-    public function testDeleteNotUsedMedia()
+    public function testDeleteNotUsedMedia(): void
     {
         $this->setFixtureContext($this->context);
 

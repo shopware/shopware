@@ -20,7 +20,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
         $this->indexer = $indexer;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             RuleEvents::RULE_LOADED_EVENT => 'unserialize',

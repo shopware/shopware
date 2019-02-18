@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
@@ -34,8 +35,11 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
      */
     protected $serializer;
 
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ConstraintBuilder $constraintBuilder,
+        ValidatorInterface $validator,
+        SerializerInterface $serializer
+    ) {
         $this->constraintBuilder = $constraintBuilder;
         $this->validator = $validator;
         $this->serializer = $serializer;
@@ -51,7 +55,7 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): \Generator {
+    ): Generator {
         if (!$field instanceof PriceRulesJsonField) {
             throw new InvalidSerializerFieldException(PriceRulesJsonField::class, $field);
         }
@@ -76,7 +80,7 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $value;
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): PriceRuleCollection
     {
         $value = json_decode((string) $value, true);
 

@@ -13,9 +13,6 @@ abstract class AbstractFilesystem implements FilesystemInterface
      */
     protected $filesystem;
 
-    /**
-     * @param FilesystemInterface $filesystem
-     */
     public function __construct(FilesystemInterface $filesystem)
     {
         $this->filesystem = $filesystem;
@@ -24,7 +21,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function has($path)
+    public function has($path): bool
     {
         $path = $this->preparePath($path);
 
@@ -54,7 +51,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function listContents($directory = '', $recursive = false)
+    public function listContents($directory = '', $recursive = false): array
     {
         $directory = $this->preparePath($directory);
 
@@ -129,7 +126,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function write($path, $contents, array $config = [])
+    public function write($path, $contents, array $config = []): bool
     {
         $path = $this->preparePath($path);
 
@@ -139,7 +136,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function writeStream($path, $resource, array $config = [])
+    public function writeStream($path, $resource, array $config = []): bool
     {
         $path = $this->preparePath($path);
 
@@ -149,7 +146,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function update($path, $contents, array $config = [])
+    public function update($path, $contents, array $config = []): bool
     {
         $path = $this->preparePath($path);
 
@@ -159,7 +156,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function updateStream($path, $resource, array $config = [])
+    public function updateStream($path, $resource, array $config = []): bool
     {
         $path = $this->preparePath($path);
 
@@ -169,7 +166,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function rename($path, $newpath)
+    public function rename($path, $newpath): bool
     {
         $path = $this->preparePath($path);
         $newpath = $this->preparePath($newpath);
@@ -180,7 +177,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function copy($path, $newpath)
+    public function copy($path, $newpath): bool
     {
         $path = $this->preparePath($path);
         $newpath = $this->preparePath($newpath);
@@ -191,7 +188,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function delete($path)
+    public function delete($path): bool
     {
         $path = $this->preparePath($path);
 
@@ -201,7 +198,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteDir($dirname)
+    public function deleteDir($dirname): bool
     {
         $dirname = $this->preparePath($dirname);
 
@@ -211,7 +208,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function createDir($dirname, array $config = [])
+    public function createDir($dirname, array $config = []): bool
     {
         $dirname = $this->preparePath($dirname);
 
@@ -221,7 +218,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function setVisibility($path, $visibility)
+    public function setVisibility($path, $visibility): bool
     {
         $path = $this->preparePath($path);
 
@@ -231,7 +228,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function put($path, $contents, array $config = [])
+    public function put($path, $contents, array $config = []): bool
     {
         $path = $this->preparePath($path);
 
@@ -241,7 +238,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function putStream($path, $resource, array $config = [])
+    public function putStream($path, $resource, array $config = []): bool
     {
         $path = $this->preparePath($path);
 
@@ -261,7 +258,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function get($path, Handler $handler = null)
+    public function get($path, Handler $handler = null): Handler
     {
         $path = $this->preparePath($path);
 

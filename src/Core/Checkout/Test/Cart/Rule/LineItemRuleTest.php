@@ -41,7 +41,7 @@ class LineItemRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingIdentifiers()
+    public function testValidateWithMissingIdentifiers(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -65,7 +65,7 @@ class LineItemRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyIdentifiers()
+    public function testValidateWithEmptyIdentifiers(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -92,7 +92,7 @@ class LineItemRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringIdentifiers()
+    public function testValidateWithStringIdentifiers(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -118,7 +118,7 @@ class LineItemRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidArrayIdentifiers()
+    public function testValidateWithInvalidArrayIdentifiers(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -146,7 +146,7 @@ class LineItemRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

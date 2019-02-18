@@ -16,7 +16,7 @@ class FilterTest extends TestCase
 {
     use AssertArraySubsetBehaviour;
 
-    public function testGetFiltersName()
+    public function testGetFiltersName(): void
     {
         $authorFilter = new AuthorFilter();
         $customFilter = new CustomFilter();
@@ -36,7 +36,7 @@ class FilterTest extends TestCase
     /**
      * @dataProvider dataProviderForTestFiltersSupports
      */
-    public function testFiltersSupports(SnippetFilterInterface $filter, $filterName, $expectedResult)
+    public function testFiltersSupports(SnippetFilterInterface $filter, $filterName, $expectedResult): void
     {
         static::assertSame($expectedResult, $filter->supports($filterName));
     }
@@ -73,7 +73,7 @@ class FilterTest extends TestCase
     /**
      * @dataProvider dataProviderForTestSnippetsFilter
      */
-    public function testSnippetsFilter(SnippetFilterInterface $filter, $params, $additionalData, $expectedResult)
+    public function testSnippetsFilter(SnippetFilterInterface $filter, $params, $additionalData, $expectedResult): void
     {
         $snippets = require __DIR__ . '/../_fixtures/testFilterSnippets/snippetsToFilter.php';
 

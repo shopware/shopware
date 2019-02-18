@@ -27,7 +27,7 @@ class CachedEntitySearcherTest extends TestCase
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testCacheHits(Criteria $criteria, array $expectedTags)
+    public function testCacheHits(Criteria $criteria, array $expectedTags): void
     {
         $expectedTags = array_combine($expectedTags, $expectedTags);
 
@@ -77,7 +77,7 @@ class CachedEntitySearcherTest extends TestCase
         static::assertEquals($expectedTags, $metaData['tags']);
     }
 
-    public function searchCases()
+    public function searchCases(): array
     {
         return [
             //test case that filters considered

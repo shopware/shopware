@@ -18,7 +18,7 @@ class MonitoringBusDecoratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testItDispatchesToTheInnerBus()
+    public function testItDispatchesToTheInnerBus(): void
     {
         $testMsg = new TestMessage();
 
@@ -35,7 +35,7 @@ class MonitoringBusDecoratorTest extends TestCase
         $decoratedBus->dispatch($testMsg);
     }
 
-    public function testItCountsOutgoingMessages()
+    public function testItCountsOutgoingMessages(): void
     {
         $testMsg = new TestMessage();
 
@@ -60,7 +60,7 @@ class MonitoringBusDecoratorTest extends TestCase
         static::assertEquals(1, $queueStatus->getSize());
     }
 
-    public function testItCountsIncomingMessages()
+    public function testItCountsIncomingMessages(): void
     {
         $context = Context::createDefaultContext();
 
@@ -95,7 +95,7 @@ class MonitoringBusDecoratorTest extends TestCase
         static::assertEquals(0, $queueStatus->getSize());
     }
 
-    public function testOutgoingEnvelopes()
+    public function testOutgoingEnvelopes(): void
     {
         $testMsg = new TestMessage();
 

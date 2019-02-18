@@ -29,7 +29,7 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
         $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             EntityWrittenContainerEvent::NAME => [

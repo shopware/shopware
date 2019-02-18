@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Command;
 
+use Generator;
+use InvalidArgumentException;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
@@ -44,17 +46,17 @@ class MigrationCommand extends Command
         return 'database:migrate';
     }
 
-    protected function getMigrationGenerator(?int $until, ?int $limit): \Generator
+    protected function getMigrationGenerator(?int $until, ?int $limit): Generator
     {
         yield from $this->runner->migrate($until, $limit);
     }
 
-    protected function getMigrationsCount(?int $until, ?int $limit)
+    protected function getMigrationsCount(?int $until, ?int $limit): int
     {
         return \count($this->runner->getExecutableMigrations($until, $limit));
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName($this->getMigrationCommandName())
             ->addArgument('identifier', InputArgument::OPTIONAL, 'identifier to determine which migrations to run', MigrationCollectionLoader::SHOPWARE_CORE_MIGRATION_IDENTIFIER)
@@ -66,7 +68,7 @@ class MigrationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if (!$input->getArgument('until') && !$input->getOption('all')) {
-            throw new \InvalidArgumentException('missing timestamp cap or --all option');
+            throw new InvalidArgumentException('missing timestamp cap or --all option');
         }
 
         $this->io = new SymfonyStyle($input, $output);

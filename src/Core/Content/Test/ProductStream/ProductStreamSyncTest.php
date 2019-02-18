@@ -24,7 +24,7 @@ class ProductStreamSyncTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testSyncProductStream()
+    public function testSyncProductStream(): void
     {
         $id1 = Uuid::uuid4();
         $id2 = Uuid::uuid4();

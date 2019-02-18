@@ -143,7 +143,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    public function testHappyPathWithGivenFolderName()
+    public function testHappyPathWithGivenFolderName(): void
     {
         $this->createValidMediaFiles();
 
@@ -164,7 +164,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    public function testSkipsMediaEntitiesFromDifferentFolders()
+    public function testSkipsMediaEntitiesFromDifferentFolders(): void
     {
         $this->createValidMediaFiles();
         $this->mediaFolderRepository->create([
@@ -187,7 +187,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         }
     }
 
-    public function testCommandAbortsIfNoFolderCanBeFound()
+    public function testCommandAbortsIfNoFolderCanBeFound(): void
     {
         $this->expectException(\UnexpectedValueException::class);
         $this->expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');

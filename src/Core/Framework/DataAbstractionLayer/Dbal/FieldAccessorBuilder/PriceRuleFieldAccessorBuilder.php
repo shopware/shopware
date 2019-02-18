@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 
 class PriceRuleFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
-    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?FieldAccessor
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
         if (!$field instanceof PriceRulesJsonField) {
             return null;
@@ -35,6 +35,6 @@ class PriceRuleFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $parsed = sprintf('`%s`.`%s`', $root, 'price');
         $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s"))', $parsed, '$.gross');
 
-        return new FieldAccessor(sprintf('(CAST(COALESCE(%s) AS DECIMAL))', implode(',', $select)));
+        return sprintf('(CAST(COALESCE(%s) AS DECIMAL))', implode(',', $select));
     }
 }

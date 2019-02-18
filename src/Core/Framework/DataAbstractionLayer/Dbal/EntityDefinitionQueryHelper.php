@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -166,7 +165,7 @@ class EntityDefinitionQueryHelper
      *
      * @throws UnmappedFieldException
      */
-    public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): FieldAccessor
+    public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): string
     {
         $fieldName = str_replace('extensions.', '', $fieldName);
 
@@ -418,12 +417,9 @@ class EntityDefinitionQueryHelper
                 continue;
             }
 
-            $accessor = $this->getTranslationFieldAccessor($field->getStorageName(), $chain);
-            $accessor->addParametersToQuery($query);
-
             //add selection for resolved parent-child and language inheritance
             $query->addSelect(
-                $accessor->getSQL()
+                $this->getTranslationFieldAccessor($field->getStorageName(), $chain)
                 . ' as ' .
                 self::escape($root . '.' . $field->getPropertyName())
             );
@@ -529,11 +525,10 @@ class EntityDefinitionQueryHelper
             $wheres = [];
 
             $accessor = $this->getFieldAccessor('blacklistIds', $definition, $definition::getEntityName(), $context);
-            $accessor->addParametersToQuery($query);
 
             foreach ($context->getRules() as $ruleId) {
                 $wheres[] = sprintf(
-                    'JSON_CONTAINS(IFNULL(' . $accessor->getSQL() . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
+                    'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
                     'contextRule' . $ruleId
                 );
                 $query->setParameter('contextRule' . $ruleId, $ruleId);
@@ -547,20 +542,19 @@ class EntityDefinitionQueryHelper
         }
 
         $accessor = $this->getFieldAccessor('whitelistIds', $definition, $definition::getEntityName(), $context);
-        $accessor->addParametersToQuery($query);
 
         $wheres = [];
         foreach ($context->getRules() as $id) {
             $wheres[] = sprintf(
-                'JSON_CONTAINS(IFNULL(' . $accessor->getSQL() . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
+                'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
                 'contextRule' . $id
             );
             $query->setParameter('contextRule' . $id, $id);
         }
 
         $conditions = [
-            '(JSON_DEPTH(' . $accessor->getSQL() . ') is null)',
-            '(JSON_DEPTH(' . $accessor->getSQL() . ') = 1)',
+            '(JSON_DEPTH(' . $accessor . ') is null)',
+            '(JSON_DEPTH(' . $accessor . ') = 1)',
         ];
 
         if (!empty($wheres)) {
@@ -570,10 +564,10 @@ class EntityDefinitionQueryHelper
         $query->andWhere('(' . implode(' OR ', $conditions) . ')');
     }
 
-    private function getTranslationFieldAccessor(string $storageName, array $chain): FieldAccessor
+    private function getTranslationFieldAccessor(string $storageName, array $chain): string
     {
         if (\count($chain) === 1) {
-            return new FieldAccessor(self::escape($chain[0]['alias']) . '.' . self::escape($storageName));
+            return self::escape($chain[0]['alias']) . '.' . self::escape($storageName);
         }
 
         $chainSelect = [];
@@ -581,10 +575,10 @@ class EntityDefinitionQueryHelper
             $chainSelect[] = self::escape($part['alias']) . '.' . self::escape($storageName);
         }
 
-        return new FieldAccessor(sprintf('COALESCE(%s)', implode(',', $chainSelect)));
+        return sprintf('COALESCE(%s)', implode(',', $chainSelect));
     }
 
-    private function buildInheritedAccessor(Field $field, string $root, string $definition, Context $context, string $original): FieldAccessor
+    private function buildInheritedAccessor(Field $field, string $root, string $definition, Context $context, string $original): string
     {
         /* @var string|EntityDefinition $definition */
         if ($field instanceof TranslatedField) {
@@ -608,13 +602,10 @@ class EntityDefinitionQueryHelper
             $original
         );
 
-        return new FieldAccessor(
-            sprintf('IFNULL(%s, %s)', $select->getSQL(), $parentSelect->getSQL()),
-            array_merge($select->getParameters(), $parentSelect->getParameters())
-        );
+        return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
     }
 
-    private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): FieldAccessor
+    private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): string
     {
         return $this->fieldAccessorBuilderRegistry->buildAccessor($root, $field, $context, $accessor);
     }

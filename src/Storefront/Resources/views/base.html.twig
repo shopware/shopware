@@ -7,7 +7,7 @@
       itemscope="itemscope"
       itemtype="http://schema.org/WebPage">
 {% endblock %}
- 
+
 {% block base_head %}
     {% sw_include '@Storefront/base/meta.html.twig' %}
 {% endblock %}
@@ -71,7 +71,23 @@
     {% endblock %}
 
     {% block base_body_script %}
-        {% sw_include '@Storefront/base/script.html.twig' %}
+		{% block base_script_token %}
+			<script>
+				window.accessKey = '{{ page.context.salesChannel.accessKey }}';
+				window.contextToken = '{{ page.context.token }}';
+			</script>
+		{% endblock %}
+
+		{% block base_script_hmr_mode %}
+			{# Set variable to "true" to enable HMR (hot page reloading) mode #}
+			{% set isHMRMode = false %}
+
+			{% if isHMRMode %}
+                <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
+			{% else %}
+                <script type="text/javascript" src="{{ asset('js/main.bundle.js') }}"></script>
+			{% endif %}
+		{% endblock %}
     {% endblock %}
     </body>
 {% endblock %}

@@ -18,7 +18,7 @@ class TaxRuleCollection extends Collection
 
     public function exists(TaxRule $taxRule): bool
     {
-        return parent::has($this->getKey($taxRule));
+        return $this->has($this->getKey($taxRule));
     }
 
     public function get($taxRate): ?TaxRule

@@ -41,7 +41,7 @@ class LineItemCollection extends Collection
 
     public function exists(LineItem $lineItem): bool
     {
-        return parent::has($this->getKey($lineItem));
+        return $this->has($this->getKey($lineItem));
     }
 
     public function get($identifier): ? LineItem

@@ -17,7 +17,7 @@ class DeliveryPositionCollection extends Collection
 
     public function exists(DeliveryPosition $deliveryPosition): bool
     {
-        return parent::has($this->getKey($deliveryPosition));
+        return $this->has($this->getKey($deliveryPosition));
     }
 
     public function get($identifier): ? DeliveryPosition

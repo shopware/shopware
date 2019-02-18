@@ -24,12 +24,16 @@ const modules = {
         {
             test: /\.scss$/,
             use: [
+                /**
+                 * @todo: style-loader is mandatory to make the HMR mode work.
+                 *        Using the MiniCssExtractPlugin further will break HMR mode
+                 *        Thus we need to figure out a way to solve that.
+                 *        loader: MiniCssExtractPlugin.loader
+                 *
+                 */
                 {
-                    loader: 'style-loader'//@todo wenn weg dann kein HMR mehr möglich
+                    loader: 'style-loader'
                 },
-                // {
-                //     loader: MiniCssExtractPlugin.loader //@todo wenn extract dann kein HMR mehr möglich
-                // },
                 {
                     loader: 'css-loader'
                 },

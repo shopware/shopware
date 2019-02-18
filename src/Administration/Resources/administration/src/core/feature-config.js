@@ -23,6 +23,6 @@ export default class FeatureConfig {
             throw new Error(`Unable to retrieve flag ${flagName}, not registered`);
         }
 
-        return this.flags[flagName] === '1';
+        return this.flags[flagName];
     }
 }

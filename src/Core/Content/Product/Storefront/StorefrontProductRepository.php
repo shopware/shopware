@@ -10,11 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
 class StorefrontProductRepository
 {
+    public const VISIBILITY_FILTERED = 'product-visibility';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -33,7 +36,7 @@ class StorefrontProductRepository
 
     public function read(Criteria $criteria, CheckoutContext $context): ProductCollection
     {
-        $this->addActiveFilters($criteria);
+        $this->addActiveFilters($criteria, $context);
 
         /** @var ProductCollection $basics */
         $basics = $this->productRepository
@@ -45,7 +48,7 @@ class StorefrontProductRepository
 
     public function search(Criteria $criteria, CheckoutContext $context): EntitySearchResult
     {
-        $this->addActiveFilters($criteria);
+        $this->addActiveFilters($criteria, $context);
 
         $basics = $this->productRepository->search($criteria, $context->getContext());
 
@@ -100,16 +103,23 @@ class StorefrontProductRepository
         $product->setCalculatedPrice($price);
     }
 
-    private function addActiveFilters(Criteria $criteria): void
+    private function addActiveFilters(Criteria $criteria, CheckoutContext $context): void
     {
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
+        if ($criteria->hasState(self::VISIBILITY_FILTERED)) {
+            return;
+        }
+
         $criteria->addFilter(
-            new RangeFilter(
-                'product.visibilities.visibility', [
-                    RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK,
-                ]
-            )
+            new MultiFilter([
+                new RangeFilter(
+                    'product.visibilities.visibility', [RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK]
+                ),
+                new EqualsFilter(
+                    'product.visibilities.salesChannelId', $context->getSalesChannel()->getId()
+                )
+            ])
         );
     }
 }

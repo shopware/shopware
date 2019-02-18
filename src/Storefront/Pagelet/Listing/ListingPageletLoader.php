@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Pagelet\Listing;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -39,10 +41,13 @@ class ListingPageletLoader implements PageLoaderInterface
 
         if ($visibility = $request->getParam(self::PRODUCT_VISIBILITY)) {
             $criteria->addFilter(
-                new RangeFilter(
-                    'product.visibilities.visibility', [RangeFilter::GTE => (int) $visibility]
-                )
+                new MultiFilter([
+                    new RangeFilter('product.visibilities.visibility', [RangeFilter::GTE => (int) $visibility]),
+                    new EqualsFilter('product.visibilities.salesChannelId', $context->getSalesChannel()->getId())
+                ])
             );
+
+            $criteria->addState(StorefrontProductRepository::VISIBILITY_FILTERED);
         }
 
         $this->eventDispatcher->dispatch(

@@ -21,10 +21,9 @@ for the system to detect your extension.
 
 You can filter snippets by `author` to make it easier to distinguish your work from the work of others.
 
-In Addition, please make sure that `isBase()` returns the correct constant. If you provide a whole new language, you should
-return the constant `SnippetFileInterface::BASE_SNIPPET_FILE`. Otherwise, in case you want to extend a language just to
-provide your plugin's snippets or adding a dialect based on another language like Swiss German, Esperanto, Pirate English
-or similar, `SnippetFileInterface::PLUGIN_SNIPPET_EXTENSION_FILE` will be your choice.
+In Addition, please make sure that `isBase()` returns the correct value. If you provide a whole new language, you should
+return `true`. Otherwise, in case you want to extend a language just to provide your plugin's snippets or adding a dialect
+based on another language like Swiss German, Esperanto, Pirate English or similar, `false` will be your choice.
 
 ## Extending the services
 To collect the snippet files, it is necessary to add the tag `shopware.snippet.file` to every given `SnippetFile` service

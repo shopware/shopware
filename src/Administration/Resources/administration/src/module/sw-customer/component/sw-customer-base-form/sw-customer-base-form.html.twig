@@ -87,6 +87,7 @@
 
             {% block sw_customer_base_form_birthday_field %}
                 <sw-field type="date"
+                          dateType="date"
                           :label="$tc('sw-customer.baseForm.labelBirthday')"
                           name="birthday"
                           v-model="customer.birthday">

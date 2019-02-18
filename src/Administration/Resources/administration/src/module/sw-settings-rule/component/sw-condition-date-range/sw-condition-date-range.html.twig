@@ -6,13 +6,15 @@
                   v-model="useTime"
                   class="field field--switch has--arrow">
         </sw-field>
-        <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
+        <sw-field type="date"
+                  :dateType="condition.value.useTime ? 'datetime' : 'date'"
                   name="fromDate"
                   :config="datepickerConfig"
                   v-model="fromDate"
                   class="field field--main field--date has--arrow">
         </sw-field>
-        <sw-field :type="condition.value.useTime ? 'datetime' : 'date'"
+        <sw-field type="date"
+                  :dateType="condition.value.useTime ? 'datetime' : 'date'"
                   name="toDate"
                   :config="datepickerConfig"
                   v-model="toDate"

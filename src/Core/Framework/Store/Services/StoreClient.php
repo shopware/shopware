@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -20,13 +21,19 @@ final class StoreClient
     private $client;
 
     /**
+     * @var OpenSSLVerifier
+     */
+    private $openSSLVerifier;
+
+    /**
      * @var ?string
      */
     private $host;
 
-    public function __construct(Client $client, ?string $host)
+    public function __construct(Client $client, OpenSSLVerifier $openSSLVerifier, ?string $host)
     {
         $this->client = $client;
+        $this->openSSLVerifier = $openSSLVerifier;
         $this->host = $host;
     }
 
@@ -46,6 +53,7 @@ final class StoreClient
                 ],
             ]
         );
+        $this->verifyResponseSignature($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
 
@@ -56,7 +64,7 @@ final class StoreClient
 
     public function checkLogin(string $token): bool
     {
-        $this->client->get(
+        $response = $this->client->get(
             '/accesstokens/' . $token,
             [
                 'query' => $this->getDefaultQueryParameters(),
@@ -66,6 +74,7 @@ final class StoreClient
                 ],
             ]
         );
+        $this->verifyResponseSignature($response);
 
         return true;
     }
@@ -88,6 +97,7 @@ final class StoreClient
                 ],
             ]
         );
+        $this->verifyResponseSignature($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
 
@@ -146,6 +156,7 @@ final class StoreClient
                 ],
             ]
         );
+        $this->verifyResponseSignature($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
 
@@ -164,5 +175,27 @@ final class StoreClient
             'language' => 'de_DE',
             'domain' => $this->host,
         ];
+    }
+
+    private function verifyResponseSignature(ResponseInterface $response): void
+    {
+        $signatureHeaderName = 'x-shopware-signature';
+        $signature = $response->getHeader($signatureHeaderName)[0];
+
+        if (empty($signature)) {
+            throw new \RuntimeException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
+        }
+
+        if (!$this->openSSLVerifier->isSystemSupported()) {
+            return;
+        }
+
+        if ($this->openSSLVerifier->isValid($response->getBody(), $signature)) {
+            $response->getBody()->rewind();
+
+            return;
+        }
+
+        throw new \RuntimeException('Signature not valid');
     }
 }

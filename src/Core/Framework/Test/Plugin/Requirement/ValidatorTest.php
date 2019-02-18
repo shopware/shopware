@@ -21,9 +21,9 @@ class ValidatorTest extends TestCase
         try {
             $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
         } catch (Exception $e) {
-            self::fail('This test should not throw an exception');
+            static::fail('This test should not throw an exception');
         }
-        self::assertTrue(true);
+        static::assertTrue(true);
     }
 
     public function testValidateRequirementsDoNotMatch(): void

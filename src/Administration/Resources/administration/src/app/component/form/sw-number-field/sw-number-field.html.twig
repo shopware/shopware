@@ -8,5 +8,6 @@
            @keydown.up="increaseNumberByStep"
            @keydown.down="decreaseNumberByStep"
            @change="onChange"
+           v-bind="$attrs"
            v-model="currentValue"/>
 {% endblock %}

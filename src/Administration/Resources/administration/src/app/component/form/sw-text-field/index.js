@@ -230,6 +230,9 @@ export default {
         },
 
         onChange() {
+            if (!this.currentValue) {
+                this.currentValue = null;
+            }
             this.$emit('change', this.currentValue);
 
             if (this.hasError) {
@@ -239,6 +242,10 @@ export default {
 
         onInput(event) {
             this.currentValue = event.target.value;
+            if (!this.currentValue) {
+                this.currentValue = null;
+            }
+
             this.$emit('input', this.currentValue);
 
             if (this.hasError) {

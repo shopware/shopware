@@ -82,10 +82,10 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         );
 
         $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
-        self::assertCount(1, $parents);
+        static::assertCount(1, $parents);
 
         $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
-        self::assertCount(1, $children);
+        static::assertCount(1, $children);
 
         $this->writer->delete(
             DeleteCascadeParentDefinition::class,
@@ -96,10 +96,10 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         );
 
         $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
-        self::assertCount(0, $parents);
+        static::assertCount(0, $parents);
 
         $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
-        self::assertCount(0, $children);
+        static::assertCount(0, $children);
     }
 
     public function testDeleteOneToManyIfChildHasVersionId()
@@ -125,13 +125,13 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         );
 
         $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
-        self::assertCount(1, $parents);
+        static::assertCount(1, $parents);
 
         $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
-        self::assertCount(1, $children);
+        static::assertCount(1, $children);
 
         $manyToOne = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_many_to_one');
-        self::assertCount(1, $manyToOne);
+        static::assertCount(1, $manyToOne);
 
         $this->writer->delete(
             DeleteCascadeManyToOneDefinition::class,
@@ -142,12 +142,12 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         );
 
         $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
-        self::assertCount(0, $parents);
+        static::assertCount(0, $parents);
 
         $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
-        self::assertCount(0, $children);
+        static::assertCount(0, $children);
 
         $manyToOne = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_many_to_one');
-        self::assertCount(0, $manyToOne);
+        static::assertCount(0, $manyToOne);
     }
 }

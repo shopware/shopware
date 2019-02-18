@@ -93,8 +93,8 @@ class TaskRegistryTest extends TestCase
 
     public function testWithWrongClass()
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage(sprintf(
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(sprintf(
             'Tried to register "%s" as scheduled task, but class does not implement ScheduledTaskInterface',
             TestMessage::class
         ));

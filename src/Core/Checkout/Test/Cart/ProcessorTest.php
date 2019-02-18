@@ -55,9 +55,9 @@ class ProcessorTest extends TestCase
 
         $calculated = $this->processor->process($cart, $this->context, new CartBehaviorContext());
 
-        self::assertCount(1, $calculated->getLineItems());
-        self::assertTrue($calculated->has('A'));
-        self::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
+        static::assertCount(1, $calculated->getLineItems());
+        static::assertTrue($calculated->has('A'));
+        static::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
     }
 
     public function testDeliveryCreatedForDeliverableLineItem(): void
@@ -79,14 +79,14 @@ class ProcessorTest extends TestCase
 
         $calculated = $this->processor->process($cart, $this->context, new CartBehaviorContext());
 
-        self::assertCount(1, $calculated->getLineItems());
-        self::assertTrue($calculated->has('A'));
-        self::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
+        static::assertCount(1, $calculated->getLineItems());
+        static::assertTrue($calculated->has('A'));
+        static::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
 
-        self::assertCount(1, $calculated->getDeliveries());
+        static::assertCount(1, $calculated->getDeliveries());
 
         /** @var Delivery $delivery */
         $delivery = $calculated->getDeliveries()->first();
-        self::assertTrue($delivery->getPositions()->getLineItems()->has('A'));
+        static::assertTrue($delivery->getPositions()->getLineItems()->has('A'));
     }
 }

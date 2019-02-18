@@ -22,7 +22,7 @@ class ConfigReaderTest extends TestCase
     {
         $actualConfig = $this->configReader->read(__DIR__ . '/_fixtures/valid_config.xml');
 
-        self::assertSame($this->getExpectedConfig(), $actualConfig);
+        static::assertSame($this->getExpectedConfig(), $actualConfig);
     }
 
     public function test_ConfigReader_with_invalid_path(): void

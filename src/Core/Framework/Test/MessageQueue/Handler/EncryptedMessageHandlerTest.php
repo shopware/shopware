@@ -42,9 +42,9 @@ class EncryptedMessageHandlerTest extends TestCase
 
         $bus = $this->createMock(MessageBusInterface::class);
         $bus
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('dispatch')
-            ->with($this->callback(function (Envelope $envelope) {
+            ->with(static::callback(function (Envelope $envelope) {
                 static::assertCount(1, $envelope->all(ReceivedStamp::class));
                 static::assertInstanceOf(TestMessage::class, $envelope->getMessage());
 

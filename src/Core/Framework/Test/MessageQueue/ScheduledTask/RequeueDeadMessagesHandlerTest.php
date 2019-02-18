@@ -22,7 +22,7 @@ class RequeueDeadMessagesHandlerTest extends TestCase
     public function testRun()
     {
         $requeueService = $this->createMock(RequeueDeadMessagesService::class);
-        $requeueService->expects($this->once())
+        $requeueService->expects(static::once())
             ->method('requeue');
 
         $handler = new RequeueDeadMessagesHandler(

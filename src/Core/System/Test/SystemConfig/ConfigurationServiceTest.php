@@ -89,7 +89,7 @@ class ConfigurationServiceTest extends TestCase
     {
         $actualConfig = $this->configurationService->getConfiguration(\SwagExampleTest\SwagExampleTest::PLUGIN_NAME, $this->context, '20080911ffff4fffafffffff19830531');
 
-        self::assertSame($this->getConfigWithoutValues(), $actualConfig);
+        static::assertSame($this->getConfigWithoutValues(), $actualConfig);
     }
 
     public function testPatchValuesIntoConfig(): void
@@ -107,14 +107,14 @@ class ConfigurationServiceTest extends TestCase
 
         foreach ($actualConfig as $card) {
             foreach ($card['fields'] as $field) {
-                self::assertNotNull($field['value']);
+                static::assertNotNull($field['value']);
 
                 if ($field['name'] === 'email') {
-                    self::assertSame('test@example.com', $field['value']);
+                    static::assertSame('test@example.com', $field['value']);
                 }
 
                 if ($field['name'] === 'mailMethod') {
-                    self::assertSame('smtp', $field['value']);
+                    static::assertSame('smtp', $field['value']);
                 }
             }
         }

@@ -32,7 +32,7 @@ class ParentChildTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testChildrenWithMalformatDataException()
+    public function testChildrenWithMalformatDataException(): void
     {
         $parent = Uuid::uuid4()->getHex();
         $child1 = Uuid::uuid4()->getHex();
@@ -48,10 +48,9 @@ class ParentChildTest extends TestCase
         $e = null;
         try {
             $this->categoryRepository->upsert([$category], $context);
-        } catch (\Exception $e) {
+        } catch (WriteStackException $e) {
         }
 
-        /** @var WriteStackException $e */
         static::assertInstanceOf(WriteStackException::class, $e);
 
         static::assertCount(1, $e->getExceptions());
@@ -61,7 +60,7 @@ class ParentChildTest extends TestCase
         static::assertEquals('/children', $first->getPath());
     }
 
-    public function testICanWriteChildren()
+    public function testICanWriteChildren(): void
     {
         $parent = Uuid::uuid4()->getHex();
         $child1 = Uuid::uuid4()->getHex();
@@ -90,7 +89,7 @@ class ParentChildTest extends TestCase
         static::assertContains(Uuid::fromHexToBytes($child2), $children);
     }
 
-    public function testICanWriteNestedChildren()
+    public function testICanWriteNestedChildren(): void
     {
         $parent = Uuid::uuid4()->getHex();
         $child1 = Uuid::uuid4()->getHex();
@@ -153,7 +152,7 @@ class ParentChildTest extends TestCase
         );
     }
 
-    public function testICanWriteTheParent()
+    public function testICanWriteTheParent(): void
     {
         $parent = Uuid::uuid4()->getHex();
         $child = Uuid::uuid4()->getHex();
@@ -186,7 +185,7 @@ class ParentChildTest extends TestCase
         );
     }
 
-    public function testICanWriteNestedParents()
+    public function testICanWriteNestedParents(): void
     {
         $parent = Uuid::uuid4()->getHex();
         $child1 = Uuid::uuid4()->getHex();
@@ -231,7 +230,7 @@ class ParentChildTest extends TestCase
         );
     }
 
-    public function testParentWithMalformatDataException()
+    public function testParentWithMalformatDataException(): void
     {
         $parent = Uuid::uuid4()->getHex();
         $child1 = Uuid::uuid4()->getHex();
@@ -247,10 +246,9 @@ class ParentChildTest extends TestCase
         $e = null;
         try {
             $this->categoryRepository->upsert([$category], $context);
-        } catch (\Exception $e) {
+        } catch (WriteStackException $e) {
         }
 
-        /** @var WriteStackException $e */
         static::assertInstanceOf(WriteStackException::class, $e);
 
         static::assertCount(1, $e->getExceptions());

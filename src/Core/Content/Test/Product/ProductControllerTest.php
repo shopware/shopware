@@ -46,7 +46,7 @@ class ProductControllerTest extends TestCase
 
         $this->getStorefrontClient()->request('GET', '/storefront-api/v1/product');
 
-        self::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
+        static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
 
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
@@ -84,7 +84,7 @@ class ProductControllerTest extends TestCase
 
         $this->getStorefrontClient()->request('GET', '/storefront-api/v1/product/' . $productId);
 
-        self::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
+        static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode(), $this->getStorefrontClient()->getResponse()->getContent());
 
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 

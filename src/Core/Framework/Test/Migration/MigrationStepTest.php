@@ -48,7 +48,7 @@ class MigrationStepTest extends TestCase
         )->fetch();
 
         //the trigger adds 1 to creation_timestamp
-        self::assertEquals($migration->getCreationTimestamp() + 1, $inserted['creation_timestamp']);
+        static::assertEquals($migration->getCreationTimestamp() + 1, $inserted['creation_timestamp']);
 
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
     }
@@ -71,7 +71,7 @@ class MigrationStepTest extends TestCase
         )->fetch();
 
         //the trigger should not add 1 to creation_timestamp
-        self::assertEquals($migration->getCreationTimestamp(), $inserted['creation_timestamp']);
+        static::assertEquals($migration->getCreationTimestamp(), $inserted['creation_timestamp']);
 
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
     }
@@ -94,7 +94,7 @@ class MigrationStepTest extends TestCase
         )->fetch();
 
         //the trigger should not add 1 to creation_timestamp
-        self::assertEquals($migration->getCreationTimestamp(), $inserted['creation_timestamp']);
+        static::assertEquals($migration->getCreationTimestamp(), $inserted['creation_timestamp']);
 
         $this->removeTrigger(MigrationWithBackwardTrigger::TRIGGER_NAME);
     }
@@ -117,7 +117,7 @@ class MigrationStepTest extends TestCase
         )->fetch();
 
         //the trigger adds 1 to creation_timestamp
-        self::assertEquals($migration->getCreationTimestamp() + 1, $inserted['creation_timestamp']);
+        static::assertEquals($migration->getCreationTimestamp() + 1, $inserted['creation_timestamp']);
 
         $this->removeTrigger(MigrationWithBackwardTrigger::TRIGGER_NAME);
     }
@@ -155,6 +155,6 @@ class MigrationStepTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
         $trigger = $connection->executeQuery(sprintf('SHOW TRIGGERS WHERE `Trigger` =  \'%s\'', $name))->fetch(\PDO::FETCH_COLUMN);
-        self::assertEquals($name, $trigger);
+        static::assertEquals($name, $trigger);
     }
 }

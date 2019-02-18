@@ -15,7 +15,7 @@ class RegisterScheduledTaskTest extends TestCase
     public function testNoValidationErrors(): void
     {
         $taskRegistry = $this->createMock(TaskRegistry::class);
-        $taskRegistry->expects($this->once())
+        $taskRegistry->expects(static::once())
             ->method('registerTasks');
 
         $commandTester = new CommandTester(new RegisterScheduledTasksCommand($taskRegistry));

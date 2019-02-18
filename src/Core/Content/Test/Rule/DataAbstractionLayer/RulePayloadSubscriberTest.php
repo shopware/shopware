@@ -60,7 +60,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects($this->once())->method('update')->with([$id => $id])->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
+        $this->indexer->expects(static::once())->method('update')->with([$id => $id])->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
@@ -79,7 +79,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());
 
-        $this->indexer->expects($this->never())->method('update');
+        $this->indexer->expects(static::never())->method('update');
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNull($rule->getPayload());
@@ -96,7 +96,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNotNull($rule->getPayload());
 
-        $this->indexer->expects($this->never())->method('update');
+        $this->indexer->expects(static::never())->method('update');
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
@@ -116,7 +116,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects($this->once())->method('update')->with([$id => $id, $id2 => $id2])->willReturn(
+        $this->indexer->expects(static::once())->method('update')->with([$id => $id, $id2 => $id2])->willReturn(
             [
                 $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
                 $id2 => ['payload' => serialize(new OrRule()), 'invalid' => false],
@@ -145,7 +145,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects($this->once())->method('update')->with([$id => $id])->willReturn(
+        $this->indexer->expects(static::once())->method('update')->with([$id => $id])->willReturn(
             [
                 $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
             ]

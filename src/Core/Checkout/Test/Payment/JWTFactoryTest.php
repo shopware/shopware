@@ -46,10 +46,10 @@ class JWTFactoryTest extends TestCase
         $token = $this->tokenFactory->generateToken($transaction, $this->context);
         $tokenStruct = $this->tokenFactory->parseToken($token, $this->context);
 
-        self::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
-        self::assertEquals($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
-        self::assertEquals($token, $tokenStruct->getToken());
-        self::assertGreaterThan(time(), $tokenStruct->getExpires());
+        static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
+        static::assertEquals($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
+        static::assertEquals($token, $tokenStruct->getToken());
+        static::assertGreaterThan(time(), $tokenStruct->getExpires());
     }
 
     /**
@@ -77,7 +77,7 @@ class JWTFactoryTest extends TestCase
     public function testInvalidateToken(): void
     {
         $success = $this->tokenFactory->invalidateToken(Uuid::uuid4()->getHex(), $this->context);
-        self::assertFalse($success);
+        static::assertFalse($success);
     }
 
     public static function createTransaction(): OrderTransactionEntity

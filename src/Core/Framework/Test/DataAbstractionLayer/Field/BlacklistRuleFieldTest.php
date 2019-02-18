@@ -32,17 +32,13 @@ class BlacklistRuleFieldTest extends TestCase
      */
     private $repository;
 
-    /**
-     * @throws \Doctrine\DBAL\DBALException
-     */
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('product.repository');
-        parent::setUp();
     }
 
-    public function testReadEntityWithBlacklist()
+    public function testReadEntityWithBlacklist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -122,7 +118,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertTrue($products->has($product3));
     }
 
-    public function testInheritedBlacklist()
+    public function testInheritedBlacklist(): void
     {
         $parentId1 = Uuid::uuid4()->getHex();
         $productId1 = Uuid::uuid4()->getHex();
@@ -221,7 +217,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertTrue($products->has($productId3));
     }
 
-    public function testSearchBlacklistedRule()
+    public function testSearchBlacklistedRule(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -344,7 +340,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertContains($product6, $result->getIds());
     }
 
-    public function testSearchWithOneToManyBlacklist()
+    public function testSearchWithOneToManyBlacklist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -426,7 +422,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertNotContains($manufacturerId2, $result->getIds());
     }
 
-    public function testSearchWithManyToManyBlacklist()
+    public function testSearchWithManyToManyBlacklist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -521,7 +517,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertNotContains($categoryId2, $result->getIds());
     }
 
-    public function testAggregationBlacklist()
+    public function testAggregationBlacklist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -588,7 +584,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertContains($product3, $result->getValues());
     }
 
-    public function testAggregationWithOneToManyBlacklist()
+    public function testAggregationWithOneToManyBlacklist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -653,7 +649,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertContains($product3, $result->getValues());
     }
 
-    public function testAggregationWithManyToManyBlacklist()
+    public function testAggregationWithManyToManyBlacklist(): void
     {
         $product1 = Uuid::uuid4()->getHex();
         $product2 = Uuid::uuid4()->getHex();
@@ -728,7 +724,7 @@ class BlacklistRuleFieldTest extends TestCase
         static::assertContains($product3, $result->getValues());
     }
 
-    public function testPaginatedAssociationWithBlacklist()
+    public function testPaginatedAssociationWithBlacklist(): void
     {
         $manufacturerId = Uuid::uuid4()->getHex();
         $ruleId = Uuid::uuid4()->getHex();
@@ -758,12 +754,12 @@ class BlacklistRuleFieldTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContextWithRules();
+        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
         //test if all products can be read if context contains no rules
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
 
-        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(4, $manufacturer->getProducts());
 
@@ -774,9 +770,9 @@ class BlacklistRuleFieldTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContextWithRules();
+        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
@@ -788,15 +784,15 @@ class BlacklistRuleFieldTest extends TestCase
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
         $context = $this->createContextWithRules([$ruleId, $ruleId2]);
+        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $repo->search($criteria, $context)->get($manufacturerId);
 
-        /** @var ProductManufacturerEntity $manufacturer */
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertInstanceOf(ProductCollection::class, $manufacturer->getProducts());
         static::assertCount(2, $manufacturer->getProducts());
     }
 
-    private function createContextWithRules(array $ruleIds = [])
+    private function createContextWithRules(array $ruleIds = []): Context
     {
         $source = new SourceContext('cli');
         $source->setSalesChannelId(Defaults::SALES_CHANNEL);

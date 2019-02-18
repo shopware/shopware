@@ -12,6 +12,11 @@ use Shopware\Core\System\Unit\UnitCollection;
 
 class ProductCollection extends EntityCollection
 {
+    public function first(): ProductEntity
+    {
+        return parent::first();
+    }
+
     public function getParentIds(): array
     {
         return $this->fmap(function (ProductEntity $product) {

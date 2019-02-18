@@ -56,7 +56,7 @@ class SyncControllerTest extends TestCase
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
         $response = $this->getClient()->getResponse();
 
-        self::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
@@ -100,7 +100,7 @@ class SyncControllerTest extends TestCase
         ];
 
         $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
-        self::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
+        static::assertSame(200, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
@@ -150,7 +150,7 @@ class SyncControllerTest extends TestCase
         $this->getClient()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
 
         $response = $this->getClient()->getResponse();
-        self::assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId . '/categories');
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);

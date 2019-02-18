@@ -195,7 +195,7 @@ class FileSaverTest extends TestCase
         }
 
         $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
-        self::assertStringEndsWith($png->getFileName(), $updatedMedia->getFileName());
+        static::assertStringEndsWith($png->getFileName(), $updatedMedia->getFileName());
     }
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void

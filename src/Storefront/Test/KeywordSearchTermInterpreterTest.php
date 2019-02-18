@@ -50,7 +50,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
         sort($expected);
         sort($keywords);
-        self::assertEquals($expected, $keywords);
+        static::assertEquals($expected, $keywords);
     }
 
     public function cases(): array

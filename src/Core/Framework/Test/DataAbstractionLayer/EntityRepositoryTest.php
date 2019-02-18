@@ -320,7 +320,7 @@ class EntityRepositoryTest extends TestCase
         static::assertSame('Test', $locale->get($id)->getName());
     }
 
-    public function testClone()
+    public function testClone(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -350,20 +350,20 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
+        /** @var ProductEntity $old */
         $old = $entities->get($id);
+        /** @var ProductEntity $new */
         $new = $entities->get($newId);
 
         static::assertInstanceOf(ProductEntity::class, $old);
         static::assertInstanceOf(ProductEntity::class, $new);
 
-        /** @var ProductEntity $old */
-        /** @var ProductEntity $new */
         static::assertSame($old->getName(), $new->getName());
         static::assertSame($old->getTaxId(), $new->getTaxId());
         static::assertSame($old->getManufacturerId(), $new->getManufacturerId());
     }
 
-    public function testCloneWithUnknownId()
+    public function testCloneWithUnknownId(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -396,20 +396,20 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
+        /** @var ProductEntity $old */
         $old = $entities->get($id);
+        /** @var ProductEntity $new */
         $new = $entities->get($newId);
 
         static::assertInstanceOf(ProductEntity::class, $old);
         static::assertInstanceOf(ProductEntity::class, $new);
 
-        /** @var ProductEntity $old */
-        /** @var ProductEntity $new */
         static::assertSame($old->getName(), $new->getName());
         static::assertSame($old->getTaxId(), $new->getTaxId());
         static::assertSame($old->getManufacturerId(), $new->getManufacturerId());
     }
 
-    public function testCloneWithOneToMany()
+    public function testCloneWithOneToMany(): void
     {
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
@@ -458,13 +458,13 @@ class EntityRepositoryTest extends TestCase
 
         $entities = $repository->search(new Criteria([$id, $newId]), $context);
 
-        /** @var ProductEntity $old */
-        /** @var ProductEntity $new */
         static::assertCount(2, $entities);
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
+        /** @var ProductEntity $old */
         $old = $entities->get($id);
+        /** @var ProductEntity $new */
         $new = $entities->get($newId);
 
         static::assertInstanceOf(ProductEntity::class, $old);
@@ -485,7 +485,7 @@ class EntityRepositoryTest extends TestCase
         }
     }
 
-    public function testCloneWithManyToMany()
+    public function testCloneWithManyToMany(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -523,14 +523,14 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
+        /** @var ProductEntity $old */
         $old = $entities->get($id);
+        /** @var ProductEntity $new */
         $new = $entities->get($newId);
 
         static::assertInstanceOf(ProductEntity::class, $old);
         static::assertInstanceOf(ProductEntity::class, $new);
 
-        /** @var ProductEntity $old */
-        /** @var ProductEntity $new */
         static::assertCount(1, $old->getCategories());
         static::assertCount(1, $new->getCategories());
 
@@ -541,7 +541,7 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $new->getCategoriesRo());
     }
 
-    public function testCloneWithChildren()
+    public function testCloneWithChildren(): void
     {
         $id = Uuid::uuid4()->getHex();
         $child1 = Uuid::uuid4()->getHex();
@@ -559,11 +559,11 @@ class EntityRepositoryTest extends TestCase
             ],
         ];
 
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('product.repository');
 
         $context = Context::createDefaultContext();
 
-        /* @var EntityRepository $repo */
         $repo->create([$data], $context);
 
         $newId = Uuid::uuid4()->getHex();
@@ -581,13 +581,13 @@ class EntityRepositoryTest extends TestCase
 
         $Criteria = new Criteria([$newId]);
         $Criteria->addAssociation('product.children');
+        /** @var ProductEntity $product */
         $product = $repo->search($Criteria, $context)->get($newId);
 
-        /** @var ProductEntity $product */
         static::assertCount(2, $product->getChildren());
     }
 
-    public function testCloneWithNestedChildren()
+    public function testCloneWithNestedChildren(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -664,6 +664,7 @@ class EntityRepositoryTest extends TestCase
             }
             $condition['parent_id'] = Uuid::fromBytesToHex($condition['parent_id']);
         }
+        unset($condition);
 
         static::assertCount(7, $conditions);
 
@@ -680,6 +681,7 @@ class EntityRepositoryTest extends TestCase
             }
             $condition['parent_id'] = Uuid::fromBytesToHex($condition['parent_id']);
         }
+        unset($condition);
 
         static::assertCount(7, $newConditions);
 
@@ -699,7 +701,7 @@ class EntityRepositoryTest extends TestCase
         }
     }
 
-    public function testReadPaginatedOneToManyChildrenAssociation()
+    public function testReadPaginatedOneToManyChildrenAssociation(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -728,18 +730,16 @@ class EntityRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->getContainer()->get('media_folder.repository');
 
-        $eventContainer = $repository->create([$data], $context);
-
-        $event = $eventContainer->getEventByDefinition(MediaFolderDefinition::class);
+        $event = $repository->create([$data], $context)->getEventByDefinition(MediaFolderDefinition::class);
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(12, $event->getIds());
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('media_folder.children', new PaginationCriteria(2, 0));
 
+        /** @var MediaFolderEntity $folder */
         $folder = $repository->search($criteria, $context)->get($id);
 
-        /** @var MediaFolderEntity $folder */
         static::assertInstanceOf(MediaFolderEntity::class, $folder);
         static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
         static::assertCount(2, $folder->getChildren());
@@ -749,9 +749,9 @@ class EntityRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('media_folder.children', new PaginationCriteria(3, 2));
 
+        /** @var MediaFolderEntity $folder */
         $folder = $repository->search($criteria, $context)->get($id);
 
-        /** @var MediaFolderEntity $folder */
         static::assertInstanceOf(MediaFolderEntity::class, $folder);
         static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
         static::assertCount(3, $folder->getChildren());

@@ -58,14 +58,14 @@ class MigrationCollectorTest extends TestCase
             $migrationsObjects[] = new $migration['class']();
         }
 
-        self::assertCount(2, $migrationsObjects);
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[0]['message']);
-        self::assertNotNull($migrations[0]['class']);
-        self::assertNotNull($migrations[0]['creation_timestamp']);
-        self::assertEquals(1, $migrationsObjects[0]->getCreationTimestamp());
-        self::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
+        static::assertCount(2, $migrationsObjects);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[0]['message']);
+        static::assertNotNull($migrations[0]['class']);
+        static::assertNotNull($migrations[0]['creation_timestamp']);
+        static::assertEquals(1, $migrationsObjects[0]->getCreationTimestamp());
+        static::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
     }
 
     public function test_it_gets_correct_migration_timestamps(): void
@@ -73,9 +73,9 @@ class MigrationCollectorTest extends TestCase
         $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
         $migrations = $this->collector->getActiveMigrationTimestamps();
 
-        self::assertCount(2, $migrations);
-        self::assertEquals(1, $migrations[0]);
-        self::assertEquals(2, $migrations[1]);
+        static::assertCount(2, $migrations);
+        static::assertEquals(1, $migrations[0]);
+        static::assertEquals(2, $migrations[1]);
     }
 
     private function getMigrations(): array

@@ -56,7 +56,7 @@ class FileNameProviderTest extends TestCase
             $this->context
         );
 
-        self::assertEquals($existing->getFileName() . '_(1)', $new);
+        static::assertEquals($existing->getFileName() . '_(1)', $new);
     }
 
     public function testItReturnsOriginalNameOnNewExtension()
@@ -86,6 +86,6 @@ class FileNameProviderTest extends TestCase
             $this->context
         );
 
-        self::assertEquals($existing->getFileName() . '_(1)', $new);
+        static::assertEquals($existing->getFileName() . '_(1)', $new);
     }
 }

@@ -24,8 +24,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'), new ImageType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata());
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata());
         $this->assertImageMetadata($result, 1530, 1021);
     }
 
@@ -35,8 +35,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'), new ImageType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata());
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata());
         $this->assertImageMetadata($result, 142, 37);
     }
 
@@ -46,8 +46,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'), new ImageType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata());
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata());
         $this->assertImageMetadata($result, 499, 266);
     }
 
@@ -57,8 +57,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo-version-professionalplus.svg'), new ImageType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata());
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata());
         $this->assertImageMetadata($result);
     }
 
@@ -68,8 +68,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'), new DocumentType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata(), print_r($result, true));
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata(), print_r($result, true));
         $this->assertDocumentMetadata($result, 19, 'Adobe InDesign CC 13.0 (Macintosh)');
     }
 
@@ -79,8 +79,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.mp4'), new VideoType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata());
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata());
 
         $this->assertImageMetadata($result, 560, 320);
         $this->assertVideoMetadata($result, 30.0);
@@ -92,8 +92,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.webm'), new VideoType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata());
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata());
 
         $this->assertImageMetadata($result, 560, 320);
         $this->assertVideoMetadata($result, 30.0);
@@ -105,8 +105,8 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.avi'), new VideoType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
-        self::assertArrayNotHasKey('error', $result->getRawMetadata());
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertArrayNotHasKey('error', $result->getRawMetadata());
 
         $this->assertImageMetadata($result, 560, 320);
         $this->assertVideoMetadata($result, 30.0);
@@ -118,7 +118,7 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/reader.doc'), new DocumentType());
 
-        self::assertCount(1, $result->getRawMetadata(), print_r($result, true));
+        static::assertCount(1, $result->getRawMetadata(), print_r($result, true));
         $this->assertDocumentMetadata($result, null, '', '');
     }
 
@@ -128,7 +128,7 @@ class MetadataLoaderTest extends TestCase
             ->getMetadataLoader()
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/reader.docx'), new DocumentType());
 
-        self::assertCount(2, $result->getRawMetadata(), print_r($result, true));
+        static::assertCount(2, $result->getRawMetadata(), print_r($result, true));
         $this->assertDocumentMetadata($result, null, 'PHPWord', 'A Word Document');
     }
 
@@ -151,22 +151,22 @@ class MetadataLoaderTest extends TestCase
     private function assertImageMetadata(Metadata $result, int $width = null, int $height = null): void
     {
         $type = $result->getType();
-        self::assertInstanceOf(ImageMetadata::class, $type);
+        static::assertInstanceOf(ImageMetadata::class, $type);
 
         $this->getMetadataLoader()->updateMetadata($result);
 
-        self::assertSame($width, $type->getWidth());
-        self::assertSame($height, $type->getHeight());
+        static::assertSame($width, $type->getWidth());
+        static::assertSame($height, $type->getHeight());
     }
 
     private function assertVideoMetadata(Metadata $result, float $frameRate): void
     {
         $type = $result->getType();
-        self::assertInstanceOf(VideoMetadata::class, $type);
+        static::assertInstanceOf(VideoMetadata::class, $type);
 
         $this->getMetadataLoader()->updateMetadata($result);
 
-        self::assertSame($frameRate, $type->getFrameRate());
+        static::assertSame($frameRate, $type->getFrameRate());
     }
 
     private function assertDocumentMetadata(
@@ -176,11 +176,11 @@ class MetadataLoaderTest extends TestCase
         string $title = null
     ): void {
         $type = $result->getType();
-        self::assertInstanceOf(DocumentMetadata::class, $type);
+        static::assertInstanceOf(DocumentMetadata::class, $type);
 
         $this->getMetadataLoader()->updateMetadata($result);
-        self::assertSame($pages, $type->getPages());
-        self::assertSame($creator, $type->getCreator());
-        self::assertSame($title, $type->getTitle());
+        static::assertSame($pages, $type->getPages());
+        static::assertSame($creator, $type->getCreator());
+        static::assertSame($title, $type->getTitle());
     }
 }

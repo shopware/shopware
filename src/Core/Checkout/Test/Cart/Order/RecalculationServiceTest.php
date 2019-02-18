@@ -91,9 +91,9 @@ class RecalculationServiceTest extends TestCase
         $convertedCart = $this->getContainer()->get(OrderConverter::class)->convertToCart($order, $this->context);
 
         // check name and token
-        self::assertEquals(OrderConverter::CART_TYPE, $convertedCart->getName());
-        self::assertNotEquals($cart->getToken(), $convertedCart->getToken());
-        self::assertTrue(Uuid::isValid($convertedCart->getToken()));
+        static::assertEquals(OrderConverter::CART_TYPE, $convertedCart->getName());
+        static::assertNotEquals($cart->getToken(), $convertedCart->getToken());
+        static::assertTrue(Uuid::isValid($convertedCart->getToken()));
 
         // set name and token to be equal for further comparison
         $cart->setName($convertedCart->getName());
@@ -126,7 +126,7 @@ class RecalculationServiceTest extends TestCase
             $lineItem->setDeliveryInformation(null);
         }
 
-        self::assertEquals($cart, $convertedCart, print_r(['original' => $cart, 'converted' => $convertedCart], true));
+        static::assertEquals($cart, $convertedCart, print_r(['original' => $cart, 'converted' => $convertedCart], true));
     }
 
     public function testOrderConverterController()
@@ -597,7 +597,7 @@ class RecalculationServiceTest extends TestCase
         $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
 
         if (count($orderIds) !== 1) {
-            self::fail('Order could not be persisted');
+            static::fail('Order could not be persisted');
         }
 
         return $orderIds[0];

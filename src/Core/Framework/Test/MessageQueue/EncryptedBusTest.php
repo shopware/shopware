@@ -22,9 +22,9 @@ class EncryptedBusTest extends TestCase
         $privateKey = $this->getContainer()->get('shopware.private_key');
         $bus = $this->createMock(MessageBusInterface::class);
         $bus
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('dispatch')
-            ->with($this->callback(function (Envelope $envelope) use ($privateKey) {
+            ->with(static::callback(function (Envelope $envelope) use ($privateKey) {
                 static::assertInstanceOf(EncryptedMessage::class, $envelope->getMessage());
 
                 $key = openssl_pkey_get_private($privateKey->getKeyPath(), $privateKey->getPassPhrase());
@@ -57,9 +57,9 @@ class EncryptedBusTest extends TestCase
         $privateKey = $this->getContainer()->get('shopware.private_key');
         $bus = $this->createMock(MessageBusInterface::class);
         $bus
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('dispatch')
-            ->with($this->callback(function (Envelope $envelope) use ($privateKey) {
+            ->with(static::callback(function (Envelope $envelope) use ($privateKey) {
                 static::assertCount(1, $envelope->all(SerializerStamp::class));
                 static::assertInstanceOf(EncryptedMessage::class, $envelope->getMessage());
 

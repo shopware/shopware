@@ -681,21 +681,21 @@ class TranslationTest extends TestCase
         $events = $result->getEventByDefinition(CmsSlotDefinition::class);
         $ids = $events->getIds();
 
-        $this->assertCount(3, $ids);
+        static::assertCount(3, $ids);
 
         $searchResult = $slotRepository->search(new Criteria($ids), $this->context);
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
-        $this->assertEquals([], $slot->getConfig());
+        static::assertEquals([], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
-        $this->assertEquals(['foo' => 'bar'], $slot->getConfig());
+        static::assertEquals(['foo' => 'bar'], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
-        $this->assertEquals(null, $slot->getConfig());
+        static::assertEquals(null, $slot->getConfig());
     }
 
     public function testJsonFieldWithDifferentLanguages(): void
@@ -743,7 +743,7 @@ class TranslationTest extends TestCase
         $events = $result->getEventByDefinition(CmsSlotDefinition::class);
         $ids = $events->getIds();
 
-        $this->assertCount(3, $ids);
+        static::assertCount(3, $ids);
 
         // validate english translations
 
@@ -751,15 +751,15 @@ class TranslationTest extends TestCase
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
-        $this->assertEquals([], $slot->getConfig());
+        static::assertEquals([], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
-        $this->assertEquals(['foo' => 'en'], $slot->getConfig());
+        static::assertEquals(['foo' => 'en'], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
-        $this->assertEquals(null, $slot->getConfig());
+        static::assertEquals(null, $slot->getConfig());
 
         // validate german translations
 
@@ -768,15 +768,15 @@ class TranslationTest extends TestCase
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
-        $this->assertEquals([], $slot->getConfig());
+        static::assertEquals([], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
-        $this->assertEquals(['foo' => 'de'], $slot->getConfig());
+        static::assertEquals(['foo' => 'de'], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
-        $this->assertEquals(null, $slot->getConfig());
+        static::assertEquals(null, $slot->getConfig());
     }
 
     private function addLanguage($id, $rootLanguageId = null): void

@@ -84,16 +84,16 @@ class CompositeEntitySearcherTest extends TestCase
 
         /** @var ProductEntity $first */
         $first = $result['data'][0]['entity'];
-        self::assertInstanceOf(ProductEntity::class, $first);
+        static::assertInstanceOf(ProductEntity::class, $first);
 
         /** @var ProductEntity $second */
         $second = $result['data'][1]['entity'];
-        self::assertInstanceOf(ProductEntity::class, $second);
+        static::assertInstanceOf(ProductEntity::class, $second);
 
         $firstScore = $first->getExtension('search')->get('_score');
         $secondScore = $second->getExtension('search')->get('_score');
 
-        self::assertSame($secondScore, $firstScore);
+        static::assertSame($secondScore, $firstScore);
 
         $this->productRepository->update([
             ['id' => $productId2, 'price' => ['gross' => 15, 'net' => 1]],
@@ -107,24 +107,24 @@ class CompositeEntitySearcherTest extends TestCase
 
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
 
-        self::assertCount(2, $result['data']);
+        static::assertCount(2, $result['data']);
 
         /** @var ProductEntity $first */
         $first = $result['data'][0]['entity'];
-        self::assertInstanceOf(ProductEntity::class, $first);
+        static::assertInstanceOf(ProductEntity::class, $first);
 
         /** @var ProductEntity $second */
         $second = $result['data'][1]['entity'];
-        self::assertInstanceOf(ProductEntity::class, $second);
+        static::assertInstanceOf(ProductEntity::class, $second);
 
         // `product-2` should now be boosted
-        self::assertSame($first->getId(), $productId2);
-        self::assertSame($second->getId(), $productId1);
+        static::assertSame($first->getId(), $productId2);
+        static::assertSame($second->getId(), $productId1);
 
         $firstScore = $result['data'][0]['_score'];
         $secondScore = $result['data'][1]['_score'];
 
-        self::assertTrue($firstScore > $secondScore, print_r($firstScore . ' < ' . $secondScore, true));
+        static::assertTrue($firstScore > $secondScore, print_r($firstScore . ' < ' . $secondScore, true));
     }
 
     private function getVersionData(string $entity, string $id, string $versionId): array

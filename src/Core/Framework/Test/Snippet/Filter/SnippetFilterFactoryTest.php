@@ -27,7 +27,7 @@ class SnippetFilterFactoryTest extends TestCase
 
         $result = $factory->getFilter($filterName);
 
-        $this->assertInstanceOf($expectedResult, $result);
+        static::assertInstanceOf($expectedResult, $result);
     }
 
     public function dataProviderForTestGetFilter(): array

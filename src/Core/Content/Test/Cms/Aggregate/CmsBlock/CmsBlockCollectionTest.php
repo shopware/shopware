@@ -18,7 +18,7 @@ class CmsBlockCollectionTest extends TestCase
         $collection->add($this->getBlock());
         $collection->add($this->getBlock());
 
-        $this->assertCount(15, $collection->getSlots());
+        static::assertCount(15, $collection->getSlots());
     }
 
     public function testSetAllSlotsInBlocks(): void
@@ -39,7 +39,7 @@ class CmsBlockCollectionTest extends TestCase
         /** @var CmsSlotEntity $lastSlot */
         $lastSlot = $collection->getSlots()->last();
 
-        $this->assertEquals(['overwrite' => true], $lastSlot->getConfig());
+        static::assertEquals(['overwrite' => true], $lastSlot->getConfig());
     }
 
     private function getBlock(): CmsBlockEntity

@@ -69,8 +69,8 @@ class MinAggregationTest extends TestCase
 
     public function testMinAggregationThrowsExceptionOnNonNumericField(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
                 MinAggregation::class,
                 StringField::class)
         );

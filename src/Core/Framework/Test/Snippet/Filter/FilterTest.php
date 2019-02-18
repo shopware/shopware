@@ -25,12 +25,12 @@ class FilterTest extends TestCase
         $termFilter = new TermFilter();
         $keyFilter = new TranslationKeyFilter();
 
-        $this->assertSame('author', $authorFilter->getName());
-        $this->assertSame('custom', $customFilter->getName());
-        $this->assertSame('empty', $emptyFilter->getName());
-        $this->assertSame('namespace', $namespaceFilter->getName());
-        $this->assertSame('term', $termFilter->getName());
-        $this->assertSame('translationKey', $keyFilter->getName());
+        static::assertSame('author', $authorFilter->getName());
+        static::assertSame('custom', $customFilter->getName());
+        static::assertSame('empty', $emptyFilter->getName());
+        static::assertSame('namespace', $namespaceFilter->getName());
+        static::assertSame('term', $termFilter->getName());
+        static::assertSame('translationKey', $keyFilter->getName());
     }
 
     /**
@@ -38,7 +38,7 @@ class FilterTest extends TestCase
      */
     public function testFiltersSupports(SnippetFilterInterface $filter, $filterName, $expectedResult)
     {
-        $this->assertSame($expectedResult, $filter->supports($filterName));
+        static::assertSame($expectedResult, $filter->supports($filterName));
     }
 
     public function dataProviderForTestFiltersSupports(): array

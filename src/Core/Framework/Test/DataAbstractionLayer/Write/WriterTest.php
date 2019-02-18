@@ -332,7 +332,7 @@ class WriterTest extends TestCase
             'id' => $this->idBytes,
         ]);
 
-        self::assertNotEmpty($product['id']);
+        static::assertNotEmpty($product['id']);
     }
 
     public function testInsertWithoutId(): void
@@ -355,7 +355,7 @@ class WriterTest extends TestCase
 
         $productCountAfter = (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM product');
 
-        self::assertSame($productCountBefore + 1, $productCountAfter);
+        static::assertSame($productCountBefore + 1, $productCountAfter);
     }
 
     public function testInsertFromDocs(): void
@@ -393,7 +393,7 @@ class WriterTest extends TestCase
             'id' => $this->idBytes,
         ]);
 
-        self::assertNotEmpty($product);
+        static::assertNotEmpty($product);
     }
 
     public function testUpdate(): void
@@ -429,11 +429,11 @@ class WriterTest extends TestCase
         $productManufacturerTranslation = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer_translation WHERE product_manufacturer_id=:id', ['id' => Uuid::fromStringToBytes($productManufacturerId)]);
         $productTranslation = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id=:id', ['id' => $this->idBytes]);
 
-        self::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));
-        self::assertSame('no html', $productTranslation['description']);
-        self::assertSame('<p>html</p>', $productTranslation['description_long']);
-        self::assertSame('Another Company', $productManufacturerTranslation['name']);
-        self::assertSame('http://www.shopware.com', $productManufacturer['link']);
+        static::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));
+        static::assertSame('no html', $productTranslation['description']);
+        static::assertSame('<p>html</p>', $productTranslation['description_long']);
+        static::assertSame('Another Company', $productManufacturerTranslation['name']);
+        static::assertSame('http://www.shopware.com', $productManufacturer['link']);
     }
 
     public function testUpdateWritesDefaultColumnsIfOmmitted(): void
@@ -452,20 +452,20 @@ class WriterTest extends TestCase
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE id=:id', ['id' => $this->idBytes]);
 
-        self::assertSame('ABC', $product['ean']);
+        static::assertSame('ABC', $product['ean']);
 
-        self::assertNotEquals('0000-00-00 00:00:00', $product['updated_at']);
-        self::assertNotEquals('2011-01-01 15:03:01', $product['updated_at']);
+        static::assertNotEquals('0000-00-00 00:00:00', $product['updated_at']);
+        static::assertNotEquals('2011-01-01 15:03:01', $product['updated_at']);
 
-        self::assertNotEquals('0000-00-00 00:00:00', $product['created_at']);
-        self::assertNotEquals('2011-01-01 15:03:01', $product['created_at']);
-        self::assertNotEquals('0000-00-00 00:00:00', $newProduct['created_at']);
-        self::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
+        static::assertNotEquals('0000-00-00 00:00:00', $product['created_at']);
+        static::assertNotEquals('2011-01-01 15:03:01', $product['created_at']);
+        static::assertNotEquals('0000-00-00 00:00:00', $newProduct['created_at']);
+        static::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
     }
 
     public function testInsertIgnoresDeferredFields(): void
     {
-        self::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
+        static::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $writeContext->getContext()->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -488,12 +488,12 @@ class WriterTest extends TestCase
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
+        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresDeferredFields(): void
     {
-        self::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
+        static::assertNotNull(MediaDefinition::getFields()->get('url')->getFlag(Deferred::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $writeContext->getContext()->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
@@ -523,7 +523,7 @@ class WriterTest extends TestCase
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        self::assertStringEndsWith('/testFile.jpg', $media->getUrl());
+        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateWritesMultipleTranslations(): void
@@ -608,9 +608,9 @@ class WriterTest extends TestCase
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE id=:id', ['id' => $this->idBytes]);
         $productTranslations = $this->connection->fetchAll('SELECT * FROM product_translation WHERE product_id= :id', ['id' => $this->idBytes]);
 
-        self::assertNotEmpty($product);
+        static::assertNotEmpty($product);
 
-        self::assertCount(2, $productTranslations, print_r($productTranslations, true));
+        static::assertCount(2, $productTranslations, print_r($productTranslations, true));
 
         $productTranslations = array_map(function ($a) {
             $a['language_id'] = Uuid::fromBytesToHex($a['language_id']);
@@ -620,17 +620,17 @@ class WriterTest extends TestCase
 
         foreach ($productTranslations as $translation) {
             if ($translation['language_id'] === Defaults::LANGUAGE_SYSTEM) {
-                self::assertSame('1ABC', $translation['name']);
-                self::assertSame('foo', $translation['description']);
-                self::assertNull($translation['description_long']);
-                self::assertNull($translation['meta_title']);
-                self::assertNull($translation['keywords']);
+                static::assertSame('1ABC', $translation['name']);
+                static::assertSame('foo', $translation['description']);
+                static::assertNull($translation['description_long']);
+                static::assertNull($translation['meta_title']);
+                static::assertNull($translation['keywords']);
             } else {
-                self::assertSame('2ABC', $translation['name']);
-                self::assertSame('foo', $translation['description']);
-                self::assertSame('2CBA', $translation['description_long']);
-                self::assertSame('bar', $translation['meta_title']);
-                self::assertSame('fiz,baz', $translation['keywords']);
+                static::assertSame('2ABC', $translation['name']);
+                static::assertSame('foo', $translation['description']);
+                static::assertSame('2CBA', $translation['description_long']);
+                static::assertSame('bar', $translation['meta_title']);
+                static::assertSame('fiz,baz', $translation['keywords']);
             }
         }
     }

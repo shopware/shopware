@@ -61,10 +61,10 @@ class MigrationRuntimeTest extends TestCase
     public function test_it_works_with_a_single_migration(): void
     {
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrate(null, 1);
         while ($runner->valid()) {
@@ -72,19 +72,19 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
     }
 
     public function test_it_works_with_multiple_migrations(): void
     {
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrate();
         while ($runner->valid()) {
@@ -92,19 +92,19 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNotNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNotNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
     }
 
     public function test_it_skips_already_executed_migrations(): void
     {
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrate();
         while ($runner->valid()) {
@@ -112,10 +112,10 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNotNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNotNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $oldDate = $migrations[0]['update'];
 
@@ -125,20 +125,20 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertSame($oldDate, $migrations[0]['update']);
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNotNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertSame($oldDate, $migrations[0]['update']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNotNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
     }
 
     public function test_no_destructive_if_no_none_destructive(): void
     {
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrateDestructive();
         while ($runner->valid()) {
@@ -146,19 +146,19 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
     }
 
     public function test_destructive_if_one_none_destructive(): void
     {
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrate(null, 1);
         while ($runner->valid()) {
@@ -166,10 +166,10 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrateDestructive();
         while ($runner->valid()) {
@@ -177,19 +177,19 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNotNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNotNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
     }
 
     public function test_destructive_if_multiple_none_destructive(): void
     {
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrate();
         while ($runner->valid()) {
@@ -197,10 +197,10 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNotNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNotNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrateDestructive();
         while ($runner->valid()) {
@@ -208,19 +208,19 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNotNull($migrations[0]['update_destructive']);
-        self::assertNotNull($migrations[1]['update']);
-        self::assertNotNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNotNull($migrations[0]['update_destructive']);
+        static::assertNotNull($migrations[1]['update']);
+        static::assertNotNull($migrations[1]['update_destructive']);
     }
 
     public function test_timestamp_cap(): void
     {
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
 
         $runner = $this->runner->migrate(1);
         while ($runner->valid()) {
@@ -228,10 +228,10 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNotNull($migrations[0]['update']);
-        self::assertNull($migrations[0]['update_destructive']);
-        self::assertNull($migrations[1]['update']);
-        self::assertNull($migrations[1]['update_destructive']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNull($migrations[0]['update_destructive']);
+        static::assertNull($migrations[1]['update']);
+        static::assertNull($migrations[1]['update_destructive']);
     }
 
     public function test_exception_handling(): void
@@ -252,10 +252,10 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['message']);
-        self::assertNotNull($migrations[0]['update']);
-        self::assertSame('update', $migrations[3]['message']);
-        self::assertNull($migrations[3]['update']);
+        static::assertNull($migrations[0]['message']);
+        static::assertNotNull($migrations[0]['update']);
+        static::assertSame('update', $migrations[3]['message']);
+        static::assertNull($migrations[3]['update']);
     }
 
     public function test_exception_handling_destructive(): void
@@ -285,12 +285,12 @@ class MigrationRuntimeTest extends TestCase
         }
 
         $migrations = $this->getMigrations();
-        self::assertNull($migrations[0]['message']);
-        self::assertNotNull($migrations[0]['update_destructive']);
-        self::assertSame('update destructive', $migrations[2]['message']);
-        self::assertNull($migrations[2]['update_destructive']);
-        self::assertNull($migrations[3]['update_destructive']);
-        self::assertSame('update', $migrations[3]['message']);
+        static::assertNull($migrations[0]['message']);
+        static::assertNotNull($migrations[0]['update_destructive']);
+        static::assertSame('update destructive', $migrations[2]['message']);
+        static::assertNull($migrations[2]['update_destructive']);
+        static::assertNull($migrations[3]['update_destructive']);
+        static::assertSame('update', $migrations[3]['message']);
     }
 
     private function getMigrations(): array

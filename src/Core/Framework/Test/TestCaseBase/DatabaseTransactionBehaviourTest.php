@@ -41,11 +41,11 @@ class DatabaseTransactionBehaviourTest extends TestCase
             ->getContainer()
             ->get(Connection::class);
 
-        self::assertTrue($connection->isTransactionActive());
+        static::assertTrue($connection->isTransactionActive());
     }
 
     public function testSetUpIsAlsoInTransaction(): void
     {
-        self::assertTrue($this->setUpIsInTransaction);
+        static::assertTrue($this->setUpIsInTransaction);
     }
 }

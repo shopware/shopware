@@ -18,10 +18,10 @@ class CmsSlotCollectionTest extends TestCase
             $this->getSlot('bottom'),
         ]);
 
-        $this->assertEquals('left', $collection->getSlot('left')->getSlot());
-        $this->assertEquals('right', $collection->getSlot('right')->getSlot());
-        $this->assertEquals('top', $collection->getSlot('top')->getSlot());
-        $this->assertEquals('bottom', $collection->getSlot('bottom')->getSlot());
+        static::assertEquals('left', $collection->getSlot('left')->getSlot());
+        static::assertEquals('right', $collection->getSlot('right')->getSlot());
+        static::assertEquals('top', $collection->getSlot('top')->getSlot());
+        static::assertEquals('bottom', $collection->getSlot('bottom')->getSlot());
     }
 
     public function testGetSlotAfterAdding(): void
@@ -33,14 +33,14 @@ class CmsSlotCollectionTest extends TestCase
             $this->getSlot('bottom'),
         ]);
 
-        $this->assertEquals('top', $collection->getSlot('top')->getSlot());
-        $this->assertEquals('bottom', $collection->getSlot('bottom')->getSlot());
-        $this->assertNull($collection->getSlot('left'));
+        static::assertEquals('top', $collection->getSlot('top')->getSlot());
+        static::assertEquals('bottom', $collection->getSlot('bottom')->getSlot());
+        static::assertNull($collection->getSlot('left'));
 
         $collection->add($leftSlot);
 
-        $this->assertNotNull($collection->getSlot('left'));
-        $this->assertEquals('left', $collection->getSlot('left')->getSlot());
+        static::assertNotNull($collection->getSlot('left'));
+        static::assertEquals('left', $collection->getSlot('left')->getSlot());
     }
 
     private function getSlot(string $slotName): CmsSlotEntity

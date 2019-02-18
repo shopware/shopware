@@ -24,7 +24,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testRegisterScheduledTasks()
     {
         $registry = $this->createMock(TaskRegistry::class);
-        $registry->expects($this->once())
+        $registry->expects(static::once())
             ->method('registerTasks');
 
         $subscriber = new PluginLifecycleSubscriber($registry);

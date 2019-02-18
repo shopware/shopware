@@ -53,8 +53,8 @@ class AvgAggregationTest extends TestCase
 
     public function testAvgAggregationThrowsExceptionOnNonNumericField(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.name" of type %s not supported',
             AvgAggregation::class,
             StringField::class)
         );

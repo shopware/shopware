@@ -71,7 +71,7 @@ class MigrationCommandTest extends TestCase
 
     public function test_command_migrate_no_until_no_all_option(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true));
+        static::assertSame(0, $this->getMigrationCount(true));
 
         $command = $this->getCommand();
 
@@ -81,29 +81,29 @@ class MigrationCommandTest extends TestCase
 
     public function test_command_migrate_all_option(): void
     {
-        self::assertSame(0, $this->getMigrationCount());
+        static::assertSame(0, $this->getMigrationCount());
 
         $command = $this->getCommand();
 
         $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new DummyOutput());
 
-        self::assertSame(2, $this->getMigrationCount());
+        static::assertSame(2, $this->getMigrationCount());
     }
 
     public function test_command_add_Migrations(): void
     {
-        self::assertSame(0, $this->getMigrationCount());
+        static::assertSame(0, $this->getMigrationCount());
 
         $command = $this->getCommand();
 
         $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::MIGRATION_IDENTIFIER]), new DummyOutput());
 
-        self::assertSame(2, $this->getMigrationCount());
+        static::assertSame(2, $this->getMigrationCount());
     }
 
     public function test_command_migrate_migration_exception(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true));
+        static::assertSame(0, $this->getMigrationCount(true));
 
         $command = $this->getCommand(true);
 
@@ -113,12 +113,12 @@ class MigrationCommandTest extends TestCase
             //nth
         }
 
-        self::assertSame(3, $this->getMigrationCount(true));
+        static::assertSame(3, $this->getMigrationCount(true));
     }
 
     public function test_destructive_command_migrate_no_until_no_all_option(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true));
+        static::assertSame(0, $this->getMigrationCount(true));
 
         $command = $this->getDestructiveCommand();
 
@@ -128,29 +128,29 @@ class MigrationCommandTest extends TestCase
 
     public function test_destructive_command_migrate_all_option(): void
     {
-        self::assertSame(0, $this->getMigrationCount());
+        static::assertSame(0, $this->getMigrationCount());
 
         $command = $this->getDestructiveCommand();
 
         $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new DummyOutput());
 
-        self::assertSame(2, $this->getMigrationCount());
+        static::assertSame(2, $this->getMigrationCount());
     }
 
     public function test_destructive_command_add_Migrations(): void
     {
-        self::assertSame(0, $this->getMigrationCount());
+        static::assertSame(0, $this->getMigrationCount());
 
         $command = $this->getDestructiveCommand();
 
         $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::MIGRATION_IDENTIFIER]), new DummyOutput());
 
-        self::assertSame(2, $this->getMigrationCount());
+        static::assertSame(2, $this->getMigrationCount());
     }
 
     public function test_command_migrate_migration_destructive(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true, true));
+        static::assertSame(0, $this->getMigrationCount(true, true));
 
         $command = $this->getCommand(true);
 
@@ -168,18 +168,18 @@ class MigrationCommandTest extends TestCase
             //nth
         }
 
-        self::assertSame(2, $this->getMigrationCount(true, true));
+        static::assertSame(2, $this->getMigrationCount(true, true));
     }
 
     public function test_command_migrate(): void
     {
-        self::assertSame(0, $this->getMigrationCount(true));
+        static::assertSame(0, $this->getMigrationCount(true));
 
         $command = $this->getCommand();
 
         $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new DummyOutput());
 
-        self::assertSame(2, $this->getMigrationCount(true));
+        static::assertSame(2, $this->getMigrationCount(true));
     }
 
     private function getConnection(): Connection

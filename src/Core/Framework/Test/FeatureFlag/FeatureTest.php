@@ -47,23 +47,23 @@ class FeatureTest extends TestCase
 
         $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-123', __DIR__ . '/_gen/');
         $gen->exportJs('NEXT-TEST-123', __DIR__ . '/_gen/');
-        self::assertFileExists(__DIR__ . '/_gen/feature_nextTest123.php');
-        self::assertFileExists(__DIR__ . '/_gen/feature_nextTest123.js');
+        static::assertFileExists(__DIR__ . '/_gen/feature_nextTest123.php');
+        static::assertFileExists(__DIR__ . '/_gen/feature_nextTest123.js');
 
         $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-456', __DIR__ . '/_gen/');
         $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-789', __DIR__ . '/_gen/');
         $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-101', __DIR__ . '/_gen/');
 
-        self::assertFalse(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
+        static::assertFalse(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
         include_once __DIR__ . '/_gen/feature_nextTest789.php';
-        self::assertTrue(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
+        static::assertTrue(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
     }
 
     public function testABoolGetsReturned()
     {
-        self::assertFalse(nextFix102());
+        static::assertFalse(nextFix102());
         putenv('FEATURE_NEXT_FIX_102=1');
-        self::assertTrue(nextFix102());
+        static::assertTrue(nextFix102());
     }
 
     public function testTheCallableGetsExecutes()
@@ -73,14 +73,14 @@ class FeatureTest extends TestCase
         ifNextFix101(function () use (&$indicator) {
             $indicator = true;
         });
-        self::assertFalse($indicator);
+        static::assertFalse($indicator);
 
         putenv(__METHOD__ . '=1');
 
         ifNextFix101(function () use (&$indicator) {
             $indicator = true;
         });
-        self::assertTrue($indicator);
+        static::assertTrue($indicator);
     }
 
     public function testTheMethodGetsExecutes()
@@ -89,27 +89,27 @@ class FeatureTest extends TestCase
         $this->indicator = null;
 
         ifNextFix101Call($this, 'indicate');
-        self::assertNull($this->indicator);
+        static::assertNull($this->indicator);
 
         putenv(__METHOD__ . '=1');
 
         ifNextFix101Call($this, 'indicate', new \stdClass());
-        self::assertInstanceOf(\stdClass::class, $this->indicator);
+        static::assertInstanceOf(\stdClass::class, $this->indicator);
     }
 
     public function testConfigGetAllReturnsAllAndTracksState()
     {
         $currentConfig = FeatureConfig::getAll();
 
-        self::assertArrayNotHasKey(__METHOD__, $currentConfig);
+        static::assertArrayNotHasKey(__METHOD__, $currentConfig);
         FeatureConfig::registerFlag(__METHOD__, __METHOD__);
 
         $configAfterRegistration = FeatureConfig::getAll();
-        self::assertFalse($configAfterRegistration[__METHOD__]);
+        static::assertFalse($configAfterRegistration[__METHOD__]);
 
         putenv(__METHOD__ . '=1');
         $activatedFlagConfig = FeatureConfig::getAll();
-        self::assertTrue($activatedFlagConfig[__METHOD__]);
+        static::assertTrue($activatedFlagConfig[__METHOD__]);
     }
 
     public function testTwigFeatureFlag()
@@ -123,9 +123,9 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate('featuretest.html.twig');
         putenv(__METHOD__ . '=1');
-        self::assertSame('FeatureIsActive', $template->render([]));
+        static::assertSame('FeatureIsActive', $template->render([]));
         putenv(__METHOD__ . '=0');
-        self::assertSame('FeatureIsInactive', $template->render([]));
+        static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
     public function testTwigFeatureFlagNotRegistered()

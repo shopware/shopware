@@ -114,40 +114,40 @@ class SalesChannelRepositoryTest extends TestCase
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
 
-        self::assertEquals($name, $salesChannel->getName());
-        self::assertEquals($accessKey, $salesChannel->getAccessKey());
+        static::assertEquals($name, $salesChannel->getName());
+        static::assertEquals($accessKey, $salesChannel->getAccessKey());
 
-        self::assertEquals($cover, $salesChannel->getType()->getCoverUrl());
-        self::assertEquals($icon, $salesChannel->getType()->getIconName());
-        self::assertEquals($screenshots, $salesChannel->getType()->getScreenshotUrls());
-        self::assertEquals($typeName, $salesChannel->getType()->getName());
-        self::assertEquals($manufacturer, $salesChannel->getType()->getManufacturer());
-        self::assertEquals($description, $salesChannel->getType()->getDescription());
-        self::assertEquals($descriptionLong, $salesChannel->getType()->getDescriptionLong());
+        static::assertEquals($cover, $salesChannel->getType()->getCoverUrl());
+        static::assertEquals($icon, $salesChannel->getType()->getIconName());
+        static::assertEquals($screenshots, $salesChannel->getType()->getScreenshotUrls());
+        static::assertEquals($typeName, $salesChannel->getType()->getName());
+        static::assertEquals($manufacturer, $salesChannel->getType()->getManufacturer());
+        static::assertEquals($description, $salesChannel->getType()->getDescription());
+        static::assertEquals($descriptionLong, $salesChannel->getType()->getDescriptionLong());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $salesChannelId));
         $currency = $this->currencyRepository->search($criteria, $context);
-        self::assertEquals(1, $currency->count());
+        static::assertEquals(1, $currency->count());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $salesChannelId));
         $language = $this->languageRepository->search($criteria, $context);
-        self::assertEquals(1, $language->count());
+        static::assertEquals(1, $language->count());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('payment_method.salesChannels.id', $salesChannelId));
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context);
-        self::assertEquals(1, $paymentMethod->count());
+        static::assertEquals(1, $paymentMethod->count());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('country.salesChannels.id', $salesChannelId));
         $country = $this->countryRepository->search($criteria, $context);
-        self::assertEquals(1, $country->count());
+        static::assertEquals(1, $country->count());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $salesChannelId));
         $shippingMethod = $this->shippingMethodRepository->search($criteria, $context);
-        self::assertEquals(1, $shippingMethod->count());
+        static::assertEquals(1, $shippingMethod->count());
     }
 }

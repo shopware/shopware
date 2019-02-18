@@ -48,7 +48,7 @@ class ProductStreamSyncTest extends TestCase
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
         $response = $this->getClient()->getResponse();
 
-        self::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         $result = $this->connection->executeQuery('SELECT * from product_stream inner join product_stream_translation on product_stream.id = product_stream_translation.product_stream_id order by name');
         static::assertEquals('Test stream', $result->fetch()['name']);

@@ -109,7 +109,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         /** @var DeadMessageEntity $deadMessage */
         $deadMessage = $deadMessages->first();
         $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 1);
-        $this->assertEquals($taskId, $deadMessage->getScheduledTaskId());
+        static::assertEquals($taskId, $deadMessage->getScheduledTaskId());
     }
 
     public function testMiddlewareWithEncryptedMessage()

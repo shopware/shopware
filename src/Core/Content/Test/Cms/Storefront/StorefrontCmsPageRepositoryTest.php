@@ -45,7 +45,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
     {
         $pageCollection = $this->pageRepository->read([], $this->checkoutContext);
 
-        $this->assertCount(0, $pageCollection);
+        static::assertCount(0, $pageCollection);
     }
 
     public function testLoadPageWithAssociations(): void
@@ -54,17 +54,17 @@ class StorefrontCmsPageRepositoryTest extends TestCase
 
         $pageCollection = $this->pageRepository->read([$pageId], $this->checkoutContext);
 
-        $this->assertGreaterThanOrEqual(1, $pageCollection->count());
+        static::assertGreaterThanOrEqual(1, $pageCollection->count());
 
         /** @var CmsPageEntity $page */
         $page = $pageCollection->first();
 
-        $this->assertCount(1, $page->getBlocks());
+        static::assertCount(1, $page->getBlocks());
 
         /** @var CmsBlockEntity $block */
         $block = $page->getBlocks()->first();
 
-        $this->assertCount(2, $block->getSlots());
+        static::assertCount(2, $block->getSlots());
     }
 
     private function createPage(): string

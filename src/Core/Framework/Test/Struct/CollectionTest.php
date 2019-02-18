@@ -15,7 +15,7 @@ class CollectionTest extends TestCase
         $elements = ['a', 'b'];
         $collection = new TestCollection($elements);
 
-        self::assertEquals($elements, $collection->getElements());
+        static::assertEquals($elements, $collection->getElements());
     }
 
     public function testClear(): void
@@ -25,45 +25,45 @@ class CollectionTest extends TestCase
         $collection->add('b');
 
         $collection->clear();
-        self::assertEmpty($collection->getElements());
+        static::assertEmpty($collection->getElements());
     }
 
     public function testCount(): void
     {
         $collection = new TestCollection();
-        self::assertEquals(0, $collection->count());
+        static::assertEquals(0, $collection->count());
 
         $collection->add('a');
         $collection->add('b');
-        self::assertEquals(2, $collection->count());
+        static::assertEquals(2, $collection->count());
     }
 
     public function testGetNumericKeys(): void
     {
         $collection = new TestCollection();
-        self::assertEquals([], $collection->getKeys());
+        static::assertEquals([], $collection->getKeys());
 
         $collection->add('a');
         $collection->add('b');
-        self::assertEquals([0, 1], $collection->getKeys());
+        static::assertEquals([0, 1], $collection->getKeys());
     }
 
     public function testHasWithNumericKey(): void
     {
         $collection = new TestCollection();
-        self::assertFalse($collection->has(0));
+        static::assertFalse($collection->has(0));
 
         $collection->add('a');
         $collection->add('b');
-        self::assertTrue($collection->has(0));
-        self::assertTrue($collection->has(1));
+        static::assertTrue($collection->has(0));
+        static::assertTrue($collection->has(1));
     }
 
     public function testMap(): void
     {
         $collection = new TestCollection();
         $collection->map(function () {
-            self::fail('map should not be called for empty collection');
+            static::fail('map should not be called for empty collection');
         });
 
         $collection->add('a');
@@ -71,14 +71,14 @@ class CollectionTest extends TestCase
         $result = $collection->map(function ($element) use (&$processedElements) {
             return $element . '_test';
         });
-        self::assertEquals(['a_test', 'b_test'], $result);
+        static::assertEquals(['a_test', 'b_test'], $result);
     }
 
     public function testFmap(): void
     {
         $collection = new TestCollection();
         $collection->fmap(function () {
-            self::fail('fmap should not be called for empty collection');
+            static::fail('fmap should not be called for empty collection');
         });
 
         $collection->add('a');
@@ -86,7 +86,7 @@ class CollectionTest extends TestCase
         $filtered = $collection->fmap(function ($element) {
             return $element === 'a' ? false : $element . '_test';
         });
-        self::assertEquals([1 => 'b_test'], $filtered);
+        static::assertEquals([1 => 'b_test'], $filtered);
     }
 
     public function testSort(): void
@@ -94,7 +94,7 @@ class CollectionTest extends TestCase
         $collection = new TestCollection();
 
         $collection->sort(function () {
-            self::fail('fmap should not be called for empty collection');
+            static::fail('fmap should not be called for empty collection');
         });
 
         $collection->add('b');
@@ -105,7 +105,7 @@ class CollectionTest extends TestCase
             return strcmp($a, $b);
         });
 
-        self::assertEquals([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
+        static::assertEquals([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
     }
 
     public function testFilterInstance(): void
@@ -113,21 +113,21 @@ class CollectionTest extends TestCase
         $productStruct = new ProductEntity();
         $categoryStruct = new CategoryEntity();
         $collection = new TestCollection();
-        self::assertEquals(0, $collection->filterInstance(ProductEntity::class)->count());
+        static::assertEquals(0, $collection->filterInstance(ProductEntity::class)->count());
 
         $collection->add('a');
         $collection->add($productStruct);
         $collection->add($categoryStruct);
 
         $filtered = $collection->filterInstance(Struct::class);
-        self::assertEquals([$productStruct, $categoryStruct], $filtered->getElements());
+        static::assertEquals([$productStruct, $categoryStruct], $filtered->getElements());
     }
 
     public function testFilter(): void
     {
         $collection = new TestCollection();
         $collection->filter(function () {
-            self::fail('filter should not be called for empty collection');
+            static::fail('filter should not be called for empty collection');
         });
 
         $collection->add('a');
@@ -137,39 +137,39 @@ class CollectionTest extends TestCase
         $filtered = $collection->filter(function ($element) {
             return $element !== 'b';
         });
-        self::assertEquals(['a', 'c'], $filtered->getElements());
+        static::assertEquals(['a', 'c'], $filtered->getElements());
     }
 
     public function testSlice(): void
     {
         $collection = new TestCollection();
-        self::assertEmpty($collection->slice(0)->getElements());
+        static::assertEmpty($collection->slice(0)->getElements());
 
         $collection->add('a');
         $collection->add('b');
         $collection->add('c');
 
-        self::assertEquals(['b', 'c'], $collection->slice(1)->getElements());
-        self::assertEquals(['b'], $collection->slice(1, 1)->getElements());
+        static::assertEquals(['b', 'c'], $collection->slice(1)->getElements());
+        static::assertEquals(['b'], $collection->slice(1, 1)->getElements());
     }
 
     public function testGetElements(): void
     {
         $elements = ['a', 'b'];
         $collection = new TestCollection();
-        self::assertEquals([], $collection->getElements());
+        static::assertEquals([], $collection->getElements());
 
         $collection->add('a');
         $collection->add('b');
 
-        self::assertEquals($elements, $collection->getElements());
+        static::assertEquals($elements, $collection->getElements());
     }
 
     public function testJsonSerialize(): void
     {
         $elements = ['a', 'b'];
         $collection = new TestCollection();
-        self::assertEquals(
+        static::assertEquals(
             [
                 'elements' => [],
                 'extensions' => [],
@@ -181,7 +181,7 @@ class CollectionTest extends TestCase
         $collection->add('a');
         $collection->add('b');
 
-        self::assertEquals(
+        static::assertEquals(
             [
                 'elements' => $elements,
                 'extensions' => [],
@@ -194,23 +194,23 @@ class CollectionTest extends TestCase
     public function testFirst(): void
     {
         $collection = new TestCollection();
-        self::assertNull($collection->first());
+        static::assertNull($collection->first());
 
         $collection->add('a');
         $collection->add('b');
 
-        self::assertEquals('a', $collection->first());
+        static::assertEquals('a', $collection->first());
     }
 
     public function testLast(): void
     {
         $collection = new TestCollection();
-        self::assertNull($collection->last());
+        static::assertNull($collection->last());
 
         $collection->add('a');
         $collection->add('b');
 
-        self::assertEquals('b', $collection->last());
+        static::assertEquals('b', $collection->last());
     }
 }
 

@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "shopware/platform": "1.0.0"
+        "shopware/platform": "dev-master"
     },
     "extra": {
         "installer-name": "SwagTest",

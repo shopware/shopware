@@ -1,0 +1,28 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Plugin\Requirement;
+
+use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementException;
+use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
+
+class RequirementExceptionStack
+{
+    private $exceptions = [];
+
+    public function add(RequirementException ...$exceptions): void
+    {
+        foreach ($exceptions as $exception) {
+            $this->exceptions[] = $exception;
+        }
+    }
+
+    public function tryToThrow(string $method): void
+    {
+        $exceptions = $this->exceptions;
+        $this->exceptions = [];
+
+        if ($exceptions) {
+            throw new RequirementStackException($method, ...$exceptions);
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "name": "swag/requirement-valid-test",
+    "description": "Test requirement validator",
+    "version": "v1.0.0",
+    "type": "shopware-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG"
+        }
+    ],
+    "require": {
+        "shopware/platform": "dev-master"
+    },
+    "extra": {
+        "installer-name": "SwagRequirement",
+        "copyright": "(c) by shopware AG",
+        "label": {
+            "de_DE": "Test für Requirement Validator",
+            "en_GB": "Test for requirement validator"
+        }
+    }
+}

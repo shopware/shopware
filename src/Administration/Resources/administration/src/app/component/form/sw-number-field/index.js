@@ -103,6 +103,14 @@ export default {
         },
 
         onInput() {
+            this.emitValue('input');
+        },
+
+        onChange() {
+            this.emitValue('change');
+        },
+
+        emitValue(type) {
             let value = String(this.currentValue);
 
             switch (this.numberType) {
@@ -131,7 +139,7 @@ export default {
                 this.currentValue = value;
             }
 
-            this.$emit('input', this.parseValue(this.currentValue));
+            this.$emit(type, this.parseValue(this.currentValue));
 
             if (this.hasError) {
                 this.errorStore.deleteError(this.formError);

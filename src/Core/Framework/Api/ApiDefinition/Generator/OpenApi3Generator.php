@@ -654,7 +654,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $openapi;
     }
 
-    private function createToOneLinkage(ManyToOneAssociationField $field, string $basePath): array
+    /**
+     * @param ManyToOneAssociationField|OneToOneAssociationField $field
+     */
+    private function createToOneLinkage($field, string $basePath): array
     {
         return [
             'type' => 'object',

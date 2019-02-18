@@ -54,11 +54,10 @@ abstract class FileNameProvider
     ): MediaCollection {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_AND,
             [
                 new ContainsFilter('fileName', $fileName),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', $mediaId)]),
+                new NotFilter([new EqualsFilter('id', $mediaId)]),
             ]
         ));
 

@@ -49,7 +49,7 @@ class QueryStringParser
                     }
                 }
 
-                return new MultiFilter($operator, $queries);
+                return new MultiFilter($queries, $operator);
             case 'contains':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for contains filter is missing.', $path . '/field');
@@ -62,10 +62,10 @@ class QueryStringParser
                 return new ContainsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'not':
                 return new NotFilter(
-                    $query['operator'] ?? 'AND',
                     array_map(function (array $query) use ($path, $exception, $definition) {
                         return self::fromArray($definition, $query, $exception, $path);
-                    }, $query['queries'])
+                    }, $query['queries']),
+                    $query['operator'] ?? 'AND'
                 );
             case 'range':
                 return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);

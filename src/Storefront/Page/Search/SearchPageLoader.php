@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -42,6 +43,8 @@ class SearchPageLoader implements PageLoaderInterface
         $page = $this->pageWithHeaderLoader->load($request, $context);
 
         $page = SearchPage::createFrom($page);
+
+        $request->addParam('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
 
         $page->setListing(
             $this->listingPageletLoader->load($request, $context)

@@ -122,7 +122,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
-        $filterQuery = new MultiFilter(MultiFilter::CONNECTION_AND, $criteria->getFilters());
+        $filterQuery = new MultiFilter($criteria->getFilters());
         $parsed = $this->queryParser->parse($filterQuery, $definition, $context);
         if (!empty($parsed->getWheres())) {
             $query->andWhere(implode(' AND ', $parsed->getWheres()));

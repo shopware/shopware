@@ -52,10 +52,10 @@ class PluginListCommand extends Command
         if ($filter) {
             $io->comment(sprintf('Filtering for: %s', $filter));
 
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            $criteria->addFilter(new MultiFilter([
                 new ContainsFilter('name', $filter),
                 new ContainsFilter('label', $filter),
-            ]));
+            ], MultiFilter::CONNECTION_OR));
         }
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();

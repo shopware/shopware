@@ -118,7 +118,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
     private function fetchChildren(array $parentIds, Context $context): EntityCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+        $criteria->addFilter(new MultiFilter([
             new EqualsFilter('media_folder.useParentConfiguration', true),
             new EqualsAnyFilter('media_folder.parentId', $parentIds),
         ]));

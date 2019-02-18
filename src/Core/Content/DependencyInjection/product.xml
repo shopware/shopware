@@ -125,5 +125,18 @@
             <tag name="shopware.dbal_indexing.indexer" priority="500"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product_visibility.repository" public="true">
+            <argument>Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
     </services>
 </container>                

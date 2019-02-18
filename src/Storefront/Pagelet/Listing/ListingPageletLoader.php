@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\Listing;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
@@ -12,6 +13,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingPageletLoader implements PageLoaderInterface
 {
+    public const PRODUCT_VISIBILITY = 'product-min-visibility';
+
     /**
      * @var StorefrontProductRepository
      */
@@ -33,6 +36,14 @@ class ListingPageletLoader implements PageLoaderInterface
     public function load(InternalRequest $request, CheckoutContext $context): StorefrontSearchResult
     {
         $criteria = new Criteria();
+
+        if ($visibility = $request->getParam(self::PRODUCT_VISIBILITY)) {
+            $criteria->addFilter(
+                new RangeFilter(
+                    'product.visibilities.visibility', [RangeFilter::GTE => (int) $visibility]
+                )
+            );
+        }
 
         $this->eventDispatcher->dispatch(
             ListingPageletCriteriaCreatedEvent::NAME,

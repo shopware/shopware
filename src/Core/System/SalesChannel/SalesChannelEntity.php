@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Navigation\NavigationEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\CountryCollection;
@@ -185,6 +186,11 @@ class SalesChannelEntity extends Entity
      * @var NavigationEntity|null
      */
     protected $navigation;
+
+    /**
+     * @var ProductVisibilityCollection|null
+     */
+    protected $productVisibilities;
 
     public function getLanguageId(): string
     {
@@ -504,5 +510,15 @@ class SalesChannelEntity extends Entity
     public function setNavigation(?NavigationEntity $navigation): void
     {
         $this->navigation = $navigation;
+    }
+
+    public function getProductVisibilities(): ?ProductVisibilityCollection
+    {
+        return $this->productVisibilities;
+    }
+
+    public function setProductVisibilities(ProductVisibilityCollection $productVisibilities): void
+    {
+        $this->productVisibilities = $productVisibilities;
     }
 }

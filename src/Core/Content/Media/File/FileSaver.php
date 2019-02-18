@@ -399,11 +399,10 @@ class FileSaver
     ): MediaCollection {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('fileName', $destination),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new NotFilter(NotFilter::CONNECTION_AND, [
+                new NotFilter([
                     new EqualsFilter('id', $media->getId()),
                 ]),
             ]

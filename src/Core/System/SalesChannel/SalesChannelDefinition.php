@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Navigation\NavigationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -93,6 +94,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('navigation', 'navigation_id', NavigationDefinition::class, false),
+            (new OneToManyAssociationField('productVisibilities', ProductVisibilityDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
         ]);
     }
 }

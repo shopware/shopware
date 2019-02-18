@@ -17,7 +17,7 @@ class MultiFilter extends Filter
      */
     protected $operator;
 
-    public function __construct(string $operator = self::CONNECTION_AND, array $queries = [])
+    public function __construct(array $queries = [], string $operator = self::CONNECTION_AND)
     {
         $this->operator = $operator;
         $this->queries = $queries;

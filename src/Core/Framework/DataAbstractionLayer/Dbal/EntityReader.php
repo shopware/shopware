@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -216,7 +217,7 @@ class EntityReader implements EntityReaderInterface
             $accessor = $definition::getEntityName() . '.' . $field->getPropertyName();
 
             //many to one associations can be directly fetched in same query
-            if ($field instanceof ManyToOneAssociationField) {
+            if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 /** @var EntityDefinition|string $reference */
                 $reference = $field->getReferenceClass();
 

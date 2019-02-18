@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -104,7 +105,7 @@ class EntityLoadedEvent extends NestedEvent
 
             $isExtension = $association->is(Extension::class);
 
-            if ($association instanceof ManyToOneAssociationField) {
+            if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
                 /** @var Entity $entity */
                 foreach ($entities as $entity) {
                     try {

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -361,7 +362,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $requiredAttributes[] = $field->getPropertyName();
             }
 
-            if ($field instanceof ManyToOneAssociationField) {
+            if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $relationships[$field->getPropertyName()] = $this->createToOneLinkage($field, $detailPath);
                 continue;
             }
@@ -1105,7 +1106,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if ($field instanceof ManyToOneAssociationField) {
+            if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $schema = $this->createToOneLinkage($field, $path);
 
                 if ($field->is(ReadOnly::class)) {

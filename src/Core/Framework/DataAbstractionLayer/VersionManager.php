@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -449,6 +450,16 @@ class VersionManager
 
                 continue;
             }
+
+            if ($field instanceof OneToOneAssociationField && $value) {
+                $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $value, $keepIds, $cloneId, $cloneDefinition);
+
+                if (!$keepIds) {
+                    $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                }
+
+                $payloadCursor[$field->getPropertyName()] = $nestedItem;
+            }
         }
 
         if (!empty($extensions)) {
@@ -569,7 +580,7 @@ class VersionManager
         return $payload;
     }
 
-    private function removePrimaryKey(OneToManyAssociationField $field, array $nestedItem): array
+    private function removePrimaryKey(AssociationInterface $field, array $nestedItem): array
     {
         $pkFields = $field->getReferenceClass()::getPrimaryKeys();
 

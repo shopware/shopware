@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -378,6 +379,12 @@ class DefinitionValidator
                 continue;
             }
 
+            if ($association instanceof OneToOneAssociationField) {
+                $violations = array_merge_recursive(
+                    $violations,
+                    $this->validateOneToOne($definition, $association)
+                );
+            }
             if ($association instanceof ManyToOneAssociationField) {
                 $violations = array_merge_recursive(
                     $violations,
@@ -446,6 +453,55 @@ class DefinitionValidator
         }
 
         return $violations;
+    }
+
+    private function validateOneToOne(string $definition, OneToOneAssociationField $association): array
+    {
+        $reference = $association->getReferenceClass();
+
+        $associationViolations = [];
+
+        /** @var string|EntityDefinition $definition */
+        $reverseSide = $reference::getFields()->filter(
+            function (Field $field) use ($association, $definition) {
+                if (!$field instanceof OneToOneAssociationField) {
+                    return false;
+                }
+                $reference = $field->getReferenceClass();
+
+                return $field->getStorageName() === $association->getReferenceField() && $reference === $definition;
+            }
+        )->first();
+
+        /** @var OneToOneAssociationField $reverseSide */
+        if (!$reverseSide) {
+            $associationViolations[$definition][] = sprintf(
+                'Missing reverse one to one association for %s <-> %s (%s)',
+                $definition,
+                $association->getReferenceClass(),
+                $association->getPropertyName()
+            );
+        }
+
+        if ($reverseSide && $association->loadInBasic() && $reverseSide->loadInBasic()) {
+            $associationViolations[$definition][] = sprintf(
+                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
+                $definition,
+                $association->getReferenceClass(),
+                $association->getPropertyName(),
+                $reverseSide->getPropertyName()
+            );
+        }
+
+        if ($association->is(CascadeDelete::class) && $reverseSide->is(CascadeDelete::class)) {
+            $associationViolations[$definition][] = sprintf(
+                'Remove cascade delete in definition %s association: %s. One to One association should only have one side defined cascade delete flag',
+                $definition,
+                $association->getPropertyName()
+            );
+        }
+
+        return $associationViolations;
     }
 
     private function validateManyToOne(string $definition, ManyToOneAssociationField $association): array
@@ -757,6 +813,7 @@ class DefinitionValidator
 
             if ($field instanceof ManyToManyAssociationField
                 || $field instanceof ManyToOneAssociationField
+                || $field instanceof OneToOneAssociationField
                 || $field instanceof OneToManyAssociationField) {
                 continue;
             }

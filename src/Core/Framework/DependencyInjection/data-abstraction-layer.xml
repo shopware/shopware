@@ -1278,6 +1278,11 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToOneAssociationFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ComputedFieldSerializer">
             <tag name="shopware.field_serializer"/>
         </service>

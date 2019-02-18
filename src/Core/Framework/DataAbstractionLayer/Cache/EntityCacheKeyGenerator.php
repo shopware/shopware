@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -212,7 +213,7 @@ class EntityCacheKeyGenerator
                 continue;
             }
 
-            if ($association instanceof ManyToOneAssociationField) {
+            if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
                 /* @var Entity $value */
                 $nested = $this->getAssociatedTags($association->getReferenceClass(), $value, $context);
                 foreach ($nested as $key) {
@@ -296,7 +297,7 @@ class EntityCacheKeyGenerator
 
             if ($field instanceof OneToManyAssociationField) {
                 $associations[] = $target::getEntityName() . '.' . $field->getReferenceField();
-            } elseif ($field instanceof ManyToOneAssociationField) {
+            } elseif ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 /* @var ManyToOneAssociationField $field */
                 $associations[] = $source::getEntityName() . '.' . $field->getStorageName();
             } elseif ($field instanceof ManyToManyAssociationField) {

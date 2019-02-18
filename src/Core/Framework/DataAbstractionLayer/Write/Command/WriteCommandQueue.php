@@ -7,7 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderE
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\Struct\Uuid;
 
@@ -91,7 +93,15 @@ class WriteCommandQueue
         /** @var string|EntityDefinition $definition */
         $fields = $definition::getFields()
             ->filter(function (Field $field) {
-                return !$field->is(ReadOnly::class) && $field instanceof ManyToOneAssociationField;
+                if ($field->is(ReadOnly::class)) {
+                    return false;
+                }
+
+                if ($field instanceof ManyToOneAssociationField) {
+                    return true;
+                }
+
+                return $field instanceof OneToOneAssociationField && $field->is(CascadeDelete::class);
             });
 
         $toManyDefinitions = $definition::getFields()

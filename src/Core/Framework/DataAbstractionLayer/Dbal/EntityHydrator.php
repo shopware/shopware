@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -107,7 +108,7 @@ class EntityHydrator
                 continue;
             }
 
-            if ($field instanceof ManyToOneAssociationField) {
+            if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 //hydrated contains now the associated entity (eg. currently hydrating the product, hydrated contains now the manufacturer or tax or ...)
                 $hydrated = $this->hydrateManyToOne($row, $root, $context, $field);
 
@@ -292,7 +293,7 @@ class EntityHydrator
         return $primaryKey;
     }
 
-    private function hydrateManyToOne(array $row, string $root, Context $context, ManyToOneAssociationField $field): ?Entity
+    private function hydrateManyToOne(array $row, string $root, Context $context, AssociationInterface $field): ?Entity
     {
         $key = $root . '.' . $field->getPropertyName() . '.id';
 

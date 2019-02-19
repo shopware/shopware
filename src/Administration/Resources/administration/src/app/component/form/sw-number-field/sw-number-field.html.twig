@@ -9,5 +9,6 @@
            @keydown.down="decreaseNumberByStep"
            @change="onChange"
            v-bind="$attrs"
+           :disabled="disabled"
            v-model="currentValue"/>
 {% endblock %}

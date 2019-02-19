@@ -1424,9 +1424,8 @@
     "columnOptions": "Optionen"
   },
   "sw-language-info": {
-    "infoTextChildLanguage": "Übersetzung von \"{entityDescription}\" in der Sprache \"{language}\". Diese erbt von",
-    "infoTextRootLanguage": "Übersetzung von \"{entityDescription}\" in der Sprache \"{language}\". Der Fallback ist die Systemstandardsprache",
-    "infoTextNewEntity": "\"{entityDescription}\" wird in der Systemstandardsprache angezeigt. Neue Daten müssen in der Standardsprache immer gepflegt sein."
+    "infoTextChildLanguage": "Darstellung von \"{entityDescription}\" in der Sprache \"{language}\". Diese erbt von",
+    "infoTextRootLanguage": "Darstellung von \"{entityDescription}\" in der Sprache \"{language}\". Der Fallback ist die Systemstandardsprache"
   },
   "sw-language-switch": {
     "messageModalUnsavedChanges": "Du hast in der aktuellen Sprache noch ungespeicherte Änderungen. Möchtest Du diese jetzt speichern?",

@@ -46,7 +46,7 @@ module.exports = {
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
             .checkNotification(`Product "${fixture.name}" has been saved successfully.`)
-            .expect.element('.sw-language-info').to.have.text.that.equals(`Translation of "${fixture.name}" in the root language "Deutsch". Fallback is the system default language "English".`);
+            .expect.element('.sw-language-info').to.have.text.that.equals(`"${fixture.name}" displayed in the root language "Deutsch". Fallback is the system default language "English".`);
 
     },
     'translate some information to german': (browser) => {

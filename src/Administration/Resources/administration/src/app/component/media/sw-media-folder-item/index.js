@@ -116,13 +116,16 @@ export default {
 
         rejectRenaming(cause) {
             if (cause) {
-                let message = this.$tc('global.sw-media-folder-item.notificationRenamingError');
+                let title = this.$tc('global.sw-media-folder-item.notification.renamingError.title');
+                let message = this.$tc('global.sw-media-folder-item.notification.renamingError.message');
 
                 if (cause === 'empty-name') {
-                    message = this.$tc('global.sw-media-folder-item.notificationErrorBlankItemName');
+                    title = this.$tc('global.sw-media-folder-item.notification.errorBlankItemName.title');
+                    message = this.$tc('global.sw-media-folder-item.notification.errorBlankItemName.message');
                 }
 
                 this.createNotificationError({
+                    title: title,
                     message: message
                 });
             }

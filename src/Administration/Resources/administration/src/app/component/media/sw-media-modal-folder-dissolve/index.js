@@ -36,8 +36,18 @@ export default {
 
         dissolveSelection() {
             const dissolvePromises = [];
-            const notificationMessageSuccess = this.$tc('global.sw-media-modal-folder-dissolve.notificationSuccessOverall');
-            const notificationMessageError = this.$tc('global.sw-media-modal-folder-dissolve.notificationErrorOverall');
+            const notificationTitleSuccess = this.$tc(
+                'global.sw-media-modal-folder-dissolve.notification.successOverall.title'
+            );
+            const notificationMessageSuccess = this.$tc(
+                'global.sw-media-modal-folder-dissolve.notification.successOverall.message'
+            );
+            const notificationTitleError = this.$tc(
+                'global.sw-media-modal-folder-dissolve.notification.errorOverall.title'
+            );
+            const notificationMessageError = this.$tc(
+                'global.sw-media-modal-folder-dissolve.notification.errorOverall.message'
+            );
 
             this.itemsToDissolve.forEach((item) => {
                 const messages = this._getNotificationMessages(item);
@@ -48,12 +58,14 @@ export default {
                         item.isLoading = false;
                         item.remove();
                         this.createNotificationSuccess({
+                            title: this.$tc('global.sw-media-modal-folder-dissolve.notification.successSingle.title'),
                             message: messages.successMessage
                         });
                         return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
+                            title: this.$tc('global.sw-media-modal-folder-dissolve.notification.errorSingle.title'),
                             message: messages.errorMessage
                         });
                     })
@@ -65,6 +77,7 @@ export default {
                 Promise.all(dissolvePromises).then((ids) => {
                     if (dissolvePromises.length > 1) {
                         this.createNotificationSuccess({
+                            title: notificationTitleSuccess,
                             message: notificationMessageSuccess
                         });
                     }
@@ -72,6 +85,7 @@ export default {
                 }).catch(() => {
                     if (dissolvePromises.length > 1) {
                         this.createNotificationError({
+                            title: notificationTitleError,
                             message: notificationMessageError
                         });
                     }
@@ -82,12 +96,12 @@ export default {
         _getNotificationMessages(item) {
             return {
                 successMessage: this.$tc(
-                    'global.sw-media-modal-folder-dissolve.notificationSuccessSingle',
+                    'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
                     1,
                     { folderName: item.name }
                 ),
                 errorMessage: this.$tc(
-                    'global.sw-media-modal-folder-dissolve.notificationErrorSingle',
+                    'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
                     1,
                     { folderName: item.name }
                 )

@@ -64,7 +64,7 @@ module.exports = {
         browser
             .waitForElementVisible('.sw-field__radio-group')
             .click('input#sw-field--selectedOption-2')
-            .waitForElementVisible(`.sw-media-modal-duplicate-media__right_footer ${page.elements.primaryButton}`)
+            .waitForElementVisible(`.sw-modal__footer`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
 
         browser.expect.element('.sw-media-grid-item__item--0').to.have.text.that.equals('sw-login-background_(1).png');

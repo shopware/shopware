@@ -40,8 +40,10 @@ export default {
 
         deleteSelection() {
             const deletePromises = [];
-            const notificationMessageSuccess = this.$tc('global.sw-media-modal-delete.notificationSuccessOverall');
-            const notificationMessageError = this.$tc('global.sw-media-modal-delete.notificationErrorOverall');
+            const notificationTitleSuccess = this.$tc('global.sw-media-modal-delete.notification.successOverall.title');
+            const notificationMessageSuccess = this.$tc('global.sw-media-modal-delete.notification.successOverall.message');
+            const notificationTitleError = this.$tc('global.sw-media-modal-delete.notification.errorOverall.title');
+            const notificationMessageError = this.$tc('global.sw-media-modal-delete.notification.errorOverall.message');
 
             this.itemsToDelete.forEach((item) => {
                 const messages = this._getNotificationMessages(item);
@@ -51,12 +53,14 @@ export default {
                     item.delete(true).then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
+                            title: messages.successTitle,
                             message: messages.successMessage
                         });
                         return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
+                            title: messages.errorTitle,
                             message: messages.errorMessage
                         });
                     })
@@ -67,11 +71,13 @@ export default {
                 'sw-media-modal-delete-items-deleted',
                 Promise.all(deletePromises).then((ids) => {
                     this.createNotificationSuccess({
+                        title: notificationTitleSuccess,
                         message: notificationMessageSuccess
                     });
                     return ids;
                 }).catch(() => {
                     this.createNotificationError({
+                        title: notificationTitleError,
                         message: notificationMessageError
                     });
                 })
@@ -81,15 +87,17 @@ export default {
         _getNotificationMessages(item) {
             return {
                 successMessage: this.$tc(
-                    'global.sw-media-modal-delete.notificationSuccessSingle',
+                    'global.sw-media-modal-delete.notification.successSingle.message',
                     1,
                     { mediaName: this.mediaNameFilter(item) }
                 ),
+                successTitle: this.$tc('global.sw-media-modal-delete.notification.successSingle.title'),
                 errorMessage: this.$tc(
-                    'global.sw-media-modal-delete.notificationErrorSingle',
+                    'global.sw-media-modal-delete.notification.errorSingle.message',
                     1,
                     { mediaName: this.mediaNameFilter(item) }
-                )
+                ),
+                errorTitle: this.$tc('global.sw-media-modal-delete.notification.errorSingle.title')
             };
         }
     }

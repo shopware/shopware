@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -43,22 +42,6 @@ class StatsAggregationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAggregation(new StatsAggregation('taxRate', 'rate_agg', false, false, false, false, false));
-
-        $this->taxRepository->aggregate($criteria, $context);
-    }
-
-    public function testStatsAggregationThrowsExceptionOnNonNumericField(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('Aggregation of type %s on field "tax.id" of type %s not supported',
-            StatsAggregation::class,
-            IdField::class)
-        );
-
-        $context = Context::createDefaultContext();
-
-        $criteria = new Criteria();
-        $criteria->addAggregation(new StatsAggregation('id', 'rate_agg', false, false, false, false, false));
 
         $this->taxRepository->aggregate($criteria, $context);
     }

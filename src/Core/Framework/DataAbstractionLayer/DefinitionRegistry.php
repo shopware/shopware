@@ -55,6 +55,14 @@ class DefinitionRegistry
     }
 
     /**
+     * @param string|EntityDefinition $definition
+     */
+    public function remove(string $definition): void
+    {
+        unset($this->elements[$definition::getEntityName()]);
+    }
+
+    /**
      * @return EntityDefinition[]|string[]
      */
     public function getElements(): array

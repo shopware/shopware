@@ -654,7 +654,9 @@
     },
     "categoryForm": {
       "labelCategory": "Kategorie",
-      "placeholderCategory": "Tippe, um Kategorien zu suchen..."
+      "placeholderCategory": "Tippe, um Kategorien zu suchen...",
+      "labelVisibility": "Sichtbarkeit",
+      "placeholderVisibility": "Tippe, um Verkaufskanäle zu suchen..."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",

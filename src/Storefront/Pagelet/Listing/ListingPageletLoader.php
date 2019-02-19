@@ -43,7 +43,7 @@ class ListingPageletLoader implements PageLoaderInterface
             $criteria->addFilter(
                 new MultiFilter([
                     new RangeFilter('product.visibilities.visibility', [RangeFilter::GTE => (int) $visibility]),
-                    new EqualsFilter('product.visibilities.salesChannelId', $context->getSalesChannel()->getId())
+                    new EqualsFilter('product.visibilities.salesChannelId', $context->getSalesChannel()->getId()),
                 ])
             );
 

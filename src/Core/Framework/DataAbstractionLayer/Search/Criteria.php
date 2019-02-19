@@ -308,6 +308,16 @@ class Criteria extends Struct
         $this->ids = $ids;
     }
 
+    public function addState(string $state): void
+    {
+        $this->states[$state] = true;
+    }
+
+    public function hasState(string $state): bool
+    {
+        return isset($this->states[$state]);
+    }
+
     private function collectFields(array $parts): array
     {
         $fields = [];
@@ -322,15 +332,5 @@ class Criteria extends Struct
         }
 
         return $fields;
-    }
-
-    public function addState(string $state): void
-    {
-        $this->states[$state] = true;
-    }
-
-    public function hasState(string $state): bool
-    {
-        return isset($this->states[$state]);
     }
 }

@@ -171,7 +171,7 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Search\SearchPageLoader">
+        <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -183,7 +183,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Listing\ListingPageLoader">
+        <service id="Shopware\Storefront\Page\Listing\ListingPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>

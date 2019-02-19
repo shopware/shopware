@@ -17,6 +17,14 @@ Component.register('sw-product-category-form', {
             return State.getStore('category');
         },
 
+        salesChannelStore() {
+            return State.getStore('sales_channel');
+        },
+
+        visibilityAssociationStore() {
+            return this.product.getAssociation('visibilities');
+        },
+
         categoryAssociationStore() {
             return this.product.getAssociation('categories');
         }

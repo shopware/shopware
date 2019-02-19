@@ -118,7 +118,7 @@ class StorefrontProductRepository
                 ),
                 new EqualsFilter(
                     'product.visibilities.salesChannelId', $context->getSalesChannel()->getId()
-                )
+                ),
             ])
         );
     }

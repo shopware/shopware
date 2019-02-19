@@ -13,5 +13,17 @@
                        v-model="product.categories">
             </sw-select>
         {% endblock %}
+
+        {% block sw_product_category_form_visibility_field %}
+            <sw-select id="visibilities"
+                       multi
+                       class="sw-product-detail__select-visibility"
+                       :label="$tc('sw-product.categoryForm.labelVisibility')"
+                       :placeholder="$tc('sw-product.categoryForm.placeholderVisibility')"
+                       :associationStore="visibilityAssociationStore"
+                       :store="salesChannelStore"
+                       v-model="product.visibilities">
+            </sw-select>
+        {% endblock %}
     </div>
 {% endblock %}

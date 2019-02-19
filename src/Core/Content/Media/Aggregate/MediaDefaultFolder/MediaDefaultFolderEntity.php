@@ -16,6 +16,11 @@ class MediaDefaultFolderEntity extends Entity
     protected $associationFields;
 
     /**
+     * @var array
+     */
+    protected $thumbnailSizes;
+
+    /**
      * @var string
      */
     protected $entity;
@@ -52,6 +57,16 @@ class MediaDefaultFolderEntity extends Entity
     public function setAssociationFields(array $associationFields): void
     {
         $this->associationFields = $associationFields;
+    }
+
+    public function getThumbnailSizes(): array
+    {
+        return $this->thumbnailSizes;
+    }
+
+    public function setThumbnailSizes(array $thumbnailSizes): void
+    {
+        $this->thumbnailSizes = $thumbnailSizes;
     }
 
     public function getEntity(): string

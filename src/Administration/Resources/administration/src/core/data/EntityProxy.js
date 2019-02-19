@@ -633,11 +633,9 @@ export default class EntityProxy {
 
                 const associationChanges = entity.getChanges();
 
-                if (entity.isLocal || Object.keys(associationChanges).length > 0) {
-                    associationChanges.id = id;
-                    changes[associationKey] = changes[associationKey] || [];
-                    changes[associationKey].push(associationChanges);
-                }
+                associationChanges.id = id;
+                changes[associationKey] = changes[associationKey] || [];
+                changes[associationKey].push(associationChanges);
             });
         });
 

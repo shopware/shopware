@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -39,6 +40,8 @@ class MediaDefaultFolderDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             (new ListField('association_fields', 'associationFields', StringField::class))->addFlags(new Required()),
+            (new ListField('thumbnail_sizes', 'thumbnailSizes', JsonField::class))->addFlags(new Required()),
+
             (new StringField('entity', 'entity'))->addFlags(new Required()),
 
             new FkField('media_folder_id', 'folderId', MediaFolderDefinition::class),

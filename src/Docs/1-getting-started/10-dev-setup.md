@@ -38,7 +38,7 @@ xmlwriter, zip
 - mysql >= 5.7 or mariadb >= 10.3
 - composer >= 1.6
 - nodejs >= 8.10.0
-- npm >= 3.5.2
+- npm >= 6.5.0
 - bash
 - a webserver with url rewrite
 

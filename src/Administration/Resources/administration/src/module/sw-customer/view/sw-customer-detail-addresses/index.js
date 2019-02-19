@@ -1,4 +1,4 @@
-import { Component, Entity } from 'src/core/shopware';
+import { Component, Mixin, Entity } from 'src/core/shopware';
 import { object } from 'src/core/service/util.service';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
@@ -6,6 +6,12 @@ import './sw-customer-detail-addresses.scss';
 
 Component.register('sw-customer-detail-addresses', {
     template,
+
+    mixins: [
+        Mixin.getByName('listing')
+    ],
+
+    inject: ['customerAddressService'],
 
     props: {
         customer: {
@@ -27,7 +33,9 @@ Component.register('sw-customer-detail-addresses', {
             showAddAddressModal: false,
             showEditAddressModal: false,
             showDeleteAddressModal: false,
-            currentAddress: null
+            currentAddress: null,
+            addresses: [],
+            isLoading: false
         };
     },
 
@@ -38,6 +46,17 @@ Component.register('sw-customer-detail-addresses', {
     },
 
     methods: {
+        getList() {
+            this.isLoading = true;
+            const params = this.getListingParams();
+
+            this.customerAddressStore.getList(params).then((response) => {
+                this.addresses = response.items;
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
         onCreateNewAddress() {
             this.showAddAddressModal = true;
             this.createNewCustomerAddress();
@@ -103,10 +122,13 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onConfirmDeleteAddress(id) {
-            this.onCloseDeleteAddressModal();
             this.$nextTick(() => {
                 this.customerAddressStore.getById(id).delete();
                 this.customer.addresses = this.customer.addresses.filter(a => a.id !== id);
+                this.customer.save().then(() => {
+                    this.getList();
+                    this.onCloseDeleteAddressModal();
+                });
             });
         },
 
@@ -117,6 +139,27 @@ Component.register('sw-customer-detail-addresses', {
         isDefaultAddress(addressId) {
             return this.customer.defaultBillingAddressId === addressId ||
                 this.customer.defaultShippingAddressId === addressId;
+        },
+
+        onChangeDefaultBillingAddress(billingAddressId) {
+            this.customer.defaultBillingAddressId = billingAddressId;
+            this.customer.save();
+        },
+
+        onChangeDefaultShippingAddress(shippingAddressId) {
+            this.customer.defaultShippingAddressId = shippingAddressId;
+            this.customer.save();
+        },
+
+        onDuplicateAddress(addressId) {
+            this.customerAddressService.clone(addressId).then(() => {
+                this.getList();
+            });
+        },
+
+        onChange(term) {
+            this.term = term;
+            this.getList();
         }
     }
 });

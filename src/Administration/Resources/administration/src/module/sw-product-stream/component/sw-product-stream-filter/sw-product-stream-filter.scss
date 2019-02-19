@@ -1,0 +1,14 @@
+.sw-condition-base {
+    .condition--api {
+        padding: 4px 24px 0 6px;
+        min-height: 40px;
+        .condition--api-value {
+            padding: 2px 12px;
+            line-height: 26px;
+            font-size: 14px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+    }
+}

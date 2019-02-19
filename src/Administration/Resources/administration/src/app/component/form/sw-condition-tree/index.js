@@ -8,7 +8,8 @@ export default {
     data() {
         return {
             nestedConditions: {},
-            entityAssociationStore: {}
+            entityAssociationStore: {},
+            isApi: false
         };
     },
 

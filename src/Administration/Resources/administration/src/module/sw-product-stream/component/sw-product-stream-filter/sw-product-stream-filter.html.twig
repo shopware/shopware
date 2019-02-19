@@ -3,16 +3,24 @@
 
 {% block sw_condition_base_fields %}
     {% block sw_product_stream_filter_field_select %}
-        <sw-select v-for="definition, index in definitions"
+        <sw-select v-if="!isApi"
+                   v-for="definition, index in definitions"
                    :key="index"
                    :store="getDefinitionStore(definition)"
-                   v-model="fieldPath[index]"
+                   v-model="fields[index].name"
                    itemValueKey="name"
+                   displayName="label"
                    :id="createId()"
-                   class="field--condition"
+                   :previewResultsLimit="500"
+                   class="field--condition has-arrow"
                    :required="true"
                    @input="selectFilter(index, $event)">
         </sw-select>
+        <div v-if="isApi"
+             v-for="field in actualCondition.field.split('.')"
+             class="field--condition condition--api">
+            <div class="condition--api-value">{{ field }}</div>
+        </div>
     {% endblock %}
 
     {% block sw_product_stream_filter_type_select %}
@@ -24,15 +32,37 @@
                    displayName="name"
                    :criteria="typeCriteria"
                    :required="true"
-                   class="has--arrow"
+                   class="field--select has--arrow"
                    @input="selectType">
         </sw-select>
     {% endblock %}
 
+    {% block sw_product_stream_filter_single_value %}
+        <sw-select v-if="lastField.name === 'id' && isEquals(actualCondition.type)"
+                   :store="getStore(definition.name)"
+                   :id="createId()"
+                   class="field--select field--main"
+                   :required="true"
+                   v-model="actualCondition.value">
+        </sw-select>
+    {% endblock %}
+
     {% block sw_product_stream_filter_multi_value %}
-        <sw-tagged-field v-if="isEqualsAny(actualCondition.type)"
+        <sw-condition-value v-else-if="lastField.name === 'id' && isEqualsAny(actualCondition.type)"
+                            multi
+                            :store="getStore(definition.name)"
+                            :id="createId()"
+                            class="field--multi field--main"
+                            v-model="multiValues"
+                            :required="true"
+                            @input="updateMultiValue">
+        </sw-condition-value>
+    {% endblock %}
+
+    {% block sw_product_stream_filter_multi_tagged_value %}
+        <sw-tagged-field v-else-if="isEqualsAny(actualCondition.type)"
                          v-model="multiValues"
-                         class="field--main"
+                         class="field--multi field--main"
                          @input="updateTaggedValue">
         </sw-tagged-field>
     {% endblock %}
@@ -56,9 +86,9 @@
         </template>
     {% endblock %}
 
-    {% block sw_product_stream_filter_text_field %}
+    {% block sw_product_stream_filter_type_field %}
         <sw-field v-else
-                  type="text"
+                  :type="getValueFieldByType(lastField.type)"
                   class="field--main"
                   v-model="actualCondition.value">
         </sw-field>

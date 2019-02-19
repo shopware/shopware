@@ -11,6 +11,7 @@ import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
 import MediaUploadService from 'src/core/service/media-upload.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
+import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
 import AttributeService from 'src/app/service/attribute.service';
 import 'src/app/decorator/condition-type-data-provider';
@@ -48,6 +49,9 @@ Application
     })
     .addServiceProvider('ruleConditionDataProviderService', () => {
         return RuleConditionService();
+    })
+    .addServiceProvider('productStreamConditionService', () => {
+        return ProductStreamConditionService();
     })
     .addServiceProvider('attributeDataProviderService', () => {
         return AttributeService();

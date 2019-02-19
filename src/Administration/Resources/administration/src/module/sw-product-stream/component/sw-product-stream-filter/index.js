@@ -1,14 +1,14 @@
-import { Component, Entity, Mixin } from 'src/core/shopware';
+import { Component, Entity, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-product-stream-filter.html.twig';
 import TYPES from './type-provider';
+import './sw-product-stream-filter.scss';
 
 Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,
 
-    inject: ['entityAssociationStore'],
-
+    inject: ['productStreamConditionService', 'entityAssociationStore'],
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -18,11 +18,15 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         return {
             fields: [],
             type: {},
+            lastField: {},
+            defaultPath: this.condition.field,
             multiValues: [],
             value: null,
             typeCriteria: null,
             fieldPath: [],
-            negatedCondition: null
+            negatedCondition: null,
+            isApi: false,
+            definitionBlacklist: null
         };
     },
 
@@ -31,15 +35,29 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return ['type', 'field', 'operator', 'value', 'parameters', 'position', 'attributes'];
         },
         definitions() {
+            if (this.isApi) {
+                return [];
+            }
+            this.definitionBlacklist = {};
+
             const definitions = [];
+            const blackListedDefinitions = [];
+            let definition = Entity.getDefinition('product');
+            this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
+
             this.fields.forEach((field) => {
-                if (field.entity) {
-                    definitions.push(Entity.getDefinition(field.entity));
+                if (this.isEntityDefinition(field)) {
+                    definition = Entity.getDefinition(field.entity);
+                    this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
+                } else if (this.isObjectDefinition(field)) {
+                    definition = field;
+                    this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
                 }
             });
 
             return definitions;
         },
+
         definition() {
             return this.definitions[this.definitions.length - 1];
         },
@@ -84,45 +102,93 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     },
 
     watch: {
-        // TODO: will be changed by NEXT-1709
-        fields(newValue) {
-            const field = newValue[newValue.length - 1];
+        fields: {
+            immediate: true,
+            handler(newValue) {
+                if (!newValue || this.fields.length === 0) {
+                    return;
+                }
 
-            const availableTypes = this.getAvailableTypes(field);
+                this.lastField = this.fields[this.fields.length - 1];
 
-            const queries = availableTypes.map(type => CriteriaFactory.equals('type', type));
-            this.typeCriteria = CriteriaFactory.multi('OR', ...queries);
+                const availableTypes = this.getAvailableTypes();
 
-            if (this.actualCondition.type && !availableTypes.includes(this.actualCondition.type)) {
-                this.actualCondition.type = availableTypes[0];
+                const queries = availableTypes.map(type => CriteriaFactory.equals('type', type));
+                this.typeCriteria = CriteriaFactory.multi('OR', ...queries);
+
+                if (this.actualCondition.type && !availableTypes.includes(this.actualCondition.type)) {
+                    this.actualCondition.type = availableTypes[0];
+                    this.type = this.actualCondition.type;
+                }
+
+                if (this.actualCondition.field !== this.defaultPath) {
+                    this.actualCondition.value = null;
+                }
             }
+        },
+        'condition.value': {
+            immediate: true,
+            handler() {
+                this.mapValues();
+            }
+        },
+        'conditionTreeComponent.isApi': {
+            handler() {
+                if (!this.conditionTreeComponent.isApi) {
+                    return;
+                }
 
-            this.actualCondition.field = newValue
-                .filter((fieldObject, index) => !(index === 0 && fieldObject.name === 'product'))
-                .map(fieldObject => fieldObject.name)
-                .join('.');
+                this.isApi = true;
+                this.field = [];
+                this.lastField = [];
+            }
         }
     },
 
     methods: {
         getDefinitionStore(definition) {
-            Object.keys(definition.properties).forEach((key) => {
-                definition.properties[key].name = key;
-            });
-
             return new LocalStore(Object.values(definition.properties), 'name');
         },
         getTypeStore() {
             return new LocalStore(this.types, 'type');
         },
+        getStore(entity) {
+            return State.getStore(entity);
+        },
         createdComponent() {
             this.locateConditionTreeComponent();
-            this.fields.push({ name: 'product', entity: 'product', type: 'object' });
-            this.mapValues();
+
+            if (this.conditionTreeComponent.isApi) {
+                this.isApi = true;
+                return;
+            }
+
+            try {
+                this.fields = this.getPathFields();
+                this.lastField = this.fields[this.fields.length - 1];
+            } catch (error) {
+                this.conditionTreeComponent.isApi = true;
+                this.isApi = true;
+            }
         },
+
+        addDefinitionToStack(definition, definitions, blackListedDefinitions) {
+            blackListedDefinitions.push(definition.name);
+            this.definitionBlacklist[definition.name] = blackListedDefinitions.slice(0);
+            definition.properties = this.filterProperties(definition);
+            definitions.push(definition);
+        },
+
+        isObjectDefinition(field) {
+            return field.type === 'object' && field.properties;
+        },
+
+        isEntityDefinition(field) {
+            return !!field.entity;
+        },
+
         mountComponent() {
             this.loadNegatedCondition();
-            this.buildFieldPath();
         },
 
         loadNegatedCondition() {
@@ -139,26 +205,117 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             this.mapValues();
         },
 
-        buildFieldPath() {
-            if (!this.actualCondition || !this.actualCondition.field) {
-                return;
+        getPathFields() {
+            const fields = [];
+            let definition = this.filterProperties(Entity.getDefinition('product'));
+            if (!this.actualCondition.field) {
+                this.actualCondition.field = 'id';
+                fields.push(definition.id);
+                return fields;
             }
 
-            this.fieldPath = this.actualCondition.field.split('.');
-            let definition = Entity.getDefinition('product').properties;
+            this.actualCondition.field.split('.').forEach((path) => {
+                const field = definition[path];
+                // return if Element is product
+                if (path === 'product') {
+                    return;
+                }
 
-            if (this.fieldPath[0] === 'product') {
-                this.fieldPath.shift();
-            }
+                if (!field
+                    || (this.productStreamConditionService.blacklist[definition.name]
+                        && this.productStreamConditionService.blacklist[definition.name].includes(path))) {
+                    throw new Error('field not found or in blacklist');
+                }
 
-            this.fieldPath.forEach(field => {
-                this.fields.push(definition[field]);
+                fields.push(field);
 
-                if (definition[field].entity) {
-                    definition = Entity.getDefinition(definition[field].entity).properties;
+                if (this.isEntityDefinition(field)) {
+                    definition = this.filterProperties(Entity.getDefinition(field.entity));
+                    return;
+                }
+
+                if (this.isObjectDefinition(field)) {
+                    definition = this.filterProperties(field);
                 }
             });
+
+            const latestField = fields[fields.length - 1];
+            this.getLatestField(fields, latestField);
+
+            const path = [];
+            fields.forEach((field) => {
+                path.push(field.name);
+            });
+            this.actualCondition.field = path.join('.');
+
+            return fields;
         },
+
+        getLatestField(fields, latestField) {
+            let useAsObject = false;
+            if (this.isEntityDefinition(latestField)) {
+                const definition = Entity.getDefinition(latestField.entity);
+                const additionField = this.filterProperties(definition);
+                if (additionField.id) {
+                    fields.push(additionField.id);
+                    return fields;
+                }
+                useAsObject = true;
+                latestField = definition;
+            }
+
+            if (this.isObjectDefinition(latestField) || useAsObject) {
+                const definition = this.filterProperties(latestField);
+                const firstProperty = Object.keys(definition)[0];
+                fields.push(definition[firstProperty]);
+                fields = this.getLatestField(fields, definition[firstProperty]);
+            }
+
+            return fields;
+        },
+
+        filterProperties(definition) {
+            const store = {};
+            Object.keys(definition.properties).forEach((key) => {
+                if ((this.productStreamConditionService.blacklist[definition.name]
+                    && this.productStreamConditionService.blacklist[definition.name].includes(key))
+                    || (this.definitionBlacklist
+                        && this.definitionBlacklist[definition.name]
+                        && this.definitionBlacklist[definition.name].includes(key))) {
+                    return;
+                }
+
+                store[key] = definition.properties[key];
+                let label = '';
+                if (key === 'id' && definition.name === 'product') {
+                    label = this.$tc('sw-product-stream.filter.values.product');
+                } else if (key === 'id') {
+                    label = this.$tc('sw-product-stream.filter.values.choose');
+                } else {
+                    label = this.$tc(`sw-product-stream.filter.values.${key}`);
+                }
+
+                store[key].label = label;
+                store[key].name = key;
+                store[key].meta = {
+                    viewData: {
+                        label: store[key].label,
+                        name: store[key].name
+                    }
+                };
+            });
+            return store;
+        },
+
+        selectFilter(index, newValue) {
+            let path = this.actualCondition.field.split('.');
+            path = path.slice(0, index);
+            path.push(newValue);
+            this.actualCondition.field = path.join('.');
+
+            this.fields = this.getPathFields();
+        },
+
         mapValues() {
             if (!this.actualCondition.value) {
                 return;
@@ -168,16 +325,22 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 this.multiValues = this.actualCondition.value.split('|');
             }
         },
-        selectFilter(index, newValue) {
-            // TODO: will be changed by NEXT-1709
-            if (this.fields.length > index + 1) {
-                this.fields.splice(index + 1);
-            }
 
-            const newDefinition = this.definition.properties[newValue];
-
-            this.fields.push(newDefinition);
+        updateMultiValue(values) {
+            this.actualCondition.value = values.map(value => value.id || value).join('|');
         },
+
+        getValueFieldByType(type) {
+            switch (type) {
+            case 'string':
+                return 'text';
+            case 'integer':
+                return 'number';
+            default:
+                return type;
+            }
+        },
+
         selectType(value) {
             if (!this.negatedCondition && this.isNegatedConditionType(value)) {
                 this.createNegatedCondition();
@@ -232,14 +395,19 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         isEqualsAny(type) {
             return type === TYPES.TYPE_EQUALS_ANY;
         },
-        getAvailableTypes(field) {
-            if (!field) {
+        isEquals(type) {
+            return type === TYPES.TYPE_EQUALS;
+        },
+        getAvailableTypes() {
+            if (!this.lastField) {
                 return [TYPES.TYPE_EQUALS, TYPES.TYPE_NOT_EQUALS];
             }
 
-            switch (field.type) {
+            switch (this.lastField.type) {
+            case 'boolean':
+                return [TYPES.TYPE_EQUALS];
             case 'string':
-                switch (field.format) {
+                switch (this.lastField.format) {
                 case 'date-time':
                     return [TYPES.TYPE_EQUALS, TYPES.TYPE_NOT_EQUALS];
                 case 'uuid':
@@ -262,7 +430,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'integer':
             case 'number':
             case 'object':
-                if (field.entity) {
+                if (this.lastField.entity) {
                     return [
                         TYPES.TYPE_EQUALS,
                         TYPES.TYPE_EQUALS_ANY,

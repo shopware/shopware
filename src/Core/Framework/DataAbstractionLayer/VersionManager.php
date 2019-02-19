@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;

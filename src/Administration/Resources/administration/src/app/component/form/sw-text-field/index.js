@@ -75,6 +75,11 @@ export default {
             required: false,
             default: false
         },
+        copyAbleTooltip: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         suffix: {
             type: String,
             required: false,

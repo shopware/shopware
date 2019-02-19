@@ -35,6 +35,15 @@
                     {% block sw_tooltip %}
                         <sw-help-text v-if="tooltipText" :text="tooltipText" :tooltipPosition="tooltipPosition"></sw-help-text>
                     {% endblock %}
+
+                    {% block sw_text_field_copyable_tooltip %}
+                        <sw-field-copyable
+                                v-if="copyAble && copyAbleTooltip"
+                                :tooltip="true"
+                                :displayName="displayName"
+                        >
+                        </sw-field-copyable>
+                    {% endblock %}
                 </div>
 
                 {% block sw_suffix %}
@@ -44,7 +53,7 @@
                 {% endblock %}
 
                 {% block sw_text_field_copyable %}
-                    <sw-field-copyable v-if="copyAble" :displayName="displayName"></sw-field-copyable>
+                    <sw-field-copyable v-if="copyAble && !copyAbleTooltip" :displayName="displayName"></sw-field-copyable>
                 {% endblock %}
             </div>
         {% endblock %}

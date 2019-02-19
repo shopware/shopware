@@ -23,6 +23,12 @@
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password"
     },
+    "sw-field-copyable": {
+      "tooltip": {
+        "wasCopied": "was copied",
+        "canCopy": "copy to clipboard"
+      }
+    },
     "sw-price-field": {
       "labelPriceGross": "Price (gross)",
       "labelPriceNet": "Price (net)"
@@ -492,32 +498,41 @@
       "mainMenuItemIndex": "Integrations",
       "headlineIntegrations": "Integrations",
       "buttonCreateIntegration": "Add integration",
-      "heroHeadlineIntegrations": "Welcome to the integration management",
-      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper means of communication between those, Shopware requires external applications to authenticate through individual security keys. You can create these keys right here. This enables you to separately track changes, introduced e.g. by external applications."
+      "heroHeadlineIntegrations": "Manage Integrations",
+      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys first. You can create those individual keys right here, enabling you to track changes, introduced by external applications, separately."
     },
     "list": {
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
-      "messageEmpty": "No integrations yet"
+      "messageEmpty": "No integrations yet",
+      "permissions": "Permissions",
+      "writeAccess": "Write",
+      "readAccess": "Read",
+      "integrationName": "Integration"
     },
     "detail": {
       "deleteModalTitle": "Delete",
-      "detailModalTitle": "Integration",
+      "detailModalTitle": "Create integration",
+      "detailModalTitleEdit": "Edit:",
       "confirmDelete" : "Are you sure you want to delete this integration?",
-      "buttonApply": "Save",
+      "buttonApply": "Save integration",
+      "buttonApplyEdit": "Save changes",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "buttonCreateNewApiKeys": "Create new API key",
+      "hintCreateNewApiKeys": "The regeneration of the API access keys requires updating all associated scripts or applications.",
       "labelFieldLabel": "Name",
       "idFieldLabel": "Access key ID",
       "secretFieldLabel": "Secret access key",
-      "secretHelpText": "After you hit save, the access key will no longer be visible. Be sure to copy and store the key in a secure place before you proceed. In case you have lost the key anyway, you will have to come back here and generate a completely new key.",
-      "secretHelpTextTitle": "Important!",
-      "writeAccessFieldLabel": "Write access",
+      "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and store the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
+      "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
+      "permissions": "Permissions",
+      "readAccessFieldLabel": "Read (default)",
+      "writeAccessFieldLabel": "Write (optional)",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Integration has been saved successfully.",
+      "messageSaveSuccess": "Integration has been saved successfully",
       "titleSaveError": "Error",
-      "messageSaveError": "Integration could not be saved.",
+      "messageSaveError": "Integration could not be saved",
       "titleCreateNewError": "Error",
       "messageCreateNewError": "Integration could not be saved."
     }

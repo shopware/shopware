@@ -25,9 +25,8 @@ class IntegrationPageObject extends GeneralPageObject {
             me.accessKeyId = result.value;
 
             me.browser
-                .waitForElementVisible('.sw-field__copy-button:nth-of-type(1)')
-                .click('.sw-field__copy-button:nth-of-type(1)')
-                .checkNotification('Text has been copied to clipboard.')
+                .waitForElementVisible('.sw-field__copy-tooltip:nth-of-type(1) .sw-icon')
+                .click('.sw-field__copy-tooltip:nth-of-type(1) .sw-icon')
                 .clearValue(me.elements.integrationName)
                 .setValue(me.elements.integrationName, [me.browser.Keys.CONTROL, 'v'])
                 .expect.element(me.elements.integrationName).value.that.equals(me.accessKeyId);
@@ -57,7 +56,7 @@ class IntegrationPageObject extends GeneralPageObject {
 
         this.browser
             .click(this.elements.integrationSaveAction)
-            .checkNotification('Integration has been saved successfully.');
+            .checkNotification('Integration has been saved successfully');
     }
 
     verifyChangedApiCredentials() {
@@ -78,7 +77,7 @@ class IntegrationPageObject extends GeneralPageObject {
     deleteSingleIntegration(integrationName) {
         this.browser
             .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
-            .expect.element(`${this.elements.modal}__body`).text.that.equals(`Are you sure you want to delete this integration? ${integrationName}`);
+            .expect.element(`${this.elements.modal}__body`).text.that.equals(`Are you sure you want to delete this integration? "${integrationName}"`);
 
         this.browser
             .click(`${this.elements.modal} button.sw-button--primary`)

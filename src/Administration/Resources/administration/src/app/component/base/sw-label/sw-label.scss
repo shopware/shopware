@@ -88,6 +88,20 @@ $sw-label-warning-color-border: $color-pumpkin-spice;
         }
     }
 
+    &.sw-label--small {
+        font-size: 12px;
+        line-height: 12px ;
+        padding: 2px 5px;
+    }
+
+    &.sw-label--caps {
+        text-transform: uppercase;
+    }
+
+    &.sw-label--light {
+        color: lighten($sw-label-color-text, 10);
+    }
+
     &.sw-label--info {
         @include sw-label-variant($sw-label-info-color-background, $sw-label-info-color-text, $sw-label-info-color-border);
     }

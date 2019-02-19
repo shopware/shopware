@@ -1,4 +1,5 @@
 import { Mixin } from 'src/core/shopware';
+import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
 export default {
@@ -18,6 +19,33 @@ export default {
         displayName: {
             type: String,
             required: true
+        },
+        tooltip: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
+    data() {
+        return {
+            wasCopied: false
+        };
+    },
+
+    computed: {
+        tooltipText() {
+            const textName = this.$parent.label;
+
+            if (this.wasCopied) {
+                return `${textName} ${this.$tc('global.sw-field-copyable.tooltip.wasCopied')}`;
+            }
+
+            return `${textName} ${this.$tc('global.sw-field-copyable.tooltip.canCopy')}`;
+        },
+
+        id() {
+            return `sw-field--${this.$vnode.tag}`;
         }
     },
 
@@ -37,10 +65,12 @@ export default {
 
             try {
                 document.execCommand('copy');
-                this.createNotificationInfo({
-                    title: this.$tc('global.sw-field.notification.notificationCopySuccessTitle'),
-                    message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage')
-                });
+
+                if (this.tooltip) {
+                    this.tooltipSuccess();
+                } else {
+                    this.notificationSuccess();
+                }
             } catch (err) {
                 this.createNotificationError({
                     title: this.$tc('global.sw-field.notification.notificationCopyFailureTitle'),
@@ -52,6 +82,21 @@ export default {
             if (this.disabled) {
                 el.setAttribute('disabled', 'disabled');
             }
+        },
+
+        tooltipSuccess() {
+            this.wasCopied = true;
+        },
+
+        notificationSuccess() {
+            this.createNotificationInfo({
+                title: this.$tc('global.sw-field.notification.notificationCopySuccessTitle'),
+                message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage')
+            });
+        },
+
+        resetTooltipText() {
+            this.wasCopied = false;
         }
     }
 };

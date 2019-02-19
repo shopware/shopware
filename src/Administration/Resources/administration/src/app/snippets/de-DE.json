@@ -23,6 +23,12 @@
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen"
     },
+    "sw-field-copyable": {
+      "tooltip": {
+        "wasCopied": "wurde kopiert",
+        "canCopy": "in Zwischenablage kopieren"
+      }
+    },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
       "labelPriceNet": "Preis (Netto)"
@@ -492,30 +498,38 @@
       "mainMenuItemIndex": "Integrationen",
       "headlineIntegrations": "Integrationen",
       "buttonCreateIntegration": "Integration anlegen",
-      "heroHeadlineIntegrations": "Willkommen in der Integrationsverwaltung",
-      "heroDescriptionIntegrations": "Shopware bietet Dir eine leistungsstarke API, um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit Shopware mit anderen Systemen kommunizieren kann, werden zur Authentifizierung sogenannte Sicherheitsschlüssel benötigt. Du kannst so Zugänge für jede einzelne Anwendung erstellen und dadurch im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
+      "heroHeadlineIntegrations": "Integrationen verwalten",
+      "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, werden zur Authentifizierung entsprechende Sicherheitsschlüssel benötigt. Du kannst Zugänge für jede einzelne Anwendung erstellen und so im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
     },
     "list": {
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "messageEmpty": "Noch keine Integrationen vorhanden"
+      "messageEmpty": "Noch keine Integrationen vorhanden",
+      "permissions": "Berechtigungen",
+      "writeAccess": "Schreiben",
+      "readAccess": "Lesen",
+      "integrationName": "Integration"
     },
     "detail": {
       "deleteModalTitle": "Löschen",
-      "detailModalTitle": "Integration",
+      "detailModalTitle": "Integration anlegen",
+      "detailModalTitleEdit": "Bearbeiten:",
       "confirmDelete" : "Möchtest Du diese Integration wirklich löschen?",
-      "buttonApply": "Speichern",
+      "buttonApply": "Integration speichern",
+      "buttonApplyEdit": "Änderungen speichern",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
+      "hintCreateNewApiKeys": "Die Neugenerierung der API-Zugangsdaten erfordert die Aktualisierung aller zugehörigen Skripte oder Anwendungen.",
       "labelFieldLabel": "Name",
       "idFieldLabel": "Zugangs-ID",
       "secretFieldLabel": "Sicherheitsschlüssel",
-      "secretHelpText": "Der aktuell angezeigte Sicherheitsschlüssel wird nach dem Speichern nicht mehr einsehbar sein. Bitte hinterlege den Schlüssel zur Verwendung an einem sicheren Ort. Solltest Du den Schlüssel dennoch verlieren, kannst Du hier jederzeit einen Neuen für die Anwendung generieren.",
-      "secretHelpTextTitle": "Wichtig!",
-      "writeAccessFieldLabel": "Schreibrechte",
+      "secretHelpText": "Bitte kopiere Deinen Sicherheitsschlüssel jetzt. Nach dem Speichern wird dieser aus Sicherheitsgründen nicht wieder angezeigt.",
+      "permissions": "Berechtigungen",
+      "readAccessFieldLabel": "Lesen (standard)",
+      "writeAccessFieldLabel": "Schreiben (optional)",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Integration erfolgreich gespeichert.",
+      "messageSaveSuccess": "Integration erfolgreich gespeichert",
       "titleSaveError": "Fehler",
       "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
       "titleCreateNewError": "Fehler",

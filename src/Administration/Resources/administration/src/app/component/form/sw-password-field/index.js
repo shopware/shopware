@@ -1,4 +1,5 @@
 import template from './sw-password-field.html.twig';
+import './sw-password-field.scss';
 
 /**
  * @public
@@ -30,7 +31,7 @@ export default {
 
     computed: {
         typeFieldClass() {
-            return 'sw-field--password';
+            return this.passwordToggleAble ? 'sw-field--password' : 'sw-field--password sw-field--password--untoggable';
         }
     },
 

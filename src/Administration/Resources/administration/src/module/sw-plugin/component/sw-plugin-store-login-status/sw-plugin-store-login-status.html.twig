@@ -1,0 +1,25 @@
+{% block sw_plugin_store_login_status %}
+<div class="sw-plugin-store-login-status">
+
+    <div class="sw-plugin-store-login-status__title">Shopware Account</div>
+
+    <div class="sw-plugin-store-login-status__login-box">
+        <div class="sw-plugin-store-login-status__box-content">
+            <sw-avatar size="36px" placeholder></sw-avatar>
+            <div class="sw-plugin-store-login-status__account-info">
+                <span class="sw-plugin-store-login-status__name">Test Mensch</span>
+                <span class="sw-plugin-store-login-status__email">test@testmensch.de</span>
+            </div>
+        </div>
+        <sw-context-button class="sw-plugin-store-login-status__context-button" icon="default-action-more-vertical" :menuOffsetLeft="17">
+            <sw-context-menu-item @click="navigateToAccount()">
+                {{ $tc('sw-plugin.general.accountLink') }}
+            </sw-context-menu-item>
+
+            <sw-context-menu-item @click="logout()">
+                {{ $tc('sw-plugin.general.logout') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+    </div>
+</div>
+{% endblock %}

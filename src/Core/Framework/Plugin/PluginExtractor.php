@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -39,8 +39,7 @@ class PluginExtractor
     private $filesystem;
 
     /**
-     * @param string     $pluginDir
-     * @param Filesystem $filesystem
+     * @param string $pluginDir
      */
     public function __construct($pluginDir, Filesystem $filesystem)
     {
@@ -92,8 +91,7 @@ class PluginExtractor
      * path and validates the plugin namespace, directory traversal
      * and multiple plugin directories.
      *
-     * @param string      $prefix
-     * @param \ZipArchive $archive
+     * @param string $prefix
      */
     private function validatePluginZip($prefix, \ZipArchive $archive)
     {
@@ -106,8 +104,6 @@ class PluginExtractor
     }
 
     /**
-     * @param \ZipArchive $archive
-     *
      * @return string
      */
     private function getPluginPrefix(\ZipArchive $archive)
@@ -175,7 +171,7 @@ class PluginExtractor
     }
 
     /**
-     * @param string $oldFile
+     * @param string|bool $oldFile
      *
      * @return bool|string
      */

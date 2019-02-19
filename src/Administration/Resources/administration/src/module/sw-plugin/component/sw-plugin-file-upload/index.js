@@ -1,5 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
-import template from './sw-plugin-file-upload.twig';
+import template from './sw-plugin-file-upload.html.twig';
 import './sw-plugin-file-upload.scss';
 
 Component.register('sw-plugin-file-upload', {

@@ -1,5 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
-import template from './sw-plugin-updates-grid.twig';
+import template from './sw-plugin-updates-grid.html.twig';
 import './sw-plugin-updates-grid.scss';
 
 Component.register('sw-plugin-updates-grid', {

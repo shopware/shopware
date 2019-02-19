@@ -51,6 +51,8 @@
         </sw-tabs>
         {% endblock %}
 
+        <sw-plugin-store-login-status></sw-plugin-store-login-status>
+
         {% block sw_plugin_manager_content_view %}
         <router-view :searchTerm="searchTerm"></router-view>
         {% endblock %}

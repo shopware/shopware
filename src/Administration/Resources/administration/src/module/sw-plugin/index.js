@@ -6,6 +6,7 @@ import './view/sw-plugin-license-list';
 import './view/sw-plugin-updates';
 import './component/sw-plugin-file-upload';
 import './component/sw-plugin-store-login';
+import './component/sw-plugin-store-login-status';
 import './component/sw-plugin-updates-grid';
 import './component/sw-plugin-last-updates-grid';
 

@@ -190,7 +190,7 @@ final class StoreClient
             return;
         }
 
-        if ($this->openSSLVerifier->isValid($response->getBody(), $signature)) {
+        if ($this->openSSLVerifier->isValid($response->getBody()->getContents(), $signature)) {
             $response->getBody()->rewind();
 
             return;

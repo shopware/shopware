@@ -115,4 +115,14 @@ class Context extends Struct
 
         return $context;
     }
+
+    public function scope(string $origin, callable $callback): void
+    {
+        $currentScope = $this->sourceContext->getOrigin();
+        $this->sourceContext->setOrigin($origin);
+
+        $callback($this);
+
+        $this->sourceContext->setOrigin($currentScope);
+    }
 }

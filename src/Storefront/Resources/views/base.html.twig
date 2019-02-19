@@ -45,11 +45,13 @@
             <main class="content-main">
                 {% block base_main_inner %}
                     <div class="container">
-                        {% block base_breadcrumb %}
-                            {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
-                        {% endblock %}
+                        <div class="content-main--inner">
+                            {% block base_breadcrumb %}
+                                {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
+                            {% endblock %}
 
-                        {% block base_content %}{% endblock %}
+                            {% block base_content %}{% endblock %}
+                        </div>
                     </div>
                 {% endblock %}
             </main>

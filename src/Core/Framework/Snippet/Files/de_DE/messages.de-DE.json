@@ -259,6 +259,7 @@
     },
     "document": {
       "invoiceNumber": "Rechnung Nr. %invoiceNumber%",
+      "deliveryNoteNumber": "Lieferschein Nr. %deliveryNoteNumber%",
       "customerNumber": "Kunden-Nr.: %customerNumber%",
       "date": "Datum: %date%",
       "deliveryDate": "Liefertermin: %deliveryDate%",
@@ -283,4 +284,5 @@
         "shippingMethod": "Gewählte Versandart: %shippingMethod%",
         "additionalInfo": "Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum."
       }
+    }
 }

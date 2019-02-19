@@ -6,6 +6,8 @@
 {# @var customer \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity #}
 {% set customer = order.orderCustomer %}
 
+{% set lineItems = order.lineItems %}
+
 {# @var billingAddress \Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity #}
 {% set billingAddress = order.addresses.get(order.billingAddressId) %}
 
@@ -41,6 +43,10 @@
                     font-size: 12px;
                     line-height: 12px;
                     width: 100%;
+                }
+
+                h1 {
+                    line-height: 24px;
                 }
 
                 /* Helper classes */
@@ -94,6 +100,7 @@
                     border-spacing: 0 2px;
                 }
 
+
                 .line-item-table-header > th, .line-item-table:last-child {
                     padding-bottom: 20px;
                     border-bottom: 1px solid rgba(0, 0, 0, 0.15);
@@ -105,6 +112,10 @@
 
                 .line-item.first > td {
                     padding-top: 20px;
+                }
+
+                .line-item-breakable {
+                    word-wrap: break-word;
                 }
 
                 /* Payment/shipping details*/
@@ -261,14 +272,14 @@
                         </thead>
 
                          {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
-                        {% for lineItem in order.lineItems %}
+                        {% for lineItem in lineItems %}
                             <tr class="line-item{% if loop.first %} first{% endif %}">
                                 {% block document_line_item_row %}
                                     {% if documentContext.shouldDisplayLineItemPosition %}
                                         <td>{{ loop.index }}</td>
                                     {% endif %}
                                     <td>{{ lineItem.id | truncate(10) }}</td>
-                                    <td>{{ lineItem.label }}</td>
+                                    <td class="line-item-breakable">{{ lineItem.label }}</td>
                                     <td class="align-right">{{ lineItem.quantity }}</td>
                                     {% if documentContext.shouldDisplayPrices %}
                                         <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>

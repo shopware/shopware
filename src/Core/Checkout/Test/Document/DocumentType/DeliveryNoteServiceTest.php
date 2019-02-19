@@ -22,9 +22,10 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Document\DocumentContext;
-use Shopware\Core\Checkout\Document\DocumentType\InvoiceService;
+use Shopware\Core\Checkout\Document\DocumentType\DeliveryNoteService;
 use Shopware\Core\Checkout\Document\Generator\PdfGenerator;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -32,7 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class InvoiceServiceTest extends TestCase
+class DeliveryNoteServiceTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -67,31 +68,27 @@ class InvoiceServiceTest extends TestCase
 
     public function testGenerateFromTemplate()
     {
-        $invoiceService = $this->getContainer()->get(InvoiceService::class);
+        $deliveryNoteService = $this->getContainer()->get(DeliveryNoteService::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
         $cart = $this->generateDemoCart(75);
         $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
         $order = $this->getOrderById($orderId);
 
         $documentContext = new DocumentContext();
-        /**
-         * Vorschlag: $d = DocumentContextFactory::create() // default values
-         * $d = documentService->decorate($d)
-         * $d = myAwesomeService->decorate($d)
-         */
-
+        $documentContext->setDisplayPrices(false);
         $context = Context::createDefaultContext();
 
-        $processedTemplate = $invoiceService->generateFromTemplate(
+        $processedTemplate = $deliveryNoteService->generateFromTemplate(
             $order,
             $documentContext,
             $context
         );
 
-        file_put_contents('/tmp/test.html', $processedTemplate);
+        file_put_contents('/app/src/test_delivery.html', $processedTemplate);
 
-        file_put_contents('/tmp/test2.pdf', $pdfGenerator->generateAsString($processedTemplate));
+        file_put_contents('/app/src/test2_test_delivery.pdf', $pdfGenerator->generateAsString($processedTemplate));
     }
 
     /**
@@ -118,8 +115,9 @@ class InvoiceServiceTest extends TestCase
             $taxes = [7, 19, 22];
             $taxRate = $taxes[array_rand($taxes)];
             shuffle($keywords);
-//            $name = ucfirst(implode($keywords, ' ') . ' product');
-            $name = 'A';
+            //$name = ucfirst(implode($keywords, ' ') . ' product');
+            //$name = str_repeat('A',$i+1);
+            $name = str_repeat(ucfirst(implode($keywords, ' ') . ' product'), ($i % 4) + 1);
             $cart->add(
                 (new LineItem((string) $i, 'product_' . $i, $quantity))
                     ->setPriceDefinition(new QuantityPriceDefinition($price, new TaxRuleCollection([new TaxRule($taxRate)]), $quantity))
@@ -141,7 +139,7 @@ class InvoiceServiceTest extends TestCase
         $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
 
         if (count($orderIds) !== 1) {
-            self::fail('Order could not be persisted');
+            static::fail('Order could not be persisted');
         }
 
         return $orderIds[0];
@@ -223,9 +221,10 @@ class InvoiceServiceTest extends TestCase
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
-            ->addAssociation('transactions');
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries');
         $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
-        self::assertNotNull($orderId);
+        static::assertNotNull($orderId);
 
         return $order;
     }

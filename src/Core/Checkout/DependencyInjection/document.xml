@@ -12,6 +12,11 @@
             <argument type="service" id="templating"/>
             <argument>%kernel.root_dir%</argument>
         </service>
+
+        <service id="Shopware\Core\Checkout\Document\DocumentType\DeliveryNoteService" public="true">
+            <argument type="service" id="templating"/>
+            <argument>%kernel.root_dir%</argument>
+        </service>
     </services>
 </container>
 

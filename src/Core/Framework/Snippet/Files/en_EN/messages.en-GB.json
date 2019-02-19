@@ -259,7 +259,8 @@
     },
     "document": {
       "invoiceNumber": "Invoice No. %invoiceNumber%",
-      "customerNumber": "Customer No. %customerNumber%",
+      "deliveryNoteNumber": "Delivery Note No. %deliveryNoteNumber%",
+    "customerNumber": "Customer No. %customerNumber%",
       "date": "Date: %date%",
       "deliveryDate": "Delivery date: %deliveryDate%",
       "page": "Page %pageNumber%",

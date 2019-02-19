@@ -1,0 +1,18 @@
+{% sw_extends '@Shopware/documents/base.html.twig' %}
+
+{% set lineItems = [] %}
+{% for entry in orderDelivery.positions %}
+   {% set lineItems = lineItems | merge([entry.orderLineItem]) %}
+{% endfor %}
+
+
+{% block document_title_tag %}
+    {% trans with {'deliveryNoteNumber': orderDelivery.id} %}document.deliveryNoteNumber{% endtrans %}
+{% endblock %}
+
+{% block document_headline %}
+    <h1>{% trans with {'%deliveryNoteNumber%': orderDelivery.id} %}document.deliveryNoteNumber{% endtrans %}</h1>
+{% endblock %}
+
+{% block document_sum %}
+{% endblock %}

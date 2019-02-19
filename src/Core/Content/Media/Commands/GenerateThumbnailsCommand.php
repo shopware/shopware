@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
+use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -15,14 +16,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class GenerateThumbnailsCommand extends Command
 {
-    /**
-     * @var SymfonyStyle
-     */
-    private $io;
-
     /**
      * @var ThumbnailService
      */
@@ -32,6 +29,21 @@ class GenerateThumbnailsCommand extends Command
      * @var EntityRepositoryInterface
      */
     private $mediaRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaFolderRepository;
+
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
+    /**
+     * @var SymfonyStyle
+     */
+    private $io;
 
     /**
      * @var int
@@ -44,20 +56,22 @@ class GenerateThumbnailsCommand extends Command
     private $folderFilter;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var bool
      */
-    private $mediaFolderRepository;
+    private $isAsync;
 
     public function __construct(
         ThumbnailService $thumbnailService,
         EntityRepositoryInterface $mediaRepository,
-        EntityRepositoryInterface $mediaFolderRepository
+        EntityRepositoryInterface $mediaFolderRepository,
+        MessageBusInterface $messageBus
     ) {
         parent::__construct();
 
         $this->thumbnailService = $thumbnailService;
         $this->mediaRepository = $mediaRepository;
         $this->mediaFolderRepository = $mediaFolderRepository;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -81,6 +95,12 @@ class GenerateThumbnailsCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'An optional folder name to create thumbnails'
             )
+            ->addOption(
+                'async',
+                'a',
+                InputOption::VALUE_NONE,
+                'Queue up batch jobs instead of generating thumbnails directly'
+            )
         ;
     }
 
@@ -96,26 +116,18 @@ class GenerateThumbnailsCommand extends Command
 
         $mediaIterator = new RepositoryIterator($this->mediaRepository, $context, $this->createCriteria());
 
-        $totalMediaCount = $mediaIterator->getTotal();
-        $this->io->comment(sprintf('Generating Thumbnails for %d files. This may take some time...', $totalMediaCount));
-        $this->io->progressStart($totalMediaCount);
-
-        $result = $this->generateThumbnails($mediaIterator, $context);
-
-        $this->io->progressFinish();
-        $this->io->table(
-            ['Action', 'Number of Media Entities'],
-            [
-                ['Generated', $result['generated']],
-                ['Skipped', $result['skipped']],
-            ]
-        );
+        if (!$this->isAsync) {
+            $this->generateSynchronous($mediaIterator, $context);
+        } else {
+            $this->generateAsynchronous($mediaIterator, $context);
+        }
     }
 
     private function initializeCommand(InputInterface $input, Context $context)
     {
         $this->folderFilter = $this->getFolderFilterFromInput($input, $context);
         $this->batchSize = $this->getBatchSizeFromInput($input);
+        $this->isAsync = $input->getOption('async');
     }
 
     private function getBatchSizeFromInput(InputInterface $input): int
@@ -189,5 +201,38 @@ class GenerateThumbnailsCommand extends Command
         $criteria->addAssociation('media.mediaFolder');
 
         return $criteria;
+    }
+
+    private function generateSynchronous(RepositoryIterator $mediaIterator, Context $context): void
+    {
+        $totalMediaCount = $mediaIterator->getTotal();
+        $this->io->comment(sprintf('Generating Thumbnails for %d files. This may take some time...', $totalMediaCount));
+        $this->io->progressStart($totalMediaCount);
+
+        $result = $this->generateThumbnails($mediaIterator, $context);
+
+        $this->io->progressFinish();
+        $this->io->table(
+            ['Action', 'Number of Media Entities'],
+            [
+                ['Generated', $result['generated']],
+                ['Skipped', $result['skipped']],
+            ]
+        );
+    }
+
+    private function generateAsynchronous(RepositoryIterator $mediaIterator, Context $context): void
+    {
+        $batchCount = 0;
+        $this->io->comment('Generating batch jobs...');
+        while (($result = $mediaIterator->fetch()) !== null) {
+            $msg = new UpdateThumbnailsMessage();
+            $msg->setMediaIds($result->getEntities()->getIds());
+            $msg->withContext($context);
+
+            $this->messageBus->dispatch($msg);
+            ++$batchCount;
+        }
+        $this->io->success(sprintf('Generated %d Batch jobs!', $batchCount));
     }
 }

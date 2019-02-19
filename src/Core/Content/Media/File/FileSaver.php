@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use function Flag\next1309;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
@@ -15,6 +16,7 @@ use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
+use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataUpdater;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class FileSaver
 {
@@ -53,6 +56,11 @@ class FileSaver
     private $fileNameValidator;
 
     /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
+    /**
      * @var MetadataUpdater
      */
     private $metadataUpdater;
@@ -62,13 +70,15 @@ class FileSaver
         FilesystemInterface $filesystem,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,
-        MetadataUpdater $metadataUpdater
+        MetadataUpdater $metadataUpdater,
+        MessageBusInterface $messageBus
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailService = $thumbnailService;
         $this->fileNameValidator = new FileNameValidator();
+        $this->messageBus = $messageBus;
         $this->metadataUpdater = $metadataUpdater;
     }
 
@@ -119,7 +129,15 @@ class FileSaver
 
         $this->saveFileToMediaDir($mediaFile, $media);
 
-        $this->thumbnailService->updateThumbnailsAfterUpload($media, $context);
+        if (next1309()) {
+            $message = new GenerateThumbnailsMessage();
+            $message->setMediaIds([$mediaId]);
+            $message->withContext($context);
+
+            $this->messageBus->dispatch($message);
+        } else {
+            $this->thumbnailService->updateThumbnails($media, $context);
+        }
     }
 
     /**

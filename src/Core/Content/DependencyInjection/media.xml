@@ -45,6 +45,15 @@
         </service>
         <!-- end of Entity definitions -->
 
+        <!-- message handlers -->
+        <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
+            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
+            <argument type="service" id="media.repository"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+        <!-- end of message handlers -->
+
         <service id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
@@ -94,6 +103,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataUpdater"/>
+            <argument type="service" id="messenger.bus.shopware" />
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileNameProvider" class="Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider">
@@ -106,6 +116,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <tag name="console.command"/>
         </service>

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationThumbnailSize;
+namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
@@ -12,11 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
-class MediaFolderConfigurationThumbnailSizeDefinition extends MappingEntityDefinition
+class MediaFolderConfigurationMediaThumbnailSizeDefinition extends MappingEntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'media_folder_configuration_thumbnail_size';
+        return 'media_folder_configuration_media_thumbnail_size';
     }
 
     protected static function defineFields(): FieldCollection

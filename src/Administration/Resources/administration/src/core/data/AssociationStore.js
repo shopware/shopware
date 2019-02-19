@@ -1,4 +1,4 @@
-import { types } from 'src/core/service/util.service';
+import { types, string } from 'src/core/service/util.service';
 import EntityStore from './EntityStore';
 
 /**
@@ -97,8 +97,8 @@ export default class AssociationStore extends EntityStore {
 
             if (entity.isDeleted) {
                 deletionPayload.push({
-                    [`${this.entityName}Id`]: id,
-                    [`${this.parentEntity.entityName}Id`]: this.parentEntity.id
+                    [`${string.camelCase(this.entityName)}Id`]: id,
+                    [`${string.camelCase(this.parentEntity.entityName)}Id`]: this.parentEntity.id
                 });
             }
         });

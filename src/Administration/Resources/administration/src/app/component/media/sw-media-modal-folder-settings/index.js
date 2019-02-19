@@ -160,10 +160,17 @@ export default {
                 return;
             }
 
-            this.configuration.mediaThumbnailSizes.forEach((savedSize) => {
-                if (savedSize.id === size.id) {
-                    savedSize.delete();
-                }
+            const thumbnailSizeIndex = this.configuration.mediaThumbnailSizes.findIndex((storedSize) => {
+                return storedSize.id === size.id;
+            });
+
+            if (thumbnailSizeIndex === -1) {
+                return;
+            }
+
+            const removedThumbnailSizes = this.configuration.mediaThumbnailSizes.splice(thumbnailSizeIndex, 1);
+            removedThumbnailSizes.forEach((thumbnailSize) => {
+                thumbnailSize.delete();
             });
         },
 
@@ -225,6 +232,11 @@ export default {
                     return this.folder.save();
                 })
                 .then(() => {
+                    this.mediaFolderConfigurationThumbnailSizeStore.forEach((association) => {
+                        if (association.isDeleted) {
+                            this.mediaFolderConfigurationThumbnailSizeStore.remove(association);
+                        }
+                    });
                     this.createNotificationSuccess({
                         message: notificationMessageSuccess
                     });
@@ -250,6 +262,11 @@ export default {
         onInputDefaultFolder(defaultFolderId) {
             this.folder.defaultFolders.splice(0);
             this.mediaDefaultFolderAssociationStore.removeAll();
+
+            if (!defaultFolderId) {
+                return;
+            }
+
             this.mediaDefaultFolderStore.getByIdAsync(defaultFolderId).then((response) => {
                 response.folderId = this.folder.id;
                 this.mediaDefaultFolderAssociationStore.add(response);

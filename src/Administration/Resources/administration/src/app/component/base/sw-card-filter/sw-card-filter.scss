@@ -1,0 +1,19 @@
+.sw-card-filter {
+    display: flex;
+    height: 30px;
+
+    .sw-card-filter-container {
+        flex: 1;
+
+        &.hasFilter {
+            padding-right: 20px;
+        }
+
+        .sw-simple-search-field__input {
+            input {
+                padding: 0 20px 0 44px;
+                height: 32px;
+            }
+        }
+    }
+}

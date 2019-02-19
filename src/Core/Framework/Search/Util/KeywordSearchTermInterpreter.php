@@ -94,6 +94,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         ];
 
         foreach ($tokens as $index => $token) {
+            $token = (string) $token;
             $slopSize = \strlen($token) > 4 ? 2 : 1;
             $length = \strlen($token);
 
@@ -181,7 +182,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
-                $levenshtein = levenshtein($match, $token);
+                $levenshtein = levenshtein($match, (string) $token);
                 if ($levenshtein === 0) {
                     $score += 6;
                     continue;

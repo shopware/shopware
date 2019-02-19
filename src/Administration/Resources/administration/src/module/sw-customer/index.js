@@ -4,6 +4,7 @@ import './page/sw-customer-detail';
 import './page/sw-customer-create';
 import './view/sw-customer-detail-base';
 import './view/sw-customer-detail-addresses';
+import './view/sw-customer-detail-order';
 import './view/sw-customer-create-base';
 import './component/sw-customer-base-form';
 import './component/sw-customer-base-info';
@@ -62,6 +63,13 @@ Module.register('sw-customer', {
                 addresses: {
                     component: 'sw-customer-detail-addresses',
                     path: 'addresses',
+                    meta: {
+                        parentPath: 'sw.customer.index'
+                    }
+                },
+                order: {
+                    component: 'sw-customer-detail-order',
+                    path: 'order',
                     meta: {
                         parentPath: 'sw.customer.index'
                     }

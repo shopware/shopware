@@ -4,8 +4,6 @@ $sw-media-modal-non-grid-margin: 0 24px;
 .sw-media-modal.sw-modal.sw-modal--full {
      .sw-modal__dialog {
          height: 100%;
-         min-width: 745px;
-         margin: 0;
          display: grid;
          grid-template-rows: auto 1fr auto;
     }

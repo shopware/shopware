@@ -18,7 +18,7 @@ Component.register('sw-media-modal', {
             default: null
         },
 
-        defaultItem: {
+        defaultTab: {
             type: String,
             required: false,
             validValues: ['upload', 'library'],
@@ -125,7 +125,7 @@ Component.register('sw-media-modal', {
             });
 
             this.$emit('sw-media-modal-selection-changed', selectedMedia);
-            this.$emit('closeModal', this.selection);
+            this.$emit('closeModal');
         },
 
         /*

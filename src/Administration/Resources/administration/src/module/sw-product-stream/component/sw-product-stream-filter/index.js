@@ -62,6 +62,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     CriteriaFactory.equals('type', 'equals'),
                     CriteriaFactory.equals('type', 'equalsAny'));
                 break;
+            case 'integer':
+            case 'object':
             case 'number':
                 this.operatorCriteria = CriteriaFactory.multi('OR',
                     CriteriaFactory.equals('type', 'equals'),

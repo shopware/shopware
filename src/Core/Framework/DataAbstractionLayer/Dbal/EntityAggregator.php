@@ -144,19 +144,6 @@ class EntityAggregator implements EntityAggregatorInterface
             $context
         );
 
-        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition::getEntityName());
-        if (!$aggregation->isFieldSupported($field)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Aggregation of type %s on field "%s.%s" of type %s not supported',
-                    \get_class($aggregation),
-                    $definition::getEntityName(),
-                    $aggregation->getField(),
-                    \get_class($field)
-                )
-            );
-        }
-
         if ($aggregation instanceof EntityAggregation) {
             $query->select([$accessor]);
             $query->groupBy($accessor);

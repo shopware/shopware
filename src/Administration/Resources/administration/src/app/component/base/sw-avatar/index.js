@@ -41,6 +41,11 @@ export default {
         imageUrl: {
             type: String,
             required: false
+        },
+        placeholder: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -98,6 +103,10 @@ export default {
             return {
                 'background-color': color
             };
+        },
+
+        showPlaceholder() {
+            return this.placeholder && (!this.imageUrl || !this.imageUrl.length);
         }
     },
 

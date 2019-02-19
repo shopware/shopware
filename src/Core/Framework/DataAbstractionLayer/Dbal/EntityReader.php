@@ -929,7 +929,8 @@ class EntityReader implements EntityReaderInterface
             $structData = new $collectionClass([]);
 
             $id = $struct->getUniqueIdentifier();
-            $parentId = $struct->get('parentId');
+
+            $parentId = $struct->has('parentId') ? $struct->get('parentId') : '';
 
             if (array_key_exists($struct->getUniqueIdentifier(), $mapping)) {
                 //filter mapping list of whole data array

@@ -220,6 +220,9 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Twig\StringTemplateRenderer">
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

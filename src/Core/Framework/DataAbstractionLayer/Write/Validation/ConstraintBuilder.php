@@ -97,7 +97,7 @@ class ConstraintBuilder
      */
     public function isEmail(): self
     {
-        $this->addConstraint(new Email());
+        $this->addConstraint(new Email(['mode' => 'strict']));
 
         return $this;
     }

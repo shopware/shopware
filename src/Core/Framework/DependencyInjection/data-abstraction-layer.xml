@@ -382,6 +382,13 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\EmailFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
+            <argument type="service" id="validator"/>
+
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer">
             <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>

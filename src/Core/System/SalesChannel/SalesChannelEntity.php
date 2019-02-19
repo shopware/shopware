@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -191,6 +193,41 @@ class SalesChannelEntity extends Entity
      * @var ProductVisibilityCollection|null
      */
     protected $productVisibilities;
+
+    /**
+     * @var MailTemplateCollection|null
+     */
+    protected $mailTemplates;
+
+    /**
+     * @var string|null
+     */
+    protected $mailHeaderFooterId;
+
+    /**
+     * @var MailHeaderFooterEntity|null
+     */
+    protected $mailHeaderFooter;
+
+    public function getMailHeaderFooter(): ?MailHeaderFooterEntity
+    {
+        return $this->mailHeaderFooter;
+    }
+
+    public function setMailHeaderFooter(?MailHeaderFooterEntity $mailHeaderFooter): void
+    {
+        $this->mailHeaderFooter = $mailHeaderFooter;
+    }
+
+    public function getMailHeaderFooterId(): ?string
+    {
+        return $this->mailHeaderFooterId;
+    }
+
+    public function setMailHeaderFooterId(?string $mailHeaderFooterId): void
+    {
+        $this->mailHeaderFooterId = $mailHeaderFooterId;
+    }
 
     public function getLanguageId(): string
     {
@@ -520,5 +557,15 @@ class SalesChannelEntity extends Entity
     public function setProductVisibilities(ProductVisibilityCollection $productVisibilities): void
     {
         $this->productVisibilities = $productVisibilities;
+    }
+
+    public function getMailTemplates(): ?MailTemplateCollection
+    {
+        return $this->mailTemplates;
+    }
+
+    public function setMailTemplates(MailTemplateCollection $mailTemplates): void
+    {
+        $this->mailTemplates = $mailTemplates;
     }
 }

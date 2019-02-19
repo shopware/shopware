@@ -13,6 +13,10 @@
             </template>
         {% endblock %}
 
+        {% block sw_order_detail_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
         {% block sw_order_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_order_detail_actions_abort %}
@@ -33,8 +37,6 @@
 
             </template>
         {% endblock %}
-
-        {% block sw_order_detail_language_switch %}{% endblock %}
 
         {% block sw_order_detail_content %}
             <sw-card-view slot="content">

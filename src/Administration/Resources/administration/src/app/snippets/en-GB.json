@@ -788,8 +788,8 @@
     },
     "stateCard": {
       "cardTitle": "States",
-      "headlineOrderState": "Orderstate",
-      "headlineTransactionState": "Paymentstate",
+      "headlineOrderState": "Order State",
+      "headlineTransactionState": "Payment State",
       "labelSystemUser":"System",
       "labelSelectStatePlaceholder":"Choose status...",
       "labelSelectStateButton":"Update status",

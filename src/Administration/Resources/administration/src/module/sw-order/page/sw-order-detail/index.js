@@ -37,7 +37,7 @@ Component.register('sw-order-detail', {
             this.order = this.orderStore.getById(this.orderId);
         },
         onChangeLanguage() {
-            this.loadEntityData();
+            this.$refs.baseComponent.changeLanguage();
         },
         onSave() {
             this.isEditing = false;

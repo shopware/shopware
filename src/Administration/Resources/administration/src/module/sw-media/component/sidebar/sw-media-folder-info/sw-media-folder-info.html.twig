@@ -6,14 +6,7 @@
                 :expandOnLoading="true">
 
                 {% block sw_media_quickinfo_folder_quickactions_content %}
-                    <ul slot="content" class="sw-media-sidebar__two-columns">
-                        {% block sw_media_quickinfo_folder_quickactions_settings %}
-                            <li class="sw-media-sidebar__quickaction quickaction--settings" @click="openFolderSettings">
-                                <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-action-settings"></sw-icon>
-                                {{ $tc('sw-media.sidebar.actions.settings') }}
-                            </li>
-                        {% endblock %}
-
+                    <ul slot="content" class="sw-media-sidebar__quickactions-list">
                         {% block sw_media_quickinfo_folder_quickactions_move %}
                             <li class="sw-media-sidebar__quickaction quickaction--move" @click="openModalMove">
                                 <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-action-move-file"></sw-icon>
@@ -25,6 +18,13 @@
                             <li class="sw-media-sidebar__quickaction quickaction--dissolve" @click="openFolderDissolve">
                                 <sw-icon class="sw-media-sidebar__quickactions-icon"small name="default-web-loading-star"></sw-icon>
                                 {{ $tc('sw-media.sidebar.actions.dissolve') }}
+                            </li>
+                        {% endblock %}
+
+                        {% block sw_media_quickinfo_folder_quickactions_settings %}
+                            <li class="sw-media-sidebar__quickaction quickaction--settings" @click="openFolderSettings">
+                                <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-action-settings"></sw-icon>
+                                {{ $tc('sw-media.sidebar.actions.settings') }}
                             </li>
                         {% endblock %}
                     </ul>

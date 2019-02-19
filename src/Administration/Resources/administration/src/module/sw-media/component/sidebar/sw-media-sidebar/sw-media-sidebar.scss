@@ -15,6 +15,10 @@ $sw-media-sidebar-color-quick-action-danger:  $color-crimson;
     grid-template-rows: auto 1fr;
     border-left: 1px solid $color-steam-cloud;
 
+    @media screen and (max-width: 768px) {
+        width: 300px;
+    }
+
     &.no-headline {
         grid-template-rows: unset;
     }
@@ -54,19 +58,25 @@ $sw-media-sidebar-color-quick-action-danger:  $color-crimson;
         margin: 0 auto;
     }
 
-    .sw-media-sidebar__metadata-list{
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-auto-rows: 40px;
-        grid-column-gap: 16px;
-        align-items: center;
-        overflow: visible;
+    .sw-media-sidebar__metadata-list {
+
+        @media screen and (min-width: 769px) {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-auto-rows: 40px;
+            grid-column-gap: 16px;
+            align-items: center;
+            overflow: visible;
+        }
     }
 
-    .sw-media-sidebar__two-columns {
+    .sw-media-sidebar__quickactions-list {
         list-style: none;
-        display: grid;
-        grid-template-columns: 50% 50%;
+
+        @media screen and (min-width: 769px) {
+            display: grid;
+            grid-template-columns: 50% 50%;
+        }
     }
 
     .sw-media-sidebar__quickaction {

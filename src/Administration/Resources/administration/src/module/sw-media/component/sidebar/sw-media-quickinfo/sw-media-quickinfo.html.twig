@@ -13,7 +13,7 @@
 
                 <template slot="content">
                     {% block sw_media_quickinfo_quickactions_content %}
-                        <ul class="sw-media-sidebar__two-columns">
+                        <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_quickactions_replace %}
                                 <li class="sw-media-sidebar__quickaction quickaction--replace"
                                     @click="openModalReplace">
@@ -24,7 +24,7 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_download %}
-                                <li v-if="item.hasFile" class="quickaction--download">
+                                <li v-if="item.hasFile" class="sw-media-sidebar__quickaction quickaction--download">
                                     <a class="sw-media-sidebar__quickaction"
                                        :href="item.url"
                                        target="_blank"
@@ -46,15 +46,6 @@
                                 </li>
                             {% endblock %}
 
-                            {% block sw_media_quickinfo_quickactions_delete %}
-                                <li class="sw-media-sidebar__quickaction is--danger quickaction--delete"
-                                     @click="openModalDelete">
-
-                                    <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
-                                    {{ $tc('sw-media.sidebar.actions.delete') }}
-                                </li>
-                            {% endblock %}
-
                             {% block sw_media_quickinfo_quickactions_copy_link %}
                                 <li class="sw-media-sidebar__quickaction quickaction--copy-link"
                                     v-if="item.hasFile"
@@ -62,6 +53,15 @@
 
                                     <sw-icon small name="default-web-link" class="sw-media-sidebar__quickactions-icon"></sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.copyLink') }}
+                                </li>
+                            {% endblock %}
+
+                            {% block sw_media_quickinfo_quickactions_delete %}
+                                <li class="sw-media-sidebar__quickaction is--danger quickaction--delete"
+                                    @click="openModalDelete">
+
+                                    <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.delete') }}
                                 </li>
                             {% endblock %}
                         </ul>

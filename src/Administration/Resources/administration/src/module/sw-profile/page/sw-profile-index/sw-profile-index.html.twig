@@ -51,21 +51,26 @@
 
                 {% block sw_profile_index_password_card %}
                     <sw-card class="sw-profile__card" :title="$tc('sw-profile.index.titlePasswordCard')" :isLoading="user.isLoading">
-                        {% block sw_profile_index_password_card_password_field %}
-                            <sw-field type="password"
-                                      :label="$tc('sw-profile.index.labelPasswordField')"
-                                      v-model="newPassword"
-                                      autocomplete="off">
-                            </sw-field>
+                        {% block sw_profile_index_password_card_old_password_field %}
+                            <sw-password-field :label="$tc('sw-profile.index.labelOldPassword')"
+                                               v-model="oldPassword"
+                                               autocomplete="off">
+                            </sw-password-field>
                         {% endblock %}
 
-                        {% block sw_profile_index_password_card_confirm_password_field %}
-                            <sw-field type="password"
-                                      :label="$tc('sw-profile.index.labelPasswordConfirmField')"
-                                      v-model="newPasswordConfirm"
-                                      autocomplete="off"
-                                      :validation="newPassword === newPasswordConfirm">
-                            </sw-field>
+                        {% block sw_profile_index_password_card_new_password_field %}
+                            <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordField')"
+                                               v-model="newPassword"
+                                               autocomplete="off">
+                            </sw-password-field>
+                        {% endblock %}
+
+                        {% block sw_profile_index_password_card_confirm_new_password_field %}
+                            <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordConfirmField')"
+                                               v-model="newPasswordConfirm"
+                                               autocomplete="off"
+                                               :validation="newPassword === newPasswordConfirm">
+                            </sw-password-field>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}

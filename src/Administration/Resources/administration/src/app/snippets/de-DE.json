@@ -1440,11 +1440,13 @@
       "labelNameField": "Name",
       "labelUsernameField": "Benutzername",
       "labelEmailField": "E-Mail",
-      "labelPasswordField": "Neues Passwort",
-      "labelPasswordConfirmField": "Passwort bestätigen",
+      "labelOldPassword": "Altes Passwort",
+      "labelNewPasswordField": "Neues Passwort",
+      "labelNewPasswordConfirmField": "Passwort bestätigen",
       "textImageInfo": "Wir benutzen das <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> Profilbild, das für Deine E-Mail Addresse hinterlegt ist.",
       "notificationPasswordErrorTitle": "Fehler",
-      "notificationPasswordErrorMessage": "Die eingegebenen Passwortinformationen sind nicht valide.",
+      "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
+      "notificationOldPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein.",
       "notificationSaveSuccessTitle": "Erfolg",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert."
     }

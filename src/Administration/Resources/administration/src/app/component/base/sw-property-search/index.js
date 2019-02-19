@@ -84,19 +84,16 @@ export default {
             }
         },
 
-        onGroupSelect(selection) {
-            const groups = Object.values(selection);
+        selectGroup(group) {
+            this.$refs.groupGrid.selectAll(false);
+            this.$refs.groupGrid.selectItem(true, group);
 
-            if (groups.length <= 0) {
+            if (!group) {
                 this.groupOptions = [];
                 return;
             }
 
-            this.currentGroup = groups.pop();
-            groups.forEach((item) => {
-                this.$refs.groupGrid.selectItem(false, item);
-            });
-
+            this.currentGroup = group;
             this.optionPage = 1;
             this.loadOptions();
         },
@@ -231,6 +228,7 @@ export default {
         loadGroups() {
             const params = { page: this.groupPage, limit: 10 };
 
+            this.groupOptions = [];
             this.groupStore.getList(params).then((response) => {
                 this.groups = response.items;
                 this.groupTotal = response.total;

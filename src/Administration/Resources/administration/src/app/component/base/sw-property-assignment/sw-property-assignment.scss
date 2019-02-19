@@ -2,12 +2,19 @@
 
 $sw-property-assignment-background-color-options-item: $color-light-gray;
 
+.sw-property-assignment {
+    font-size: 14px;
+
+    .sw-grid-column .sw-grid__cell-content {
+        padding: 15px 15px 5px 15px;
+    }
+}
 .sw-property-assignment__grid_option_item {
-    padding: 10px;
+    padding: 5px 10px;
     background: $sw-property-assignment-background-color-options-item;
     border-radius: $border-radius-default;
     display: inline-block;
-    margin: 0 10px 10px 0
+    margin: 0 10px 10px 0;
 }
 
 .sw-property-assignment__grid_option_item_value {

@@ -1,6 +1,64 @@
 @import "~scss/variables";
 
 .sw-property-search {
+    .sw-grid .sw-grid__pagination {
+        background: #fff;
+    }
+    .sw-property-search__tree-selection__option_grid {
+        padding-top: 10px;
+        background: #fff;
+    }
+
+    .sw-property-search__tree-selection {
+        height: 414px;
+
+        .sw-property-search__tree-selection__group_grid {
+            background: #fff;
+            padding-top: 10px;
+
+            .group_grid__column-name {
+                .sw-icon {
+                    margin-right: 8px;
+                }
+            }
+        }
+
+        .sw-grid-column .sw-grid__cell-content {
+            min-height: 34px;
+            line-height: 34px;
+        }
+
+        .sw-grid-column.is-selected {
+            .sw-grid__cell-content {
+                color: #189EFF;
+                font-weight: 900;
+            }
+        }
+
+        .sw-grid__cell-content {
+            padding: 0 0 0 20px;
+        }
+
+        .sw-property-search__tree-selection__column-items-selected {
+            margin-right: 10px;
+        }
+
+        .sw-grid-column {
+            font-size: 14px;
+        }
+        .sw-grid-row {
+            border: none;
+        }
+
+        .sw-grid-row.is--selected {
+            border: none;
+            box-shadow: none;
+        }
+        .sw-grid-row:first-child.is--selected{
+            box-shadow: none;
+        }
+    }
+
     .sw-property-search__tree-selection,
     .sw-property-search__search-selection {
         width: 100%;
@@ -22,5 +80,11 @@
 
      .sw-property-search__tree-selection .sw-property-search__tree-selection__group_grid {
         border-right: 1px solid $color-steam-cloud;
+    }
+
+    .sw-property-search__toolbar {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin-bottom: 20px;
     }
 }

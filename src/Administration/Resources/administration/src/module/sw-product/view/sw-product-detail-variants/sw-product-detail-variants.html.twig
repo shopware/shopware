@@ -1,0 +1,17 @@
+<div class="sw-product-detail-variants">
+    <sw-card class="sw-card__configurator" :title="$tc('sw-product.variant.configuratorCardTitle')">
+        <sw-product-configurator-selection
+                            :options="configuratorStore"
+                            :overlay="false"
+                            :collapsible="false">
+
+            <template slot="toolbar-items">
+                <div class="generate-variant-button-container">
+                    <sw-button @click="generateVariants">
+                        {{ $tc('sw-product.variant.generateVariantsButton') }}
+                    </sw-button>
+                </div>
+            </template>
+        </sw-product-configurator-selection>
+    </sw-card>
+</div>

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
@@ -30,18 +29,35 @@ class CachedEntityAggregator implements EntityAggregatorInterface
      */
     private $cacheKeyGenerator;
 
+    /**
+     * @var bool
+     */
+    private $enabled;
+
+    /**
+     * @var int
+     */
+    private $expirationTime;
+
     public function __construct(
         TagAwareAdapterInterface $cache,
         EntityAggregatorInterface $decorated,
-        EntityCacheKeyGenerator $cacheKeyGenerator
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        bool $enabled,
+        int $expirationTime
     ) {
         $this->cache = $cache;
         $this->decorated = $decorated;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->enabled = $enabled;
+        $this->expirationTime = $expirationTime;
     }
 
     public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
     {
+        if (!$this->enabled) {
+            $this->decorated->aggregate($definition, $criteria, $context);
+        }
         // load all hits from cache
         $result = $this->loadFromCache($definition, $criteria, $context);
 
@@ -95,7 +111,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
             $item = $this->cache->getItem($key);
             $item->set($aggregationResult);
             $item->tag($tags);
-            $item->expiresAfter(3600);
+            $item->expiresAfter($this->expirationTime);
 
             //deferred saves are persisted with the cache->commit()
             $this->cache->saveDeferred($item);

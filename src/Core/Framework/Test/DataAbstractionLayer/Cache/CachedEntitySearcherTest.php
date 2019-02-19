@@ -56,12 +56,69 @@ class CachedEntitySearcherTest extends TestCase
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
-        $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher);
+        $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher, true, 3600);
 
         //first call should not match and the expects of the dbal searcher should called
         $databaseResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
 
         //second call should hit the cache items and the dbal searcher shouldn't be called
+        $cachedResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
+
+        static::assertEquals($databaseResult, $cachedResult);
+
+        $cacheItem = $cache->getItem(
+            $generator->getSearchCacheKey(TaxDefinition::class, $criteria, $context)
+        );
+
+        static::assertInstanceOf(IdSearchResult::class, $cacheItem->get());
+
+        $metaData = $cacheItem->getMetadata();
+        static::assertArrayHasKey('tags', $metaData);
+        static::assertEquals($expectedTags, $metaData['tags']);
+    }
+
+    /**
+     * @dataProvider searchCases
+     *
+     * @param Criteria $criteria
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function testDisableCacheOption(Criteria $criteria, array $expectedTags): void
+    {
+        $expectedTags = array_combine($expectedTags, $expectedTags);
+
+        $dbalSearcher = $this->createMock(EntitySearcher::class);
+
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $context = Context::createDefaultContext();
+
+        $dbalSearcher->expects(static::atLeast(2))
+            ->method('search')
+            ->willReturn(
+                new IdSearchResult(
+                    0,
+                    [
+                        $id1 => ['id' => $id1],
+                        $id2 => ['id' => $id2],
+                    ],
+                    $criteria,
+                    $context
+                )
+            );
+
+        $cache = $this->getContainer()->get('shopware.cache');
+
+        $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
+
+        $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher, false, 3600);
+
+        //first call should not match and the expects of the dbal searcher should called
+        $databaseResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
+
+        //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
         $cachedResult = $cachedSearcher->search(TaxDefinition::class, $criteria, $context);
 
         static::assertEquals($databaseResult, $cachedResult);

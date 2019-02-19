@@ -57,7 +57,7 @@ export default {
 
         dateType: {
             type: String,
-            default: '',
+            default: 'date',
             validValues: ['time', 'date', 'datetime', 'datetime-local'],
             validator(value) {
                 return ['time', 'date', 'datetime', 'datetime-local'].includes(value);

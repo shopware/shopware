@@ -33,7 +33,7 @@
             {% endblock %}
 
             {% block sw_customer_base_form_email_field %}
-                <sw-field type="email"
+                <sw-field type="text"
                           :label="$tc('sw-customer.baseForm.labelEmail')"
                           v-model="customer.email">
                 </sw-field>
@@ -87,7 +87,6 @@
 
             {% block sw_customer_base_form_birthday_field %}
                 <sw-field type="date"
-                          dateType="date"
                           :label="$tc('sw-customer.baseForm.labelBirthday')"
                           name="birthday"
                           v-model="customer.birthday">

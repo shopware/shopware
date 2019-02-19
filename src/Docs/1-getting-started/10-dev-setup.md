@@ -36,6 +36,7 @@ The following software is always required:
 - php extensions: dom, fileinfo, gd, iconv, intl, json, mbstring, pdo, pdo_mysql, phar, simplexml, tokenizer, xml,
 xmlwriter, zip
 - mysql >= 5.7 or mariadb >= 10.3
+    - Set `group_concat_max_len` to at least `320000`
 - composer >= 1.6
 - nodejs >= 8.10.0
 - npm >= 3.5.2

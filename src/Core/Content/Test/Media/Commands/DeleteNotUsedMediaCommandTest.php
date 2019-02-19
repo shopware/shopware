@@ -68,10 +68,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
         $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
 
-        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['yes']);
@@ -115,10 +115,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
         $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
 
-        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['no']);

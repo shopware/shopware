@@ -104,7 +104,7 @@ class MediaThumbnailRepositoryTest extends TestCase
             false
         );
 
-        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         return $thumbnailPath;
     }

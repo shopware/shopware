@@ -18,7 +18,7 @@ class CalculatedTaxCollection extends Collection
 
     public function exists(CalculatedTax $calculatedTax): bool
     {
-        return parent::has($this->getKey($calculatedTax));
+        return $this->has($this->getKey($calculatedTax));
     }
 
     public function get($key): ? CalculatedTax

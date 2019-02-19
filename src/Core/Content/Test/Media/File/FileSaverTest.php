@@ -179,7 +179,7 @@ class FileSaverTest extends TestCase
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
 
         $pathName = $this->urlGenerator->getRelativeMediaUrl($png);
-        $this->getPublicFilesystem()->putStream($pathName, fopen($tempFile, 'r'));
+        $this->getPublicFilesystem()->putStream($pathName, fopen($tempFile, 'rb'));
 
         try {
             $this->fileSaver->persistFileToMedia(

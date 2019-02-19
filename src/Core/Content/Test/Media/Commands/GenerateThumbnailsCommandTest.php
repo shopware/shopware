@@ -225,13 +225,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r')
+            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
     }
 
@@ -251,10 +251,10 @@ class GenerateThumbnailsCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'r')
+            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
+        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 }

@@ -58,7 +58,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -100,8 +100,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
         $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, 100, 200, true);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -151,8 +151,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
         $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
 
-        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'r'));
-        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 

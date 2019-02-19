@@ -57,7 +57,7 @@ class PdfParserLoaderTest extends TestCase
 
         $fileSize = 256000000; // 265mb
 
-        $fileHandle = fopen($tempFile, 'r+');
+        $fileHandle = fopen($tempFile, 'rb+');
         ftruncate($fileHandle, $fileSize);
         fclose($fileHandle);
 

@@ -30,7 +30,7 @@ class FileFetcherTest extends TestCase
         $request = $this->createMock(Request::class);
         $request->expects(static::once())
             ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'r'));
+            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
 
         $request->query = new ParameterBag([
             'extension' => 'png',
@@ -63,7 +63,7 @@ class FileFetcherTest extends TestCase
         $request = $this->createMock(Request::class);
         $request->expects(static::once())
             ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'r'));
+            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
 
         $request->query = new ParameterBag([
             'extension' => 'png',
@@ -106,7 +106,7 @@ class FileFetcherTest extends TestCase
         $request = $this->createMock(Request::class);
         $request->expects(static::once())
             ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'r'));
+            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
 
         $request->query = new ParameterBag([
             'extension' => 'png',

@@ -7,6 +7,7 @@
         {% block sw_admin_menu_item_router_link %}
             <router-link v-if="entry.path"
                          class="sw-admin-menu__navigation-link"
+                         :class="{'router-link-active': subIsActive(entry.path)}"
                          :to="getLinkToProp">
 
                 {% block sw_admin_menu_item_icon %}

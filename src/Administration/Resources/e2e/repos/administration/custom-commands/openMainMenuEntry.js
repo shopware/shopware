@@ -1,5 +1,7 @@
 let mainMenuCssSelector = '.sw-admin-menu__item--';
 const flyoutMenuCssSelector = '.sw-admin-menu__flyout-item--';
+const flyoutCssSelector = '.sw-admin-menu__flyout';
+const subMenuCssSelector = '.sw-admin-menu__navigation-list-item';
 
 
 /**
@@ -17,14 +19,25 @@ exports.command = function openMainMenuEntry(
     {targetPath, mainMenuId, subMenuId = null}
 ) {
     let finalMenuItem = `${mainMenuCssSelector}${mainMenuId}`;
-    this.waitForElementVisible(finalMenuItem);
 
-    // We're dealing with a sub menu entry, so we have to find and click it
-    if (subMenuId) {
-        this.moveToElement(`${mainMenuCssSelector}${mainMenuId}`, 5, 5);
-        finalMenuItem = `${flyoutMenuCssSelector}${subMenuId}`;
-    }
-    this.click(finalMenuItem).assert.urlContains(targetPath);
+    this.waitForElementVisible('.sw-admin-menu', function(){
+        // We're dealing with a sub menu entry, so we have to find and click it
+        if (subMenuId) {
+            this.moveToElement(`${mainMenuCssSelector}${mainMenuId}`, 5, 5);
+            this.element('css selector', flyoutCssSelector, (res) => {
+                if (res.value.ELEMENT) {
+                    finalMenuItem = `${flyoutMenuCssSelector}${subMenuId}`;
+                } else {
+                    finalMenuItem = `${subMenuCssSelector}.${subMenuId}`;
+                }
+                this.click(finalMenuItem).assert.urlContains(targetPath);
+            });
+        } else {
+            this.waitForElementVisible(finalMenuItem, () => {
+                this.click(`${finalMenuItem} a:first-child`).assert.urlContains(targetPath);
+            });
+        }
+    });
 
     return this;
 };

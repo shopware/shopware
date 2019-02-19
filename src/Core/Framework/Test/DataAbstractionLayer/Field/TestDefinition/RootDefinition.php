@@ -48,7 +48,7 @@ class SubDefinition extends EntityDefinition
             new IntField('stock', 'stock'),
             (new FkField('root_id', 'rootId', RootDefinition::class, 'id'))->addFlags(new Required()),
             (new ReferenceVersionField(RootDefinition::class))->addFlags(new Required()),
-            new OneToOneAssociationField('sub', 'id', 'root_id', RootDefinition::class, false),
+            new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
         ]);
     }
 }

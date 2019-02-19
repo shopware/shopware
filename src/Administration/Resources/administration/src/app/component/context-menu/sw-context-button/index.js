@@ -53,6 +53,12 @@ export default {
             }
         },
 
+        icon: {
+            type: String,
+            required: false,
+            default: 'small-more'
+        },
+
         disabled: {
             type: Boolean,
             required: false,

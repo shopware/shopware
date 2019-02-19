@@ -3,7 +3,7 @@
         {% block sw_context_button_button %}
             <slot name="button">
                 <button class="sw-context-button__button" :class="contextButtonClass">
-                    <sw-icon name="small-more" small decorative></sw-icon>
+                    <sw-icon :name="icon" small decorative></sw-icon>
                 </button>
             </slot>
         {% endblock %}

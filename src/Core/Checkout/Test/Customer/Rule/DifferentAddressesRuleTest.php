@@ -38,7 +38,7 @@ class DifferentAddressesRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

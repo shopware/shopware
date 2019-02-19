@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class MigrationCompilerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         /** @var MigrationCollectionLoader $migrationCollector */
         $migrationCollector = $container->get(MigrationCollection::class);

@@ -57,7 +57,7 @@ class OrderConverterController extends AbstractController
      * @throws InconsistentCriteriaIdsException
      * @throws MissingOrderRelationException
      */
-    public function convertToCart(string $orderId, Context $context)
+    public function convertToCart(string $orderId, Context $context): JsonResponse
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')

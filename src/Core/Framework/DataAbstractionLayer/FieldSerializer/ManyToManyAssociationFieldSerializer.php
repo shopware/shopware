@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -39,7 +40,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): \Generator {
+    ): Generator {
         if (!$field instanceof ManyToManyAssociationField) {
             throw new InvalidSerializerFieldException(ManyToManyAssociationField::class, $field);
         }
@@ -76,7 +77,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         yield __CLASS__ => __METHOD__;
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
     }

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Filter;
 
 class HtmlFilter implements Filter
 {
-    public function filter($value)
+    public function filter($value): string
     {
         return strip_tags((string) $value);
     }

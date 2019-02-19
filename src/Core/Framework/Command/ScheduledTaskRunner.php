@@ -27,7 +27,7 @@ class ScheduledTaskRunner extends Command
         $this->scheduler = $scheduler;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('scheduled-task:run')
             ->addOption('memory-limit', 'm', InputOption::VALUE_REQUIRED, 'The memory limit the worker can consume')

@@ -42,7 +42,7 @@ class SalesChannelRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingSalesChannelIds()
+    public function testValidateWithMissingSalesChannelIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -66,7 +66,7 @@ class SalesChannelRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptySalesChannelIds()
+    public function testValidateWithEmptySalesChannelIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -93,7 +93,7 @@ class SalesChannelRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringSalesChannelIds()
+    public function testValidateWithStringSalesChannelIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -119,7 +119,7 @@ class SalesChannelRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidArraySalesChannelIds()
+    public function testValidateWithInvalidArraySalesChannelIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -147,7 +147,7 @@ class SalesChannelRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidSalesChannelIdsUuid()
+    public function testValidateWithInvalidSalesChannelIdsUuid(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -174,7 +174,7 @@ class SalesChannelRuleTest extends TestCase
         }
     }
 
-    public function testAvailableOperators()
+    public function testAvailableOperators(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -214,7 +214,7 @@ class SalesChannelRuleTest extends TestCase
         );
     }
 
-    public function testValidateWithInvalidOperators()
+    public function testValidateWithInvalidOperators(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         foreach ([Rule::OPERATOR_LTE, Rule::OPERATOR_GTE, 'Invalid', true, 1.1] as $operator) {
@@ -243,7 +243,7 @@ class SalesChannelRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

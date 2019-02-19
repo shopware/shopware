@@ -43,7 +43,7 @@ class RetryMessageHandlerTest extends TestCase
         $this->retryMessageHandler = new RetryMessageHandler($this->getContainer(), $this->deadMessageRepository);
     }
 
-    public function testGetHandledMessages()
+    public function testGetHandledMessages(): void
     {
         $subscribedMessages = $this->retryMessageHandler::getHandledMessages();
 
@@ -51,7 +51,7 @@ class RetryMessageHandlerTest extends TestCase
         static::assertEquals(RetryMessage::class, $subscribedMessages[0]);
     }
 
-    public function testWithMissingDeadMessage()
+    public function testWithMissingDeadMessage(): void
     {
         ($this->retryMessageHandler)(new RetryMessage(Uuid::uuid4()->getHex()));
 
@@ -59,7 +59,7 @@ class RetryMessageHandlerTest extends TestCase
         static::assertCount(0, $messages);
     }
 
-    public function testWithSuccessfulRetry()
+    public function testWithSuccessfulRetry(): void
     {
         $message = new TestMessage();
         $deadMessageId = Uuid::uuid4()->getHex();
@@ -78,7 +78,7 @@ class RetryMessageHandlerTest extends TestCase
         static::assertEquals($message, $dummyHandler->getLastMessage());
     }
 
-    public function testWithFailingRetry()
+    public function testWithFailingRetry(): void
     {
         $message = new TestMessage();
         $deadMessageId = Uuid::uuid4()->getHex();

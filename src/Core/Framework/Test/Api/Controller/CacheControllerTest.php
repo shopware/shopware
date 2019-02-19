@@ -33,7 +33,7 @@ class CacheControllerTest extends TestCase
         $this->cache->save($item);
     }
 
-    public function testClearCacheEndpoint()
+    public function testClearCacheEndpoint(): void
     {
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
@@ -49,7 +49,7 @@ class CacheControllerTest extends TestCase
         static::assertFalse($this->cache->getItem('bar')->isHit());
     }
 
-    public function testClearCacheItems()
+    public function testClearCacheItems(): void
     {
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
@@ -67,7 +67,7 @@ class CacheControllerTest extends TestCase
         static::assertFalse($this->cache->getItem('bar')->isHit());
     }
 
-    public function testClearCacheWithInvalidParameters()
+    public function testClearCacheWithInvalidParameters(): void
     {
         $ids = [1, 2, 3];
 
@@ -90,7 +90,7 @@ class CacheControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
     }
 
-    public function testInvalidateTags()
+    public function testInvalidateTags(): void
     {
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
@@ -108,7 +108,7 @@ class CacheControllerTest extends TestCase
         static::assertFalse($this->cache->getItem('bar')->isHit());
     }
 
-    public function testInvalidateTagsWithInvalidParameters()
+    public function testInvalidateTagsWithInvalidParameters(): void
     {
         $ids = [1, 2, 3];
 

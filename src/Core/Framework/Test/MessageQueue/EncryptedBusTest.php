@@ -15,7 +15,7 @@ class EncryptedBusTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testItEncryptsMessageBeforeDispatch()
+    public function testItEncryptsMessageBeforeDispatch(): void
     {
         $testMsg = new TestMessage();
 
@@ -49,7 +49,7 @@ class EncryptedBusTest extends TestCase
         $decoratedBus->dispatch($testMsg);
     }
 
-    public function testItCopiesStamps()
+    public function testItCopiesStamps(): void
     {
         $testMsg = new TestMessage();
         $envelope = new Envelope($testMsg, new SerializerStamp([]));

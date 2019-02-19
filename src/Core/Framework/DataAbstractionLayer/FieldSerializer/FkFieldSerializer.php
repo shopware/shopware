@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
+use InvalidArgumentException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -39,7 +41,7 @@ class FkFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): \Generator {
+    ): Generator {
         if (!$field instanceof FkField) {
             throw new InvalidSerializerFieldException(FkField::class, $field);
         }
@@ -50,7 +52,7 @@ class FkFieldSerializer implements FieldSerializerInterface
         if ($this->shouldUseContext($field, $data)) {
             try {
                 $value = $parameters->getContext()->get($field->getReferenceClass(), $field->getReferenceField());
-            } catch (\InvalidArgumentException $exception) {
+            } catch (InvalidArgumentException $exception) {
                 $this->validate(
                     $this->validator,
                     $this->getConstraints($field, $existence),
@@ -70,7 +72,7 @@ class FkFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromStringToBytes($value);
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): ?string
     {
         if ($value === null) {
             return null;

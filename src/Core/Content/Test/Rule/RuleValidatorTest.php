@@ -46,7 +46,7 @@ class RuleValidatorTest extends TestCase
         $this->ruleValidator = new RuleValidator($symfonyValidator, $this->conditionRegistry);
     }
 
-    public function testInsertInvalidType()
+    public function testInsertInvalidType(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -68,7 +68,7 @@ class RuleValidatorTest extends TestCase
         }
     }
 
-    public function testUpdateInvalidType()
+    public function testUpdateInvalidType(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -90,7 +90,7 @@ class RuleValidatorTest extends TestCase
         }
     }
 
-    public function testInsertRequiredField()
+    public function testInsertRequiredField(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -120,7 +120,7 @@ class RuleValidatorTest extends TestCase
         }
     }
 
-    public function testUpdateRequiredField()
+    public function testUpdateRequiredField(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -150,7 +150,7 @@ class RuleValidatorTest extends TestCase
         }
     }
 
-    public function testInsertOptionalField()
+    public function testInsertOptionalField(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -168,7 +168,7 @@ class RuleValidatorTest extends TestCase
         $this->ruleValidator->preValidate($commands, $this->context);
     }
 
-    public function testUpdateOptionalField()
+    public function testUpdateOptionalField(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -186,7 +186,7 @@ class RuleValidatorTest extends TestCase
         $this->ruleValidator->preValidate($commands, $this->context);
     }
 
-    public function testInsertWithOptionalField()
+    public function testInsertWithOptionalField(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -220,7 +220,7 @@ class RuleValidatorTest extends TestCase
         }
     }
 
-    public function testUpdateWithOptionalField()
+    public function testUpdateWithOptionalField(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -255,7 +255,7 @@ class RuleValidatorTest extends TestCase
         }
     }
 
-    public function testInsertValid()
+    public function testInsertValid(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];
@@ -272,7 +272,7 @@ class RuleValidatorTest extends TestCase
         $this->ruleValidator->preValidate($commands, $this->context);
     }
 
-    public function testUpdateValid()
+    public function testUpdateValid(): void
     {
         $id = Uuid::uuid4()->getBytes();
         $commands = [];

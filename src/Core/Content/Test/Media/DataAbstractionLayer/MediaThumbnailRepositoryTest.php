@@ -41,7 +41,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testRemoveThumbnail()
+    public function testRemoveThumbnail(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
         $media = $this->createThumbnailWithMedia($mediaId);
@@ -53,7 +53,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
 
-    public function testRemoveThumbnailFromMedia()
+    public function testRemoveThumbnailFromMedia(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
         $media = $this->createThumbnailWithMedia($mediaId);

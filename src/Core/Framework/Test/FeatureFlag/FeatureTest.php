@@ -23,7 +23,7 @@ class FeatureTest extends TestCase
      * @before
      * @after
      */
-    public function cleanup()
+    public function cleanup(): void
     {
         @unlink(__DIR__ . '/_gen/feature_nextTest101.php');
         @unlink(__DIR__ . '/_gen/feature_nextTest123.php');
@@ -35,13 +35,13 @@ class FeatureTest extends TestCase
     /**
      * @before
      */
-    public function loadFixture()
+    public function loadFixture(): void
     {
         require_once __DIR__ . '/_fixture/feature_nextfix101.php';
         require_once __DIR__ . '/_fixture/feature_nextfix102.php';
     }
 
-    public function testTheGenerator()
+    public function testTheGenerator(): void
     {
         $gen = new FeatureFlagGenerator();
 
@@ -59,14 +59,14 @@ class FeatureTest extends TestCase
         static::assertTrue(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
     }
 
-    public function testABoolGetsReturned()
+    public function testABoolGetsReturned(): void
     {
         static::assertFalse(nextFix102());
         putenv('FEATURE_NEXT_FIX_102=1');
         static::assertTrue(nextFix102());
     }
 
-    public function testTheCallableGetsExecutes()
+    public function testTheCallableGetsExecutes(): void
     {
         FeatureConfig::registerFlag('nextFix101', __METHOD__);
         $indicator = false;
@@ -83,7 +83,7 @@ class FeatureTest extends TestCase
         static::assertTrue($indicator);
     }
 
-    public function testTheMethodGetsExecutes()
+    public function testTheMethodGetsExecutes(): void
     {
         FeatureConfig::registerFlag('nextFix101', __METHOD__);
         $this->indicator = null;
@@ -97,7 +97,7 @@ class FeatureTest extends TestCase
         static::assertInstanceOf(\stdClass::class, $this->indicator);
     }
 
-    public function testConfigGetAllReturnsAllAndTracksState()
+    public function testConfigGetAllReturnsAllAndTracksState(): void
     {
         $currentConfig = FeatureConfig::getAll();
 
@@ -112,7 +112,7 @@ class FeatureTest extends TestCase
         static::assertTrue($activatedFlagConfig[__METHOD__]);
     }
 
-    public function testTwigFeatureFlag()
+    public function testTwigFeatureFlag(): void
     {
         FeatureConfig::registerFlag('nextFix101', __METHOD__);
 
@@ -128,7 +128,7 @@ class FeatureTest extends TestCase
         static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
-    public function testTwigFeatureFlagNotRegistered()
+    public function testTwigFeatureFlagNotRegistered(): void
     {
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
         $twig = new Twig_Environment($loader, [
@@ -142,7 +142,7 @@ class FeatureTest extends TestCase
         $template->render([]);
     }
 
-    private function indicate(\stdClass $arg)
+    private function indicate(\stdClass $arg): void
     {
         $this->indicator = $arg;
     }

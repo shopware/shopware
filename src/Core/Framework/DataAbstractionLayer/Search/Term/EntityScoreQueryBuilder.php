@@ -37,7 +37,7 @@ class EntityScoreQueryBuilder
             /** @var SearchRanking|null $flag */
             $flag = $field->getFlag(SearchRanking::class);
 
-            $ranking = 1 * $multiplier;
+            $ranking = $multiplier;
             if ($flag) {
                 $ranking = $flag->getRanking() * $multiplier;
             }

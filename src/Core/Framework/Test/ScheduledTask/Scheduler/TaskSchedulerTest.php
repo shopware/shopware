@@ -52,7 +52,7 @@ class TaskSchedulerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testScheduleTasks()
+    public function testScheduleTasks(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -84,7 +84,7 @@ class TaskSchedulerTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
-    public function testScheduleTasksDoesntScheduleFutureTask()
+    public function testScheduleTasksDoesntScheduleFutureTask(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -115,7 +115,7 @@ class TaskSchedulerTest extends TestCase
      *
      * @param string $status
      */
-    public function testScheduleTasksDoesntScheduleNotScheduledTask(string $status)
+    public function testScheduleTasksDoesntScheduleNotScheduledTask(string $status): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -141,7 +141,7 @@ class TaskSchedulerTest extends TestCase
         static::assertEquals($status, $task->getStatus());
     }
 
-    public function nonScheduledStatus()
+    public function nonScheduledStatus(): array
     {
         return [
             [ScheduledTaskDefinition::STATUS_RUNNING],
@@ -151,7 +151,7 @@ class TaskSchedulerTest extends TestCase
         ];
     }
 
-    public function testScheduleTasksThrowsExceptionWhenTryingToScheduleWrongClass()
+    public function testScheduleTasksThrowsExceptionWhenTryingToScheduleWrongClass(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage(sprintf(
@@ -178,7 +178,7 @@ class TaskSchedulerTest extends TestCase
         $this->scheduler->queueScheduledTasks();
     }
 
-    public function testGetNextExecutionTime()
+    public function testGetNextExecutionTime(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -216,7 +216,7 @@ class TaskSchedulerTest extends TestCase
         static::assertEquals($nextExecutionTime->format(DATE_ATOM), $result->format(DATE_ATOM));
     }
 
-    public function testGetNextExecutionTimeIgnoresNotScheduledTasks()
+    public function testGetNextExecutionTimeIgnoresNotScheduledTasks(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -237,7 +237,7 @@ class TaskSchedulerTest extends TestCase
         static::assertNull($this->scheduler->getNextExecutionTime());
     }
 
-    public function testGetMinRunInterval()
+    public function testGetMinRunInterval(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -271,7 +271,7 @@ class TaskSchedulerTest extends TestCase
         static::assertEquals(5, $this->scheduler->getMinRunInterval());
     }
 
-    public function testGetMinRunIntervalWhenEmpty()
+    public function testGetMinRunIntervalWhenEmpty(): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 

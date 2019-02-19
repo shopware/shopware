@@ -41,7 +41,7 @@ class CurrencyRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingCurrencyIds()
+    public function testValidateWithMissingCurrencyIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -65,7 +65,7 @@ class CurrencyRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyCurrencyIds()
+    public function testValidateWithEmptyCurrencyIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -92,7 +92,7 @@ class CurrencyRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringCurrencyIds()
+    public function testValidateWithStringCurrencyIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -118,7 +118,7 @@ class CurrencyRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidArrayCurrencyIds()
+    public function testValidateWithInvalidArrayCurrencyIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -146,7 +146,7 @@ class CurrencyRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidCurrencyIdsUuid()
+    public function testValidateWithInvalidCurrencyIdsUuid(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -173,7 +173,7 @@ class CurrencyRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

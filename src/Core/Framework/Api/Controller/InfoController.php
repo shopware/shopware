@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,7 +26,7 @@ class InfoController extends AbstractController
      *
      * @throws \Exception
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse|Response
+     * @return JsonResponse|Response
      */
     public function info()
     {
@@ -37,7 +38,7 @@ class InfoController extends AbstractController
     /**
      * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
      */
-    public function entitySchema()
+    public function entitySchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
 

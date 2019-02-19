@@ -21,7 +21,7 @@ class ServiceDefinitionTest extends TestCase
         parent::__construct();
     }
 
-    public function testServiceDefinitionNaming()
+    public function testServiceDefinitionNaming(): void
     {
         $basePath = __DIR__ . '/../../../';
 

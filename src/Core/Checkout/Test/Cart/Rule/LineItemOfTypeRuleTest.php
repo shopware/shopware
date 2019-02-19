@@ -42,7 +42,7 @@ class LineItemOfTypeRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingLineItemType()
+    public function testValidateWithMissingLineItemType(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -66,7 +66,7 @@ class LineItemOfTypeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyLineItemType()
+    public function testValidateWithEmptyLineItemType(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -93,7 +93,7 @@ class LineItemOfTypeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidLineItemType()
+    public function testValidateWithInvalidLineItemType(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -120,7 +120,7 @@ class LineItemOfTypeRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

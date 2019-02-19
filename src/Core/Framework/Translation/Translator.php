@@ -63,7 +63,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
     /**
      * {@inheritdoc}
      */
-    public function getCatalogue($locale = null)
+    public function getCatalogue($locale = null): MessageCatalogueInterface
     {
         $catalog = $this->translator->getCatalogue($locale);
 
@@ -73,7 +73,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = [], $domain = null, $locale = null)
+    public function trans($id, array $parameters = [], $domain = null, $locale = null): string
     {
         if ($domain === null) {
             $domain = 'messages';
@@ -112,7 +112,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
     /**
      * {@inheritdoc}
      */
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         $this->translator->setLocale($locale);
     }
@@ -120,7 +120,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
     /**
      * {@inheritdoc}
      */
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->translator->getLocale();
     }
@@ -132,10 +132,6 @@ class Translator implements TranslatorInterface, TranslatorBagInterface
 
     /**
      * Add language specific snippets provided by the admin
-     *
-     * @param MessageCatalogueInterface $catalog
-     *
-     * @return MessageCatalogueInterface
      */
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog): MessageCatalogueInterface
     {

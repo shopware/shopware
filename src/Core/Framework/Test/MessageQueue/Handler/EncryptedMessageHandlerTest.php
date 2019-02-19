@@ -15,7 +15,7 @@ class EncryptedMessageHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testGetHandledMessages()
+    public function testGetHandledMessages(): void
     {
         $bus = $this->createMock(MessageBusInterface::class);
         $handler = new EncryptedMessageHandler($bus, $this->getContainer()->get('shopware.private_key'));
@@ -26,7 +26,7 @@ class EncryptedMessageHandlerTest extends TestCase
         static::assertEquals(EncryptedMessage::class, $subscribedMessages[0]);
     }
 
-    public function testItDecryptsEncryptedMessage()
+    public function testItDecryptsEncryptedMessage(): void
     {
         $testMsg = new TestMessage();
 

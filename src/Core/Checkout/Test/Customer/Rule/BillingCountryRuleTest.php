@@ -41,7 +41,7 @@ class BillingCountryRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidationWithMissingCountryIds()
+    public function testValidationWithMissingCountryIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -65,7 +65,7 @@ class BillingCountryRuleTest extends TestCase
         }
     }
 
-    public function testValidationWithEmptyCountryIds()
+    public function testValidationWithEmptyCountryIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -92,7 +92,7 @@ class BillingCountryRuleTest extends TestCase
         }
     }
 
-    public function testValidationWithStringCountryIds()
+    public function testValidationWithStringCountryIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -118,7 +118,7 @@ class BillingCountryRuleTest extends TestCase
         }
     }
 
-    public function testValidationWithArrayOfInvalidCountryIdTypes()
+    public function testValidationWithArrayOfInvalidCountryIdTypes(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -146,7 +146,7 @@ class BillingCountryRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

@@ -203,7 +203,7 @@ class ProductStreamIndexer implements IndexerInterface
         return json_last_error() == JSON_ERROR_NONE;
     }
 
-    private function createIterator(Context $context)
+    private function createIterator(Context $context): RepositoryIterator
     {
         return new RepositoryIterator($this->repository, $context);
     }

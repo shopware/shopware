@@ -41,7 +41,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingZipCodes()
+    public function testValidateWithMissingZipCodes(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -65,7 +65,7 @@ class ShippingZipCodeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyZipCodes()
+    public function testValidateWithEmptyZipCodes(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -92,7 +92,7 @@ class ShippingZipCodeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringZipCodes()
+    public function testValidateWithStringZipCodes(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -118,7 +118,7 @@ class ShippingZipCodeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidArrayZipCodes()
+    public function testValidateWithInvalidArrayZipCodes(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -146,7 +146,7 @@ class ShippingZipCodeRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

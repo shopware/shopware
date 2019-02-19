@@ -41,7 +41,7 @@ class CustomerNumberRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingNumbers()
+    public function testValidateWithMissingNumbers(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -65,7 +65,7 @@ class CustomerNumberRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyCustomerGroupIds()
+    public function testValidateWithEmptyCustomerGroupIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -92,7 +92,7 @@ class CustomerNumberRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidCustomerGroupIdsType()
+    public function testValidateWithInvalidCustomerGroupIdsType(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -118,7 +118,7 @@ class CustomerNumberRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

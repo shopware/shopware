@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -22,7 +23,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): \Generator {
+    ): Generator {
         if (!$field instanceof VersionField) {
             throw new InvalidSerializerFieldException(VersionField::class, $field);
         }
@@ -39,7 +40,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): string
     {
         return Uuid::fromBytesToHex($value);
     }

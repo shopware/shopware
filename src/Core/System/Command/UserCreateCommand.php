@@ -27,7 +27,7 @@ class UserCreateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('rest:user:create')
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')

@@ -29,7 +29,7 @@ class NavigationEntityTest extends TestCase
         $this->repository = $this->getContainer()->get('navigation.repository');
     }
 
-    public function testCreateNavigation()
+    public function testCreateNavigation(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -50,7 +50,7 @@ class NavigationEntityTest extends TestCase
         static::assertSame('Main', $navigation->getName());
     }
 
-    public function testCreateWithChildren()
+    public function testCreateWithChildren(): void
     {
         $parentId = Uuid::uuid4()->getHex();
         $childId1 = Uuid::uuid4()->getHex();
@@ -92,7 +92,7 @@ class NavigationEntityTest extends TestCase
         }
     }
 
-    public function testCreateNavigationViaApi()
+    public function testCreateNavigationViaApi(): void
     {
         $parentId = Uuid::uuid4()->getHex();
         $childId1 = Uuid::uuid4()->getHex();

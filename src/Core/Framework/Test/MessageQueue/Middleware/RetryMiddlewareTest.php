@@ -45,7 +45,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testMiddlewareOnSuccess()
+    public function testMiddlewareOnSuccess(): void
     {
         $message = new RetryMessage(Uuid::uuid4()->getHex());
         $envelope = new Envelope($message);
@@ -59,7 +59,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         static::assertCount(0, $deadMessages);
     }
 
-    public function testMiddlewareOnFirstError()
+    public function testMiddlewareOnFirstError(): void
     {
         $message = new RetryMessage(Uuid::uuid4()->getHex());
         $envelope = new Envelope($message);
@@ -78,7 +78,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 1);
     }
 
-    public function testMiddlewareSavesScheduledTask()
+    public function testMiddlewareSavesScheduledTask(): void
     {
         $taskId = Uuid::uuid4()->getHex();
         $message = $this->createMock(ScheduledTaskInterface::class);
@@ -112,7 +112,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         static::assertEquals($taskId, $deadMessage->getScheduledTaskId());
     }
 
-    public function testMiddlewareWithEncryptedMessage()
+    public function testMiddlewareWithEncryptedMessage(): void
     {
         $message = new RetryMessage(Uuid::uuid4()->getHex());
         $envelope = new Envelope($message, new DecryptedStamp());
@@ -132,7 +132,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         static::assertTrue($deadMessage->isEncrypted());
     }
 
-    public function testMiddlewareOnConsecutiveError()
+    public function testMiddlewareOnConsecutiveError(): void
     {
         $deadMessageId = Uuid::uuid4()->getHex();
         $message = new RetryMessage($deadMessageId);
@@ -156,7 +156,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         static::assertFalse($deadMessage->isEncrypted());
     }
 
-    public function testMiddlewareOnDifferentError()
+    public function testMiddlewareOnDifferentError(): void
     {
         $deadMessageId = Uuid::uuid4()->getHex();
         $message = new RetryMessage($deadMessageId);

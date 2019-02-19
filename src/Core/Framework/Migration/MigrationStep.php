@@ -32,7 +32,7 @@ abstract class MigrationStep
      * FORWARD triggers are executed when an old application has to work with a newer Database
      * and has to keep it update-safe
      */
-    protected function addForwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements)
+    protected function addForwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
         $this->addTrigger($connection, $name, $table, $time, $event, $statements, '');
     }
@@ -41,7 +41,7 @@ abstract class MigrationStep
      * BACKWARD triggers are executed when the new application works with the new Database
      * and has to keep it rollback-safe
      */
-    protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements)
+    protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
         $this->addTrigger($connection, $name, $table, $time, $event, $statements, 'IS NULL');
     }

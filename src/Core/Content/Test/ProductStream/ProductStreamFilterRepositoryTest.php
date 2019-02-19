@@ -44,7 +44,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
         $this->productStreamRepository->upsert([['id' => $this->streamId, 'name' => 'Test stream']], $this->context);
     }
 
-    public function testCreateEntity()
+    public function testCreateEntity(): void
     {
         $id = Uuid::uuid4()->getHex();
         $this->repository->create([
@@ -56,7 +56,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
         static::assertSame([['type' => 'equals', 'field' => 'product.name', 'value' => 'awesome']], $entity->getApiFilter());
     }
 
-    public function testUpdateEntity()
+    public function testUpdateEntity(): void
     {
         $id = Uuid::uuid4()->getHex();
         $this->repository->create([
@@ -71,7 +71,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
         static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getApiFilter());
     }
 
-    public function testRangeEntity()
+    public function testRangeEntity(): void
     {
         $id = Uuid::uuid4()->getHex();
         $this->repository->create([

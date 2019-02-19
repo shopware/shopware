@@ -41,11 +41,7 @@ trait ExtendableTrait
      */
     public function getExtension(string $name): ?Struct
     {
-        if (isset($this->extensions[$name])) {
-            return $this->extensions[$name];
-        }
-
-        return null;
+        return $this->extensions[$name] ?? null;
     }
 
     public function getExtensionOfType(string $name, string $type): ?Struct

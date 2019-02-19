@@ -15,7 +15,7 @@ class DefaultTypeDetectorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testDetectGif()
+    public function testDetectGif(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'),
@@ -25,7 +25,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(ImageType::class, $type);
     }
 
-    public function testDetectGifDoesntOverwrite()
+    public function testDetectGifDoesntOverwrite(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'),
@@ -35,7 +35,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(VideoType::class, $type);
     }
 
-    public function testDetectWebp()
+    public function testDetectWebp(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/shopware.webp'),
@@ -45,7 +45,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(ImageType::class, $type);
     }
 
-    public function testDetectSvg()
+    public function testDetectSvg(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/logo-version-professionalplus.svg'),
@@ -55,7 +55,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(ImageType::class, $type);
     }
 
-    public function testDetectJpg()
+    public function testDetectJpg(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'),
@@ -65,7 +65,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(ImageType::class, $type);
     }
 
-    public function testDetectPng()
+    public function testDetectPng(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'),
@@ -75,7 +75,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(ImageType::class, $type);
     }
 
-    public function testDetectDoc()
+    public function testDetectDoc(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/reader.doc'),
@@ -85,7 +85,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(BinaryType::class, $type);
     }
 
-    public function testDetectDocx()
+    public function testDetectDocx(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/reader.docx'),
@@ -95,7 +95,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(BinaryType::class, $type);
     }
 
-    public function testDetectPdf()
+    public function testDetectPdf(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'),
@@ -105,7 +105,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(BinaryType::class, $type);
     }
 
-    public function testDetectAvi()
+    public function testDetectAvi(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.avi'),
@@ -115,7 +115,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(VideoType::class, $type);
     }
 
-    public function testDetectMov()
+    public function testDetectMov(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.mov'),
@@ -125,7 +125,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(VideoType::class, $type);
     }
 
-    public function testDetectMp4()
+    public function testDetectMp4(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.mp4'),
@@ -135,7 +135,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(VideoType::class, $type);
     }
 
-    public function testDetectWebm()
+    public function testDetectWebm(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/small.webm'),
@@ -145,7 +145,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(VideoType::class, $type);
     }
 
-    public function testDetectIso()
+    public function testDetectIso(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/test.iso'),
@@ -155,7 +155,7 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(BinaryType::class, $type);
     }
 
-    public function testDetectMp3()
+    public function testDetectMp3(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
             $this->createMediaFile(__DIR__ . '/../fixtures/file_example.mp3'),

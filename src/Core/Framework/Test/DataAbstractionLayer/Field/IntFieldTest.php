@@ -17,7 +17,7 @@ class IntFieldTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testIntFieldSerializerNullValue()
+    public function testIntFieldSerializerNullValue(): void
     {
         $serializer = $this->getContainer()->get(IntFieldSerializer::class);
 
@@ -38,7 +38,7 @@ class IntFieldTest extends TestCase
         }
     }
 
-    public function testIntFieldSerializerWrongValueType()
+    public function testIntFieldSerializerWrongValueType(): void
     {
         $serializer = $this->getContainer()->get(IntFieldSerializer::class);
 
@@ -59,7 +59,7 @@ class IntFieldTest extends TestCase
         }
     }
 
-    public function testIntFieldSerializerZeroValue()
+    public function testIntFieldSerializerZeroValue(): void
     {
         $serializer = $this->getContainer()->get(IntFieldSerializer::class);
 
@@ -78,7 +78,7 @@ class IntFieldTest extends TestCase
         );
     }
 
-    public function testIntFieldSerializerIntValue()
+    public function testIntFieldSerializerIntValue(): void
     {
         $serializer = $this->getContainer()->get(IntFieldSerializer::class);
 
@@ -95,7 +95,7 @@ class IntFieldTest extends TestCase
         );
     }
 
-    public function testIntFieldSerializerNotRequiredValue()
+    public function testIntFieldSerializerNotRequiredValue(): void
     {
         $serializer = $this->getContainer()->get(IntFieldSerializer::class);
 

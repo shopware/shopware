@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
+use RuntimeException;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaProtectionFlags;
@@ -47,7 +48,7 @@ class GenerateMediaTypesCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('media:generate-media-types')
@@ -83,7 +84,7 @@ class GenerateMediaTypesCommand extends Command
         }
 
         if (!is_numeric($batchSize)) {
-            throw new \Exception('BatchSize is not numeric');
+            throw new RuntimeException('BatchSize is not numeric');
         }
 
         return (int) $batchSize;
@@ -94,9 +95,8 @@ class GenerateMediaTypesCommand extends Command
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->setLimit(0);
-        $result = $this->mediaRepository->search($criteria, $context);
 
-        return $result->getTotal();
+        return $this->mediaRepository->search($criteria, $context)->getTotal();
     }
 
     private function detectMediaTypes($context): void

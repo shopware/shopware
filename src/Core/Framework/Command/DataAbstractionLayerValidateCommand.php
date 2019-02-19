@@ -28,7 +28,7 @@ class DataAbstractionLayerValidateCommand extends Command
         $this->container = $container;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('dataabstractionlayer:validate');
     }

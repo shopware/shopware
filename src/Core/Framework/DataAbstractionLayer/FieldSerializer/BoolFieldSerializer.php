@@ -58,7 +58,7 @@ class BoolFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $transformed;
     }
 
-    public function decode(Field $field, $value)
+    public function decode(Field $field, $value): bool
     {
         return (bool) $value;
     }

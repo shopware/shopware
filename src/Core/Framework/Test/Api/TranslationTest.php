@@ -115,7 +115,7 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testOnlySystemLocaleIdentifier()
+    public function testOnlySystemLocaleIdentifier(): void
     {
         $localeRepo = $this->getContainer()->get('locale.repository');
         /** @var LocaleEntity $locale */

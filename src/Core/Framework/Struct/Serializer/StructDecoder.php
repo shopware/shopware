@@ -11,7 +11,7 @@ class StructDecoder implements DecoderInterface
         return $this->format($data);
     }
 
-    public function supportsDecoding($format)
+    public function supportsDecoding($format): bool
     {
         return $format === 'struct';
     }

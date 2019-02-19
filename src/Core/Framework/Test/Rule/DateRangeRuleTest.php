@@ -43,7 +43,7 @@ class DateRangeRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithoutParameters()
+    public function testValidateWithoutParameters(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -70,7 +70,7 @@ class DateRangeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithoutFromDate()
+    public function testValidateWithoutFromDate(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -97,7 +97,7 @@ class DateRangeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithoutToDate()
+    public function testValidateWithoutToDate(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -124,7 +124,7 @@ class DateRangeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidFromDateFormat()
+    public function testValidateWithInvalidFromDateFormat(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         foreach ([true, 'Invalid'] as $value) {
@@ -154,7 +154,7 @@ class DateRangeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidToDateFormat()
+    public function testValidateWithInvalidToDateFormat(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         foreach ([true, 'Invalid'] as $value) {
@@ -184,7 +184,7 @@ class DateRangeRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidUseTime()
+    public function testValidateWithInvalidUseTime(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -213,7 +213,7 @@ class DateRangeRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

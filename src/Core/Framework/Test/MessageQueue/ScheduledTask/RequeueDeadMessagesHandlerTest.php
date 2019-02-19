@@ -12,14 +12,14 @@ class RequeueDeadMessagesHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testGetHandledMessages()
+    public function testGetHandledMessages(): void
     {
         $handledMessages = RequeueDeadMessagesHandler::getHandledMessages();
         static::assertCount(1, $handledMessages);
         static::assertEquals(RequeueDeadMessagesTask::class, $handledMessages[0]);
     }
 
-    public function testRun()
+    public function testRun(): void
     {
         $requeueService = $this->createMock(RequeueDeadMessagesService::class);
         $requeueService->expects(static::once())

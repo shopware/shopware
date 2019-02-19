@@ -877,7 +877,7 @@ EOF;
         static::assertEquals('category', $content['entity']);
     }
 
-    public function testCloneEntity()
+    public function testCloneEntity(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = [

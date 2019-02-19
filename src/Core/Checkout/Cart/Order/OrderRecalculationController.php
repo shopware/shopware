@@ -123,7 +123,7 @@ class OrderRecalculationController extends AbstractController
     /**
      * @throws InvalidPayloadException
      */
-    private function updateLineItemByRequest(Request $request, LineItem $lineItem)
+    private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
     {
         $label = $request->request->get('label');
         $description = $request->request->get('description');

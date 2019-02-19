@@ -28,7 +28,7 @@ class NavigationSynchronizer implements EventSubscriberInterface
         $this->connection = $connection;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             EntityWrittenContainerEvent::NAME => ['refresh', 400],

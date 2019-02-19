@@ -154,7 +154,7 @@ EOF;
         ], $context);
     }
 
-    private function createStateMachineWithoutInitialState(Context $context)
+    private function createStateMachineWithoutInitialState(Context $context): void
     {
         $this->stateMachineRepository->upsert([
             [

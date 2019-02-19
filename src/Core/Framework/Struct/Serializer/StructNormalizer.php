@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
+use DateTime;
+use ReflectionClass;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
@@ -14,7 +16,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     /**
      * Internal cache property which contains created reflection classes
      *
-     * @var \ReflectionClass[]
+     * @var ReflectionClass[]
      */
     private $classes = [];
 
@@ -24,15 +26,14 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     public function normalize($data, $format = null, array $context = [])
     {
         $encoder = new JsonEncode();
-        $decoder = new JsonDecode([JsonDecode::ASSOCIATIVE => true]);
 
-        return $decoder->decode($encoder->encode($data, 'json'), 'json');
+        return (new JsonDecode([JsonDecode::ASSOCIATIVE => true]))->decode($encoder->encode($data, 'json'), 'json');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof Struct;
     }
@@ -69,7 +70,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null): bool
     {
         return \is_array($data) && array_key_exists('_class', $data);
     }
@@ -116,10 +117,12 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
             if (!array_key_exists($name, $arguments)) {
                 if (!$constructorParam->isOptional()) {
-                    throw new InvalidArgumentException(sprintf(
-                        'Required constructor parameter missing: "$%s". 
-                         Please check if the property is protected and not private.',
-                        $name));
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            'Required constructor parameter missing: "$%s". Please check if the property is protected and not private.',
+                            $name
+                        )
+                    );
                 }
 
                 $params[] = $constructorParam->getDefaultValue();
@@ -141,20 +144,20 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         return $struct;
     }
 
-    private function getReflectionClass(string $class): \ReflectionClass
+    private function getReflectionClass(string $class): ReflectionClass
     {
         if (isset($this->classes[$class])) {
             return $this->classes[$class];
         }
 
-        return $this->classes[$class] = new \ReflectionClass($class);
+        return $this->classes[$class] = new ReflectionClass($class);
     }
 
-    private function createDate(string $date): ?\DateTime
+    private function createDate(string $date): ?DateTime
     {
-        $d = \DateTime::createFromFormat(\DateTime::ATOM, $date);
+        $d = DateTime::createFromFormat(DateTime::ATOM, $date);
 
-        if ($d && $d->format(\DateTime::ATOM) == $date) {
+        if ($d && $d->format(DateTime::ATOM) === $date) {
             return $d;
         }
 

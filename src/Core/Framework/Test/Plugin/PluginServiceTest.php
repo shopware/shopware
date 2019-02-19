@@ -167,7 +167,7 @@ class PluginServiceTest extends TestCase
         static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getVersion());
     }
 
-    private function performDefaultGermanTests(PluginEntity $plugin)
+    private function performDefaultGermanTests(PluginEntity $plugin): void
     {
         static::assertSame(\SwagTest\SwagTest::PLUGIN_NAME, $plugin->getName());
         static::assertSame(\SwagTest\SwagTest::PLUGIN_GERMAN_LABEL, $plugin->getLabel());

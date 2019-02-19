@@ -348,7 +348,7 @@ class MediaEntity extends Entity
         return $this->fileName;
     }
 
-    public function setFileName(string $fileName)
+    public function setFileName(string $fileName): void
     {
         $this->fileName = $fileName;
     }

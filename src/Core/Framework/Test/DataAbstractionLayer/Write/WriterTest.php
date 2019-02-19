@@ -654,7 +654,7 @@ class WriterTest extends TestCase
         );
     }
 
-    public function testInsertWithOnlyRequiredTranslated()
+    public function testInsertWithOnlyRequiredTranslated(): void
     {
         $id = Uuid::uuid4()->getHex();
         $data = ['id' => $id];

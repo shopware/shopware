@@ -38,7 +38,7 @@ class JsonApiDecoder implements DecoderInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsDecoding($format)
+    public function supportsDecoding($format): bool
     {
         return $format === self::FORMAT;
     }

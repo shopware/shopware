@@ -42,7 +42,7 @@ class LastNameRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingLastName()
+    public function testValidateWithMissingLastName(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -66,7 +66,7 @@ class LastNameRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyLastName()
+    public function testValidateWithEmptyLastName(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -93,7 +93,7 @@ class LastNameRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidLastName()
+    public function testValidateWithInvalidLastName(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -120,7 +120,7 @@ class LastNameRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

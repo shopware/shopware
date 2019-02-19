@@ -56,14 +56,14 @@ class MediaFolderServiceTest extends TestCase
         $this->mediaFolderService = $this->getContainer()->get(MediaFolderService::class);
     }
 
-    public function testDissolveForNonExistingFolder()
+    public function testDissolveForNonExistingFolder(): void
     {
         $this->expectException(MediaFolderNotFoundException::class);
 
         $this->mediaFolderService->dissolve(Uuid::uuid4()->getHex(), $this->context);
     }
 
-    public function testDissolveWithNoChildFolders()
+    public function testDissolveWithNoChildFolders(): void
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
@@ -80,7 +80,7 @@ class MediaFolderServiceTest extends TestCase
         $this->assertConfigIsDeleted($configId);
     }
 
-    public function testDissolveChildToRootLevel()
+    public function testDissolveChildToRootLevel(): void
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
@@ -110,7 +110,7 @@ class MediaFolderServiceTest extends TestCase
         $this->assertConfigStillExists($configId);
     }
 
-    public function testDissolveWithInheritedConfig()
+    public function testDissolveWithInheritedConfig(): void
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
@@ -147,7 +147,7 @@ class MediaFolderServiceTest extends TestCase
         $this->assertConfigStillExists($configId);
     }
 
-    public function testDissolveWithChildren()
+    public function testDissolveWithChildren(): void
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
@@ -227,7 +227,7 @@ class MediaFolderServiceTest extends TestCase
         static::assertEquals($childConfigId, $folders->get($child3Id)->getConfigurationId());
     }
 
-    public function testDissolveWithMultipleLayerOfChildren()
+    public function testDissolveWithMultipleLayerOfChildren(): void
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
@@ -323,7 +323,7 @@ class MediaFolderServiceTest extends TestCase
         $this->assertConfigIsSame($folders->get($child2Id), $folders->get($child2_1_1Id));
     }
 
-    public function testDissolveWithInheritedConfigAndChildren()
+    public function testDissolveWithInheritedConfigAndChildren(): void
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();

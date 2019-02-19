@@ -29,37 +29,37 @@ class NestedEventDispatcher implements NestedEventDispatcherInterface
         return $this->dispatcher->dispatch($eventName, $event);
     }
 
-    public function addListener($eventName, $listener, $priority = 0)
+    public function addListener($eventName, $listener, $priority = 0): void
     {
-        return $this->dispatcher->addListener($eventName, $listener, $priority);
+        $this->dispatcher->addListener($eventName, $listener, $priority);
     }
 
-    public function addSubscriber(EventSubscriberInterface $subscriber)
+    public function addSubscriber(EventSubscriberInterface $subscriber): void
     {
-        return $this->dispatcher->addSubscriber($subscriber);
+        $this->dispatcher->addSubscriber($subscriber);
     }
 
-    public function removeListener($eventName, $listener)
+    public function removeListener($eventName, $listener): void
     {
-        return $this->dispatcher->removeListener($eventName, $listener);
+        $this->dispatcher->removeListener($eventName, $listener);
     }
 
-    public function removeSubscriber(EventSubscriberInterface $subscriber)
+    public function removeSubscriber(EventSubscriberInterface $subscriber): void
     {
-        return $this->dispatcher->removeSubscriber($subscriber);
+        $this->dispatcher->removeSubscriber($subscriber);
     }
 
-    public function getListeners($eventName = null)
+    public function getListeners($eventName = null): array
     {
         return $this->dispatcher->getListeners($eventName);
     }
 
-    public function getListenerPriority($eventName, $listener)
+    public function getListenerPriority($eventName, $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
 
-    public function hasListeners($eventName = null)
+    public function hasListeners($eventName = null): bool
     {
         return $this->dispatcher->hasListeners($eventName);
     }

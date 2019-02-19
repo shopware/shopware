@@ -28,7 +28,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
         $this->connection = $connection;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             SnippetEvents::SNIPPET_WRITTEN_EVENT => 'invalidate',

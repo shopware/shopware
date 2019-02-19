@@ -53,7 +53,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
         );
     }
 
-    public function testRequeueDeadMessages()
+    public function testRequeueDeadMessages(): void
     {
         $msg = new EncryptedMessage('test');
         $e = new \Exception('exception');
@@ -126,7 +126,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
         $this->requeueDeadMessageService->requeue();
     }
 
-    public function testRequeueDeadMessagesByClassname()
+    public function testRequeueDeadMessagesByClassname(): void
     {
         $msg = new EncryptedMessage('test');
         $e = new \Exception('exception');

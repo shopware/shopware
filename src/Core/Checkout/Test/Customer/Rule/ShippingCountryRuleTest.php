@@ -43,7 +43,7 @@ class ShippingCountryRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testValidateWithMissingParameters()
+    public function testValidateWithMissingParameters(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -67,7 +67,7 @@ class ShippingCountryRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithoutOptionalOperator()
+    public function testValidateWithoutOptionalOperator(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -90,7 +90,7 @@ class ShippingCountryRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testValidateWithMissingCountryIds()
+    public function testValidateWithMissingCountryIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -117,7 +117,7 @@ class ShippingCountryRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyCountryIds()
+    public function testValidateWithEmptyCountryIds(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -145,7 +145,7 @@ class ShippingCountryRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithInvalidCountryIdsUuid()
+    public function testValidateWithInvalidCountryIdsUuid(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         try {
@@ -174,7 +174,7 @@ class ShippingCountryRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithValidOperators()
+    public function testValidateWithValidOperators(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(
@@ -214,7 +214,7 @@ class ShippingCountryRuleTest extends TestCase
         );
     }
 
-    public function testValidateWithInvalidOperators()
+    public function testValidateWithInvalidOperators(): void
     {
         $conditionId = Uuid::uuid4()->getHex();
         foreach ([Rule::OPERATOR_LTE, Rule::OPERATOR_GTE, 'Invalid'] as $operator) {
@@ -244,7 +244,7 @@ class ShippingCountryRuleTest extends TestCase
         }
     }
 
-    public function testIfRuleIsConsistent()
+    public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();
         $this->ruleRepository->create(

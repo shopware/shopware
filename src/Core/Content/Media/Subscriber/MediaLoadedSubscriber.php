@@ -32,7 +32,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
         $this->metadataLoader = $metadataLoader;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             MediaEvents::MEDIA_LOADED_EVENT => [

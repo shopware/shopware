@@ -23,7 +23,7 @@ class FeatureFlagCreateCommand extends Command
         $this->generator = $generator;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
         $this->addArgument('name', InputArgument::REQUIRED, 'What is the feature gonna be called?');

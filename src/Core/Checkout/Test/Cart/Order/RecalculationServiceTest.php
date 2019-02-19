@@ -79,7 +79,7 @@ class RecalculationServiceTest extends TestCase
         );
     }
 
-    public function testPersistOrderAndConvertToCart()
+    public function testPersistOrderAndConvertToCart(): void
     {
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart);
@@ -129,7 +129,7 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals($cart, $convertedCart, print_r(['original' => $cart, 'converted' => $convertedCart], true));
     }
 
-    public function testOrderConverterController()
+    public function testOrderConverterController(): void
     {
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart);
@@ -207,7 +207,7 @@ class RecalculationServiceTest extends TestCase
         static::assertCount(3, $content['lineItems']);
     }
 
-    public function testRecalculationController()
+    public function testRecalculationController(): void
     {
         // create order
         $cart = $this->generateDemoCart();
@@ -260,7 +260,7 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
-    public function testAddProductToOrder()
+    public function testAddProductToOrder(): void
     {
         // create order
         $cart = $this->generateDemoCart();
@@ -275,7 +275,7 @@ class RecalculationServiceTest extends TestCase
         $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId);
     }
 
-    public function testAddCustomLineItemToOrder()
+    public function testAddCustomLineItemToOrder(): void
     {
         // create order
         $cart = $this->generateDemoCart();
@@ -287,7 +287,7 @@ class RecalculationServiceTest extends TestCase
         $this->addCustomLineItemToVersionedOrder($orderId, $versionId);
     }
 
-    public function testCreatedVersionedOrderAndMerge()
+    public function testCreatedVersionedOrderAndMerge(): void
     {
         // create order
         $cart = $this->generateDemoCart();
@@ -337,7 +337,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($taxRule->getTaxRate(), $productTaxRate);
     }
 
-    public function testChangeShippingCosts()
+    public function testChangeShippingCosts(): void
     {
         // create order
         $cart = $this->generateDemoCart();
@@ -391,7 +391,7 @@ class RecalculationServiceTest extends TestCase
         );
     }
 
-    public function testReplaceBillingAddress()
+    public function testReplaceBillingAddress(): void
     {
         // create order
         $cart = $this->generateDemoCart();

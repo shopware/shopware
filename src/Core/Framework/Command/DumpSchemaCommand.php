@@ -24,13 +24,18 @@ class DumpSchemaCommand extends Command
         $this->definitionService = $definitionService;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('framework:schema')
             ->setDescription('Dumps the api definition to a json file.')
             ->addArgument('outfile', InputArgument::REQUIRED)
-            ->addOption('schema-format','s',InputOption::VALUE_REQUIRED,
-                'The format of the dumped definition. Either "simple" or "openapi3".', 'simple')
+            ->addOption(
+                'schema-format',
+                's',
+                InputOption::VALUE_REQUIRED,
+                'The format of the dumped definition. Either "simple" or "openapi3".',
+                'simple'
+            )
             ->addOption('pretty', 'p', InputOption::VALUE_NONE, 'Dumps the output in a human-readable form.');
     }
 

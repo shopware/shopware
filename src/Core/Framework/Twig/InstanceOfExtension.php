@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Framework\Twig;
 
-class InstanceOfExtension extends \Twig_Extension
+use ReflectionClass;
+use Twig_Extension;
+use Twig_SimpleTest;
+
+class InstanceOfExtension extends Twig_Extension
 {
-    public function getTests()
+    public function getTests(): array
     {
         return [
-            'instanceof' => new \Twig_SimpleTest('instanceof', [
+            'instanceof' => new Twig_SimpleTest('instanceof', [
                 $this, 'isInstanceOf',
             ]),
         ];
@@ -15,8 +19,6 @@ class InstanceOfExtension extends \Twig_Extension
 
     public function isInstanceOf($var, $class): bool
     {
-        $reflectionClass = new \ReflectionClass($class);
-
-        return $reflectionClass->isInstance($var);
+        return (new ReflectionClass($class))->isInstance($var);
     }
 }

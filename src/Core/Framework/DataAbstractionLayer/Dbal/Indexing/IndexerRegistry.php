@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
 
+use DateTime;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -29,7 +30,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         $this->indexer = $indexer;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             EntityWrittenContainerEvent::NAME => [
@@ -38,7 +39,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         ];
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(DateTime $timestamp): void
     {
         foreach ($this->indexer as $indexer) {
             $indexer->index($timestamp);

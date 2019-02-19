@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use RuntimeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
@@ -107,16 +108,13 @@ class ApiController extends AbstractController
      * @throws UnknownRepositoryVersionException
      * @throws DefinitionNotFoundException
      */
-    public function clone(Request $request, Context $context, string $entity, string $id)
+    public function clone(Request $request, Context $context, string $entity, string $id): JsonResponse
     {
         $entity = $this->urlToSnakeCase($entity);
 
         $definition = $this->definitionRegistry->get($entity);
 
-        $repository = $this->getRepository($definition, $request);
-
-        $eventContainer = $repository->clone($id, $context);
-
+        $eventContainer = $this->getRepository($definition, $request)->clone($id, $context);
         $event = $eventContainer->getEventByDefinition($definition);
         if (!$event) {
             throw new NoEntityClonedException($entity, $id);
@@ -156,8 +154,7 @@ class ApiController extends AbstractController
             throw new NotFoundHttpException($e->getMessage(), $e);
         }
 
-        $repository = $this->getRepository($entityDefinition, $request);
-        $versionId = $repository->createVersion($id, $context, $versionName, $versionId);
+        $versionId = $this->getRepository($entityDefinition, $request)->createVersion($id, $context, $versionName, $versionId);
 
         return new JsonResponse([
             'version_id' => $versionId,
@@ -214,10 +211,7 @@ class ApiController extends AbstractController
             $repository = $this->getRepository($definition, $request);
         }
 
-        /** @var EntityRepositoryInterface $repository */
-        $entities = $repository->search(new Criteria([$id]), $context);
-        $entity = $entities->get($id);
-
+        $entity = $repository->search(new Criteria([$id]), $context)->get($id);
         if ($entity === null) {
             throw new ResourceNotFoundException($definition::getEntityName(), ['id' => $id]);
         }
@@ -346,7 +340,7 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+        throw new RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
     private function fetchListing(Request $request, Context $context, string $entityName, string $path): EntitySearchResult
@@ -421,7 +415,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                //add filter to parent value: prices.productId = SW1
+                    //add filter to parent value: prices.productId = SW1
                     $definition::getEntityName() . '.' . $foreignKey->getPropertyName(),
                     $parent['value']
                 )
@@ -444,7 +438,7 @@ class ApiController extends AbstractController
             /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
-                //filter inverse association to parent value:  manufacturer.products.id = SW1
+                    //filter inverse association to parent value:  manufacturer.products.id = SW1
                     sprintf('%s.%s.id', $definition::getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -596,7 +590,6 @@ class ApiController extends AbstractController
         }
 
         /** @var ManyToManyAssociationField $association */
-
         /** @var EntityDefinition|string $reference */
         $reference = $association->getReferenceDefinition();
 
@@ -628,16 +621,12 @@ class ApiController extends AbstractController
         return $responseFactory->createDetailResponse($entity, $definition, $request, $context, $appendLocationHeader);
     }
 
-    /**
-     * @param EntityRepositoryInterface $repository
-     * @param array                     $payload
-     * @param Context                   $context
-     * @param string                    $type
-     *
-     * @return EntityWrittenContainerEvent
-     */
-    private function executeWriteOperation(EntityRepositoryInterface $repository, array $payload, Context $context, string $type): EntityWrittenContainerEvent
-    {
+    private function executeWriteOperation(
+        EntityRepositoryInterface $repository,
+        array $payload,
+        Context $context,
+        string $type
+    ): EntityWrittenContainerEvent {
         if ($type === self::WRITE_CREATE) {
             return $repository->create([$payload], $context);
         }
@@ -646,7 +635,7 @@ class ApiController extends AbstractController
             return $repository->update([$payload], $context);
         }
 
-        throw new \RuntimeException('Unsupported write operation.');
+        throw new RuntimeException('Unsupported write operation.');
     }
 
     private function getAssociation(FieldCollection $fields, array $keys): AssociationInterface
@@ -677,13 +666,12 @@ class ApiController extends AbstractController
             if ($index % 2) {
                 continue;
             }
+
             if (empty($part)) {
                 continue;
             }
-            $value = null;
-            if (isset($exploded[$index + 1])) {
-                $value = $exploded[$index + 1];
-            }
+
+            $value = $exploded[$index + 1] ?? null;
 
             if (empty($parts)) {
                 $part = $this->urlToSnakeCase($part);
@@ -716,10 +704,8 @@ class ApiController extends AbstractController
         ];
 
         foreach ($parts as $part) {
-            $fields = $root::getFields();
-
             /** @var AssociationInterface|null $field */
-            $field = $fields->get($part['entity']);
+            $field = $root::getFields()->get($part['entity']);
             if (!$field) {
                 $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];
                 throw new NotFoundHttpException(sprintf('Resource at path "%s" is not an existing relation.', $path));
@@ -757,10 +743,6 @@ class ApiController extends AbstractController
 
     /**
      * Return a nested array structure of based on the content-type
-     *
-     * @param Request $request
-     *
-     * @return array
      */
     private function getRequestBody(Request $request): array
     {
@@ -791,12 +773,10 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @param Request                 $request
-     * @param Context                 $context
      * @param string|EntityDefinition $definition
-     * @param array                   $primaryKey
      *
      * @throws ResourceNotFoundException
+     * @throws NotFoundHttpException
      */
     private function doDelete(Request $request, Context $context, string $definition, array $primaryKey): void
     {
@@ -817,11 +797,8 @@ class ApiController extends AbstractController
 
     /**
      * @param string|EntityDefinition $definition
-     * @param Request                 $request
      *
      * @throws UnknownRepositoryVersionException
-     *
-     * @return EntityRepositoryInterface
      */
     private function getRepository(string $definition, Request $request): EntityRepositoryInterface
     {
@@ -845,8 +822,6 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @param string $entityName
-     *
      * @return EntityDefinition|string
      */
     private function getEntityDefinition(string $entityName)

@@ -30,7 +30,7 @@ class SalesChannelCreateCommand extends Command
         $this->salesChannelRepository = $salesChannelRepository;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('sales-channel:create')
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::uuid4()->getHex())

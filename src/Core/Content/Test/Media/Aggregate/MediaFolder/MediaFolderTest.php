@@ -13,7 +13,7 @@ class MediaFolderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testCreateMediaFolderWithConfiguration()
+    public function testCreateMediaFolderWithConfiguration(): void
     {
         $context = Context::createDefaultContext();
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
@@ -46,7 +46,7 @@ class MediaFolderTest extends TestCase
         static::assertTrue($mediaFolder->getConfiguration()->getCreateThumbnails());
     }
 
-    public function testCreatedMediaFolderIsSetInConfiguration()
+    public function testCreatedMediaFolderIsSetInConfiguration(): void
     {
         $context = Context::createDefaultContext();
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');

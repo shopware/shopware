@@ -41,7 +41,7 @@ class TaskRegistryTest extends TestCase
         );
     }
 
-    public function testOnNonRegisteredTask()
+    public function testOnNonRegisteredTask(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM scheduled_task');
@@ -60,7 +60,7 @@ class TaskRegistryTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
-    public function testOnAlreadyRegisteredTask()
+    public function testOnAlreadyRegisteredTask(): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('scheduledTaskClass', RequeueDeadMessagesTask::class));
@@ -91,7 +91,7 @@ class TaskRegistryTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
 
-    public function testWithWrongClass()
+    public function testWithWrongClass(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage(sprintf(
@@ -108,7 +108,7 @@ class TaskRegistryTest extends TestCase
         $registry->registerTasks();
     }
 
-    public function testItDeletesNotAvailableTasks()
+    public function testItDeletesNotAvailableTasks(): void
     {
         $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertTrue(count($tasks) > 0);

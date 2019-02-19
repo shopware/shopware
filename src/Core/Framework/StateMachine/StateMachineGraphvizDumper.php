@@ -23,7 +23,7 @@ class StateMachineGraphvizDumper
      *  * node: The default options for nodes (places)
      *  * edge: The default options for edges
      */
-    public function dump(StateMachineEntity $stateMachine, array $options = [])
+    public function dump(StateMachineEntity $stateMachine, array $options = []): string
     {
         $places = $this->findStates($stateMachine);
         $edges = $this->findEdges($stateMachine);
@@ -134,7 +134,7 @@ class StateMachineGraphvizDumper
         return addslashes($string);
     }
 
-    protected function findEdges(StateMachineEntity $stateMachine)
+    protected function findEdges(StateMachineEntity $stateMachine): array
     {
         $edges = [];
 

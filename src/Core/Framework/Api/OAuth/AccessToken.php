@@ -37,10 +37,7 @@ class AccessToken implements AccessTokenEntityInterface
         $this->userIdentifier = $userIdentifier;
     }
 
-    /**
-     * @return ClientEntityInterface
-     */
-    public function getClient()
+    public function getClient(): ClientEntityInterface
     {
         return $this->client;
     }
@@ -56,7 +53,7 @@ class AccessToken implements AccessTokenEntityInterface
     /**
      * @return ScopeEntityInterface[]
      */
-    public function getScopes()
+    public function getScopes(): array
     {
         return $this->scopes;
     }
@@ -66,27 +63,23 @@ class AccessToken implements AccessTokenEntityInterface
      *
      * @param string|int|null $identifier The identifier of the user
      */
-    public function setUserIdentifier($identifier)
+    public function setUserIdentifier($identifier): void
     {
         $this->userIdentifier = $identifier;
     }
 
     /**
      * Set the client that the token was issued to.
-     *
-     * @param ClientEntityInterface $client
      */
-    public function setClient(ClientEntityInterface $client)
+    public function setClient(ClientEntityInterface $client): void
     {
         $this->client = $client;
     }
 
     /**
      * Associate a scope with the token.
-     *
-     * @param ScopeEntityInterface $scope
      */
-    public function addScope(ScopeEntityInterface $scope)
+    public function addScope(ScopeEntityInterface $scope): void
     {
         $this->scopes[] = $scope;
     }

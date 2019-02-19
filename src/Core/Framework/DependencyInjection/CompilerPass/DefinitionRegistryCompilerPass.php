@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class DefinitionRegistryCompilerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $this->collectDefinitions($container);
     }
@@ -24,9 +24,6 @@ class DefinitionRegistryCompilerPass implements CompilerPassInterface
         return null;
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function collectDefinitions(ContainerBuilder $container): void
     {
         $services = $container->findTaggedServiceIds('shopware.entity.definition');

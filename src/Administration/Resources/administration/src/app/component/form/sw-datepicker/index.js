@@ -31,7 +31,7 @@ const allEvents = [
  * @example-type static
  * @component-example
  * <sw-datepicker
- * type="date"
+ * dateType="date"
  * :datepickerConfig="myDatepickerConfig"
  * v-model="myDate"
  * label="SW-Field Date"
@@ -55,9 +55,9 @@ export default {
             }
         },
 
-        type: {
+        dateType: {
             type: String,
-            default: '',
+            default: 'date',
             validValues: ['time', 'date', 'datetime', 'datetime-local'],
             validator(value) {
                 return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
@@ -74,8 +74,8 @@ export default {
                 // disableMobile: true // only render the flatpickr and no native pickers on mobile
             },
             localeStore: State.getStore('adminLocale'),
-            noCalendar: (this.type === 'time'),
-            enableTime: (this.type === 'datetime' || this.type === 'datetime-local' || this.noCalendar)
+            noCalendar: (this.dateType === 'time'),
+            enableTime: (this.dateType === 'datetime' || this.dateType === 'datetime-local' || this.noCalendar)
         };
     },
 
@@ -105,7 +105,7 @@ export default {
 
         fieldClasses() {
             return [
-                `sw-field--${this.type}`,
+                `sw-field--${this.dateType}`,
                 {
                     'has--error': !!this.hasErrorCls,
                     'has--suffix': true,

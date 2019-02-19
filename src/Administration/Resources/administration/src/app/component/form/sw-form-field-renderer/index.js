@@ -102,7 +102,7 @@ export default {
                 return 'sw-field';
             }
             if (this.type === 'datetime') {
-                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'datetime' } };
+                this.swFieldConfig = { ...this.swFieldConfig, ...{ type: 'date', dateType: 'datetime' } };
                 return 'sw-field';
             }
 

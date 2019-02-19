@@ -16,23 +16,15 @@ export default {
                 checkbox: 'sw-checkbox-field',
                 colorpicker: 'sw-colorpicker',
                 date: 'sw-datepicker',
-                datepicker: 'sw-datepicker',
-                datetime: 'sw-datepicker',
-                'datetime-local': 'sw-datepicker',
                 number: 'sw-number-field',
                 password: 'sw-password-field',
                 radio: 'sw-radio-field',
                 select: 'sw-select-field',
                 switch: 'sw-switch-field',
                 textarea: 'sw-textarea-field',
-                time: 'sw-datepicker',
                 url: 'sw-url-field'
             };
             return components[context.props.type] || 'sw-text-field';
-        }
-
-        if (context.data.attrs) {
-            Object.assign(context.data.attrs, context.props);
         }
 
         return createElement(
@@ -46,6 +38,7 @@ export default {
         type: {
             type: String,
             required: false,
+            default: 'text',
             validValues: [
                 'text',
                 'select',
@@ -55,14 +48,10 @@ export default {
                 'number',
                 'radio',
                 'textarea',
-                'datetime',
                 'date',
-                'time',
-                'datepicker',
                 'colorpicker',
                 'confirm',
                 'password',
-                'datetime-local',
                 'url'
             ],
             validator(value) {
@@ -75,14 +64,10 @@ export default {
                     'number',
                     'radio',
                     'textarea',
-                    'datetime',
                     'date',
-                    'time',
-                    'datepicker',
                     'colorpicker',
                     'confirm',
                     'password',
-                    'datetime-local',
                     'url'
                 ].includes(value);
             }

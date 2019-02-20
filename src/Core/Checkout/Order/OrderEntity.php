@@ -25,6 +25,11 @@ class OrderEntity extends Entity
     /**
      * @var string
      */
+    protected $orderNumber;
+
+    /**
+     * @var string
+     */
     protected $orderCustomerId;
 
     /**
@@ -495,5 +500,15 @@ class OrderEntity extends Entity
     public function setDocuments(?DocumentEntity $documents): void
     {
         $this->documents = $documents;
+    }
+
+    public function getOrderNumber(): string
+    {
+        return $this->orderNumber;
+    }
+
+    public function setOrderNumber(string $orderNumber): void
+    {
+        $this->orderNumber = $orderNumber;
     }
 }

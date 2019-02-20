@@ -4,6 +4,9 @@ namespace Shopware\Core\System\NumberRange;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeEntity\NumberRangeEntityEntity;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class NumberRangeEntity extends Entity
 {
@@ -12,12 +15,7 @@ class NumberRangeEntity extends Entity
     /**
      * @var string|null
      */
-    protected $generatorType;
-
-    /**
-     * @var string|null
-     */
-    protected $connectorType;
+    protected $entityId;
 
     /**
      * @var string|null
@@ -32,12 +30,12 @@ class NumberRangeEntity extends Entity
     /**
      * @var string|null
      */
-    protected $prefix;
+    protected $pattern;
 
     /**
-     * @var string|null
+     * @var int|null
      */
-    protected $suffix;
+    protected $start;
 
     /**
      * @var \DateTime|null
@@ -50,67 +48,38 @@ class NumberRangeEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @return string|null
+     * @var NumberRangeEntityEntity|null
      */
+    protected $entity;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
+
+    /**
+     * @var NumberRangeStateEntity|null
+     */
+    protected $state;
+
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string|null $name
-     */
     public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string|null
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @param string|null $description
-     */
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPrefix(): ?string
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * @param string|null $prefix
-     */
-    public function setPrefix(?string $prefix): void
-    {
-        $this->prefix = $prefix;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getSuffix(): ?string
-    {
-        return $this->suffix;
-    }
-
-    /**
-     * @param string|null $suffix
-     */
-    public function setSuffix(?string $suffix): void
-    {
-        $this->suffix = $suffix;
     }
 
     public function getCreatedAt(): ?\DateTime
@@ -133,35 +102,73 @@ class NumberRangeEntity extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getGeneratorType(): ?string
+    public function getSalesChannel(): ?SalesChannelCollection
     {
-        return $this->generatorType;
+        return $this->salesChannels;
     }
 
-    /**
-     * @param string|null $generatorType
-     */
-    public function setGeneratorType(?string $generatorType): void
+    public function setSalesChannel(?SalesChannelCollection $salesChannels): void
     {
-        $this->generatorType = $generatorType;
+        $this->salesChannels = $salesChannels;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getConnectorType(): ?string
+    public function getPattern(): ?string
     {
-        return $this->connectorType;
+        return $this->pattern;
     }
 
-    /**
-     * @param string|null $connectorType
-     */
-    public function setConnectorType(?string $connectorType): void
+    public function setPattern(?string $pattern): void
     {
-        $this->connectorType = $connectorType;
+        $this->pattern = $pattern;
+    }
+
+    public function getStart(): ?int
+    {
+        return $this->start;
+    }
+
+    public function setStart(?int $start): void
+    {
+        $this->start = $start;
+    }
+
+    public function getEntity(): ?NumberRangeEntityEntity
+    {
+        return $this->entity;
+    }
+
+    public function setEntity(?NumberRangeEntityEntity $entity): void
+    {
+        $this->entity = $entity;
+    }
+
+    public function getState(): ?NumberRangeStateEntity
+    {
+        return $this->state;
+    }
+
+    public function setState(?NumberRangeStateEntity $state): void
+    {
+        $this->state = $state;
+    }
+
+    public function getEntityId(): ?string
+    {
+        return $this->entityId;
+    }
+
+    public function setEntityId(?string $entityId): void
+    {
+        $this->entityId = $entityId;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(?SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

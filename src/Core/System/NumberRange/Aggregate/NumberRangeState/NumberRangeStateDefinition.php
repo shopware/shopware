@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeState;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -10,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
-class NumberRangeStateDefinition extends EntityTranslationDefinition
+class NumberRangeStateDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
@@ -35,14 +36,11 @@ class NumberRangeStateDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new OneToOneAssociationField(
-                'numberRange',
-                'number_range_id',
-                'id',
-                NumberRangeDefinition::class,
-                false)
-            )->addFlags(new RestrictDelete()),
+            (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new Required()),
+
             (new IntField('last_value', 'lastValue'))->addFlags(new Required()),
+
+            (new OneToOneAssociationField('numberRange', 'number_range_id', 'id', NumberRangeDefinition::class, false))->addFlags(new RestrictDelete()),
         ]);
     }
 }

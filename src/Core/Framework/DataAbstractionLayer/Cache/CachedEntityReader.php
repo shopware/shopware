@@ -58,6 +58,10 @@ class CachedEntityReader implements EntityReaderInterface
             return $this->decorated->read($definition, $criteria, $context);
         }
 
+        if (in_array($definition, CachedEntitySearcher::BLACKLIST, true)) {
+            return $this->decorated->read($definition, $criteria, $context);
+        }
+
         if ($this->hasFilter($criteria)) {
             return $this->loadFilterResult($definition, $criteria, $context);
         }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 class NumberRangeStateEntity extends Entity
 {
@@ -17,34 +18,37 @@ class NumberRangeStateEntity extends Entity
     protected $lastValue;
 
     /**
-     * @return string
+     * @var NumberRangeEntity|null
      */
+    protected $numberRange;
+
     public function getNumberRangeId(): string
     {
         return $this->numberRangeId;
     }
 
-    /**
-     * @param string $numberRangeId
-     */
     public function setNumberRangeId(string $numberRangeId): void
     {
         $this->numberRangeId = $numberRangeId;
     }
 
-    /**
-     * @return int
-     */
     public function getLastValue(): int
     {
         return $this->lastValue;
     }
 
-    /**
-     * @param int $lastValue
-     */
     public function setLastValue(int $lastValue): void
     {
         $this->lastValue = $lastValue;
+    }
+
+    public function getNumberRange(): ?NumberRangeEntity
+    {
+        return $this->numberRange;
+    }
+
+    public function setNumberRange(?NumberRangeEntity $numberRange): void
+    {
+        $this->numberRange = $numberRange;
     }
 }

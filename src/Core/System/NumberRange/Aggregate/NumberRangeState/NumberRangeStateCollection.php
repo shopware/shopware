@@ -4,22 +4,16 @@ namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                        add(NumberRangeStateEntity $entity)
+ * @method NumberRangeStateEntity[]    getIterator()
+ * @method NumberRangeStateEntity[]    getElements()
+ * @method NumberRangeStateEntity|null get(string $key)
+ * @method NumberRangeStateEntity|null first()
+ * @method NumberRangeStateEntity|null last()
+ */
 class NumberRangeStateCollection extends EntityCollection
 {
-    public function getNumberRangeIds(): array
-    {
-        return $this->fmap(function (NumberRangeStateEntity $numberRangeState) {
-            return $numberRangeState->getNumberRangeId();
-        });
-    }
-
-    public function filterByNumberRangeId(string $id): self
-    {
-        return $this->filter(function (NumberRangeStateEntity $numberRangeState) use ($id) {
-            return $numberRangeState->getNumberRangeId() === $id;
-        });
-    }
-
     protected function getExpectedClass(): string
     {
         return NumberRangeStateEntity::class;

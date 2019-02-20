@@ -9,11 +9,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\VersionDefinition;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
 class CachedEntitySearcher implements EntitySearcherInterface
 {
+    public const BLACKLIST = [
+        VersionDefinition::class,
+        VersionCommitDefinition::class,
+        VersionCommitDataDefinition::class,
+        NumberRangeStateDefinition::class,
+    ];
+
     /**
      * @var EntityCacheKeyGenerator
      */
@@ -59,7 +67,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
             $this->decorated->search($definition, $criteria, $context);
         }
 
-        if (in_array($definition, [VersionDefinition::class, VersionCommitDefinition::class, VersionCommitDataDefinition::class], true)) {
+        if (in_array($definition, self::BLACKLIST, true)) {
             return $this->decorated->search($definition, $criteria, $context);
         }
 

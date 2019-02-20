@@ -36,6 +36,8 @@ final class Defaults
 
     public const SHIPPING_METHOD = '20080911ffff4fffafffffff19830531';
 
+    public const NUMBER_RANGE = '20080911ffff4fffafffffff19830531';
+
     /**
      * @deprecated
      */
@@ -94,4 +96,19 @@ final class Defaults
 
     public const SALES_CHANNEL_STOREFRONT = '8a243080f92e4c719546314b577cf82b';
     public const DATE_FORMAT = 'Y-m-d H:i:s.v';
+
+    public const NUMBER_RANGE_ENTITIES = [
+        'product' => [
+            'global' => 1,
+        ],
+        'order' => [
+            'global' => 0,
+        ],
+        'order_transaction' => [
+            'global' => 0,
+        ],
+        'customer' => [
+            'global' => 0,
+        ],
+    ];
 }

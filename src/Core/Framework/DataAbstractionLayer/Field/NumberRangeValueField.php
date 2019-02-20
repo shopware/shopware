@@ -2,23 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-
-class NumberRangeValueField extends Field implements StorageAware
+class NumberRangeValueField extends StringField
 {
-    /**
-     * @var string
-     */
-    protected $storageName;
-
-    public function __construct(string $storageName, string $propertyName)
+    public function __construct(string $storageName, string $propertyName, int $maxLength = 64)
     {
-        $this->storageName = $storageName;
-        parent::__construct($propertyName);
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
+        parent::__construct($storageName, $propertyName, $maxLength);
     }
 }

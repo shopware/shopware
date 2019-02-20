@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use function Flag\next1309;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class MediaRepositoryDecorator implements EntityRepositoryInterface
 {
@@ -42,18 +45,25 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
      */
     private $thumbnailRepository;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
         FilesystemInterface $filesystem,
-        EntityRepositoryInterface $thumbnailRepository
+        EntityRepositoryInterface $thumbnailRepository,
+        MessageBusInterface $messageBus
     ) {
         $this->innerRepo = $innerRepo;
         $this->eventDispatcher = $eventDispatcher;
         $this->filesystem = $filesystem;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailRepository = $thumbnailRepository;
+        $this->messageBus = $messageBus;
     }
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
@@ -67,22 +77,33 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
             return $event;
         }
 
+        $filesToDelete = [];
+        $thumbnailsToDelete = [];
+
         /** @var MediaEntity $mediaEntity */
         foreach ($affectedMedia as $mediaEntity) {
             if (!$mediaEntity->hasFile()) {
                 continue;
             }
-
-            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
-
-            try {
-                $this->filesystem->delete($mediaPath);
-            } catch (FileNotFoundException $e) {
-                //ignore file is already deleted
-            }
-
-            $this->thumbnailRepository->delete($mediaEntity->getThumbnails()->getIds(), $context);
+            $filesToDelete[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+            $thumbnailsToDelete = array_merge($thumbnailsToDelete, $mediaEntity->getThumbnails()->getIds());
         }
+
+        if (next1309()) {
+            $deleteMsg = new DeleteFileMessage();
+            $deleteMsg->setFiles($filesToDelete);
+            $this->messageBus->dispatch($deleteMsg);
+        } else {
+            foreach ($filesToDelete as $file) {
+                try {
+                    $this->filesystem->delete($file);
+                } catch (FileNotFoundException $e) {
+                    //ignore file is already deleted
+                }
+            }
+        }
+
+        $this->thumbnailRepository->delete($thumbnailsToDelete, $context);
 
         return $this->innerRepo->delete($ids, $context);
     }

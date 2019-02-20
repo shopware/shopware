@@ -52,6 +52,12 @@
 
             <tag name="messenger.message_handler"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\Message\DeleteFileHandler">
+            <argument type="service" id="shopware.filesystem.public"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
         <!-- end of message handlers -->
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
@@ -76,6 +82,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="media_thumbnail.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" decorates="media_thumbnail.repository">
@@ -161,6 +168,13 @@
 
         <service id="Shopware\Core\Content\Media\Api\MediaFolderController" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\MediaFolderService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Api\MediaDeleteController" public="true">
+            <argument type="service" id="media.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

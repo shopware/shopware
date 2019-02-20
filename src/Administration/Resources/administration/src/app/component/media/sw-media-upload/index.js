@@ -116,6 +116,10 @@ export default {
             return State.getStore('media_folder_configuration');
         },
 
+        thumbnailSizesStore() {
+            return State.getStore('media_thumbnail_size');
+        },
+
         showPreview() {
             return !this.multiSelect;
         },
@@ -354,11 +358,15 @@ export default {
                 }
 
                 if (defaultFolder.folderId === null) {
-                    const folder = this.createFolder(defaultFolder);
-                    defaultFolder.folderId = folder.id;
+                    return this.createFolder(defaultFolder).then((folder) => {
+                        defaultFolder.folderId = folder.id;
 
-                    return folder.save().then(() => {
-                        return defaultFolder.folderId;
+                        return folder.configuration.save()
+                            .then(() => {
+                                return folder.save().then(() => {
+                                    return defaultFolder.folderId;
+                                });
+                            });
                     });
                 }
 
@@ -374,13 +382,45 @@ export default {
             configuration.createThumbnails = true;
             configuration.keepProportions = true;
             configuration.thumbnailQuality = 80;
-            folder.configuration = configuration;
-            folder.useParentConfiguration = false;
 
-            folder.getAssociation('defaultFolders').add(defaultFolder);
-            folder.defaultFolders.push(defaultFolder);
+            let promise = Promise.resolve(configuration);
+            if (defaultFolder.thumbnailSizes.length > 0) {
+                promise = this.addThumbnailsToFolderConfig(configuration, defaultFolder);
+            }
 
-            return folder;
+            return promise.then((updatedConfig) => {
+                folder.configuration = updatedConfig;
+                folder.useParentConfiguration = false;
+
+                folder.getAssociation('defaultFolders').add(defaultFolder);
+                folder.defaultFolders.push(defaultFolder);
+
+                return folder;
+            });
+        },
+
+        addThumbnailsToFolderConfig(configuration, defaultFolder) {
+            return this.thumbnailSizesStore.getList({ limit: 50 }).then((response) => {
+                defaultFolder.thumbnailSizes.forEach((size) => {
+                    let thumbnailSize = response.items.find((savedSize) => {
+                        return savedSize.width === size.width && savedSize.height === size.height;
+                    });
+
+                    if (thumbnailSize) {
+                        thumbnailSize.getAssociation('mediaFolderConfigurations').add(configuration);
+                        thumbnailSize.mediaFolderConfigurations.push(configuration);
+                    } else {
+                        thumbnailSize = this.thumbnailSizesStore.create();
+                        thumbnailSize.width = size.width;
+                        thumbnailSize.height = size.height;
+                    }
+
+                    configuration.getAssociation('mediaThumbnailSizes').add(thumbnailSize);
+                    configuration.mediaThumbnailSizes.push(thumbnailSize);
+                });
+
+                return configuration;
+            });
         },
 
         buildFileUpload(file, mediaEntity, fileName = '') {

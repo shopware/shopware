@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
@@ -62,16 +61,13 @@ class TaskRegistryTest extends TestCase
 
     public function testOnAlreadyRegisteredTask(): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('scheduledTaskClass', RequeueDeadMessagesTask::class));
-        /** @var ScheduledTaskEntity $alreadyRegistered */
-        $alreadyRegistered = $this->scheduledTaskRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(ScheduledTaskEntity::class, $alreadyRegistered);
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->exec('DELETE FROM scheduled_task');
 
-        $this->scheduledTaskRepo->update([
+        $this->scheduledTaskRepo->create([
             [
-                'id' => $alreadyRegistered->getId(),
                 'name' => 'test',
+                'scheduledTaskClass' => RequeueDeadMessagesTask::class,
                 'runInterval' => 5,
                 'status' => ScheduledTaskDefinition::STATUS_FAILED,
             ],
@@ -110,8 +106,17 @@ class TaskRegistryTest extends TestCase
 
     public function testItDeletesNotAvailableTasks(): void
     {
-        $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
-        static::assertTrue(count($tasks) > 0);
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->exec('DELETE FROM scheduled_task');
+
+        $this->scheduledTaskRepo->create([
+            [
+                'name' => 'test',
+                'scheduledTaskClass' => RequeueDeadMessagesTask::class,
+                'runInterval' => 5,
+                'status' => ScheduledTaskDefinition::STATUS_FAILED,
+            ],
+        ], Context::createDefaultContext());
 
         $registry = new TaskRegistry([], $this->scheduledTaskRepo);
         $registry->registerTasks();

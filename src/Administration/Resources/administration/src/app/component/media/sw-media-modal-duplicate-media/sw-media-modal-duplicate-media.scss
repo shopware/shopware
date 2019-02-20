@@ -47,4 +47,12 @@ $sw-media-modal-duplicate-media-text-color: $color-gutenberg;
             color: $sw-media-modal-duplicate-media-text-color !important;
         }
     }
+
+    .sw-modal__footer {
+        grid-auto-columns: max-content;
+    }
+
+    .sw-media-modal-duplicate-media__additional-error-count {
+        width: max-content;
+    }
 }

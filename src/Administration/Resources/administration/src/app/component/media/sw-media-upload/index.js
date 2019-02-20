@@ -424,34 +424,38 @@ export default {
         },
 
         buildFileUpload(file, mediaEntity, fileName = '') {
-            const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
-            const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
+            const successTitle = this.$tc('global.sw-media-upload.notification.success.title');
+            const successMessage = this.$tc('global.sw-media-upload.notification.success.message');
+            const failureTitle = this.$tc('global.sw-media-upload.notification.failure.title');
+            const failureMessage = this.$tc('global.sw-media-upload.notification.failure.message');
 
             return () => {
                 return this.mediaUploadService.uploadFileToMedia(file, mediaEntity, fileName).then(() => {
-                    this.notifyMediaUpload(mediaEntity, successMessage);
+                    this.notifyMediaUpload(mediaEntity, successTitle, successMessage);
                 }).catch((error) => {
-                    this.handleError(error, mediaEntity, failureMessage, file);
+                    this.handleError(error, mediaEntity, failureTitle, failureMessage, file);
                 });
             };
         },
 
         buildUrlUpload(url, fileExtension, mediaEntity, fileName = '') {
-            const successMessage = this.$tc('global.sw-media-upload.notificationSuccess');
-            const failureMessage = this.$tc('global.sw-media-upload.notificationFailure');
+            const successTitle = this.$tc('global.sw-media-upload.notification.success.title');
+            const successMessage = this.$tc('global.sw-media-upload.notification.success.message');
+            const failureTitle = this.$tc('global.sw-media-upload.notification.failure.title');
+            const failureMessage = this.$tc('global.sw-media-upload.notification.failure.message');
 
             return () => {
                 return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension, fileName).then(() => {
-                    this.notifyMediaUpload(mediaEntity, successMessage);
+                    this.notifyMediaUpload(mediaEntity, successTitle, successMessage);
                 }).catch((error) => {
-                    return this.handleError(error, mediaEntity, failureMessage, url);
+                    return this.handleError(error, mediaEntity, failureTitle, failureMessage, url);
                 });
             };
         },
 
-        notifyMediaUpload(mediaEntity, message) {
+        notifyMediaUpload(mediaEntity, title, message) {
             this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {
-                this.createNotificationSuccess({ message });
+                this.createNotificationSuccess({ title, message });
                 this.$emit('sw-media-upload-media-upload-success', media);
             });
         },
@@ -459,11 +463,11 @@ export default {
         /*
          * Handling for duplicated file names
          */
-        handleError(error, mediaEntity, message, src) {
+        handleError(error, mediaEntity, title, message, src) {
             if (this.hasDuplicateMediaError(error)) {
                 this.handleDuplicateMediaError(mediaEntity, src);
             } else {
-                this.createNotificationError({ message });
+                this.createNotificationError({ title, message });
             }
 
             this.$emit('media-upload-failure', mediaEntity);

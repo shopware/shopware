@@ -57,21 +57,27 @@ export default {
         },
 
         replaceMediaItem() {
-            const notificationSuccess = this.$tc('global.sw-media-modal-replace.notificationSuccess');
-            const notificationError = this.$tc('global.sw-media-modal-replace.notificationFailure', 1,
-                { mediaName: this.itemToReplace.fileName });
+            const notificationSuccessTitle = this.$tc('global.sw-media-modal-replace.notification.success.title');
+            const notificationSuccessMessage = this.$tc('global.sw-media-modal-replace.notification.success.message');
+            const notificationErrorTitle = this.$tc('global.sw-media-modal-replace.notification.failure.title');
+            const notificationErrorMessage = this.$tc(
+                'global.sw-media-modal-replace.notification.failure.message', 1,
+                { mediaName: this.itemToReplace.fileName }
+            );
 
             this.itemToReplace.isLoading = true;
             this.uploadStore.runUploads(this.uploadTag).then(() => {
                 this.mediaItemStore.getByIdAsync(this.itemToReplace.id).then(() => {
                     this.createNotificationSuccess({
-                        message: notificationSuccess
+                        title: notificationSuccessTitle,
+                        message: notificationSuccessMessage
                     });
                 });
             }).catch(() => {
                 this.itemToReplace.isLoading = false;
                 this.createNotificationError({
-                    message: notificationError
+                    title: notificationErrorTitle,
+                    message: notificationErrorMessage
                 });
             });
             this.emitCloseReplaceModal();

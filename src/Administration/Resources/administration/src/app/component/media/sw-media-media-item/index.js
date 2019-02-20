@@ -131,7 +131,10 @@ export default {
 
         copyItemLink() {
             domUtils.copyToClipboard(this.item.url);
-            this.createNotificationSuccess({ message: this.$tc('sw-media.general.notificationUrlCopied') });
+            this.createNotificationSuccess({
+                title: this.$tc('sw-media.general.notification.urlCopied.title'),
+                message: this.$tc('sw-media.general.notification.urlCopied.message')
+            });
         },
 
         openModalDelete() {
@@ -170,14 +173,16 @@ export default {
             return this.mediaService.renameMedia(this.item.id, updatedName).then(() => {
                 this.mediaStore.getByIdAsync(this.item.id).then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('global.sw-media-media-item.notificationRenamingSuccess')
+                        title: this.$tc('global.sw-media-media-item.notification.renamingSuccess.title'),
+                        message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
                     });
                 });
                 this.$emit('sw-media-item-rename-successful', this.item);
             }).catch(() => {
                 this.item.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notificationRenamingError')
+                    title: this.$tc('global.sw-media-media-item.notification.renamingError.title'),
+                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
                 });
             });
         },
@@ -185,7 +190,8 @@ export default {
         rejectRenaming(cause) {
             if (cause === 'empty-name') {
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notificationErrorBlankItemName')
+                    title: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.title'),
+                    message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message')
                 });
             }
         },

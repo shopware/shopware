@@ -122,8 +122,10 @@ export default {
 
         moveSelection() {
             const movePromises = [];
-            const NotificationMessageSuccess = this.$tc('global.sw-media-modal-move.notificationSuccessOverall');
-            const NotificationMessageError = this.$tc('global.sw-media-modal-move.notificationErrorOverall');
+            const NotificationTitleSuccess = this.$tc('global.sw-media-modal-move.notification.successOverall.title');
+            const NotificationMessageSuccess = this.$tc('global.sw-media-modal-move.notification.successOverall.message');
+            const NotificationTitleError = this.$tc('global.sw-media-modal-move.notification.errorOverall.title');
+            const NotificationMessageError = this.$tc('global.sw-media-modal-move.notification.errorOverall.mesage');
 
             this.itemsToMove.filter((item) => {
                 return item.entityName === 'media_folder';
@@ -135,12 +137,14 @@ export default {
                     item.save().then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
+                            title: this.$tc('global.sw-media-modal-move.notification.successSingle.title'),
                             message: messages.successMessage
                         });
                         return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
+                            title: this.$tc('global.sw-media-modal-move.notification.errorSingle.title'),
                             message: messages.errorMessage
                         });
                     })
@@ -158,11 +162,13 @@ export default {
                 'sw-media-modal-move-items-moved',
                 Promise.all(movePromises).then((ids) => {
                     this.createNotificationSuccess({
+                        title: NotificationTitleSuccess,
                         message: NotificationMessageSuccess
                     });
                     return ids;
                 }).catch(() => {
                     this.createNotificationError({
+                        title: NotificationTitleError,
                         message: NotificationMessageError
                     });
                 })
@@ -172,12 +178,12 @@ export default {
         _getNotificationMessages(item) {
             return {
                 successMessage: this.$tc(
-                    'global.sw-media-modal-move.notificationSuccessSingle',
+                    'global.sw-media-modal-move.notification.successSingle.message',
                     1,
                     { mediaName: this.mediaNameFilter(item) }
                 ),
                 errorMessage: this.$tc(
-                    'global.sw-media-modal-move.notificationErrorSingle',
+                    'global.sw-media-modal-move.notification.errorSingle.message',
                     1,
                     { mediaName: this.mediaNameFilter(item) }
                 )

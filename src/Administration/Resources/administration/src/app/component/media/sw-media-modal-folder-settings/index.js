@@ -194,8 +194,18 @@ export default {
         },
 
         onClickSave() {
-            const notificationMessageSuccess = this.$tc('global.sw-media-modal-folder-settings.notificationSuccess');
-            const notificationMessageError = this.$tc('global.sw-media-modal-folder-settings.notificationError');
+            const notificationTitleSuccess = this.$tc(
+                'global.sw-media-modal-folder-settings.notification.success.title'
+            );
+            const notificationMessageSuccess = this.$tc(
+                'global.sw-media-modal-folder-settings.notification.success.message'
+            );
+            const notificationTitleError = this.$tc(
+                'global.sw-media-modal-folder-settings.notification.error.title'
+            );
+            const notificationMessageError = this.$tc(
+                'global.sw-media-modal-folder-settings.notification.error.message'
+            );
 
             const resetDefaultFolder = () => {
                 if (this.defaultFolder && this.folder.defaultFolders.length > 0) {
@@ -238,11 +248,13 @@ export default {
                         }
                     });
                     this.createNotificationSuccess({
+                        title: notificationTitleSuccess,
                         message: notificationMessageSuccess
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
+                        title: notificationTitleError,
                         message: notificationMessageError
                     });
                 });

@@ -48,7 +48,10 @@ Component.register('sw-media-quickinfo', {
         copyLinkToClipboard() {
             if (this.item) {
                 domUtils.copyToClipboard(this.item.url);
-                this.createNotificationSuccess({ message: this.$tc('sw-media.general.notificationUrlCopied') });
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-media.general.notification.urlCopied.title'),
+                    message: this.$tc('sw-media.general.notification.urlCopied.message')
+                });
             }
         },
 

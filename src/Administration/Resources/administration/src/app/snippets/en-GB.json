@@ -1441,11 +1441,14 @@
       "labelNameField": "Name",
       "labelUsernameField": "Username",
       "labelEmailField": "Email",
-      "labelPasswordField": "New password",
-      "labelPasswordConfirmField": "Confirm password",
+      "labelOldPassword": "Old password",
+      "labelNewPasswordField": "New password",
+      "labelNewPasswordConfirmField": "Confirm password",
       "textImageInfo": "Shopware Playground uses <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> profile images.",
       "notificationPasswordErrorTitle": "Error",
-      "notificationPasswordErrorMessage": "Invalid password.",
+      "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationOldPasswordErrorMessage": "Please submit your current password correctly.",
+      "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
       "notificationSaveSuccessTitle": "Success",
       "notificationSaveSuccessMessage": "Profile information has been saved successfully."
     }

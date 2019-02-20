@@ -61,13 +61,12 @@ export default {
         },
 
         isDefaultFolder() {
-            return this.item.defaultFolders.length > 0;
+            return this.item.defaultFolderId !== null;
         },
 
         iconConfig() {
             if (this.isDefaultFolder) {
-                const defaultFolder = this.item.defaultFolders[0];
-                const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
+                const module = this.moduleFactory.getModuleByEntityName(this.item.defaultFolder.entity);
                 if (module) {
                     return {
                         name: module.manifest.icon,

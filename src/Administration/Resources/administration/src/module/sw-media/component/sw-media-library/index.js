@@ -227,13 +227,7 @@ Component.register('sw-media-library', {
 
             const criteria = {
                 criteria: CriteriaFactory.equals('parentId', this.folderId),
-                term: this.term,
-                associations: {
-                    defaultFolders: {
-                        page: 1,
-                        limit: 5
-                    }
-                }
+                term: this.term
             };
 
             return this.folderLoader.next(Object.assign({}, this.folderSorting, criteria), true).then((items) => {

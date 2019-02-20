@@ -27,7 +27,6 @@ export default {
         return {
             thumbnailSizes: [],
             isEditThumbnails: false,
-            defaultFolder: null,
             parent: null,
             configuration: null,
             originalConfiguration: null
@@ -45,10 +44,6 @@ export default {
 
         mediaDefaultFolderStore() {
             return State.getStore('media_default_folder');
-        },
-
-        mediaDefaultFolderAssociationStore() {
-            return this.folder.getAssociation('defaultFolders');
         },
 
         mediaFolderConfigurationStore() {
@@ -83,14 +78,6 @@ export default {
     methods: {
         componentCreated() {
             this.getThumbnailSizes();
-            this.mediaDefaultFolderAssociationStore.getList({
-                limit: 1,
-                page: 1
-            }).then((response) => {
-                if (response.items.length > 0) {
-                    this.defaultFolder = response.items.shift();
-                }
-            });
             this.configuration = this.mediaFolderConfigurationStore.getById(this.folder.configuration.id);
             this.mediaFolderConfigurationThumbnailSizeStore.getList({
                 limit: 25,
@@ -207,19 +194,6 @@ export default {
                 'global.sw-media-modal-folder-settings.notification.error.message'
             );
 
-            const resetDefaultFolder = () => {
-                if (this.defaultFolder && this.folder.defaultFolders.length > 0) {
-                    const currentFolder = this.folder.defaultFolders[0];
-                    if (currentFolder.id !== this.defaultFolder.id) {
-                        const oldFolder = this.mediaDefaultFolderStore.getById(this.defaultFolder.id);
-                        oldFolder.folderId = null;
-                        return oldFolder.save(false);
-                    }
-                }
-
-                return Promise.resolve();
-            };
-
             this.folder.configuration.id = this.configuration.id;
 
             // if the config is created all properties that are null won't be sent to the server
@@ -234,10 +208,7 @@ export default {
                 this.configuration.createThumbnails = false;
             }
 
-            resetDefaultFolder()
-                .then(() => {
-                    return this.mediaFolderConfigurationStore.sync();
-                })
+            this.mediaFolderConfigurationStore.sync()
                 .then(() => {
                     return this.folder.save();
                 })
@@ -259,7 +230,7 @@ export default {
                     });
                 });
 
-            this.$emit('sw-media-modal-folder-settings-save', this.current);
+            this.$emit('sw-media-modal-folder-settings-save', this.folder);
         },
 
         onClickCancel(originalDomEvent) {
@@ -272,18 +243,7 @@ export default {
         },
 
         onInputDefaultFolder(defaultFolderId) {
-            this.folder.defaultFolders.splice(0);
-            this.mediaDefaultFolderAssociationStore.removeAll();
-
-            if (!defaultFolderId) {
-                return;
-            }
-
-            this.mediaDefaultFolderStore.getByIdAsync(defaultFolderId).then((response) => {
-                response.folderId = this.folder.id;
-                this.mediaDefaultFolderAssociationStore.add(response);
-                this.folder.defaultFolders.push(response);
-            });
+            this.folder.defaultFolderId = defaultFolderId;
         }
     }
 };

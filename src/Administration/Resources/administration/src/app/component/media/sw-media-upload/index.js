@@ -391,9 +391,7 @@ export default {
             return promise.then((updatedConfig) => {
                 folder.configuration = updatedConfig;
                 folder.useParentConfiguration = false;
-
-                folder.getAssociation('defaultFolders').add(defaultFolder);
-                folder.defaultFolders.push(defaultFolder);
+                folder.defaultFolderId = defaultFolder.id;
 
                 return folder;
             });

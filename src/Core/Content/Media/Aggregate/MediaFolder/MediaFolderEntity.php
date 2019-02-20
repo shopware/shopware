@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -68,9 +68,14 @@ class MediaFolderEntity extends Entity
     protected $children;
 
     /**
-     * @var MediaDefaultFolderCollection|null
+     * @var MediaDefaultFolderEntity|null
      */
-    protected $defaultFolders;
+    protected $defaultFolder;
+
+    /**
+     * @var string|null
+     */
+    protected $defaultFolderId;
 
     /**
      * @var array|null
@@ -187,14 +192,24 @@ class MediaFolderEntity extends Entity
         $this->children = $children;
     }
 
-    public function getDefaultFolders(): ?MediaDefaultFolderCollection
+    public function getDefaultFolder(): ?MediaDefaultFolderEntity
     {
-        return $this->defaultFolders;
+        return $this->defaultFolder;
     }
 
-    public function setDefaultFolders(?MediaDefaultFolderCollection $defaultFolders): void
+    public function setDefaultFolder(?MediaDefaultFolderEntity $defaultFolder): void
     {
-        $this->defaultFolders = $defaultFolders;
+        $this->defaultFolder = $defaultFolder;
+    }
+
+    public function getDefaultFolderId(): ?string
+    {
+        return $this->defaultFolderId;
+    }
+
+    public function setDefaultFolderId(?string $defaultFolderId): void
+    {
+        $this->defaultFolderId = $defaultFolderId;
     }
 
     public function getAttributes(): ?array

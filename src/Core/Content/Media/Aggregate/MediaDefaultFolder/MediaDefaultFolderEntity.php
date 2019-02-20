@@ -24,10 +24,6 @@ class MediaDefaultFolderEntity extends Entity
      * @var string
      */
     protected $entity;
-    /**
-     * @var string|null
-     */
-    protected $folderId;
 
     /**
      * @var MediaFolderEntity|null
@@ -77,16 +73,6 @@ class MediaDefaultFolderEntity extends Entity
     public function setEntity(string $entity): void
     {
         $this->entity = $entity;
-    }
-
-    public function getFolderId(): ?string
-    {
-        return $this->folderId;
-    }
-
-    public function setFolderId(?string $folderId): void
-    {
-        $this->folderId = $folderId;
     }
 
     public function getFolder(): ?MediaFolderEntity

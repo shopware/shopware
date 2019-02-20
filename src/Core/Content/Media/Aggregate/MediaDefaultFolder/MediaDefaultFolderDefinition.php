@@ -6,11 +6,10 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -44,9 +43,7 @@ class MediaDefaultFolderDefinition extends EntityDefinition
 
             (new StringField('entity', 'entity'))->addFlags(new Required()),
 
-            new FkField('media_folder_id', 'folderId', MediaFolderDefinition::class),
-
-            new ManyToOneAssociationField('folder', 'media_folder_id', MediaFolderDefinition::class, true),
+            new OneToOneAssociationField('folder', 'id', 'default_folder_id', MediaFolderDefinition::class, false),
 
             new CreatedAtField(),
             new UpdatedAtField(),

@@ -23,19 +23,5 @@ export default {
     name: 'sw-side-navigation-item',
     template,
 
-    props: {
-        to: [String, Object],
-        replace: Boolean,
-        append: Boolean,
-        tag: String,
-        'active-class': {
-            type: String,
-            default: 'sw-side-navigation-item--active'
-        },
-        'exact-active-class': {
-            type: String,
-            default: 'sw-side-navigation-item--exact-active'
-        },
-        exact: Boolean
-    }
+    inheritAttrs: false
 };

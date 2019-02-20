@@ -50,7 +50,7 @@ export default {
             this.$nextTick()
                 .then(() => {
                     this.$children.forEach((item, i) => {
-                        const linkIsActive = item.$children[0].$el.classList.contains('sw-side-navigation-item--active');
+                        const linkIsActive = item.$children[0].$el.classList.contains('router-link-active');
                         if (linkIsActive) this.activeItem = i;
                     });
                 });

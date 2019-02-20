@@ -1,7 +1,5 @@
 {% block sw_side_navigation_item %}
-    <div class="sw-side-navigation-item">
-        <router-link v-bind="$props">
-            <slot></slot>
-        </router-link>
-    </div>
+    <router-link v-bind="$attrs" class="sw-side-navigation-item">
+        <slot></slot>
+    </router-link>
 {% endblock %}

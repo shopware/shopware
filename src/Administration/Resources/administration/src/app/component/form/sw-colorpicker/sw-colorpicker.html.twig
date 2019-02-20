@@ -3,8 +3,8 @@
 
         <!-- Label -->
         {% block sw_colorpicker_label %}
-            <label class="sw-colorpicker__label" v-if="fieldLabel.length > 0">
-                {{ fieldLabel }}
+            <label class="sw-colorpicker__label" v-if="getInlineSnippet(label).length > 0">
+                {{ getInlineSnippet(label) }}
             </label>
         {% endblock %}
 

@@ -1,0 +1,11 @@
+{% block sw_attribute_type_media %}
+    <div class="sw-attribute-type-select">
+        {% block sw_attribute_type_media_labels %}
+            <sw-attribute-translated-labels
+                    v-model="currentAttribute.config"
+                    :propertyNames="propertyNames"
+                    :locales="locales">
+            </sw-attribute-translated-labels>
+        {% endblock %}
+    </div>
+{% endblock %}

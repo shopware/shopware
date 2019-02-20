@@ -1,7 +1,9 @@
 {% block sw_media_field %}
     <div class="sw-media-field">
         {% block sw_media_field_label %}
-            <label v-if="label" class="sw-media-field__label">{{ label }}</label>
+            <label v-if="getInlineSnippet(label)" class="sw-media-field__label">
+                {{ getInlineSnippet(label) }}
+            </label>
         {% endblock %}
 
         {% block sw_media_field_input %}

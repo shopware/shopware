@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
@@ -19,6 +19,10 @@ export default {
         event: 'mediaIdChanged'
     },
 
+    mixins: [
+        Mixin.getByName('sw-inline-snippet')
+    ],
+
     props: {
         mediaId: {
             type: String,
@@ -26,7 +30,6 @@ export default {
         },
 
         label: {
-            type: String,
             required: false
         }
     },

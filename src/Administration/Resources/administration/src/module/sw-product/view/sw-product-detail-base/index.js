@@ -24,6 +24,11 @@ Component.register('sw-product-detail-base', {
             type: Array,
             required: true,
             default: []
+        },
+        attributeSets: {
+            type: Array,
+            required: true,
+            default: []
         }
     }
 });

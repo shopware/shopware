@@ -362,6 +362,7 @@
     "entities": {
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",
+      "cms_page": "Einkaufswelt | Einkaufswelten",
       "country": "Land | Länder",
       "currency": "Währung | Währungen",
       "customer": "Kunde | Kunden",
@@ -389,7 +390,7 @@
       "product_variation": "Variante | Varianten",
       "rule": "Regel | Regeln",
       "rule_condition": "Bedingung | Bedingungen",
-      "sales_chanel": "Verkaufkanal | Verkaufskanäle",
+      "sales_channel": "Verkaufkanal | Verkaufskanäle",
       "sales_channel_type": "Verkaufskanaltyp | Verkaufskanaltypen",
       "seo_url": "SEO-URL | SEO-URLs",
       "shipping_method": "Versandart | Versandarten",
@@ -1502,6 +1503,98 @@
       "buttonSave": "Speichern"
     }
   },
+  "sw-settings-attribute": {
+    "general": {
+      "description": "Freitextfelder Verwaltung",
+      "mainMenuItemGeneral": "Freitextfelder",
+      "placeholderSearchBar": "Durchsuche alle Freitextfelder",
+      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann nach dem Speichern nicht mehr verändert werden"
+    },
+    "set": {
+      "list": {
+        "textHeadline": "Freitextfelder",
+        "titleModalDelete": "Set löschen",
+        "textDeleteConfirm": "Möchtest Du das Set \"{name}\" wirklich löschen?",
+        "buttonCancel": "Abbrechen",
+        "buttonAdd": "Set anlegen",
+        "columnName": "Name",
+        "contextMenuEdit": "Bearbeiten",
+        "buttonDelete": "Löschen",
+        "titleDeleteSuccess": "Erfolg",
+        "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht."
+      },
+      "detail": {
+        "labelTechnicalName": "Technischer Name",
+        "textHeadline": "Freitextfeld-Set",
+        "buttonCancel": "Abbrechen",
+        "buttonSave": "Speichern",
+        "titleCardInformation": "Set Informationen",
+        "labelName": "Set Name",
+        "placeholderName": "Name eingeben...",
+        "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
+        "titleSaveSuccess": "Freitextfeld-Set",
+        "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
+        "messageAttributesEmpty": "Noch keine Freitextfelder.",
+        "addAttribute": "Neues Freitextfeld",
+        "buttonApply": "Speichern",
+        "labelEntities": "Verwenden für:",
+        "placeholderEntities": "Verwendung hinzufügen..."
+      }
+    },
+    "attribute": {
+      "detail":{
+        "titleNewAttribute": "Neues Freitextfeld anlegen",
+        "buttonApply": "Hinzufügen",
+        "buttonCancel": "Abbrechen",
+        "labelAttributeType": "Typ",
+        "labelRequired": "Pflichtfeld",
+        "labelTechnicalName": "Technischer Name",
+        "labelLabel": "Label",
+        "buttonAddOption": "+Option hinzufügen",
+        "labelDeleteOption": "löschen",
+        "labelOption": "Option {count}:",
+        "labelPlaceholder": "Platzhalter",
+        "labelMax": "Maximum",
+        "labelMin": "Minimum",
+        "labelStep": "Schritte",
+        "labelFloat": "Gleitkommazahl",
+        "labelInt": "Ganzzahl",
+        "labelNumberType": "Zahlentyp",
+        "labelDatetime": "Datum/Zeit",
+        "labelDate": "Datum",
+        "labelTime": "Zeit",
+        "labelDateType": "Typ",
+        "labelHelpText": "Hilfetext",
+        "labelTooltipText": "Tooltiptext",
+        "labelTimeForm": "24-Stunden Zeitformat",
+        "labelYes": "Ja",
+        "labelNo": "Nein",
+        "labelAttributePosition": "Position",
+        "labelMultiSelect": "Mehrfachauswahl"
+      },
+      "list": {
+        "labelAttributeLabel": "Label",
+        "labelAttributeType": "Typ",
+        "labelAttributePosition": "Position",
+        "contextMenuAttributeResetDelete": "Wiederherstellen",
+        "contextMenuAttributeView": "Editieren",
+        "contextMenuAttributeDelete": "Löschen"
+      }
+    },
+    "types": {
+      "select": "Auswahl",
+      "text": "Textfeld",
+      "number": "Zahl",
+      "media": "Medium",
+      "date": "Datum / Zeit",
+      "checkbox": "Checkbox",
+      "switch": "Aktiv/Inaktiv Schalter",
+      "textEditor": "Text Editor",
+      "string": "Text",
+      "int": "Zahl",
+      "colorpicker": "Farbauswahl"
+    }
+  },
   "sw-tree": {
     "general": {
       "placeholderSearch": "Suche"
@@ -1814,5 +1907,9 @@
       "titleSaveSuccess": "Erfolgreich",
       "messageSaveSuccess": "Der E-mail Header/Footer \"{name}\" wurde erfolgreich gespeichert."
     }
+  },
+  "locale": {
+    "de-DE": "Deutsch",
+    "en-GB": "Englisch"
   }
 }

@@ -1,5 +1,5 @@
 import { Component } from 'src/core/shopware';
-import { deepCopyObject } from 'src/core/service/utils/object.utils';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-form-field-renderer.html.twig';
 
 /**
@@ -50,7 +50,9 @@ export default {
     data() {
         return {
             swFieldConfig: {},
-            currentValue: ''
+            currentConfig: {},
+            currentValue: '',
+            bind: {}
         };
     },
 
@@ -70,7 +72,20 @@ export default {
 
     watch: {
         currentValue(value) {
-            this.$emit('input', value);
+            if (value !== this.value) {
+                this.$emit('input', value);
+            }
+        },
+        value() {
+            this.currentValue = this.value;
+            // Recreate select association store on value changes and reload selections,
+            // this is necessary for languages changes for example
+            if (this.component === 'sw-select') {
+                if (this.bind.multi) {
+                    this.addSwSelectAssociationStore(true);
+                }
+                this.refreshSwSelectSelections();
+            }
         }
     },
 
@@ -81,6 +96,9 @@ export default {
     methods: {
         createdComponent() {
             this.currentValue = this.value;
+            this.currentConfig = Object.assign({}, this.config);
+
+            this.createBind();
         },
         getComponentFromType() {
             if (this.type === 'int') {
@@ -117,24 +135,65 @@ export default {
 
             throw new Error(`sw-form-field-renderer - Component with name "${name}" not found`);
         },
-        getBind() {
-            let bind = this.$attrs;
-            bind = { ...bind, ...deepCopyObject(this.config) };
+        createBind() {
+            this.bind = this.$attrs;
+            this.bind = { ...this.bind, ...this.currentConfig };
 
-            if (this.type && !bind.type) {
-                bind = { ...bind, ...{ type: this.type } };
+            if (this.type && !this.bind.type) {
+                this.bind = { ...this.bind, ...{ type: this.type } };
             }
 
             if (Object.keys(this.swFieldConfig).length > 0) {
-                bind = { ...bind, ...this.swFieldConfig };
+                this.bind = { ...this.bind, ...this.swFieldConfig };
+            }
+
+            // create stores for sw-select
+            if (this.component === 'sw-select') {
+                this.addSwSelectStores();
             }
 
             // Set the name as label if no label is passed
-            if (!bind.label) {
-                bind.label = bind.name;
+            if (!this.bind.label) {
+                this.bind.label = this.bind.name;
             }
 
-            return bind;
+            return this.bind;
+        },
+        addSwSelectStores(override = false) {
+            if (this.bind.store && override === false) {
+                return;
+            }
+
+            if (this.config.options.length < 1) {
+                throw new Error('sw-form-field-renderer - sw-select component needs options or a store');
+            }
+
+            this.bind.store = new LocalStore(this.config.options, 'id', 'name');
+
+            if (this.bind.multi) {
+                this.addSwSelectAssociationStore(override);
+            }
+
+            this.refreshSwSelectSelections();
+        },
+        addSwSelectAssociationStore(override = false) {
+            if (this.bind.associationStore && override === false) {
+                return;
+            }
+            const entities = [];
+            if (this.value && this.value.length > 0) {
+                this.value.forEach((value) => {
+                    entities.push(this.bind.store.getById(value));
+                });
+            }
+            this.bind.associationStore = new LocalStore(entities);
+        },
+        refreshSwSelectSelections() {
+            this.$nextTick(() => {
+                if (this.$refs.component) {
+                    this.$refs.component.loadSelections();
+                }
+            });
         }
     }
 };

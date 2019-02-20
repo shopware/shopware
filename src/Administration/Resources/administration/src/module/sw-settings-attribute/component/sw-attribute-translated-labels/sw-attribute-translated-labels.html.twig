@@ -1,0 +1,49 @@
+{% block sw_attribute_translated_labels %}
+    <div class="sw-attribute-translated-labels">
+        {% block sw_attribute_translated_labels_single %}
+            <template v-if="localeCount == 1">
+                <div v-for="locale in locales">
+                    <sw-field v-for="(label, name) in propertyNames"
+                              v-model="config[name][locale]"
+                              :label="getLabel(label, locale)"
+                              :key="getInlineSnippet(name)"
+                              type="text">
+                    </sw-field>
+                </div>
+            </template>
+        {% endblock %}
+
+        {% block sw_attribute_translated_labels_translated %}
+            <sw-tabs v-else-if="config" variant="minimal" :defaultItem="fallbackLocale">
+                {% block sw_attribute_translated_labels_translated_tabs %}
+                    <template slot-scope="{ active }">
+                        <sw-tabs-item
+                                v-for="locale in locales"
+                                :key="locale"
+                                variant="minimal"
+                                :name="locale"
+                                :active="active">
+                            {{ $tc(`locale.${locale}`) }}
+                        </sw-tabs-item>
+                    </template>
+                {% endblock %}
+
+                {% block sw_attribute_translated_labels_translated_content %}
+                    <template slot="content" slot-scope="{ active }">
+                        <div v-for="locale in locales"
+                             v-if="active === locale">
+                            {% block sw_attribute_translated_labels_translated_content_field %}
+                                <sw-field v-for="(label, name) in propertyNames"
+                                          v-model="config[name][locale]"
+                                          :label="getLabel(label, locale)"
+                                          :key="getInlineSnippet(name)"
+                                          type="text">
+                                </sw-field>
+                            {% endblock %}
+                        </div>
+                    </template>
+                {% endblock %}
+            </sw-tabs>
+        {% endblock %}
+    </div>
+{% endblock %}

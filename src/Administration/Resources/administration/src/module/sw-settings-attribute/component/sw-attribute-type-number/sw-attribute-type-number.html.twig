@@ -1,0 +1,50 @@
+{% block sw_attribute_type_number %}
+    <div class="sw-attribute-type-select">
+        {% block sw_attribute_type_number_labels %}
+            <sw-attribute-translated-labels
+                    v-model="currentAttribute.config"
+                    :propertyNames="propertyNames"
+                    :locales="locales">
+            </sw-attribute-translated-labels>
+        {% endblock %}
+
+        {% block sw_attribute_type_number_container %}
+            <sw-container
+                    columns="1fr 1fr"
+                    gap="20px">
+                {% block sw_attribute_type_number_container_numbertype %}
+                    <sw-field
+                            type="select"
+                            :label="$tc('sw-settings-attribute.attribute.detail.labelNumberType')"
+                            :options="numberTypes"
+                            v-model="currentAttribute.config.numberType">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_attribute_type_number_container_step %}
+                    <sw-field
+                            type="number"
+                            :label="$tc('sw-settings-attribute.attribute.detail.labelStep')"
+                            v-model="currentAttribute.config.step">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_attribute_type_number_container_min %}
+                    <sw-field
+                            type="number"
+                            :label="$tc('sw-settings-attribute.attribute.detail.labelMax')"
+                            v-model="currentAttribute.config.min">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_attribute_type_number_container_max %}
+                    <sw-field
+                            type="number"
+                            :label="$tc('sw-settings-attribute.attribute.detail.labelMin')"
+                            v-model="currentAttribute.config.max">
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-detail.html.twig';
 
 Component.register('sw-product-detail', {
@@ -18,7 +19,8 @@ Component.register('sw-product-detail', {
             product: {},
             manufacturers: [],
             currencies: [],
-            taxes: []
+            taxes: [],
+            attributeSets: []
         };
     },
 
@@ -45,6 +47,10 @@ Component.register('sw-product-detail', {
 
         uploadStore() {
             return State.getStore('upload');
+        },
+
+        attributeSetStore() {
+            return State.getStore('attribute_set');
         }
     },
 
@@ -88,6 +94,20 @@ Component.register('sw-product-detail', {
 
             this.taxStore.getList({ page: 1, limit: 100 }).then((response) => {
                 this.taxes = response.items;
+            });
+
+            this.attributeSetStore.getList({
+                page: 1,
+                limit: 100,
+                criteria: CriteriaFactory.equals('relations.entityName', 'product'),
+                associations: {
+                    attributes: {
+                        limit: 100,
+                        sort: 'attribute.config.attributePosition'
+                    }
+                }
+            }, true).then((response) => {
+                this.attributeSets = response.items;
             });
         },
 

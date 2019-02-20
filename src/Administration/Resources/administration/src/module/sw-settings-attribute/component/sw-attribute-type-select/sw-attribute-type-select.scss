@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-attribute-type-select {
+	.sw-attribute-type-select__delete-option-button {
+		background: none;
+		color: $color-crimson;
+		margin-left: 20px;
+	}
+
+	.sw-attribute-type-select__option-container {
+		margin-top: 10px;
+	}
+}

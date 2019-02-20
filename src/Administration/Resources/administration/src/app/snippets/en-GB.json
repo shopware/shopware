@@ -362,6 +362,7 @@
     "entities": {
       "cart": "Cart | Carts",
       "category": "Category | Categories",
+      "cms_page": "Shopping world | Shopping worlds",
       "country": "Country | Countries",
       "currency": "Currency | Currencies",
       "customer": "Customer | Customers",
@@ -389,7 +390,7 @@
       "product_variation": "Variation | Variations",
       "rule": "Rule | Rules",
       "rule_condition": "Condition | Conditions",
-      "sales_chanel": "Sales channel | Sales channels",
+      "sales_channel": "Sales channel | Sales channels",
       "sales_channel_type": "Sales channel type | Sales channel types",
       "seo_url": "SEO-URL | SEO-URLs",
       "shipping_method": "Shipping method | Shipping methods",
@@ -1506,6 +1507,98 @@
       "buttonSave": "Save"
     }
   },
+  "sw-settings-attribute": {
+    "general": {
+      "description": "Attribute Manager",
+      "mainMenuItemGeneral": "Attributes",
+      "placeholderSearchBar": "Search in all attribute sets",
+      "tooltipTechnicalName": "The technical name has to be unique and can´t be changed later"
+    },
+    "set": {
+      "list": {
+        "textHeadline": "Attributes",
+        "titleModalDelete": "Delete set",
+        "textDeleteConfirm": "Do you really want to delete the set \"{name}\" ?",
+        "buttonCancel": "Cancel",
+        "buttonAdd": "New set",
+        "columnName": "Name",
+        "contextMenuEdit": "Edit",
+        "buttonDelete": "Delete",
+        "titleDeleteSuccess": "Success",
+        "messageDeleteSuccess": "The set \"{name}\" has been deleted successfully."
+      },
+      "detail": {
+        "labelTechnicalName": "Technical name",
+        "textHeadline": "Attribute-Set",
+        "buttonCancel": "Cancel",
+        "buttonSave": "Save",
+        "titleCardInformation": "Set information",
+        "labelName": "Set name",
+        "placeholderName": "Type a name...",
+        "labelCheckboxTranslated": "Maintain in all administration languages",
+        "titleSaveSuccess": "Attribute-Set",
+        "messageSaveSuccess": "The set \"{name}\" has been saved successfully.",
+        "messageAttributesEmpty": "No attributes yet.",
+        "addAttribute": "New attribute",
+        "buttonApply": "Save",
+        "labelEntities": "Use for:",
+        "placeholderEntities": "Add a usage..."
+      }
+    },
+    "attribute": {
+      "detail":{
+        "titleNewAttribute": "New attribute",
+        "buttonApply": "Add",
+        "buttonCancel": "Cancel",
+        "labelAttributeType": "Type",
+        "labelRequired": "Required",
+        "labelTechnicalName": "Technical name",
+        "labelLabel": "Label",
+        "buttonAddOption": "+add option",
+        "labelDeleteOption": "delete",
+        "labelOption": "Option {count}:",
+        "labelPlaceholder": "Placeholder",
+        "labelMax": "Max",
+        "labelMin": "Min",
+        "labelStep": "Steps",
+        "labelFloat": "Float",
+        "labelInt": "Integer",
+        "labelNumberType": "Number type",
+        "labelDatetime": "Date/Time",
+        "labelDate": "Date",
+        "labelTime": "Time",
+        "labelDateType": "Type",
+        "labelHelpText": "Help text",
+        "labelTooltipText": "Tooltip text",
+        "labelTimeForm": "24-Hour time format",
+        "labelYes": "Yes",
+        "labelNo": "No",
+        "labelAttributePosition": "Position",
+        "labelMultiSelect": "Multi select"
+      },
+      "list": {
+        "labelAttributeLabel": "Label",
+        "labelAttributeType": "Type",
+        "labelAttributePosition": "Position",
+        "contextMenuAttributeResetDelete": "Restore",
+        "contextMenuAttributeView": "Edit",
+        "contextMenuAttributeDelete": "Delete"
+      }
+    },
+    "types": {
+      "select": "Select",
+      "text": "Text field",
+      "number": "Number",
+      "media": "Media",
+      "date": "Date / Time",
+      "checkbox": "Checkbox",
+      "switch": "Active/Inactive switch",
+      "textEditor": "Text editor",
+      "string": "Text",
+      "int": "Number",
+      "colorpicker": "Color picker"
+    }
+  },
   "sw-tree": {
     "general": {
       "placeholderSearch": "Search"
@@ -1818,5 +1911,9 @@
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "The email header/footer \"{name}\" has been saved successfully."
     }
+  },
+  "locale": {
+    "de-DE": "German",
+    "en-GB": "English"
   }
 }

@@ -1,5 +1,6 @@
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
+import { Mixin } from 'src/core/shopware';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
@@ -15,6 +16,10 @@ export default {
     name: 'sw-text-editor',
     template,
 
+    mixins: [
+        Mixin.getByName('sw-inline-snippet')
+    ],
+
     props: {
         value: {
             type: String,
@@ -23,13 +28,11 @@ export default {
         },
 
         label: {
-            type: String,
             required: false,
             default: ''
         },
 
         placeholder: {
-            type: String,
             required: false,
             default: ''
         },
@@ -69,7 +72,7 @@ export default {
             }
         },
         placeholder(value) {
-            this.editor.root.dataset.placeholder = value;
+            this.editor.root.dataset.placeholder = this.getInlineSnippet(value);
         }
     },
 
@@ -85,7 +88,7 @@ export default {
         mountedComponent() {
             this.editor = new Quill(this.$refs.editor, {
                 theme: 'snow',
-                placeholder: this.placeholder,
+                placeholder: this.getInlineSnippet(this.placeholder),
                 modules: {
                     toolbar: this.toolbarConfig
                 }

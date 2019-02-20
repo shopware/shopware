@@ -1,0 +1,47 @@
+{% block sw_settings_attribute_set_detail_base %}
+    <sw-card
+            class="sw-settings-attribute-set-detail-base"
+            :title="$tc('sw-settings-attribute.set.detail.titleCardInformation')">
+        {% block sw_settings_attribute_set_detail_base_technical_name %}
+            <sw-field
+                    type="text"
+                    :label="$tc(`sw-settings-attribute.set.detail.labelTechnicalName`)"
+                    :tooltipText="$tc('sw-settings-attribute.general.tooltipTechnicalName')"
+                    :disabled="!set.isLocal"
+                    v-model="set.name">
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_settings_attribute_set_detail_base_translated %}
+            <sw-field
+                    type="switch"
+                    :label="$tc('sw-settings-attribute.set.detail.labelCheckboxTranslated')"
+                    v-model="set.config.translated">
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_settings_attribute_set_detail_base_labels %}
+            <sw-attribute-translated-labels
+                    v-model="set.config"
+                    :propertyNames="propertyNames"
+                    :locales="locales">
+            </sw-attribute-translated-labels>
+        {% endblock %}
+
+        <sw-select
+                multi
+                :associationStore="attributeSetRelationStore"
+                :store="entityNameStore"
+                itemValueKey="entityName"
+                :label="$tc('sw-settings-attribute.set.detail.labelEntities')"
+                :placeholder="$tc('sw-settings-attribute.set.detail.placeholderEntities')"
+                id="entities"
+                v-model="set.relations">
+            <template slot="displayName" slot-scope="{ item }">
+                {{ $tc(`global.entities.${item.entityName}`, 2) }}
+            </template>
+        </sw-select>
+        {% block sw_settings_attribute_set_detail_base_entities %}
+        {% endblock %}
+    </sw-card>
+{% endblock %}

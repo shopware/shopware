@@ -11,7 +11,9 @@
          @keydown.down.prevent="navigateDownResults">
 
         {% block sw_select_label %}
-            <label v-if="label" :for="id" class="sw-select__label">{{ label }}</label>
+            <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-select__label">
+                {{ getInlineSnippet(label) }}
+            </label>
         {% endblock %}
 
         {% block sw_select_inner %}
@@ -31,7 +33,9 @@
                                         <template>
                                             {% block sw_select_selection_item_text %}
                                                 <span class="sw-select__selection-item">
-                                                    {{ selection.meta.viewData.name }}
+                                                    <slot name="displayName" :item="selection">
+                                                        {{ getInlineSnippet(selection.meta.viewData[displayName]) }}
+                                                    </slot>
                                                 </span>
                                             {% endblock %}
                                         </template>
@@ -50,7 +54,7 @@
                                         <input ref="swSelectInput"
                                                class="sw-select__input"
                                                type="text"
-                                               :placeholder="placeholder"
+                                               :placeholder="getInlineSnippet(placeholder)"
                                                v-model="searchTerm"
                                                @input="onSearchTermChange"
                                                @focus="openResultList"
@@ -69,11 +73,16 @@
                                 <slot v-if="Object.keys(singleSelection).length > 0"
                                       name="selected_option" :item="singleSelection">
                                     {% block sw_select_single_selection_slot_label %}
-                                        {{ singleSelection.meta.viewData[displayName] }}
+                                        <slot name="displayName" :item="singleSelection">
+                                            {{ getInlineSnippet(singleSelection.meta.viewData[displayName]) }}
+                                        </slot>
                                     {% endblock %}
                                 </slot>
 
-                                <span v-else-if="!isExpanded" class="sw-select__placeholder">{{ placeholder }}</span>
+                                <span v-else-if="!isExpanded"
+                                      class="sw-select__placeholder">
+                                    {{ getInlineSnippet(placeholder) }}
+                                </span>
                             {% endblock %}
                         </div>
                     </template>
@@ -95,7 +104,10 @@
                         {% endblock %}
 
                         {% block sw_select_indicators_helptext %}
-                            <sw-help-text v-if="helpText" class="sw-select__indicator" :text="helpText"></sw-help-text>
+                            <sw-help-text v-if="getInlineSnippet(helpText)"
+                                          class="sw-select__indicator"
+                                          :text="getInlineSnippet(helpText)">
+                            </sw-help-text>
                         {% endblock %}
 
                         {% block sw_select_indicators_arrow %}
@@ -118,7 +130,7 @@
                                         <input ref="swSelectInput"
                                                class="sw-select__input-single"
                                                type="text"
-                                               :placeholder="placeholder"
+                                               :placeholder="getInlineSnippet(placeholder)"
                                                v-model="searchTerm"
                                                @input="onSearchTermChange">
                                         <sw-icon name="small-search" small></sw-icon>
@@ -135,7 +147,9 @@
                                                          <sw-select-option
                                                             :index="index"
                                                             :item="item">
-                                                            {{ item.meta.viewData[displayName] }}
+                                                             <slot name="displayName" :item="item">
+                                                                 {{ getInlineSnippet(item.meta.viewData[displayName]) }}
+                                                             </slot>
                                                          </sw-select-option>
                                                      {% endblock %}
                                                  </slot>

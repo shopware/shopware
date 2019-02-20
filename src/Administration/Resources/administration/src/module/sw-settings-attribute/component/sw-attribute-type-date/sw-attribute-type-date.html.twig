@@ -1,0 +1,36 @@
+{% block sw_attribute_type_date %}
+    <div class="sw-attribute-type-select">
+        {% block sw_attribute_type_date_labels %}
+            <sw-attribute-translated-labels
+                    v-model="currentAttribute.config"
+                    :propertyNames="propertyNames"
+                    :locales="locales">
+            </sw-attribute-translated-labels>
+        {% endblock %}
+
+        {% block sw_attribute_type_date_container %}
+            <sw-container
+                    columns="1fr 1fr"
+                    gap="20px">
+                {% block sw_attribute_type_date_container_type %}
+                    <sw-field
+                            type="select"
+                            :label="$tc('sw-settings-attribute.attribute.detail.labelDateType')"
+                            :options="types"
+                            v-model="currentAttribute.config.dateType">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_attribute_type_date_container_time_format %}
+                    <sw-field
+                            v-if="['time', 'datetime'].includes(currentAttribute.config.dateType)"
+                            type="select"
+                            :label="$tc('sw-settings-attribute.attribute.detail.labelTimeForm')"
+                            :options="timeForms"
+                            v-model="currentAttribute.config.config.time_24hr">
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+    </div>
+{% endblock %}

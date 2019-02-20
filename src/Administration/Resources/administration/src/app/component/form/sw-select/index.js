@@ -20,7 +20,8 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('validation')
+        Mixin.getByName('validation'),
+        Mixin.getByName('sw-inline-snippet')
     ],
 
     props: {
@@ -35,7 +36,6 @@ export default {
             default: null
         },
         placeholder: {
-            type: String,
             required: false,
             default: ''
         },
@@ -49,12 +49,10 @@ export default {
             required: false
         },
         label: {
-            type: String,
             default: ''
         },
         id: {
-            type: String,
-            required: true
+            type: String
         },
         previewResultsLimit: {
             type: Number,
@@ -91,7 +89,6 @@ export default {
             default: 'id'
         },
         helpText: {
-            type: String,
             required: false,
             default: ''
         },
@@ -105,6 +102,19 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        // Defines how the selections will be emitted as value
+        valueEmitType: {
+            type: String,
+            required: false,
+            default: 'values',
+            validValues: [
+                'values', // singleSelection -> the selected itemValueKey; multiSelect -> array of selected itemValueKeys
+                'entity' // singleSelection -> the selected entity; multiSelect -> array of selected entities
+            ],
+            validator(value) {
+                return ['values', 'entity'].includes(value);
+            }
         },
         sortField: {
             type: String,
@@ -125,7 +135,8 @@ export default {
             isLoadingSelections: false,
             hasError: false,
             // for a single selection
-            singleSelection: {}
+            singleSelection: {},
+            utilsId: utils.createId()
         };
     },
 
@@ -138,6 +149,10 @@ export default {
                 'sw-select--multi': this.multi,
                 'is--searchable': this.showSearch
             };
+        },
+        selectId() {
+            const id = (this.id) ? this.id : this.utilsId;
+            return `sw-select--${id}`;
         }
     },
 
@@ -214,7 +229,14 @@ export default {
                 if (!this.value) {
                     return;
                 }
-                this.singleSelection = this.store.getById(this.value);
+                if (this.valueEmitType === 'values') {
+                    this.singleSelection = this.store.getById(this.value);
+                    return;
+                }
+
+                if (this.valueEmitType === 'entities') {
+                    this.singleSelection = this.store.getById(this.value.id);
+                }
             }
         },
 
@@ -421,7 +443,8 @@ export default {
 
             this.singleSelection = item;
 
-            this.$emit('input', item[this.itemValueKey]);
+            this.updateValue();
+
             this.closeResultList();
         },
 
@@ -473,21 +496,59 @@ export default {
             // Delete existing relations
             Object.keys(associationStore.store).forEach((id) => {
                 if (!itemIds.includes(id)) {
-                    associationStore.store[id].delete();
+                    // Only delete the entity if we have a real entity proxy with delete function
+                    // this is not the case if we are working with a local store
+                    if (typeof associationStore.store[id].delete === 'function') {
+                        associationStore.store[id].delete();
+                        return;
+                    }
+
+                    associationStore.remove(associationStore.store[id]);
                 }
             });
 
             // Add new relations
             items.forEach((item) => {
                 if (!associationStore.store[item.id]) {
-                    associationStore.create(item.id, item, true);
+                    associationStore.add(item);
                 }
 
                 // In case the entity was already created but was deleted before
                 associationStore.store[item.id].isDeleted = false;
             });
 
-            this.$emit('input', this.selections);
+            this.updateValue();
+        },
+
+        updateValue() {
+            const values = [];
+            if (this.valueEmitType === 'values') {
+                if (this.multi) {
+                    this.selections.forEach((selection) => {
+                        values.push(selection[this.itemValueKey]);
+                    });
+                } else {
+                    values.push(this.singleSelection[this.itemValueKey]);
+                }
+            } else if (this.valueEmitType === 'entity') {
+                if (this.multi) {
+                    values.push(...this.selections);
+                } else {
+                    values.push(this.singleSelection);
+                }
+            }
+
+            if (values.length < 1) {
+                this.$emit('input', null);
+                return;
+            }
+
+            if (values.length === 1 && !this.multi) {
+                this.$emit('input', values.shift());
+                return;
+            }
+
+            this.$emit('input', values);
         },
 
         changeDefaultItemId(id) {
@@ -503,7 +564,7 @@ export default {
 
             this.singleSelection = {};
 
-            this.$emit('input', null);
+            this.updateValue();
         }
     }
 };

@@ -22,7 +22,7 @@
            ref="urlField"
            class="sw-url-input-field__input"
            :label="label"
-           :placeholder="fieldPlaceholder"
+           :placeholder="getInlineSnippet(placeholder)"
            :disabled="disabled ? 'disabled' : false"
            @change="onChange"
            @input="urlChanged"

@@ -1,8 +1,8 @@
 {% block sw_text_field %}
     <div class="sw-field" :class="fieldClasses">
         {% block sw_text_field_label %}
-            <label v-if="fieldLabel" :for="id">
-                <slot name="label">{{ fieldLabel }}</slot>
+            <label v-if="getInlineSnippet(label)" :for="id">
+                <slot name="label">{{ getInlineSnippet(label) }}</slot>
             </label>
         {% endblock %}
         {% block sw_text_field_input %}
@@ -20,7 +20,7 @@
                                :id="id"
                                ref="textfield"
                                :name="displayName"
-                               :placeholder="fieldPlaceholder"
+                               :placeholder="getInlineSnippet(placeholder)"
                                :disabled="disabled ? 'disabled' : false"
                                @change="onChange"
                                @input="onInput"
@@ -33,7 +33,11 @@
                     {% endblock %}
 
                     {% block sw_tooltip %}
-                        <sw-help-text v-if="tooltipText" :text="tooltipText" :tooltipPosition="tooltipPosition"></sw-help-text>
+                        <sw-help-text
+                                v-if="tooltipText"
+                                :text="getInlineSnippet(tooltipText)"
+                                :tooltipPosition="tooltipPosition">
+                        </sw-help-text>
                     {% endblock %}
 
                     {% block sw_text_field_copyable_tooltip %}
@@ -62,11 +66,15 @@
         {% endblock %}
 
         {% block sw_text_field_error %}
-            <sw-field-error v-if="hasError" :errorMessage="errorMessage" :formError="formError"></sw-field-error>
+            <sw-field-error
+                    v-if="hasError"
+                    :errorMessage="getInlineSnippet(errorMessage)"
+                    :formError="formError">
+            </sw-field-error>
         {% endblock %}
 
         {% block sw_text_field_helptext %}
-            <sw-field-helptext v-if="helpText" :helpText="helpText" :id="id"></sw-field-helptext>
+            <sw-field-helptext v-if="helpText" :helpText="getInlineSnippet(helpText)" :id="id"></sw-field-helptext>
         {% endblock %}
     </div>
 {% endblock %}

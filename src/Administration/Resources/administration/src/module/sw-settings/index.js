@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-
 import './component/sw-settings-item';
 import './page/sw-settings-index';
 import './mixin/sw-settings-list.mixin';

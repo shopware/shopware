@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use function Flag\next1309;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -15,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 {
@@ -36,17 +39,23 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
      * @var EntityRepositoryInterface
      */
     private $innerRepo;
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
 
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
-        FilesystemInterface $filesystem
+        FilesystemInterface $filesystem,
+        MessageBusInterface $messageBus
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->urlGenerator = $urlGenerator;
         $this->filesystem = $filesystem;
         $this->innerRepo = $innerRepo;
+        $this->messageBus = $messageBus;
     }
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
@@ -127,23 +136,31 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
         }
 
         $thumbnailIds = [];
+        $thumbnailPaths = [];
+
         foreach ($thumbnails as $thumbnail) {
             $thumbnailIds[] = [
                 'id' => $thumbnail->getId(),
             ];
 
-            $relatedMedia = $thumbnail->getMedia();
-
-            $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $relatedMedia,
+            $thumbnailPaths[] = $this->urlGenerator->getRelativeThumbnailUrl(
+                $thumbnail->getMedia(),
                 $thumbnail->getWidth(),
                 $thumbnail->getHeight()
             );
+        }
 
-            try {
-                $this->filesystem->delete($thumbnailPath);
-            } catch (FileNotFoundException $e) {
-                //ignore file is already deleted
+        if (next1309()) {
+            $deleteMsg = new DeleteFileMessage();
+            $deleteMsg->setFiles($thumbnailPaths);
+            $this->messageBus->dispatch($deleteMsg);
+        } else {
+            foreach ($thumbnailPaths as $path) {
+                try {
+                    $this->filesystem->delete($path);
+                } catch (FileNotFoundException $e) {
+                    //ignore file is already deleted
+                }
             }
         }
 

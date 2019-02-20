@@ -39,7 +39,8 @@ module.exports = {
         chunkFilename: utils.assetsPath('js/[name].js'),
         publicPath: process.env.NODE_ENV === 'production'
             ? config.build.assetsPublicPath
-            : config.dev.assetsPublicPath
+            : config.dev.assetsPublicPath,
+        globalObject: 'this'
     },
     resolve: {
         extensions: [ '.js', '.vue', '.json', '.less', '.twig' ],
@@ -111,7 +112,11 @@ module.exports = {
                     loader: 'expose-loader',
                     options: 'Shopware'
                 }]
+            },
+            {
+                test: /\.worker\.(js|tsx?|vue)$/,
+                use: { loader: 'worker-loader' }
             }
         ],
-    },
+    }
 };

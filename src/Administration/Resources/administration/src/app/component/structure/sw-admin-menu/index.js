@@ -207,7 +207,7 @@ export default {
         },
 
         onLogoutUser() {
-            this.loginService.clearBearerAuthentication();
+            this.loginService.logout();
             this.$router.push({
                 name: 'sw.login.index'
             });

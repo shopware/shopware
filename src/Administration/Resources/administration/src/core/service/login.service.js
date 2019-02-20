@@ -1,7 +1,6 @@
 /**
  * @module core/service/login
  */
-import { Application } from 'src/core/shopware';
 
 /**
  *
@@ -9,25 +8,26 @@ import { Application } from 'src/core/shopware';
  * @constructor
  * @method createLoginService
  * @param httpClient
+ * @param context
+ * @param bearerAuth
  * @returns {Object}
  */
-export default function createLoginService(httpClient) {
+export default function createLoginService(httpClient, context, bearerAuth = null) {
     /** @var {String} localStorage token */
-    let localStorageKey = 'bearerAuth';
+    const localStorageKey = 'bearerAuth';
+    const onTokenChangedListener = [];
+    const onLogoutListener = [];
 
     return {
         loginByUsername,
-        refreshTokenUsingRefreshToken,
+        refreshToken,
         getToken,
-        getRefreshToken,
-        setBearerAuthentication,
-        getExpiry,
-        validateExpiry,
         getBearerAuthentication,
-        clearBearerAuthentication,
-        getLocalStorageKey,
-        setLocalStorageKey,
-        isLoggedIn
+        setBearerAuthentication,
+        logout,
+        isLoggedIn,
+        addOnTokenChangedListener,
+        addOnLogoutListener
     };
 
     /**
@@ -40,8 +40,6 @@ export default function createLoginService(httpClient) {
      * @returns {Observable<AjaxResponse>|AxiosPromise}
      */
     function loginByUsername(user, pass) {
-        const contextService = Application.getContainer('init').contextService;
-
         return httpClient.post('/oauth/token', {
             grant_type: 'password',
             client_id: 'administration',
@@ -49,7 +47,13 @@ export default function createLoginService(httpClient) {
             username: user,
             password: pass
         }, {
-            baseURL: contextService.apiPath
+            baseURL: context.apiPath
+        }).then((response) => {
+            return setBearerAuthentication({
+                access: response.data.access_token,
+                refresh: response.data.refresh_token,
+                expiry: response.data.expires_in
+            });
         });
     }
 
@@ -57,11 +61,14 @@ export default function createLoginService(httpClient) {
      * Sends an AJAX request to the authentication end point and retries to refresh the token.
      *
      * @memberOf module:core/service/login
-     * @param {String} token
      * @returns {Observable<AjaxResponse>|AxiosPromise}
      */
-    function refreshTokenUsingRefreshToken(token) {
-        const contextService = Application.getContainer('init').contextService;
+    function refreshToken() {
+        const token = getRefreshToken();
+
+        if (!token || !token.length) {
+            return Promise.reject(new Error('No refresh token found.'));
+        }
 
         return httpClient.post('/oauth/token', {
             grant_type: 'refresh_token',
@@ -69,7 +76,49 @@ export default function createLoginService(httpClient) {
             scopes: 'write',
             refresh_token: token
         }, {
-            baseURL: contextService.apiPath
+            baseURL: context.apiPath
+        }).then((response) => {
+            setBearerAuthentication({
+                access: response.data.access_token,
+                expiry: response.data.expires_in,
+                refresh: token
+            });
+
+            return response.data.access_token;
+        });
+    }
+
+    /**
+     * Adds an Listener for the onTokenChangedEvent
+     * @param {Function} listener
+     */
+    function addOnTokenChangedListener(listener) {
+        onTokenChangedListener.push(listener);
+    }
+
+    /**
+     * Adds an Listener for the onLogoutEvent
+     * @param {Function} listener
+     */
+    function addOnLogoutListener(listener) {
+        onLogoutListener.push(listener);
+    }
+
+    /**
+     * notifies the listener for the onTokenChangedEvent
+     */
+    function notifyOnTokenChangedListener(auth) {
+        onTokenChangedListener.forEach((callback) => {
+            callback.call(null, auth);
+        });
+    }
+
+    /**
+     * notifies the listener for the onLogoutEvent
+     */
+    function notifyOnLogoutListener() {
+        onLogoutListener.forEach((callback) => {
+            callback.call(null);
         });
     }
 
@@ -85,7 +134,12 @@ export default function createLoginService(httpClient) {
     function setBearerAuthentication({ access, refresh, expiry }) {
         expiry = Math.round(+new Date() / 1000) + expiry;
         const authObject = { access, refresh, expiry };
-        localStorage.setItem(localStorageKey, JSON.stringify(authObject));
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(localStorageKey, JSON.stringify(authObject));
+        } else {
+            bearerAuth = authObject;
+        }
+        notifyOnTokenChangedListener(authObject);
 
         return authObject;
     }
@@ -99,7 +153,9 @@ export default function createLoginService(httpClient) {
      * @returns {Boolean|String|Number}
      */
     function getBearerAuthentication(section = null) {
-        const bearerAuth = JSON.parse(localStorage.getItem(localStorageKey));
+        if (typeof localStorage !== 'undefined') {
+            bearerAuth = JSON.parse(localStorage.getItem(localStorageKey));
+        }
 
         if (!bearerAuth) {
             return false;
@@ -118,8 +174,14 @@ export default function createLoginService(httpClient) {
      * @memberOf module:core/service/login
      * @returns {Boolean}
      */
-    function clearBearerAuthentication() {
-        localStorage.removeItem(localStorageKey);
+    function logout() {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem(localStorageKey);
+        } else {
+            bearerAuth = null;
+        }
+        notifyOnLogoutListener();
+
         return true;
     }
 
@@ -163,33 +225,6 @@ export default function createLoginService(httpClient) {
     function validateExpiry(expiry) {
         const timestamp = Math.round(+new Date() / 1000);
         return (expiry - timestamp) > 0;
-    }
-
-    /**
-     * Returns the localStorage key
-     *
-     * @memberOf module:core/service/login
-     * @returns {String}
-     */
-    function getLocalStorageKey() {
-        return localStorageKey;
-    }
-
-    /**
-     * Sets the localStorage key
-     *
-     * @memberOf module:core/service/login
-     * @param {String} storageKey
-     * @param {Boolean} [clearKey=true] Should the localStorage be cleared before setting a new auth object
-     * @returns {String}
-     */
-    function setLocalStorageKey(storageKey, clearKey = true) {
-        if (clearKey) {
-            clearBearerAuthentication();
-        }
-        localStorageKey = storageKey;
-
-        return localStorageKey;
     }
 
     /**

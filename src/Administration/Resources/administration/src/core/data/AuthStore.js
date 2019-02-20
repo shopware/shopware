@@ -23,13 +23,7 @@ class AuthStore {
         const loginService = providerContainer.loginService;
 
         return loginService.loginByUsername(this.username, this.password)
-            .then((response) => {
-                loginService.setBearerAuthentication({
-                    access: response.data.access_token,
-                    refresh: response.data.refresh_token,
-                    expiry: response.data.expires_in
-                });
-
+            .then(() => {
                 this.loginSuccess();
                 return true;
             })

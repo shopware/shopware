@@ -7,18 +7,15 @@ describe('core/service/login.service.js', () => {
         loginService = Shopware.Application.getContainer('service').loginService;
     });
     afterEach(() => {
-        loginService.clearBearerAuthentication();
+        loginService.logout();
     });
 
     itAsync('should request the token and expiry date from the server', (done) => {
-        loginService.loginByUsername('admin', 'shopware').then((response) => {
-            const data = response.data;
-            expect(response.status).to.be.equal(200);
+        loginService.loginByUsername('admin', 'shopware').then((data) => {
             expect(data).to.be.an('object');
-            expect(data.expires_in).to.be.equal(3600);
-            expect(data.access_token).to.be.a('string');
-            expect(data.refresh_token).to.be.a('string');
-            expect(data.token_type).to.equal('Bearer');
+            expect(data.expiry).to.be.a('number');
+            expect(data.access).to.be.a('string');
+            expect(data.refresh).to.be.a('string');
             done();
         });
     });
@@ -29,7 +26,7 @@ describe('core/service/login.service.js', () => {
             access: 'foobar',
             refresh: 'barbatz'
         });
-        const localStorageObject = JSON.parse(localStorage.getItem(loginService.getLocalStorageKey()));
+        const localStorageObject = JSON.parse(localStorage.getItem('bearerAuth'));
 
         expect(localStorageObject).to.deep.equal(authObject);
     });
@@ -52,12 +49,12 @@ describe('core/service/login.service.js', () => {
             refresh: 'barbatz'
         });
 
-        const localStorageObject = JSON.parse(localStorage.getItem(loginService.getLocalStorageKey()));
+        const localStorageObject = JSON.parse(localStorage.getItem('bearerAuth'));
 
         expect(localStorageObject).to.deep.equal(authObject);
 
-        loginService.clearBearerAuthentication();
-        const clearedObject = localStorage.getItem(loginService.getLocalStorageKey());
+        loginService.logout();
+        const clearedObject = localStorage.getItem('bearerAuth');
 
         expect(clearedObject).to.equal(null);
     });
@@ -79,50 +76,70 @@ describe('core/service/login.service.js', () => {
             access: 'foobar',
             refresh: 'barbatz'
         });
-        const expiry = loginService.getExpiry();
+        const expiry = loginService.getBearerAuthentication('expiry');
 
         expect(expiry).to.equal(authObject.expiry);
     });
 
-    it('should validate the expiry date', () => {
-        loginService.setBearerAuthentication({
-            expiry: 9999999999,
-            access: 'foobar',
-            refresh: 'barbatz'
+    itAsync('should refresh the token', (done) => {
+        loginService.loginByUsername('admin', 'shopware').then((data) => {
+            loginService.refreshToken().then((accessToken) => {
+                expect(accessToken).to.not.equal(data.access);
+                done();
+            });
         });
-        const expiry = loginService.getExpiry();
-
-        expect(loginService.validateExpiry(expiry)).to.equal(true);
     });
 
-    it('should provide the localStorage key', () => {
-        const key = loginService.getLocalStorageKey();
+    it('should call the logout listener', () => {
+        let wasCalled = false;
 
-        expect(key).to.equal('bearerAuth');
+        loginService.addOnLogoutListener(() => {
+            wasCalled = true;
+        });
+        loginService.logout();
+
+        expect(wasCalled).to.equal(true);
     });
 
-    it('should set a new the localStorage key', () => {
-        loginService.setLocalStorageKey('newStorageKey', false);
+    itAsync('should call the token changed listener on login', (done) => {
+        let wasCalled = false;
+        let auth = null;
 
-        expect(loginService.getLocalStorageKey()).to.equal('newStorageKey');
+        loginService.addOnTokenChangedListener((data) => {
+            wasCalled = true;
+            auth = data;
+        });
+        loginService.loginByUsername('admin', 'shopware').then((data) => {
+            expect(wasCalled).to.equal(true);
+            expect(auth).to.equal(data);
+            done();
+        });
     });
 
-    it('should set a new the localStorage key and clear the previous entry', () => {
-        const oldKey = loginService.getLocalStorageKey();
-        loginService.setBearerAuthentication({
-            expiry: 9999999999,
-            access: 'foobar',
-            refresh: 'barbatz'
-        });
-        const newKey = loginService.setLocalStorageKey('storageKey');
+    itAsync('should call the token changed listener on refresh', (done) => {
+        let wasCalled = false;
+        let auth = null;
 
-        const authObject = loginService.setBearerAuthentication({
-            expiry: 9999999999,
-            access: 'foobar',
-            refresh: 'barbatz'
-        });
+        loginService.loginByUsername('admin', 'shopware').then(() => {
+            loginService.addOnTokenChangedListener((data) => {
+                wasCalled = true;
+                auth = data;
+            });
 
-        expect(localStorage.getItem(oldKey)).to.equal(null);
-        expect(JSON.parse(localStorage.getItem(newKey))).to.deep.equal(authObject);
+            loginService.refreshToken().then((accessToken) => {
+                expect(wasCalled).to.equal(true);
+                expect(auth.access).to.equal(accessToken);
+                done();
+            });
+        });
+    });
+
+    itAsync('should be logged in after login', (done) => {
+        loginService.loginByUsername('admin', 'shopware').then(() => {
+            const loggedIn = loginService.isLoggedIn();
+
+            expect(loggedIn).to.equal(true);
+            done();
+        });
     });
 });

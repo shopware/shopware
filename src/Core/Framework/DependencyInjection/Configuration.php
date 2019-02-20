@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createFilesystemSection())
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
+                ->append($this->createAdminWorkerSection())
             ->end()
         ;
 
@@ -81,6 +82,29 @@ class Configuration implements ConfigurationInterface
             ->prototype('scalar')->end()
             ->end()
             ->integerNode('max_limit')->end()
+            ->end()
+        ;
+
+        return $rootNode;
+    }
+
+    private function createAdminWorkerSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('admin_worker');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('poll_interval')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->integerPrototype()->end()
+                ->end()
+                ->booleanNode('enable_admin_worker')
+                    ->defaultValue(true)
+                ->end()
+
             ->end()
         ;
 

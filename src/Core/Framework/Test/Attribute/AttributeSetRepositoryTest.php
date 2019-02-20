@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Test\Attribute;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition;
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation\AttributeSetRelationDefinition;
 use Shopware\Core\Framework\Attribute\AttributeDefinition;
-use Shopware\Core\Framework\Attribute\AttributeSetDefinition;
-use Shopware\Core\Framework\Attribute\AttributeSetEntity;
-use Shopware\Core\Framework\Attribute\AttributeSetRelationDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;

@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Attribute;
+namespace Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation;
 
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 

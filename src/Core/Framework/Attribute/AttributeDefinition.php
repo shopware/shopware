@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Attribute;
 
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;

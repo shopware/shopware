@@ -10,11 +10,11 @@
             <tag name="shopware.entity.definition" entity="attribute"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Attribute\AttributeSetDefinition">
+        <service id="Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition">
             <tag name="shopware.entity.definition" entity="attribute_set"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Attribute\AttributeSetRelationDefinition">
+        <service id="Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation\AttributeSetRelationDefinition">
             <tag name="shopware.entity.definition" entity="attribute_set_relation"/>
         </service>
 

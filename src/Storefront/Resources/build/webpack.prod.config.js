@@ -1,25 +1,64 @@
-const config = require('../config');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
+const config = require('../config');
 
-module.exports = {
-    mode: 'production',
-    devtool: config.productionSourceMap ? 'source-map' : false,
-    module: {
-        rules: [
-            {
-                test: /\.scss$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    { loader: 'css-loader' },
-                    { loader: 'postcss-loader' },
-                    { loader: 'sass-loader' }
-                ]
-            }
-        ]
-    },
-    optimization: {
-        minimizer: [new TerserPlugin({
+/**
+ * -------------------------------------------------------
+ * WEBPACK CONFIGURATIONS
+ * -------------------------------------------------------
+ * Impacts production mode only
+ * https://webpack.js.org/configuration
+ * -------------------------------------------------------
+ */
+
+/**
+ * Webpack module configuration and how them will be treated
+ * https://webpack.js.org/configuration/module
+ * @type {{rules: *[]}}
+ */
+const modules = {
+    rules: [
+        {
+            test: /\.scss$/,
+            use: [
+                {
+                    loader: MiniCssExtractPlugin.loader
+                },
+                {
+                    loader: 'css-loader'
+                },
+                {
+                    loader: 'postcss-loader'
+                },
+                {
+                    loader: 'sass-loader'
+                }
+            ]
+        }
+    ]
+};
+
+/**
+ * Webpack plugins
+ * https://webpack.js.org/configuration/plugins/#plugins
+ * @type {*[]}
+ */
+const plugins = [
+    new MiniCssExtractPlugin({
+        filename: "css/main.bundle.css",
+        chunkFilename: "css/main.bundle.css"
+    })
+];
+
+/**
+ * Optimizations configuration
+ * https://webpack.js.org/configuration/optimization
+ * @type {{}}
+ */
+const optimization = {
+    minimizer: [
+        new TerserPlugin({
             terserOptions: {
                 ecma: 6,
                 warnings: false
@@ -27,12 +66,18 @@ module.exports = {
             cache: true,
             parallel: true,
             sourceMap: config.productionSourceMap
-        })]
-    },
-    plugins: [
-        new MiniCssExtractPlugin({
-            filename: "css/main.bundle.css",
-            chunkFilename: "css/main.bundle.css"
-        })
+        }),
+        new OptimizeCSSAssetsPlugin({})
     ]
+};
+
+/**
+ * Export the webpack configuration
+ */
+module.exports = {
+    devtool: config.productionSourceMap ? 'source-map' : false,
+    mode: 'production',
+    module: modules,
+    optimization: optimization,
+    plugins: plugins
 };

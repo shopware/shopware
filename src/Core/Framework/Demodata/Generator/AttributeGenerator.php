@@ -99,10 +99,83 @@ class AttributeGenerator implements DemodataGeneratorInterface
             AttributeTypes::STRING,
         ];
 
+        $name = $context->getFaker()->unique()->words(3, true);
+        $type = $types[array_rand($types)];
+
+        switch ($type) {
+            case AttributeTypes::INT:
+                $config = [
+                    'componentName' => 'sw-field',
+                    'type' => 'number',
+                    'numberType' => 'int',
+                    'attributeType' => 'number',
+                    'label' => [
+                        'en-GB' => $name,
+                    ],
+                    'placeholder' => [
+                        'en-GB' => 'Type a number...',
+                    ],
+                    'attributePosition' => 1,
+                ];
+                break;
+            case AttributeTypes::FLOAT:
+                $config = [
+                    'componentName' => 'sw-field',
+                    'type' => 'number',
+                    'numberType' => 'float',
+                    'attributeType' => 'number',
+                    'label' => [
+                        'en-GB' => $name,
+                    ],
+                    'placeholder' => [
+                        'en-GB' => 'Type a floating number...',
+                    ],
+                    'attributePosition' => 1,
+                ];
+                break;
+            case AttributeTypes::DATETIME:
+                $config = [
+                    'componentName' => 'sw-field',
+                    'type' => 'datetime',
+                    'attributeType' => 'date',
+                    'label' => [
+                        'en-GB' => $name,
+                    ],
+                    'attributePosition' => 1,
+                ];
+                break;
+            case AttributeTypes::BOOL:
+                $config = [
+                    'componentName' => 'sw-field',
+                    'type' => 'checkbox',
+                    'attributeType' => 'checkbox',
+                    'label' => [
+                        'en-GB' => $name,
+                    ],
+                    'attributePosition' => 1,
+                ];
+                break;
+            default:
+                $config = [
+                    'componentName' => 'sw-field',
+                    'type' => 'text',
+                    'attributeType' => 'text',
+                    'label' => [
+                        'en-GB' => $name,
+                    ],
+                    'placeholder' => [
+                        'en-GB' => 'Type a text...',
+                    ],
+                    'attributePosition' => 1,
+                ];
+                break;
+        }
+
         return [
             'id' => Uuid::uuid4()->getHex(),
-            'name' => $prefix . '.' . str_replace(' ', '_', $context->getFaker()->unique()->words(3, true)),
-            'type' => $types[array_rand($types)],
+            'name' => $prefix . '_' . str_replace(' ', '_', $name),
+            'type' => $type,
+            'config' => $config,
         ];
     }
 
@@ -113,10 +186,10 @@ class AttributeGenerator implements DemodataGeneratorInterface
             return ['id' => Uuid::uuid4()->getHex(), 'entityName' => $rel];
         }, $relationNames);
 
-        $attributeCount = random_int(1, 10);
+        $attributeCount = random_int(1, 30);
         $attributes = [];
 
-        $setName = $context->getFaker()->unique()->category;
+        $setName = 'core_' . $context->getFaker()->unique()->category;
 
         for ($j = 0; $j < $attributeCount; ++$j) {
             $attributes[] = $this->randomAttribute($setName, $context);
@@ -126,7 +199,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
             'id' => Uuid::uuid4()->getHex(),
             'name' => $setName,
             'config' => [
-                'name' => [
+                'label' => [
                     'en-GB' => $setName,
                 ],
             ],

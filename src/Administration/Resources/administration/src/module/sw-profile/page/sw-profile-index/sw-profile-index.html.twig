@@ -50,14 +50,8 @@
                              :title="$tc('sw-profile.index.titleImageCard')"
                              :isLoading="user.isLoading">
                         <div class="sw-profile-index__user-image">
-                            {% block sw_profile_index_image_card_gravatar_image %}
-                                <img :src="gravatarImage" class="sw-profile-index__user-image-gravatar">
-                            {% endblock %}
+                            {% block sw_profile_index_image_card_image %}
 
-                            {% block sw_profile_index_image_card_info %}
-                                <div class="sw-profile-index__user-image-info"
-                                     v-html="$tc('sw-profile.index.textImageInfo')">
-                                </div>
                             {% endblock %}
                         </div>
                     </sw-card>

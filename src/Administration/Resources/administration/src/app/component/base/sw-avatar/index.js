@@ -1,17 +1,14 @@
-import { md5 } from 'src/core/service/utils/format.utils';
 import template from './sw-avatar.html.twig';
 import './sw-avatar.scss';
 
 /**
- * @description The component helps adding a properly formatted gravatar, custom user image or initials to the
- * administration.
+ * @description The component helps adding a custom user image or initials to the administration.
  * @status ready
  * @example-type static
  * @component-example
  * <sw-avatar color="#dd4800" size="48px" :user="{
  *     firstName: 'John',
- *     lastName: 'Doe',
- *     useGravatar: false
+ *     lastName: 'Doe'
  * }"></sw-avatar>
  */
 export default {
@@ -37,11 +34,6 @@ export default {
                     lastName: ''
                 };
             }
-        },
-        useGravatar: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 
@@ -83,10 +75,6 @@ export default {
         },
 
         userImage() {
-            if (this.useGravatar && this.user && this.user.email) {
-                return this.getGravatarUserImage();
-            }
-
             return '';
         },
 
@@ -117,10 +105,6 @@ export default {
 
             this.fontSize = Math.round(avatarSize * 0.4);
             this.lineHeight = Math.round(avatarSize * 0.98);
-        },
-
-        getGravatarUserImage() {
-            return `https://www.gravatar.com/avatar/${md5(this.user.email)}?s=100`;
         }
     }
 };

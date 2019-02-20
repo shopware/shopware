@@ -1,5 +1,4 @@
 import { Component, State, Mixin } from 'src/core/shopware';
-import { md5 } from 'src/core/service/utils/format.utils';
 import { email } from 'src/core/service/validation.service';
 import types from 'src/core/service/utils/types.utils';
 import template from './sw-profile-index.html.twig';
@@ -34,14 +33,6 @@ Component.register('sw-profile-index', {
     computed: {
         userStore() {
             return State.getStore('user');
-        },
-
-        md5mail() {
-            return (this.user.email) ? md5(this.user.email) : '';
-        },
-
-        gravatarImage() {
-            return `https://www.gravatar.com/avatar/${this.md5mail}?s=${this.imageSize}`;
         }
     },
 

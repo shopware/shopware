@@ -2,6 +2,14 @@ export default {
     name: 'sw-condition-value',
     extendsFrom: 'sw-select',
 
+    watch: {
+        value() {
+            if (this.multi) {
+                this.loadSelections();
+            }
+        }
+    },
+
     methods: {
         loadSelections() {
             this.isLoading = true;
@@ -10,6 +18,7 @@ export default {
                     return;
                 }
 
+                this.selections = [];
                 this.value.forEach((id) => {
                     this.selections.push(this.store.getById(id));
                 });

@@ -19,14 +19,7 @@ Component.register('sw-settings-rule-detail', {
             rule: {},
             nestedConditions: {},
             treeConfig: {
-                conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
-                    condition.meta = {
-                        viewData: {
-                            label: this.$tc(condition.label),
-                            type: this.$tc(condition.label)
-                        }
-                    };
-                }), 'type'),
+                conditionStore: {},
                 entityName: 'rule',
                 conditionIdentifier: 'conditions',
                 childName: 'children',
@@ -41,7 +34,7 @@ Component.register('sw-settings-rule-detail', {
                 },
                 getComponent(condition) {
                     condition = this.conditionStore.getById(condition.type);
-                    if (!condition) {
+                    if (!condition.component) {
                         return 'sw-condition-not-found';
                     }
 
@@ -57,6 +50,43 @@ Component.register('sw-settings-rule-detail', {
     computed: {
         ruleStore() {
             return State.getStore('rule');
+        },
+        moduleTypeStore() {
+            const moduleTypes = this.ruleConditionDataProviderService.moduleTypes;
+            const modules = [];
+            moduleTypes.forEach((type) => {
+                const moduleName = this.$tc(`sw-settings-rule.detail.types.${type}`);
+                modules.push({
+                    id: type,
+                    name: moduleName
+                });
+            });
+
+            return new LocalStore(modules, 'id');
+        }
+    },
+
+    watch: {
+        'rule.moduleTypes': {
+            immediate: true,
+            deep: true,
+            handler() {
+                if (!this.rule.moduleTypes || (this.rule.moduleTypes && !this.rule.moduleTypes.types)) {
+                    this.rule.moduleTypes = { types: [] };
+                }
+
+                this.treeConfig.conditionStore = new LocalStore(
+                    this.ruleConditionDataProviderService.getConditions((condition) => {
+                        condition.meta = {
+                            viewData: {
+                                label: this.$tc(condition.label),
+                                type: this.$tc(condition.label)
+                            }
+                        };
+                    }, this.rule.moduleTypes.types),
+                    'type'
+                );
+            }
         }
     },
 
@@ -86,7 +116,10 @@ Component.register('sw-settings-rule-detail', {
                 'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
             );
 
-            // todo: this.rule.conditions = [this.nestedConditions]; check if needed
+            if (this.rule.moduleTypes && this.rule.moduleTypes.types.length === 0) {
+                this.rule.moduleTypes = null;
+            }
+
             this.removeOriginalConditionTypes(this.rule.conditions);
 
             return this.rule.save().then(() => {

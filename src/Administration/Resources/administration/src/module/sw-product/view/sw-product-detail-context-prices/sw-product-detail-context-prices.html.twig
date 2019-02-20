@@ -22,7 +22,12 @@
                     <div class="context-prices__toolbar">
 
                         {% block sw_product_detail_prices_price_card_rule_selection %}
-                            <sw-select id="rule" :store="ruleStore" :value="priceGroup.ruleId" validation="required" @input="onRuleChange($event, priceGroup.ruleId)">
+                            <sw-select id="rule"
+                                       :store="ruleStore"
+                                       :criteria="ruleFilter"
+                                       :value="priceGroup.ruleId"
+                                       validation="required"
+                                       @input="onRuleChange($event, priceGroup.ruleId)">
                                 <template slot="result_items" slot-scope="{ item, index }">
                                         <sw-select-option
                                                 :disabled="!!priceRuleGroups[item.id]"

@@ -82,12 +82,19 @@ export default function createConditionService() {
         ]
     };
 
+    const moduleTypes = [
+        'dispatch',
+        'payment',
+        'price'
+    ];
+
     return {
         getByType,
         addCondition,
         getConditions,
         operatorSets,
         operators,
+        moduleTypes,
         getOperatorSet,
         getPlaceholder
     };
@@ -111,14 +118,37 @@ export default function createConditionService() {
         return operatorSet;
     }
 
-    function getConditions(translateCallback) {
-        const values = Object.values($store);
-
-        if (translateCallback) {
-            values.forEach(value => translateCallback(value));
+    function getConditions(translateCallback, modules) {
+        // return defaults only if no modules are set
+        if (modules.length === 0) {
+            const conditions = Object.values($store).filter((condition) => {
+                return !condition.modules;
+            });
+            return translateConditions(conditions, translateCallback);
         }
 
-        return values;
+        const conditions = Object.values($store).filter((condition) => {
+            // always include object that have no modules property set
+            if (!condition.modules) {
+                return true;
+            }
+
+            // include objects that fit the modules parameter
+            return condition.modules.some((storeModule) => {
+                return modules.includes(storeModule);
+            });
+        });
+
+        return translateConditions(conditions, translateCallback);
+    }
+
+    function translateConditions(conditions, translateCallback) {
+        if (translateCallback) {
+            conditions.forEach((condition) => {
+                translateCallback(condition);
+            });
+        }
+        return conditions;
     }
 
     function getPlaceholder() {

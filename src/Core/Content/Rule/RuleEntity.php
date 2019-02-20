@@ -44,6 +44,11 @@ class RuleEntity extends Entity
     protected $updatedAt;
 
     /**
+     * @var array|null
+     */
+    protected $moduleTypes;
+
+    /**
      * @var DiscountSurchargeCollection|null
      */
     protected $discountSurcharges;
@@ -166,6 +171,16 @@ class RuleEntity extends Entity
     public function setInvalid(bool $invalid): void
     {
         $this->invalid = $invalid;
+    }
+
+    public function getModuleTypes(): ?array
+    {
+        return $this->moduleTypes;
+    }
+
+    public function setModuleTypes(?array $moduleTypes): void
+    {
+        $this->moduleTypes = $moduleTypes;
     }
 
     public function getViewData()

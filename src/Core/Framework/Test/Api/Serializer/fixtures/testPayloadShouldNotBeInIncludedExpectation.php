@@ -13,6 +13,7 @@ return [
                 'attributes' => null,
                 'createdAt' => null,
                 'updatedAt' => null,
+                'moduleTypes' => null,
             ],
             'links' => ['self' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c'],
             'relationships' => [
@@ -37,6 +38,7 @@ return [
                     'payload' => null,
                     'createdAt' => null,
                     'updatedAt' => null,
+                    'moduleTypes' => null,
                     'discountSurcharges' => null,
                     'productPriceRules' => null,
                     'conditions' => null,

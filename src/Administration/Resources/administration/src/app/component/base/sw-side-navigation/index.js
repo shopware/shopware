@@ -49,11 +49,9 @@ export default {
         updateActiveItem() {
             this.$nextTick()
                 .then(() => {
-                    let i = 0;
-
-                    this.$children.forEach((item) => {
-                        if (item.$el.querySelector('.sw-side-navigation-item--active')) this.activeItem = i;
-                        i += 1;
+                    this.$children.forEach((item, i) => {
+                        const linkIsActive = item.$children[0].$el.classList.contains('sw-side-navigation-item--active');
+                        if (linkIsActive) this.activeItem = i;
                     });
                 });
         }

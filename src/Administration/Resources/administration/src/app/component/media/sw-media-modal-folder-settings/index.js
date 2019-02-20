@@ -25,6 +25,7 @@ export default {
 
     data() {
         return {
+            modalClass: 'sw-media-modal-folder-settings--shows-overflow',
             thumbnailSizes: [],
             isEditThumbnails: false,
             defaultFolder: null,
@@ -150,6 +151,14 @@ export default {
             return this.configuration.mediaThumbnailSizes.some((value) => {
                 return value.id === size.id;
             });
+        },
+
+        onActiveTabChanged(activeTab) {
+            if (activeTab === 'settings') {
+                this.modalClass = 'sw-media-modal-folder-settings--shows-overflow';
+                return;
+            }
+            this.modalClass = '';
         },
 
         onChangeThumbnailSize(value, size) {

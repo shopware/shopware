@@ -13,6 +13,10 @@ $sw-media-modal-folder-settings-delete-color:               $color-crimson;
         }
     }
 
+    &.sw-media-modal-folder-settings--shows-overflow .sw-modal__body {
+        overflow-y: unset;
+    }
+
     .sw-media-modal-folder-settings__thumbnails-left-container {
         .sw-field--boolean {
             margin-bottom: 0;

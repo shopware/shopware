@@ -20,7 +20,7 @@ class Migration1536233340SystemConfig extends MigrationStep
                 `namespace` VARCHAR(255) NOT NULL,
                 `configuration_key` VARCHAR(255) NOT NULL,
                 `configuration_value` LONGTEXT NOT NULL,
-                `sales_channel_id` BINARY(16) DEFAULT NULL,
+                `sales_channel_id` BINARY(16) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -31,15 +32,13 @@ class JsonApiEncoderTest extends TestCase
             ['string'],
             [1],
             [false],
-            [new \DateTime()],
+            [new DateTime()],
             [1.1],
         ];
     }
 
     /**
      * @dataProvider emptyInputProvider
-     *
-     * @throws UnsupportedEncoderInputException
      */
     public function testEncodeWithEmptyInput($input): void
     {
@@ -59,7 +58,7 @@ class JsonApiEncoderTest extends TestCase
 
         $struct->setAlt('A media object description');
 
-        $struct->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
+        $struct->setCreatedAt(date_create_from_format(DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
 
         $expected = [
             'data' => [
@@ -134,6 +133,12 @@ class JsonApiEncoderTest extends TestCase
                         'data' => [],
                         'links' => [
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
+                        ],
+                    ],
+                    'avatarUser' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user',
                         ],
                     ],
                 ],

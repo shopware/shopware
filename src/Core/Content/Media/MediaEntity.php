@@ -19,6 +19,7 @@ use Shopware\Core\System\User\UserEntity;
 class MediaEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */
@@ -118,6 +119,11 @@ class MediaEntity extends Entity
      * @var ProductMediaCollection|null
      */
     protected $productMedia;
+
+    /**
+     * @var UserEntity|null
+     */
+    protected $avatarUser;
 
     /**
      * @var MediaThumbnailCollection
@@ -316,6 +322,16 @@ class MediaEntity extends Entity
     public function setProductMedia(ProductMediaCollection $productMedia): void
     {
         $this->productMedia = $productMedia;
+    }
+
+    public function getAvatarUser(): ?UserEntity
+    {
+        return $this->avatarUser;
+    }
+
+    public function setAvatarUser(UserEntity $avatarUser): void
+    {
+        $this->avatarUser = $avatarUser;
     }
 
     public function getThumbnails(): MediaThumbnailCollection

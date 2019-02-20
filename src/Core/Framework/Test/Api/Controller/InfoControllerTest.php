@@ -10,7 +10,7 @@ class InfoControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    public function testGetConfig()
+    public function testGetConfig(): void
     {
         $expected = [
             'adminWorker' => [

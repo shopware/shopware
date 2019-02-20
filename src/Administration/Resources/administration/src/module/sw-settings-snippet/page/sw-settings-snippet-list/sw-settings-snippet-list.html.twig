@@ -52,6 +52,7 @@
                     {% block sw_settings_snippet_list_grid %}
                         <sw-grid v-if="grid"
                                  :items="grid"
+                                 :header="!!grid.length"
                                  :isFullpage="true"
                                  :sidebar="true"
                                  @sort-column="onSortColumn"

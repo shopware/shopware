@@ -86,6 +86,12 @@ export default {
         }
     },
 
+    watch: {
+        active() {
+            this.$emit('sw-tabs-active-tab-changed', this.active);
+        }
+    },
+
     mounted() {
         this.initializeArrows();
         this.addScrollbarOffset();

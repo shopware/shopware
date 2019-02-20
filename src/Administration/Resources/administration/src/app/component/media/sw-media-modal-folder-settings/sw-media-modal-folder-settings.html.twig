@@ -1,11 +1,12 @@
 {% block sw_media_modal_folder_settings %}
     <sw-modal class="sw-media-modal-folder-settings"
+              :class="modalClass"
               @closeModal="closeModal"
               :title="folder.name"
               variant="large">
         
         {% block sw_media_modal_folder_settings_tabs %}
-            <sw-tabs variant="minimal" defaultItem="settings">
+            <sw-tabs variant="minimal" defaultItem="settings" @sw-tabs-active-tab-changed="onActiveTabChanged">
                 <template slot-scope="{ active }">
                     {% block sw_media_modal_folder_settings_tab_item_settings %}
                         <sw-tabs-item class="sw-media-folder-settings__settings-tab" name="settings" :active="active" variant="minimal">

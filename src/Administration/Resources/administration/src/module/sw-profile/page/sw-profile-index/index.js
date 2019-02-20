@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { md5 } from 'src/core/service/utils/format.utils';
+import { email } from 'src/core/service/validation.service';
 import types from 'src/core/service/utils/types.utils';
 import template from './sw-profile-index.html.twig';
 import './sw-profile-index.scss';
@@ -58,6 +59,10 @@ Component.register('sw-profile-index', {
         },
 
         onSave() {
+            if (this.checkEmail() === false) {
+                return;
+            }
+
             const passwordCheck = this.checkPassword();
             if (passwordCheck === null) {
                 this.saveUser();
@@ -68,6 +73,16 @@ Component.register('sw-profile-index', {
                     }
                 });
             }
+        },
+
+        checkEmail() {
+            if (!email(this.user.email)) {
+                this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
+
+                return false;
+            }
+
+            return true;
         },
 
         checkPassword() {

@@ -1448,6 +1448,7 @@
       "notificationPasswordErrorTitle": "Error",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
       "notificationOldPasswordErrorMessage": "Please submit your current password correctly.",
+      "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
       "notificationSaveSuccessTitle": "Success",
       "notificationSaveSuccessMessage": "Profile information has been saved successfully."
     }

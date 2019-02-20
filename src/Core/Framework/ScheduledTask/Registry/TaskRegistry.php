@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ScheduledTask\Registry;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,11 +38,7 @@ class TaskRegistry
             ->search(new Criteria(), Context::createDefaultContext())
             ->getEntities();
 
-        $insertPayload = $this->getInsertPayload($alreadyRegisteredTasks);
-
-        if (count($insertPayload) > 0) {
-            $this->scheduledTaskRepository->create($insertPayload, Context::createDefaultContext());
-        }
+        $this->insertNewTasks($alreadyRegisteredTasks);
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
@@ -50,9 +47,8 @@ class TaskRegistry
         }
     }
 
-    private function getInsertPayload(ScheduledTaskCollection $alreadyRegisteredTasks): array
+    private function insertNewTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
     {
-        $insertPayload = [];
         /** @var ScheduledTaskInterface $task */
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTaskInterface) {
@@ -66,15 +62,20 @@ class TaskRegistry
                 continue;
             }
 
-            $insertPayload[] = [
-                'name' => $task::getTaskName(),
-                'scheduledTaskClass' => get_class($task),
-                'runInterval' => $task::getDefaultInterval(),
-                'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
-            ];
+            try {
+                $this->scheduledTaskRepository->create([
+                    [
+                        'name' => $task::getTaskName(),
+                        'scheduledTaskClass' => get_class($task),
+                        'runInterval' => $task::getDefaultInterval(),
+                        'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+                    ],
+                ], Context::createDefaultContext());
+            } catch (UniqueConstraintViolationException $e) {
+                // this can happen if the function runs multiple times simultaneously
+                // we just care that the task is registered afterward so we can safely ignore the error
+            }
         }
-
-        return $insertPayload;
     }
 
     private function getDeletionPayload(ScheduledTaskCollection $alreadyRegisteredTasks): array

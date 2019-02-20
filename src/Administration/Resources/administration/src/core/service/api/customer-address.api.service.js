@@ -6,7 +6,7 @@ import ApiService from '../api.service';
  * @extends ApiService
  */
 class CustomerAddressApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'customer_address') {
+    constructor(httpClient, loginService, apiEndpoint = 'customer-address') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'customerAddressService';
     }

@@ -430,7 +430,10 @@
       "columnCity": "City",
       "columnActions": "Actions",
       "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete"
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuDefaultShippingAddress": "Set to default delivery address",
+      "contextMenuDefaultBillingAddress": "Set to default billing address"
     },
     "detailOrder": {
       "searchbarPlaceholder": "Search orders",

@@ -2,16 +2,20 @@
     <div class="sw-customer-detail-addresses">
 
         {% block sw_customer_detail_addresses %}
-            <sw-card :isLoading="customer.isLoading" :large="true">
-
+            <sw-card :isLoading="isLoading" :large="true">
                 {% block sw_customer_detail_addresses_add_button %}
                     <div class="sw-customer-detail-addresses__toolbar">
-                        {% block sw_customer_detail_addresses_add_button %}
-                            <sw-button @click="onCreateNewAddress">
-                                <sw-icon name="small-default-plus-circle" small></sw-icon>
-                                {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
-                            </sw-button>
-                        {% endblock %}
+                        <sw-card-filter placeholder=""
+                                        @sw-card-filter-term-change="onChange">
+                            <template slot="filter">
+                                {% block sw_customer_detail_addresses_add_button %}
+                                    <sw-button @click="onCreateNewAddress" size="small">
+                                        <sw-icon name="small-default-plus-circle" small></sw-icon>
+                                        {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
+                                    </sw-button>
+                                {% endblock %}
+                            </template>
+                        </sw-card-filter>
                     </div>
                 {% endblock %}
 
@@ -45,10 +49,14 @@
                 {% endblock %}
 
                 {% block sw_customer_detail_addresses_grid %}
-                    <sw-grid :items="customer.addresses" :selectable="false">
+                    <sw-grid slot="grid"
+                             :sortBy="sortBy"
+                             :items="addresses"
+                             :selectable="false"
+                             :sortDirection="sortDirection"
+                             @sort-column="onSortColumn">
                         {% block sw_customer_detail_addresses_grid_slots %}
                             <template slot="columns" slot-scope="{ item }">
-
                                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
                                     <sw-grid-column flex="minmax(65px, 65px)"
                                                     :label="$tc('sw-customer.detailAddresses.columnDefaultShippingAddress')"
@@ -59,6 +67,7 @@
                                             <sw-field type="radio"
                                                       v-model="customer.defaultShippingAddressId"
                                                       name="defaultShippingAddress"
+                                                      @change="onChangeDefaultShippingAddress"
                                                       :options="[{ value: item.id }]">
                                             </sw-field>
                                         {% endblock %}
@@ -75,6 +84,7 @@
                                             <sw-field type="radio"
                                                       v-model="customer.defaultBillingAddressId"
                                                       name="defaultBillingAddress"
+                                                      @change="onChangeDefaultBillingAddress"
                                                       :options="[{ value: item.id }]">
                                             </sw-field>
                                         {% endblock %}
@@ -85,7 +95,8 @@
                                     <sw-grid-column flex="minmax(120px, 1fr)"
                                                     :label="$tc('sw-customer.detailAddresses.columnCompany')"
                                                     dataIndex="company"
-                                                    truncate>
+                                                    truncate
+                                                    sortable>
                                         {% block sw_customer_detail_addresses_grid_columns_company_label %}
                                             {{ item.company }}
                                         {% endblock %}
@@ -96,7 +107,8 @@
                                     <sw-grid-column flex="minmax(120px, 1fr)"
                                                     :label="$tc('sw-customer.detailAddresses.columnFirstName')"
                                                     dataIndex="firstName"
-                                                    truncate>
+                                                    truncate
+                                                    sortable>
                                         {% block sw_customer_detail_addresses_grid_columns_first_name_label %}
                                             {{ item.firstName }}
                                         {% endblock %}
@@ -107,7 +119,8 @@
                                     <sw-grid-column flex="minmax(120px, 1fr)"
                                                     :label="$tc('sw-customer.detailAddresses.columnLastName')"
                                                     dataIndex="lastName"
-                                                    truncate>
+                                                    truncate
+                                                    sortable>
                                         {% block sw_customer_detail_addresses_grid_columns_last_name_label %}
                                             {{ item.lastName }}
                                         {% endblock %}
@@ -118,7 +131,8 @@
                                     <sw-grid-column flex="minmax(120px, 1fr)"
                                                     :label="$tc('sw-customer.detailAddresses.columnStreet')"
                                                     dataIndex="street"
-                                                    truncate>
+                                                    truncate
+                                                    sortable>
                                         {% block sw_customer_detail_addresses_grid_columns_street_label %}
                                             {{ item.street }}
                                         {% endblock %}
@@ -129,7 +143,8 @@
                                     <sw-grid-column flex="minmax(80px, 100px)"
                                                     :label="$tc('sw-customer.detailAddresses.columnZipCode')"
                                                     dataIndex="zipcode"
-                                                    truncate>
+                                                    truncate
+                                                    sortable>
                                         {% block sw_customer_detail_addresses_grid_columns_zipcode_label %}
                                             {{ item.zipcode }}
                                         {% endblock %}
@@ -140,7 +155,8 @@
                                     <sw-grid-column flex="minmax(120px, 1fr)"
                                                     :label="$tc('sw-customer.detailAddresses.columnCity')"
                                                     dataIndex="city"
-                                                    truncate>
+                                                    truncate
+                                                    sortable>
                                         {% block sw_customer_detail_addresses_grid_columns_city_label %}
                                             {{ item.city }}
                                         {% endblock %}
@@ -153,12 +169,30 @@
                                                     align="center"
                                                     truncate>
                                         {% block sw_customer_detail_addresses_grid_columns_actions_menu %}
-                                            <sw-context-button>
+                                            <sw-context-button :menuWidth="parseInt(290)">
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_edit %}
                                                     <sw-context-menu-item @click="onEditAddress(item.id)">
                                                         {{ $tc('sw-customer.detailAddresses.contextMenuEdit') }}
                                                     </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_customer_detail_addresses_grid_columns_actions_duplicate %}
+                                                <sw-context-menu-item @click="onDuplicateAddress(item.id)">
+                                                    {{ $tc('sw-customer.detailAddresses.contextMenuDuplicate') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_customer_detail_addresses_grid_columns_actions_defaultShippingAddress %}
+                                                <sw-context-menu-item @click="onChangeDefaultShippingAddress(item.id)">
+                                                    {{ $tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_customer_detail_addresses_grid_columns_actions_defaultBillingAddress %}
+                                                <sw-context-menu-item @click="onChangeDefaultBillingAddress(item.id)">
+                                                    {{ $tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress') }}
+                                                </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_delete %}
@@ -214,7 +248,6 @@
                         {% endblock %}
                     </sw-grid>
                 {% endblock %}
-
             </sw-card>
         {% endblock %}
     </div>

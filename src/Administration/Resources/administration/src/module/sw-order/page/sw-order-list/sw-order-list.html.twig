@@ -54,7 +54,6 @@
                                      :items="orders"
                                      :sortBy="sortBy"
                                      :sortDirection="sortDirection"
-                                     :sidebar="true"
                                      :selectable="false"
                                      :isFullpage="true"
                                      @sort-column="onSortColumn"
@@ -184,17 +183,7 @@
                                     {% endblock %}
                                 </template>
 
-                                {% block sw_order_list_grid_sidebar %}
-                                    <sw-sidebar slot="sidebar">
-                                        {% block sw_order_list_grid_sidebar_refresh %}
-                                            <sw-sidebar-item
-                                                icon="default-arrow-360-left"
-                                                :title="$tc('sw-order.list.titleSidebarItemRefresh')"
-                                                @click="onRefresh">
-                                            </sw-sidebar-item>
-                                        {% endblock %}
-                                    </sw-sidebar>
-                                {% endblock %}
+
 
                             </sw-grid>
                         {% endblock %}
@@ -210,6 +199,18 @@
                 {% endblock %}
 
             </template>
+
+            {% block sw_order_list_sidebar %}
+                <sw-sidebar slot="sidebar">
+                    {% block sw_order_list_sidebar_refresh %}
+                    <sw-sidebar-item
+                            icon="default-arrow-360-left"
+                            :title="$tc('sw-order.list.titleSidebarItemRefresh')"
+                            @click="onRefresh">
+                    </sw-sidebar-item>
+                    {% endblock %}
+                </sw-sidebar>
+            {% endblock %}
         {% endblock %}
 
     </sw-page>

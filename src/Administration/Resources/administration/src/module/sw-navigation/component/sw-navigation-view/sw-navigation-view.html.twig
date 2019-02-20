@@ -1,5 +1,5 @@
 {% block sw_navigation_view %}
-    <sw-card-view sidebar v-if="navigation" class="sw-navigation-view">
+    <sw-card-view v-if="navigation" class="sw-navigation-view">
 
         {% block sw_navigation_view_information %}
             <sw-card :title="$tc('sw-navigation.general.headlineInformationCard')" :isLoading="isLoading">

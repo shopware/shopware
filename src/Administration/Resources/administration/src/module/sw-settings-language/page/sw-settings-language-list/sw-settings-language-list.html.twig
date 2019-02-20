@@ -46,47 +46,7 @@
             {% endblock %}
 
             {% block sw_settings_language_list_content %}
-                <sw-card-view slot="content" sidebar>
-                    {% block sw_settings_language_list_grid_sidebar %}
-                        <template slot="card-view-sidebar">
-                            {% block sw_settings_language_list_grid_sidebar_filter %}
-                                <sw-sidebar-item icon="default-action-filter"
-                                                 :title="'Filter'">
-                                    <sw-collapse expandOnLoading>
-                                        <div slot="header" class="sw-settings-language-list__collapse-header">
-                                            <h4 class="sw-settings-language-list__collapse-title">
-                                                {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
-                                            </h4>
-                                            <div class="sw-settings-language-list__collapse-indicator">
-                                                <sw-icon name="small-arrow-small-right"
-                                                         class="sw-media-collapse__button"
-                                                         :class="expandButtonClass">
-                                                </sw-icon>
-                                                <sw-icon
-                                                        name="small-arrow-small-down"
-                                                        class="sw-media-collapse__button"
-                                                        :class="collapseButtonClass">
-                                                </sw-icon>
-                                            </div>
-
-                                            </sw-icon>
-                                        </div>
-
-                                        <sw-field slot="content"
-                                                  type="switch"
-                                                  class="sw-settings-language-list__filterField"
-                                                  v-for="(filter, index) in filters"
-                                                  :label="filter.label"
-                                                  :value="filter.active"
-                                                  :key="index"
-                                                  @change="onSwitchFilter(filter, index)">
-                                        </sw-field>
-                                    </sw-collapse>
-                                </sw-sidebar-item>
-                            {% endblock %}
-                        </template>
-                    {% endblock %}
-
+                <sw-card-view slot="content">
                     {% block sw_settings_language_list_content_card %}
                         <sw-card :isLoading="isLoading">
                             {% block sw_settings_language_list_grid %}
@@ -235,6 +195,48 @@
                         </sw-card>
                     {% endblock %}
                 </sw-card-view>
+            {% endblock %}
+
+            {% block sw_settings_language_list_grid_sidebar %}
+                <template slot="sidebar">
+                    <sw-sidebar :propagateWidth="true">
+                        {% block sw_settings_language_list_grid_sidebar_filter %}
+                        <sw-sidebar-item icon="default-action-filter"
+                                         :title="'Filter'">
+                            <sw-collapse expandOnLoading>
+                                <div slot="header" class="sw-settings-language-list__collapse-header">
+                                    <h4 class="sw-settings-language-list__collapse-title">
+                                        {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
+                                    </h4>
+                                    <div class="sw-settings-language-list__collapse-indicator">
+                                        <sw-icon name="small-arrow-small-right"
+                                                 class="sw-media-collapse__button"
+                                                 :class="expandButtonClass">
+                                        </sw-icon>
+                                        <sw-icon
+                                                name="small-arrow-small-down"
+                                                class="sw-media-collapse__button"
+                                                :class="collapseButtonClass">
+                                        </sw-icon>
+                                    </div>
+
+                                    </sw-icon>
+                                </div>
+
+                                <sw-field slot="content"
+                                          type="switch"
+                                          class="sw-settings-language-list__filterField"
+                                          v-for="(filter, index) in filters"
+                                          :label="filter.label"
+                                          :value="filter.active"
+                                          :key="index"
+                                          @change="onSwitchFilter(filter, index)">
+                                </sw-field>
+                            </sw-collapse>
+                        </sw-sidebar-item>
+                        {% endblock %}
+                    </sw-sidebar>
+                </template>
             {% endblock %}
         </sw-page>
     {% endblock %}

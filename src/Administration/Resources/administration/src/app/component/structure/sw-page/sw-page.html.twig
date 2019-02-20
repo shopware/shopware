@@ -86,7 +86,16 @@
                         </slot>
                     </div>
                 </div>
+
+                {% block sw_page_content_sidebar %}
+                    <div class="sw-page__sidebar" v-if="hasSidebarSlot">
+                        <slot name="sidebar">
+                            {% block sw_page_sidebar_slot %}{% endblock %}
+                        </slot>
+                    </div>
+                {% endblock %}
             </div>
         {% endblock %}
+
     </div>
 {% endblock %}

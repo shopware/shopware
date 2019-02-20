@@ -41,12 +41,6 @@ export default {
             default: true
         },
 
-        sidebar: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-
         variant: {
             type: String,
             required: false,
@@ -112,7 +106,6 @@ export default {
 
         gridClasses() {
             return {
-                'sw-grid--sidebar': this.sidebar,
                 'sw-grid--fullpage': this.isFullpage,
                 'sw-grid--table': this.table,
                 [this.sizeClass]: true

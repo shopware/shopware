@@ -75,6 +75,10 @@ export default {
             return !!this.$slots['side-content'];
         },
 
+        hasSidebarSlot() {
+            return !!this.$slots.sidebar;
+        },
+
         showHeadArea() {
             return this.showSearchBar || this.showSmartBar;
         },

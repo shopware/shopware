@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "7.2.5",
-    "bootstrap": "4.2.1",
+    "bootstrap": "4.3.1",
     "jquery": "3.3.1",
     "popper.js": "1.14.7"
   }

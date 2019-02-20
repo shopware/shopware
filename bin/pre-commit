@@ -12,25 +12,28 @@ function onExit {
 }
 trap onExit EXIT
 
-FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.php$')"
+PHP_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.(php)$')"
+JS_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.(js)$')"
 
 # exit on non-zero return code
 set -e
 
-if [[ -z "$FILES" ]]
+if [[ -z "$PHP_FILES" && -z "$JS_FILES" ]]
 then
     exit 0
 fi
 
-for FILE in $FILES
-do
-    php -l -d display_errors=0 "$FILE" 1> /dev/null
-done
+if [[ -n "$PHP_FILES" ]]
+then
+    for FILE in ${PHP_FILES}
+    do
+        php -l -d display_errors=0 "$FILE" 1> /dev/null
+    done
 
-bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file="$AUTOLOAD_FILE" $FILES
+    bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file="$AUTOLOAD_FILE" ${PHP_FILES}
+fi
 
-
-UNSTAGED_FILES="$(git diff --name-only -- $FILES)"
+UNSTAGED_FILES="$(git diff --name-only -- ${PHP_FILES} ${JS_FILES})"
 
 if [[ -n "$UNSTAGED_FILES" ]]
 then
@@ -43,8 +46,17 @@ $UNSTAGED_FILES
     exit 1
 fi
 
-# fix code style and update the commit
-bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv $FILES
-git add $FILES
+if [[ -n "$PHP_FILES" ]]
+then
+    # fix code style and update the commit
+    bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv ${PHP_FILES}
+fi
+
+if [[ -n "$JS_FILES" && -x src/Administration/Resources/administration/node_modules/.bin/eslint ]]
+then
+    src/Administration/Resources/administration/node_modules/.bin/eslint --ext .js,.vue --fix ${JS_FILES}
+fi
+
+git add ${JS_FILES} ${PHP_FILES}
 
 

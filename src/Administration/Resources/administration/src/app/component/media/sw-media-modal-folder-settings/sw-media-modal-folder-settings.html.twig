@@ -6,16 +6,16 @@
               variant="large">
         
         {% block sw_media_modal_folder_settings_tabs %}
-            <sw-tabs variant="minimal" defaultItem="settings" @sw-tabs-active-tab-changed="onActiveTabChanged">
-                <template slot-scope="{ active }">
+            <sw-tabs :isSmall="false" defaultItem="settings">
+                <template slot-scope="{ active }" >
                     {% block sw_media_modal_folder_settings_tab_item_settings %}
-                        <sw-tabs-item class="sw-media-folder-settings__settings-tab" name="settings" :active="active" variant="minimal">
+                        <sw-tabs-item class="sw-media-folder-settings__settings-tab" name="settings" :activeTab="active" :native="true">
                             {{ $tc('global.sw-media-modal-folder-settings.labelSettings') }}
                         </sw-tabs-item>
                     {% endblock %}
 
                     {% block sw_media_modal_folder_settings_tab_item_thumbnails %}
-                        <sw-tabs-item class="sw-media-folder-settings__thumbnails-tab" name="thumbnails" :active="active" variant="minimal">
+                        <sw-tabs-item class="sw-media-folder-settings__thumbnails-tab" name="thumbnails"  :activeTab="active" :native="true">
                             {{ $tc('global.sw-media-modal-folder-settings.labelThumbnails') }}
                         </sw-tabs-item>
                     {% endblock %}
@@ -23,7 +23,9 @@
 
                 <template slot="content" slot-scope="{ active }">
                     {% block sw_media_modal_folder_settings_tab_content_settings %}
-                        <sw-container v-if="active === 'settings'" columns="1fr 1fr" gap="32px">
+                        <sw-container
+                                v-if="active === 'settings'"
+                                columns="1fr 1fr" gap="32px">
                             {% block sw_media_modal_folder_settings_name_field %}
                                 <sw-field type="text"
                                     :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"

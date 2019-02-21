@@ -1,46 +1,34 @@
 {% block sw_tabs %}
-    <div class="sw-tabs">
-        <div class="sw-tabs__bar" :class="tabBarClass">
-            {% block sw_tabs_container %}
-                <div class="sw-tabs__container">
-                    {% block sw_tabs_navigation %}
-                        <nav class="sw-tabs__navigation" ref="swTabsNavigation" :style="scrollbarOffsetStyle">
-                            {% block sw_tabs_navigation_items %}
-                                <slot :active="active">
-                                    {% block sw_tabs_slot_default %}{% endblock %}
-                                </slot>
-                            {% endblock %}
-                        </nav>
+    <div class="sw-tabs" :class="tabClasses">
+
+            {% block sw_tabs_content %}
+                <div class="sw-tabs__content" ref="swTabContent">
+                    {% block sw_tabs_content_slot %}
+                        <slot :active="active"></slot>
+                    {% endblock %}
+                    {% block sw_tabs_slider %}
+                        <span class="sw-tabs__slider" :style="sliderStyle"></span>
                     {% endblock %}
                 </div>
             {% endblock %}
 
-            {% block sw_tabs_arrows %}
-                {% block sw_tabs_arrow_left %}
-                    <button v-if="showArrowControls"
-                            @click="onClickArrow('left')"
-                            class="sw-tabs__arrow sw-tabs__arrow--left">
-                        {% block sw_tabs_arrow_left_icon %}
-                            <sw-icon name="small-arrow-medium-left" small></sw-icon>
-                        {% endblock %}
-                    </button>
-                {% endblock %}
-
-                {% block sw_tabs_arrow_right %}
-                    <button v-if="showArrowControls"
-                            @click="onClickArrow('right')"
-                            class="sw-tabs__arrow sw-tabs__arrow--right">
-                        {% block sw_tabs_arrow_right_icon %}
-                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
-                        {% endblock %}
-                    </button>
-                {% endblock %}
+            {% block sw_tabs_arrow_left %}
+                <button v-if="isScrollable" class="sw-tabs__arrow sw-tabs__arrow--left" :class="arrowClassesLeft" @click="scrollTo('left')">
+                    <sw-icon name="small-arrow-medium-left" small></sw-icon>
+                </button>
             {% endblock %}
-        </div>
-        {% block sw_tabs_content_items %}
-            <slot name="content" :active="active">
-                {% block sw_tabs_slot_default %}{% endblock %}
-            </slot>
-        {% endblock %}
+
+            {% block sw_tabs_arrow_right %}
+                <button v-if="isScrollable" class="sw-tabs__arrow sw-tabs__arrow--right" :class="arrowClassesRight" @click="scrollTo('right')">
+                    <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                </button>
+            {% endblock %}
+
+            <div class="sw-tabs__custom-Content">
+                {% block sw_tabs_custom_content %}
+                    <slot name="content" :active="active"></slot>
+                {% endblock %}
+            </div>
+
     </div>
 {% endblock %}

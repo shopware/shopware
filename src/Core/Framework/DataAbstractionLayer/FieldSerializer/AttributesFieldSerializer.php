@@ -3,15 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Attribute\AttributeEntity;
+use Shopware\Core\Framework\Attribute\AttributeServiceInterface;
 use Shopware\Core\Framework\Attribute\AttributeTypes;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
@@ -21,18 +17,23 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AttributesFieldSerializer extends JsonFieldSerializer
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $attributeRepository;
-
     /** @var WriteCommandExtractor */
     private $writeExtractor;
 
-    public function __construct(FieldSerializerRegistry $compositeHandler, ConstraintBuilder $constraintBuilder, ValidatorInterface $validator, EntityRepositoryInterface $attributeRepository, WriteCommandExtractor $writeExtractor)
-    {
+    /**
+     * @var AttributeServiceInterface
+     */
+    private $attributeService;
+
+    public function __construct(
+        FieldSerializerRegistry $compositeHandler,
+        ConstraintBuilder $constraintBuilder,
+        ValidatorInterface $validator,
+        AttributeServiceInterface $attributeService,
+        WriteCommandExtractor $writeExtractor
+    ) {
         parent::__construct($compositeHandler, $constraintBuilder, $validator);
-        $this->attributeRepository = $attributeRepository;
+        $this->attributeService = $attributeService;
         $this->writeExtractor = $writeExtractor;
     }
 
@@ -50,9 +51,15 @@ class AttributesFieldSerializer extends JsonFieldSerializer
         }
 
         $encoded = [];
-        foreach ($data->getValue() as $attribute => $value) {
-            $attribute = (string) $attribute;
-            $encoded[$attribute] = $this->encodeAttribute($attribute, $value, $parameters->getContext()->getContext());
+        foreach ($data->getValue() as $attributeName => $value) {
+            $type = $this->attributeService->getAttributeType($attributeName);
+            if (!$type) {
+                continue;
+            }
+            $encoded[$attributeName] = $this->encodeAttribute($type, $value);
+        }
+        if (empty($encoded)) {
+            return;
         }
 
         if ($existence->exists()) {
@@ -76,12 +83,16 @@ class AttributesFieldSerializer extends JsonFieldSerializer
             $attributes = parent::decode($field, $attributes);
         }
 
-        foreach ($attributes as $attribute => $value) {
-            // TODO: dont use the default context...
-            $attributes[$attribute] = $this->decodeAttribute($attribute, $value, Context::createDefaultContext());
+        $decoded = [];
+        foreach ($attributes as $attributeName => $value) {
+            $type = $this->attributeService->getAttributeType($attributeName);
+            if (!$type) {
+                continue;
+            }
+            $decoded[$attributeName] = $this->decodeAttribute($type, $value);
         }
 
-        return $attributes;
+        return $decoded;
     }
 
     public function getFieldClass(): string
@@ -89,27 +100,13 @@ class AttributesFieldSerializer extends JsonFieldSerializer
         return AttributesField::class;
     }
 
-    private function getAttribute(string $attribute, Context $context): ?AttributeEntity
+    private function encodeAttribute(string $type, $value)
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $attribute));
-
-        return $this->attributeRepository
-            ->search($criteria, $context)
-            ->first();
-    }
-
-    private function encodeAttribute(string $attribute, $value, Context $context)
-    {
-        $attribute = $this->getAttribute($attribute, $context);
-        if (!$attribute) {
-            return $value;
-        }
         if ($value === null) {
             return null;
         }
 
-        switch ($attribute->getType()) {
+        switch ($type) {
             case AttributeTypes::BOOL:
                 return (bool) $value;
             case AttributeTypes::DATETIME:
@@ -124,23 +121,19 @@ class AttributesFieldSerializer extends JsonFieldSerializer
                 return (int) $value;
             case AttributeTypes::FLOAT:
                 return (float) $value;
+            case AttributeTypes::STRING:
             default:
                 return $value;
         }
     }
 
-    private function decodeAttribute(string $attribute, $value, Context $context)
+    private function decodeAttribute(string $type, $value)
     {
         if ($value === null) {
             return null;
         }
 
-        $attribute = $this->getAttribute($attribute, $context);
-        if (!$attribute) {
-            return $value;
-        }
-
-        switch ($attribute->getType()) {
+        switch ($type) {
             case AttributeTypes::BOOL:
                 return (bool) $value;
             case AttributeTypes::INT:

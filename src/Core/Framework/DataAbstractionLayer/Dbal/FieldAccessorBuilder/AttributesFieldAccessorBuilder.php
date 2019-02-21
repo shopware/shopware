@@ -3,31 +3,28 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Attribute\AttributeEntity;
+use Shopware\Core\Framework\Attribute\AttributeServiceInterface;
 use Shopware\Core\Framework\Attribute\AttributeTypes;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 
 class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var AttributeServiceInterface
      */
-    private $attributeRepository;
+    private $attributeService;
 
     /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(EntityRepositoryInterface $attributeRepository, Connection $connection)
+    public function __construct(AttributeServiceInterface $attributeService, Connection $connection)
     {
-        $this->attributeRepository = $attributeRepository;
+        $this->attributeService = $attributeService;
         $this->connection = $connection;
     }
 
@@ -46,15 +43,31 @@ class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
          * The json type is fixed to character set `utf8mb4` and collation `utf8mb4_bin`
          *
          */
-        $attribute = substr(preg_replace('#^' . $field->getPropertyName() . '#', '', $accessor), 1);
+
+        /**
+         * Possible paths / attribute names:
+         * - propertyName.attribute_name -> attribute_name
+         * - propertyName.attribute_name.foo -> attribute_name
+         * - propertyName."attribute.name" -> attribute.name
+         * - propertyName."attribute.name".foo -> attribute.name
+         */
+        $attributeName = preg_replace(
+            '#^' . preg_quote($field->getPropertyName(), '#') . '\.("([^"]*)"|([^.]*)).*#',
+            '$2$3',
+            $accessor
+        );
+
+        $key = $attributeName;
+        $type = $this->attributeService->getAttributeType($attributeName) ?? AttributeTypes::STRING;
+
         $jsonValueExpr = sprintf(
             'JSON_EXTRACT(`%s`.`%s`, %s)',
             $root,
             $field->getStorageName(),
-            $this->connection->quote('$.' . $attribute)
+            $this->connection->quote('$."' . $key . '"')
         );
 
-        switch ($this->getType($attribute, $context)) {
+        switch ($type) {
             case AttributeTypes::INT:
             case AttributeTypes::FLOAT:
                 // cast to float/number by adding 0.0
@@ -84,16 +97,5 @@ class AttributesFieldAccessorBuilder implements FieldAccessorBuilderInterface
                     $jsonValueExpr
                 );
         }
-    }
-
-    private function getType(string $attributeName, Context $context): string
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $attributeName));
-
-        /** @var AttributeEntity|null $attribute */
-        $attribute = $this->attributeRepository->search($criteria, $context)->first();
-
-        return $attribute ? $attribute->getType() : AttributeTypes::STRING;
     }
 }

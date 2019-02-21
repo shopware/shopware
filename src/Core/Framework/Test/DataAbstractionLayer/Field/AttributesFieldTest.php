@@ -44,7 +44,6 @@ class AttributesFieldTest extends TestCase
         parent::setUp();
 
         $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->connection->exec('DROP TABLE IF EXISTS `attribute_test`');
         $this->connection->exec('
             CREATE TABLE `attribute_test` (
@@ -76,6 +75,7 @@ class AttributesFieldTest extends TestCase
 
     public function testSearch(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
         $barId = Uuid::uuid4()->getHex();
         $bazId = Uuid::uuid4()->getHex();
         $entities = [
@@ -122,6 +122,10 @@ class AttributesFieldTest extends TestCase
 
     public function testPatchJson(): void
     {
+        $this->addAttributes([
+            'foo' => AttributeTypes::STRING,
+            'baz' => AttributeTypes::STRING,
+        ]);
         $entity = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => "foo'bar",
@@ -167,6 +171,8 @@ class AttributesFieldTest extends TestCase
 
     public function testPatchObject(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
         $entity = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => "foo'bar",
@@ -197,6 +203,8 @@ class AttributesFieldTest extends TestCase
 
     public function testPatchEntityAndAttributes(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
         $entity = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => "foo'bar",
@@ -215,15 +223,14 @@ class AttributesFieldTest extends TestCase
             'id' => $entity['id'],
             'name' => "foo'bar'baz",
             'attributes' => [
-                'foo' => [
-                    'a' => 1,
-                ],
+                'foo' => 'baz',
             ],
         ];
         $result = $repo->upsert([$patch], Context::createDefaultContext());
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
-        static::assertEquals($patch, $event->getPayloads()[0]);
+        $expected = $patch;
+        static::assertEquals($expected, $event->getPayloads()[0]);
 
         $actual = $repo->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         static::assertEquals($patch['name'], $actual->get('name'));
@@ -232,6 +239,14 @@ class AttributesFieldTest extends TestCase
 
     public function testTranslatedAttributes(): void
     {
+        $this->addAttributes([
+            'code' => AttributeTypes::STRING,
+            'de' => AttributeTypes::STRING,
+            'system' => AttributeTypes::STRING,
+            'root' => AttributeTypes::STRING,
+            'child' => AttributeTypes::STRING,
+        ]);
+
         $rootLanguageId = Uuid::uuid4()->getHex();
         $childLanguageId = Uuid::uuid4()->getHex();
         $this->addLanguage($rootLanguageId, null);
@@ -313,23 +328,15 @@ class AttributesFieldTest extends TestCase
 
     public function testKeyWithDot(): void
     {
+        $this->addAttributes(['foo.bar' => AttributeTypes::STRING]);
+
         $dotId = Uuid::uuid4()->getHex();
-        $nestedId = Uuid::uuid4()->getHex();
         $entities = [
             [
                 'id' => $dotId,
                 'name' => "foo'bar",
                 'attributes' => [
                     'foo.bar' => 'baz',
-                ],
-            ],
-            [
-                'id' => $nestedId,
-                'name' => "foo'bar",
-                'attributes' => [
-                    'foo' => [
-                        'bar' => 'baz',
-                    ],
                 ],
             ],
         ];
@@ -341,18 +348,11 @@ class AttributesFieldTest extends TestCase
         $criteria->addFilter(new EqualsFilter('attributes."foo.bar"', 'baz'));
         $result = $repo->search($criteria, Context::createDefaultContext());
         static::assertEquals([$dotId], array_values($result->getIds()));
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('attributes.foo.bar', 'baz'));
-        $result = $repo->search($criteria, Context::createDefaultContext());
-
-        static::assertEquals([$nestedId], array_values($result->getIds()));
     }
 
     public function testSortingInt(): void
     {
-        $this->addAttribute('int', AttributeTypes::INT);
-
+        $this->addAttributes(['int' => AttributeTypes::INT]);
         $smallId = Uuid::uuid4()->getHex();
         $bigId = Uuid::uuid4()->getHex();
 
@@ -398,7 +398,7 @@ class AttributesFieldTest extends TestCase
 
     public function testSortingFloat(): void
     {
-        $this->addAttribute('float', AttributeTypes::FLOAT);
+        $this->addAttributes(['float' => AttributeTypes::FLOAT]);
 
         $smallId = Uuid::uuid4()->getHex();
         $bigId = Uuid::uuid4()->getHex();
@@ -446,7 +446,7 @@ class AttributesFieldTest extends TestCase
 
     public function testSortingDate(): void
     {
-        $this->addAttribute('datetime', AttributeTypes::DATETIME);
+        $this->addAttributes(['datetime' => AttributeTypes::DATETIME]);
 
         $smallId = Uuid::uuid4()->getHex();
         $bigId = Uuid::uuid4()->getHex();
@@ -498,7 +498,7 @@ class AttributesFieldTest extends TestCase
 
     public function testSortingDateTime(): void
     {
-        $this->addAttribute('datetime', AttributeTypes::DATETIME);
+        $this->addAttributes(['datetime' => AttributeTypes::DATETIME]);
 
         $ids = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
         $dateTimes = [
@@ -545,6 +545,8 @@ class AttributesFieldTest extends TestCase
 
     public function testSortingString(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
         $smallId = Uuid::uuid4()->getHex();
         $bigId = Uuid::uuid4()->getHex();
 
@@ -590,7 +592,7 @@ class AttributesFieldTest extends TestCase
 
     public function testStringEqualsCriteria(): void
     {
-        $this->addAttribute('string', AttributeTypes::STRING);
+        $this->addAttributes(['string' => AttributeTypes::STRING]);
 
         $aId = Uuid::uuid4()->getHex();
         $upperAId = Uuid::uuid4()->getHex();
@@ -631,8 +633,7 @@ class AttributesFieldTest extends TestCase
 
     public function testBooleanEqualsCriteria(): void
     {
-        $this->addAttribute('bool', AttributeTypes::BOOL);
-
+        $this->addAttributes(['bool' => AttributeTypes::BOOL]);
         $trueId = Uuid::uuid4()->getHex();
         $trueIntId = Uuid::uuid4()->getHex();
 
@@ -675,7 +676,7 @@ class AttributesFieldTest extends TestCase
 
     public function testIntEqualsCriteria(): void
     {
-        $this->addAttribute('int', AttributeTypes::INT);
+        $this->addAttributes(['int' => AttributeTypes::INT]);
 
         $intId = Uuid::uuid4()->getHex();
         $floatId = Uuid::uuid4()->getHex();
@@ -725,7 +726,7 @@ class AttributesFieldTest extends TestCase
 
     public function testFloatEqualsCriteria(): void
     {
-        $this->addAttribute('float', AttributeTypes::FLOAT);
+        $this->addAttributes(['float' => AttributeTypes::FLOAT]);
 
         $dotOneId = Uuid::uuid4()->getHex();
         $almostDotOneId = Uuid::uuid4()->getHex();
@@ -757,10 +758,7 @@ class AttributesFieldTest extends TestCase
 
     public function testDateTimeEqualsCriteria(): void
     {
-        $this->addAttribute('datetime', AttributeTypes::DATETIME);
-
-        $dotOneId = Uuid::uuid4()->getHex();
-        $almostDotOneId = Uuid::uuid4()->getHex();
+        $this->addAttributes(['datetime' => AttributeTypes::DATETIME, 'float' => AttributeTypes::FLOAT]);
 
         $ids = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
 
@@ -793,6 +791,8 @@ class AttributesFieldTest extends TestCase
 
     public function testSetAttributesOnNullColumn(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
         $id = Uuid::uuid4()->getHex();
         $entity = ['id' => $id, 'attributes' => null];
         $repo = $this->getTestRepository();
@@ -807,7 +807,8 @@ class AttributesFieldTest extends TestCase
         $result = $repo->update([$update], Context::createDefaultContext());
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
-        static::assertEquals($update, $event->getPayloads()[0]);
+        $expected = $update;
+        static::assertEquals($expected, $event->getPayloads()[0]);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
@@ -816,6 +817,8 @@ class AttributesFieldTest extends TestCase
 
     public function testSetAttributesOnEmptyArray(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
         $id = Uuid::uuid4()->getHex();
         $entity = ['id' => $id, 'attributes' => []];
         $repo = $this->getTestRepository();
@@ -830,7 +833,8 @@ class AttributesFieldTest extends TestCase
         $result = $repo->update([$update], Context::createDefaultContext());
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
-        static::assertEquals($update, $event->getPayloads()[0]);
+        $expected = ['id' => $id, 'attributes' => $update['attributes']];
+        static::assertEquals($expected, $event->getPayloads()[0]);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
@@ -839,6 +843,8 @@ class AttributesFieldTest extends TestCase
 
     public function testUpdateAttributeWithDot(): void
     {
+        $this->addAttributes(['foo.bar' => AttributeTypes::STRING]);
+
         $id = Uuid::uuid4()->getHex();
         $entity = ['id' => $id, 'attributes' => []];
         $repo = $this->getTestRepository();
@@ -847,13 +853,15 @@ class AttributesFieldTest extends TestCase
         $update = [
             'id' => $id,
             'attributes' => [
-                'a.b' => 'a dot b',
+                'foo.bar' => 'foo dot bar',
             ],
         ];
         $result = $repo->update([$update], Context::createDefaultContext());
         $event = $result->getEventByDefinition(AttributesTestDefinition::class);
         static::assertCount(1, $event->getPayloads());
-        static::assertEquals($update, $event->getPayloads()[0]);
+        $expected = $update;
+        $expected['attributes'] = $update['attributes'];
+        static::assertEquals($expected, $event->getPayloads()[0]);
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
         static::assertNotNull($first);
@@ -862,6 +870,8 @@ class AttributesFieldTest extends TestCase
 
     public function testSetAttributesToNull(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
         $id = Uuid::uuid4()->getHex();
         $entity = ['id' => $id, 'attributes' => ['foo' => 'bar']];
         $repo = $this->getTestRepository();
@@ -880,6 +890,8 @@ class AttributesFieldTest extends TestCase
 
     public function testSetAttributesToEmptyArrayIsNull(): void
     {
+        $this->addAttributes(['foo' => AttributeTypes::STRING]);
+
         $id = Uuid::uuid4()->getHex();
         $entity = ['id' => $id, 'attributes' => ['foo' => 'bar']];
         $repo = $this->getTestRepository();
@@ -919,16 +931,15 @@ class AttributesFieldTest extends TestCase
         );
     }
 
-    private function addAttribute(string $name, string $type)
+    private function addAttributes(array $attributeTypes): void
     {
         $attributeRepo = $this->getContainer()->get('attribute.repository');
 
-        return $attributeRepo->create(
-            [
-                ['name' => $name, 'label' => $name, 'type' => $type],
-            ],
-            Context::createDefaultContext()
-        );
+        $attributes = [];
+        foreach ($attributeTypes as $name => $type) {
+            $attributes[] = ['id' => Uuid::uuid4()->getHex(), 'name' => $name, 'type' => $type];
+        }
+        $attributeRepo->create($attributes, Context::createDefaultContext());
     }
 
     private function getTestRepository(): EntityRepository

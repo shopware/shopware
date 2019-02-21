@@ -82,7 +82,6 @@ Component.register('sw-media-index', {
         onUploadsAdded({ uploadTag, data }) {
             data.forEach((upload) => {
                 upload.entity.isLoading = true;
-                upload.entity.mediaFolderId = this.routeFolderId;
                 this.uploads.push(upload.entity);
             });
 

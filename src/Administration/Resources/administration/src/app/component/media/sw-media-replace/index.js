@@ -25,7 +25,7 @@ export default {
 
     methods: {
         getMediaEntityForUpload() {
-            return Promise.resolve(this.itemToReplace);
+            return this.itemToReplace;
         },
 
         cleanUpFailure(mediaEntity, message) {

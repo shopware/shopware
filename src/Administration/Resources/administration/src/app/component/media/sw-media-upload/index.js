@@ -24,7 +24,10 @@ export default {
     name: 'sw-media-upload',
     template,
 
-    inject: ['mediaUploadService', 'mediaService'],
+    inject: [
+        'mediaUploadService',
+        'mediaService'
+    ],
 
     mixins: [
         Mixin.getByName('notification')
@@ -32,8 +35,8 @@ export default {
 
     props: {
         source: {
-            required: false,
             type: Object,
+            required: false,
             default: null
         },
 
@@ -48,34 +51,40 @@ export default {
         },
 
         uploadTag: {
-            required: false,
             type: String,
+            required: false,
             default: util.createId()
         },
 
         allowMultiSelect: {
-            required: false,
             type: Boolean,
+            required: false,
             default: true
         },
 
         label: {
-            required: false,
-            type: String
+            type: String,
+            required: false
         },
 
         scrollTarget: {
-            required: false,
             type: HTMLElement,
+            required: false,
             default: null
         },
 
         defaultFolder: {
-            required: false,
             type: String,
+            required: false,
             validator(value) {
                 return value.length > 0;
             },
+            default: null
+        },
+
+        targetFolderId: {
+            type: String,
+            required: false,
             default: null
         }
     },
@@ -86,7 +95,7 @@ export default {
             showUrlInput: false,
             preview: null,
             isDragActive: false,
-            defaultFolderPromise: Promise.resolve(null),
+            defaultFolderId: null,
             showDuplicatedMediaModal: false,
             errorFiles: [],
             retryBatchAction: null,
@@ -134,7 +143,7 @@ export default {
                 this.$tc('global.sw-media-upload.buttonSwitchToUrlUpload');
         },
 
-        hasOpenSidebarButtonListener() {
+        hasOpenMediaButtonListener() {
             return Object.keys(this.$listeners).includes('sw-media-upload-open-sidebar');
         },
 
@@ -149,6 +158,10 @@ export default {
                 'is--active': this.isDragActive,
                 'is--multi': this.variant === 'regular' && !!this.multiSelect
             };
+        },
+
+        mediaFolderId() {
+            return this.targetFolderId || this.defaultFolderId;
         }
     },
 
@@ -166,16 +179,13 @@ export default {
 
     methods: {
         onCreated() {
-            if (this.defaultFolder !== null) {
-                this.defaultFolderPromise = this.defaultFolderStore.getList({
-                    limit: 1,
-                    criteria: CriteriaFactory.equals('entity', this.defaultFolder)
-                }).then((response) => {
-                    if (response.total !== 1) {
-                        return null;
-                    }
+            if (this.mediaFolderId) {
+                return;
+            }
 
-                    return response.items[0];
+            if (next1207() && this.defaultFolder !== null) {
+                this.getDefaultFolderId().then((targetFolderId) => {
+                    this.defaultFolderId = targetFolderId;
                 });
             }
         },
@@ -272,18 +282,25 @@ export default {
                 this.preview = url;
             }
 
-            this.getMediaEntityForUpload().then((mediaEntity) => {
-                const taskId = this.uploadStore.addUpload(
-                    this.uploadTag,
-                    this.buildUrlUpload(
-                        url,
-                        fileExtension,
-                        mediaEntity
-                    )
-                ).id;
+            const mediaEntity = this.getMediaEntityForUpload();
+            const taskId = this.uploadStore.addUpload(
+                this.uploadTag,
+                this.buildUrlUpload(
+                    url,
+                    fileExtension,
+                    mediaEntity
+                )
+            ).id;
 
-                this.$emit('sw-media-upload-new-uploads-added',
-                    { uploadTag: this.uploadTag, data: [{ entity: mediaEntity, src: url, taskId }] });
+            this.$emit('sw-media-upload-new-uploads-added', {
+                uploadTag: this.uploadTag,
+                data: [
+                    {
+                        entity: mediaEntity,
+                        src: url,
+                        taskId
+                    }
+                ]
             });
 
             this.closeUrlModal();
@@ -322,13 +339,12 @@ export default {
 
             const p = newMediaFiles.reduce((promise, file) => {
                 return promise.then(() => {
-                    return this.getMediaEntityForUpload().then((mediaEntity) => {
-                        const task = this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
-                        data.push({
-                            entity: mediaEntity,
-                            src: file,
-                            taskId: task.id
-                        });
+                    const mediaEntity = this.getMediaEntityForUpload();
+                    const task = this.uploadStore.addUpload(this.uploadTag, this.buildFileUpload(file, mediaEntity));
+                    data.push({
+                        entity: mediaEntity,
+                        src: file,
+                        taskId: task.id
                     });
                 });
             }, Promise.resolve());
@@ -340,65 +356,60 @@ export default {
 
         getMediaEntityForUpload() {
             const mediaItem = this.mediaItemStore.create();
-            if (this.defaultFolder !== null && next1207()) {
-                return this.getDefaultFolderId().then((folderId) => {
-                    mediaItem.mediaFolderId = folderId;
-
-                    return mediaItem;
-                });
+            if (next1207()) {
+                mediaItem.mediaFolderId = this.mediaFolderId;
             }
-
-            return Promise.resolve(mediaItem);
+            return mediaItem;
         },
 
-        getDefaultFolderId() {
-            return this.defaultFolderPromise.then((defaultFolder) => {
-                if (defaultFolder === null) {
-                    return Promise.resolve(null);
+        async getDefaultFolderId() {
+            const { items, total } = await this.defaultFolderStore.getList({
+                limit: 1,
+                criteria: CriteriaFactory.equals('entity', this.defaultFolder),
+                associations: {
+
                 }
-
-                if (defaultFolder.folderId === null) {
-                    return this.createFolder(defaultFolder).then((folder) => {
-                        defaultFolder.folderId = folder.id;
-
-                        return folder.configuration.save()
-                            .then(() => {
-                                return folder.save().then(() => {
-                                    return defaultFolder.folderId;
-                                });
-                            });
-                    });
-                }
-
-                return Promise.resolve(defaultFolder.folderId);
             });
+
+            if (total !== 1) {
+                this.targetFolderId = null;
+                return null;
+            }
+
+            const defaultFolder = items.shift();
+            if (defaultFolder.folder.id) {
+                return defaultFolder.folder.id;
+            }
+
+            return this.createFolder(defaultFolder);
         },
 
         createFolder(defaultFolder) {
-            const folder = this.folderStore.create();
             const entityNameIdentifier = `global.entities.${defaultFolder.entity}`;
-            folder.name = `${this.$tc(entityNameIdentifier)} ${this.$tc('global.entities.media', 2)}`;
+
             const configuration = this.folderConfigurationStore.create();
             configuration.createThumbnails = true;
             configuration.keepProportions = true;
             configuration.thumbnailQuality = 80;
 
-            let promise = Promise.resolve(configuration);
-            if (defaultFolder.thumbnailSizes.length > 0) {
-                promise = this.addThumbnailsToFolderConfig(configuration, defaultFolder);
-            }
+            const folder = this.folderStore.create();
+            folder.name = `${this.$tc(entityNameIdentifier)} ${this.$tc('global.entities.media', 2)}`;
+            folder.configuration = configuration;
+            folder.useParentConfiguration = false;
+            folder.defaultFolderId = defaultFolder.id;
 
-            return promise.then((updatedConfig) => {
-                folder.configuration = updatedConfig;
-                folder.useParentConfiguration = false;
-                folder.defaultFolderId = defaultFolder.id;
-
-                return folder;
+            return folder.save().then(() => {
+                if (defaultFolder.thumbnailSizes.length > 0) {
+                    this.folderConfigurationStore.getByIdAsync(configuration.id).then((refreshed) => {
+                        this.addThumbnailsToFolderConfig(refreshed, defaultFolder);
+                    });
+                }
+                return folder.id;
             });
         },
 
         addThumbnailsToFolderConfig(configuration, defaultFolder) {
-            return this.thumbnailSizesStore.getList({ limit: 50 }).then((response) => {
+            this.thumbnailSizesStore.getList({ limit: 50 }).then((response) => {
                 defaultFolder.thumbnailSizes.forEach((size) => {
                     let thumbnailSize = response.items.find((savedSize) => {
                         return savedSize.width === size.width && savedSize.height === size.height;
@@ -417,7 +428,7 @@ export default {
                     configuration.mediaThumbnailSizes.push(thumbnailSize);
                 });
 
-                return configuration;
+                return configuration.save();
             });
         },
 
@@ -556,21 +567,20 @@ export default {
         },
 
         handleRename(fileExtension, src, newName) {
-            this.getMediaEntityForUpload().then((entity) => {
-                entity.save().then(() => {
-                    if (src instanceof URL) {
-                        this.buildUrlUpload(src, fileExtension, entity, newName)();
-                    } else {
-                        this.buildFileUpload(src, entity, newName)();
-                    }
+            const entity = this.getMediaEntityForUpload();
+            entity.save().then(() => {
+                if (src instanceof URL) {
+                    this.buildUrlUpload(src, fileExtension, entity, newName)();
+                } else {
+                    this.buildFileUpload(src, entity, newName)();
+                }
 
-                    this.$emit('sw-media-upload-new-uploads-added', {
-                        uploadTag: this.uploadTag,
-                        data: [{
-                            entity: entity,
-                            src: src
-                        }]
-                    });
+                this.$emit('sw-media-upload-new-uploads-added', {
+                    uploadTag: this.uploadTag,
+                    data: [{
+                        entity: entity,
+                        src: src
+                    }]
                 });
             });
         },

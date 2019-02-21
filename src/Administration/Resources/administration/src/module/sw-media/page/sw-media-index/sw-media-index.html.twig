@@ -51,6 +51,7 @@
                 {% block sw_media_index_smart_bar_media_upload %}
                     <sw-media-upload
                         variant="compact"
+                        :targetFolderId="routeFolderId"
                         @sw-media-upload-new-uploads-added="onUploadsAdded"
                         @sw-media-upload-media-upload-failure="onUploadFailed"
                         @sw-media-upload-media-upload-success="onUploadFinished">

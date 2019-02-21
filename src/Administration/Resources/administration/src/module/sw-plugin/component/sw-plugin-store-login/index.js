@@ -1,5 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-plugin-store-login.html.twig';
+import './sw-plugin-store-login.scss';
 
 Component.register('sw-plugin-store-login', {
     template,

@@ -28,20 +28,37 @@ It should be easy to setup different environments.
 This guide uses the [development] template from github. The [core] system, that contains most of the code, is pulled
 into `platform` as a composer dependency.
 
-## Hard requirements
+## Requirements
 
-The following software is always required:
-
-- php >= 7.2
-- php extensions: dom, fileinfo, gd, iconv, intl, json, mbstring, pdo, pdo_mysql, phar, simplexml, tokenizer, xml,
+PHP
+-  7.2 or greater
+- `memory_limit` 512M or greater
+- `max_execution_time` 30 seconds or greater
+- Extensions: curl, dom, fileinfo, gd, iconv, intl, json, mbstring, pdo, pdo_mysql, phar, simplexml, tokenizer, xml,
 xmlwriter, zip
-- mysql >= 5.7 or mariadb >= 10.3
-    - Set `group_concat_max_len` to at least `320000`
-- composer >= 1.6
-- nodejs >= 8.10.0
-- npm >= 6.5.0
-- bash
-- a webserver with url rewrite
+- Composer 1.6 or greater
+
+SQL
+- MySQL 5.7.21 or greater
+- MariaDB 10.3 or greater
+    - The mysql configutation `group_concat_max_len` must be set to at least `320000`
+    
+JavaScript
+- Node.js 8.10.0 or greater
+- NPM 6.5.0 or greater
+
+Various
+- Webserver with url rewrite (Apache 2.4 or nginx)
+- Bash
+
+## Recommendations
+
+- Zend Opcache (256M or greater)
+- APCu (128M or greater)
+- Webserver with HTTP2 support
+
+Adminier (https://www.adminer.org/) is our recommended database administration tool since it has better
+support for binary data types.
 
 ## Docker setup
 

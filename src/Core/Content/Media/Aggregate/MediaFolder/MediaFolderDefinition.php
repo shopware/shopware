@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -64,6 +65,7 @@ class MediaFolderDefinition extends EntityDefinition
             new BoolField('use_parent_configuration', 'useParentConfiguration'),
 
             (new FkField('media_folder_configuration_id', 'configurationId', MediaFolderConfigurationDefinition::class))->addFlags(new Required()),
+            new FkField('default_folder_id', 'defaultFolderId', MediaDefaultFolderDefinition::class),
 
             new ParentFkField(self::class),
             new ParentAssociationField(self::class, false),
@@ -72,7 +74,7 @@ class MediaFolderDefinition extends EntityDefinition
             new ChildCountField(),
 
             new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id', false),
-            new OneToManyAssociationField('defaultFolders', MediaDefaultFolderDefinition::class, 'media_folder_id', false),
+            new OneToOneAssociationField('defaultFolder', 'default_folder_id', 'id', MediaDefaultFolderDefinition::class, true),
             new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, true),
 
             (new StringField('name', 'name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),

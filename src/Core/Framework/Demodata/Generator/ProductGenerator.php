@@ -303,6 +303,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('entity', 'product'));
+        $criteria->addAssociation('folder', new Criteria());
         $criteria->setLimit(1);
 
         $defaultFolders = $this->defaultFolderRepository->search($criteria, $context->getContext());
@@ -311,8 +312,8 @@ class ProductGenerator implements DemodataGeneratorInterface
             /** @var MediaDefaultFolderEntity $defaultFolder */
             $defaultFolder = $defaultFolders->first();
 
-            if ($defaultFolder->getFolderId()) {
-                return $defaultFolder->getFolderId();
+            if ($defaultFolder->getFolder()) {
+                return $defaultFolder->getFolder()->getId();
             }
 
             $mediaFolderId = Uuid::uuid4()->getHex();
@@ -321,6 +322,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                     'id' => $defaultFolder->getId(),
                     'folder' => [
                         'id' => $mediaFolderId,
+                        'defaultFolderId' => $defaultFolder->getId(),
                         'name' => 'Product Media',
                         'useParentConfiguration' => false,
                         'configuration' => [],

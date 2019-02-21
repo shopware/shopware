@@ -9,9 +9,7 @@ Flags are attributes to a field in a definition. They provide additional informa
 | Class | Purpose |
 |---|---|
 | PrimaryKey | The field is part of the primary key for this entity |
-| ReadOnly | The field cannot be written and will be ignored. The value is read-only. |
-| WriteOnly | The field will not be loaded and is not part of the struct. It can only be written. |
-| WriteProtected | Writing to this field is only allowed if the context carries the flag's name |
+| WriteProtected | Writing to this field is only allowed if the configured context is given |
 | Deferred | The value of the field won't be hydrated by the DataAbstractionLayer and must be filled in manually via [extensions](./4-extensions.md). |
 | Extension | The value of the field will be handled as an extension and gets a data struct in the main struct. |
 | Required | The field is required when creating the entity. |
@@ -51,44 +49,24 @@ The field is part of the primary key for this entity.
 
 This flag does not have any parameters.
 
-### ReadOnly
-
-```php
-(new IdField('id', 'id'))->addFlags(new ReadOnly())
-```
-
-Fields with this flag cannot be written.
-
-This flag does not have any parameters.
-
-### WriteOnly
-
-```php
-(new IdField('id', 'id'))->addFlags(new WriteOnly())
-```
-
-Fields with this flag cannot be read and are not part of any struct of the entity.
-
-This flag does not have any parameters.
-
 ### WriteProtected
 
 ```php
-(new StringField('file_extension', 'fileExtension'))->addFlags(new WriteProtected('permission_key_example'))
+(new StringField('file_extension', 'fileExtension'))->addFlags(new WriteProtected(SourceContext::SYSTEM))
 ```
 
 In some cases, you want to restrict the write access to individual fields, so that they can't be manipulated. For example, if you have to
 run some custom logic before you can update a field's value.
 
-This can be accomplished with the `WriteProtected` flag. If you add this flag, you have to define a permission key, that has to be set
-in the write-protection extension of the write operations context.
+This can be accomplished with the `WriteProtected` flag. If you add this flag, you have to define the source context, that the call needs to be.
+
+You can temporarily change your context and execute your code:
 
 ```php
-$context->getExtension('write_protection')->set('permission_key_example', true);
+$context->scope(SourceContext::SYSTEM, function (Context $context) {
+    // do stuff in SYSTEM context
+});
 ```
-
-If the defined permission key is not set in the context's `write_protection` extension, the DataAbstractionLayer will throw
-a `InsufficientWritePermissionException` exception.
 
 ### Deferred
 

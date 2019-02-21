@@ -1195,17 +1195,6 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ChildCountFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
-            <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ChildrenAssociationFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
@@ -1239,12 +1228,6 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TreeLevelFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
-            <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
@@ -1253,12 +1236,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
-            <argument type="service" id="validator"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TreePathFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
             <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>
@@ -1292,17 +1269,12 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ComputedFieldSerializer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlobFieldSerializer">
             <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToManyAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentFieldSerializer">
-            <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
@@ -1327,11 +1299,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer">
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\SearchKeywordAssociationFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
@@ -1361,25 +1328,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer">
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ParentAssociationFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlacklistRuleFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
-            <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\WhitelistRuleFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
-            <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
             <tag name="shopware.field_serializer"/>
         </service>
 

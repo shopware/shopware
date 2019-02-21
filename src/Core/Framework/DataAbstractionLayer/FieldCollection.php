@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\Struct\Collection;
 
 class FieldCollection extends Collection
@@ -58,13 +57,6 @@ class FieldCollection extends Collection
                 return true;
             }
         );
-    }
-
-    public function getWritableFields(): self
-    {
-        return $this->filter(function (Field $field) {
-            return !$field->is(ReadOnly::class);
-        });
     }
 
     public function getByStorageName(string $storageName): ?Field

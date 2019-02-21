@@ -45,9 +45,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 
@@ -106,7 +106,7 @@ class ProductDefinition extends EntityDefinition
             new BlacklistRuleField(),
             new WhitelistRuleField(),
 
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
 
             //not inherited fields
             new BoolField('active', 'active'),
@@ -126,7 +126,7 @@ class ProductDefinition extends EntityDefinition
 
             //inherited data fields
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
-            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new ReadOnly()),
+            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new WriteProtected()),
 
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
@@ -148,7 +148,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('length', 'length'))->addFlags(new Inherited()),
             (new BoolField('allow_notification', 'allowNotification'))->addFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->addFlags(new Inherited()),
-            (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new Inherited(), new ReadOnly()),
+            (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new Inherited(), new WriteProtected()),
             (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->addFlags(new Inherited()),
             new ListField('variation_ids', 'variationIds', IdField::class),
             (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
@@ -188,7 +188,7 @@ class ProductDefinition extends EntityDefinition
             new SearchKeywordAssociationField(),
 
             //not inherited associations
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new ReadOnly()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new Inherited(), new Required()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->addFlags(new CascadeDelete()),

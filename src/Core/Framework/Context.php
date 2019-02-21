@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Struct\ProtectionStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Context extends Struct
@@ -38,16 +37,6 @@ class Context extends Struct
      */
     protected $rules;
 
-    /**
-     * @var ProtectionStruct
-     */
-    protected $writeProtection;
-
-    /**
-     * @var ProtectionStruct
-     */
-    protected $deleteProtection;
-
     public function __construct(
         SourceContext $sourceContext,
         array $rules = [],
@@ -67,14 +56,11 @@ class Context extends Struct
             throw new \InvalidArgumentException('languageIdChain may not be empty');
         }
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
-
-        $this->writeProtection = new ProtectionStruct();
-        $this->deleteProtection = new ProtectionStruct();
     }
 
     public static function createDefaultContext(): self
     {
-        return new self(new SourceContext('cli'));
+        return new self(new SourceContext());
     }
 
     public function getSourceContext(): SourceContext
@@ -126,20 +112,17 @@ class Context extends Struct
         foreach ($this->getExtensions() as $key => $extension) {
             $context->addExtension($key, $extension);
         }
-        $context->getWriteProtection()->allow(
-            ...$this->getWriteProtection()->all()
-        );
 
         return $context;
     }
 
-    public function getWriteProtection(): ProtectionStruct
+    public function scope(string $origin, callable $callback): void
     {
-        return $this->writeProtection;
-    }
+        $currentScope = $this->sourceContext->getOrigin();
+        $this->sourceContext->setOrigin($origin);
 
-    public function getDeleteProtection(): ProtectionStruct
-    {
-        return $this->deleteProtection;
+        $callback($this);
+
+        $this->sourceContext->setOrigin($currentScope);
     }
 }

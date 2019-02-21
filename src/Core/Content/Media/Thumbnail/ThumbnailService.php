@@ -11,7 +11,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeE
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -179,7 +178,12 @@ class ThumbnailService
             }
             imagedestroy($mediaImage);
         } finally {
-            $this->persistThumbnailData($media, $savedThumbnails, $context);
+            $mediaData = [
+                'id' => $media->getId(),
+                'thumbnails' => $savedThumbnails,
+            ];
+
+            $this->mediaRepository->update([$mediaData], $context);
 
             return count($savedThumbnails);
         }
@@ -309,23 +313,6 @@ class ThumbnailService
 
         if ($this->fileSystem->put($url, $imageFile) === false) {
             throw new ThumbnailCouldNotBeSavedException($url);
-        }
-    }
-
-    private function persistThumbnailData(MediaEntity $media, array $savedThumbnails, Context $context): void
-    {
-        $mediaData = [
-            'id' => $media->getId(),
-            'thumbnails' => $savedThumbnails,
-        ];
-
-        $wereThumbnailsWritable = $context->getWriteProtection()->isAllowed(MediaProtectionFlags::WRITE_THUMBNAILS);
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
-
-        $this->mediaRepository->update([$mediaData], $context);
-
-        if (!$wereThumbnailsWritable) {
-            $context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
         }
     }
 

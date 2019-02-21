@@ -10,10 +10,10 @@ use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
-use Shopware\Core\Content\Media\Metadata\MetadataUpdater;
+use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
+use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -60,7 +60,6 @@ class FileSaverTest extends TestCase
         $mediaId = Uuid::uuid4()->getHex();
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->mediaRepository->create(
             [
@@ -98,7 +97,6 @@ class FileSaverTest extends TestCase
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->setFixtureContext($context);
         $media = $this->getTxt();
@@ -137,7 +135,6 @@ class FileSaverTest extends TestCase
         $mediaId = Uuid::uuid4()->getHex();
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->mediaRepository->create(
             [
@@ -169,7 +166,6 @@ class FileSaverTest extends TestCase
     public function testPersistFileToMediaDoesNotAddSuffixOnReplacement(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->setFixtureContext($context);
         $png = $this->getPng();
@@ -203,7 +199,6 @@ class FileSaverTest extends TestCase
         $this->expectException(DuplicatedMediaFileNameException::class);
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->setFixtureContext($context);
         $png = $this->getPng();
@@ -239,7 +234,6 @@ class FileSaverTest extends TestCase
     public function testPersistFileToMediaAcceptsSameNameWithDifferentExtension(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->setFixtureContext($context);
         $jpg = $this->getJpg();
@@ -284,7 +278,6 @@ class FileSaverTest extends TestCase
         }
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->setFixtureContext($context);
         $png = $this->getPng();
@@ -341,7 +334,6 @@ class FileSaverTest extends TestCase
         $this->expectException(DuplicatedMediaFileNameException::class);
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->setFixtureContext($context);
 
         $png = $this->getPng();
@@ -353,7 +345,6 @@ class FileSaverTest extends TestCase
     public function testRenameMediaForNewExtensionWorksWithSameName(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->setFixtureContext($context);
 
         $png = $this->getPng();
@@ -372,8 +363,6 @@ class FileSaverTest extends TestCase
     public function testRenameMediaDoesSkipIfOldFileNameEqualsNewOne(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
         $this->setFixtureContext($context);
 
         $png = $this->getPng();
@@ -387,8 +376,6 @@ class FileSaverTest extends TestCase
     public function testRenameMediaRenamesOldFileAndThumbnails(): void
     {
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
         $this->setFixtureContext($context);
 
         $png = $this->getPng();
@@ -422,7 +409,6 @@ class FileSaverTest extends TestCase
         $this->expectException(CouldNotRenameFileException::class);
 
         $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $this->setFixtureContext($context);
         $png = $this->getPng();
 
@@ -443,7 +429,8 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get('shopware.filesystem.public'),
             $this->getContainer()->get(UrlGeneratorInterface::class),
             $this->getContainer()->get(ThumbnailService::class),
-            $this->getContainer()->get(MetadataUpdater::class),
+            $this->getContainer()->get(MetadataLoader::class),
+            $this->getContainer()->get(TypeDetector::class),
             $this->getContainer()->get('messenger.bus.shopware')
         );
 

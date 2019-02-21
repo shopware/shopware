@@ -15,9 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\VersionDefinition;
 
@@ -31,11 +31,6 @@ class VersionCommitDefinition extends EntityDefinition
     public static function isVersionAware(): bool
     {
         return false;
-    }
-
-    public static function getDeleteProtectionKey(): ?string
-    {
-        return 'entity.version_commit';
     }
 
     public static function getCollectionClass(): string
@@ -68,7 +63,7 @@ class VersionCommitDefinition extends EntityDefinition
             (new FkField('version_id', 'versionId', VersionDefinition::class))->addFlags(new Required()),
             new IdField('user_id', 'userId'),
             new IdField('integration_id', 'integrationId'),
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
             new BoolField('is_merge', 'isMerge'),
             (new StringField('message', 'message'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),

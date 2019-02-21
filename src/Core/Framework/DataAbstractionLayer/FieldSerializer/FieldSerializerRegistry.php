@@ -32,34 +32,17 @@ class FieldSerializerRegistry
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $class = get_class($field);
-
-        $serializers = $this->getSerializers();
-
-        if (!isset($serializers[$class])) {
-            throw new MissingFieldSerializerException($field);
-        }
-
-        $serializer = $serializers[$class];
-
-        yield from $serializer->encode($field, $existence, $data, $parameters);
+        yield from $this->getSerializer($field)->encode($field, $existence, $data, $parameters);
     }
 
     public function decode(Field $field, $value)
     {
-        $class = get_class($field);
-
-        $serializers = $this->getSerializers();
-
-        if (!isset($serializers[$class])) {
-            throw new MissingFieldSerializerException($field);
-        }
-
-        $serializer = $serializers[$class];
-
-        return $serializer->decode($field, $value);
+        return $this->getSerializer($field)->decode($field, $value);
     }
 
+    /**
+     * @return FieldSerializerInterface[]
+     */
     private function getSerializers(): array
     {
         if ($this->mapped === null) {
@@ -72,5 +55,36 @@ class FieldSerializerRegistry
         }
 
         return $this->mapped;
+    }
+
+    private function getSerializer(Field $field): FieldSerializerInterface
+    {
+        $class = get_class($field);
+
+        $serializers = $this->getSerializers();
+        $serializer = $serializers[$class] ?? null;
+
+        if (!$serializer) {
+            $serializer = $this->findInheritSerializer($field);
+
+            if (!$serializer) {
+                throw new MissingFieldSerializerException($field);
+            }
+        }
+
+        return $serializer;
+    }
+
+    private function findInheritSerializer(Field $field): ?FieldSerializerInterface
+    {
+        $serializers = $this->getSerializers();
+
+        foreach ($serializers as $serializer) {
+            if (is_subclass_of($field, $serializer->getFieldClass())) {
+                return $this->mapped[get_class($field)] = $serializer;
+            }
+        }
+
+        return null;
     }
 }

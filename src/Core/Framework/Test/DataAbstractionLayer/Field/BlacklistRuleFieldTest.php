@@ -794,7 +794,7 @@ class BlacklistRuleFieldTest extends TestCase
 
     private function createContextWithRules(array $ruleIds = []): Context
     {
-        $source = new SourceContext('cli');
+        $source = new SourceContext();
         $source->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         return new Context($source, $ruleIds);

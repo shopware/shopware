@@ -197,11 +197,6 @@ abstract class EntityDefinition
         return static::getFields()->has('versionId');
     }
 
-    public static function getDeleteProtectionKey(): ?string
-    {
-        return null;
-    }
-
     public static function isBlacklistAware(): bool
     {
         return static::getFields()->has('blacklistIds');

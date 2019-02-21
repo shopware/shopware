@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -45,7 +44,6 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $context->getContext()->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
         $context->getConsole()->progressStart($numberOfItems);
 
         $writeContext = WriteContext::createFromContext($context->getContext());

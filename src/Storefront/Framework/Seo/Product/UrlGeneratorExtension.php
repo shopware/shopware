@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Storefront\Framework\Seo\SeoUrlDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrlEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -28,7 +28,7 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new StringField('url', 'url'))->addFlags(new Deferred(), new ReadOnly())
+            (new StringField('url', 'url'))->addFlags(new Deferred(), new WriteProtected())
         );
     }
 

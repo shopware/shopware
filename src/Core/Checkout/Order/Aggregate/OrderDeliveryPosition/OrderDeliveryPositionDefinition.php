@@ -17,8 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
 class OrderDeliveryPositionDefinition extends EntityDefinition
@@ -56,9 +56,9 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
             (new ReferenceVersionField(OrderLineItemDefinition::class))->addFlags(new Required()),
 
             new CalculatedPriceField('price', 'price'),
-            (new FloatField('unit_price', 'unitPrice'))->addFlags(new ReadOnly()),
-            (new FloatField('total_price', 'totalPrice'))->addFlags(new ReadOnly()),
-            (new IntField('quantity', 'quantity'))->addFlags(new ReadOnly()),
+            (new FloatField('unit_price', 'unitPrice'))->addFlags(new Computed()),
+            (new FloatField('total_price', 'totalPrice'))->addFlags(new Computed()),
+            (new IntField('quantity', 'quantity'))->addFlags(new Computed()),
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),

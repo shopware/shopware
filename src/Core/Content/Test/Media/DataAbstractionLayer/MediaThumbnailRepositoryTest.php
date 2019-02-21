@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -66,11 +65,6 @@ class MediaThumbnailRepositoryTest extends TestCase
 
     private function createThumbnailWithMedia($mediaId): MediaEntity
     {
-        $this->context->getWriteProtection()->allow(
-            MediaProtectionFlags::WRITE_META_INFO,
-            MediaProtectionFlags::WRITE_THUMBNAILS
-        );
-
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,
@@ -87,9 +81,6 @@ class MediaThumbnailRepositoryTest extends TestCase
                 ],
             ],
         ], $this->context);
-
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_META_INFO);
-        $this->context->getWriteProtection()->disallow(MediaProtectionFlags::WRITE_THUMBNAILS);
 
         return $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
     }

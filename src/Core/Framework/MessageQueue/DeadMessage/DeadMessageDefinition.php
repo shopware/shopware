@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ComputedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
@@ -50,7 +51,7 @@ class DeadMessageDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             (new LongTextField('original_message_class', 'originalMessageClass'))->setFlags(new Required()),
-            new ComputedField('serialized_original_message', 'serializedOriginalMessage'),
+            (new BlobField('serialized_original_message', 'serializedOriginalMessage'))->addFlags(new Internal()),
             (new LongTextField('handler_class', 'handlerClass'))->setFlags(new Required()),
             (new BoolField('encrypted', 'encrypted'))->setFlags(new Required()),
 

@@ -50,6 +50,7 @@ CREATE TABLE `_test_nullable_translation` (
   `_test_nullable_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
   `protected` varchar(255) NULL,
+  `system_protected` varchar(255) NULL,
   `created_at` datetime(3) NOT NULL,
   `updated_at` datetime(3),
   PRIMARY KEY `pk` (`_test_nullable_id`, `language_id`)
@@ -58,7 +59,9 @@ CREATE TABLE `_test_nullable_translation` (
 CREATE TABLE `_test_nullable` (
   `id` binary(16) NOT NULL,
   `relation_id` binary(16) NULL,
+  `system_relation_id` binary(16) NULL,
   `protected` varchar(255) NULL,
+  `system_protected` varchar(255) NULL,
   PRIMARY KEY `id` (`id`),
   FOREIGN KEY `fk` (`relation_id`) REFERENCES _test_relation (`id`)
 );
@@ -126,11 +129,10 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
-            'protected' => 'foobar',
+            'systemProtected' => 'foobar',
         ];
 
         $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
@@ -139,7 +141,7 @@ EOF;
 
         static::assertCount(1, $data);
         static::assertEquals($id->getBytes(), $data[0]['id']);
-        static::assertEquals('foobar', $data[0]['protected']);
+        static::assertEquals('foobar', $data[0]['system_protected']);
     }
 
     public function testWriteManyToOneWithoutPermission(): void
@@ -173,11 +175,10 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
-            'relation' => [
+            'systemRelation' => [
                 'id' => $id->getHex(),
             ],
         ];
@@ -188,7 +189,7 @@ EOF;
 
         static::assertCount(1, $data);
         static::assertEquals($id->getBytes(), $data[0]['id']);
-        static::assertEquals($id->getBytes(), $data[0]['relation_id']);
+        static::assertEquals($id->getBytes(), $data[0]['system_relation_id']);
     }
 
     public function testWriteOneToManyWithoutPermission(): void
@@ -224,13 +225,12 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
-            'wp' => [
+            'systemWp' => [
                 [
-                    'protected' => 'foobar',
+                    'systemProtected' => 'foobar',
                     'relationId' => $id->getHex(),
                 ],
             ],
@@ -279,11 +279,10 @@ EOF;
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
-            'relations' => [
+            'systemRelations' => [
                 [
                     'id' => $id2->getHex(),
                 ],
@@ -328,11 +327,10 @@ EOF;
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
-        $context->getContext()->getWriteProtection()->allow('WriteProtected');
 
         $data = [
             'id' => $id->getHex(),
-            'protected' => 'foobar',
+            'systemProtected' => 'foobar',
         ];
 
         $this->getWriter()->insert(WriteProtectedTranslatedDefinition::class, [$data], $context);
@@ -341,14 +339,12 @@ EOF;
 
         static::assertCount(1, $data);
         static::assertEquals($id->getBytes(), $data[0]['_test_nullable_id']);
-        static::assertEquals('foobar', $data[0]['protected']);
+        static::assertEquals('foobar', $data[0]['system_protected']);
     }
 
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromContext(Context::createDefaultContext());
-
-        return $context;
+        return WriteContext::createFromContext(Context::createDefaultContext());
     }
 
     private function getWriter(): EntityWriterInterface

@@ -28,11 +28,6 @@ class VersionDefinition extends EntityDefinition
         return false;
     }
 
-    public static function getDeleteProtectionKey(): ?string
-    {
-        return 'entity.version';
-    }
-
     public static function getCollectionClass(): string
     {
         return VersionCollection::class;

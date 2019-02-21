@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Media;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator;
 use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,7 +30,6 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $this->mediaRepo = $this->getContainer()->get('media.repository');
 
         $this->context = Context::createDefaultContext();
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
 
         $this->deleteMediaService = new DeleteNotUsedMediaService(
             $this->mediaRepo,

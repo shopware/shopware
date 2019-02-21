@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media\Commands;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -41,7 +40,6 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $this->deleteMediaCommand = $this->getContainer()->get(DeleteNotUsedMediaCommand::class);
 
         $this->context = Context::createDefaultContext();
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
     }
 
     public function testExecuteWithoutUnsusedMediaFiles(): void

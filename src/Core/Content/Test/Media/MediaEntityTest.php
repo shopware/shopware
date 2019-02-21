@@ -7,12 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaEntityTest extends TestCase
@@ -47,24 +45,8 @@ class MediaEntityTest extends TestCase
         static::assertEquals($media->getId(), $media->getId());
     }
 
-    public function testMimeTypeIsWriteProtected(): void
-    {
-        $this->expectException(WriteStackException::class);
-        $this->getPngWithoutExtension();
-    }
-
-    public function testThumbnailsIsWriteProtected(): void
-    {
-        $this->expectException(WriteStackException::class);
-
-        $this->setFixtureContext($this->context);
-        $this->getMediaWithThumbnail();
-    }
-
     public function testThumbnailsAreConvertedToStructWhenFetchedFromDb(): void
     {
-        $this->context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_THUMBNAILS);
-
         $this->setFixtureContext($this->context);
         $media = $this->getMediaWithThumbnail();
 

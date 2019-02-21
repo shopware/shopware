@@ -98,7 +98,6 @@ and their properties:
     * currencyFactor
     * rules
     * writeProtection
-    * deleteProtection
 
 For the sake of completeness, there is an even more comprehensive context called `CheckoutContext`
 which is not part of the getting started guide.

@@ -20,7 +20,6 @@ class WriteProtectedReferenceDefinition extends MappingEntityDefinition
     {
         return new FieldCollection([
             (new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
             new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, false),

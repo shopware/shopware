@@ -3,11 +3,9 @@
 namespace Shopware\Core\Content\Test\Media;
 
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaProtectionFlags;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Test\EntityFixturesBase;
 
@@ -197,14 +195,6 @@ trait MediaFixtures
                 ],
             ],
         ];
-    }
-
-    public function getContextWithWriteAccess(): Context
-    {
-        $context = Context::createDefaultContext();
-        $context->getWriteProtection()->allow(MediaProtectionFlags::WRITE_META_INFO);
-
-        return $context;
     }
 
     public function getEmptyMedia(): MediaEntity

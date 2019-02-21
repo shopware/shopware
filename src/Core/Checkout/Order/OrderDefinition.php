@@ -28,9 +28,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
@@ -58,7 +58,7 @@ class OrderDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
 
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new Required()),
@@ -73,13 +73,13 @@ class OrderDefinition extends EntityDefinition
             (new DateField('date', 'date'))->addFlags(new Required()),
 
             new CartPriceField('price', 'price'),
-            (new FloatField('amount_total', 'amountTotal'))->addFlags(new ReadOnly()),
-            (new FloatField('amount_net', 'amountNet'))->addFlags(new ReadOnly()),
-            (new FloatField('position_price', 'positionPrice'))->addFlags(new ReadOnly()),
-            (new StringField('tax_status', 'taxStatus'))->addFlags(new ReadOnly()),
+            (new FloatField('amount_total', 'amountTotal'))->addFlags(new WriteProtected()),
+            (new FloatField('amount_net', 'amountNet'))->addFlags(new WriteProtected()),
+            (new FloatField('position_price', 'positionPrice'))->addFlags(new WriteProtected()),
+            (new StringField('tax_status', 'taxStatus'))->addFlags(new WriteProtected()),
 
             new CalculatedPriceField('shipping_costs', 'shippingCosts'),
-            (new FloatField('shipping_total', 'shippingTotal'))->addFlags(new ReadOnly()),
+            (new FloatField('shipping_total', 'shippingTotal'))->addFlags(new WriteProtected()),
             (new FloatField('currency_factor', 'currencyFactor'))->addFlags(new Required()),
             new StringField('deep_link_code', 'deepLinkCode'),
 

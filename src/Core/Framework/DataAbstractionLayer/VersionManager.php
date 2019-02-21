@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -31,7 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
@@ -229,21 +230,13 @@ class VersionManager
                         $id = $data->getEntityId();
                         $id = $this->addVersionToPayload($id, $dataDefinition, Defaults::LIVE_VERSION);
 
-                        if ($deleteProtectionKey = $dataDefinition::getDeleteProtectionKey()) {
-                            $liveContext->getContext()->getDeleteProtection()->allow($deleteProtectionKey);
-                        }
-
                         $deletedEvents[] = $this->entityWriter->delete($dataDefinition, [$id], $liveContext);
 
                         break;
                 }
             }
 
-            $liveContext->getContext()->getDeleteProtection()->allow(VersionCommitDefinition::getDeleteProtectionKey());
-
             $this->entityWriter->delete(VersionCommitDefinition::class, [['id' => $commit->getId()]], $liveContext);
-
-            $liveContext->getContext()->getDeleteProtection()->disallow(VersionCommitDefinition::getDeleteProtectionKey());
         }
 
         $newData = array_map(function (VersionCommitDataEntity $data) {
@@ -276,10 +269,7 @@ class VersionManager
         ];
 
         $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
-
-        $writeContext->getContext()->getDeleteProtection()->allow(VersionDefinition::getDeleteProtectionKey());
         $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $writeContext);
-        $writeContext->getContext()->getDeleteProtection()->disallow(VersionDefinition::getDeleteProtectionKey());
 
         foreach ($entities as $entity) {
             // this entity will be deleted because of it's constraint
@@ -292,19 +282,7 @@ class VersionManager
             $primary = $entity['primary'];
             $primary = $this->addVersionToPayload($primary, $definition, $versionId);
 
-            $wasDeletionAllowed = false;
-            $deleteProtectionKey = $definition::getDeleteProtectionKey();
-
-            if ($deleteProtectionKey) {
-                $wasDeletionAllowed = $writeContext->getContext()->getDeleteProtection()->isAllowed($deleteProtectionKey);
-                $writeContext->getContext()->getDeleteProtection()->allow(VersionDefinition::getDeleteProtectionKey());
-            }
-
             $this->entityWriter->delete($definition, [$primary], $versionContext);
-
-            if ($deleteProtectionKey && !$wasDeletionAllowed) {
-                $writeContext->getContext()->getDeleteProtection()->disallow($deleteProtectionKey);
-            }
         }
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($writtenEvents, $liveContext->getContext(), []);
@@ -339,7 +317,7 @@ class VersionManager
 
         $keepIds = $newId === $id;
 
-        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition);
+        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -347,22 +325,22 @@ class VersionManager
         return $this->entityWriter->insert($definition, [$data], $versionContext);
     }
 
-    private function filterPropertiesForClone(string $definition, array $data, bool $keepIds, string $cloneId, string $cloneDefinition): array
+    private function filterPropertiesForClone(string $definition, array $data, bool $keepIds, string $cloneId, string $cloneDefinition, Context $context): array
     {
         $extensions = [];
         $payload = [];
 
         /** @var string|EntityDefinition $definition */
-
-        /** @var FieldCollection $fields */
-        $fields = $definition::getFields()->filter(
-            function (Field $field) {
-                return !$field->is(ReadOnly::class);
-            }
-        );
+        $fields = $definition::getFields();
 
         /** @var Field $field */
         foreach ($fields as $field) {
+            /** @var WriteProtected|null $writeProtection */
+            $writeProtection = $field->getFlag(WriteProtected::class);
+            if ($writeProtection && !$writeProtection->isAllowed($context->getSourceContext()->getOrigin())) {
+                continue;
+            }
+
             //set data and payload cursor to root or extensions to simplify following if conditions
             $dataCursor = &$data;
 
@@ -374,7 +352,7 @@ class VersionManager
 
             if ($field->is(Extension::class)) {
                 $dataCursor = $data['extensions'];
-                $payloadCursor = $extensions;
+                $payloadCursor = &$extensions;
             }
 
             if (!array_key_exists($field->getPropertyName(), $dataCursor)) {
@@ -415,7 +393,7 @@ class VersionManager
             if ($field instanceof OneToManyAssociationField) {
                 $nested = [];
                 foreach ($value as $item) {
-                    $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $item, $keepIds, $cloneId, $cloneDefinition);
+                    $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $item, $keepIds, $cloneId, $cloneDefinition, $context);
 
                     if (!$keepIds) {
                         $nestedItem = $this->removePrimaryKey($field, $nestedItem);
@@ -452,7 +430,7 @@ class VersionManager
             }
 
             if ($field instanceof OneToOneAssociationField && $value) {
-                $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $value, $keepIds, $cloneId, $cloneDefinition);
+                $nestedItem = $this->filterPropertiesForClone($field->getReferenceClass(), $value, $keepIds, $cloneId, $cloneDefinition, $context);
 
                 if (!$keepIds) {
                     $nestedItem = $this->removePrimaryKey($field, $nestedItem);

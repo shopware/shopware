@@ -18,23 +18,11 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
             const values = [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: 'true',
-                    meta: {
-                        viewData: {
-                            label: this.$tc('global.sw-condition.condition.yes'),
-                            value: this.$tc('global.sw-condition.condition.yes')
-                        }
-                    }
+                    value: 'true'
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: 'false',
-                    meta: {
-                        viewData: {
-                            label: this.$tc('global.sw-condition.condition.no'),
-                            value: this.$tc('global.sw-condition.condition.no')
-                        }
-                    }
+                    value: 'false'
                 }
             ];
 
@@ -53,14 +41,14 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
     watch: {
         isDifferent: {
             handler(newValue) {
-                this.condition.value.isDifferent = newValue === 'true';
+                this.condition.value.isDifferent = newValue === String(true);
             }
         }
     },
 
     data() {
         return {
-            isDifferent: String(this.condition.value.isDifferent)
+            isDifferent: this.condition.value.isDifferent ? String(this.condition.value.isDifferent) : String(true)
         };
     }
 });

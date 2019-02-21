@@ -56,13 +56,12 @@ export default class LocalStore {
      */
     getList(params) {
         return new Promise((resolve) => {
-            console.log('store', this.store, params);
             let store = Object.values(this.store);
             if (params.term) {
                 const searchTerm = params.term.toLowerCase();
-                store = store.filter((value) => {
-                    return value[this.propertyName].toLowerCase().includes(searchTerm)
-                    || value.meta.viewData[this.propertyName].toLowerCase().includes(searchTerm);
+                store = store.filter(value => {
+                    return this.objectPropertiesContains(value, searchTerm)
+                        || String(value.meta.viewData[this.propertyName]).toLowerCase().includes(searchTerm);
                 });
             }
 
@@ -86,6 +85,13 @@ export default class LocalStore {
             }
             resolve({ items: store, total: Object.keys(this.store).length, aggregations: [] });
         });
+    }
+
+    objectPropertiesContains(object, searchTerm) {
+        return Object.keys(object).filter(key => {
+            return typeof object[key] !== 'object'
+                && String(object[key]).toLowerCase().includes(searchTerm);
+        }).length;
     }
 
     filterResults(store, query) {

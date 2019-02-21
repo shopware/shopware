@@ -206,7 +206,7 @@ Component.register('sw-media-library', {
                         term: this.term
                     };
 
-                    return this.mediaLoader.next(Object.assign({}, this.sortings, criteria)).then((items) => {
+                    return this.mediaLoader.next(Object.assign({}, this.sorting, criteria)).then((items) => {
                         this.items.push(...items);
                         this.done = this.mediaLoader.done;
                     });

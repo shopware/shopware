@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -272,8 +273,16 @@ class EntityReader implements EntityReaderInterface
                 //contains the alias for the resolved field (eg. `product.name`)
                 $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName());
 
-                //add selection for resolved parent-child inheritance field
-                $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
+                if ($field instanceof AttributesField) {
+                    //add selection for resolved parent-child inheritance field for attribute field
+                    $query->addSelect(sprintf(
+                        'IF(%s IS NULL, %s, IF(%s IS NULL, %s, JSON_MERGE(%s, %s))) as %s',
+                        $parentAccessor, $childAccessor, $childAccessor, $parentAccessor, $parentAccessor, $childAccessor, $fieldAlias
+                    ));
+                } else {
+                    //add selection for resolved parent-child inheritance field
+                    $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
+                }
 
                 //add selection for raw child value
                 $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.raw');

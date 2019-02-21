@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Field
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -199,7 +200,7 @@ class EntityDefinitionQueryHelper
         $field = $fields->get($associationKey);
 
         //case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
-        if (!$field instanceof AssociationInterface && $field instanceof StorageAware) {
+        if (!$field instanceof AssociationInterface && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
 
@@ -419,7 +420,7 @@ class EntityDefinitionQueryHelper
 
             //add selection for resolved parent-child and language inheritance
             $query->addSelect(
-                $this->getTranslationFieldAccessor($field->getStorageName(), $chain)
+                $this->getTranslationFieldSelectExpr($field, $chain)
                 . ' as ' .
                 self::escape($root . '.' . $field->getPropertyName())
             );
@@ -564,18 +565,50 @@ class EntityDefinitionQueryHelper
         $query->andWhere('(' . implode(' OR ', $conditions) . ')');
     }
 
-    private function getTranslationFieldAccessor(string $storageName, array $chain): string
+    private function getTranslationFieldSelectExpr(StorageAware $field, array $chain): string
     {
         if (\count($chain) === 1) {
-            return self::escape($chain[0]['alias']) . '.' . self::escape($storageName);
+            return self::escape($chain[0]['alias']) . '.' . self::escape($field->getStorageName());
         }
 
         $chainSelect = [];
         foreach ($chain as $part) {
-            $chainSelect[] = self::escape($part['alias']) . '.' . self::escape($storageName);
+            $chainSelect[] = self::escape($part['alias']) . '.' . self::escape($field->getStorageName());
         }
 
-        return sprintf('COALESCE(%s)', implode(',', $chainSelect));
+        if (!$field instanceof AttributesField) {
+            return sprintf('COALESCE(%s)', implode(',', $chainSelect));
+        }
+
+        $parts = [];
+        foreach ($chainSelect as $select) {
+            $parts[] = 'IFNULL(' . $select . ', "{}")';
+        }
+
+        return sprintf('JSON_MERGE(%s)', implode(',', array_reverse($parts)));
+    }
+
+    private function getTranslationFieldAccessor(Field $field, string $accessor, array $chain, Context $context): string
+    {
+        $sqlExps = [];
+        foreach ($chain as $part) {
+            $sqlExps[] = $this->buildFieldSelector(
+                $part['alias'],
+                $field,
+                $context,
+                $accessor
+            );
+        }
+
+        /*
+         * Simplified Example:
+         * COALESCE(
+             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation`.`translated_attributes`, '$.path')) AS datetime(3), # child language
+             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.fallback_1`.`translated_attributes`, '$.path')) AS datetime(3), # root language
+             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.fallback_2`.`translated_attributes`, '$.path')) AS datetime(3) # system language
+           );
+         */
+        return sprintf('COALESCE(%s)', implode(',', $sqlExps));
     }
 
     private function buildInheritedAccessor(Field $field, string $root, string $definition, Context $context, string $original): string
@@ -586,7 +619,7 @@ class EntityDefinitionQueryHelper
             /** @var Field|StorageAware $translatedField */
             $translatedField = self::getTranslatedField($definition, $field);
 
-            return $this->getTranslationFieldAccessor($translatedField->getStorageName(), $inheritedChain);
+            return $this->getTranslationFieldAccessor($translatedField, $original, $inheritedChain, $context);
         }
 
         $select = $this->buildFieldSelector($root, $field, $context, $original);

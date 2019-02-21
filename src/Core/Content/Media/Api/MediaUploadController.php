@@ -83,7 +83,7 @@ class MediaUploadController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/media/provide-name", name="api.action.media.provide-name", methods={"GET"})
      */
-    public function provideName(Request $request, Context $context, ResponseFactoryInterface $responseFactory): Response
+    public function provideName(Request $request, Context $context): Response
     {
         $fileName = $request->query->get('fileName');
         $fileExtension = $request->query->get('extension');

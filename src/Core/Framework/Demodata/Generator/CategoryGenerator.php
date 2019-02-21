@@ -33,31 +33,43 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $numberOfSubCategories = 40;
+        $numberOfSubCategories = 0;
 
         $payload = [];
+        $lastId = null;
         for ($i = 0; $i < $numberOfItems; ++$i) {
+            $id = Uuid::uuid4()->getHex();
+
             $payload[] = [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $id,
                 'name' => $this->randomDepartment($context->getFaker()),
-                'position' => $i,
+                'afterCategoryId' => $lastId,
             ];
+
+            $lastId = $id;
         }
 
         foreach ($payload as $category) {
-            for ($x = 0; $x < $numberOfSubCategories; ++$x) {
+            $lastId = null;
+            $randSubCategories = random_int(5, 12);
+            $numberOfSubCategories += $randSubCategories;
+            for ($x = 0; $x < $randSubCategories; ++$x) {
+                $id = Uuid::uuid4()->getHex();
+
                 $payload[] = [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => $id,
                     'name' => $this->randomDepartment($context->getFaker()),
                     'parentId' => $category['id'],
-                    'position' => $x,
+                    'afterCategoryId' => $lastId,
                 ];
+
+                $lastId = $id;
             }
         }
 
         $console = $context->getConsole();
-        $console->comment('Generated sub-categories: ' . $numberOfItems * $numberOfSubCategories);
-        $console->progressStart($numberOfItems * $numberOfSubCategories);
+        $console->comment('Generated sub-categories: ' . $numberOfSubCategories);
+        $console->progressStart($numberOfItems + $numberOfSubCategories);
 
         foreach (array_chunk($payload, 100) as $chunk) {
             $this->categoryRepository->upsert($chunk, $context->getContext());

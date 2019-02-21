@@ -73,12 +73,14 @@ class CategoryDefinition extends EntityDefinition
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
 
+            new FkField('after_category_id', 'afterCategoryId', self::class),
+            (new ReferenceVersionField(self::class, 'after_category_version_id'))->addFlags(new Required()),
+
             new FkField('media_id', 'mediaId', MediaDefinition::class),
 
             (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new Required()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new ReadOnly()),
             new TreePathField('path', 'path'),
-            new IntField('position', 'position'),
             new TreeLevelField('level', 'level'),
             new StringField('template', 'template'),
             new BoolField('active', 'active'),

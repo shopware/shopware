@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 
 class CategoryCollection extends EntityCollection
 {
@@ -64,9 +65,7 @@ class CategoryCollection extends EntityCollection
 
     public function sortByPosition(): self
     {
-        $this->sort(function (CategoryEntity $a, CategoryEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
+        $this->elements = AfterSort::sort($this->elements, 'afterCategoryId');
 
         return $this;
     }

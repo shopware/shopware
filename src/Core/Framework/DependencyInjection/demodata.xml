@@ -48,6 +48,7 @@
             <argument type="service" id="media_default_folder.repository" />
             <argument type="service" id="tax.repository" />
             <argument type="service" id="product.repository" />
+            <argument type="service" id="media_folder.repository" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider" />
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator" />

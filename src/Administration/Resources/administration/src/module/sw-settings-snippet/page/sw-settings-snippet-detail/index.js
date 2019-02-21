@@ -15,13 +15,14 @@ Component.register('sw-settings-snippet-detail', {
             isLoading: true,
             isCreate: false,
             isCustomState: this.$route.query.isCustomState,
-            isSavable: true,
+            isSavable: false,
             isInvalidKey: false,
             queryIds: this.$route.query.ids,
             page: this.$route.query.page,
             limit: this.$route.query.limit,
             moduleData: this.$route.meta.$module,
             translationKey: '',
+            translationKeyOrigin: '',
             snippets: [],
             sets: {}
         };
@@ -62,6 +63,7 @@ Component.register('sw-settings-snippet-detail', {
     },
 
     created() {
+        this.translationKeyOrigin = this.$route.params.origin;
         this.createdComponent();
     },
 
@@ -90,18 +92,7 @@ Component.register('sw-settings-snippet-detail', {
 
         initializeSnippet() {
             this.snippets = this.createSnippetDummy();
-            this.snippetSetService.getCustomList(
-                1,
-                25,
-                {
-                    custom: false,
-                    empty: false,
-                    term: null,
-                    namespace: [],
-                    author: [],
-                    translationKey: [this.translationKey]
-                }
-            ).then((response) => {
+            this.getCustomList().then((response) => {
                 if (!response.total) {
                     this.isCustomState = true;
                     return;
@@ -131,6 +122,7 @@ Component.register('sw-settings-snippet-detail', {
                     author: this.currentAuthor,
                     id: null,
                     value: null,
+                    origin: null,
                     translationKey: this.translationKey,
                     setId: set.id
                 });
@@ -197,9 +189,24 @@ Component.register('sw-settings-snippet-detail', {
             this.isSavable = false;
         },
 
-        onBlurTranslationKeyChange() {
+        onChange() {
+            this.isSavable = false;
+
+            if (this.timeout) {
+                clearTimeout(this.timeout);
+            }
+
+            this.timeout = setTimeout(this.doChange, 500);
+        },
+
+        doChange() {
             if (!this.translationKey || this.translationKey.trim().length <= 0) {
                 this.isInvalidKey = true;
+                return;
+            }
+
+            this.isSavable = this.isSaveable();
+            if (!this.isSavable) {
                 return;
             }
 
@@ -207,31 +214,20 @@ Component.register('sw-settings-snippet-detail', {
             this.translationKey = this.translationKey.charAt(0).toLowerCase() + this.translationKey.slice(1);
             this.isInvalidKey = false;
             this.isLoading = true;
-            this.isSavable = true;
 
             if (this.translationKey === this.$route.params.key) {
                 this.isLoading = false;
                 return;
             }
 
-            this.snippetSetService.getCustomList(
-                1,
-                25,
-                {
-                    custom: false,
-                    empty: false,
-                    term: null,
-                    namespace: [],
-                    author: [],
-                    translationKey: [this.translationKey]
-                }
-            ).then((response) => {
-                if (!response.total) {
+            this.getCustomList().then((response) => {
+                if (!response.total || Object.keys(response.data)[0] === this.translationKeyOrigin) {
                     this.onNewKeyRedirect();
                     return;
                 }
 
                 this.isInvalidKey = true;
+                this.isSavable = false;
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -250,6 +246,44 @@ Component.register('sw-settings-snippet-detail', {
                     limit: this.limit
                 }
             });
+        },
+
+        getCustomList() {
+            return this.snippetSetService.getCustomList(
+                1,
+                25,
+                {
+                    custom: false,
+                    empty: false,
+                    term: null,
+                    namespace: [],
+                    author: [],
+                    translationKey: [this.translationKey]
+                }
+            );
+        },
+
+        isSaveable() {
+            let count = 0;
+            this.snippets.forEach((snippet) => {
+                if (snippet.value === null || snippet.value.trim() === '') {
+                    return;
+                }
+
+                if (this.translationKey !== this.translationKeyOrigin) {
+                    count += 1;
+                }
+
+                if (snippet.origin === snippet.value) {
+                    return;
+                }
+
+                if (snippet.value.trim().length > 0) {
+                    count += 1;
+                }
+            });
+
+            return count > 0;
         }
     }
 });

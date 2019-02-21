@@ -51,6 +51,12 @@ export default {
             type: String,
             required: false,
             default: 'body'
+        },
+
+        showHeader: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

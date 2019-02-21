@@ -1,0 +1,18 @@
+@import "~scss/variables";
+
+$sw-side-navigation-slider-color: $color-shopware-blue;
+
+.sw-side-navigation {
+    position: relative;
+
+    .sw-side-navigation__slider {
+        transition: 0.3s transform ease-in-out;
+        position: absolute;
+        top: 0px;
+        left: 0;
+        width: 1px;
+        height: 40px;
+        background-color: $color-shopware-blue;
+    }
+
+}

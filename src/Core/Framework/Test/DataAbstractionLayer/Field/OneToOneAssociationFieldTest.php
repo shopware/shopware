@@ -38,6 +38,11 @@ class OneToOneAssociationFieldTest extends TestCase
      */
     private $repository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $subRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -53,6 +58,14 @@ class OneToOneAssociationFieldTest extends TestCase
             $this->getContainer()->get('event_dispatcher')
         );
 
+        $this->subRepository = new EntityRepository(
+            SubDefinition::class,
+            $this->getContainer()->get(EntityReaderInterface::class),
+            $this->getContainer()->get(VersionManager::class),
+            $this->getContainer()->get(EntitySearcherInterface::class),
+            $this->getContainer()->get(EntityAggregatorInterface::class),
+            $this->getContainer()->get('event_dispatcher')
+        );
         $this->connection->executeUpdate('
 DROP TABLE IF EXISTS `root`;
 DROP TABLE IF EXISTS `root_sub`;
@@ -88,7 +101,37 @@ DROP TABLE IF EXISTS `root_sub`;
         ');
     }
 
-    public function testWrite(): void
+    public function testWriteRootOverSub()
+    {
+        $id = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $id,
+            'name' => 'root 1',
+            'root' => [
+                'id' => $id,
+                'name' => 'sub 1',
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $event = $this->subRepository->create([$data], $context);
+
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $event);
+
+        $rootEvent = $event->getEventByDefinition(RootDefinition::class);
+        static::assertInstanceOf(EntityWrittenEvent::class, $rootEvent);
+        static::assertCount(1, $rootEvent->getWriteResults());
+        static::assertSame([$id], $rootEvent->getIds());
+
+        $subEvent = $event->getEventByDefinition(SubDefinition::class);
+        static::assertInstanceOf(EntityWrittenEvent::class, $subEvent);
+        static::assertCount(1, $subEvent->getWriteResults());
+        static::assertSame([$id], $subEvent->getIds());
+    }
+
+    public function testWriteSubOverRoot(): void
     {
         $id = Uuid::uuid4()->getHex();
 
@@ -147,6 +190,13 @@ DROP TABLE IF EXISTS `root_sub`;
         $sub = $entity->get('sub');
         static::assertInstanceOf(ArrayEntity::class, $sub);
         static::assertSame('sub 1', $sub->get('name'));
+        static::assertSame($id, $sub->get('rootId'));
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('root_sub.root');
+
+        $sub = $this->subRepository->search($criteria, $context)->first();
+        static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));
     }
 
     public function testSearch(): void

@@ -167,7 +167,7 @@ export default {
         onFolderMoved(movePromise) {
             this.closeMoveModal();
             movePromise.then((ids) => {
-                this.$emit('sw-media-folder-item-remove', ids);
+                this.$emit('sw-media-media-item-moved', ids);
             });
         },
 

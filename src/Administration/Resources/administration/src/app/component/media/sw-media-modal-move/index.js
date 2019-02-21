@@ -62,7 +62,7 @@ export default {
             return State.getStore('media');
         },
         targetFolderId() {
-            return this.targetFolder ? this.targetFolder.id : '';
+            return this.targetFolder ? this.targetFolder.id : null;
         }
     },
 
@@ -137,14 +137,14 @@ export default {
                     item.save().then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
-                            title: this.$tc('global.sw-media-modal-move.notification.successSingle.title'),
+                            title: messages.successTitle,
                             message: messages.successMessage
                         });
                         return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
-                            title: this.$tc('global.sw-media-modal-move.notification.errorSingle.title'),
+                            title: messages.errorTitle,
                             message: messages.errorMessage
                         });
                     })
@@ -177,11 +177,13 @@ export default {
 
         _getNotificationMessages(item) {
             return {
+                successTitle: this.$tc('global.sw-media-modal-move.notification.successSingle.title'),
                 successMessage: this.$tc(
                     'global.sw-media-modal-move.notification.successSingle.message',
                     1,
                     { mediaName: this.mediaNameFilter(item) }
                 ),
+                errorTitle: this.$tc('global.sw-media-modal-move.notification.errorSingle.title'),
                 errorMessage: this.$tc(
                     'global.sw-media-modal-move.notification.errorSingle.message',
                     1,

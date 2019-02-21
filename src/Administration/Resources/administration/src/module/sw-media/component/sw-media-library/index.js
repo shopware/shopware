@@ -165,6 +165,11 @@ Component.register('sw-media-library', {
          * Object fetching
          */
         refreshList() {
+            if (this.isLoading === true) {
+                return;
+            }
+            this.isLoading = true;
+
             this.clearSelection();
             this.done = false;
             this.fetchAssociatedFolders();
@@ -193,12 +198,7 @@ Component.register('sw-media-library', {
         },
 
         loadItems() {
-            if (this.isLoading) {
-                return;
-            }
-
             this.isLoading = true;
-
             this.nextFolders().then((doneLoadFolders) => {
                 if (doneLoadFolders) {
                     const criteria = {
@@ -218,6 +218,14 @@ Component.register('sw-media-library', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        loadNextItems() {
+            if (this.isLoading === true) {
+                return;
+            }
+            this.isLoading = true;
+            this.loadItems();
         },
 
         nextFolders() {

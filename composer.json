@@ -83,7 +83,7 @@
         "bheller/images-generator": "1.0.1",
         "fzaninotto/faker": "1.8.0",
         "mbezhanov/faker-provider-collection": "1.1.1",
-        "phpunit/phpunit": "8.0.2",
+        "phpunit/phpunit": "8.0.4",
         "symfony/browser-kit": "4.2.2",
         "symfony/phpunit-bridge": "4.2.2",
         "symfony/var-dumper": "4.2.2",

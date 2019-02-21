@@ -247,7 +247,7 @@
           "title": "Erfolg",
           "message": "Einstellungen erfolgreich gespeichert."
         },
-        "failure": {
+        "error": {
           "title": "Fehler",
           "message": "Fehler beim Speichern der Einstellungen."
         }

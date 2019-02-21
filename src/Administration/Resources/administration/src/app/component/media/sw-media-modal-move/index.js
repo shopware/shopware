@@ -125,7 +125,7 @@ export default {
             const NotificationTitleSuccess = this.$tc('global.sw-media-modal-move.notification.successOverall.title');
             const NotificationMessageSuccess = this.$tc('global.sw-media-modal-move.notification.successOverall.message');
             const NotificationTitleError = this.$tc('global.sw-media-modal-move.notification.errorOverall.title');
-            const NotificationMessageError = this.$tc('global.sw-media-modal-move.notification.errorOverall.mesage');
+            const NotificationMessageError = this.$tc('global.sw-media-modal-move.notification.errorOverall.message');
 
             this.itemsToMove.filter((item) => {
                 return item.entityName === 'media_folder';

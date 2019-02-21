@@ -29,23 +29,6 @@ class AttributeService implements AttributeServiceInterface, EventSubscriberInte
         return $this->getAttributeTypeMap()[$attributeName] ?? null;
     }
 
-    public function getAttributeTypeMap(): array
-    {
-        if ($this->attributeTypeMap !== null) {
-            return $this->attributeTypeMap;
-        }
-
-        $this->attributeTypeMap = [];
-        // attributes should not be context dependent
-        $result = $this->attributeRepository->search(new Criteria(), Context::createDefaultContext());
-        /** @var AttributeEntity $attribute */
-        foreach ($result as $attribute) {
-            $this->attributeTypeMap[$attribute->getName()] = $attribute->getType();
-        }
-
-        return $this->attributeTypeMap;
-    }
-
     public static function getSubscribedEvents(): array
     {
         return [
@@ -60,5 +43,22 @@ class AttributeService implements AttributeServiceInterface, EventSubscriberInte
     public function invalidateCache(): void
     {
         $this->attributeTypeMap = null;
+    }
+
+    private function getAttributeTypeMap(): array
+    {
+        if ($this->attributeTypeMap !== null) {
+            return $this->attributeTypeMap;
+        }
+
+        $this->attributeTypeMap = [];
+        // attributes should not be context dependent
+        $result = $this->attributeRepository->search(new Criteria(), Context::createDefaultContext());
+        /** @var AttributeEntity $attribute */
+        foreach ($result as $attribute) {
+            $this->attributeTypeMap[$attribute->getName()] = $attribute->getType();
+        }
+
+        return $this->attributeTypeMap;
     }
 }

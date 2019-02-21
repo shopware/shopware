@@ -13,8 +13,7 @@ Component.register('sw-media-library', {
     },
 
     mixins: [
-        Mixin.getByName('media-grid-listener'),
-        Mixin.getByName('drag-selector')
+        Mixin.getByName('media-grid-listener')
     ],
 
     props: {
@@ -100,10 +99,6 @@ Component.register('sw-media-library', {
 
         selectableItems() {
             return [...this.subFolders, ...this.pendingUploads, ...this.items];
-        },
-
-        dragSelectorClass() {
-            return 'sw-media-entity';
         },
 
         rootFolder() {
@@ -255,26 +250,6 @@ Component.register('sw-media-library', {
                 this.parentFolder = this.rootFolder;
             });
         },
-
-        /*
-         * Drag selector
-         */
-        scrollContainer() {
-            return this.$refs.scrollContainer;
-        },
-
-        itemContainer() {
-            return this.$refs.mediaGrid;
-        },
-
-        onDragSelection({ originalDomEvent, item }) {
-            item.selectItem(originalDomEvent);
-        },
-
-        onDragDeselection({ originalDomEvent, item }) {
-            item.removeFromSelection(originalDomEvent);
-        },
-
 
         goToParentFolder() {
             this.$emit('media-folder-changed', this.parentFolder.id || null);

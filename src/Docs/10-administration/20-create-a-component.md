@@ -602,7 +602,6 @@ The following mixins are available:
 * `listing`
 * `validation`
 * `notification`
-* `drag-selector`
 
 ### Creating new mixin
 As a third-party developer you can create your own mixin for reusable component logic.

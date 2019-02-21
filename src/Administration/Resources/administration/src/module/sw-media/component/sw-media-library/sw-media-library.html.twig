@@ -1,5 +1,5 @@
 {% block sw_media_library %}
-    <div class="sw-media-library" @mousedown.left="onMouseDown">
+    <div class="sw-media-library">
         {% block sw_media_library_display_options %}
         <div class="sw-media-library__options-container">
             <sw-media-display-options
@@ -57,7 +57,7 @@
                                 <sw-media-entity-mapper
                                     v-for="(gridItem, index) in selectableItems"
                                     :key="gridItem.entityName + '_' + gridItem.id"
-                                    :class="[`sw-media-grid-item__item--${index}`, dragSelectorClass]"
+                                    :class="`sw-media-grid-item__item--${index}`"
                                     :item="gridItem"
                                     :selected="showItemSelected(gridItem)"
                                     :showSelectionIndicator="isListSelect"

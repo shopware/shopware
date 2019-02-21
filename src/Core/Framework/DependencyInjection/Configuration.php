@@ -20,6 +20,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
                 ->append($this->createAdminWorkerSection())
+                ->append($this->createCacheSection())
             ->end()
         ;
 
@@ -105,6 +106,26 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(true)
                 ->end()
 
+            ->end()
+        ;
+
+        return $rootNode;
+    }
+
+    private function createCacheSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('cache');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('entity_cache')
+                    ->children()
+                        ->integerNode('expiration_time')->min(0)->end()
+                        ->booleanNode('enabled')->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 

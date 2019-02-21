@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
@@ -30,18 +29,36 @@ class CachedEntitySearcher implements EntitySearcherInterface
      */
     private $decorated;
 
+    /**
+     * @var bool
+     */
+    private $enabled;
+
+    /**
+     * @var int
+     */
+    private $expirationTime;
+
     public function __construct(
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapterInterface $cache,
-        EntitySearcherInterface $decorated
+        EntitySearcherInterface $decorated,
+        bool $enabled,
+        int $expirationTime
     ) {
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
         $this->decorated = $decorated;
+        $this->enabled = $enabled;
+        $this->expirationTime = $expirationTime;
     }
 
     public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
     {
+        if (!$this->enabled) {
+            $this->decorated->search($definition, $criteria, $context);
+        }
+
         if (in_array($definition, [VersionDefinition::class, VersionCommitDefinition::class, VersionCommitDataDefinition::class], true)) {
             return $this->decorated->search($definition, $criteria, $context);
         }
@@ -64,7 +81,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
 
         /* @var CacheItem $item */
         $item->tag($tags);
-        $item->expiresAfter(3600);
+        $item->expiresAfter($this->expirationTime);
 
         $this->cache->save($item);
 

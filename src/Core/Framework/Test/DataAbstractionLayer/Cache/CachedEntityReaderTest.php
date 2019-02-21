@@ -72,7 +72,7 @@ class CachedEntityReaderTest extends TestCase
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
-        $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator);
+        $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator, true, 3600);
 
         $criteria = new Criteria([$id1, $id2]);
 
@@ -166,7 +166,7 @@ class CachedEntityReaderTest extends TestCase
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
-        $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator);
+        $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator, true, 3600);
 
         //first call should not match and the expects of the dbal reader should called
         $databaseEntities = $cachedReader->read(TaxDefinition::class, $criteria, $context);
@@ -185,5 +185,59 @@ class CachedEntityReaderTest extends TestCase
         static::assertEquals($differentEntities, $differentCachedEntities);
 
         static::assertNotEquals($databaseEntities, $differentEntities);
+    }
+
+    public function testDisableCacheOption(): void
+    {
+        $dbalReader = $this->createMock(EntityReader::class);
+
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        //read in EntityReader will be only called once
+        $dbalReader->expects(static::atLeast(2))
+            ->method('read')
+            ->willReturn(
+                new TaxCollection([
+                    (new TaxEntity())->assign([
+                        'id' => $id1,
+                        '_uniqueIdentifier' => $id1,
+                        'taxRate' => 15,
+                        'name' => 'test',
+                        'products' => new ProductCollection([
+                            (new ProductEntity())->assign([
+                                'id' => $id1,
+                                '_uniqueIdentifier' => $id1,
+                                'tax' => (new TaxEntity())->assign([
+                                    'id' => $id1,
+                                    '_uniqueIdentifier' => $id1,
+                                ]),
+                            ]),
+                        ]),
+                    ]),
+                    (new TaxEntity())->assign([
+                        'id' => $id2,
+                        '_uniqueIdentifier' => $id2,
+                        'taxRate' => 12,
+                        'name' => 'test2',
+                    ]),
+                ])
+            );
+
+        $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
+
+        $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator, false, 3600);
+
+        $criteria = new Criteria([$id1, $id2]);
+
+        $context = Context::createDefaultContext();
+
+        //first call should not match and the expects of the dbal reader should called
+        $databaseEntities = $cachedReader->read(TaxDefinition::class, $criteria, $context);
+
+        //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
+        $cachedEntities = $cachedReader->read(TaxDefinition::class, $criteria, $context);
+
+        static::assertEquals($databaseEntities, $cachedEntities);
     }
 }

@@ -90,7 +90,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
-        $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator);
+        $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator, true, 3600);
 
         //first call should not match and the expects of the dbal reader should called
         $databaseEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
@@ -190,7 +190,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
-        $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator);
+        $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator, true, 3600);
 
         //first call should not match and the expects of the dbal reader should called
         $databaseEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
@@ -204,5 +204,67 @@ class CachedEntityAggregatorTest extends TestCase
         $cachedEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria2, $context);
 
         static::assertNotEquals($databaseEntities->getAggregations(), $cachedEntities->getAggregations());
+    }
+
+    public function testDisableCacheOption()
+    {
+        $dbalReader = $this->createMock(EntityAggregator::class);
+
+        $id1 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $criteria = new Criteria([$id1, $id2]);
+
+        $datasheetAggregation = new EntityAggregation('product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet');
+        $criteria->addAggregation($datasheetAggregation);
+
+        $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
+        $criteria->addAggregation($manufacturerAggregation);
+
+        $priceAggregation = new StatsAggregation('product.listingPrices', 'price', false);
+        $criteria->addAggregation($priceAggregation);
+
+        $context = Context::createDefaultContext();
+
+        $configGroupEntity = new ConfigurationGroupOptionEntity();
+        $configGroupEntity->setUniqueIdentifier('test');
+
+        $manufacturerEntity = new ProductManufacturerEntity();
+        $manufacturerEntity->setUniqueIdentifier('test');
+
+        //read in EntityReader will be only called once
+        $dbalReader->expects(static::atLeast(2))
+            ->method('aggregate')
+            ->willReturn(
+                new AggregatorResult(
+                    new AggregationResultCollection(
+                        [
+                            new EntityAggregationResult(
+                                $datasheetAggregation,
+                                new EntityCollection([$configGroupEntity])
+                            ),
+                            new EntityAggregationResult(
+                                $manufacturerAggregation,
+                                new EntityCollection([$manufacturerEntity])
+                            ),
+                            new StatsAggregationResult($priceAggregation),
+                        ]
+                    ),
+                    $context,
+                    $criteria
+                )
+            );
+
+        $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
+
+        $cachedReader = new CachedEntityAggregator($this->cache, $dbalReader, $generator, false, 3600);
+
+        //first call should not match and the expects of the dbal reader should called
+        $databaseEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+
+        //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
+        $cachedEntities = $cachedReader->aggregate(TaxDefinition::class, $criteria, $context);
+
+        static::assertEquals($databaseEntities, $cachedEntities);
     }
 }

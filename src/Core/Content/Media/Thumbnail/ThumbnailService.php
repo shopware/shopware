@@ -17,6 +17,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\SourceContext;
 
 class ThumbnailService
 {
@@ -183,7 +184,9 @@ class ThumbnailService
                 'thumbnails' => $savedThumbnails,
             ];
 
-            $this->mediaRepository->update([$mediaData], $context);
+            $context->scope(SourceContext::ORIGIN_SYSTEM, function ($context) use ($mediaData) {
+                $this->mediaRepository->update([$mediaData], $context);
+            });
 
             return count($savedThumbnails);
         }

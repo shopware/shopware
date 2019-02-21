@@ -38,7 +38,7 @@ Component.register('sw-condition-operator-select', {
         operators() {
             const operators = this.ruleConditionDataProviderService.getOperatorSet(this.operatorSetName, (operator) => {
                 operator.meta = {
-                    viewData: { label: this.$tc(operator.label), identifier: this.$tc(operator.label) }
+                    viewData: { label: this.$tc(operator.label) }
                 };
             });
 

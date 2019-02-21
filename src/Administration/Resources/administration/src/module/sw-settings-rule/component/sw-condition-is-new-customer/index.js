@@ -18,23 +18,11 @@ Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
             const values = [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: 'true',
-                    meta: {
-                        viewData: {
-                            label: this.$tc('global.sw-condition.condition.yes'),
-                            value: this.$tc('global.sw-condition.condition.yes')
-                        }
-                    }
+                    value: 'true'
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: 'false',
-                    meta: {
-                        viewData: {
-                            label: this.$tc('global.sw-condition.condition.no'),
-                            value: this.$tc('global.sw-condition.condition.no')
-                        }
-                    }
+                    value: 'false'
                 }
             ];
 
@@ -60,7 +48,7 @@ Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
 
     data() {
         return {
-            isNew: String(this.condition.value.isNew)
+            isNew: this.condition.value.isNew ? String(this.condition.value.isNew) : String(true)
         };
     }
 });

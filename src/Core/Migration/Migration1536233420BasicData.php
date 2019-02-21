@@ -672,7 +672,7 @@ class Migration1536233420BasicData extends MigrationStep
         $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $paidId, 'name' => 'Paid']));
 
         $connection->insert('state_machine_state', ['id' => $paidPartiallyId, 'state_machine_id' => $stateMachineId, 'technical_name' => Defaults::ORDER_TRANSACTION_STATES_PARTIALLY_PAID, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $paidPartiallyId, 'name' => 'Teilweise Bezahlt']));
+        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $paidPartiallyId, 'name' => 'Teilweise bezahlt']));
         $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $paidPartiallyId, 'name' => 'Paid (partially)']));
 
         $connection->insert('state_machine_state', ['id' => $refundedId, 'state_machine_id' => $stateMachineId, 'technical_name' => Defaults::ORDER_TRANSACTION_STATES_REFUNDED, 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -680,7 +680,7 @@ class Migration1536233420BasicData extends MigrationStep
         $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $refundedId, 'name' => 'Refunded']));
 
         $connection->insert('state_machine_state', ['id' => $refundedPartiallyId, 'state_machine_id' => $stateMachineId, 'technical_name' => Defaults::ORDER_TRANSACTION_STATES_PARTIALLY_REFUNDED, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $refundedPartiallyId, 'name' => 'Teilweise Erstattet']));
+        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $refundedPartiallyId, 'name' => 'Teilweise erstattet']));
         $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $refundedPartiallyId, 'name' => 'Refunded (partially)']));
 
         $connection->insert('state_machine_state', ['id' => $cancelledId, 'state_machine_id' => $stateMachineId, 'technical_name' => Defaults::ORDER_TRANSACTION_STATES_CANCELLED, 'created_at' => date(Defaults::DATE_FORMAT)]);

@@ -3,6 +3,7 @@
 
 $sw-order-state-select-option: $color-gutenberg;
 $sw-order-state-select-option-disabled: $color-steam-cloud;
+$sw-order-state-select-rounded-list-background: $color-white;
 
 .sw-order-state-select{
 
@@ -31,14 +32,16 @@ $sw-order-state-select-option-disabled: $color-steam-cloud;
 
     .sw-field__select {
       .sw-field__select-load-placeholder, select {
-        padding: 0 8px 0 8px;
+        padding: 0 8px 0 14px;
         border-radius: 15px;
         height: 32px;
         margin-bottom: 0;
+
       }
 
       select option {
         color: $sw-order-state-select-option;
+        background-color: $sw-order-state-select-rounded-list-background;
       }
 
       select option:disabled {

@@ -8,7 +8,7 @@ Component.register('sw-order-state-history-card', {
     mixins: [
         Mixin.getByName('notification')
     ],
-    inject: ['stateMachineHistoryService', 'orderService', 'orderTransactionService'],
+    inject: ['orderService', 'orderTransactionService'],
     props: {
         title: {
             type: String,
@@ -40,8 +40,11 @@ Component.register('sw-order-state-history-card', {
         };
     },
     computed: {
-        stateMachineStateRepository() {
+        stateMachineStateStore() {
             return State.getStore('state_machine_state');
+        },
+        stateMachineHistoryStore() {
+            return State.getStore('state_machine_history');
         }
     },
     watch: {
@@ -104,7 +107,7 @@ Component.register('sw-order-state-history-card', {
                 CriteriaFactory.equals('state_machine_history.entityId.id', entity.id),
                 CriteriaFactory.contains('state_machine_history.entityName', entity.entityName));
 
-            return this.stateMachineHistoryService.getList({
+            return this.stateMachineHistoryStore.getList({
                 limit: 50,
                 page: 1,
                 sortBy: 'state_machine_history.createdAt',
@@ -113,7 +116,7 @@ Component.register('sw-order-state-history-card', {
                 criteria: criteria
             }).then((fetchedEntries) => {
                 // This order has no history entries
-                if (fetchedEntries.meta.total === 0) {
+                if (fetchedEntries.total === 0) {
                     return [{
                         state: entity.stateMachineState,
                         createdAt: entity.createdAt,
@@ -124,11 +127,11 @@ Component.register('sw-order-state-history-card', {
                 const entries = [];
                 // Prepend start state
                 entries.push({
-                    state: fetchedEntries.data[0].fromStateMachineState,
+                    state: fetchedEntries.items[0].fromStateMachineState,
                     createdAt: entity.createdAt,
                     user: null
                 });
-                fetchedEntries.data.forEach((entry) => {
+                fetchedEntries.items.forEach((entry) => {
                     entries.push({
                         state: entry.toStateMachineState,
                         createdAt: entry.createdAt,
@@ -143,7 +146,7 @@ Component.register('sw-order-state-history-card', {
             const criteriaState =
                     CriteriaFactory.equals('state_machine_state.stateMachine.technicalName', stateMachineName);
 
-            return this.stateMachineStateRepository.getList(
+            return this.stateMachineStateStore.getList(
                 { criteria: criteriaState }
             ).then((entries) => {
                 const options = [];

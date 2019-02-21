@@ -69,7 +69,6 @@ Component.register('sw-order-list', {
                 return this.orders;
             });
         },
-
         getBillingAddress(order) {
             return order.addresses.find((address) => {
                 return address.id === order.billingAddressId;

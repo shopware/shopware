@@ -233,6 +233,9 @@ Component.register('sw-order-detail-base', {
                 return this.reloadVersionedOrder(this.currentOrder.versionId);
             });
         },
+        changeLanguage() {
+            this.reloadVersionedOrder(this.currentOrder.versionId);
+        },
         startEditing() {
             if (this.currentOrder.versionId === this.liveVersionId) {
                 this.createVersionedOrder();

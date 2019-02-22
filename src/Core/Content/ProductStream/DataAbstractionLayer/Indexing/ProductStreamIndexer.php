@@ -210,6 +210,6 @@ class ProductStreamIndexer implements IndexerInterface
 
     private function isMultiFilter(string $type): bool
     {
-        return in_array($type, ['multi', 'not']);
+        return in_array($type, ['multi', 'not'], true);
     }
 }

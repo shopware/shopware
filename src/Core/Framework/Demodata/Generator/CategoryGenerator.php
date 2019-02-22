@@ -91,7 +91,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
             while (\count($categories) < $max) {
                 $category = $faker->category;
-                if (!\in_array($category, $categories)) {
+                if (!\in_array($category, $categories, true)) {
                     $categories[] = $category;
                 }
             }
@@ -105,7 +105,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
             }
             ++$max;
             $categoryName = implode(' & ', $categories);
-        } while (\in_array($categoryName, $this->categories) && $unique);
+        } while (\in_array($categoryName, $this->categories, true) && $unique);
 
         $this->categories[] = $categoryName;
 

@@ -379,7 +379,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             /** @var WriteProtected|null $writeProtectedFlag */
             $writeProtectedFlag = $field->getFlag(WriteProtected::class);
-            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt']) || ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API))) {
+            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API))) {
                 $attr['readOnly'] = true;
             }
 

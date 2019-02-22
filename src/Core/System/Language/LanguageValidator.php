@@ -66,7 +66,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
 
             $pk = $command->getPrimaryKey();
             $id = \strtolower(Uuid::fromBytesToHex($pk['id']));
-            if (!\in_array($id, [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE])) {
+            if (!\in_array($id, [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE], true)) {
                 continue;
             }
 

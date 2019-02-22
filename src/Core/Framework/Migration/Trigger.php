@@ -77,7 +77,7 @@ class Trigger
             [
                 self::TIME_AFTER,
                 self::TIME_BEFORE,
-            ]
+            ], true
         )) {
             throw new \InvalidArgumentException('TriggerDefinition: argument time must be either \'BEFORE\' or \'AFTER\'');
         }
@@ -93,7 +93,7 @@ class Trigger
                 self::EVENT_INSERT,
                 self::EVENT_UPDATE,
                 self::EVENT_DELETE,
-            ]
+            ], true
         )) {
             throw new \InvalidArgumentException('TriggerDefinition: argument time must be either \'INSERT\', \'UPDATE\' or \'DELETE\'');
         }

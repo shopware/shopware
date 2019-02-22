@@ -178,7 +178,7 @@ class DefinitionValidator
         $violations = [];
 
         foreach ($tables as $table) {
-            if (\in_array($table->getName(), self::$tablesWithoutDefinition)) {
+            if (\in_array($table->getName(), self::$tablesWithoutDefinition, true)) {
                 continue;
             }
             try {
@@ -202,7 +202,7 @@ class DefinitionValidator
         $fkViolations = [];
 
         foreach ($tables as $table) {
-            if (\in_array($table->getName(), self::$tablesWithoutDefinition)) {
+            if (\in_array($table->getName(), self::$tablesWithoutDefinition, true)) {
                 continue;
             }
 
@@ -250,7 +250,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (\in_array($property->getName(), ['id', 'extensions'])) {
+            if (\in_array($property->getName(), ['id', 'extensions'], true)) {
                 continue;
             }
 
@@ -432,7 +432,7 @@ class DefinitionValidator
         $translatedFields = array_keys($translationDefinition::getFields()->filter(function (Field $f) {
             return !$f->is(PrimaryKey::class)
                 && !$f instanceof AssociationInterface
-                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt']);
+                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true);
         })->getElements());
 
         $violations = [];
@@ -712,7 +712,7 @@ class DefinitionValidator
         }
 
         $propName = $association->getPropertyName();
-        if (substr($propName, -1) === 's' || \in_array($propName, self::$pluralExceptions)) {
+        if (substr($propName, -1) === 's' || \in_array($propName, self::$pluralExceptions, true)) {
             return [];
         }
 
@@ -753,7 +753,7 @@ class DefinitionValidator
         }
         $prop = $association->getPropertyName();
 
-        if (\in_array(strtolower($prop), self::$ignoredInPrefixCheck)) {
+        if (\in_array(strtolower($prop), self::$ignoredInPrefixCheck, true)) {
             return [];
         }
 
@@ -815,7 +815,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (\in_array($field->getPropertyName(), self::$customPrefixedNames)) {
+            if (\in_array($field->getPropertyName(), self::$customPrefixedNames, true)) {
                 continue;
             }
 

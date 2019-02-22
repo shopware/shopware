@@ -24,7 +24,7 @@ class AuthorFilter extends AbstractFilter implements SnippetFilterInterface
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if (!in_array($snippet['author'], $requestFilterValue)) {
+                if (!in_array($snippet['author'], $requestFilterValue, true)) {
                     continue;
                 }
                 $result[$setId]['snippets'][$translationKey] = $snippet;

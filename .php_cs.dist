@@ -31,6 +31,8 @@ return PhpCsFixer\Config::create()
         'php_unit_test_case_static_method_calls' => true,
         // comparisons should always be strict
         'strict_comparison' => true,
+        // functions should be used with $strict param set to true
+        'strict_param' => true,
     ])
     ->setFinder($finder)
 ;

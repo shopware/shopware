@@ -214,6 +214,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                             'media' => [
                                 'id' => $mediaId,
                                 'name' => 'Product image of ' . $product['name'],
+                                'mediaFolderId' => $mediaFolderId,
                             ],
                         ],
                     ];

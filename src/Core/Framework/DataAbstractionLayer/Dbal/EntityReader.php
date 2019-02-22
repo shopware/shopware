@@ -128,10 +128,13 @@ class EntityReader implements EntityReaderInterface
         }
 
         /** @var EntityDefinition $reference */
-        $associations = $fields->filterInstance(ManyToOneAssociationField::class);
-        /** @var ManyToOneAssociationField[] $associations */
+        $associations = $fields->filter(function ($field) {
+            return $field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField;
+        });
+
+        /** @var ManyToOneAssociationField[]|OneToOneAssociationField[] $associations */
         foreach ($associations as $association) {
-            $this->loadManyToOne($definition, $association, $context, $collection);
+            $this->loadToOne($definition, $association, $context, $collection);
         }
 
         /** @var OneToManyAssociationField[] $associations */
@@ -332,8 +335,19 @@ class EntityReader implements EntityReaderInterface
         return $query->execute()->fetchAll();
     }
 
-    private function loadManyToOne(string $definition, ManyToOneAssociationField $association, Context $context, EntityCollection $collection): void
+    private function loadToOne(string $definition, AssociationInterface $association, Context $context, EntityCollection $collection): void
     {
+        if (!$association instanceof ManyToOneAssociationField && !$association instanceof OneToOneAssociationField) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Expected class of %s or %s got %s',
+                    ManyToOneAssociationField::class,
+                    OneToOneAssociationField::class,
+                    get_class($association)
+                )
+            );
+        }
+
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->filterBasic();

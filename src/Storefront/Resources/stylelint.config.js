@@ -6,7 +6,7 @@ module.exports = {
         "order/properties-alphabetical-order": null,
         "selector-no-qualifying-type": [
             true, {
-                "ignore": ["attribute"]
+                "ignore": ["attribute", "class"]
             }
         ]
     }

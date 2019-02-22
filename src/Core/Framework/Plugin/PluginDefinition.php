@@ -4,12 +4,16 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -18,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
+use Shopware\Core\Framework\SourceContext;
 
 class PluginDefinition extends EntityDefinition
 {
@@ -51,6 +56,8 @@ class PluginDefinition extends EntityDefinition
             new StringField('upgrade_version', 'upgradeVersion'),
             new DateField('installed_at', 'installedAt'),
             new DateField('upgraded_at', 'upgradedAt'),
+            (new BlobField('icon', 'iconRaw'))->addFlags(new Internal(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Deferred()),
 
             new TranslatedField('label'),
             new TranslatedField('description'),

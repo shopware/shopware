@@ -87,6 +87,10 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\Subscriber\PluginLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- Composer -->
         <service id="Shopware\Core\Framework\Plugin\Composer\PackageProvider"/>
 

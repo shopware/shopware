@@ -61,7 +61,7 @@ export default {
         },
 
         isDefaultFolder() {
-            return this.item.defaultFolderId !== null;
+            return !!this.item.defaultFolderId;
         },
 
         iconConfig() {
@@ -77,7 +77,7 @@ export default {
 
             return {
                 name: 'folder-thumbnail',
-                color: false
+                color: 'inherit'
             };
         }
     },

@@ -95,8 +95,6 @@ class ShippingCountryRuleTest extends TestCase
 
     /**
      * @dataProvider unsupportedOperators
-     *
-     * @param string $operator
      */
     public function testUnsupportedOperators(string $operator): void
     {

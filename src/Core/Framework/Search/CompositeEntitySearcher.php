@@ -65,10 +65,6 @@ class CompositeEntitySearcher
 
     /**
      * @param IdSearchResult[] $results
-     * @param string           $userId
-     * @param Context          $context
-     *
-     * @return array
      */
     private function applyAuditLog(array $results, string $userId, Context $context): array
     {

@@ -35,9 +35,6 @@ class DataStack
      */
     private $data = [];
 
-    /**
-     * @param array $originalData
-     */
     public function __construct(array $originalData)
     {
         if (array_key_exists('extensions', $originalData)) {
@@ -50,22 +47,13 @@ class DataStack
         }
     }
 
-    /**
-     * @param string $key
-     *
-     * @return bool
-     */
     public function has(string $key): bool
     {
         return array_key_exists($key, $this->data);
     }
 
     /**
-     * @param string $key
-     *
      * @throws ExceptionNoStackItemFound
-     *
-     * @return KeyValuePair
      */
     public function pop(string $key): KeyValuePair
     {
@@ -79,10 +67,6 @@ class DataStack
         return $pair;
     }
 
-    /**
-     * @param string $key
-     * @param mixed  $value
-     */
     public function update(string $key, $value): void
     {
         if (!$this->has($key)) {
@@ -106,9 +90,6 @@ class DataStack
         );
     }
 
-    /**
-     * @return array
-     */
     public function getResultAsArray(): array
     {
         $resultPairs = [];

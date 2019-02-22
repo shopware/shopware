@@ -224,10 +224,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     /**
      * @param string|EntityDefinition $definition
-     * @param array                   $primaryKey
-     * @param WriteCommandQueue       $commandQueue
-     *
-     * @return array
      */
     private function getCurrentState(string $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
     {
@@ -271,12 +267,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return array_replace_recursive($database, $state);
     }
 
-    /**
-     * @param string $definition
-     * @param array  $primaryKey
-     *
-     * @return array
-     */
     private function fetchFromDatabase(string $definition, array $primaryKey): array
     {
         /** @var string|EntityDefinition $definition */

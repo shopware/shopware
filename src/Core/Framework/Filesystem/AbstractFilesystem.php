@@ -280,19 +280,11 @@ abstract class AbstractFilesystem implements FilesystemInterface
 
     /**
      * Modify the path before it will be passed to the filesystem
-     *
-     * @param string $path
-     *
-     * @return string
      */
     abstract public function preparePath(string $path): string;
 
     /**
      * Remove the modified parts from the filesystem
-     *
-     * @param string $path
-     *
-     * @return string
      */
     abstract public function stripPath(string $path): string;
 }

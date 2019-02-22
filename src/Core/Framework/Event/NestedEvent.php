@@ -9,9 +9,6 @@ abstract class NestedEvent extends Event implements ShopwareEvent
 {
     use JsonSerializableTrait;
 
-    /**
-     * @return NestedEventCollection|null
-     */
     public function getEvents(): ?NestedEventCollection
     {
         return null;

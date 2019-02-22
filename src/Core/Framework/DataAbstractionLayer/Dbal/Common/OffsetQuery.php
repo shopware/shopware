@@ -17,9 +17,6 @@ class OffsetQuery implements IterableQuery
      */
     private $offset = 0;
 
-    /**
-     * @param QueryBuilder $query
-     */
     public function __construct(QueryBuilder $query)
     {
         $this->query = $query;

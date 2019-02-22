@@ -25,11 +25,7 @@ class DefinitionService
     }
 
     /**
-     * @param string $format
-     *
      * @throws ApiDefinitionGeneratorNotFoundException
-     *
-     * @return ApiDefinitionGeneratorInterface
      */
     private function getGenerator(string $format): ApiDefinitionGeneratorInterface
     {

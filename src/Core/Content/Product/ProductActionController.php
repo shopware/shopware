@@ -24,14 +24,8 @@ class ProductActionController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/product/{productId}/generate-variant", name="api.action.product.generate-variant", methods={"POST"})
      *
-     * @param Request $request
-     * @param string  $productId
-     * @param Context $context
-     *
      * @throws Exception\NoConfiguratorFoundException
      * @throws Exception\ProductNotFoundException
-     *
-     * @return JsonResponse
      */
     public function generateVariants(Request $request, string $productId, Context $context): JsonResponse
     {

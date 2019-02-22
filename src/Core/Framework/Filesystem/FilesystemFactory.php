@@ -43,11 +43,7 @@ class FilesystemFactory implements FilesystemFactoryInterface
     }
 
     /**
-     * @param string $type
-     *
      * @throws AdapterFactoryNotFoundException
-     *
-     * @return AdapterFactoryInterface
      */
     private function findAdapterFactory(string $type): AdapterFactoryInterface
     {
@@ -78,11 +74,6 @@ class FilesystemFactory implements FilesystemFactoryInterface
         }
     }
 
-    /**
-     * @param array $config
-     *
-     * @return array
-     */
     private function resolveFilesystemConfig(array $config): array
     {
         $options = new OptionsResolver();

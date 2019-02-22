@@ -7,9 +7,5 @@ use Shopware\Core\Framework\Routing\InternalRequest;
 
 interface PageLoaderInterface
 {
-    /**
-     * @param InternalRequest $request
-     * @param CheckoutContext $context
-     */
     public function load(InternalRequest $request, CheckoutContext $context);
 }

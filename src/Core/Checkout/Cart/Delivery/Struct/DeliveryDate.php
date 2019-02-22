@@ -27,17 +27,11 @@ class DeliveryDate extends Struct
         $this->latest = $latest;
     }
 
-    /**
-     * @return \DateTime
-     */
     public function getEarliest(): \DateTime
     {
         return $this->earliest;
     }
 
-    /**
-     * @return \DateTime
-     */
     public function getLatest(): \DateTime
     {
         return $this->latest;

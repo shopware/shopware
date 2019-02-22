@@ -49,8 +49,7 @@ class ExtensionCompilerPass implements CompilerPassInterface
     /**
      * Finds all services with the given tag name and order them by their priority.
      *
-     * @param string           $tagName
-     * @param ContainerBuilder $container
+     * @param string $tagName
      *
      * @return array[]
      */

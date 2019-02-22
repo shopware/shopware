@@ -122,8 +122,6 @@ class ScheduledTaskHandlerTest extends TestCase
 
     /**
      * @dataProvider notQueuedStatus
-     *
-     * @param string $status
      */
     public function testHandleIgnoresWhenTaskIsNotQueued(string $status): void
     {

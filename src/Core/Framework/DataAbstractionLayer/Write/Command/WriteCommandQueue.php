@@ -161,9 +161,6 @@ class WriteCommandQueue
     }
 
     /**
-     * @param string $definition
-     * @param array  $primaryKey
-     *
      * @return WriteCommandInterface[]
      */
     public function getCommandsForEntity(string $definition, array $primaryKey): array

@@ -22,7 +22,6 @@ class RestrictDeleteViolationException extends ShopwareHttpException
      * @param EntityDefinition|string   $definition
      * @param RestrictDeleteViolation[] $restrictions
      * @param int                       $code
-     * @param \Throwable|null           $previous
      */
     public function __construct(string $definition, array $restrictions, $code = 0, \Throwable $previous = null)
     {

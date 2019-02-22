@@ -27,9 +27,6 @@ class QueryStringParserTest extends TestCase
 
     /**
      * @dataProvider equalsFilterDataProvider
-     *
-     * @param array $filter
-     * @param bool  $expectException
      */
     public function testEqualsFilter(array $filter, bool $expectException): void
     {
@@ -63,9 +60,6 @@ class QueryStringParserTest extends TestCase
 
     /**
      * @dataProvider containsFilterDataProvider
-     *
-     * @param array $filter
-     * @param bool  $expectException
      */
     public function testContainsFilter(array $filter, bool $expectException): void
     {
@@ -99,9 +93,6 @@ class QueryStringParserTest extends TestCase
 
     /**
      * @dataProvider equalsAnyFilterDataProvider
-     *
-     * @param array $filter
-     * @param bool  $expectException
      */
     public function testEqualsAnyFilter(array $filter, bool $expectException): void
     {

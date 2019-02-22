@@ -28,8 +28,6 @@ class DefinitionRegistry
     }
 
     /**
-     * @param string $entity
-     *
      * @throws DefinitionNotFoundException
      *
      * @return string|EntityDefinition

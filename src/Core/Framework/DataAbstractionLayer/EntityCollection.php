@@ -57,8 +57,6 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @param array $ids
-     *
      * @return static
      */
     public function getList(array $ids)

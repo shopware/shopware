@@ -112,8 +112,6 @@ class TaskSchedulerTest extends TestCase
 
     /**
      * @dataProvider nonScheduledStatus
-     *
-     * @param string $status
      */
     public function testScheduleTasksDoesntScheduleNotScheduledTask(string $status): void
     {

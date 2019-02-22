@@ -85,10 +85,6 @@ class AdministrationDumpPluginsCommand extends Command
 
     /**
      * return a path relative to the project dir
-     *
-     * @param string $absolute
-     *
-     * @return string
      */
     private function getPathRelativeToProjectDir(string $absolute): string
     {

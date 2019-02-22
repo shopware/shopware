@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
@@ -57,11 +58,8 @@ class EntityForeignKeyResolver
      *  ]
      *
      * @param EntityDefinition|string $definition
-     * @param array                   $ids
      *
      * @throws \RuntimeException
-     *
-     * @return array
      */
     public function getAffectedDeleteRestrictions(string $definition, array $ids, Context $context): array
     {
@@ -84,11 +82,8 @@ class EntityForeignKeyResolver
      *  ]
      *
      * @param EntityDefinition|string $definition
-     * @param array                   $ids
      *
      * @throws \RuntimeException
-     *
-     * @return array
      */
     public function getAffectedDeletes(string $definition, array $ids, Context $context): array
     {
@@ -97,13 +92,8 @@ class EntityForeignKeyResolver
 
     /**
      * @param EntityDefinition|string $definition
-     * @param array                   $ids
-     * @param string                  $class
-     * @param Context                 $context
      *
-     * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
-     *
-     * @return array
+     * @throws InvalidUuidException
      */
     private function fetch(string $definition, array $ids, string $class, Context $context): array
     {

@@ -107,9 +107,6 @@ class DatabaseCleanTestListener implements TestListener
         //nth
     }
 
-    /**
-     * @return array
-     */
     private function getCurrentDbState(): array
     {
         $connection = Kernel::getConnection();

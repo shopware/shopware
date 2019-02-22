@@ -17,9 +17,6 @@ class ProductListingStruct extends CmsSlotEntity
         return $this->searchResult;
     }
 
-    /**
-     * @param EntitySearchResult $searchResult
-     */
     public function setSearchResult(EntitySearchResult $searchResult): void
     {
         $this->searchResult = $searchResult;

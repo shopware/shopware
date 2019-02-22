@@ -72,8 +72,6 @@ class ConstraintBuilder
     }
 
     /**
-     * @param int $maxLength
-     *
      * @return $this
      */
     public function isLengthLessThanOrEqual(int $maxLength): self
@@ -84,8 +82,6 @@ class ConstraintBuilder
     }
 
     /**
-     * @param int $value
-     *
      * @return ConstraintBuilder
      */
     public function isGreaterThanOrEqual(int $value): self
@@ -96,8 +92,6 @@ class ConstraintBuilder
     }
 
     /**
-     * @param int $value
-     *
      * @return ConstraintBuilder
      */
     public function isLessThanOrEqual(int $value): self
@@ -154,7 +148,6 @@ class ConstraintBuilder
     /**
      * Set prop must be in array
      *
-     * @param array $values
      *
      * @return $this
      */
@@ -178,8 +171,6 @@ class ConstraintBuilder
     }
 
     /**
-     * @param Constraint $constraint
-     *
      * @return ConstraintBuilder
      */
     public function addConstraint(Constraint $constraint): self

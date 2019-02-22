@@ -33,9 +33,6 @@ class RangeFilter extends Filter
      * new RangeFilter('price', [
      *      'gt' => 5.99
      * ])
-     *
-     * @param string $field
-     * @param array  $parameters
      */
     public function __construct(string $field, array $parameters = [])
     {

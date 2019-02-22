@@ -172,8 +172,6 @@ class DefinitionValidator
 
     /**
      * @param Table[] $tables
-     *
-     * @return array
      */
     private function findNotRegisteredTables(array $tables): array
     {
@@ -198,8 +196,6 @@ class DefinitionValidator
 
     /**
      * @param Table[] $tables
-     *
-     * @return array
      */
     private function checkNaming(array $tables): array
     {
@@ -672,8 +668,6 @@ class DefinitionValidator
 
     /**
      * @param string|EntityDefinition $definition
-     *
-     * @return array
      */
     private function validateSchema(string $definition): array
     {

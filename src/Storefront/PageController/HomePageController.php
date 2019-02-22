@@ -24,11 +24,6 @@ class HomePageController extends StorefrontController
 
     /**
      * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @param InternalRequest $request
-     * @param CheckoutContext $context
-     *
-     * @return Response|null
      */
     public function index(InternalRequest $request, CheckoutContext $context): ?Response
     {

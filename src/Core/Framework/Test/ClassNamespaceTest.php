@@ -37,8 +37,7 @@ class ClassNamespaceTest extends TestCase
     }
 
     /**
-     * @param SplFileInfo $file
-     * @param string[]    $basePathParts
+     * @param string[] $basePathParts
      *
      * @return string[]
      */

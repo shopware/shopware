@@ -37,13 +37,8 @@ class StateMachineRegistry
     }
 
     /**
-     * @param string  $name
-     * @param Context $context
-     *
      * @throws StateMachineNotFoundException
      * @throws InconsistentCriteriaIdsException
-     *
-     * @return StateMachineEntity
      */
     public function getStateMachine(string $name, Context $context): StateMachineEntity
     {
@@ -175,8 +170,6 @@ class StateMachineRegistry
      * @throws IllegalTransitionException
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     *
-     * @return StateMachineStateEntity
      */
     public function getTransitionDestination(string $stateMachineName, string $fromStateName, string $transitionName, Context $context): StateMachineStateEntity
     {

@@ -7,9 +7,6 @@ interface ExtendableInterface
     /**
      * Adds a new extension struct into the class storage.
      * The passed name is used as unique identifier and has to be stored too.
-     *
-     * @param string $name
-     * @param Struct $data
      */
     public function addExtension(string $name, Struct $data): void;
 

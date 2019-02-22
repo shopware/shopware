@@ -6,10 +6,5 @@ use League\Flysystem\FilesystemInterface;
 
 interface FilesystemFactoryInterface
 {
-    /**
-     * @param array $config
-     *
-     * @return FilesystemInterface
-     */
     public function factory(array $config): FilesystemInterface;
 }

@@ -27,9 +27,7 @@ class EntityWriteResult
     /**
      * EntityWriteResult constructor
      *
-     * @param array|string         $primaryKey
-     * @param array                $payload
-     * @param EntityExistence|null $existence
+     * @param array|string $primaryKey
      */
     public function __construct($primaryKey, array $payload, ?EntityExistence $existence)
     {
@@ -46,17 +44,11 @@ class EntityWriteResult
         return $this->primaryKey;
     }
 
-    /**
-     * @return array
-     */
     public function getPayload(): array
     {
         return $this->payload;
     }
 
-    /**
-     * @return EntityExistence|null
-     */
     public function getExistence(): ?EntityExistence
     {
         return $this->existence;

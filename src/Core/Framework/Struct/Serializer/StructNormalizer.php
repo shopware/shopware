@@ -75,11 +75,6 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         return \is_array($data) && array_key_exists('_class', $data);
     }
 
-    /**
-     * @param array $argument
-     *
-     * @return bool
-     */
     private function isObject(array $argument): bool
     {
         return isset($argument['_class']);

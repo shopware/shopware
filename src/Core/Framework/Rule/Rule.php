@@ -20,8 +20,6 @@ abstract class Rule extends Struct
 
     /**
      * Returns the api name for this rule. The name has to be unique in the system.
-     *
-     * @return string
      */
     abstract public function getName(): string;
 

@@ -62,8 +62,6 @@ class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * @throws EmptyMediaFilenameException
-     *
-     * @return string
      */
     public function getRelativeThumbnailUrl(MediaEntity $media, int $width, int $height): string
     {

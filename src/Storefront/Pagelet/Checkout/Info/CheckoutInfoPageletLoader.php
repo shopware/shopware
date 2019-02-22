@@ -27,12 +27,7 @@ class CheckoutInfoPageletLoader implements PageLoaderInterface
     }
 
     /**
-     * @param InternalRequest $request
-     * @param CheckoutContext $context
-     *
      * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return CheckoutInfoPagelet
      */
     public function load(InternalRequest $request, CheckoutContext $context): CheckoutInfoPagelet
     {

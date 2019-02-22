@@ -54,11 +54,6 @@ class DeliveryCollection extends Collection
         return null;
     }
 
-    /**
-     * @param LineItem $item
-     *
-     * @return bool
-     */
     public function contains(LineItem $item): bool
     {
         foreach ($this->getIterator() as $delivery) {

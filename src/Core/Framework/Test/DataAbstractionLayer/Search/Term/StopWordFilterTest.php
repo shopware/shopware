@@ -11,9 +11,6 @@ class StopWordFilterTest extends TestCase
 {
     /**
      * @dataProvider cases
-     *
-     * @param string $sentence
-     * @param array  $expected
      */
     public function testStopWords(string $sentence, array $expected): void
     {

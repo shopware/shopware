@@ -89,8 +89,6 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param string $class
-     *
      * @return static
      */
     public function filterInstance(string $class)
@@ -101,8 +99,6 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param \Closure $closure
-     *
      * @return static
      */
     public function filter(\Closure $closure)
@@ -111,9 +107,6 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param int      $offset
-     * @param int|null $length
-     *
      * @return static
      */
     public function slice(int $offset, ?int $length = null)

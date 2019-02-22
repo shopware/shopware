@@ -90,9 +90,6 @@ class EntityExistence
         return !$this->isChild();
     }
 
-    /**
-     * @return array
-     */
     public function getState(): array
     {
         return $this->state;

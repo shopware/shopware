@@ -46,12 +46,6 @@ class ValidationException extends \InvalidArgumentException implements ShopwareE
         $this->violations = $violations;
     }
 
-    /**
-     * @param string $fieldName
-     * @param string $cause
-     *
-     * @return bool
-     */
     public function hasViolationsForFieldWithCause(string $fieldName, string $cause): bool
     {
         if (!isset($this->sortedViolations[$fieldName])) {
@@ -68,9 +62,6 @@ class ValidationException extends \InvalidArgumentException implements ShopwareE
         return false;
     }
 
-    /**
-     * @return ConstraintViolationListInterface
-     */
     public function getViolations(): ConstraintViolationListInterface
     {
         return $this->violations;

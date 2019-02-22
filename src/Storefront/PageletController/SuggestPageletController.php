@@ -24,11 +24,6 @@ class SuggestPageletController extends StorefrontController
 
     /**
      * @Route("/search/suggest", name="frontend.search.suggest", methods={"GET"})
-     *
-     * @param CheckoutContext $context
-     * @param InternalRequest $request
-     *
-     * @return Response
      */
     public function suggest(CheckoutContext $context, InternalRequest $request): Response
     {

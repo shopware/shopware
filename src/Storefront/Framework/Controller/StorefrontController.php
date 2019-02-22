@@ -25,11 +25,6 @@ abstract class StorefrontController extends AbstractController
         return $this->render($view, $parameters, $response);
     }
 
-    /**
-     * @param string $view
-     *
-     * @return string
-     */
     protected function resolveView(string $view): string
     {
         //remove static template inheritance prefix

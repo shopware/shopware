@@ -94,22 +94,11 @@ class WriteContext
         return $self;
     }
 
-    /**
-     * @param string $className
-     * @param string $propertyName
-     * @param string $value
-     */
     public function set(string $className, string $propertyName, string $value): void
     {
         $this->paths[$this->buildPathName($className, $propertyName)] = $value;
     }
 
-    /**
-     * @param string $className
-     * @param string $propertyName
-     *
-     * @return mixed
-     */
     public function get(string $className, string $propertyName)
     {
         $path = $this->buildPathName($className, $propertyName);
@@ -121,12 +110,6 @@ class WriteContext
         return $this->paths[$path];
     }
 
-    /**
-     * @param string $className
-     * @param string $propertyName
-     *
-     * @return bool
-     */
     public function has(string $className, string $propertyName): bool
     {
         $path = $this->buildPathName($className, $propertyName);
@@ -136,9 +119,6 @@ class WriteContext
 
     /**
      * @param EntityDefinition|string $definition
-     * @param array                   $raw
-     *
-     * @return bool
      */
     public function isChild(string $definition, array $raw): bool
     {
@@ -200,12 +180,6 @@ class WriteContext
         return $this->languageCodeIdMapping = $mapping;
     }
 
-    /**
-     * @param string $className
-     * @param string $propertyName
-     *
-     * @return string
-     */
     private function buildPathName(string $className, string $propertyName): string
     {
         return $className . self::SPACER . $propertyName;

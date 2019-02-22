@@ -84,9 +84,6 @@ class RuleValidator implements WriteCommandValidatorInterface
         // nth
     }
 
-    /**
-     * @param ConstraintViolationListInterface $violations
-     */
     private function tryToThrow(ConstraintViolationListInterface $violations): void
     {
         if ($violations->count() > 0) {

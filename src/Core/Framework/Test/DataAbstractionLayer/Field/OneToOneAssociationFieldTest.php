@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubManyDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class OneToOneAssociationFieldTest extends TestCase
@@ -102,11 +103,16 @@ ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`i
 
         $this->getContainer()->get(DefinitionRegistry::class)->add(RootDefinition::class);
         $this->getContainer()->get(DefinitionRegistry::class)->add(SubDefinition::class);
+        $this->getContainer()->get(DefinitionRegistry::class)->add(SubManyDefinition::class);
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
+        $this->getContainer()->get(DefinitionRegistry::class)->remove(RootDefinition::class);
+        $this->getContainer()->get(DefinitionRegistry::class)->remove(SubDefinition::class);
+        $this->getContainer()->get(DefinitionRegistry::class)->remove(SubManyDefinition::class);
+
         $this->connection->executeUpdate('
 DROP TABLE IF EXISTS `root`;
 DROP TABLE IF EXISTS `root_sub`;         
@@ -172,9 +178,6 @@ DROP TABLE IF EXISTS `root_sub_many`;
         static::assertInstanceOf(EntityWrittenEvent::class, $subEvent);
         static::assertCount(1, $subEvent->getWriteResults());
         static::assertSame([$id], $subEvent->getIds());
-
-        $this->getContainer()->get(DefinitionRegistry::class)->remove(RootDefinition::class);
-        $this->getContainer()->get(DefinitionRegistry::class)->remove(SubDefinition::class);
     }
 
     public function testRead(): void

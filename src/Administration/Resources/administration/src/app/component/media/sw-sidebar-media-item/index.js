@@ -6,10 +6,12 @@ import './sw-sidebar-media-item.scss';
 /**
  * @status ready
  * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside of the media
- * manager.
+ * manager. Use the additional properties to filter the shown media.
+ * Just pass a object created by the CriteriaFactory.
  * @example-type code-only
  * @component-example
- * <sw-sidebar-media-item>
+ * <sw-sidebar-media-item :useAdditionalSearchCriteria="true"
+ *                        :additionalSearchCriteria="getCriteria">
  *    <template slot="context-menu-items" slot-scope="media">
  *       <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
  *          Lorem ipsum dolor sit amet
@@ -27,7 +29,7 @@ export default {
             required: false,
             default: null
         },
-        useAdditionalSearchCriteria: {
+        isParentLoading: {
             type: Boolean,
             required: false,
             default: false
@@ -80,7 +82,7 @@ export default {
             this.initializeContent();
         },
 
-        additionalSearchCriteria() {
+        isParentLoading() {
             this.getList();
         }
     },
@@ -138,7 +140,7 @@ export default {
         },
 
         getList() {
-            if (this.useAdditionalSearchCriteria && this.additionalSearchCriteria === null) {
+            if (this.isParentLoading === true) {
                 return null;
             }
 

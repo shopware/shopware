@@ -70,7 +70,11 @@
                          @mouseenter="openUserActions">
 
                         {% block sw_admin_menu_user_actions_avatar %}
-                            <sw-avatar class="sw-admin-menu__avatar" :user="user"></sw-avatar>
+                            <sw-avatar class="sw-admin-menu__avatar"
+                                       :imageUrl="avatarUrl"
+                                       :firstName="firstName"
+                                       :lastName="lastName">
+                            </sw-avatar>
                         {% endblock %}
 
                         {% block sw_admin_menu_user_actions_attributes %}

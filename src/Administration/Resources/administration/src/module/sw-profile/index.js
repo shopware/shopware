@@ -8,6 +8,7 @@ Module.register('sw-profile', {
     description: 'The user profile settings.',
     color: '#9AA8B5',
     icon: 'default-avatar-single',
+    entity: 'user',
 
     routes: {
         index: {

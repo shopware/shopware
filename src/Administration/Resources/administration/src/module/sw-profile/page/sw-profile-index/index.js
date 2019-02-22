@@ -1,8 +1,8 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import { email } from 'src/core/service/validation.service';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import types from 'src/core/service/utils/types.utils';
 import template from './sw-profile-index.html.twig';
-import './sw-profile-index.scss';
 
 Component.register('sw-profile-index', {
     template,
@@ -22,31 +22,63 @@ Component.register('sw-profile-index', {
             imageSize: 140,
             oldPassword: null,
             newPassword: null,
-            newPasswordConfirm: null
+            newPasswordConfirm: null,
+            avatarMediaItem: null
         };
+    },
+
+    computed: {
+        userStore() {
+            return State.getStore('user');
+        },
+
+        mediaStore() {
+            return State.getStore('media');
+        },
+
+        uploadStore() {
+            return State.getStore('upload');
+        },
+
+        isUserLoading() {
+            return !this.user.id;
+        },
+
+        userMediaCriteria() {
+            if (this.user.id) {
+                return CriteriaFactory.equals('userId', this.user.id);
+            }
+
+            return null;
+        }
+    },
+
+    watch: {
+        'user.avatarMedia'() {
+            if (this.user.avatarMedia.id) {
+                this.setMediaItem(this.user.avatarMedia);
+            }
+        }
     },
 
     created() {
         this.createdComponent();
     },
 
-    computed: {
-        userStore() {
-            return State.getStore('user');
-        }
-    },
-
     methods: {
         createdComponent() {
             if (this.$route.params.user) {
-                this.userProfile = this.$route.params.user;
-                this.user = this.userStore.getById(this.userProfile.id);
+                this.setUserData(this.$route.params.user);
             } else {
                 this.userService.getUser().then((response) => {
-                    this.userProfile = response.data;
-                    this.user = this.userStore.getById(this.userProfile.id);
+                    this.setUserData(response.data);
                 });
             }
+        },
+
+        setUserData(userProfile) {
+            this.userProfile = userProfile;
+            this.user = this.userStore.getById(this.userProfile.id);
         },
 
         onSave() {
@@ -115,6 +147,7 @@ Component.register('sw-profile-index', {
 
         saveUser() {
             this.user.save().then(() => {
+                this.$refs.mediaSidebarItem.getList();
                 const successTitle = this.$tc('sw-profile.index.notificationSaveSuccessTitle');
                 const successMessage = this.$tc('sw-profile.index.notificationSaveSuccessMessage');
 
@@ -127,6 +160,30 @@ Component.register('sw-profile-index', {
                     message: successMessage
                 });
             });
+        },
+
+        onUploadAdded({ uploadTag }) {
+            this.user.isLoading = true;
+
+            this.mediaStore.sync().then(() => {
+                return this.uploadStore.runUploads(uploadTag);
+            }).finally(() => {
+                this.user.isLoading = false;
+            });
+        },
+
+        setMediaItem(mediaEntity) {
+            this.avatarMediaItem = mediaEntity;
+            this.user.avatarId = mediaEntity.id;
+        },
+
+        onUnlinkAvatar() {
+            this.avatarMediaItem = null;
+            this.user.avatarId = null;
+        },
+
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
         }
     }
 });

@@ -1485,7 +1485,9 @@
       "notificationOldPasswordErrorMessage": "Please submit your current password correctly.",
       "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
       "notificationSaveSuccessTitle": "Success",
-      "notificationSaveSuccessMessage": "Profile information has been saved successfully."
+      "notificationSaveSuccessMessage": "Profile information has been saved successfully.",
+      "labelUploadAvatar": "Upload an avatar",
+      "labelUseAsAvatar": "Use as avatar"
     }
   },
   "sw-error": {

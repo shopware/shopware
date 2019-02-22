@@ -6,10 +6,12 @@ import './sw-avatar.scss';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-avatar color="#dd4800" size="48px" :user="{
- *     firstName: 'John',
- *     lastName: 'Doe'
- * }"></sw-avatar>
+ * <sw-avatar color="#dd4800"
+ *            size="48px"
+ *            firstName="John"
+ *            lastName="Doe"
+ *            :imageUrl="getImageUrl">
+ * </sw-avatar>
  */
 export default {
     name: 'sw-avatar',
@@ -25,15 +27,19 @@ export default {
             type: String,
             required: false
         },
-        user: {
-            type: Object,
+        firstName: {
+            type: String,
             required: false,
-            default() {
-                return {
-                    firstName: '',
-                    lastName: ''
-                };
-            }
+            default: ''
+        },
+        lastName: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        imageUrl: {
+            type: String,
+            required: false
         }
     },
 
@@ -55,14 +61,8 @@ export default {
         },
 
         avatarInitials() {
-            const user = this.user;
-
-            if (!user.firstName && !user.lastName) {
-                return '';
-            }
-
-            const firstNameLetter = user.firstName ? user.firstName[0] : '';
-            const lastNameLetter = user.lastName ? user.lastName[0] : '';
+            const firstNameLetter = this.firstName ? this.firstName[0] : '';
+            const lastNameLetter = this.lastName ? this.lastName[0] : '';
 
             return firstNameLetter + lastNameLetter;
         },
@@ -74,13 +74,9 @@ export default {
             };
         },
 
-        userImage() {
-            return '';
-        },
-
         avatarImage() {
             return {
-                'background-image': `url(${this.userImage})`
+                'background-image': `url(${this.imageUrl})`
             };
         },
 

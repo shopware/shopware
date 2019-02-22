@@ -42,7 +42,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testExecuteWithoutUnsusedMediaFiles(): void
+    public function testExecuteWithoutUnusedMediaFiles(): void
     {
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->execute([]);
@@ -84,7 +84,8 @@ class DeleteNotUsedMediaCommandTest extends TestCase
                 $png->getId(),
                 $withProduct->getId(),
                 $withManufacturer->getId(),
-            ]), $this->context
+            ]),
+            $this->context
         );
 
         static::assertNull($result->get($txt->getId()));
@@ -131,7 +132,8 @@ class DeleteNotUsedMediaCommandTest extends TestCase
                 $png->getId(),
                 $withProduct->getId(),
                 $withManufacturer->getId(),
-            ]), $this->context
+            ]),
+            $this->context
         );
 
         static::assertNotNull($result->get($txt->getId()));

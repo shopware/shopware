@@ -24,6 +24,7 @@ export default function createMediaUploadService(mediaService) {
             mediaEntity.mimeType = file.type;
             mediaEntity.url = dataUrl;
             mediaEntity.uploadedAt = new Date();
+            mediaEntity.fileSize = file.size;
         });
 
         return fileReader.readAsArrayBuffer(file).then((buffer) => {

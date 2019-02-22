@@ -41,6 +41,8 @@ class CartAmountRule extends Rule
         }
         $cartAmount = $scope->getCart()->getPrice()->getTotalPrice();
 
+        $this->amount = (float) $this->amount;
+
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 

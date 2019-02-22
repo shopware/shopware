@@ -42,6 +42,8 @@ class LineItemTotalPriceRule extends Rule
 
         $lineItem = $scope->getLineItem();
 
+        $this->amount = (float) $this->amount;
+
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return new Match(

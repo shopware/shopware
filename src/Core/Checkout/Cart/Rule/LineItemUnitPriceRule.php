@@ -41,6 +41,9 @@ class LineItemUnitPriceRule extends Rule
         }
 
         $unitPrice = $scope->getLineItem()->getPrice()->getUnitPrice();
+
+        $this->amount = (float) $this->amount;
+
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 

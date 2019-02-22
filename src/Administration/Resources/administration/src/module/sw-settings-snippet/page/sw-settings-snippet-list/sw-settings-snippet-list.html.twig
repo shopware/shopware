@@ -117,7 +117,7 @@
                                                     {% block sw_settings_snippet_list_grid_column_actions_edit %}
                                                         <sw-context-menu-item class="sw-settings-snippet-list__edit-action" :routerLink="{
                                                             name: 'sw.settings.snippet.detail',
-                                                            params: { key: item[metaId].translationKey },
+                                                            params: { key: item[metaId].translationKey, origin: item[metaId].translationKey },
                                                             query: { ids: queryIds, limit, page, isCustomState }
                                                         }">
                                                             {{ $tc('sw-settings-snippet.list.contextMenuEdit') }}
@@ -126,7 +126,7 @@
 
                                                     {% block sw_settings_snippet_list_grid_column_actions_delete %}
                                                         <sw-context-menu-item @click="onReset(item)" variant="danger">
-                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete', isCustomState) }}
+                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
                                                 </sw-context-button>
@@ -141,7 +141,7 @@
                                                   variant="large">
                                             {% block sw_settings_snippet_list_delete_modal_text %}
                                                 {% block sw_settings_snippet_list_delete_modal_text_reset %}
-                                                    <span v-if="!isCustomState"
+                                                    <span v-if="!item.isCustomSnippet"
                                                           class="modal__confirm-reset-text">
                                                         {{ $tc('sw-settings-snippet.list.textResetConfirm', queryIdCount, { key: item[metaId].translationKey }) }}
                                                     </span>
@@ -155,7 +155,7 @@
                                                 {% endblock %}
 
                                                 {% block sw_settings_snippet_list_delete_modal_grid %}
-                                                    <sw-grid v-if="!isCustomState && resetItems.length > 1"
+                                                    <sw-grid v-if="!item.isCustomSnippet && resetItems.length > 1"
                                                              :items="resetItems"
                                                              @sw-grid-select-item="onSelectionChanged"
                                                              @sw-grid-select-all="onSelectionChanged"
@@ -197,10 +197,10 @@
 
                                                     {% block sw_settings_snippet_list_delete_modal_confirm %}
                                                         <sw-button @click="onConfirmReset(item)"
-                                                                   :disabled="hasResetableItems && !isCustomState && resetItems.length !== 1"
+                                                                   :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1"
                                                                    variant="primary"
                                                                    size="small">
-                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete', isCustomState) }}
+                                                            {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
                                                         </sw-button>
                                                     {% endblock %}
                                                 </template>

@@ -103,9 +103,11 @@ Component.register('sw-settings-snippet-list', {
             function prepareContent(items) {
                 const content = items.reduce((acc, item) => {
                     acc[item.setId] = item;
+                    acc.isCustomSnippet = item.author.includes('user/');
                     return acc;
                 }, {});
                 content.id = items[0].translationKey;
+
                 return content;
             }
 
@@ -278,6 +280,7 @@ Component.register('sw-settings-snippet-list', {
                 if (item.hasOwnProperty('isFileSnippet') || item.id === null) {
                     return;
                 }
+                item.isCustomSnippet = fullSelection.isCustomSnippet;
                 this.isLoading = true;
                 this.snippetService.delete(item.id).then(() => {
                     this.createSuccessMessage(item);
@@ -294,7 +297,7 @@ Component.register('sw-settings-snippet-list', {
             const title = this.$tc('sw-settings-snippet.list.titleDeleteSuccess');
             const message = this.$tc(
                 'sw-settings-snippet.list.resetSuccessMessage',
-                0,
+                item.isCustomSnippet ? 2 : 0,
                 {
                     key: item.value,
                     value: item.origin
@@ -311,7 +314,7 @@ Component.register('sw-settings-snippet-list', {
             const title = this.$tc('sw-settings-snippet.list.titleSaveError');
             const message = this.$tc(
                 'sw-settings-snippet.list.resetErrorMessage',
-                0,
+                item.isCustomSnippet ? 2 : 0,
                 { key: item.value }
             );
 

@@ -25,7 +25,6 @@ Component.register('sw-order-address-modal', {
     },
     data() {
         return {
-            currentlyShowing: 'edit',
             availableAddresses: []
         };
     },
@@ -43,6 +42,7 @@ Component.register('sw-order-address-modal', {
             } else {
                 customer.getAssociation('addresses').getList({ page: 1, limit: 25 }).then(() => {
                     this.availableAddresses = customer.addresses;
+                    console.log(this.availableAddresses);
                 });
             }
         });

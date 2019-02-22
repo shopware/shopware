@@ -2,23 +2,25 @@
     <sw-modal :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
               @closeModal="onClose">
         {% block sw_order_address_modal_content %}
-            <sw-tabs class= "sw-order-address-modal">
+            <sw-tabs class= "sw-order-address-modal" defaultItem = "edit">
+                <template slot-scope="{ active }">
                 {% block sw_order_address_modal_tabs %}
                     {% block sw_order_address_modal_tab_edit_address %}
-                        <sw-tabs-item @click="currentlyShowing='edit'">
+                        <sw-tabs-item name="edit" :active="active">
                             {{ $tc('sw-order.addressSelection.headlineTabEditAddress') }}
                         </sw-tabs-item>
                     {%  endblock %}
                     {% block sw_order_address_modal_tab_select_address %}
-                        <sw-tabs-item @click="currentlyShowing='overview'">
+                        <sw-tabs-item name="addresses" :active="active">
                             {{ $tc('sw-order.addressSelection.headlineTabSelectAddress') }}
                         </sw-tabs-item>
                     {% endblock %}
                 {% endblock %}
+                </template>
 
-                <template slot="content">
+                <template slot="content" slot-scope="{ active }">
                     {% block sw_order_address_modal_tabs_content %}
-                        <div v-if="currentlyShowing==='edit'">
+                        <div v-if="active==='edit'">
                             {% block sw_order_address_modal_tabs_content_edit_address %}
                                 <sw-customer-address-form :address="address"
                                                           :customer="customer"
@@ -26,9 +28,9 @@
                                 </sw-customer-address-form>
                             {% endblock %}
                         </div>
-                        <div v-else>
+                        <div v-if="active==='addresses'">
                             {% block sw_order_address_modal_tabs_content_select_address %}
-                                <sw-button v-for="(address, index) in this.availableAddresses"
+                                <sw-button v-for="(address, index) in availableAddresses" :key="address.id"
                                         block
                                         class="sw-order-address-modal__entry"
                                         @click="onExistingAddressSelected(address)">

@@ -78,7 +78,7 @@ Component.register('sw-order-saveable-field', {
                 }
             } else if (this.type === 'select') {
                 if (this.value) {
-                    retVal = this.value.name;
+                    retVal = this.value.meta.viewData.name;
                 }
             }
 

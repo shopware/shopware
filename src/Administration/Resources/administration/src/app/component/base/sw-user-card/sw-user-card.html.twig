@@ -8,7 +8,9 @@
                     <sw-card-section divider="bottom">
 
                         {% block sw_user_card_metadata_container %}
-                            <sw-container columns="80px 1fr max-content" gap="0px 30px">
+                            <sw-container columns="80px 1fr max-content"
+                                gap="0px 30px"
+                                align="center">
 
                                 {% block sw_user_card_avatar %}
                                     <sw-avatar :color="moduleColor"
@@ -58,7 +60,7 @@
 
                                 <div v-if="hasSummarySlot" align="right">
                                     <slot name = "summary">
-
+                                        {% block sw_user_card_slot_summary%}{% endblock %}
                                     </slot>
                                 </div>
 
@@ -67,6 +69,7 @@
 
                         <div v-if="hasAdditionalDataSlot">
                             <slot name="data-additional">
+                                {% block sw_user_card_slot_data_additional %}{% endblock %}
                             </slot>
                         </div>
 

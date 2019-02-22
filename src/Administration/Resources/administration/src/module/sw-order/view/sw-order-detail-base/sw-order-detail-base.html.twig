@@ -83,7 +83,7 @@
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
 
                             {% block sw_order_detail_base_order_overview_left_column %}
-                                <sw-description-list columns = "1fr" grid = "1fr">
+                                <sw-description-list columns = "1fr" grid = "1fr" class="sw-order-detail-base__summary-vertical">
 
                                     {% block sw_order_detail_base_order_overview_email %}
                                         <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}</dt>
@@ -122,7 +122,7 @@
                             {% endblock %}
 
                             {% block sw_order_detail_base_order_overview_right_column %}
-                                <sw-description-list columns = "1fr" grid = "1fr">
+                                <sw-description-list columns = "1fr" grid = "1fr" class="sw-order-detail-base__summary-vertical">
                                     {% block sw_order_detail_base_order_overview_phone_number %}
                                         <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
                                         <dd>
@@ -204,19 +204,24 @@
 
                 <template slot="summary">
                     {% block  sw_order_detail_base_info_summary %}
-                        <sw-description-list class="sw-order-detail-base__user-summary-data" columns = "1fr" grid = "1fr">
+                        <div>
                             {% block  sw_order_detail_base_info_summary_entries %}
-                                <dt>{{ currentOrder.amountTotal | currency(currentOrder.currency.meta.viewData.shortName) }}</dt>
-                                <dd>{{ orderDate }}</dd>
+                                <div class="sw-user-card__metadata-user-name">
+                                    {{ currentOrder.amountTotal | currency(currentOrder.currency.meta.viewData.shortName) }}
+                                </div>
+
+                                <div class="sw-user-card__metadata-item">
+                                    {{ orderDate }}
+                                </div>
                             {% endblock %}
-                        </sw-description-list>
+                        </div>
                     {% endblock %}
                 </template>
 
                 {% block sw_order_detail_base_secondary_info_order_overview %}
                     <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
                         {% block sw_order_detail_base_secondary_info_order_overview_contents %}
-                            <sw-description-list columns = "1fr" grid = "1fr">
+                            <sw-description-list columns = "1fr" grid = "1fr" class="sw-order-detail-base__summary-vertical">
                                 {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
 
                                     {% block sw_order_detail_base_secondary_info_sales_channel %}
@@ -239,7 +244,7 @@
 
                                     {% block sw_order_detail_base_secondary_info_delivery %}
                                         <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
-                                        <dd>{{ hasDeliveries ? currentOrder.deliveries[0].shippingMethod.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
+                                        <dd>{{ hasDeliveries ? currentOrder.deliveries[0].shippingMethod.meta.viewData.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
@@ -248,7 +253,7 @@
                                 {% endblock %}
                             </sw-description-list>
 
-                            <sw-description-list columns = "1fr" grid = "1fr">
+                            <sw-description-list columns = "1fr" grid = "1fr" class="sw-order-detail-base__summary-vertical">
                                 {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
 
                                     {% block sw_order_detail_base_secondary_info_order_language %}

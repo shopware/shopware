@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Order;
 use DateTime;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -181,6 +182,11 @@ class OrderEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var DocumentEntity|null
+     */
+    protected $documents;
 
     public function getOrderCustomerId(): string
     {
@@ -480,5 +486,15 @@ class OrderEntity extends Entity
     public function setShippingTotal(float $shippingTotal): void
     {
         $this->shippingTotal = $shippingTotal;
+    }
+
+    public function getDocuments(): ?DocumentEntity
+    {
+        return $this->documents;
+    }
+
+    public function setDocuments(?DocumentEntity $documents): void
+    {
+        $this->documents = $documents;
     }
 }

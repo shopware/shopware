@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
@@ -99,6 +100,7 @@ class OrderDefinition extends EntityDefinition
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', true))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
+            new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id', false),
             new SearchKeywordAssociationField(),
         ]);
     }

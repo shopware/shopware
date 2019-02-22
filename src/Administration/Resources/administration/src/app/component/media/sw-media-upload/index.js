@@ -468,7 +468,7 @@ export default {
                 this.createNotificationError({ title, message });
             }
 
-            this.$emit('media-upload-failure', mediaEntity);
+            this.$emit('sw-media-upload-media-upload-failure', mediaEntity);
             this.previewMediaEntity = null;
             mediaEntity.delete(true);
         },

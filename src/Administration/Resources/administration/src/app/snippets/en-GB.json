@@ -247,7 +247,7 @@
           "title": "Success",
           "message": "Settings have been saved successfully."
         },
-        "failure": {
+        "error": {
           "title": "Error",
           "message": "Error while saving settings."
         }

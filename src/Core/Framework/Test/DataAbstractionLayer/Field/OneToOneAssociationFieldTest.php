@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -84,8 +85,19 @@ CREATE TABLE `root_sub` (
   `stock` int NULL
 );
 
+CREATE TABLE `root_sub_many` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `root_sub_version_id` binary(16) NOT NULL,
+  `root_sub_id` binary(16) NOT NULL,
+  `name` varchar(255) NULL
+);
+
 ALTER TABLE `root_sub`
-ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION
+ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
+
+ALTER TABLE `root_sub_many`
+ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
         ');
 
         $this->getContainer()->get(DefinitionRegistry::class)->add(RootDefinition::class);
@@ -97,7 +109,8 @@ ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version
         parent::tearDown();
         $this->connection->executeUpdate('
 DROP TABLE IF EXISTS `root`;
-DROP TABLE IF EXISTS `root_sub`;        
+DROP TABLE IF EXISTS `root_sub`;         
+DROP TABLE IF EXISTS `root_sub_many`;         
         ');
     }
 
@@ -167,6 +180,7 @@ DROP TABLE IF EXISTS `root_sub`;
     public function testRead(): void
     {
         $id = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -174,6 +188,10 @@ DROP TABLE IF EXISTS `root_sub`;
             'sub' => [
                 'id' => $id,
                 'name' => 'sub 1',
+                'many' => [
+                    ['id' => $id, 'name' => 'many 1'],
+                    ['id' => $id2, 'name' => 'many 2'],
+                ],
             ],
         ];
 
@@ -197,6 +215,14 @@ DROP TABLE IF EXISTS `root_sub`;
 
         $sub = $this->subRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));
+
+        $many = $sub->get('many');
+        static::assertInstanceOf(EntityCollection::class, $many);
+        static::assertCount(2, $many);
+
+        /** @var EntityCollection $many */
+        static::assertTrue($many->has($id));
+        static::assertTrue($many->has($id2));
     }
 
     public function testSearch(): void

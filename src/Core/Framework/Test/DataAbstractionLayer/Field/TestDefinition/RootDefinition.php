@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -49,6 +51,27 @@ class SubDefinition extends EntityDefinition
             (new FkField('root_id', 'rootId', RootDefinition::class, 'id'))->addFlags(new Required()),
             (new ReferenceVersionField(RootDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
+            new OneToManyAssociationField('many', SubManyDefinition::class, 'root_sub_id', true),
+        ]);
+    }
+}
+
+class SubManyDefinition extends EntityDefinition
+{
+    public static function getEntityName(): string
+    {
+        return 'root_sub_many';
+    }
+
+    protected static function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            (new FkField('root_sub_id', 'subId', SubDefinition::class, 'id'))->addFlags(new Required()),
+            (new ReferenceVersionField(SubDefinition::class))->addFlags(new Required()),
+            new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, false),
         ]);
     }
 }

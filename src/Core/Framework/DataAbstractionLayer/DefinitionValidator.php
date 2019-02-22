@@ -136,6 +136,11 @@ class DefinitionValidator
         foreach ($this->registry->getElements() as $definition) {
             $instance = new $definition();
 
+            $entityName = $definition::getEntityName();
+            if (!$container->has($entityName . '.repository')) {
+                $notices[$definition][] = sprintf('Missing repository for entity %s ', $definition);
+            }
+
             if ($instance instanceof MappingEntityDefinition) {
                 continue;
             }
@@ -151,11 +156,6 @@ class DefinitionValidator
                 $notices[$definition],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)
             );
-
-            $entityName = $definition::getEntityName();
-            if (!$container->has($entityName . '.repository')) {
-                $notices[$definition][] = sprintf('Missing repository for entity %s ', $definition);
-            }
         }
 
         $tableSchemas = $this->connection->getSchemaManager()->listTables();

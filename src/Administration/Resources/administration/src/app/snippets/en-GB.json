@@ -636,6 +636,16 @@
     }
   },
   "sw-product": {
+    "visibility": {
+      "textHeadline": "Set visibility per sales channel",
+      "placeholderVisibility": "Type to search for sales channels ...",
+      "columnAll": "Visible everywhere",
+      "columnSearchOnly": "Only visible in search",
+      "columnLinkOnly": "Hidden",
+      "linkAdvancedVisibility": "Open advanced visibility",
+      "labelVisibility": "Visibility",
+      "closeModal": "Apply"
+    },
     "general": {
       "mainMenuItemGeneral": "Products",
       "mainMenuItemList": "Overview",

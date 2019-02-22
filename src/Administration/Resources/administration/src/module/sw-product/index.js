@@ -5,6 +5,7 @@ import './component/sw-product-price-form';
 import './component/sw-product-settings-form';
 import './component/sw-product-media-form';
 import './component/sw-product-visibility-select';
+import './component/sw-product-visibility-detail';
 import './view/sw-product-detail-base';
 import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';

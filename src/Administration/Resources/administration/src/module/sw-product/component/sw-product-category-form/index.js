@@ -12,6 +12,12 @@ Component.register('sw-product-category-form', {
         }
     },
 
+    data() {
+        return {
+            displayVisibilityDetail: false
+        };
+    },
+
     computed: {
         categoryStore() {
             return State.getStore('category');
@@ -27,6 +33,16 @@ Component.register('sw-product-category-form', {
 
         categoryAssociationStore() {
             return this.product.getAssociation('categories');
+        }
+    },
+
+    methods: {
+        displayAdvancedVisibility() {
+            this.displayVisibilityDetail = true;
+        },
+
+        closeAdvancedVisibility() {
+            this.displayVisibilityDetail = false;
         }
     }
 });

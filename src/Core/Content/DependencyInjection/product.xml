@@ -126,7 +126,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">
-            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.definition" entity="product_visibility"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product_visibility.repository" public="true">

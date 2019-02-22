@@ -635,6 +635,16 @@
     }
   },
   "sw-product": {
+    "visibility": {
+      "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
+      "placeholderVisibility": "Tippe, um Verkaufskanäle zu suchen...",
+      "columnAll": "Überall sichtbar",
+      "columnSearchOnly": "Nur in Suche sichtbar",
+      "columnLinkOnly": "Versteckt",
+      "linkAdvancedVisibility": "Erweitere Sichtbarkeit öffnen",
+      "labelVisibility": "Sichtbarkeit",
+      "closeModal": "Übernehmen"
+    },
     "general": {
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Übersicht",
@@ -654,9 +664,7 @@
     },
     "categoryForm": {
       "labelCategory": "Kategorie",
-      "placeholderCategory": "Tippe, um Kategorien zu suchen...",
-      "labelVisibility": "Sichtbarkeit",
-      "placeholderVisibility": "Tippe, um Verkaufskanäle zu suchen..."
+      "placeholderCategory": "Tippe, um Kategorien zu suchen..."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
